@@ -1,0 +1,1380 @@
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Sparkles,
+  Send,
+  RotateCw,
+  Copy,
+  Check,
+  Zap,
+  BookOpen,
+  TrendingUp,
+  AlertTriangle,
+  HelpCircle,
+  ArrowRight,
+  RefreshCw,
+  CheckCircle2,
+  XCircle,
+  Trophy,
+  ChevronRight,
+  ZoomIn,
+  Eye,
+  ShieldCheck,
+  ExternalLink,
+  ImageIcon,
+  Paperclip,
+  X,
+  Maximize2,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
+import { GrandTest, AppState, MedicalImageAsset } from '../types';
+import { NewMcqAttemptInput } from '../utils/performanceEngine';
+import { MarkdownRenderer } from './MarkdownRenderer';
+import { MedicalImageViewerModal } from './MedicalImageViewerModal';
+
+export interface QuizQuestionItem {
+  id: string;
+  questionNumber?: number;
+  totalQuestions?: number;
+  subject: string;
+  topic: string;
+  stem?: string;
+  scenario?: string;
+  question: string;
+  fullQuestionText?: string;
+  options: { key: string; text: string }[];
+  correctKey: string;
+  correctAnswer?: string;
+  explanation: string;
+  distractorBreakdown?: Record<string, string>;
+  distractorExplanations?: Record<string, string>;
+  fmgeTakeaway?: string;
+  memoryHook?: string;
+  mnemonic?: string;
+  trap?: string;
+  userAnswer?: string;
+  imageUrl?: string;
+  cleanImageUrl?: string;
+  annotatedImageUrl?: string;
+  imageAsset?: MedicalImageAsset;
+  whatToLookFor?: string;
+  questionType?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  suggestedFollowUps?: string[];
+  singleQuiz?: QuizQuestionItem;
+  userAttachedImage?: {
+    url: string;
+    fileName?: string;
+  };
+}
+
+interface ActiveQuizSession {
+  questions: QuizQuestionItem[];
+  currentIndex: number;
+  score: number;
+  isComplete: boolean;
+  userAnswers: Record<number, string>;
+}
+
+interface AiCoachViewProps {
+  state?: AppState;
+  latestGT?: GrandTest | null;
+  daysRemaining: number;
+  initialQuery?: string;
+  initialSubject?: string;
+  initialTopic?: string;
+  initialTab?: 'vignette' | 'concept' | 'diagnosis' | 'strategy';
+  onRecordAttempt?: (input: NewMcqAttemptInput) => void;
+  onClose?: () => void;
+}
+
+export const AiCoachView: React.FC<AiCoachViewProps> = ({
+  state,
+  latestGT,
+  daysRemaining,
+  initialQuery,
+  initialSubject,
+  initialTopic,
+  initialTab,
+  onRecordAttempt,
+  onClose,
+}) => {
+  const [inputQuery, setInputQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  
+  // Interactive Multi-Question Quiz Mode State
+  const [quizSession, setQuizSession] = useState<ActiveQuizSession | null>(null);
+
+  // Student Image Attachment State
+  const [attachedImage, setAttachedImage] = useState<{
+    base64: string;
+    mimeType: string;
+    previewUrl: string;
+    fileName: string;
+  } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Please select an image smaller than 10MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setAttachedImage({
+        base64: result,
+        mimeType: file.type || 'image/jpeg',
+        previewUrl: result,
+        fileName: file.name,
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  // Real Medical Image Zoom Modal State
+  const [activeModalImage, setActiveModalImage] = useState<{
+    isOpen: boolean;
+    imageUrl: string;
+    annotatedImageUrl?: string;
+    imageAsset?: MedicalImageAsset;
+    title?: string;
+    whatToLookFor?: string;
+  }>({
+    isOpen: false,
+    imageUrl: '',
+  });
+
+  const chatBottomRef = useRef<HTMLDivElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const initialTriggerHandledRef = useRef<string | null>(null);
+
+  // Dynamically derive student learning context from actual AppState
+  const computedStudentContext = React.useMemo(() => {
+    let totalTopicsCount = 0;
+    let notesCompletedCount = 0;
+    let r1Count = 0;
+    let r2Count = 0;
+    let r3Count = 0;
+
+    FMGE_SUBJECTS.forEach((subject) => {
+      subject.topics.forEach((topic) => {
+        totalTopicsCount++;
+        const key = `${subject.id}-${topic.id}`;
+        const saved = state?.topicsState?.[key] || {};
+        if (saved.notesDone ?? topic.notesDone) notesCompletedCount++;
+        if (saved.r1Done ?? topic.r1Done) r1Count++;
+        if (saved.r2Done ?? topic.r2Done) r2Count++;
+        if (saved.r3Done ?? topic.r3Done) r3Count++;
+      });
+    });
+
+    const syllabusCompletionPct = totalTopicsCount > 0
+      ? Math.round((notesCompletedCount / totalTopicsCount) * 100)
+      : 0;
+
+    // Weak subjects derived from GT, Error Notebook, and uncompleted major subjects
+    let weakSubList: string[] = [];
+    if (latestGT?.weakSubjectIds && latestGT.weakSubjectIds.length > 0) {
+      weakSubList = latestGT.weakSubjectIds.map(id => FMGE_SUBJECTS.find(s => s.id === id)?.name || id);
+    }
+    if (weakSubList.length === 0 && state?.errorNotebook && state.errorNotebook.length > 0) {
+      const counts: Record<string, number> = {};
+      state.errorNotebook.forEach(err => {
+        counts[err.subjectId] = (counts[err.subjectId] || 0) + 1;
+      });
+      weakSubList = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 4)
+        .map(([sId]) => FMGE_SUBJECTS.find(s => s.id === sId)?.name || sId);
+    }
+    if (weakSubList.length === 0) {
+      weakSubList = ['General Medicine', 'Pharmacology', 'Obstetrics & Gynecology', 'Pathology'];
+    }
+
+    // Weak topics derived from Error Notebook and McqAttempts
+    const weakTopicList: string[] = [];
+    if (state?.errorNotebook && state.errorNotebook.length > 0) {
+      state.errorNotebook.slice(-6).forEach(e => {
+        if (e.topic && !weakTopicList.includes(e.topic)) weakTopicList.push(e.topic);
+      });
+    }
+
+    // Recent errors
+    const recentErrorList = state?.errorNotebook && state.errorNotebook.length > 0
+      ? state.errorNotebook.slice(-5).map(e => `${e.topic}: ${e.questionGist || e.myMistake || e.correctConcept}`)
+      : [];
+
+    // Grand test average
+    let avgGT = latestGT?.score || 0;
+    if (state?.grandTests && state.grandTests.length > 0) {
+      const sum = state.grandTests.reduce((acc, gt) => acc + (gt.score || 0), 0);
+      avgGT = Math.round(sum / state.grandTests.length);
+    }
+
+    return {
+      daysRemaining: daysRemaining || 60,
+      targetScore: state?.settings?.targetScore || 185,
+      averageGTScore: avgGT,
+      weakSubjects: weakSubList,
+      weakTopics: weakTopicList,
+      recentErrors: recentErrorList,
+      syllabusCompletion: syllabusCompletionPct,
+      r1Done: r1Count,
+      r2Done: r2Count,
+      r3Done: r3Count,
+    };
+  }, [state, latestGT, daysRemaining]);
+
+  const weakSubjects = computedStudentContext.weakSubjects;
+  const recentErrors = computedStudentContext.recentErrors;
+
+  // Initial greeting message
+  useEffect(() => {
+    if (messages.length === 0) {
+      const greeting: ChatMessage = {
+        id: 'msg-welcome',
+        role: 'assistant',
+        content: `👋 Hello Doctor! I am your **FMGE AI Study Coach**.
+
+I am grounded in high-yield NMC examination patterns and tailored to your study tracker data.
+
+### What would you like to do?
+- **Concept explanations**: Ask any clinical breakdown or disease mechanism
+- **Differentiating pairs**: Compare tricky conditions (e.g. *Crohn's vs Ulcerative Colitis*)
+- **Clinical MCQs**: Test yourself with complete exam vignettes
+- **Weak subject quiz**: Start a targeted practice drill`,
+        timestamp: new Date(),
+        suggestedFollowUps: [
+          'Quiz me on high-yield questions from my weakest subjects',
+          'What is the difference between Crohn\'s disease and ulcerative colitis?',
+          'Explain nephrotic syndrome',
+          'Give me an FMGE MCQ on heart blocks',
+        ]
+      };
+      setMessages([greeting]);
+    }
+  }, []);
+
+  // Auto-send initial prompt if initialTopic or initialQuery is provided from external trigger
+  useEffect(() => {
+    if (!initialTopic && !initialQuery) return;
+    const triggerKey = initialTopic
+      ? `${initialTopic}__${initialTab || 'concept'}`
+      : `query__${initialQuery}`;
+
+    if (initialTriggerHandledRef.current === triggerKey) return;
+    initialTriggerHandledRef.current = triggerKey;
+
+    const promptText = initialQuery
+      ? initialQuery
+      : initialTab === 'vignette'
+      ? `Give me an FMGE clinical vignette MCQ on ${initialTopic}`
+      : `Explain ${initialTopic} (${initialSubject || 'High-Yield Medicine'}) with core FMGE concepts and pearls`;
+
+    // Immediately dispatch with force = true to bypass any previous isLoading guard
+    handleSendMessage(promptText, true);
+  }, [initialTopic, initialQuery, initialSubject, initialTab]);
+
+  // Scroll to bottom on new message
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading, quizSession]);
+
+  const handleCopyMessage = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedMessageId(id);
+    setTimeout(() => setCopiedMessageId(null), 2000);
+  };
+
+  // Start Multi-Question Quiz Mode
+  const startQuizMode = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/ai/quiz-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weakSubjects,
+          count: 5,
+        }),
+      });
+      const data = await res.json();
+      if (data.questions && data.questions.length > 0) {
+        setQuizSession({
+          questions: data.questions,
+          currentIndex: 0,
+          score: 0,
+          isComplete: false,
+          userAnswers: {},
+        });
+      }
+    } catch (e) {
+      console.error('Failed to start quiz batch:', e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSendMessage = async (queryText?: string, force = false) => {
+    const text = (queryText !== undefined ? queryText : inputQuery).trim();
+    if (!text && !attachedImage) return;
+    if (isLoading && !force) return;
+
+    const imageToSend = attachedImage;
+    setAttachedImage(null);
+
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: text || (imageToSend ? `[Attached Investigation: ${imageToSend.fileName}]` : ''),
+      timestamp: new Date(),
+      userAttachedImage: imageToSend ? {
+        url: imageToSend.previewUrl,
+        fileName: imageToSend.fileName,
+      } : undefined,
+    };
+
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
+    setInputQuery('');
+    setIsLoading(true);
+
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+
+    // Check if user is asking a direct follow-up about the active/previous MCQ
+    const lowerText = text.toLowerCase();
+    const lastQuestionMsg = [...newMessages].reverse().find(m => m.singleQuiz);
+    const lastQ = lastQuestionMsg?.singleQuiz;
+
+    if (lastQ && (lowerText.includes('other options') || lowerText.includes('why wrong') || lowerText.includes('why incorrect') || lowerText.includes('distractor') || lowerText.includes('why the other') || lowerText.includes('why others'))) {
+      const qCorrectKey = lastQ.correctKey || (lastQ as any).correctAnswer || 'A';
+      const db = lastQ.distractorBreakdown || lastQ.distractorExplanations || {};
+      let distractorContent = `### 🔍 Detailed Analysis: Why Other Options Are Wrong\n\n`;
+      distractorContent += `**Clinical Question:** ${lastQ.question}\n\n`;
+      distractorContent += `**Correct Answer:** Option ${qCorrectKey} (${lastQ.options.find(o => o.key === qCorrectKey)?.text || ''})\n\n`;
+      distractorContent += `---\n\n`;
+
+      const incorrectOpts = lastQ.options.filter(o => o.key !== qCorrectKey);
+      if (incorrectOpts.length > 0) {
+        incorrectOpts.forEach(opt => {
+          const reason = db[opt.key] || `Option ${opt.key} is not the primary diagnostic or therapeutic choice for this presentation.`;
+          distractorContent += `#### ❌ Option ${opt.key}: ${opt.text}\n`;
+          distractorContent += `**Why it is incorrect:** ${reason}\n\n`;
+        });
+      } else if (Object.keys(db).length > 0) {
+        Object.entries(db).forEach(([k, exp]) => {
+          distractorContent += `#### ❌ Option ${k}\n`;
+          distractorContent += `**Why it is incorrect:** ${exp}\n\n`;
+        });
+      }
+
+      if (lastQ.fmgeTakeaway) {
+        distractorContent += `> 💡 **FMGE High-Yield Takeaway:** ${lastQ.fmgeTakeaway}\n\n`;
+      }
+      if (lastQ.memoryHook) {
+        distractorContent += `🧠 **Memory Hook:** ${lastQ.memoryHook}`;
+      }
+
+      const assistantMessage: ChatMessage = {
+        id: `ai-${Date.now()}`,
+        role: 'assistant',
+        content: distractorContent,
+        timestamp: new Date(),
+        suggestedFollowUps: [
+          'Why is this answer correct?',
+          'Give me another MCQ on this topic',
+          'Make this easier to remember'
+        ]
+      };
+      setMessages([...newMessages, assistantMessage]);
+      setIsLoading(false);
+      return;
+    }
+
+    if (lastQ && (lowerText.includes('why is this answer correct') || lowerText.includes('why is it correct') || lowerText.includes('why correct') || lowerText.includes('explain correct answer'))) {
+      const qCorrectKey = lastQ.correctKey || (lastQ as any).correctAnswer || 'A';
+      const correctOptText = lastQ.options.find(o => o.key === qCorrectKey)?.text || '';
+      let correctContent = `### ✅ Why Option ${qCorrectKey} is Correct\n\n`;
+      correctContent += `**Correct Option ${qCorrectKey}:** ${correctOptText}\n\n`;
+      correctContent += `**Clinical Explanation:**\n${lastQ.explanation}\n\n`;
+      if (lastQ.fmgeTakeaway) {
+        correctContent += `> 💡 **FMGE High-Yield Takeaway:** ${lastQ.fmgeTakeaway}\n\n`;
+      }
+      if (lastQ.memoryHook) {
+        correctContent += `🧠 **Memory Hook:** ${lastQ.memoryHook}`;
+      }
+
+      const assistantMessage: ChatMessage = {
+        id: `ai-${Date.now()}`,
+        role: 'assistant',
+        content: correctContent,
+        timestamp: new Date(),
+        suggestedFollowUps: [
+          'Explain why other options are wrong',
+          'Give me another MCQ on this topic',
+          'What is the classic exam trap?'
+        ]
+      };
+      setMessages([...newMessages, assistantMessage]);
+      setIsLoading(false);
+      return;
+    }
+
+    const lower = (text || '').toLowerCase().trim();
+    const isExplicitMcqOrQuiz =
+      lower.includes('give me an mcq') ||
+      lower.includes('give me a question') ||
+      lower.includes('quiz') ||
+      lower.includes('batch');
+
+    // 1. For clinical explanations and medical queries, use real-time SSE streaming (<300ms time-to-first-token)
+    if (!isExplicitMcqOrQuiz && !imageToSend) {
+      const streamingMsgId = `ai-${Date.now()}`;
+      const placeholderMsg: ChatMessage = {
+        id: streamingMsgId,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        suggestedFollowUps: [
+          'What is the drug of choice?',
+          'What are the common exam traps?',
+          'Give me a clinical vignette MCQ on this'
+        ],
+      };
+
+      setMessages([...newMessages, placeholderMsg]);
+      setIsLoading(false); // streaming message itself shows live progress
+
+      try {
+        const streamRes = await fetch('/api/ai/chat/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: text,
+            history: newMessages.slice(-6).map((m) => ({ role: m.role, content: m.content })),
+            studentContext: computedStudentContext,
+          }),
+        });
+
+        if (streamRes.ok && streamRes.body) {
+          const reader = streamRes.body.getReader();
+          const decoder = new TextDecoder();
+          let accumulated = '';
+
+          try {
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) break;
+              const chunk = decoder.decode(value, { stream: true });
+              const lines = chunk.split('\n');
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  try {
+                    const payload = JSON.parse(line.slice(6));
+                    if (payload.text) {
+                      accumulated += payload.text;
+                      setMessages((prev) =>
+                        prev.map((msg) =>
+                          msg.id === streamingMsgId ? { ...msg, content: accumulated } : msg
+                        )
+                      );
+                    }
+                  } catch {}
+                }
+              }
+            }
+          } finally {
+            reader.releaseLock?.();
+          }
+
+          if (accumulated.trim()) {
+            return;
+          }
+        }
+      } catch (streamErr) {
+        console.warn('[Streaming Chat] Stream error, falling back to standard batch endpoint:', streamErr);
+      }
+
+      // If streaming produced no output, remove the empty placeholder before fallback
+      setMessages(newMessages);
+    }
+
+    setIsLoading(true);
+
+    try {
+      let data: any = null;
+      try {
+        const res = await fetch('/api/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: text || 'Please examine the attached investigation image and provide a clinical breakdown or diagnostic question.',
+            image: imageToSend ? {
+              base64: imageToSend.base64,
+              mimeType: imageToSend.mimeType,
+              fileName: imageToSend.fileName,
+            } : undefined,
+            history: newMessages.slice(-8).map(m => {
+              let content = m.content || '';
+              if (m.singleQuiz) {
+                const q = m.singleQuiz;
+                content += `\n\n[Prior Quiz Turn: Subject: ${q.subject}, Topic: ${q.topic}, Key Takeaway: ${q.fmgeTakeaway || q.question}]`;
+              }
+              return { role: m.role, content };
+            }),
+            studentContext: computedStudentContext
+          }),
+        });
+
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch (fetchErr) {
+        console.warn('[AI Coach] Remote fetch failed, utilizing resilient offline synthesis:', fetchErr);
+      }
+
+      // If backend provided a multi-question interactive quiz session
+      if (data?.quizSession && Array.isArray(data.quizSession.questions) && data.quizSession.questions.length > 1) {
+        setQuizSession({
+          questions: data.quizSession.questions,
+          currentIndex: 0,
+          score: 0,
+          isComplete: false,
+          userAnswers: {},
+        });
+        return;
+      }
+
+      // Format response text and single MCQ payload
+      const rawMcq = data?.singleMcq || data?.quizSession?.questions?.[0];
+      const normalizedCorrectKey = rawMcq?.correctKey || rawMcq?.correctAnswer || 'A';
+
+      const singleQuizPayload: QuizQuestionItem | null = rawMcq ? {
+        id: rawMcq.id || `single-mcq-${Date.now()}`,
+        subject: rawMcq.subject || 'General Medicine',
+        topic: rawMcq.topic || 'Clinical Medicine',
+        stem: rawMcq.stem || '',
+        question: rawMcq.question || '',
+        options: rawMcq.options || [],
+        correctKey: normalizedCorrectKey,
+        correctAnswer: normalizedCorrectKey,
+        explanation: rawMcq.explanation || '',
+        distractorBreakdown: rawMcq.distractorBreakdown || rawMcq.distractorExplanations || {},
+        distractorExplanations: rawMcq.distractorBreakdown || rawMcq.distractorExplanations || {},
+        fmgeTakeaway: rawMcq.fmgeTakeaway || rawMcq.highYieldPearl || '',
+        memoryHook: rawMcq.memoryHook || rawMcq.mnemonic || '',
+        imageUrl: rawMcq.imageUrl || rawMcq.imageAsset?.imageUrl,
+        cleanImageUrl: rawMcq.cleanImageUrl || rawMcq.imageUrl || rawMcq.imageAsset?.cleanImageUrl,
+        annotatedImageUrl: rawMcq.annotatedImageUrl || rawMcq.imageAsset?.annotatedImageUrl,
+        imageAsset: rawMcq.imageAsset,
+        whatToLookFor: rawMcq.whatToLookFor || rawMcq.imageAsset?.whatToLookFor,
+        questionType: rawMcq.questionType,
+      } : null;
+
+      const replyText = data?.reply || (singleQuizPayload ? `Here is an authentic clinical MCQ on **${singleQuizPayload.subject}** (${singleQuizPayload.topic}):` : '');
+
+      const followUps = Array.isArray(data?.suggestedFollowUps) && data.suggestedFollowUps.length > 0
+        ? data.suggestedFollowUps
+        : [
+            'Why is this answer correct?',
+            'Explain why other options are wrong',
+            'Give me another MCQ on this topic'
+          ];
+
+      const assistantMessage: ChatMessage = {
+        id: `ai-${Date.now()}`,
+        role: 'assistant',
+        content: replyText,
+        timestamp: new Date(),
+        singleQuiz: singleQuizPayload || undefined,
+        suggestedFollowUps: followUps,
+      };
+
+      setMessages([...newMessages, assistantMessage]);
+    } catch (err: any) {
+      console.error('[AI Coach] Request Error:', err);
+      const assistantMessage: ChatMessage = {
+        id: `ai-${Date.now()}`,
+        role: 'assistant',
+        content: err?.message?.includes('AI Service Notice')
+          ? err.message
+          : '⚠️ **AI response failed**. Please check your connection or GEMINI_API_KEY and try again.',
+        timestamp: new Date(),
+        suggestedFollowUps: [
+          'Retry request',
+          'What is nephrotic syndrome?',
+          'Give me an FMGE MCQ on heart blocks'
+        ]
+      };
+      setMessages([...newMessages, assistantMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Single Question Answer Handler
+  const handleSingleQuizAnswer = (msgId: string, selectedKey: string) => {
+    setMessages(prev =>
+      prev.map(msg => {
+        if (msg.id === msgId && msg.singleQuiz) {
+          const isCorrect = selectedKey === msg.singleQuiz.correctKey;
+          if (onRecordAttempt) {
+            onRecordAttempt({
+              questionId: msg.singleQuiz.id,
+              subjectId: msg.singleQuiz.subject.toLowerCase().replace(/[^a-z]/g, '') || 'medicine',
+              topicId: 'ai-coach-vignette',
+              subtopic: msg.singleQuiz.topic,
+              isCorrect,
+              selectedAnswer: selectedKey,
+              correctAnswer: msg.singleQuiz.correctKey,
+              timeTakenSeconds: 45,
+              source: 'custom',
+              isImageBased: Boolean(msg.singleQuiz.imageUrl),
+              imageCategory: msg.singleQuiz.imageAsset?.imageCategory,
+              imageUrl: msg.singleQuiz.imageUrl,
+              imageAssetId: msg.singleQuiz.imageAsset?.assetId,
+            });
+          }
+          return {
+            ...msg,
+            singleQuiz: {
+              ...msg.singleQuiz,
+              userAnswer: selectedKey,
+            }
+          };
+        }
+        return msg;
+      })
+    );
+  };
+
+  // Quiz Mode Answer Handler
+  const handleQuizSessionAnswer = (selectedKey: string) => {
+    if (!quizSession || quizSession.isComplete) return;
+
+    const currentQ = quizSession.questions[quizSession.currentIndex];
+    const isCorrect = selectedKey === currentQ.correctKey;
+
+    if (onRecordAttempt) {
+      onRecordAttempt({
+        questionId: currentQ.id,
+        subjectId: currentQ.subject.toLowerCase().replace(/[^a-z]/g, '') || 'medicine',
+        topicId: 'ai-quiz-mode',
+        subtopic: currentQ.topic,
+        isCorrect,
+        selectedAnswer: selectedKey,
+        correctAnswer: currentQ.correctKey,
+        timeTakenSeconds: 35,
+        source: 'custom',
+      });
+    }
+
+    setQuizSession({
+      ...quizSession,
+      score: isCorrect ? quizSession.score + 1 : quizSession.score,
+      userAnswers: {
+        ...quizSession.userAnswers,
+        [quizSession.currentIndex]: selectedKey,
+      },
+    });
+  };
+
+  const handleNextQuizQuestion = () => {
+    if (!quizSession) return;
+    if (quizSession.currentIndex + 1 < quizSession.questions.length) {
+      setQuizSession({
+        ...quizSession,
+        currentIndex: quizSession.currentIndex + 1,
+      });
+    } else {
+      setQuizSession({
+        ...quizSession,
+        isComplete: true,
+      });
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputQuery(e.target.value);
+    e.target.style.height = 'auto';
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 180)}px`;
+  };
+
+  const quickActions = [
+    { label: 'Quiz me on my weak areas', query: 'Quiz me on high-yield questions from my weakest subjects' },
+    { label: 'Explain Nephrotic Syndrome', query: 'Explain nephrotic syndrome with high-yield points, biopsy findings, and classic exam traps.' },
+    { label: 'Crohn\'s vs Ulcerative Colitis', query: 'What is the difference between Crohn\'s disease and ulcerative colitis?' },
+    { label: 'MCQ on Heart Blocks', query: 'Give me an FMGE MCQ on heart blocks' },
+  ];
+
+  return (
+    <div className="page-container space-y-8 font-sans text-slate-900">
+      {/* ================= EDITORIAL HEADER ================= */}
+      <header className="space-y-2 border-b border-slate-200/80 pb-6">
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-xs font-semibold uppercase tracking-wider text-slate-400">
+            CLINICAL MENTOR & COGNITIVE ENGINE
+          </span>
+          <div className="flex items-center gap-2">
+            {state?.settings?.examDate && (
+              <span className="text-xs font-mono font-medium text-slate-500">
+                {daysRemaining} Days to Exam
+              </span>
+            )}
+          </div>
+        </div>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold font-display tracking-tight text-slate-900">
+          Study Coach
+        </h1>
+        <p className="text-sm sm:text-base text-slate-500 max-w-2xl leading-relaxed">
+          High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted weak-area remediation.
+        </p>
+      </header>
+
+      {/* 2. Interactive Multi-Question Quiz Mode Shell */}
+      {quizSession && (
+        <div className="rounded-3xl border-2 border-sky-200 bg-white p-6 shadow-md space-y-5 animate-in fade-in-50">
+          {!quizSession.isComplete ? (
+            <div>
+              {/* Top Progress & Classification */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 bg-slate-900 text-white text-xs font-bold rounded-full font-['Outfit']">
+                    Question {quizSession.currentIndex + 1} of {quizSession.questions.length}
+                  </span>
+                  <span className="px-3 py-1 bg-sky-50 border border-sky-200 text-sky-800 text-xs font-semibold rounded-full font-['Outfit']">
+                    {quizSession.questions[quizSession.currentIndex].subject} · {quizSession.questions[quizSession.currentIndex].topic}
+                  </span>
+                </div>
+
+                <div className="text-xs font-bold text-slate-500 font-['Outfit']">
+                  Score: {quizSession.score} / {Object.keys(quizSession.userAnswers).length}
+                </div>
+              </div>
+
+              {/* Clinical Question Stem */}
+              <div className="py-4 space-y-4">
+                <p className="text-sm font-semibold text-slate-900 leading-relaxed">
+                  {quizSession.questions[quizSession.currentIndex].question}
+                </p>
+
+                {/* 4 Selectable Options */}
+                <div className="grid grid-cols-1 gap-2.5">
+                  {quizSession.questions[quizSession.currentIndex].options.map((opt) => {
+                    const currentQ = quizSession.questions[quizSession.currentIndex];
+                    const selected = quizSession.userAnswers[quizSession.currentIndex];
+                    const isAnswered = Boolean(selected);
+                    const isSelected = selected === opt.key;
+                    const isCorrect = opt.key === currentQ.correctKey;
+
+                    let btnStyle = 'border-slate-200 bg-slate-50/50 hover:border-slate-400 hover:bg-white text-slate-800';
+                    if (isAnswered) {
+                      if (isCorrect) {
+                        btnStyle = 'border-emerald-500 bg-emerald-50 text-emerald-950 font-semibold shadow-2xs';
+                      } else if (isSelected && !isCorrect) {
+                        btnStyle = 'border-rose-400 bg-rose-50 text-rose-950 font-semibold';
+                      } else {
+                        btnStyle = 'border-slate-200 bg-slate-50/50 text-slate-400';
+                      }
+                    }
+
+                    return (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        disabled={isAnswered}
+                        onClick={() => handleQuizSessionAnswer(opt.key)}
+                        className={`p-4 rounded-2xl border-2 text-left text-xs sm:text-sm font-medium transition-all flex items-start gap-3 cursor-pointer ${btnStyle}`}
+                      >
+                        <span
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold font-['Outfit'] ${
+                            isAnswered && isCorrect
+                              ? 'bg-emerald-500 text-white'
+                              : isAnswered && isSelected && !isCorrect
+                              ? 'bg-rose-500 text-white'
+                              : 'bg-white border border-slate-200 text-slate-700'
+                          }`}
+                        >
+                          {opt.key}
+                        </span>
+                        <span className="leading-snug pt-1">{opt.text}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Post-Answer Comprehensive Rationale */}
+                {quizSession.userAnswers[quizSession.currentIndex] && (
+                  <div className="mt-4 p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3.5 animate-in fade-in-50">
+                    <div className="flex items-center gap-2">
+                      {quizSession.userAnswers[quizSession.currentIndex] === quizSession.questions[quizSession.currentIndex].correctKey ? (
+                        <div className="flex items-center gap-1.5 text-emerald-700 font-bold text-xs font-['Outfit']">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                          <span>✓ Correct Answer: Option {quizSession.questions[quizSession.currentIndex].correctKey}</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-rose-700 font-bold text-xs font-['Outfit']">
+                          <XCircle className="h-4 w-4 text-rose-600" />
+                          <span>✗ Incorrect — Correct Answer: Option {quizSession.questions[quizSession.currentIndex].correctKey}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2 text-xs sm:text-sm text-slate-700 leading-relaxed">
+                      <p><strong>Why:</strong> {quizSession.questions[quizSession.currentIndex].explanation}</p>
+
+                      {/* Distractor Breakdown */}
+                      {quizSession.questions[quizSession.currentIndex].distractorExplanations && Object.keys(quizSession.questions[quizSession.currentIndex].distractorExplanations || {}).length > 0 && (
+                        <div className="pt-2 border-t border-slate-200 space-y-1">
+                          <p className="text-xs font-bold text-slate-900 font-['Outfit']">Why the others are wrong:</p>
+                          {Object.entries(quizSession.questions[quizSession.currentIndex].distractorExplanations || {}).map(([k, exp]) => (
+                            <p key={k} className="text-xs text-slate-600 pl-2">
+                              <strong>Option {k}:</strong> {exp}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Mnemonic & Exam Trap */}
+                      {quizSession.questions[quizSession.currentIndex].mnemonic && (
+                        <div className="mt-2 p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs font-medium">
+                          🧠 <strong>Memory Hook:</strong> {quizSession.questions[quizSession.currentIndex].mnemonic}
+                        </div>
+                      )}
+                      {quizSession.questions[quizSession.currentIndex].trap && (
+                        <div className="mt-1.5 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium">
+                          ⚠️ <strong>FMGE Exam Trap:</strong> {quizSession.questions[quizSession.currentIndex].trap}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-2 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={handleNextQuizQuestion}
+                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold font-['Outfit'] flex items-center gap-1.5 cursor-pointer shadow-xs transition-transform active:scale-95"
+                      >
+                        <span>{quizSession.currentIndex + 1 === quizSession.questions.length ? 'Finish Quiz' : 'Next Question'}</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Quiz Completed Summary */
+            <div className="text-center py-6 space-y-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-amber-50 border border-amber-200 text-amber-600 mx-auto shadow-sm">
+                <Trophy className="h-8 w-8" />
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold font-['Outfit'] text-slate-900">Practice Quiz Completed!</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  All attempts have been logged to your FMGE study performance tracker.
+                </p>
+              </div>
+
+              <div className="inline-flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <div>
+                  <span className="text-2xl font-bold font-['Outfit'] text-slate-900">
+                    {quizSession.score} / {quizSession.questions.length}
+                  </span>
+                  <p className="text-[10px] uppercase font-bold text-slate-400 font-['Outfit']">Score</p>
+                </div>
+                <div className="h-8 w-px bg-slate-200" />
+                <div>
+                  <span className="text-2xl font-bold font-['Outfit'] text-emerald-700">
+                    {Math.round((quizSession.score / quizSession.questions.length) * 100)}%
+                  </span>
+                  <p className="text-[10px] uppercase font-bold text-slate-400 font-['Outfit']">Accuracy</p>
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setQuizSession(null)}
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold font-['Outfit'] cursor-pointer"
+                >
+                  Return to Chat
+                </button>
+                <button
+                  type="button"
+                  onClick={startQuizMode}
+                  className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold font-['Outfit'] flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <RotateCw className="h-3.5 w-3.5" />
+                  <span>Start Another Quiz</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3. Conversational Input & Shortcuts */}
+      <div className="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+        {/* Image Attachment Preview Badge */}
+        {attachedImage && (
+          <div className="flex items-center gap-3 p-2.5 bg-sky-50 border border-sky-200 rounded-2xl w-fit max-w-full">
+            <img
+              src={attachedImage.previewUrl}
+              alt="Investigation Preview"
+              className="h-12 w-12 object-cover rounded-xl border border-sky-300 shadow-2xs cursor-zoom-in"
+              onClick={() => setActiveModalImage({ isOpen: true, imageUrl: attachedImage.previewUrl, title: attachedImage.fileName })}
+            />
+            <div className="text-xs min-w-0 pr-2">
+              <p className="font-semibold text-slate-800 truncate">{attachedImage.fileName}</p>
+              <p className="text-[10px] text-sky-700 font-medium">Ready for AI Vision diagnostic analysis</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAttachedImage(null)}
+              className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors cursor-pointer"
+              title="Remove attached image"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        <div className="relative flex items-end gap-2 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-900/5 transition-all">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/jpg"
+            className="hidden"
+            onChange={handleImageSelect}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className={`flex items-center justify-center h-10 w-10 rounded-xl transition-colors shrink-0 cursor-pointer ${
+              attachedImage
+                ? 'bg-sky-100 text-sky-700 hover:bg-sky-200'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/70'
+            }`}
+            title="Attach Medical Image (ECG, X-Ray, Slide, Clinical Photo)"
+          >
+            <ImageIcon className="h-4 w-4" />
+          </button>
+          <textarea
+            ref={textareaRef}
+            rows={1}
+            value={inputQuery}
+            onChange={handleTextareaInput}
+            onKeyDown={handleKeyDown}
+            placeholder={attachedImage ? "Ask a question about this attached medical image..." : "Ask me anything about your FMGE preparation..."}
+            className="flex-1 bg-transparent border-0 focus:outline-none focus:ring-0 text-sm text-slate-900 placeholder:text-slate-400 resize-none py-2 px-3 min-h-[44px] max-h-[180px] leading-relaxed"
+          />
+          <button
+            type="button"
+            onClick={() => handleSendMessage()}
+            disabled={(!inputQuery.trim() && !attachedImage) || isLoading}
+            className={`flex items-center justify-center h-10 px-4 rounded-xl text-xs font-bold font-['Outfit'] transition-all shrink-0 cursor-pointer ${
+              (inputQuery.trim() || attachedImage) && !isLoading
+                ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-xs active:scale-95'
+                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+            }`}
+          >
+            {isLoading ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <span>Ask Coach</span>
+                <Send className="h-3.5 w-3.5 ml-1.5" />
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Minimal Quick Action Suggestions */}
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <span className="text-xs text-slate-400 font-medium mr-1">Suggestions:</span>
+          {quickActions.map((action, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleSendMessage(action.query)}
+              disabled={isLoading}
+              className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-slate-300 rounded-full text-xs font-medium text-slate-700 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95 disabled:opacity-50"
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 4. Conversational Message Stream */}
+      <div className="space-y-4">
+        {messages.map((msg) => (
+          <motion.div
+            key={msg.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+          >
+            {/* User Bubble */}
+            {msg.role === 'user' ? (
+              <div className="max-w-2xl bg-slate-900 text-white rounded-2xl rounded-tr-xs px-5 py-3.5 text-sm shadow-sm leading-relaxed space-y-2.5">
+                {msg.userAttachedImage && (
+                  <div
+                    className="relative group rounded-xl overflow-hidden border border-slate-700/80 max-w-xs cursor-zoom-in bg-slate-950 shadow-inner"
+                    onClick={() => setActiveModalImage({ isOpen: true, imageUrl: msg.userAttachedImage!.url, title: msg.userAttachedImage!.fileName || 'Uploaded Medical Investigation' })}
+                  >
+                    <img
+                      src={msg.userAttachedImage.url}
+                      alt={msg.userAttachedImage.fileName || 'Attached Investigation'}
+                      className="w-full h-auto max-h-48 object-cover rounded-xl transition-transform duration-200 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-xs font-semibold">
+                      <Maximize2 className="h-3.5 w-3.5" />
+                      <span>Click to Zoom</span>
+                    </div>
+                  </div>
+                )}
+                {msg.content && <p>{msg.content}</p>}
+              </div>
+            ) : (
+              /* Assistant Card */
+              <div className="w-full bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 text-white text-xs font-bold font-['Outfit']">
+                      1S
+                    </div>
+                    <span className="text-xs font-bold text-slate-900 font-['Outfit']">Study Coach</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCopyMessage(msg.id, msg.content)}
+                    className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                    title="Copy answer"
+                  >
+                    {copiedMessageId === msg.id ? (
+                      <>
+                        <Check className="h-3.5 w-3.5 text-emerald-600" />
+                        <span className="text-emerald-600 font-medium">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3.5 w-3.5" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Proper Markdown Output via MarkdownRenderer (No Raw Asterisks!) */}
+                <MarkdownRenderer content={msg.content} />
+
+                {/* Single Clinical MCQ Card if present */}
+                {msg.singleQuiz && (
+                  <div className="mt-4 rounded-3xl border border-slate-200/90 bg-slate-50/80 p-5 sm:p-6 space-y-4 shadow-2xs">
+                    {/* Header Classification Badge */}
+                    {(() => {
+                      const correctKey = msg.singleQuiz.correctKey || (msg.singleQuiz as any).correctAnswer || 'A';
+                      const isUserCorrect = msg.singleQuiz.userAnswer === correctKey;
+                      const correctOpt = msg.singleQuiz.options.find(o => o.key === correctKey);
+
+                      return (
+                        <>
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="px-3 py-1 rounded-full bg-slate-900 text-white text-[11px] font-bold font-['Outfit'] uppercase tracking-wider">
+                                {msg.singleQuiz.subject}
+                              </span>
+                              <span className="text-xs font-semibold text-slate-700 font-['Outfit']">
+                                {msg.singleQuiz.topic}
+                              </span>
+                            </div>
+
+                            {msg.singleQuiz.userAnswer && (
+                              <span
+                                className={`text-xs font-bold px-3 py-1 rounded-full ${
+                                  isUserCorrect
+                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                    : 'bg-rose-100 text-rose-800 border border-rose-300'
+                                }`}
+                              >
+                                {isUserCorrect ? '✓ Correct' : `✗ Incorrect (Ans: Option ${correctKey})`}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Real Medical Image Display (ECG, X-Ray, Pathology, Dermatology, Fundoscopy, etc.) */}
+                          {msg.singleQuiz.imageUrl && (
+                            <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 relative group shadow-sm">
+                              <img
+                                src={msg.singleQuiz.imageUrl}
+                                alt={msg.singleQuiz.topic}
+                                referrerPolicy="no-referrer"
+                                crossOrigin="anonymous"
+                                className="w-full max-h-[360px] object-contain cursor-zoom-in bg-slate-950"
+                                onError={(e) => {
+                                  const target = e.currentTarget;
+                                  if (!target.src.includes('/assets/medical-images/')) {
+                                    target.src = '/assets/medical-images/ecg-complete-heart-block.svg';
+                                  }
+                                }}
+                                onClick={() =>
+                                  setActiveModalImage({
+                                    isOpen: true,
+                                    imageUrl: msg.singleQuiz!.imageUrl!,
+                                    imageAsset: msg.singleQuiz!.imageAsset,
+                                    title: `${msg.singleQuiz!.subject} · ${msg.singleQuiz!.topic}`,
+                                    whatToLookFor: msg.singleQuiz!.whatToLookFor,
+                                  })
+                                }
+                              />
+                              <div className="absolute top-3 right-3 flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setActiveModalImage({
+                                      isOpen: true,
+                                      imageUrl: msg.singleQuiz!.imageUrl!,
+                                      imageAsset: msg.singleQuiz!.imageAsset,
+                                      title: `${msg.singleQuiz!.subject} · ${msg.singleQuiz!.topic}`,
+                                      whatToLookFor: msg.singleQuiz!.whatToLookFor,
+                                    })
+                                  }
+                                  className="px-3 py-1.5 rounded-xl bg-slate-900/80 backdrop-blur-sm hover:bg-slate-900 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+                                >
+                                  <ZoomIn className="w-3.5 h-3.5 text-sky-400" />
+                                  <span>Click to Zoom</span>
+                                </button>
+                              </div>
+                              {msg.singleQuiz.imageAsset?.sourceName && (
+                                <div className="absolute bottom-2 left-3 text-[10px] text-slate-300 bg-slate-900/85 px-2.5 py-0.5 rounded-md backdrop-blur-xs flex items-center gap-1">
+                                  <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                                  <span>{msg.singleQuiz.imageAsset.sourceName}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Clinical Scenario Stem Card */}
+                          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
+                            {msg.singleQuiz.stem && (
+                              <p className="text-sm sm:text-base text-slate-800 leading-relaxed font-normal">
+                                {msg.singleQuiz.stem}
+                              </p>
+                            )}
+                            <p className="text-sm sm:text-base font-bold text-slate-900 leading-snug font-['Outfit']">
+                              {msg.singleQuiz.question}
+                            </p>
+                          </div>
+
+                          {/* Options A, B, C, D */}
+                          <div className="grid grid-cols-1 gap-2.5">
+                            {msg.singleQuiz.options.map((opt) => {
+                              const isSelected = msg.singleQuiz?.userAnswer === opt.key;
+                              const isRevealed = Boolean(msg.singleQuiz?.userAnswer);
+                              const isCorrectKey = opt.key === correctKey;
+
+                              let btnStyle = 'border-slate-200 bg-white hover:border-slate-400 hover:bg-slate-50 text-slate-800';
+                              if (isRevealed) {
+                                if (isCorrectKey) {
+                                  btnStyle = 'border-emerald-500 bg-emerald-50 text-emerald-950 font-semibold ring-2 ring-emerald-500 shadow-sm';
+                                } else if (isSelected && !isCorrectKey) {
+                                  btnStyle = 'border-rose-400 bg-rose-50 text-rose-950 font-semibold ring-1 ring-rose-400';
+                                } else {
+                                  btnStyle = 'border-slate-200 bg-slate-50/70 text-slate-400 opacity-80';
+                                }
+                              }
+
+                              return (
+                                <button
+                                  key={opt.key}
+                                  type="button"
+                                  disabled={isRevealed}
+                                  onClick={() => handleSingleQuizAnswer(msg.id, opt.key)}
+                                  className={`p-4 rounded-2xl border text-left text-xs sm:text-sm font-medium transition-all flex items-start gap-3 cursor-pointer ${btnStyle}`}
+                                >
+                                  <span
+                                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold font-['Outfit'] ${
+                                      isRevealed && isCorrectKey
+                                        ? 'bg-emerald-600 text-white'
+                                        : isRevealed && isSelected && !isCorrectKey
+                                        ? 'bg-rose-600 text-white'
+                                        : 'bg-slate-100 text-slate-700'
+                                    }`}
+                                  >
+                                    {opt.key}
+                                  </span>
+                                  <span className="leading-relaxed pt-0.5">{opt.text}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Post-Answer Comprehensive Rationale */}
+                          {msg.singleQuiz.userAnswer && (
+                            <div className="space-y-3 pt-3 border-t border-slate-200 animate-in fade-in-50">
+                              <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 text-xs sm:text-sm">
+                                <div>
+                                  <p className="text-sm font-bold text-slate-900 font-['Outfit'] mb-1">
+                                    Correct Answer: Option {correctKey} {correctOpt ? `(${correctOpt.text})` : ''}
+                                  </p>
+                                  <p className="text-slate-700 leading-relaxed">
+                                    <strong>Why it is correct:</strong> {msg.singleQuiz.explanation}
+                                  </p>
+                                </div>
+
+                                {/* Visual Finding Breakdown for Image Questions */}
+                                {(msg.singleQuiz.whatToLookFor || msg.singleQuiz.imageAsset?.whatToLookFor) && (
+                                  <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-950 text-xs leading-relaxed space-y-2">
+                                    <div className="space-y-1">
+                                      <p className="font-bold flex items-center gap-1.5 text-sky-900 font-['Outfit']">
+                                        <Eye className="w-4 h-4 text-sky-600" />
+                                        What to look at in this image:
+                                      </p>
+                                      <p className="font-medium pl-5 text-slate-700">
+                                        {msg.singleQuiz.whatToLookFor || msg.singleQuiz.imageAsset?.whatToLookFor}
+                                      </p>
+                                    </div>
+
+                                    {/* Button to open Annotated Lightbox */}
+                                    {msg.singleQuiz.imageUrl && (
+                                      <div className="pt-2 border-t border-sky-100 flex justify-end">
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setActiveModalImage({
+                                              isOpen: true,
+                                              imageUrl: msg.singleQuiz!.imageUrl!,
+                                              annotatedImageUrl: msg.singleQuiz!.annotatedImageUrl || msg.singleQuiz!.imageAsset?.annotatedImageUrl,
+                                              imageAsset: msg.singleQuiz!.imageAsset,
+                                              title: `${msg.singleQuiz!.subject} · ${msg.singleQuiz!.topic}`,
+                                              whatToLookFor: msg.singleQuiz!.whatToLookFor,
+                                            })
+                                          }
+                                          className="px-3 py-1.5 rounded-xl bg-sky-100/80 hover:bg-sky-200 text-sky-900 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                                        >
+                                          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                                          <span>Open Annotated Visual Inspection</span>
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Why the other options are wrong */}
+                                {(msg.singleQuiz.distractorBreakdown || msg.singleQuiz.distractorExplanations) && Object.keys(msg.singleQuiz.distractorBreakdown || msg.singleQuiz.distractorExplanations || {}).length > 0 && (
+                                  <div className="pt-3 border-t border-slate-100 space-y-1.5">
+                                    <p className="text-xs font-bold text-slate-900 font-['Outfit'] uppercase tracking-wide">
+                                      Why other options are wrong:
+                                    </p>
+                                    {Object.entries(msg.singleQuiz.distractorBreakdown || msg.singleQuiz.distractorExplanations || {}).map(([k, exp]) => (
+                                      <p key={k} className="text-xs text-slate-600 pl-2 leading-relaxed">
+                                        <strong>Option {k}:</strong> {String(exp)}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* High-Yield FMGE Takeaway */}
+                                {msg.singleQuiz.fmgeTakeaway && (
+                                  <div className="mt-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs font-medium leading-relaxed">
+                                    💡 <strong>FMGE High-Yield Takeaway:</strong> {msg.singleQuiz.fmgeTakeaway}
+                                  </div>
+                                )}
+
+                                {/* Memory Hook */}
+                                {(msg.singleQuiz.memoryHook || msg.singleQuiz.mnemonic) && (
+                                  <div className="mt-2 p-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-950 text-xs font-medium leading-relaxed">
+                                    🧠 <strong>Memory Hook:</strong> {msg.singleQuiz.memoryHook || msg.singleQuiz.mnemonic}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {/* Suggested Follow-up Chips */}
+                {msg.suggestedFollowUps && msg.suggestedFollowUps.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
+                    <span className="text-[11px] text-slate-400 font-medium">Follow-up:</span>
+                    {msg.suggestedFollowUps.map((followUp, fIdx) => (
+                      <button
+                        key={fIdx}
+                        type="button"
+                        onClick={() => handleSendMessage(followUp)}
+                        disabled={isLoading}
+                        className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] text-slate-700 font-medium transition-colors cursor-pointer"
+                      >
+                        {followUp} →
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+        ))}
+
+        {/* Loading Indicator */}
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center gap-3 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-sm w-fit"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 text-white text-xs font-bold font-['Outfit']">
+              1S
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <RefreshCw className="h-3.5 w-3.5 animate-spin text-sky-500" />
+              <span>Analyzing high-yield FMGE guidelines...</span>
+            </div>
+          </motion.div>
+        )}
+
+        <div ref={chatBottomRef} />
+      </div>
+
+      {/* Modal Image Zoom Lightbox */}
+      <MedicalImageViewerModal
+        isOpen={activeModalImage.isOpen}
+        onClose={() => setActiveModalImage(prev => ({ ...prev, isOpen: false }))}
+        imageUrl={activeModalImage.imageUrl}
+        annotatedImageUrl={activeModalImage.annotatedImageUrl}
+        imageAsset={activeModalImage.imageAsset}
+        title={activeModalImage.title}
+        whatToLookFor={activeModalImage.whatToLookFor}
+      />
+    </div>
+  );
+};

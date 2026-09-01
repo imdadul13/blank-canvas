@@ -1,0 +1,364 @@
+{
+  "version": 3,
+  "accounts": [],
+  "sources": [
+    {
+      "id": "src-1001",
+      "accountId": "primary",
+      "telegramChannelId": "1001",
+      "title": "Target FMGE High Yield",
+      "username": "targetfmge",
+      "type": "channel",
+      "memberCount": 25000,
+      "isMonitored": true,
+      "lastProcessedMessageId": 2004,
+      "lastSyncedAt": "2026-08-31T14:13:51.863Z"
+    },
+    {
+      "id": "src-1002",
+      "accountId": "primary",
+      "telegramChannelId": "1002",
+      "title": "FMGE Clinical Recalls Discussion",
+      "type": "supergroup",
+      "memberCount": 12000,
+      "isMonitored": false,
+      "lastProcessedMessageId": 9999,
+      "lastSyncedAt": "2026-08-31T14:13:51.861Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg-1788185631862-bmceq",
+      "sourceId": "src-1001",
+      "telegramMessageId": 2004,
+      "messageDate": "2026-08-31T14:13:51.862Z",
+      "rawText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
+      "mediaType": "NONE",
+      "status": "PROCESSED",
+      "receivedAt": "2026-08-31T14:13:51.862Z"
+    },
+    {
+      "id": "msg-1788185631861-fv4rv",
+      "sourceId": "src-1002",
+      "telegramMessageId": 9999,
+      "messageDate": "2026-08-31T14:13:51.861Z",
+      "rawText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine is first line.",
+      "mediaType": "NONE",
+      "status": "PROCESSED",
+      "receivedAt": "2026-08-31T14:13:51.861Z"
+    },
+    {
+      "id": "msg-1788185631858-cbqoh",
+      "sourceId": "src-1001",
+      "telegramMessageId": 2003,
+      "messageDate": "2026-08-31T14:13:51.858Z",
+      "rawText": "Observe the clinical video showing rhythmic horizontal eye oscillation. Diagnosis?\nA) Horizontal Jerk Nystagmus\nB) Opsoclonus\nC) Ocular flutter\nD) Saccades\nAns: A\nExp: Jerk nystagmus with slow drift.",
+      "mediaType": "VIDEO",
+      "status": "PROCESSED",
+      "receivedAt": "2026-08-31T14:13:51.858Z"
+    },
+    {
+      "id": "msg-1788185631848-r4qvi",
+      "sourceId": "src-1001",
+      "telegramMessageId": 2002,
+      "messageDate": "2026-08-31T14:13:51.848Z",
+      "rawText": "A 45-year-old male presents with epigastric pain radiating to back. CT abdomen is attached. What is the diagnosis?\nA) Acute pancreatitis\nB) Peptic ulcer\nC) Cholecystitis\nD) Appendicitis\nAns: A\nExp: CT demonstrates necrotizing pancreatitis.",
+      "mediaType": "IMAGE",
+      "status": "PROCESSED",
+      "receivedAt": "2026-08-31T14:13:51.848Z"
+    },
+    {
+      "id": "msg-1788185631846-giin0",
+      "sourceId": "src-1001",
+      "telegramMessageId": 2001,
+      "messageDate": "2026-08-31T12:00:00Z",
+      "rawText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine (6mg rapid bolus) is the first-line drug of choice for acute termination of stable PSVT.",
+      "mediaType": "NONE",
+      "status": "PROCESSED",
+      "receivedAt": "2026-08-31T14:13:51.846Z"
+    }
+  ],
+  "media": [
+    {
+      "id": "med-1788185631859-mopn",
+      "messageId": "msg-1788185631858-cbqoh",
+      "mediaType": "VIDEO",
+      "storageUrl": "https://api.telegram.org/file/bot/videos/nystagmus.mp4",
+      "thumbnailUrl": "https://api.telegram.org/file/bot/photos/nystagmus_thumb.jpg",
+      "filePath": "/Users/imdadul/Downloads/blank-canvas/public/uploads/telegram/media/vid_2003_1788185631858.mp4",
+      "createdAt": "2026-08-31T14:13:51.859Z"
+    },
+    {
+      "id": "med-1788185631857-3u96",
+      "messageId": "msg-1788185631848-r4qvi",
+      "mediaType": "IMAGE",
+      "storageUrl": "https://api.telegram.org/file/bot/photos/pancreatitis_ct.jpg",
+      "filePath": "/Users/imdadul/Downloads/blank-canvas/public/uploads/telegram/media/photo_2002_1788185631848.jpg",
+      "createdAt": "2026-08-31T14:13:51.857Z"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q-cloud-1788185631861-k0w9",
+      "sourceMessageId": "msg-1788185631861-fv4rv",
+      "subject": "medicine",
+      "topic": "Clinical High-Yield Recall",
+      "questionText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Adenosine"
+        },
+        {
+          "key": "B",
+          "text": "Amiodarone"
+        },
+        {
+          "key": "C",
+          "text": "Verapamil"
+        },
+        {
+          "key": "D",
+          "text": "Digoxin"
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "IV Adenosine is first line.",
+      "whyOtherOptionsAreWrong": [
+        {
+          "key": "B",
+          "reason": "Option B (Amiodarone) is an alternative finding, not the primary presentation."
+        },
+        {
+          "key": "C",
+          "reason": "Option C (Verapamil) is an alternative finding, not the primary presentation."
+        },
+        {
+          "key": "D",
+          "reason": "Option D (Digoxin) is an alternative finding, not the primary presentation."
+        }
+      ],
+      "sourceChannel": "FMGE Clinical Recalls Discussion",
+      "difficulty": "high-yield",
+      "createdAt": "2026-08-31T14:13:51.861Z",
+      "contentFingerprint": "d20b576f32d36dd3eeb9cc73241067c2f29aad07393c8f15bd3270a3a1745d9f",
+      "isDuplicate": true,
+      "duplicateOfQuestionId": "q-cloud-1788185631847-evlj"
+    },
+    {
+      "id": "q-cloud-1788185631860-hmz2",
+      "sourceMessageId": "msg-1788185631858-cbqoh",
+      "subject": "medicine",
+      "topic": "Clinical High-Yield Recall",
+      "questionText": "Observe the clinical video showing rhythmic horizontal eye oscillation. Diagnosis?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Horizontal Jerk Nystagmus"
+        },
+        {
+          "key": "B",
+          "text": "Opsoclonus"
+        },
+        {
+          "key": "C",
+          "text": "Ocular flutter"
+        },
+        {
+          "key": "D",
+          "text": "Saccades"
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "Jerk nystagmus with slow drift.",
+      "whyOtherOptionsAreWrong": [
+        {
+          "key": "B",
+          "reason": "Option B (Opsoclonus) is an alternative finding, not the primary presentation."
+        },
+        {
+          "key": "C",
+          "reason": "Option C (Ocular flutter) is an alternative finding, not the primary presentation."
+        },
+        {
+          "key": "D",
+          "reason": "Option D (Saccades) is an alternative finding, not the primary presentation."
+        }
+      ],
+      "sourceChannel": "Target FMGE High Yield",
+      "difficulty": "high-yield",
+      "createdAt": "2026-08-31T14:13:51.860Z",
+      "contentFingerprint": "19bbfabe44931f6b8296ad88cc8c4d5f7577014affea3b385d01712873433129"
+    },
+    {
+      "id": "q-cloud-1788185631857-5avb",
+      "sourceMessageId": "msg-1788185631848-r4qvi",
+      "subject": "surgery",
+      "topic": "Clinical High-Yield Recall",
+      "questionText": "A 45-year-old male presents with epigastric pain radiating to back. CT abdomen is attached. What is the diagnosis?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Acute pancreatitis"
+        },
+        {
+          "key": "B",
+          "text": "Peptic ulcer"
+        },
+        {
+          "key": "C",
+          "text": "Cholecystitis"
+        },
+        {
+          "key": "D",
+          "text": "Appendicitis"
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "CT demonstrates necrotizing pancreatitis.",
+      "whyOtherOptionsAreWrong": [
+        {
+          "key": "B",
+          "reason": "Option B (Peptic ulcer) is an alternative finding, not the primary presentation."
+        },
+        {
+          "key": "C",
+          "reason": "Option C (Cholecystitis) is an alternative finding, not the primary presentation."
+        },
+        {
+          "key": "D",
+          "reason": "Option D (Appendicitis) is an alternative finding, not the primary presentation."
+        }
+      ],
+      "sourceChannel": "Target FMGE High Yield",
+      "difficulty": "high-yield",
+      "createdAt": "2026-08-31T14:13:51.857Z",
+      "contentFingerprint": "607ea1c4739d08e29d0a69930f9d8acebcdbfb727ee9ea1e26d91d91a2678a0d"
+    },
+    {
+      "id": "q-cloud-1788185631847-evlj",
+      "sourceMessageId": "msg-1788185631846-giin0",
+      "subject": "medicine",
+      "topic": "Clinical High-Yield Recall",
+      "questionText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Adenosine"
+        },
+        {
+          "key": "B",
+          "text": "Amiodarone"
+        },
+        {
+          "key": "C",
+          "text": "Verapamil"
+        },
+        {
+          "key": "D",
+          "text": "Digoxin"
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "IV Adenosine (6mg rapid bolus) is the first-line drug of choice for acute termination of stable PSVT.",
+      "whyOtherOptionsAreWrong": [
+        {
+          "key": "B",
+          "reason": "Option B (Amiodarone) is an alternative finding, not the primary presentation."
+        },
+        {
+          "key": "C",
+          "reason": "Option C (Verapamil) is an alternative finding, not the primary presentation."
+        },
+        {
+          "key": "D",
+          "reason": "Option D (Digoxin) is an alternative finding, not the primary presentation."
+        }
+      ],
+      "sourceChannel": "Target FMGE High Yield",
+      "difficulty": "high-yield",
+      "createdAt": "2026-08-31T14:13:51.847Z",
+      "contentFingerprint": "d20b576f32d36dd3eeb9cc73241067c2f29aad07393c8f15bd3270a3a1745d9f"
+    }
+  ],
+  "tips": [],
+  "notices": [
+    {
+      "id": "not-1788185631863-ud2h",
+      "sourceMessageId": "msg-1788185631862-bmceq",
+      "originalText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
+      "cleanedText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
+      "importance": "important",
+      "noticeDate": "2026-08-31T14:13:51.863Z",
+      "sourceChannel": "Target FMGE High Yield",
+      "createdAt": "2026-08-31T14:13:51.863Z"
+    }
+  ],
+  "pearls": [
+    {
+      "id": "prl-1788185631847-eqxm",
+      "sourceMessageId": "msg-1788185631846-giin0",
+      "questionId": "q-cloud-1788185631847-evlj",
+      "title": "Clinical High-Yield Recall",
+      "takeaway": "FMGE PEARL: Always verify option (A) in acute presentation.",
+      "subject": "medicine",
+      "topic": "Clinical High-Yield Recall",
+      "isSaved": true,
+      "createdAt": "2026-08-31T14:13:51.847Z"
+    }
+  ],
+  "crossChecks": [
+    {
+      "id": "cc-1788185631862-pmbp",
+      "questionId": "q-cloud-1788185631861-k0w9",
+      "originalAnswer": "A",
+      "aiAnswer": "A",
+      "agreementStatus": "AGREED",
+      "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
+      "confidence": 0.96,
+      "verifiedAt": "2026-08-31T14:13:51.862Z"
+    },
+    {
+      "id": "cc-1788185631860-qbvp",
+      "questionId": "q-cloud-1788185631860-hmz2",
+      "originalAnswer": "A",
+      "aiAnswer": "A",
+      "agreementStatus": "AGREED",
+      "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
+      "confidence": 0.96,
+      "verifiedAt": "2026-08-31T14:13:51.860Z"
+    },
+    {
+      "id": "cc-1788185631857-ae18",
+      "questionId": "q-cloud-1788185631857-5avb",
+      "originalAnswer": "A",
+      "aiAnswer": "A",
+      "agreementStatus": "AGREED",
+      "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
+      "confidence": 0.96,
+      "verifiedAt": "2026-08-31T14:13:51.857Z"
+    },
+    {
+      "id": "cc-1788185631847-ajbu",
+      "questionId": "q-cloud-1788185631847-evlj",
+      "originalAnswer": "A",
+      "aiAnswer": "A",
+      "agreementStatus": "AGREED",
+      "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
+      "confidence": 0.96,
+      "verifiedAt": "2026-08-31T14:13:51.847Z"
+    }
+  ],
+  "heartbeats": [
+    {
+      "id": "hb-cloud-worker-1",
+      "workerId": "cloud-worker-1",
+      "workerStatus": "ONLINE",
+      "lastHeartbeat": "2026-08-31T14:13:51.862Z",
+      "activeSourcesCount": 1,
+      "errorCount": 0,
+      "updatedAt": "2026-08-31T14:13:51.862Z",
+      "lastSuccessfulTelegramUpdate": "2026-08-31T14:13:51.862Z"
+    }
+  ]
+}
