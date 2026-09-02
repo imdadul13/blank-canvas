@@ -239,6 +239,8 @@ export interface QuestionRow {
   sourceUrl?: string;
   imageAssetId?: string;
   videoAssetId?: string;
+  imageUrl?: string;
+  videoUrl?: string;
   difficulty: string;
   isHighYield?: boolean;
   contentFingerprint?: string;
@@ -256,6 +258,8 @@ export interface TipRow {
   subject: string;
   topic: string;
   sourceChannel: string;
+  imageUrl?: string;
+  videoUrl?: string;
   createdAt: string;
 }
 
@@ -267,6 +271,8 @@ export interface NoticeRow {
   importance: "general" | "important" | "critical";
   noticeDate: string;
   sourceChannel: string;
+  imageUrl?: string;
+  videoUrl?: string;
   createdAt: string;
 }
 
@@ -279,6 +285,8 @@ export interface PearlRow {
   subject: string;
   topic: string;
   isSaved: boolean;
+  imageUrl?: string;
+  videoUrl?: string;
   createdAt: string;
 }
 
@@ -316,6 +324,24 @@ export interface IngestionJobRow {
   errorMessage?: string;
 }
 
+export interface SavedTelegramItemRow {
+  id: string;
+  itemId: string;
+  itemType: "question" | "notice" | "tip" | "pearl" | "media";
+  subject: string;
+  title: string;
+  content: string;
+  mediaUrl?: string;
+  mediaType?: "IMAGE" | "VIDEO" | "POLL" | "NONE";
+  options?: { key: string; text: string }[];
+  correctAnswer?: string;
+  explanation?: string;
+  tags: string[];
+  studentNotes?: string;
+  sourceChannel: string;
+  savedAt: string;
+}
+
 export interface CloudDatabaseSchema {
   accounts: TelegramAccountRow[];
   sources: TelegramSourceRow[];
@@ -328,6 +354,7 @@ export interface CloudDatabaseSchema {
   crossChecks: CrossCheckRow[];
   heartbeats: WorkerHeartbeatRow[];
   jobs: IngestionJobRow[];
+  savedItems: SavedTelegramItemRow[];
 }
 
 const DEFAULT_CLOUD_STATE: CloudDatabaseSchema = {
@@ -342,6 +369,7 @@ const DEFAULT_CLOUD_STATE: CloudDatabaseSchema = {
   crossChecks: [],
   heartbeats: [],
   jobs: [],
+  savedItems: [],
 };
 
 const DB_FILE_PATH = path.join(process.cwd(), "server", "data", "cloud_telegram_db.json");
@@ -688,6 +716,93 @@ export const CloudDb = {
     return db.heartbeats.find((h) => h.workerId === workerId);
   },
 
+  // Saved High-Yield Items Vault
+  getSavedItems(filters?: { subject?: string; itemType?: string; tag?: string }): SavedTelegramItemRow[] {
+    const db = getCloudDatabase();
+    let items = db.savedItems || [];
+    if (filters?.subject && filters.subject !== "all") {
+      const s = filters.subject.toLowerCase();
+      items = items.filter((i) => i.subject.toLowerCase() === s);
+    }
+    if (filters?.itemType && filters.itemType !== "all") {
+      items = items.filter((i) => i.itemType === filters.itemType);
+    }
+    if (filters?.tag && filters.tag !== "all") {
+      items = items.filter((i) => i.tags && i.tags.includes(filters.tag!));
+    }
+    return items.sort((a, b) => new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime());
+  },
+
+  toggleSavedItem(input: {
+    itemId: string;
+    itemType: "question" | "notice" | "tip" | "pearl" | "media";
+    subject: string;
+    title: string;
+    content: string;
+    mediaUrl?: string;
+    mediaType?: "IMAGE" | "VIDEO" | "POLL" | "NONE";
+    options?: { key: string; text: string }[];
+    correctAnswer?: string;
+    explanation?: string;
+    tags?: string[];
+    studentNotes?: string;
+    sourceChannel?: string;
+  }): { isSaved: boolean; item?: SavedTelegramItemRow } {
+    const db = getCloudDatabase();
+    if (!db.savedItems) db.savedItems = [];
+
+    const existingIdx = db.savedItems.findIndex((i) => i.itemId === input.itemId);
+    if (existingIdx >= 0) {
+      db.savedItems.splice(existingIdx, 1);
+      saveCloudDatabase();
+      return { isSaved: false };
+    }
+
+    const newItem: SavedTelegramItemRow = {
+      id: "save-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+      itemId: input.itemId,
+      itemType: input.itemType,
+      subject: input.subject || "General Medicine",
+      title: input.title || "High-Yield Clinical Concept",
+      content: input.content || "",
+      mediaUrl: input.mediaUrl,
+      mediaType: input.mediaType || "NONE",
+      options: input.options,
+      correctAnswer: input.correctAnswer,
+      explanation: input.explanation,
+      tags: input.tags && input.tags.length > 0 ? input.tags : ["High-Yield"],
+      studentNotes: input.studentNotes || "",
+      sourceChannel: input.sourceChannel || "FMGE Channel",
+      savedAt: new Date().toISOString(),
+    };
+
+    db.savedItems.push(newItem);
+    saveCloudDatabase();
+    return { isSaved: true, item: newItem };
+  },
+
+  updateSavedItemNotes(id: string, notes: string, tags?: string[]): SavedTelegramItemRow | undefined {
+    const db = getCloudDatabase();
+    if (!db.savedItems) return undefined;
+    const item = db.savedItems.find((i) => i.id === id || i.itemId === id);
+    if (item) {
+      item.studentNotes = notes;
+      if (tags) item.tags = tags;
+      saveCloudDatabase();
+      return item;
+    }
+    return undefined;
+  },
+
+  deleteSavedItem(id: string): boolean {
+    const db = getCloudDatabase();
+    if (!db.savedItems) return false;
+    const len = db.savedItems.length;
+    db.savedItems = db.savedItems.filter((i) => i.id !== id && i.itemId !== id);
+    saveCloudDatabase();
+    return db.savedItems.length < len;
+  },
+
   // Developer Reset Telegram Tables only (Never deletes non-Telegram FMGE question banks)
   resetTelegramNamespace() {
     inMemoryCloudDb = {
@@ -702,6 +817,7 @@ export const CloudDb = {
       pearls: [],
       crossChecks: [],
       jobs: [],
+      savedItems: [],
     };
     saveCloudDatabase();
   },

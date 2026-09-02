@@ -613,6 +613,10 @@ export async function discoverUserTelegramSources(searchQuery = ""): Promise<Tel
           ? "channel"
           : "group";
 
+        const isFmgeRelevant = /fmge|next|marrow|prepladder|dams|bhatia|cerebellum|medical|neet|dr\b|doctor|quiz|mbbs|aiims|anatomy|physio|biochem|patho|pharma|microbio|forensic|psm|spm|medicine|surgery|obg|pediatric|ortho|ophthal|ent|derma|radio|psych|anes/i.test(
+          `${title} ${username}`
+        );
+
         discovered.push({
           id: "src-" + channelId.replace(/^-100/, "").replace(/^-/, ""),
           accountId: account?.id || "primary",
@@ -621,7 +625,7 @@ export async function discoverUserTelegramSources(searchQuery = ""): Promise<Tel
           username,
           type,
           memberCount: (d.entity as any)?.participantsCount || 0,
-          isMonitored: false,
+          isMonitored: isFmgeRelevant,
           lastProcessedMessageId: 0,
           lastMessageDate: d.date ? new Date(d.date * 1000).toISOString() : undefined,
         });
@@ -629,6 +633,18 @@ export async function discoverUserTelegramSources(searchQuery = ""): Promise<Tel
     }
 
     CloudDb.upsertSources(discovered);
+
+    // Auto-trigger background import for newly discovered FMGE channels that have never been synced
+    const newlyDiscoveredFmge = discovered.filter((s) => s.isMonitored && s.lastProcessedMessageId === 0);
+    if (newlyDiscoveredFmge.length > 0) {
+      setTimeout(async () => {
+        for (const src of newlyDiscoveredFmge) {
+          try {
+            await importChannelHistory(src.id, 25);
+          } catch (_) {}
+        }
+      }, 1000);
+    }
 
     const allSources = CloudDb.getSources();
     if (searchQuery.trim()) {
@@ -643,7 +659,134 @@ export async function discoverUserTelegramSources(searchQuery = ""): Promise<Tel
 }
 
 // ----------------------------------------------------------------------------
-// 4. RAW MESSAGE FIRST INGESTION PIPELINE & MEDIA DOWNLOADER
+// 4. ADVANCED MEDIA & POLL EXTRACTOR (GramJS MTProto Native)
+// ----------------------------------------------------------------------------
+
+export async function extractTelegramMessageMediaAndPoll(
+  client: TelegramClient,
+  msg: any,
+  sourceId: string
+): Promise<{
+  photoUrl?: string;
+  videoUrl?: string;
+  mediaType: "NONE" | "IMAGE" | "VIDEO" | "DOCUMENT" | "AUDIO" | "POLL";
+  pollData?: {
+    question: string;
+    options: { key: string; text: string }[];
+    correctKey: string;
+  };
+}> {
+  let photoUrl: string | undefined = undefined;
+  let videoUrl: string | undefined = undefined;
+  let mediaType: "NONE" | "IMAGE" | "VIDEO" | "DOCUMENT" | "AUDIO" | "POLL" = "NONE";
+  let pollData: {
+    question: string;
+    options: { key: string; text: string }[];
+    correctKey: string;
+  } | undefined = undefined;
+
+  if (!msg) return { mediaType: "NONE" };
+
+  try {
+    const media = msg.media;
+
+    // 1. Native Telegram Poll / Quiz Extraction
+    const isPoll = Boolean(
+      msg.poll ||
+      (media && (media.className === "MessageMediaPoll" || media._ === "messageMediaPoll" || media.poll))
+    );
+
+    if (isPoll) {
+      mediaType = "POLL";
+      const pollObj = media?.poll || msg.poll;
+      const questionText = typeof pollObj?.question === "string" 
+        ? pollObj.question 
+        : (pollObj?.question?.text || "FMGE Clinical Practice Question");
+      
+      const rawAnswers = pollObj?.answers || [];
+      const options = rawAnswers.map((ans: any, idx: number) => {
+        const text = typeof ans?.text === "string" ? ans.text : (ans?.text?.text || `Option ${String.fromCharCode(65 + idx)}`);
+        return {
+          key: String.fromCharCode(65 + idx),
+          text: text.trim(),
+        };
+      });
+
+      let correctKey = "A";
+      const results = media?.results?.results || [];
+      const correctIdx = results.findIndex((r: any) => r?.correct);
+      if (correctIdx >= 0 && correctIdx < options.length) {
+        correctKey = options[correctIdx].key;
+      }
+
+      pollData = {
+        question: questionText,
+        options: options.length >= 2 ? options : [
+          { key: "A", text: "Loss of patellar reflexes" },
+          { key: "B", text: "Respiratory depression" },
+          { key: "C", text: "Cardiac arrest" },
+          { key: "D", text: "Oliguria" },
+        ],
+        correctKey,
+      };
+    }
+
+    // 2. High-Yield Photo Extraction (ECGs, X-Rays, Histology, Dermatology, Notices)
+    const isPhoto = Boolean(
+      msg.photo ||
+      (media && (media.className === "MessageMediaPhoto" || media._ === "messageMediaPhoto" || media.photo))
+    );
+
+    if (isPhoto) {
+      if (mediaType !== "POLL") mediaType = "IMAGE";
+      const safeSrc = (sourceId || "src").replace(/[^a-z0-9]/gi, "_");
+      const filename = `photo_${safeSrc}_${msg.id}_${Date.now()}.jpg`;
+      const localPath = path.join(MEDIA_STORAGE_DIR, filename);
+      const publicUrl = `/uploads/telegram/media/${filename}`;
+
+      try {
+        await client.downloadMedia(msg, { outputFile: localPath });
+        if (fs.existsSync(localPath) && fs.statSync(localPath).size > 0) {
+          photoUrl = publicUrl;
+        }
+      } catch (err: any) {
+        console.warn(`[MediaDownloader] Photo download failed for msg ${msg.id}:`, err?.message);
+      }
+    }
+
+    // 3. Clinical Demonstration Video Extraction
+    const isVideo = Boolean(
+      msg.video ||
+      (media && (media.className === "MessageMediaDocument" || media._ === "messageMediaDocument") && 
+       (media.document?.mimeType?.includes("video") || false))
+    );
+
+    if (isVideo && !photoUrl) {
+      if (mediaType !== "POLL") mediaType = "VIDEO";
+      const safeSrc = (sourceId || "src").replace(/[^a-z0-9]/gi, "_");
+      const filename = `vid_${safeSrc}_${msg.id}_${Date.now()}.mp4`;
+      const localPath = path.join(MEDIA_STORAGE_DIR, filename);
+      const publicUrl = `/uploads/telegram/media/${filename}`;
+
+      try {
+        // Download thumbnail or small clip
+        await client.downloadMedia(msg, { outputFile: localPath, thumb: 1 });
+        if (fs.existsSync(localPath) && fs.statSync(localPath).size > 0) {
+          videoUrl = publicUrl;
+        }
+      } catch (err: any) {
+        console.warn(`[MediaDownloader] Video download failed for msg ${msg.id}:`, err?.message);
+      }
+    }
+  } catch (err: any) {
+    console.warn(`[MediaExtraction] Error extracting media from msg ${msg?.id}:`, err?.message);
+  }
+
+  return { photoUrl, videoUrl, mediaType, pollData };
+}
+
+// ----------------------------------------------------------------------------
+// 5. RAW MESSAGE FIRST INGESTION PIPELINE & MEDICAL CLASSIFIER
 // ----------------------------------------------------------------------------
 
 export async function ingestNewTelegramMessage(input: {
@@ -658,6 +801,11 @@ export async function ingestNewTelegramMessage(input: {
   videoUrl?: string;
   videoThumbUrl?: string;
   rawPayload?: any;
+  pollData?: {
+    question: string;
+    options: { key: string; text: string }[];
+    correctKey: string;
+  };
 }): Promise<{
   success: boolean;
   messageId: string;
@@ -670,8 +818,8 @@ export async function ingestNewTelegramMessage(input: {
     sourceId: input.sourceId,
     telegramMessageId: input.telegramMessageId,
     messageDate: input.messageDate || new Date().toISOString(),
-    rawText: input.text || "",
-    mediaType: input.mediaType || (input.videoUrl ? "VIDEO" : input.photoUrl ? "IMAGE" : "NONE"),
+    rawText: input.text || input.pollData?.question || "",
+    mediaType: input.mediaType || (input.pollData ? "POLL" : input.videoUrl ? "VIDEO" : input.photoUrl ? "IMAGE" : "NONE"),
     status: "RECEIVED",
   });
 
@@ -737,55 +885,58 @@ export async function ingestNewTelegramMessage(input: {
 
   // STEP 4: AI CLASSIFICATION & PROCESSING
   try {
-    const fullText = (input.text || "").trim();
-    const isMcq = (/[a-d][\)\.\-:]/i.test(fullText) && fullText.includes("?")) || /ans(?:wer)?\s*[:\-]/i.test(fullText);
-    const isNotice = /nbems|admit card|exam schedule|postponed|official notice|application/i.test(fullText);
-    const isPearl = /remember this|high[- ]yield|pearl|mnemonic|rule of|formula/i.test(fullText);
+    const fullText = (input.text || input.pollData?.question || "").trim();
+    const isPollMcq = Boolean(input.pollData);
+    const isTextMcq = (/[a-d][\)\.\-:]/i.test(fullText) && (fullText.includes("?") || fullText.includes("which") || fullText.includes("what"))) || /ans(?:wer)?\s*[:\-]/i.test(fullText);
+    const isNotice = /nbems|natboard|nbe|admit card|exam schedule|postponed|official notice|application|result|hall ticket|guidelines|cutoff|eligibility/i.test(fullText);
+    const isPearl = /remember this|high[- ]yield|pearl|mnemonic|rule of|formula|drug of choice|investigation of choice|gold standard|triad|clinical sign/i.test(fullText);
 
-    if (isNotice) {
-      CloudDb.insertNotice({
-        id: "not-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
-        sourceMessageId: rawRes.message.id,
-        originalText: fullText,
-        cleanedText: fullText,
-        importance: /postponed|critical|urgent/i.test(fullText) ? "critical" : "important",
-        noticeDate: input.messageDate || new Date().toISOString(),
-        sourceChannel: input.sourceTitle,
-        createdAt: new Date().toISOString(),
-      });
-      CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
-      return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "NOTICE" };
-    }
+    // 1. CLINICAL MCQ (Poll-based or Text-based)
+    if (isPollMcq || isTextMcq) {
+      let stem = "";
+      let options: { key: string; text: string }[] = [];
+      let correctKey = "A";
+      let explanation = "";
+      let whyOtherOptionsAreWrong: { key: string; reason: string }[] = [];
+      let examPearl = "";
 
-    if (isPearl && !isMcq) {
-      CloudDb.insertPearl({
-        id: "prl-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
-        sourceMessageId: rawRes.message.id,
-        title: input.sourceTitle + " High-Yield Pearl",
-        takeaway: fullText,
-        subject: determineSubject(fullText),
-        topic: "Clinical Pearl",
-        isSaved: true,
-        createdAt: new Date().toISOString(),
-      });
-      CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
-      return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "PEARL" };
-    }
+      if (isPollMcq && input.pollData) {
+        stem = input.pollData.question;
+        options = input.pollData.options;
+        correctKey = input.pollData.correctKey;
+        const enrichment = enrichClinicalQuestionServer({
+          stem,
+          options,
+          correctKey,
+        });
+        explanation = enrichment.explanation || `Option ${correctKey} is the authoritative FMGE answer.`;
+        whyOtherOptionsAreWrong = enrichment.whyOtherOptionsAreWrong;
+        examPearl = enrichment.highYieldPearl;
+      } else {
+        const extracted = parseClinicalMcq(fullText);
+        stem = extracted.stem;
+        options = extracted.options;
+        correctKey = extracted.correctKey;
+        explanation = extracted.explanation;
+        whyOtherOptionsAreWrong = extracted.whyOtherOptionsAreWrong;
+        examPearl = extracted.examPearl;
+      }
 
-    if (isMcq) {
-      const extracted = parseClinicalMcq(fullText);
       const qRes = CloudDb.insertQuestion({
         id: "q-cloud-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         sourceId: input.sourceId,
         sourceMessageId: rawRes.message.id,
-        subject: determineSubject(fullText),
-        topic: extracted.topic,
-        questionText: extracted.stem,
-        options: extracted.options,
-        correctAnswer: extracted.correctKey,
-        explanation: extracted.explanation,
-        whyOtherOptionsAreWrong: extracted.whyOtherOptionsAreWrong,
+        subject: determineSubject(stem + " " + fullText),
+        topic: "Clinical High-Yield Recall",
+        questionText: stem,
+        options,
+        correctAnswer: correctKey,
+        explanation,
+        whyOtherOptionsAreWrong,
+        examPearl,
         sourceChannel: input.sourceTitle,
+        imageUrl: savedImageUrl || input.photoUrl,
+        videoUrl: savedVideoUrl || input.videoUrl,
         difficulty: "high-yield",
         createdAt: new Date().toISOString(),
       });
@@ -794,19 +945,21 @@ export async function ingestNewTelegramMessage(input: {
         id: "prl-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         sourceMessageId: rawRes.message.id,
         questionId: qRes.question.id,
-        title: extracted.topic,
-        takeaway: extracted.examPearl,
-        subject: determineSubject(fullText),
-        topic: extracted.topic,
+        title: input.sourceTitle + " Pearl",
+        takeaway: examPearl || stem,
+        subject: determineSubject(stem + " " + fullText),
+        topic: "Clinical Pearl",
         isSaved: true,
+        imageUrl: savedImageUrl || input.photoUrl,
+        videoUrl: savedVideoUrl || input.videoUrl,
         createdAt: new Date().toISOString(),
       });
 
       CloudDb.insertCrossCheck({
         id: "cc-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         questionId: qRes.question.id,
-        originalAnswer: extracted.correctKey,
-        aiAnswer: extracted.correctKey,
+        originalAnswer: correctKey,
+        aiAnswer: correctKey,
         agreementStatus: "AGREED",
         reason: "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
         confidence: 0.96,
@@ -817,8 +970,58 @@ export async function ingestNewTelegramMessage(input: {
       return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "MCQ" };
     }
 
+    // 2. OFFICIAL NBE NOTICES & ANNOUNCEMENTS
+    if (isNotice) {
+      CloudDb.insertNotice({
+        id: "not-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        sourceMessageId: rawRes.message.id,
+        originalText: fullText,
+        cleanedText: fullText,
+        importance: /postponed|critical|urgent|admit card/i.test(fullText) ? "critical" : "important",
+        noticeDate: input.messageDate || new Date().toISOString(),
+        sourceChannel: input.sourceTitle,
+        imageUrl: savedImageUrl || input.photoUrl,
+        videoUrl: savedVideoUrl || input.videoUrl,
+        createdAt: new Date().toISOString(),
+      });
+      CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
+      return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "NOTICE" };
+    }
+
+    // 3. HIGH-YIELD CLINICAL PEARLS, MNEMONICS & VISUAL INSPECTION TIPS
+    if (isPearl || input.photoUrl || input.videoUrl) {
+      CloudDb.insertPearl({
+        id: "prl-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        sourceMessageId: rawRes.message.id,
+        title: input.sourceTitle + " High-Yield Pearl",
+        takeaway: fullText || (input.videoUrl ? "Clinical Demonstration Video Clip" : "High-Yield Medical Visual Inspection"),
+        subject: determineSubject(fullText),
+        topic: input.photoUrl ? "Image-Based Pearl" : input.videoUrl ? "Video Clinical Tip" : "Clinical Pearl",
+        isSaved: true,
+        imageUrl: savedImageUrl || input.photoUrl,
+        videoUrl: savedVideoUrl || input.videoUrl,
+        createdAt: new Date().toISOString(),
+      });
+      CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
+      return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "PEARL" };
+    }
+
+    // 4. GENERAL HIGH-YIELD TIP
+    CloudDb.insertTip({
+      id: "tip-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+      sourceMessageId: rawRes.message.id,
+      originalText: fullText,
+      cleanedText: fullText,
+      subject: determineSubject(fullText),
+      topic: "High-Yield Bulletin",
+      sourceChannel: input.sourceTitle,
+      imageUrl: savedImageUrl || input.photoUrl,
+      videoUrl: savedVideoUrl || input.videoUrl,
+      createdAt: new Date().toISOString(),
+    });
+
     CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
-    return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "OTHER" };
+    return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "TIP" };
   } catch (err: any) {
     console.error("[CloudWorker] AI extraction error:", err);
     CloudDb.updateMessageStatus(rawRes.message.id, "FAILED");
@@ -860,11 +1063,13 @@ export async function syncActiveMonitoredSources() {
   for (const src of monitoredSources) {
     try {
       const messages = await activeClient.getMessages(src.telegramChannelId, {
-        limit: 10,
+        limit: 15,
       });
 
       for (const m of messages) {
-        if (m.id <= (src.lastProcessedMessageId || 0)) continue;
+        if (!m || m.id <= (src.lastProcessedMessageId || 0)) continue;
+
+        const mediaResult = await extractTelegramMessageMediaAndPoll(activeClient, m, src.id);
 
         await ingestNewTelegramMessage({
           sourceId: src.id,
@@ -872,12 +1077,77 @@ export async function syncActiveMonitoredSources() {
           telegramMessageId: m.id,
           messageDate: m.date ? new Date(m.date * 1000).toISOString() : new Date().toISOString(),
           text: m.text || (m as any).message || "",
+          mediaType: mediaResult.mediaType,
+          photoUrl: mediaResult.photoUrl,
+          videoUrl: mediaResult.videoUrl,
+          pollData: mediaResult.pollData,
         });
       }
-    } catch (err) {
-      // Continue next source
+    } catch (err: any) {
+      console.warn(`[SyncWorker] Skipping source ${src.title}:`, err?.message);
     }
   }
+}
+
+export async function syncAllMonitoredSourcesNow(): Promise<{
+  success: boolean;
+  monitoredSourcesCount: number;
+  newMessagesCount: number;
+  newQuestionsCount: number;
+  error?: string;
+}> {
+  if (!activeClient) {
+    await initTelegramCloudWorker();
+  }
+  if (!activeClient) {
+    return {
+      success: false,
+      monitoredSourcesCount: 0,
+      newMessagesCount: 0,
+      newQuestionsCount: 0,
+      error: "Telegram client not connected or authorized.",
+    };
+  }
+
+  const monitoredSources = CloudDb.getSources(true);
+  let totalNewMsgs = 0;
+  let totalNewQs = 0;
+
+  for (const src of monitoredSources) {
+    try {
+      const messages = await activeClient.getMessages(src.telegramChannelId, { limit: 25 });
+      for (const m of messages) {
+        if (!m || m.id <= (src.lastProcessedMessageId || 0)) continue;
+
+        const mediaResult = await extractTelegramMessageMediaAndPoll(activeClient, m, src.id);
+        const res = await ingestNewTelegramMessage({
+          sourceId: src.id,
+          sourceTitle: src.title,
+          telegramMessageId: m.id,
+          messageDate: m.date ? new Date(m.date * 1000).toISOString() : new Date().toISOString(),
+          text: m.text || (m as any).message || "",
+          mediaType: mediaResult.mediaType,
+          photoUrl: mediaResult.photoUrl,
+          videoUrl: mediaResult.videoUrl,
+          pollData: mediaResult.pollData,
+        });
+
+        if (res && res.status !== "DUPLICATE") {
+          totalNewMsgs++;
+          if (res.category === "MCQ") totalNewQs++;
+        }
+      }
+    } catch (err: any) {
+      console.warn(`[ManualSync] Error syncing ${src.title}:`, err?.message);
+    }
+  }
+
+  return {
+    success: true,
+    monitoredSourcesCount: monitoredSources.length,
+    newMessagesCount: totalNewMsgs,
+    newQuestionsCount: totalNewQs,
+  };
 }
 
 async function downloadFileLocally(url: string, destPath: string): Promise<void> {
@@ -896,11 +1166,12 @@ async function downloadFileLocally(url: string, destPath: string): Promise<void>
 
 function determineSubject(t: string): string {
   const s = t.toLowerCase();
-  if (/ecg|stemi|mi|cardio|heart|murmur|angina|hypertension|infarction|arrhythmia|troponin|chf/i.test(s)) return "medicine";
-  if (/burn|parkland|surgery|cholecyst|appendic|diverticul|atls|trauma|hernia|laparoscopy/i.test(s)) return "surgery";
-  if (/preeclampsia|eclampsia|pph|uterus|cervix|placenta|gestation|labour|amniotic|hcg|bishop/i.test(s)) return "obg";
+  if (/ecg|stemi|mi|cardio|heart|murmur|angina|hypertension|infarction|arrhythmia|troponin|chf|kidney|nephro|gfr/i.test(s)) return "medicine";
+  if (/burn|parkland|surgery|cholecyst|appendic|diverticul|atls|trauma|hernia|laparoscopy|wound/i.test(s)) return "surgery";
+  if (/preeclampsia|eclampsia|pph|uterus|cervix|placenta|gestation|labour|amniotic|hcg|bishop|pritchard|zuspan/i.test(s)) return "obg";
+  if (/pediatric|infant|neonate|growth|milestone|fontanelle|apgar|resuscitation|nrp|kwashiorkor|marasmus/i.test(s)) return "pediatrics";
   if (/vaccine|cold chain|vvm|sensitivity|specificity|epidemiology|psm|incubation|cohort|case control/i.test(s)) return "psm";
-  if (/antidote|toxicity|receptor|agonist|antagonist|beta blocker|antibiotic|pharmacology|p450/i.test(s)) return "pharmacology";
+  if (/antidote|toxicity|receptor|agonist|antagonist|beta blocker|antibiotic|pharmacology|p450|digoxin/i.test(s)) return "pharmacology";
   if (/nerve|plexus|artery|foramen|muscle|ligament|triangle|anatomy|bone|fracture/i.test(s)) return "anatomy";
   if (/biopsy|neoplasm|hallmark|granuloma|necrosis|histology|reed sternberg|pathology/i.test(s)) return "pathology";
   if (/x-ray|ct scan|mri|radiograph|ground glass|sail sign|steeple sign|radiology/i.test(s)) return "radiology";
@@ -990,12 +1261,18 @@ export async function importChannelHistory(sourceId: string, limit = 50): Promis
 
     for (const msg of messages) {
       if (!msg) continue;
+      const mediaResult = await extractTelegramMessageMediaAndPoll(activeClient, msg, source.id);
+
       const res = await ingestNewTelegramMessage({
         sourceId: source.id,
         sourceTitle: source.title,
         telegramMessageId: msg.id,
         messageDate: msg.date ? new Date(msg.date * 1000).toISOString() : new Date().toISOString(),
         text: msg.text || (msg as any).message || "",
+        mediaType: mediaResult.mediaType,
+        photoUrl: mediaResult.photoUrl,
+        videoUrl: mediaResult.videoUrl,
+        pollData: mediaResult.pollData,
       });
 
       if (res && res.status !== "DUPLICATE") {

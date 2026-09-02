@@ -719,6 +719,7 @@ function AppInner() {
                     announcements={state.telegramAnnouncements}
                     onUpdateAppState={setState}
                     onAddToErrorNotebook={(item) => handleAddErrorItem(item as any)}
+                    onSaveAsPearl={(pearl) => handleAddCustomPearl({ ...pearl, id: `pearl-${Date.now()}` } as any)}
                     onRecordAttempt={recordQuestionAttempt}
                   />
                 )}

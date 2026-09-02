@@ -36,6 +36,11 @@ import {
   Smartphone,
   CheckCheck,
   Brain,
+  Star,
+  Tag,
+  Trash2,
+  Edit3,
+  Filter,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { enrichClinicalQuestion } from "../utils/clinicalDistractorHelper";
@@ -104,14 +109,20 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   const [pearls, setPearls] = useState<any[]>([]);
   const [crossChecks, setCrossChecks] = useState<any[]>([]);
   const [sources, setSources] = useState<any[]>([]);
+  const [savedItems, setSavedItems] = useState<any[]>([]);
 
-  // 3. UI Navigation Tabs
-  const [activeTab, setActiveTab] = useState<"questions" | "images" | "videos" | "tips" | "notices" | "pearls" | "cross_checks" | "sources" | "debugger">("questions");
+  // 3. UI Navigation Tabs (including Dedicated Saved Vault)
+  const [activeTab, setActiveTab] = useState<
+    "questions" | "saved" | "images" | "videos" | "tips" | "notices" | "pearls" | "cross_checks" | "sources" | "debugger"
+  >("questions");
 
   // 4. Filters & Search
   const [searchQuery, setSearchQuery] = useState("");
   const [sourceSearchQuery, setSourceSearchQuery] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("all");
+  const [selectedChannelId, setSelectedChannelId] = useState("all");
+  const [savedFilterSubject, setSavedFilterSubject] = useState("all");
+  const [savedFilterType, setSavedFilterType] = useState("all");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "high_yield">("newest");
 
   // 5. Auth Modal & Flow State (Default: QR Code login)
@@ -137,6 +148,10 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   const [userSelections, setUserSelections] = useState<Record<string, string>>({});
   const [revealedQuestions, setRevealedQuestions] = useState<Record<string, boolean>>({});
   const [savedBookmarkIds, setSavedBookmarkIds] = useState<Record<string, boolean>>({});
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [studentNoteInput, setStudentNoteInput] = useState<string>("");
+  const [isManualSyncing, setIsManualSyncing] = useState<boolean>(false);
+  const [syncBannerNotice, setSyncBannerNotice] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const qrPollingRef = useRef<NodeJS.Timeout | null>(null);
@@ -192,9 +207,114 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           setPearls(data.pearls || []);
           setCrossChecks(data.crossChecks || []);
           setSources(data.sources || []);
+
+          if (Array.isArray(data.savedItems)) {
+            setSavedItems(data.savedItems);
+            const bookmarkMap: Record<string, boolean> = {};
+            data.savedItems.forEach((si: any) => {
+              bookmarkMap[si.itemId] = true;
+            });
+            setSavedBookmarkIds(bookmarkMap);
+          }
         }
       }
     } catch (_) {}
+  };
+
+  const handleToggleSaveItem = async (item: {
+    itemId: string;
+    itemType: "question" | "notice" | "tip" | "pearl" | "media";
+    subject: string;
+    title: string;
+    content: string;
+    mediaUrl?: string;
+    mediaType?: "IMAGE" | "VIDEO" | "POLL" | "NONE";
+    options?: { key: string; text: string }[];
+    correctAnswer?: string;
+    explanation?: string;
+    tags?: string[];
+    studentNotes?: string;
+    sourceChannel?: string;
+  }) => {
+    try {
+      const res = await fetch("/api/telegram/saved/toggle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(item),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          if (data.isSaved && data.item) {
+            setSavedItems((prev) => [data.item, ...prev.filter((i) => i.itemId !== item.itemId)]);
+            setSavedBookmarkIds((prev) => ({ ...prev, [item.itemId]: true }));
+            confetti({ particleCount: 25, spread: 50, origin: { y: 0.8 } });
+          } else {
+            setSavedItems((prev) => prev.filter((i) => i.itemId !== item.itemId));
+            setSavedBookmarkIds((prev) => ({ ...prev, [item.itemId]: false }));
+          }
+        }
+      }
+    } catch (_) {}
+  };
+
+  const handleUpdateSavedNotes = async (id: string, notes: string, tags?: string[]) => {
+    try {
+      const res = await fetch("/api/telegram/saved/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, notes, tags }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.item) {
+          setSavedItems((prev) => prev.map((i) => (i.id === id || i.itemId === id ? data.item : i)));
+          setEditingNoteId(null);
+        }
+      }
+    } catch (_) {}
+  };
+
+  const handleDeleteSavedItem = async (id: string, itemId: string) => {
+    try {
+      const res = await fetch(`/api/telegram/saved/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setSavedItems((prev) => prev.filter((i) => i.id !== id && i.itemId !== itemId));
+        setSavedBookmarkIds((prev) => ({ ...prev, [itemId]: false }));
+      }
+    } catch (_) {}
+  };
+
+  const handleManualSyncNow = async () => {
+    setIsManualSyncing(true);
+    setSyncBannerNotice("Connecting to Telegram MTProto channels...");
+    try {
+      const res = await fetch("/api/telegram/cloud/sync-now", {
+        method: "POST",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setSyncBannerNotice(
+            `⚡ Auto-Sync Complete! Monitored ${data.monitoredSourcesCount} channels. Ingested ${data.newMessagesCount} new messages (${data.newQuestionsCount} new clinical MCQs).`
+          );
+          await fetchFeed();
+          await fetchStatus();
+          confetti({ particleCount: 40, spread: 60, origin: { y: 0.25 } });
+        } else {
+          setSyncBannerNotice(data.error || "Sync completed with no new updates.");
+        }
+      } else {
+        setSyncBannerNotice("Could not reach worker. Retrying automatically in 30s.");
+      }
+    } catch (err: any) {
+      setSyncBannerNotice("Sync failed: " + err.message);
+    } finally {
+      setIsManualSyncing(false);
+      setTimeout(() => setSyncBannerNotice(null), 7000);
+    }
   };
 
   const fetchSources = async (query = "") => {
@@ -489,24 +609,50 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     });
   };
 
-  // Filtered Questions
+  // Filtered Questions with Subject and Channel Selection
   const filteredQuestions = useMemo(() => {
-    return questions.filter((q) => {
-      if (selectedSubject !== "all" && q.subject !== selectedSubject) return false;
+    return questions
+      .filter((q) => {
+        if (selectedSubject !== "all" && q.subject !== selectedSubject) return false;
+        if (selectedChannelId !== "all") {
+          const channelObj = sources.find((s) => s.id === selectedChannelId);
+          if (channelObj && q.sourceChannel !== channelObj.title) return false;
+        }
+        if (searchQuery.trim()) {
+          const query = searchQuery.toLowerCase();
+          const text = (q.questionText + " " + q.topic + " " + q.subject + " " + q.sourceChannel).toLowerCase();
+          if (!text.includes(query)) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === "oldest") return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+  }, [questions, selectedSubject, selectedChannelId, searchQuery, sortBy, sources]);
+
+  const imageQuestions = useMemo(
+    () => questions.filter((q) => Boolean(q.imageAssetId || q.imageUrl)),
+    [questions]
+  );
+
+  const videoQuestions = useMemo(
+    () => questions.filter((q) => Boolean(q.videoAssetId || q.videoUrl)),
+    [questions]
+  );
+
+  const filteredSavedItems = useMemo(() => {
+    return savedItems.filter((item) => {
+      if (savedFilterSubject !== "all" && item.subject.toLowerCase() !== savedFilterSubject.toLowerCase()) return false;
+      if (savedFilterType !== "all" && item.itemType !== savedFilterType) return false;
       if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const text = (q.questionText + " " + q.topic + " " + q.subject + " " + q.sourceChannel).toLowerCase();
-        if (!text.includes(query)) return false;
+        const q = searchQuery.toLowerCase();
+        const text = (item.title + " " + item.content + " " + item.subject + " " + (item.studentNotes || "")).toLowerCase();
+        if (!text.includes(q)) return false;
       }
       return true;
-    }).sort((a, b) => {
-      if (sortBy === "oldest") return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-  }, [questions, selectedSubject, searchQuery, sortBy]);
-
-  const imageQuestions = useMemo(() => questions.filter((q) => Boolean(q.imageAssetId)), [questions]);
-  const videoQuestions = useMemo(() => questions.filter((q) => Boolean(q.videoAssetId)), [questions]);
+  }, [savedItems, savedFilterSubject, savedFilterType, searchQuery]);
 
   return (
     <div className="space-y-6 animate-fadeIn pb-16 font-['Plus_Jakarta_Sans']">
@@ -573,6 +719,18 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               </button>
             )}
 
+            {isConnected && (
+              <button
+                onClick={handleManualSyncNow}
+                disabled={isManualSyncing}
+                className="px-3.5 py-2.5 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-2xs"
+                title="Force immediate auto-sync across all monitored channels"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${isManualSyncing ? "animate-spin text-sky-600" : ""}`} />
+                {isManualSyncing ? "Syncing MTProto..." : "⚡ Auto-Sync Now"}
+              </button>
+            )}
+
             <button
               onClick={() => {
                 fetchStatus();
@@ -587,11 +745,26 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           </div>
         </div>
 
+        {/* Sync Progress / Success Toast Banner */}
+        {syncBannerNotice && (
+          <div className="p-3 rounded-2xl bg-sky-50 border border-sky-200 text-sky-950 text-xs flex items-center justify-between gap-2 animate-fadeIn shadow-2xs font-medium">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-sky-600 shrink-0" />
+              <span>{syncBannerNotice}</span>
+            </div>
+            <button onClick={() => setSyncBannerNotice(null)} className="text-sky-400 hover:text-sky-700 cursor-pointer">
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Cloud Metrics Banner */}
         <div className="p-3 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex items-center justify-between flex-wrap gap-2 text-xs font-['Outfit']">
           <span className="font-bold text-slate-700 uppercase tracking-wider text-[11px]">Cloud Knowledge Bank:</span>
           <div className="flex items-center gap-3 flex-wrap text-slate-600">
             <span><strong className="text-slate-900 font-bold">{questions.length}</strong> Questions</span>
+            <span>•</span>
+            <span><strong className="text-amber-600 font-bold">{savedItems.length}</strong> Saved in Vault</span>
             <span>•</span>
             <span><strong className="text-sky-700 font-bold">{imageQuestions.length}</strong> Images</span>
             <span>•</span>
@@ -601,7 +774,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             <span>•</span>
             <span><strong className="text-emerald-700 font-bold">{notices.length}</strong> Notices</span>
             <span>•</span>
-            <span><strong className="text-indigo-700 font-bold">{workerHealth.activeSourcesCount}</strong> Monitored Sources</span>
+            <span><strong className="text-indigo-700 font-bold">{workerHealth.activeSourcesCount}</strong> Monitored Channels</span>
           </div>
         </div>
 
@@ -609,11 +782,12 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100 overflow-x-auto">
           {[
             { id: "questions", label: "Questions (" + questions.length + ")", icon: FileText },
+            { id: "saved", label: "⭐ High-Yield Vault (" + savedItems.length + ")", icon: Star, highlight: true },
             { id: "images", label: "Images (" + imageQuestions.length + ")", icon: ImageIcon },
             { id: "videos", label: "Videos (" + videoQuestions.length + ")", icon: Video },
-            { id: "pearls", label: "Exam Pearls (" + pearls.length + ")", icon: Sparkles },
             { id: "tips", label: "Tips (" + tips.length + ")", icon: Lightbulb },
             { id: "notices", label: "Notices (" + notices.length + ")", icon: Bell },
+            { id: "pearls", label: "Exam Pearls (" + pearls.length + ")", icon: Sparkles },
             { id: "cross_checks", label: "AI Cross-Check (" + crossChecks.length + ")", icon: ShieldCheck },
             { id: "sources", label: "Sources (" + workerHealth.activeSourcesCount + " Active)", icon: Layers },
             { id: "debugger", label: "Raw Messages (" + messages.length + ")", icon: Terminal },
@@ -629,10 +803,12 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold font-['Outfit'] transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                   activeTab === tab.id
                     ? "bg-slate-900 text-white shadow-xs"
+                    : tab.highlight && savedItems.length > 0
+                    ? "bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200"
                     : "bg-slate-50 text-slate-600 hover:bg-slate-100"
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className={`h-3.5 w-3.5 ${tab.highlight && activeTab !== tab.id ? "text-amber-500 fill-amber-500" : ""}`} />
                 {tab.label}
               </button>
             );
@@ -655,7 +831,21 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               />
             </div>
 
-            <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
+              {/* Channel Selector */}
+              <select
+                value={selectedChannelId}
+                onChange={(e) => setSelectedChannelId(e.target.value)}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none cursor-pointer max-w-[170px] truncate"
+              >
+                <option value="all">All Channels ({sources.length})</option>
+                {sources.map((src) => (
+                  <option key={src.id} value={src.id}>
+                    {src.title} {src.isMonitored ? "⚡" : ""}
+                  </option>
+                ))}
+              </select>
+
               <select
                 value={selectedSubject}
                 onChange={(e) => setSelectedSubject(e.target.value)}
@@ -757,6 +947,31 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   <p className="text-sm font-semibold text-slate-900 leading-relaxed">
                     {q.questionText}
                   </p>
+
+                  {/* Image / Video Attachment for Question */}
+                  {q.imageUrl && (
+                    <div
+                      className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 relative group max-h-72 cursor-pointer shadow-sm"
+                      onClick={() => setZoomedImageUrl(q.imageUrl)}
+                    >
+                      <img
+                        src={q.imageUrl}
+                        alt={q.questionText}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="px-3 py-1.5 rounded-xl bg-slate-900/90 text-white text-xs font-bold font-['Outfit'] flex items-center gap-1.5 shadow-md">
+                          <ZoomIn className="h-3.5 w-3.5" /> Tap to Zoom Image
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {q.videoUrl && (
+                    <div className="rounded-2xl overflow-hidden border border-slate-200 bg-black max-h-72 shadow-sm">
+                      <video src={q.videoUrl} controls className="w-full h-full object-cover" />
+                    </div>
+                  )}
 
                   {/* MCQ Options */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -890,9 +1105,505 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                       </div>
                     );
                   })()}
+
+                  {/* Action Bar: Save to High-Yield Vault, Error Vault, Pearls */}
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-100 flex-wrap gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        onClick={() =>
+                          handleToggleSaveItem({
+                            itemId: q.id,
+                            itemType: "question",
+                            subject: q.subject || "General Medicine",
+                            title: q.topic || "Clinical MCQ",
+                            content: q.questionText,
+                            mediaUrl: q.imageUrl || q.videoUrl,
+                            mediaType: q.imageUrl ? "IMAGE" : q.videoUrl ? "VIDEO" : "POLL",
+                            options: q.options,
+                            correctAnswer: q.correctAnswer,
+                            explanation: q.explanation,
+                            sourceChannel: q.sourceChannel,
+                            tags: ["MCQ", q.subject || "Medicine"],
+                          })
+                        }
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
+                          savedBookmarkIds[q.id]
+                            ? "bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs"
+                            : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
+                        }`}
+                      >
+                        <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[q.id] ? "fill-amber-500 text-amber-500" : ""}`} />
+                        {savedBookmarkIds[q.id] ? "Saved in Vault" : "Save to Vault"}
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onAddToErrorNotebook?.({
+                            subjectId: (q.subject || "medicine").toLowerCase().replace(/[^a-z]/g, ""),
+                            topicId: "telegram-recall",
+                            topicName: q.topic || "Telegram Ingestion",
+                            questionGist: q.questionText,
+                            myMistake: "Telegram practice error review",
+                            correctConcept: `${q.explanation} (Answer: Option ${q.correctAnswer})`,
+                            isReviewed: false,
+                          });
+                          confetti({ particleCount: 20, spread: 45 });
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer"
+                        title="Send to Error Notebook"
+                      >
+                        <AlertTriangle className="h-3.5 w-3.5 text-rose-500" />
+                        To Error Vault
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onSaveAsPearl?.({
+                            title: q.topic || "Telegram Clinical Concept",
+                            takeaway: q.examPearl || q.explanation,
+                            subject: q.subject || "medicine",
+                            topic: q.topic || "Clinical Recall",
+                            isBookmarked: true,
+                            tags: ["Telegram", q.subject || "Medicine"],
+                          } as any);
+                          confetti({ particleCount: 25, spread: 50 });
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-700 border border-slate-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer"
+                        title="Send to Medical Pearls Vault"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 text-purple-600" />
+                        To Pearls
+                      </button>
+                    </div>
+
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      #{q.id.slice(-6)}
+                    </span>
+                  </div>
                 </div>
               );
             })
+          )}
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* VIEW S: HIGH-YIELD SAVED VAULT (Dedicated Bookmark System) */}
+      {/* ========================================================================= */}
+      {activeTab === "saved" && (
+        <div className="space-y-4">
+          {/* Saved Vault Filter & Stats Bar */}
+          <div className="rounded-3xl border border-amber-200/80 bg-gradient-to-r from-amber-50/70 via-white to-amber-50/50 p-5 shadow-sm space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                  <h3 className="font-bold font-['Outfit'] text-lg text-slate-900">
+                    High-Yield Saved Vault ({savedItems.length} Items)
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Your personalized, high-yield FMGE collection organized with custom notes and tags.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Content Type Filter */}
+                <div className="flex items-center bg-white rounded-xl border border-slate-200 p-1 text-xs">
+                  {["all", "question", "pearl", "tip", "notice"].map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setSavedFilterType(t)}
+                      className={`px-3 py-1 rounded-lg font-bold font-['Outfit'] capitalize transition-all cursor-pointer ${
+                        savedFilterType === t
+                          ? "bg-slate-900 text-white shadow-xs"
+                          : "text-slate-600 hover:text-slate-950"
+                      }`}
+                    >
+                      {t === "all" ? "All" : t === "question" ? "MCQs" : t + "s"}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Subject Selector */}
+                <select
+                  value={savedFilterSubject}
+                  onChange={(e) => setSavedFilterSubject(e.target.value)}
+                  className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:outline-none cursor-pointer"
+                >
+                  <option value="all">All Subjects</option>
+                  {FMGE_SUBJECTS.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Saved Items List */}
+          {filteredSavedItems.length === 0 ? (
+            <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
+              <Star className="h-10 w-10 text-amber-400 mx-auto" />
+              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">Your Saved Vault is Empty.</h3>
+              <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                Click the <strong>Save to Vault (⭐)</strong> button on any clinical MCQ, image-based question, exam notice, or medical pearl to organize your high-yield revision list here.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredSavedItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3.5 hover:border-amber-300 transition-colors flex flex-col justify-between"
+                >
+                  <div className="space-y-3">
+                    {/* Header: Subject Badge & Type */}
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 flex-wrap gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] bg-amber-50 text-amber-900 border border-amber-200 uppercase">
+                          {item.subject}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-['Outfit'] uppercase bg-slate-100 text-slate-700">
+                          {item.itemType}
+                        </span>
+                        {item.tags && item.tags.map((tag: string, tidx: number) => (
+                          <span key={tidx} className="px-2 py-0.5 rounded-full text-[9px] font-bold font-['Outfit'] bg-sky-50 text-sky-700 border border-sky-100">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {item.sourceChannel}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h4 className="font-bold text-xs text-slate-900">{item.title}</h4>
+
+                    {/* Media Preview if attached */}
+                    {item.mediaUrl && (
+                      <div
+                        className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-56 cursor-pointer"
+                        onClick={() => setZoomedImageUrl(item.mediaUrl)}
+                      >
+                        {item.mediaType === "VIDEO" ? (
+                          <video src={item.mediaUrl} controls className="w-full h-full object-cover" />
+                        ) : (
+                          <img src={item.mediaUrl} alt={item.title} className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                    )}
+
+                    {/* Content */}
+                    <p className="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-line">
+                      {item.content}
+                    </p>
+
+                    {/* MCQ Options (if saved question) */}
+                    {item.options && item.options.length > 0 && (
+                      <div className="space-y-1.5 pt-1">
+                        <div className="grid grid-cols-1 gap-1.5">
+                          {item.options.map((opt: any) => {
+                            const isCorrect = opt.key.toUpperCase() === (item.correctAnswer || "").toUpperCase();
+                            return (
+                              <div
+                                key={opt.key}
+                                className={`p-2.5 rounded-xl border text-xs flex items-center justify-between ${
+                                  isCorrect
+                                    ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 font-semibold"
+                                    : "bg-slate-50 border-slate-200 text-slate-600"
+                                }`}
+                              >
+                                <span><strong className="font-mono">{opt.key})</strong> {opt.text}</span>
+                                {isCorrect && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {item.explanation && (
+                          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-700 leading-relaxed">
+                            <strong className="text-slate-900">Explanation:</strong> {item.explanation}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Student Custom Notes */}
+                    <div className="p-3 rounded-2xl bg-amber-50/60 border border-amber-200 text-xs space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-[11px] font-['Outfit'] text-amber-900 flex items-center gap-1">
+                          <Edit3 className="h-3 w-3" /> My Student Note:
+                        </span>
+                        {editingNoteId !== item.id && (
+                          <button
+                            onClick={() => {
+                              setEditingNoteId(item.id);
+                              setStudentNoteInput(item.studentNotes || "");
+                            }}
+                            className="text-[10px] font-bold text-amber-800 hover:text-amber-950 cursor-pointer underline"
+                          >
+                            {item.studentNotes ? "Edit" : "+ Add Note"}
+                          </button>
+                        )}
+                      </div>
+
+                      {editingNoteId === item.id ? (
+                        <div className="space-y-2 pt-1">
+                          <textarea
+                            value={studentNoteInput}
+                            onChange={(e) => setStudentNoteInput(e.target.value)}
+                            placeholder="Add your mnemonic, memory hook, or exam alert..."
+                            className="w-full p-2.5 rounded-xl border border-amber-300 bg-white text-xs text-slate-900 focus:outline-none"
+                            rows={2}
+                          />
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => setEditingNoteId(null)}
+                              className="px-2.5 py-1 text-[10px] font-bold text-slate-500 hover:text-slate-800"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleUpdateSavedNotes(item.id, studentNoteInput)}
+                              className="px-3 py-1 text-[10px] font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-lg cursor-pointer"
+                            >
+                              Save Note
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-amber-950 leading-relaxed italic">
+                          {item.studentNotes || "No notes attached yet. Tap '+ Add Note' to write your personal memory hook."}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => {
+                          onSaveAsPearl?.({
+                            title: item.title,
+                            takeaway: item.content,
+                            subject: item.subject.toLowerCase(),
+                            topic: "Saved Telegram Vault",
+                            isBookmarked: true,
+                            tags: item.tags || ["Telegram"],
+                          } as any);
+                          confetti({ particleCount: 20, spread: 45 });
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
+                        title="Export to Medical Pearls Vault"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" /> To Pearls Vault
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onAddToErrorNotebook?.({
+                            subjectId: item.subject.toLowerCase().replace(/[^a-z]/g, ""),
+                            topicId: "telegram-saved",
+                            topicName: item.title,
+                            questionGist: item.content,
+                            myMistake: "Saved review card",
+                            correctConcept: item.explanation || item.content,
+                            isReviewed: false,
+                          });
+                          confetti({ particleCount: 20, spread: 45 });
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
+                        title="Export to Error Notebook"
+                      >
+                        <AlertTriangle className="h-3.5 w-3.5" /> To Error Vault
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={() => handleDeleteSavedItem(item.id, item.itemId)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                      title="Remove from Saved Vault"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* VIEW N: OFFICIAL NOTICES */}
+      {/* ========================================================================= */}
+      {activeTab === "notices" && (
+        <div className="space-y-4">
+          {notices.length === 0 ? (
+            <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
+              <Bell className="h-8 w-8 text-sky-500 mx-auto" />
+              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">No Official Exam Notices Ingested Yet.</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Official NBEMS notices, admit card announcements, and exam date bulletins posted in monitored channels will automatically appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {notices.map((n) => (
+                <div key={n.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] uppercase ${
+                        n.importance === "critical"
+                          ? "bg-rose-50 text-rose-700 border border-rose-200"
+                          : "bg-sky-50 text-sky-700 border border-sky-200"
+                      }`}>
+                        {n.importance === "critical" ? "⚠️ CRITICAL NOTICE" : "OFFICIAL NOTICE"}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {n.noticeDate ? new Date(n.noticeDate).toLocaleDateString() : "Recent"}
+                      </span>
+                    </div>
+
+                    {n.imageUrl && (
+                      <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(n.imageUrl)}>
+                        <img src={n.imageUrl} alt="Notice document" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+
+                    <p className="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-line">
+                      {n.cleanedText || n.originalText}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[11px] text-slate-400 font-mono truncate max-w-[180px]">
+                      Source: {n.sourceChannel}
+                    </span>
+                    <button
+                      onClick={() => handleToggleSaveItem({
+                        itemId: n.id,
+                        itemType: "notice",
+                        subject: "Official Bulletin",
+                        title: `NBE Notice - ${n.sourceChannel}`,
+                        content: n.cleanedText || n.originalText,
+                        mediaUrl: n.imageUrl,
+                        mediaType: n.imageUrl ? "IMAGE" : "NONE",
+                        sourceChannel: n.sourceChannel,
+                        tags: ["NBE Notice", "Official"],
+                      })}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
+                        savedBookmarkIds[n.id]
+                          ? "bg-amber-100 text-amber-900 border border-amber-300"
+                          : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
+                      }`}
+                    >
+                      <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[n.id] ? "fill-amber-500 text-amber-500" : ""}`} />
+                      {savedBookmarkIds[n.id] ? "Saved" : "Save Notice"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* VIEW T: HIGH-YIELD TIPS & BULLETINS */}
+      {/* ========================================================================= */}
+      {activeTab === "tips" && (
+        <div className="space-y-4">
+          {tips.length === 0 ? (
+            <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
+              <Lightbulb className="h-8 w-8 text-amber-500 mx-auto" />
+              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">No High-Yield Tips Ingested Yet.</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Rapid review formulas, clinical mnemonics, and high-yield tips posted in monitored channels will stream here automatically.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {tips.map((t) => (
+                <div key={t.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] uppercase bg-amber-50 text-amber-800 border border-amber-200">
+                        {t.subject || "HIGH-YIELD TIP"}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">Tip</span>
+                    </div>
+
+                    {t.imageUrl && (
+                      <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(t.imageUrl)}>
+                        <img src={t.imageUrl} alt="Tip diagram" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+
+                    {t.videoUrl && (
+                      <div className="rounded-2xl overflow-hidden border border-slate-200 bg-black max-h-60">
+                        <video src={t.videoUrl} controls className="w-full h-full object-cover" />
+                      </div>
+                    )}
+
+                    <div className="p-3 rounded-2xl bg-amber-50/60 border border-amber-200/70 text-xs text-amber-950 leading-relaxed font-medium whitespace-pre-line">
+                      {t.cleanedText || t.originalText}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                    <span className="text-[11px] text-slate-400 font-mono truncate max-w-[160px]">
+                      Source: {t.sourceChannel}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleToggleSaveItem({
+                          itemId: t.id,
+                          itemType: "tip",
+                          subject: t.subject || "General Medicine",
+                          title: `High-Yield Tip - ${t.subject || "Clinical"}`,
+                          content: t.cleanedText || t.originalText,
+                          mediaUrl: t.imageUrl || t.videoUrl,
+                          mediaType: t.imageUrl ? "IMAGE" : t.videoUrl ? "VIDEO" : "NONE",
+                          sourceChannel: t.sourceChannel,
+                          tags: ["Tip", t.subject || "Medicine"],
+                        })}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
+                          savedBookmarkIds[t.id]
+                            ? "bg-amber-100 text-amber-900 border border-amber-300"
+                            : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
+                        }`}
+                      >
+                        <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[t.id] ? "fill-amber-500 text-amber-500" : ""}`} />
+                        {savedBookmarkIds[t.id] ? "Saved" : "Save to Vault"}
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onSaveAsPearl?.({
+                            title: `Tip: ${t.subject || "Clinical"}`,
+                            takeaway: t.cleanedText || t.originalText,
+                            subject: (t.subject || "medicine").toLowerCase(),
+                            topic: "Telegram Tip",
+                            isBookmarked: true,
+                            tags: ["Tip", t.subject || "Medicine"],
+                          } as any);
+                          confetti({ particleCount: 20, spread: 45 });
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-700 border border-slate-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
+                        title="Add to Pearls Vault"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 text-purple-600" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
@@ -911,16 +1622,71 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {pearls.map((p) => (
-                <div key={p.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] bg-amber-50 text-amber-700 border border-amber-200 uppercase">
-                      {p.subject || "MEDICINE"}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">Exam Pearl • Auto-Saved</span>
+                <div key={p.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] bg-amber-50 text-amber-700 border border-amber-200 uppercase">
+                        {p.subject || "MEDICINE"}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">Exam Pearl • Auto-Saved</span>
+                    </div>
+
+                    {p.imageUrl && (
+                      <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(p.imageUrl)}>
+                        <img src={p.imageUrl} alt="Pearl visual" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+
+                    <h4 className="font-bold text-xs text-slate-900">{p.title}</h4>
+                    <div className="p-3 rounded-2xl bg-amber-50/50 border border-amber-200/60 text-xs text-amber-950 leading-relaxed font-medium">
+                      {p.takeaway}
+                    </div>
                   </div>
-                  <h4 className="font-bold text-xs text-slate-900">{p.title}</h4>
-                  <div className="p-3 rounded-2xl bg-amber-50/50 border border-amber-200/60 text-xs text-amber-950 leading-relaxed font-medium">
-                    {p.takeaway}
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      #{p.id.slice(-6)}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleToggleSaveItem({
+                          itemId: p.id,
+                          itemType: "pearl",
+                          subject: p.subject || "General Medicine",
+                          title: p.title,
+                          content: p.takeaway,
+                          mediaUrl: p.imageUrl,
+                          mediaType: p.imageUrl ? "IMAGE" : "NONE",
+                          tags: ["Pearl", p.subject || "Medicine"],
+                        })}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
+                          savedBookmarkIds[p.id]
+                            ? "bg-amber-100 text-amber-900 border border-amber-300"
+                            : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
+                        }`}
+                      >
+                        <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[p.id] ? "fill-amber-500 text-amber-500" : ""}`} />
+                        {savedBookmarkIds[p.id] ? "Saved" : "Save to Vault"}
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onSaveAsPearl?.({
+                            title: p.title,
+                            takeaway: p.takeaway,
+                            subject: (p.subject || "medicine").toLowerCase(),
+                            topic: "Exam Pearl",
+                            isBookmarked: true,
+                            tags: ["Pearl", p.subject || "Medicine"],
+                          } as any);
+                          confetti({ particleCount: 20, spread: 45 });
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
+                        title="Add to Medical Pearls Vault"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1344,6 +2110,31 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Zoomed Medical Image Modal */}
+      {zoomedImageUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-xs p-4 animate-fadeIn"
+          onClick={() => setZoomedImageUrl(null)}
+        >
+          <div
+            className="relative max-w-4xl max-h-[90vh] bg-slate-900 rounded-3xl p-2 border border-slate-700 shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setZoomedImageUrl(null)}
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/90 cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <img
+              src={zoomedImageUrl}
+              alt="Zoomed Medical Attachment"
+              className="w-full h-auto max-h-[85vh] object-contain rounded-2xl"
+            />
           </div>
         </div>
       )}

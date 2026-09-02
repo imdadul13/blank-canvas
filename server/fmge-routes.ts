@@ -32,6 +32,7 @@ import {
   discoverUserTelegramSources,
   ingestNewTelegramMessage,
   importChannelHistory,
+  syncAllMonitoredSourcesNow,
 } from "./telegram-worker";
 
 const app = express();
@@ -2730,7 +2731,17 @@ app.post("/api/telegram/cloud/test-ingest", async (req, res) => {
   res.json(result);
 });
 
-// 12. Knowledge Bank Feed
+// 12. Manual Immediate Auto-Sync Across All Monitored Sources
+app.post(["/api/telegram/sync-now", "/api/telegram/cloud/sync-now"], async (req, res) => {
+  try {
+    const result = await syncAllMonitoredSourcesNow();
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || "Manual sync failed." });
+  }
+});
+
+// 13. Knowledge Bank Feed
 app.get(["/api/telegram/feed", "/api/telegram/cloud/feed"], (req, res) => {
   const db = getCloudDatabase();
   res.json({
@@ -2743,11 +2754,59 @@ app.get(["/api/telegram/feed", "/api/telegram/cloud/feed"], (req, res) => {
     pearls: db.pearls,
     crossChecks: db.crossChecks,
     sources: db.sources,
+    savedItems: db.savedItems || [],
     heartbeat: db.heartbeats[0],
   });
 });
 
-// 13. Reset Clean Slate
+// 14. High-Yield Saved Items Vault Endpoints
+app.get("/api/telegram/saved", (req, res) => {
+  const { subject, itemType, tag } = req.query;
+  const items = CloudDb.getSavedItems({
+    subject: typeof subject === "string" ? subject : undefined,
+    itemType: typeof itemType === "string" ? itemType : undefined,
+    tag: typeof tag === "string" ? tag : undefined,
+  });
+  res.json({ success: true, savedItems: items, count: items.length });
+});
+
+app.post("/api/telegram/saved/toggle", (req, res) => {
+  const { itemId, itemType, subject, title, content, mediaUrl, mediaType, options, correctAnswer, explanation, tags, studentNotes, sourceChannel } = req.body;
+  if (!itemId) {
+    return res.status(400).json({ success: false, error: "itemId is required" });
+  }
+  const result = CloudDb.toggleSavedItem({
+    itemId,
+    itemType: itemType || "question",
+    subject: subject || "General Medicine",
+    title: title || "Clinical Concept",
+    content: content || "",
+    mediaUrl,
+    mediaType,
+    options,
+    correctAnswer,
+    explanation,
+    tags,
+    studentNotes,
+    sourceChannel,
+  });
+  res.json({ success: true, ...result });
+});
+
+app.post("/api/telegram/saved/notes", (req, res) => {
+  const { id, notes, tags } = req.body;
+  if (!id) return res.status(400).json({ success: false, error: "id is required" });
+  const updated = CloudDb.updateSavedItemNotes(id, notes, tags);
+  res.json({ success: Boolean(updated), item: updated });
+});
+
+app.delete("/api/telegram/saved/:id", (req, res) => {
+  const { id } = req.params;
+  const success = CloudDb.deleteSavedItem(id);
+  res.json({ success });
+});
+
+// 15. Reset Clean Slate
 app.post(["/api/telegram/reset", "/api/telegram/cloud/reset"], (req, res) => {
   CloudDb.resetTelegramNamespace();
   res.json({ success: true, message: "Telegram Cloud database reset to 0 sources and 0 messages." });
