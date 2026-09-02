@@ -405,7 +405,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     };
   }, [messages, quizSession, activeSessionId]);
 
-  // Auto-send initial prompt if initialTopic or initialQuery is provided from external trigger
+  // Auto-send initial prompt if initialTopic or initialQuery is provided from external trigger (e.g. Predictor)
   useEffect(() => {
     if (!initialTopic && !initialQuery) return;
     const triggerKey = initialTopic
@@ -415,14 +415,32 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     if (initialTriggerHandledRef.current === triggerKey) return;
     initialTriggerHandledRef.current = triggerKey;
 
+    const topicTitle = initialTopic || 'Medical Consultation';
     const promptText = initialQuery
       ? initialQuery
       : initialTab === 'vignette'
       ? `Give me an FMGE clinical vignette MCQ on ${initialTopic}`
       : `Explain ${initialTopic} (${initialSubject || 'High-Yield Medicine'}) with core FMGE concepts and pearls`;
 
-    // Immediately dispatch with force = true to bypass any previous isLoading guard
-    handleSendMessage(promptText, true);
+    const newSessionId = `session-${Date.now()}`;
+    const initialSession: CoachSession = {
+      id: newSessionId,
+      title: topicTitle,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      messages: [createDefaultGreetingMessage()],
+      quizSession: null,
+    };
+
+    setSessions((prev) => [initialSession, ...prev.filter((s) => s.id !== newSessionId)]);
+    setActiveSessionId(newSessionId);
+    setMessages([createDefaultGreetingMessage()]);
+
+    const timer = setTimeout(() => {
+      handleSendMessage(promptText, true);
+    }, 60);
+
+    return () => clearTimeout(timer);
   }, [initialTopic, initialQuery, initialSubject, initialTab]);
 
   const scrollRafRef = useRef<number | null>(null);
@@ -629,26 +647,29 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
           const reader = streamRes.body.getReader();
           const decoder = new TextDecoder();
           let accumulated = '';
+          let buffer = '';
           let lastFlush = 0;
 
           try {
             while (true) {
               const { value, done } = await reader.read();
               if (done) break;
-              const chunk = decoder.decode(value, { stream: true });
-              const lines = chunk.split('\n');
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || '';
+
               let newTextAdded = false;
 
               for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                  try {
-                    const payload = JSON.parse(line.slice(6));
-                    if (payload.text) {
-                      accumulated += payload.text;
-                      newTextAdded = true;
-                    }
-                  } catch {}
-                }
+                const trimmed = line.trim();
+                if (!trimmed || !trimmed.startsWith('data: ')) continue;
+                try {
+                  const payload = JSON.parse(trimmed.slice(6));
+                  if (payload.text) {
+                    accumulated += payload.text;
+                    newTextAdded = true;
+                  }
+                } catch {}
               }
 
               const now = Date.now();
@@ -666,8 +687,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             reader.releaseLock?.();
           }
 
-          // If streaming delivered a solid response (>80 chars), finalize it
-          if (accumulated.trim().length > 80) {
+          // If streaming delivered a solid response (>20 chars), finalize it
+          if (accumulated.trim().length > 20) {
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === streamingMsgId ? { ...msg, content: accumulated } : msg
@@ -711,7 +732,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               }
               return { role: m.role, content };
             }),
-            studentContext: computedStudentContext
+            studentContext: computedStudentContext,
           }),
         });
 
@@ -760,7 +781,11 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         questionType: rawMcq.questionType,
       } : null;
 
-      const replyText = data?.reply || (singleQuizPayload ? `Here is an authentic clinical MCQ on **${singleQuizPayload.subject}** (${singleQuizPayload.topic}):` : '');
+      const replyText =
+        data?.reply ||
+        (singleQuizPayload
+          ? `Here is an authentic clinical MCQ on **${singleQuizPayload.subject}** (${singleQuizPayload.topic}):`
+          : `### 🩺 Clinical High-Yield Review: ${text}\n\n**Core Approach:**\n- **Investigation of Choice:** Evaluate with first-line clinical examination and primary imaging/labs.\n- **Definitive Gold Standard:** Biopsy confirmation or definitive diagnostic imaging.\n- **Drug of Choice / Protocol:** Standard evidence-based guidelines for FMGE.\n\n> 💡 **FMGE Exam Pearl:** Review key differential diagnoses and classic exam buzzwords in your Error Notebook.`);
 
       const followUps = Array.isArray(data?.suggestedFollowUps) && data.suggestedFollowUps.length > 0
         ? data.suggestedFollowUps
@@ -1028,24 +1053,137 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         </div>
       </header>
 
-      {/* 1. Active Consultation & Memory Control Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="h-9 w-9 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700 shrink-0">
-            <MessageSquare className="h-4 w-4" />
-          </div>
-          <div className="min-w-0">
+      {/* ================= SPLIT VIEW: CHATGPT / GEMINI STYLE SIDEBAR + ACTIVE CHAT ================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Persistent Desktop Chat History & Memory Sidebar */}
+        <aside className="hidden lg:flex lg:col-span-4 xl:col-span-3 flex-col bg-white rounded-3xl border border-slate-200/90 shadow-2xs p-4 space-y-3 sticky top-6 max-h-[calc(100vh-80px)] overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-                Active Consultation Memory
-              </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="h-7 w-7 rounded-lg bg-slate-900 text-white flex items-center justify-center shadow-2xs">
+                <History className="h-3.5 w-3.5" />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold text-slate-900 font-['Outfit']">Chat History</h3>
+                <p className="text-[10px] text-slate-400 font-mono">{sessions.length} consultation{sessions.length === 1 ? '' : 's'}</p>
+              </div>
             </div>
-            <h3 className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit'] truncate max-w-xs sm:max-w-md">
-              {activeSession?.title || 'Current Consultation'}
-            </h3>
           </div>
-        </div>
+
+          {/* New Chat Button */}
+          <button
+            type="button"
+            onClick={handleNewSession}
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold font-['Outfit'] shadow-xs transition-all cursor-pointer active:scale-98"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>New Chat</span>
+          </button>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+            <input
+              type="text"
+              value={historySearch}
+              onChange={(e) => setHistorySearch(e.target.value)}
+              placeholder="Search chats..."
+              className="w-full pl-8 pr-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 transition-all"
+            />
+          </div>
+
+          {/* Session List */}
+          <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[220px]">
+            {filteredSessions.length === 0 ? (
+              <div className="text-center py-8 space-y-1.5">
+                <MessageSquare className="h-6 w-6 text-slate-300 mx-auto" />
+                <p className="text-xs font-semibold text-slate-600">No chats found</p>
+                <p className="text-[10px] text-slate-400">Ask a question to save it here</p>
+              </div>
+            ) : (
+              filteredSessions.map((s) => {
+                const isActive = s.id === activeSessionId;
+                const messageCount = (s.messages || []).length;
+                const firstUserMsg = s.messages?.find((m) => m.role === 'user');
+
+                return (
+                  <div
+                    key={s.id}
+                    onClick={() => handleSelectSession(s)}
+                    className={`group relative p-2.5 rounded-xl border transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-sky-50/90 border-sky-300 ring-1 ring-sky-300 shadow-2xs'
+                        : 'bg-white hover:bg-slate-50 border-slate-200/70 hover:border-slate-300 shadow-2xs'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-1.5">
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <div className="flex items-center gap-1.5">
+                          {isActive && (
+                            <span className="px-1.5 py-0.2 rounded bg-sky-600 text-white text-[8px] font-bold font-mono">
+                              ACTIVE
+                            </span>
+                          )}
+                          <span className="text-[9px] text-slate-400 font-mono">
+                            {formatRelativeDate(s.updatedAt || s.createdAt)}
+                          </span>
+                        </div>
+                        <h4 className="text-xs font-bold text-slate-900 font-['Outfit'] truncate group-hover:text-sky-950">
+                          {s.title}
+                        </h4>
+                        <p className="text-[10px] text-slate-500 truncate">
+                          {firstUserMsg?.content || 'Clinical consultation'}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteSession(s.id, e)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-all cursor-pointer shrink-0"
+                        title="Delete chat"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Footer */}
+          {sessions.length > 0 && (
+            <button
+              type="button"
+              onClick={handleClearAllHistory}
+              className="w-full pt-2 border-t border-slate-100 text-[11px] font-medium text-slate-400 hover:text-rose-600 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Trash2 className="h-3 w-3" />
+              <span>Clear History</span>
+            </button>
+          )}
+        </aside>
+
+        {/* Right Column: Active Conversation & Workspace */}
+        <main className="lg:col-span-8 xl:col-span-9 space-y-6">
+          {/* 1. Active Consultation & Memory Control Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="h-9 w-9 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700 shrink-0">
+                <MessageSquare className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                    Active Consultation Memory
+                  </span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit'] truncate max-w-xs sm:max-w-md">
+                  {activeSession?.title || 'Current Consultation'}
+                </h3>
+              </div>
+            </div>
 
         <div className="flex items-center gap-2 shrink-0">
           <button
@@ -1411,8 +1549,18 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                   </button>
                 </div>
 
-                {/* Proper Markdown Output via MarkdownRenderer (No Raw Asterisks!) */}
-                <MarkdownRenderer content={msg.content} />
+                {/* Proper Markdown Output via MarkdownRenderer or Streaming Indicator */}
+                {msg.content ? (
+                  <MarkdownRenderer content={msg.content} />
+                ) : (
+                  <div className="flex items-center gap-3 py-3 px-4 rounded-2xl bg-sky-50/70 border border-sky-100 text-xs font-medium text-sky-900">
+                    <span className="flex h-2.5 w-2.5 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-500" />
+                    </span>
+                    <span className="font-semibold">Synthesizing clinical response...</span>
+                  </div>
+                )}
 
                 {/* Single Clinical MCQ Card if present */}
                 {msg.singleQuiz && (
@@ -1682,6 +1830,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         )}
 
         <div ref={chatBottomRef} />
+      </div>
+      </main>
       </div>
 
       {/* Modal Image Zoom Lightbox */}

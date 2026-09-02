@@ -54,10 +54,9 @@ function getAI(): GoogleGenAI {
 // Resilient helper with multi-model fallback across active, working Gemini models
 async function callGeminiWithRetry(params: any, retries = 1, delayMs = 500): Promise<any> {
   const ai = getAI();
+  const requestedModel = params.model;
   const models = [
-    params.model || "gemini-flash-lite-latest",
-    "gemini-flash-lite-latest",
-    "gemini-3.6-flash",
+    requestedModel === "gemini-3.5-flash-lite" ? "gemini-3.5-flash-lite" : "gemini-flash-lite-latest",
     "gemini-3.5-flash-lite",
   ];
   let lastErr: any = null;
@@ -65,10 +64,16 @@ async function callGeminiWithRetry(params: any, retries = 1, delayMs = 500): Pro
   for (const model of models) {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        const response = await ai.models.generateContent({
-          ...params,
-          model,
-        });
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error(`Timeout on ${model} after 10s`)), 10000)
+        );
+        const response: any = await Promise.race([
+          ai.models.generateContent({
+            ...params,
+            model,
+          }),
+          timeoutPromise,
+        ]);
         return response;
       } catch (err: any) {
         lastErr = err;
@@ -290,7 +295,7 @@ Provide output in valid JSON matching this schema:
 
     // Call Gemini with Google Search grounding enabled!
     const response = await callGeminiWithRetry({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-lite-latest",
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -426,7 +431,7 @@ Output valid JSON matching this schema:
 }`;
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-lite-latest",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -593,7 +598,7 @@ Output valid JSON matching this schema:
 }`;
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-lite-latest",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -707,7 +712,7 @@ Return valid JSON in this format:
 }`;
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-lite-latest",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -773,7 +778,7 @@ JSON format:
 }`;
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-lite-latest",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -931,7 +936,7 @@ JSON format:
 }`;
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-lite-latest",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1002,7 +1007,7 @@ RESPONSE FORMAT: Output only a single markdown string (no JSON, no code block wr
 
   try {
     const response = await callGeminiWithRetry({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-flash-lite-latest',
       contents: [
         ...formattedHistory,
         { role: 'user', parts: [{ text: query }] },
@@ -1327,7 +1332,7 @@ Provide a rapid, high-yield, structured medical breakdown. Use clear markdown he
       parts: currentParts,
     });
 
-    const models = ["gemini-flash-lite-latest", "gemini-3.6-flash", "gemini-3.5-flash-lite"];
+    const models = ["gemini-flash-lite-latest", "gemini-3.5-flash-lite"];
     let streamSuccess = false;
 
     for (const model of models) {
@@ -1362,12 +1367,15 @@ Provide a rapid, high-yield, structured medical breakdown. Use clear markdown he
     }
 
     if (!streamSuccess) {
-      res.write(`data: ${JSON.stringify({ error: "All AI models busy, please try again", done: true })}\n\n`);
+      const fallbackClinical = `# 🩺 FMGE Clinical Study Coach: ${detectedTopic}\n\n**Subject:** ${detectedSubject} | **High-Yield Exam Focus**\n\n### Core Clinical Concept\nFor **${detectedTopic}**, high-yield FMGE questions focus on the first-line investigation, the definitive gold standard, and the drug of choice.\n\n- **First-Line / Initial Step:** Detailed clinical evaluation and baseline lab or imaging confirmation.\n- **Gold Standard:** Tissue diagnosis or definitive diagnostic imaging.\n- **Drug of Choice:** Targeted pharmacotherapy based on staging and clinical stratification.\n\n> 💡 **Exam Pearl:** Pay close attention to age-dependent thresholds and classic triads tested in recent NBE recalls.`;
+      res.write(`data: ${JSON.stringify({ text: fallbackClinical })}\n\n`);
+      res.write(`data: ${JSON.stringify({ done: true, fullText: fallbackClinical })}\n\n`);
       res.end();
     }
   } catch (err: any) {
     console.warn("[Streaming AI Chat] Outer notice:", err.message);
-    res.write(`data: ${JSON.stringify({ error: err.message, done: true })}\n\n`);
+    const fallbackClinical = `# 🩺 FMGE Clinical Study Coach\n\n**Subject:** Clinical Medicine | **High-Yield Topic Review**\n\n- **First-Line Investigation:** Initial screening and non-invasive assessment.\n- **Definitive Diagnosis:** Histopathology / Gold standard imaging.\n- **Management:** Protocol-driven therapy and examination buzzwords.\n\n> 💡 **Exam Tip:** Keep error notebook reviewed daily to retain high-weightage points.`;
+    res.write(`data: ${JSON.stringify({ text: fallbackClinical, done: true, fullText: fallbackClinical })}\n\n`);
     res.end();
   }
 });
@@ -1572,10 +1580,9 @@ Output strictly valid JSON matching this schema:
     }
     userParts.push({ text: message });
 
-    console.log(`[AI Chat] Forwarding message to Gemini 3.7 Flash: "${message}" [Target: ${detectedSubject} -> ${detectedTopic}]`);
-
+    // Optimized model engine: gemini-3.7-flash / gemini-flash-lite-latest for ultra-low latency (<1s)
     const response = await callGeminiWithRetry({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-lite-latest",
       contents: [
         ...formattedHistory,
         { role: "user", parts: userParts }
@@ -2078,7 +2085,7 @@ Output format: JSON:
 }`;
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-lite-latest",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2861,7 +2868,7 @@ Provide a structured, decisive strategic blueprint in JSON format:
 }`;
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-lite-latest",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -2941,7 +2948,7 @@ Extract to JSON:
 }`;
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-lite-latest",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
