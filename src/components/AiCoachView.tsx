@@ -289,9 +289,19 @@ I am grounded in high-yield NMC examination patterns and tailored to your study 
     handleSendMessage(promptText, true);
   }, [initialTopic, initialQuery, initialSubject, initialTab]);
 
-  // Scroll to bottom on new message
+  const scrollRafRef = useRef<number | null>(null);
+
+  // Scroll to bottom on new message with RAF throttle
   useEffect(() => {
-    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (scrollRafRef.current) {
+      cancelAnimationFrame(scrollRafRef.current);
+    }
+    scrollRafRef.current = requestAnimationFrame(() => {
+      chatBottomRef.current?.scrollIntoView({ behavior: 'auto' });
+    });
+    return () => {
+      if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
+    };
   }, [messages, isLoading, quizSession]);
 
   const handleCopyMessage = (id: string, text: string) => {

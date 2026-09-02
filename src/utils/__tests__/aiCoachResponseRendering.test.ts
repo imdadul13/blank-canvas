@@ -36,4 +36,11 @@ describe('FMGE AI Coach - Response Content & Document Rendering', () => {
     assert.ok(mdRenderer.includes('w-full'), 'Must render full-width blocks');
     assert.ok(mdRenderer.includes('break-words'), 'Must support word wrapping');
   });
+
+  it('5. MarkdownRenderer contains unconditional loop advancement safeguard', () => {
+    const mdRenderer = fs.readFileSync('src/components/MarkdownRenderer.tsx', 'utf8');
+    assert.ok(mdRenderer.includes('startIndex'), 'Must track startIndex');
+    assert.ok(mdRenderer.includes('i === startIndex'), 'Must verify guaranteed loop advancement');
+    assert.ok(mdRenderer.includes('i++;'), 'Must increment i unconditionally');
+  });
 });

@@ -7,8 +7,8 @@ interface MarkdownRendererProps {
 
 /**
  * High-performance, robust Markdown Renderer for FMGE AI Coach.
- * Accurately parses headings, bullet lists, numbered lists, tables, callouts, and paragraphs line-by-line
- * so headings never swallow lists or paragraphs.
+ * Accurately parses headings, bullet lists, numbered lists, tables, callouts, and paragraphs line-by-line.
+ * Uses bulletproof loop advancement to strictly prevent any infinite rendering freeze on streaming or malformed AI output.
  */
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className = '' }) => {
   if (!content) return null;
@@ -48,6 +48,10 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
         );
       }
 
+      // Safeguard against zero-width match causing infinite loop
+      if (pattern.lastIndex === match.index) {
+        pattern.lastIndex++;
+      }
       lastIndex = pattern.lastIndex;
     }
 
@@ -64,6 +68,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
   let i = 0;
 
   while (i < rawLines.length) {
+    const startIndex = i;
     const line = rawLines[i];
     const trimmed = line.trim();
 
@@ -73,10 +78,19 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
       continue;
     }
 
-    // 1. Table Detection (| ... |)
-    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+    // 0. Horizontal Rule (---, ***, ___)
+    if (/^(?:---|\*\*\*|___)\s*$/.test(trimmed)) {
+      blocks.push(
+        <hr key={`hr-${blocks.length}`} className="w-full my-3 border-slate-200" />
+      );
+      i++;
+      continue;
+    }
+
+    // 1. Table Detection (any consecutive lines starting with |)
+    if (trimmed.startsWith('|')) {
       const tableLines: string[] = [];
-      while (i < rawLines.length && rawLines[i].trim().startsWith('|') && rawLines[i].trim().endsWith('|')) {
+      while (i < rawLines.length && rawLines[i].trim().startsWith('|')) {
         tableLines.push(rawLines[i].trim());
         i++;
       }
@@ -112,90 +126,98 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             </table>
           </div>
         );
+      } else if (tableLines.length === 1) {
+        // Single partial table line (e.g. streaming in progress)
+        blocks.push(
+          <p key={`table-single-${blocks.length}`} className="w-full text-sm font-mono text-slate-700 my-1 break-words">
+            {formatInline(tableLines[0])}
+          </p>
+        );
       }
       continue;
     }
 
-    // 2. Headings (#, ##, ###, ####)
-    if (trimmed.startsWith('#### ')) {
-      blocks.push(
-        <h4 key={`h4-${blocks.length}`} className="w-full text-sm font-bold font-['Outfit'] text-slate-900 mt-3 mb-1">
-          {formatInline(trimmed.replace(/^####\s+/, ''))}
-        </h4>
-      );
-      i++;
-      continue;
-    }
+    // 2. Headings (#, ##, ###, ####, #####, ###### with space)
+    const headingMatch = trimmed.match(/^(#{1,6})\s+(.+)$/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      const headingText = headingMatch[2];
 
-    if (trimmed.startsWith('### ')) {
-      blocks.push(
-        <h3 key={`h3-${blocks.length}`} className="w-full text-base font-bold font-['Outfit'] text-slate-900 mt-4 mb-1.5">
-          {formatInline(trimmed.replace(/^###\s+/, ''))}
-        </h3>
-      );
-      i++;
-      continue;
-    }
-
-    if (trimmed.startsWith('## ')) {
-      blocks.push(
-        <h2 key={`h2-${blocks.length}`} className="w-full text-lg font-bold font-['Outfit'] text-slate-900 mt-5 mb-2 border-b border-slate-100 pb-1.5">
-          {formatInline(trimmed.replace(/^##\s+/, ''))}
-        </h2>
-      );
-      i++;
-      continue;
-    }
-
-    if (trimmed.startsWith('# ')) {
-      blocks.push(
-        <h1 key={`h1-${blocks.length}`} className="w-full text-xl font-bold font-['Outfit'] text-slate-900 mt-5 mb-2.5 border-b border-slate-200 pb-2">
-          {formatInline(trimmed.replace(/^#\s+/, ''))}
-        </h1>
-      );
+      if (level === 1) {
+        blocks.push(
+          <h1 key={`h1-${blocks.length}`} className="w-full text-xl font-bold font-['Outfit'] text-slate-900 mt-5 mb-2.5 border-b border-slate-200 pb-2">
+            {formatInline(headingText)}
+          </h1>
+        );
+      } else if (level === 2) {
+        blocks.push(
+          <h2 key={`h2-${blocks.length}`} className="w-full text-lg font-bold font-['Outfit'] text-slate-900 mt-5 mb-2 border-b border-slate-100 pb-1.5">
+            {formatInline(headingText)}
+          </h2>
+        );
+      } else if (level === 3) {
+        blocks.push(
+          <h3 key={`h3-${blocks.length}`} className="w-full text-base font-bold font-['Outfit'] text-slate-900 mt-4 mb-1.5">
+            {formatInline(headingText)}
+          </h3>
+        );
+      } else {
+        blocks.push(
+          <h4 key={`h4-${blocks.length}`} className="w-full text-sm font-bold font-['Outfit'] text-slate-900 mt-3 mb-1">
+            {formatInline(headingText)}
+          </h4>
+        );
+      }
       i++;
       continue;
     }
 
     // 3. High-Yield Callout / Alert Box (💡, ⚠️, 🧠, 🎯, >)
-    if (trimmed.startsWith('💡') || trimmed.startsWith('⚠️') || trimmed.startsWith('🧠') || trimmed.startsWith('🎯') || trimmed.startsWith('> ')) {
+    if (/^[💡⚠️🧠🎯]/.test(trimmed) || trimmed.startsWith('>')) {
       const calloutLines: string[] = [];
       while (
         i < rawLines.length &&
         rawLines[i].trim() &&
-        (rawLines[i].trim().startsWith('💡') ||
-          rawLines[i].trim().startsWith('⚠️') ||
-          rawLines[i].trim().startsWith('🧠') ||
-          rawLines[i].trim().startsWith('🎯') ||
-          rawLines[i].trim().startsWith('> ') ||
-          calloutLines.length > 0 && !rawLines[i].trim().startsWith('#') && !rawLines[i].trim().startsWith('- ') && !rawLines[i].trim().startsWith('|'))
+        (/^[💡⚠️🧠🎯]/.test(rawLines[i].trim()) ||
+          rawLines[i].trim().startsWith('>') ||
+          (calloutLines.length > 0 &&
+            !rawLines[i].trim().startsWith('#') &&
+            !rawLines[i].trim().startsWith('- ') &&
+            !rawLines[i].trim().startsWith('* ') &&
+            !rawLines[i].trim().startsWith('|') &&
+            !/^\d+\.\s/.test(rawLines[i].trim())))
       ) {
-        if (calloutLines.length > 0 && !rawLines[i].trim().startsWith('>') && !rawLines[i].trim().match(/^[💡⚠️🧠🎯]/)) {
-          break;
-        }
         calloutLines.push(rawLines[i].trim().replace(/^>\s*/, ''));
         i++;
       }
 
-      const fullCalloutText = calloutLines.join(' ');
-      let bg = 'bg-sky-50/90 border-sky-200 text-sky-950';
-      if (fullCalloutText.includes('⚠️')) bg = 'bg-amber-50/90 border-amber-200 text-amber-950';
-      if (fullCalloutText.includes('🧠')) bg = 'bg-purple-50/90 border-purple-200 text-purple-950';
-      if (fullCalloutText.includes('🎯')) bg = 'bg-emerald-50/90 border-emerald-200 text-emerald-950';
+      if (calloutLines.length > 0) {
+        const fullCalloutText = calloutLines.join(' ');
+        let bg = 'bg-sky-50/90 border-sky-200 text-sky-950';
+        if (fullCalloutText.includes('⚠️')) bg = 'bg-amber-50/90 border-amber-200 text-amber-950';
+        if (fullCalloutText.includes('🧠')) bg = 'bg-purple-50/90 border-purple-200 text-purple-950';
+        if (fullCalloutText.includes('🎯')) bg = 'bg-emerald-50/90 border-emerald-200 text-emerald-950';
 
-      blocks.push(
-        <div key={`callout-${blocks.length}`} className={`w-full my-3 p-4 rounded-2xl border ${bg} text-sm leading-relaxed shadow-2xs break-words`}>
-          {formatInline(fullCalloutText)}
-        </div>
-      );
+        blocks.push(
+          <div key={`callout-${blocks.length}`} className={`w-full my-3 p-4 rounded-2xl border ${bg} text-sm leading-relaxed shadow-2xs break-words`}>
+            {formatInline(fullCalloutText)}
+          </div>
+        );
+      }
       continue;
     }
 
-    // 4. Bullet Lists (- , * , • )
-    if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('• ')) {
+    // 4. Bullet Lists (- , * , • , + )
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('• ') || trimmed.startsWith('+ ')) {
       const listItems: string[] = [];
-      while (i < rawLines.length && (rawLines[i].trim().startsWith('- ') || rawLines[i].trim().startsWith('* ') || rawLines[i].trim().startsWith('• '))) {
-        listItems.push(rawLines[i].trim().replace(/^[-*•]\s+/, ''));
+      while (
+        i < rawLines.length &&
+        (rawLines[i].trim().startsWith('- ') ||
+          rawLines[i].trim().startsWith('* ') ||
+          rawLines[i].trim().startsWith('• ') ||
+          rawLines[i].trim().startsWith('+ '))
+      ) {
+        listItems.push(rawLines[i].trim().replace(/^[-*•+]\s+/, ''));
         i++;
       }
 
@@ -241,12 +263,11 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
       !rawLines[i].trim().startsWith('- ') &&
       !rawLines[i].trim().startsWith('* ') &&
       !rawLines[i].trim().startsWith('• ') &&
+      !rawLines[i].trim().startsWith('+ ') &&
       !/^\d+\.\s/.test(rawLines[i].trim()) &&
-      !rawLines[i].trim().startsWith('💡') &&
-      !rawLines[i].trim().startsWith('⚠️') &&
-      !rawLines[i].trim().startsWith('🧠') &&
-      !rawLines[i].trim().startsWith('🎯') &&
-      !rawLines[i].trim().startsWith('> ')
+      !/^[💡⚠️🧠🎯]/.test(rawLines[i].trim()) &&
+      !rawLines[i].trim().startsWith('>') &&
+      !/^(?:---|\*\*\*|___)\s*$/.test(rawLines[i].trim())
     ) {
       paraLines.push(rawLines[i].trim());
       i++;
@@ -258,6 +279,19 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
           {formatInline(paraLines.join(' '))}
         </p>
       );
+    }
+
+    // 7. Critical Safeguard: If no block consumed the line, advance i unconditionally
+    if (i === startIndex) {
+      const fallbackText = rawLines[i].trim();
+      if (fallbackText) {
+        blocks.push(
+          <p key={`p-fallback-${blocks.length}`} className="w-full text-sm sm:text-base text-slate-800 leading-relaxed my-1.5 break-words">
+            {formatInline(fallbackText)}
+          </p>
+        );
+      }
+      i++;
     }
   }
 
