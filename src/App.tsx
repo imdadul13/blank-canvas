@@ -817,6 +817,10 @@ function AppInner() {
                     initialTab={aiCoachInitialTab}
                     initialSubject={aiCoachInitialSubject}
                     initialTopic={aiCoachInitialTopic}
+                    onClearInitialTrigger={() => {
+                      setAiCoachInitialTopic(undefined);
+                      setAiCoachInitialSubject(undefined);
+                    }}
                     onRecordAttempt={recordQuestionAttempt}
                   />
                 )}

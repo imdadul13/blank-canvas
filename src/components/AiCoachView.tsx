@@ -148,6 +148,7 @@ interface AiCoachViewProps {
   initialTab?: 'vignette' | 'concept' | 'diagnosis' | 'strategy';
   onRecordAttempt?: (input: NewMcqAttemptInput) => void;
   onClose?: () => void;
+  onClearInitialTrigger?: () => void;
 }
 
 export const AiCoachView: React.FC<AiCoachViewProps> = ({
@@ -160,20 +161,23 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   initialTab,
   onRecordAttempt,
   onClose,
+  onClearInitialTrigger,
 }) => {
   const [inputQuery, setInputQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [confirmClearHistory, setConfirmClearHistory] = useState(false);
 
   // Persistent Consultation Session History & Memory State
+  // Filter out any empty dummy sessions from prior runs
   const [sessions, setSessions] = useState<CoachSession[]>(() => {
     try {
       const saved = localStorage.getItem(COACH_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+        if (Array.isArray(parsed)) {
+          const valid = parsed.filter((s: CoachSession) => s.messages && s.messages.some((m) => m.role === 'user'));
+          return valid;
         }
       }
     } catch (_) {}
@@ -185,12 +189,29 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       const saved = localStorage.getItem(COACH_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed[0].id;
+        if (Array.isArray(parsed)) {
+          const valid = parsed.filter((s: CoachSession) => s.messages && s.messages.some((m) => m.role === 'user'));
+          if (valid.length > 0) return valid[0].id;
         }
       }
     } catch (_) {}
     return `session-${Date.now()}`;
+  });
+
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    try {
+      const saved = localStorage.getItem(COACH_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const valid = parsed.filter((s: CoachSession) => s.messages && s.messages.some((m) => m.role === 'user'));
+          if (valid.length > 0 && valid[0].messages && valid[0].messages.length > 0) {
+            return valid[0].messages;
+          }
+        }
+      }
+    } catch (_) {}
+    return [createDefaultGreetingMessage()];
   });
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -328,48 +349,21 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   const weakSubjects = computedStudentContext.weakSubjects;
   const recentErrors = computedStudentContext.recentErrors;
 
-  // Initial session loader and auto-recovery
-  useEffect(() => {
-    if (sessions.length > 0) {
-      const current = sessions.find((s) => s.id === activeSessionId) || sessions[0];
-      if (current && current.messages && current.messages.length > 0) {
-        setMessages(current.messages);
-        if (current.quizSession) setQuizSession(current.quizSession);
-        return;
-      }
-    }
-
-    const defaultGreeting = createDefaultGreetingMessage();
-    const newSessionId = `session-${Date.now()}`;
-    const initialSession: CoachSession = {
-      id: newSessionId,
-      title: 'New Consultation',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      messages: [defaultGreeting],
-      quizSession: null,
-    };
-    setSessions([initialSession]);
-    setActiveSessionId(newSessionId);
-    setMessages([defaultGreeting]);
-    try {
-      localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify([initialSession]));
-    } catch (_) {}
-  }, []);
-
-  // Synchronize current messages and active quiz with localStorage memory (debounced to avoid thread locking)
+  // Synchronize current messages and active quiz with localStorage memory (debounced)
   const saveTimeoutRef = useRef<any>(null);
   const isStreamingRef = useRef(false);
 
   useEffect(() => {
-    if (messages.length === 0 || isStreamingRef.current) return;
+    // Only persist if session contains at least one user question
+    const hasUserMessage = messages.some((m) => m.role === 'user');
+    if (!hasUserMessage || isStreamingRef.current) return;
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 
     saveTimeoutRef.current = setTimeout(() => {
       setSessions((prev) => {
         const idx = prev.findIndex((s) => s.id === activeSessionId);
-        let title = prev[idx]?.title || 'New Consultation';
-        if (title === 'New Consultation' || title === 'Consultation') {
+        let title = prev[idx]?.title || 'Clinical Consultation';
+        if (!title || title === 'New Consultation' || title === 'Clinical Consultation') {
           const firstUser = messages.find((m) => m.role === 'user');
           if (firstUser && firstUser.content) {
             title = firstUser.content.slice(0, 42).trim() + (firstUser.content.length > 42 ? '...' : '');
@@ -393,17 +387,152 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
           next = [updatedSession, ...prev];
         }
 
+        // Strictly persist sessions with actual student questions
+        const validNext = next.filter((s) => s.messages && s.messages.some((m) => m.role === 'user'));
         try {
-          localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(next));
+          localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(validNext));
         } catch (_) {}
         return next;
       });
-    }, 500);
+    }, 400);
 
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
   }, [messages, quizSession, activeSessionId]);
+
+  // Direct Consultation Handler (Guarantees zero-latency startup from Predictor/Errors without race conditions)
+  const executeDirectConsultation = async (topic: string, subject?: string, query?: string, tab?: string) => {
+    const promptText = query || (tab === 'vignette'
+      ? `Give me an FMGE clinical vignette MCQ on ${topic}`
+      : `Explain ${topic} (${subject || 'High-Yield Medicine'}) with core FMGE clinical concepts, high-yield diagnostic criteria, and exam pearls`);
+
+    const topicTitle = topic || 'Clinical Consultation';
+    const newSessionId = `session-${Date.now()}`;
+    const userMsg: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: promptText,
+      timestamp: new Date(),
+    };
+    const streamingMsgId = `ai-${Date.now() + 1}`;
+    const placeholderMsg: ChatMessage = {
+      id: streamingMsgId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      suggestedFollowUps: [
+        'What is the drug of choice?',
+        'What are the common exam traps?',
+        'Give me a clinical vignette MCQ on this'
+      ],
+    };
+
+    const newSessionMessages = [createDefaultGreetingMessage(), userMsg, placeholderMsg];
+    const newSession: CoachSession = {
+      id: newSessionId,
+      title: topicTitle,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      messages: newSessionMessages,
+      quizSession: null,
+    };
+
+    setActiveSessionId(newSessionId);
+    setMessages(newSessionMessages);
+    setSessions((prev) => [
+      newSession,
+      ...prev.filter((s) => s.id !== newSessionId && s.messages && s.messages.some((m) => m.role === 'user')),
+    ]);
+    setIsLoading(false);
+    isStreamingRef.current = true;
+
+    try {
+      const streamRes = await fetch('/api/ai/chat/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: promptText,
+          history: [{ role: 'user', content: promptText }],
+          studentContext: computedStudentContext,
+        }),
+      });
+
+      if (streamRes.ok && streamRes.body) {
+        const reader = streamRes.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulated = '';
+        let buffer = '';
+        let lastFlush = 0;
+
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            let newTextAdded = false;
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || !trimmed.startsWith('data: ')) continue;
+              try {
+                const payload = JSON.parse(trimmed.slice(6));
+                if (payload.text) {
+                  accumulated += payload.text;
+                  newTextAdded = true;
+                }
+              } catch {}
+            }
+
+            const now = Date.now();
+            if (newTextAdded && now - lastFlush > 60) {
+              lastFlush = now;
+              const currentText = accumulated;
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === streamingMsgId ? { ...msg, content: currentText } : msg
+                )
+              );
+            }
+          }
+        } finally {
+          reader.releaseLock?.();
+        }
+
+        if (accumulated.trim().length > 20) {
+          const finalMessages = [
+            createDefaultGreetingMessage(),
+            userMsg,
+            { ...placeholderMsg, content: accumulated },
+          ];
+          setMessages(finalMessages);
+          setSessions((prev) => {
+            const idx = prev.findIndex((s) => s.id === newSessionId);
+            if (idx < 0) return prev;
+            const updated = [...prev];
+            updated[idx] = { ...updated[idx], messages: finalMessages };
+            try {
+              localStorage.setItem(
+                COACH_STORAGE_KEY,
+                JSON.stringify(updated.filter((s) => s.messages && s.messages.some((m) => m.role === 'user')))
+              );
+            } catch (_) {}
+            return updated;
+          });
+          isStreamingRef.current = false;
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('[DirectConsultation] Stream error, falling back to batch endpoint:', e);
+    } finally {
+      isStreamingRef.current = false;
+    }
+
+    handleSendMessage(promptText, true);
+  };
 
   // Auto-send initial prompt if initialTopic or initialQuery is provided from external trigger (e.g. Predictor)
   useEffect(() => {
@@ -415,32 +544,13 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     if (initialTriggerHandledRef.current === triggerKey) return;
     initialTriggerHandledRef.current = triggerKey;
 
-    const topicTitle = initialTopic || 'Medical Consultation';
-    const promptText = initialQuery
-      ? initialQuery
-      : initialTab === 'vignette'
-      ? `Give me an FMGE clinical vignette MCQ on ${initialTopic}`
-      : `Explain ${initialTopic} (${initialSubject || 'High-Yield Medicine'}) with core FMGE concepts and pearls`;
+    const topic = initialTopic || '';
+    const query = initialQuery;
+    const subject = initialSubject;
+    const tab = initialTab;
 
-    const newSessionId = `session-${Date.now()}`;
-    const initialSession: CoachSession = {
-      id: newSessionId,
-      title: topicTitle,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      messages: [createDefaultGreetingMessage()],
-      quizSession: null,
-    };
-
-    setSessions((prev) => [initialSession, ...prev.filter((s) => s.id !== newSessionId)]);
-    setActiveSessionId(newSessionId);
-    setMessages([createDefaultGreetingMessage()]);
-
-    const timer = setTimeout(() => {
-      handleSendMessage(promptText, true);
-    }, 60);
-
-    return () => clearTimeout(timer);
+    onClearInitialTrigger?.();
+    executeDirectConsultation(topic, subject, query, tab);
   }, [initialTopic, initialQuery, initialSubject, initialTab]);
 
   const scrollRafRef = useRef<number | null>(null);
@@ -922,6 +1032,15 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   };
 
   const handleNewSession = () => {
+    // If current session already has no user questions, just refresh it without adding clutter
+    const hasUserMsg = messages.some((m) => m.role === 'user');
+    if (!hasUserMsg) {
+      setMessages([createDefaultGreetingMessage()]);
+      setQuizSession(null);
+      setIsHistoryOpen(false);
+      return;
+    }
+
     const newId = `session-${Date.now()}`;
     const defaultGreeting = createDefaultGreetingMessage();
     const newSession: CoachSession = {
@@ -932,30 +1051,33 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       messages: [defaultGreeting],
       quizSession: null,
     };
-    const next = [newSession, ...sessions];
+    // Only keep previous sessions that have actual user questions
+    const validPrev = sessions.filter((s) => s.messages && s.messages.some((m) => m.role === 'user'));
+    const next = [newSession, ...validPrev];
     setSessions(next);
     setActiveSessionId(newId);
     setMessages([defaultGreeting]);
     setQuizSession(null);
     setIsHistoryOpen(false);
-    try {
-      localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(next));
-    } catch (_) {}
   };
 
   const handleSelectSession = (s: CoachSession) => {
     setActiveSessionId(s.id);
-    setMessages(s.messages || [createDefaultGreetingMessage()]);
+    setMessages(s.messages && s.messages.length > 0 ? s.messages : [createDefaultGreetingMessage()]);
     setQuizSession(s.quizSession || null);
     setIsHistoryOpen(false);
   };
 
   const handleDeleteSession = (sessionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     const filtered = sessions.filter((s) => s.id !== sessionId);
     setSessions(filtered);
     try {
-      localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(filtered));
+      localStorage.setItem(
+        COACH_STORAGE_KEY,
+        JSON.stringify(filtered.filter((s) => s.messages && s.messages.some((m) => m.role === 'user')))
+      );
     } catch (_) {}
 
     if (sessionId === activeSessionId) {
@@ -967,14 +1089,17 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     }
   };
 
-  const handleClearAllHistory = () => {
-    if (window.confirm('Clear all consultation history? This will reset all saved AI Coach discussions.')) {
-      try {
-        localStorage.removeItem(COACH_STORAGE_KEY);
-      } catch (_) {}
-      setSessions([]);
-      handleNewSession();
-    }
+  const executeClearAllHistory = () => {
+    try {
+      localStorage.removeItem(COACH_STORAGE_KEY);
+    } catch (_) {}
+    setSessions([]);
+    setConfirmClearHistory(false);
+    const newId = `session-${Date.now()}`;
+    const defaultGreeting = createDefaultGreetingMessage();
+    setActiveSessionId(newId);
+    setMessages([defaultGreeting]);
+    setQuizSession(null);
   };
 
   const activeSession = sessions.find((s) => s.id === activeSessionId) || {
@@ -1151,16 +1276,40 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             )}
           </div>
 
-          {/* Footer */}
+          {/* Footer with bulletproof inline confirmation */}
           {sessions.length > 0 && (
-            <button
-              type="button"
-              onClick={handleClearAllHistory}
-              className="w-full pt-2 border-t border-slate-100 text-[11px] font-medium text-slate-400 hover:text-rose-600 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <Trash2 className="h-3 w-3" />
-              <span>Clear History</span>
-            </button>
+            <div className="pt-2 border-t border-slate-100 shrink-0">
+              {confirmClearHistory ? (
+                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs space-y-2 animate-fadeIn">
+                  <p className="text-[11px] font-bold text-rose-950 font-['Outfit']">Clear all {sessions.length} consultation chats?</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={executeClearAllHistory}
+                      className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-bold font-['Outfit'] transition-all cursor-pointer shadow-2xs"
+                    >
+                      Yes, Clear All
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmClearHistory(false)}
+                      className="px-2.5 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold font-['Outfit'] transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmClearHistory(true)}
+                  className="w-full text-[11px] font-medium text-slate-400 hover:text-rose-600 flex items-center justify-center gap-1.5 transition-colors cursor-pointer py-1"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span>Clear History</span>
+                </button>
+              )}
+            </div>
           )}
         </aside>
 
@@ -1971,7 +2120,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                 <div className="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs">
                   <button
                     type="button"
-                    onClick={handleClearAllHistory}
+                    onClick={executeClearAllHistory}
                     className="font-semibold text-rose-600 hover:text-rose-700 hover:underline cursor-pointer"
                   >
                     Clear All History
