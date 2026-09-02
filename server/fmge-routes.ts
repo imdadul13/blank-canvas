@@ -33,6 +33,7 @@ import {
   ingestNewTelegramMessage,
   importChannelHistory,
   syncAllMonitoredSourcesNow,
+  reEnrichExistingKnowledgeBank,
 } from "./telegram-worker";
 
 const app = express();
@@ -2742,9 +2743,23 @@ app.post("/api/telegram/cloud/test-ingest", async (req, res) => {
 app.post(["/api/telegram/sync-now", "/api/telegram/cloud/sync-now"], async (req, res) => {
   try {
     const result = await syncAllMonitoredSourcesNow();
+    // Trigger asynchronous clinical re-enrichment with Gemini
+    setTimeout(() => {
+      reEnrichExistingKnowledgeBank().catch((e) => console.warn("[ReEnrichment] Async error:", e?.message));
+    }, 500);
     res.json(result);
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message || "Manual sync failed." });
+  }
+});
+
+// 12b. Immediate Gemini Medical Re-Enrichment across Knowledge Bank
+app.post(["/api/telegram/re-enrich", "/api/telegram/cloud/re-enrich"], async (req, res) => {
+  try {
+    const result = await reEnrichExistingKnowledgeBank();
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || "Re-enrichment failed." });
   }
 });
 

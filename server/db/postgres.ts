@@ -624,6 +624,7 @@ export const CloudDb = {
       return { action: "DUPLICATE", question: q };
     }
 
+    if (!q.duplicateSources) q.duplicateSources = [];
     db.questions.unshift(q);
     saveCloudDatabase();
     return { action: "CREATED", question: q };

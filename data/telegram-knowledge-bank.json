@@ -1,98 +1,98 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-02T07:53:10.743Z",
+  "updatedAt": "2026-09-02T09:11:18.209Z",
   "telegram_messages": [
     {
-      "id": "raw-tg-1788335590733-o13ap",
+      "id": "raw-tg-1788340278195-hvp2r",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10006",
       "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-02T07:53:10.733Z",
+      "messageDate": "2026-09-02T09:11:18.195Z",
       "text": "Raw damaged Telegram payload with incomplete tokens",
       "mediaType": "NONE",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10006",
-      "ingestedAt": "2026-09-02T07:53:10.733Z",
+      "ingestedAt": "2026-09-02T09:11:18.195Z",
       "processingStatus": "RAW_MESSAGE_SAVED",
       "compositeKey": "targetfmgechannel:10006"
     },
     {
-      "id": "raw-tg-1788335590732-wi5fh",
+      "id": "raw-tg-1788340278193-zjvt4",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10005",
       "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-02T07:53:10.732Z",
+      "messageDate": "2026-09-02T09:11:18.193Z",
       "text": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification and admit card release date announced on natboard.edu.in.",
       "mediaType": "NONE",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10005",
-      "ingestedAt": "2026-09-02T07:53:10.732Z",
+      "ingestedAt": "2026-09-02T09:11:18.193Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "targetfmgechannel:10005",
-      "processedAt": "2026-09-02T07:53:10.733Z"
+      "processedAt": "2026-09-02T09:11:18.194Z"
     },
     {
-      "id": "raw-tg-1788335590730-8ovak",
+      "id": "raw-tg-1788340278189-4kfw6",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10004",
       "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-02T07:53:10.730Z",
+      "messageDate": "2026-09-02T09:11:18.189Z",
       "text": "HIGH-YIELD FMGE PEARL: Modified Parkland Formula for Burns = 4 mL x Body Weight (kg) x % Total Burn Surface Area. Give 50% in first 8 hours and 50% in remaining 16 hours.",
       "mediaType": "NONE",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10004",
-      "ingestedAt": "2026-09-02T07:53:10.730Z",
+      "ingestedAt": "2026-09-02T09:11:18.189Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "targetfmgechannel:10004",
-      "processedAt": "2026-09-02T07:53:10.731Z"
+      "processedAt": "2026-09-02T09:11:18.191Z"
     },
     {
-      "id": "raw-tg-1788335590519-oaec7",
+      "id": "raw-tg-1788340277966-kmmbz",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10003",
       "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-02T07:53:10.519Z",
+      "messageDate": "2026-09-02T09:11:17.966Z",
       "text": "Observe the clinical video showing rhythmic involuntary horizontal oscillations of the eyes that increase on lateral gaze. What is the condition shown?\nA) Horizontal Jerk Nystagmus\nB) Opsoclonus\nC) Ocular Flutter\nD) Saccadic Intrusion\nAns: A\nExp: The video demonstrates horizontal jerk nystagmus with slow drift and fast corrective phase.",
       "mediaType": "VIDEO",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10003",
-      "ingestedAt": "2026-09-02T07:53:10.519Z",
+      "ingestedAt": "2026-09-02T09:11:17.966Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "targetfmgechannel:10003",
-      "processedAt": "2026-09-02T07:53:10.729Z"
+      "processedAt": "2026-09-02T09:11:18.187Z"
     },
     {
-      "id": "raw-tg-1788335589523-vm6s1",
+      "id": "raw-tg-1788340277180-uux9s",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10002",
       "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-02T07:53:09.523Z",
+      "messageDate": "2026-09-02T09:11:17.180Z",
       "text": "A 45-year-old male presents with severe epigastric pain radiating to the back. Serum amylase and lipase are elevated. CT abdomen is shown below. What is the most likely diagnosis?\nA) Acute pancreatitis\nB) Peptic ulcer perforation\nC) Acute cholecystitis\nD) Mesenteric ischemia\nAns: A\nExp: CT confirms peripancreatic fat stranding and acute necrotizing pancreatitis.",
       "mediaType": "IMAGE",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10002",
-      "ingestedAt": "2026-09-02T07:53:09.523Z",
+      "ingestedAt": "2026-09-02T09:11:17.180Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "targetfmgechannel:10002",
-      "processedAt": "2026-09-02T07:53:10.517Z"
+      "processedAt": "2026-09-02T09:11:17.965Z"
     },
     {
-      "id": "raw-tg-1788335589521-sn80t",
+      "id": "raw-tg-1788340277177-n4era",
       "channelId": "@mission_fmge8",
       "telegramMessageId": "50005",
       "telegramChatId": "mission_fmge8",
-      "messageDate": "2026-09-02T07:53:09.521Z",
+      "messageDate": "2026-09-02T09:11:17.177Z",
       "text": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine is first-line.",
       "mediaType": "NONE",
       "media": [],
       "sourceUrl": "https://t.me/mission_fmge8/50005",
-      "ingestedAt": "2026-09-02T07:53:09.521Z",
+      "ingestedAt": "2026-09-02T09:11:17.177Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "mission_fmge8:50005",
-      "processedAt": "2026-09-02T07:53:09.522Z"
+      "processedAt": "2026-09-02T09:11:17.179Z"
     },
     {
-      "id": "raw-tg-1788335589516-ndoil",
+      "id": "raw-tg-1788340277173-uxtb7",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10001",
       "telegramChatId": "targetfmgechannel",
@@ -101,35 +101,35 @@
       "mediaType": "NONE",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10001",
-      "ingestedAt": "2026-09-02T07:53:09.516Z",
+      "ingestedAt": "2026-09-02T09:11:17.173Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "targetfmgechannel:10001",
-      "processedAt": "2026-09-02T07:53:09.519Z"
+      "processedAt": "2026-09-02T09:11:17.175Z"
     }
   ],
   "media_assets": [
     {
-      "id": "media-1788335590728-l2y3",
+      "id": "media-1788340278184-8oab",
       "telegramMessageId": "10003",
       "mediaType": "VIDEO",
-      "originalFilename": "tg_10003_1788335590519_34ir.mp4",
+      "originalFilename": "tg_10003_1788340277967_pygv.mp4",
       "mimeType": "video/mp4",
       "storageUrl": "https://api.telegram.org/file/bot12345/videos/nystagmus_clip.mp4",
-      "createdAt": "2026-09-02T07:53:10.728Z"
+      "createdAt": "2026-09-02T09:11:18.184Z"
     },
     {
-      "id": "media-1788335590515-o56d",
+      "id": "media-1788340277964-9lyx",
       "telegramMessageId": "10002",
       "mediaType": "IMAGE",
-      "originalFilename": "tg_10002_1788335589524_wtar.jpg",
+      "originalFilename": "tg_10002_1788340277180_j9hn.jpg",
       "mimeType": "image/jpeg",
       "storageUrl": "https://api.telegram.org/file/bot12345/photos/file_pancreatitis_ct.jpg",
-      "createdAt": "2026-09-02T07:53:10.515Z"
+      "createdAt": "2026-09-02T09:11:17.964Z"
     }
   ],
   "questions": [
     {
-      "id": "q-tg-1788335590729-57pe",
+      "id": "q-tg-1788340278187-inwi",
       "sourceChannel": "@targetfmgechannel",
       "rawText": "Observe the clinical video showing rhythmic involuntary horizontal oscillations of the eyes that increase on lateral gaze. What is the condition shown?\nA) Horizontal Jerk Nystagmus\nB) Opsoclonus\nC) Ocular Flutter\nD) Saccadic Intrusion\nAns: A\nExp: The video demonstrates horizontal jerk nystagmus with slow drift and fast corrective phase.",
       "subjectId": "medicine",
@@ -181,18 +181,18 @@
       "videoThumbUrl": "https://api.telegram.org/file/bot12345/photos/nystagmus_thumb.jpg",
       "postUrl": "https://t.me/targetfmgechannel/10003",
       "messageId": "10003",
-      "datePulled": "2026-09-02T07:53:10.729Z",
+      "datePulled": "2026-09-02T09:11:18.187Z",
       "userStatus": "unsolved",
       "isAutoSaved": true,
       "aiCrossCheckStatus": "verified",
       "aiCrossCheckNotes": "Cross-checked against high-yield FMGE medical curriculum. Clinical stem, options, and key verified.",
       "sources": [
         {
-          "questionId": "q-tg-1788335590729",
+          "questionId": "q-tg-1788340278187",
           "telegramMessageId": "10003",
           "channelId": "@targetfmgechannel",
           "sourceUrl": "https://t.me/targetfmgechannel/10003",
-          "sourceDate": "2026-09-02T07:53:10.729Z",
+          "sourceDate": "2026-09-02T09:11:18.187Z",
           "isPrimary": true
         }
       ],
@@ -200,7 +200,7 @@
       "normalizedHash": "e4dec914e57b605f6ce376a8c73b0d7d1635f275166c1ea01f53cf52cc4c0f9f"
     },
     {
-      "id": "q-tg-1788335590517-q2qz",
+      "id": "q-tg-1788340277965-6781",
       "sourceChannel": "@targetfmgechannel",
       "rawText": "A 45-year-old male presents with severe epigastric pain radiating to the back. Serum amylase and lipase are elevated. CT abdomen is shown below. What is the most likely diagnosis?\nA) Acute pancreatitis\nB) Peptic ulcer perforation\nC) Acute cholecystitis\nD) Mesenteric ischemia\nAns: A\nExp: CT confirms peripancreatic fat stranding and acute necrotizing pancreatitis.",
       "subjectId": "medicine",
@@ -251,18 +251,18 @@
       "imageUrl": "https://api.telegram.org/file/bot12345/photos/file_pancreatitis_ct.jpg",
       "postUrl": "https://t.me/targetfmgechannel/10002",
       "messageId": "10002",
-      "datePulled": "2026-09-02T07:53:10.517Z",
+      "datePulled": "2026-09-02T09:11:17.965Z",
       "userStatus": "unsolved",
       "isAutoSaved": true,
       "aiCrossCheckStatus": "verified",
       "aiCrossCheckNotes": "Cross-checked against high-yield FMGE medical curriculum. Clinical stem, options, and key verified.",
       "sources": [
         {
-          "questionId": "q-tg-1788335590517",
+          "questionId": "q-tg-1788340277965",
           "telegramMessageId": "10002",
           "channelId": "@targetfmgechannel",
           "sourceUrl": "https://t.me/targetfmgechannel/10002",
-          "sourceDate": "2026-09-02T07:53:10.517Z",
+          "sourceDate": "2026-09-02T09:11:17.965Z",
           "isPrimary": true
         }
       ],
@@ -270,7 +270,7 @@
       "normalizedHash": "006d348c1360aef97b4938d3fa610854836feb7e882e737a0c84db654fe6ad60"
     },
     {
-      "id": "q-tg-1788335589518-syqy",
+      "id": "q-tg-1788340277175-va85",
       "sourceChannel": "@targetfmgechannel",
       "channelTitle": "Target FMGE",
       "rawText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine (6mg rapid bolus) is the drug of choice for acute termination of stable narrow-complex PSVT due to its rapid onset and ultrashort half-life (< 10 seconds).",
@@ -321,28 +321,28 @@
       "questionType": "mcq",
       "postUrl": "https://t.me/targetfmgechannel/10001",
       "messageId": "10001",
-      "datePulled": "2026-09-02T07:53:09.518Z",
+      "datePulled": "2026-09-02T09:11:17.175Z",
       "userStatus": "unsolved",
       "isAutoSaved": true,
       "aiCrossCheckStatus": "verified",
       "aiCrossCheckNotes": "Cross-checked against high-yield FMGE medical curriculum. Clinical stem, options, and key verified.",
       "sources": [
         {
-          "questionId": "q-tg-1788335589518",
+          "questionId": "q-tg-1788340277175",
           "telegramMessageId": "10001",
           "channelId": "@targetfmgechannel",
           "channelTitle": "Target FMGE",
           "sourceUrl": "https://t.me/targetfmgechannel/10001",
-          "sourceDate": "2026-09-02T07:53:09.518Z",
+          "sourceDate": "2026-09-02T09:11:17.175Z",
           "isPrimary": true
         },
         {
-          "questionId": "q-tg-1788335589518-syqy",
+          "questionId": "q-tg-1788340277175-va85",
           "telegramMessageId": "50005",
           "channelId": "@mission_fmge8",
           "channelTitle": "Mission FMGE 8",
           "sourceUrl": "https://t.me/mission_fmge8/50005",
-          "sourceDate": "2026-09-02T07:53:09.522Z"
+          "sourceDate": "2026-09-02T09:11:17.179Z"
         }
       ],
       "seenInChannelsCount": 2,
@@ -352,91 +352,91 @@
   "canonical_questions": [],
   "exam_tips": [
     {
-      "id": "tip-1788335590731-t97a",
+      "id": "tip-1788340278191-y093",
       "sourceMessageId": "10004",
       "originalText": "HIGH-YIELD FMGE PEARL: Modified Parkland Formula for Burns = 4 mL x Body Weight (kg) x % Total Burn Surface Area. Give 50% in first 8 hours and 50% in remaining 16 hours.",
       "cleanedText": "HIGH-YIELD FMGE PEARL: Modified Parkland Formula for Burns = 4 mL x Body Weight (kg) x % Total Burn Surface Area. Give 50% in first 8 hours and 50% in remaining 16 hours.",
       "subject": "surgery",
       "topic": "Emergency Burns & Trauma Management",
       "sourceChannel": "@targetfmgechannel",
-      "timestamp": "2026-09-02T07:53:10.731Z",
+      "timestamp": "2026-09-02T09:11:18.191Z",
       "isHighYield": true,
       "tags": [
         "SURGERY",
         "Pearl",
         "Telegram"
       ],
-      "createdAt": "2026-09-02T07:53:10.731Z"
+      "createdAt": "2026-09-02T09:11:18.191Z"
     }
   ],
   "notices": [
     {
-      "id": "notice-1788335590733-fpj2",
+      "id": "notice-1788340278194-8qsr",
       "sourceMessageId": "10005",
       "originalText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification and admit card release date announced on natboard.edu.in.",
       "cleanedText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification and admit card release date announced on natboard.edu.in.",
-      "noticeDate": "2026-09-02T07:53:10.732Z",
+      "noticeDate": "2026-09-02T09:11:18.194Z",
       "importance": "critical",
       "sourceChannel": "@targetfmgechannel",
-      "timestamp": "2026-09-02T07:53:10.732Z",
+      "timestamp": "2026-09-02T09:11:18.194Z",
       "tags": [
         "Notice",
         "FMGE",
         "NBEMS"
       ],
-      "createdAt": "2026-09-02T07:53:10.733Z"
+      "createdAt": "2026-09-02T09:11:18.194Z"
     }
   ],
   "processing_jobs": [
     {
-      "id": "job-1788335590733-7y8h",
+      "id": "job-1788340278195-5qnf",
       "telegramMessageId": "10006",
       "status": "FAILED",
       "attempts": 1,
       "error": "Extraction retry queued",
-      "processedAt": "2026-09-02T07:53:10.733Z"
+      "processedAt": "2026-09-02T09:11:18.195Z"
     },
     {
-      "id": "job-1788335590731-i7qa",
+      "id": "job-1788340278192-6fvs",
       "telegramMessageId": "10005",
       "status": "SAVED",
       "attempts": 1,
-      "processedAt": "2026-09-02T07:53:10.733Z"
+      "processedAt": "2026-09-02T09:11:18.194Z"
     },
     {
-      "id": "job-1788335590730-x4ai",
+      "id": "job-1788340278189-9l45",
       "telegramMessageId": "10004",
       "status": "SAVED",
       "attempts": 1,
-      "processedAt": "2026-09-02T07:53:10.731Z"
+      "processedAt": "2026-09-02T09:11:18.192Z"
     },
     {
-      "id": "job-1788335590518-ahyp",
+      "id": "job-1788340277966-c0u8",
       "telegramMessageId": "10003",
       "status": "SAVED",
       "attempts": 1,
-      "processedAt": "2026-09-02T07:53:10.729Z"
+      "processedAt": "2026-09-02T09:11:18.188Z"
     },
     {
-      "id": "job-1788335589523-1r2w",
+      "id": "job-1788340277179-7i2v",
       "telegramMessageId": "10002",
       "status": "SAVED",
       "attempts": 1,
-      "processedAt": "2026-09-02T07:53:10.518Z"
+      "processedAt": "2026-09-02T09:11:17.965Z"
     },
     {
-      "id": "job-1788335589521-3pug",
+      "id": "job-1788340277177-dnwv",
       "telegramMessageId": "50005",
       "status": "SAVED",
       "attempts": 1,
-      "processedAt": "2026-09-02T07:53:09.523Z"
+      "processedAt": "2026-09-02T09:11:17.179Z"
     },
     {
-      "id": "job-1788335589515-dm1j",
+      "id": "job-1788340277172-gr5x",
       "telegramMessageId": "10001",
       "status": "DEDUPLICATED",
       "attempts": 1,
-      "processedAt": "2026-09-02T07:53:10.743Z"
+      "processedAt": "2026-09-02T09:11:18.209Z"
     }
   ],
   "telegram_channels": [
@@ -448,12 +448,12 @@
       "category": "High-Yield Clinical Recalls",
       "isActive": true,
       "status": "active",
-      "lastSynced": "01:23 PM",
+      "lastSynced": "02:41 PM",
       "lastSyncedMessageId": 10006,
       "itemCount": 3,
       "videoCount": 0,
       "imageCount": 0,
-      "lastSyncedAt": "2026-09-02T07:53:10.743Z"
+      "lastSyncedAt": "2026-09-02T09:11:18.208Z"
     }
   ],
   "telegram_user_sessions": [],

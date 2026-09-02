@@ -151,6 +151,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [studentNoteInput, setStudentNoteInput] = useState<string>("");
   const [isManualSyncing, setIsManualSyncing] = useState<boolean>(false);
+  const [isReEnriching, setIsReEnriching] = useState<boolean>(false);
   const [syncBannerNotice, setSyncBannerNotice] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -314,6 +315,27 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     } finally {
       setIsManualSyncing(false);
       setTimeout(() => setSyncBannerNotice(null), 7000);
+    }
+  };
+
+  const handleReEnrichWithGemini = async () => {
+    setIsReEnriching(true);
+    setSyncBannerNotice("🧠 Gemini AI is verifying clinical questions, option distractors, and exam pearls...");
+    try {
+      const res = await fetch("/api/telegram/cloud/re-enrich", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setSyncBannerNotice(`🎉 Gemini verified & updated ${data.enrichedCount || 0} questions & exam pearls!`);
+        confetti({ particleCount: 50, spread: 70, origin: { y: 0.25 } });
+        fetchFeed();
+      } else {
+        setSyncBannerNotice(data.error || "Clinical review completed.");
+      }
+    } catch (err: any) {
+      setSyncBannerNotice("Clinical review error: " + err.message);
+    } finally {
+      setIsReEnriching(false);
+      setTimeout(() => setSyncBannerNotice(null), 8000);
     }
   };
 
@@ -609,11 +631,13 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     });
   };
 
-  // Filtered Questions with Subject and Channel Selection
+  // Filtered Questions with Subject, Tab, and Channel Selection
   const filteredQuestions = useMemo(() => {
     return questions
       .filter((q) => {
-        if (selectedSubject !== "all" && q.subject !== selectedSubject) return false;
+        if (activeTab === "images" && !q.imageUrl && !q.imageAssetId) return false;
+        if (activeTab === "videos" && !q.videoUrl && !q.videoAssetId) return false;
+        if (selectedSubject !== "all" && q.subject?.toLowerCase() !== selectedSubject.toLowerCase()) return false;
         if (selectedChannelId !== "all") {
           const channelObj = sources.find((s) => s.id === selectedChannelId);
           if (channelObj && q.sourceChannel !== channelObj.title) return false;
@@ -629,7 +653,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         if (sortBy === "oldest") return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-  }, [questions, selectedSubject, selectedChannelId, searchQuery, sortBy, sources]);
+  }, [questions, selectedSubject, selectedChannelId, searchQuery, sortBy, sources, activeTab]);
 
   const imageQuestions = useMemo(
     () => questions.filter((q) => Boolean(q.imageAssetId || q.imageUrl)),
@@ -640,6 +664,52 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     () => questions.filter((q) => Boolean(q.videoAssetId || q.videoUrl)),
     [questions]
   );
+
+  const filteredTips = useMemo(() => {
+    return tips.filter((t) => {
+      if (selectedSubject !== "all" && t.subject?.toLowerCase() !== selectedSubject.toLowerCase()) return false;
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const text = ((t.cleanedText || t.originalText || "") + " " + (t.subject || "") + " " + (t.sourceChannel || "")).toLowerCase();
+        if (!text.includes(query)) return false;
+      }
+      return true;
+    });
+  }, [tips, selectedSubject, searchQuery]);
+
+  const filteredPearls = useMemo(() => {
+    return pearls.filter((p) => {
+      if (selectedSubject !== "all" && p.subject?.toLowerCase() !== selectedSubject.toLowerCase()) return false;
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const text = ((p.title || "") + " " + (p.takeaway || "") + " " + (p.subject || "")).toLowerCase();
+        if (!text.includes(query)) return false;
+      }
+      return true;
+    });
+  }, [pearls, selectedSubject, searchQuery]);
+
+  const filteredNotices = useMemo(() => {
+    return notices.filter((n) => {
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const text = ((n.cleanedText || n.originalText || "") + " " + (n.sourceChannel || "")).toLowerCase();
+        if (!text.includes(query)) return false;
+      }
+      return true;
+    });
+  }, [notices, searchQuery]);
+
+  const filteredCrossChecks = useMemo(() => {
+    return crossChecks.filter((cc) => {
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const text = ((cc.reason || "") + " " + cc.originalAnswer + " " + cc.aiAnswer + " " + cc.agreementStatus).toLowerCase();
+        if (!text.includes(query)) return false;
+      }
+      return true;
+    });
+  }, [crossChecks, searchQuery]);
 
   const filteredSavedItems = useMemo(() => {
     return savedItems.filter((item) => {
@@ -720,15 +790,27 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             )}
 
             {isConnected && (
-              <button
-                onClick={handleManualSyncNow}
-                disabled={isManualSyncing}
-                className="px-3.5 py-2.5 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-2xs"
-                title="Force immediate auto-sync across all monitored channels"
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${isManualSyncing ? "animate-spin text-sky-600" : ""}`} />
-                {isManualSyncing ? "Syncing MTProto..." : "⚡ Auto-Sync Now"}
-              </button>
+              <>
+                <button
+                  onClick={handleManualSyncNow}
+                  disabled={isManualSyncing}
+                  className="px-3.5 py-2.5 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-2xs"
+                  title="Force immediate auto-sync across all monitored channels"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${isManualSyncing ? "animate-spin text-sky-600" : ""}`} />
+                  {isManualSyncing ? "Syncing MTProto..." : "⚡ Auto-Sync Now"}
+                </button>
+
+                <button
+                  onClick={handleReEnrichWithGemini}
+                  disabled={isReEnriching}
+                  className="px-3.5 py-2.5 rounded-2xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-2xs"
+                  title="Run Gemini clinical solver, distractor analysis, and pearls verification"
+                >
+                  <Sparkles className={`h-3.5 w-3.5 ${isReEnriching ? "animate-spin text-purple-600" : "text-purple-600"}`} />
+                  {isReEnriching ? "Gemini Verifying..." : "🧠 Gemini AI Cross-Check"}
+                </button>
+              </>
             )}
 
             <button
@@ -817,7 +899,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       </div>
 
       {/* 3. Search & Subject Filter Bar */}
-      {(activeTab === "questions" || activeTab === "images" || activeTab === "videos") && (
+      {(activeTab === "questions" || activeTab === "images" || activeTab === "videos" || activeTab === "tips" || activeTab === "pearls" || activeTab === "notices" || activeTab === "cross_checks") && (
         <div className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm space-y-3">
           <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
             <div className="relative flex-1 w-full">
@@ -1059,15 +1141,15 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                         {/* AI Cross-Check Analysis */}
                         {crossCheck && (
                           <div className={`p-3 rounded-xl border text-xs space-y-1.5 ${
-                            crossCheck.agreementStatus === "DISAGREED"
-                              ? "bg-amber-50 border-amber-200 text-amber-900"
+                            crossCheck.agreementStatus === "DISAGREED" || crossCheck.agreementStatus === "DISPUTED_TRAP"
+                              ? "bg-amber-50 border-amber-300 text-amber-950 shadow-2xs"
                               : "bg-emerald-50 border-emerald-200 text-emerald-900"
                           }`}>
                             <div className="flex items-center gap-1.5 font-bold font-['Outfit']">
-                              {crossCheck.agreementStatus === "DISAGREED" ? (
+                              {crossCheck.agreementStatus === "DISAGREED" || crossCheck.agreementStatus === "DISPUTED_TRAP" ? (
                                 <>
                                   <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-                                  <span>⚠️ ANSWER CONFLICT: Telegram Answer ({crossCheck.originalAnswer}) vs AI Analysis ({crossCheck.aiAnswer})</span>
+                                  <span>⚠️ AI ANSWER CONFLICT: Telegram Answer ({crossCheck.originalAnswer}) vs Gemini AI ({crossCheck.aiAnswer})</span>
                                 </>
                               ) : (
                                 <>
@@ -1443,71 +1525,76 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* ========================================================================= */}
       {activeTab === "notices" && (
         <div className="space-y-4">
-          {notices.length === 0 ? (
+          {filteredNotices.length === 0 ? (
             <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
               <Bell className="h-8 w-8 text-sky-500 mx-auto" />
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">No Official Exam Notices Ingested Yet.</h3>
+              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
+                {notices.length === 0 ? "No Official Exam Notices Ingested Yet" : "No Notices Match Your Search"}
+              </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 Official NBEMS notices, admit card announcements, and exam date bulletins posted in monitored channels will automatically appear here.
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {notices.map((n) => (
-                <div key={n.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] uppercase ${
-                        n.importance === "critical"
-                          ? "bg-rose-50 text-rose-700 border border-rose-200"
-                          : "bg-sky-50 text-sky-700 border border-sky-200"
-                      }`}>
-                        {n.importance === "critical" ? "⚠️ CRITICAL NOTICE" : "OFFICIAL NOTICE"}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {n.noticeDate ? new Date(n.noticeDate).toLocaleDateString() : "Recent"}
-                      </span>
+              {filteredNotices.map((n) => {
+                const noticeContent = n.cleanedText || n.originalText || n.content || "Official NBEMS Bulletin";
+                return (
+                  <div key={n.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] uppercase ${
+                          n.importance === "critical"
+                            ? "bg-rose-50 text-rose-700 border border-rose-200"
+                            : "bg-sky-50 text-sky-700 border border-sky-200"
+                        }`}>
+                          {n.importance === "critical" ? "⚠️ CRITICAL NOTICE" : "OFFICIAL NOTICE"}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {n.noticeDate ? new Date(n.noticeDate).toLocaleDateString() : "Recent"}
+                        </span>
+                      </div>
+
+                      {n.imageUrl && (
+                        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(n.imageUrl)}>
+                          <img src={n.imageUrl} alt="Notice document" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+
+                      <p className="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-line">
+                        {noticeContent}
+                      </p>
                     </div>
 
-                    {n.imageUrl && (
-                      <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(n.imageUrl)}>
-                        <img src={n.imageUrl} alt="Notice document" className="w-full h-full object-cover" />
-                      </div>
-                    )}
-
-                    <p className="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-line">
-                      {n.cleanedText || n.originalText}
-                    </p>
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-[11px] text-slate-400 font-mono truncate max-w-[180px]">
+                        Source: {n.sourceChannel || "Official Channel"}
+                      </span>
+                      <button
+                        onClick={() => handleToggleSaveItem({
+                          itemId: n.id,
+                          itemType: "notice",
+                          subject: "Official Bulletin",
+                          title: `NBE Notice - ${n.sourceChannel || "Exam"}`,
+                          content: noticeContent,
+                          mediaUrl: n.imageUrl,
+                          mediaType: n.imageUrl ? "IMAGE" : "NONE",
+                          sourceChannel: n.sourceChannel,
+                          tags: ["NBE Notice", "Official"],
+                        })}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
+                          savedBookmarkIds[n.id]
+                            ? "bg-amber-100 text-amber-900 border border-amber-300"
+                            : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
+                        }`}
+                      >
+                        <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[n.id] ? "fill-amber-500 text-amber-500" : ""}`} />
+                        {savedBookmarkIds[n.id] ? "Saved" : "Save Notice"}
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-[11px] text-slate-400 font-mono truncate max-w-[180px]">
-                      Source: {n.sourceChannel}
-                    </span>
-                    <button
-                      onClick={() => handleToggleSaveItem({
-                        itemId: n.id,
-                        itemType: "notice",
-                        subject: "Official Bulletin",
-                        title: `NBE Notice - ${n.sourceChannel}`,
-                        content: n.cleanedText || n.originalText,
-                        mediaUrl: n.imageUrl,
-                        mediaType: n.imageUrl ? "IMAGE" : "NONE",
-                        sourceChannel: n.sourceChannel,
-                        tags: ["NBE Notice", "Official"],
-                      })}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
-                        savedBookmarkIds[n.id]
-                          ? "bg-amber-100 text-amber-900 border border-amber-300"
-                          : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
-                      }`}
-                    >
-                      <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[n.id] ? "fill-amber-500 text-amber-500" : ""}`} />
-                      {savedBookmarkIds[n.id] ? "Saved" : "Save Notice"}
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -1518,91 +1605,98 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* ========================================================================= */}
       {activeTab === "tips" && (
         <div className="space-y-4">
-          {tips.length === 0 ? (
+          {filteredTips.length === 0 ? (
             <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
               <Lightbulb className="h-8 w-8 text-amber-500 mx-auto" />
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">No High-Yield Tips Ingested Yet.</h3>
+              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
+                {tips.length === 0 ? "No High-Yield Tips Ingested Yet" : "No High-Yield Tips Match Your Filter"}
+              </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Rapid review formulas, clinical mnemonics, and high-yield tips posted in monitored channels will stream here automatically.
+                {tips.length === 0
+                  ? "Rapid review formulas, clinical mnemonics, and high-yield tips posted in monitored channels will stream here automatically."
+                  : "Try clearing search or subject filter to view all ingested clinical tips."}
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {tips.map((t) => (
-                <div key={t.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] uppercase bg-amber-50 text-amber-800 border border-amber-200">
-                        {t.subject || "HIGH-YIELD TIP"}
+              {filteredTips.map((t) => {
+                const displayText = t.cleanedText || t.originalText || t.content || t.title || "High-Yield Clinical Rapid Review Note";
+                return (
+                  <div key={t.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] uppercase bg-amber-50 text-amber-800 border border-amber-200">
+                          {t.subject || "HIGH-YIELD TIP"}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono">Tip</span>
+                      </div>
+
+                      {t.imageUrl && (
+                        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(t.imageUrl)}>
+                          <img src={t.imageUrl} alt="Tip diagram" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+
+                      {t.videoUrl && (
+                        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-black max-h-60">
+                          <video src={t.videoUrl} controls className="w-full h-full object-cover" />
+                        </div>
+                      )}
+
+                      <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 leading-relaxed font-medium whitespace-pre-line">
+                        {displayText}
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                      <span className="text-[11px] text-slate-400 font-mono truncate max-w-[160px]">
+                        Source: {t.sourceChannel || "Monitored Channel"}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-mono">Tip</span>
-                    </div>
-
-                    {t.imageUrl && (
-                      <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(t.imageUrl)}>
-                        <img src={t.imageUrl} alt="Tip diagram" className="w-full h-full object-cover" />
-                      </div>
-                    )}
-
-                    {t.videoUrl && (
-                      <div className="rounded-2xl overflow-hidden border border-slate-200 bg-black max-h-60">
-                        <video src={t.videoUrl} controls className="w-full h-full object-cover" />
-                      </div>
-                    )}
-
-                    <div className="p-3 rounded-2xl bg-amber-50/60 border border-amber-200/70 text-xs text-amber-950 leading-relaxed font-medium whitespace-pre-line">
-                      {t.cleanedText || t.originalText}
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
-                    <span className="text-[11px] text-slate-400 font-mono truncate max-w-[160px]">
-                      Source: {t.sourceChannel}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleToggleSaveItem({
-                          itemId: t.id,
-                          itemType: "tip",
-                          subject: t.subject || "General Medicine",
-                          title: `High-Yield Tip - ${t.subject || "Clinical"}`,
-                          content: t.cleanedText || t.originalText,
-                          mediaUrl: t.imageUrl || t.videoUrl,
-                          mediaType: t.imageUrl ? "IMAGE" : t.videoUrl ? "VIDEO" : "NONE",
-                          sourceChannel: t.sourceChannel,
-                          tags: ["Tip", t.subject || "Medicine"],
-                        })}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
-                          savedBookmarkIds[t.id]
-                            ? "bg-amber-100 text-amber-900 border border-amber-300"
-                            : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
-                        }`}
-                      >
-                        <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[t.id] ? "fill-amber-500 text-amber-500" : ""}`} />
-                        {savedBookmarkIds[t.id] ? "Saved" : "Save to Vault"}
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          onSaveAsPearl?.({
-                            title: `Tip: ${t.subject || "Clinical"}`,
-                            takeaway: t.cleanedText || t.originalText,
-                            subject: (t.subject || "medicine").toLowerCase(),
-                            topic: "Telegram Tip",
-                            isBookmarked: true,
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => handleToggleSaveItem({
+                            itemId: t.id,
+                            itemType: "tip",
+                            subject: t.subject || "General Medicine",
+                            title: `High-Yield Tip - ${t.subject || "Clinical"}`,
+                            content: displayText,
+                            mediaUrl: t.imageUrl || t.videoUrl,
+                            mediaType: t.imageUrl ? "IMAGE" : t.videoUrl ? "VIDEO" : "NONE",
+                            sourceChannel: t.sourceChannel,
                             tags: ["Tip", t.subject || "Medicine"],
-                          } as any);
-                          confetti({ particleCount: 20, spread: 45 });
-                        }}
-                        className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-700 border border-slate-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
-                        title="Add to Pearls Vault"
-                      >
-                        <Sparkles className="h-3.5 w-3.5 text-purple-600" />
-                      </button>
+                          })}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
+                            savedBookmarkIds[t.id]
+                              ? "bg-amber-100 text-amber-900 border border-amber-300"
+                              : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
+                          }`}
+                        >
+                          <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[t.id] ? "fill-amber-500 text-amber-500" : ""}`} />
+                          {savedBookmarkIds[t.id] ? "Saved" : "Save to Vault"}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            onSaveAsPearl?.({
+                              title: `Tip: ${t.subject || "Clinical"}`,
+                              takeaway: displayText,
+                              subject: (t.subject || "medicine").toLowerCase(),
+                              topic: "Telegram Tip",
+                              isBookmarked: true,
+                              tags: ["Tip", t.subject || "Medicine"],
+                            } as any);
+                            confetti({ particleCount: 20, spread: 45 });
+                          }}
+                          className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-700 border border-slate-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
+                          title="Add to Pearls Vault"
+                        >
+                          <Sparkles className="h-3.5 w-3.5 text-purple-600" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -1613,83 +1707,95 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* ========================================================================= */}
       {activeTab === "pearls" && (
         <div className="space-y-4">
-          {pearls.length === 0 ? (
+          {filteredPearls.length === 0 ? (
             <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
               <Sparkles className="h-8 w-8 text-amber-500 mx-auto" />
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">No Exam Pearls yet.</h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">High-yield takeaways extracted by the Cloud Worker are automatically preserved here.</p>
+              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
+                {pearls.length === 0 ? "No Exam Pearls Yet" : "No Exam Pearls Match Your Filter"}
+              </h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                {pearls.length === 0
+                  ? "High-yield clinical takeaways, gold standards, and mnemonics extracted by Gemini will stream here automatically."
+                  : "Try adjusting your search query or subject filter."}
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {pearls.map((p) => (
-                <div key={p.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] bg-amber-50 text-amber-700 border border-amber-200 uppercase">
-                        {p.subject || "MEDICINE"}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">Exam Pearl • Auto-Saved</span>
-                    </div>
-
-                    {p.imageUrl && (
-                      <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(p.imageUrl)}>
-                        <img src={p.imageUrl} alt="Pearl visual" className="w-full h-full object-cover" />
+              {filteredPearls.map((p) => {
+                const takeawayText = p.takeaway || p.content || p.title || "High-Yield Clinical Takeaway";
+                return (
+                  <div key={p.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] bg-amber-50 text-amber-700 border border-amber-200 uppercase">
+                          {p.subject || "MEDICINE"}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono">Exam Pearl • Auto-Saved</span>
                       </div>
-                    )}
 
-                    <h4 className="font-bold text-xs text-slate-900">{p.title}</h4>
-                    <div className="p-3 rounded-2xl bg-amber-50/50 border border-amber-200/60 text-xs text-amber-950 leading-relaxed font-medium">
-                      {p.takeaway}
+                      {p.imageUrl && (
+                        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(p.imageUrl)}>
+                          <img src={p.imageUrl} alt="Pearl visual" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+
+                      <h4 className="font-bold text-xs text-slate-900">{p.title}</h4>
+                      <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 leading-relaxed font-medium">
+                        <div className="font-bold font-['Outfit'] text-[11px] uppercase tracking-wider text-amber-800 mb-1">
+                          💡 What to Remember:
+                        </div>
+                        {takeawayText}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      #{p.id.slice(-6)}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleToggleSaveItem({
-                          itemId: p.id,
-                          itemType: "pearl",
-                          subject: p.subject || "General Medicine",
-                          title: p.title,
-                          content: p.takeaway,
-                          mediaUrl: p.imageUrl,
-                          mediaType: p.imageUrl ? "IMAGE" : "NONE",
-                          tags: ["Pearl", p.subject || "Medicine"],
-                        })}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
-                          savedBookmarkIds[p.id]
-                            ? "bg-amber-100 text-amber-900 border border-amber-300"
-                            : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
-                        }`}
-                      >
-                        <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[p.id] ? "fill-amber-500 text-amber-500" : ""}`} />
-                        {savedBookmarkIds[p.id] ? "Saved" : "Save to Vault"}
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          onSaveAsPearl?.({
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        #{p.id.slice(-6)}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => handleToggleSaveItem({
+                            itemId: p.id,
+                            itemType: "pearl",
+                            subject: p.subject || "General Medicine",
                             title: p.title,
-                            takeaway: p.takeaway,
-                            subject: (p.subject || "medicine").toLowerCase(),
-                            topic: "Exam Pearl",
-                            isBookmarked: true,
+                            content: takeawayText,
+                            mediaUrl: p.imageUrl,
+                            mediaType: p.imageUrl ? "IMAGE" : "NONE",
                             tags: ["Pearl", p.subject || "Medicine"],
-                          } as any);
-                          confetti({ particleCount: 20, spread: 45 });
-                        }}
-                        className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
-                        title="Add to Medical Pearls Vault"
-                      >
-                        <Sparkles className="h-3.5 w-3.5" />
-                      </button>
+                          })}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
+                            savedBookmarkIds[p.id]
+                              ? "bg-amber-100 text-amber-900 border border-amber-300"
+                              : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
+                          }`}
+                        >
+                          <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[p.id] ? "fill-amber-500 text-amber-500" : ""}`} />
+                          {savedBookmarkIds[p.id] ? "Saved" : "Save to Vault"}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            onSaveAsPearl?.({
+                              title: p.title,
+                              takeaway: takeawayText,
+                              subject: (p.subject || "medicine").toLowerCase(),
+                              topic: "Exam Pearl",
+                              isBookmarked: true,
+                              tags: ["Pearl", p.subject || "Medicine"],
+                            } as any);
+                            confetti({ particleCount: 20, spread: 45 });
+                          }}
+                          className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
+                          title="Add to Medical Pearls Vault"
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -1816,32 +1922,60 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* VIEW D: AI CROSS-CHECKS */}
       {/* ========================================================================= */}
       {activeTab === "cross_checks" && (
-        <div className="space-y-3">
-          {crossChecks.length === 0 ? (
+        <div className="space-y-4">
+          {filteredCrossChecks.length === 0 ? (
             <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
               <ShieldCheck className="h-8 w-8 text-slate-400 mx-auto" />
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">No AI Cross-Checks performed yet.</h3>
+              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
+                {crossChecks.length === 0 ? "No AI Cross-Checks Ingested Yet" : "No Cross-Checks Match Your Filter"}
+              </h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Every clinical question ingested from Telegram is authoritatively solved and audited by Gemini AI to catch disputed answers and exam traps.
+              </p>
             </div>
           ) : (
-            crossChecks.map((cc) => (
-              <div key={cc.id} className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                      cc.agreementStatus === "AGREED"
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : "bg-amber-50 text-amber-700 border border-amber-200"
-                    }`}>
-                      {cc.agreementStatus}
-                    </span>
-                    <span className="text-xs font-bold text-slate-900">
-                      Original: {cc.originalAnswer} vs AI: {cc.aiAnswer}
+            filteredCrossChecks.map((cc) => {
+              const q = questions.find((item) => item.id === cc.questionId);
+              const isTrap = cc.agreementStatus === "DISAGREED" || cc.agreementStatus === "DISPUTED_TRAP";
+              return (
+                <div key={cc.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-['Outfit'] ${
+                        isTrap
+                          ? "bg-amber-100 text-amber-900 border border-amber-300"
+                          : "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                      }`}>
+                        {isTrap ? "⚠️ DISPUTED TRAP / CONFLICT" : "✓ AI VERIFIED & AGREED"}
+                      </span>
+                      {q && (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-['Outfit'] bg-slate-100 text-slate-700 border border-slate-200">
+                          {q.subject}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs font-mono text-slate-500">
+                      Telegram: <strong className="text-slate-900">Option {cc.originalAnswer}</strong> ➔ Gemini AI: <strong className="text-purple-700">Option {cc.aiAnswer}</strong>
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600">{cc.reason}</p>
+
+                  {q && (
+                    <div className="text-xs font-semibold text-slate-900 leading-snug p-3 bg-slate-50/70 rounded-2xl border border-slate-200/60">
+                      {q.questionText}
+                    </div>
+                  )}
+
+                  <div className={`p-3.5 rounded-2xl text-xs leading-relaxed ${
+                    isTrap ? "bg-amber-50/90 border border-amber-200 text-amber-950" : "bg-slate-50 border border-slate-200 text-slate-700"
+                  }`}>
+                    <div className="font-bold font-['Outfit'] mb-1 text-[11px] uppercase tracking-wider text-slate-500">
+                      Medical Audit & Clinical Rationale:
+                    </div>
+                    {cc.reason}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       )}
