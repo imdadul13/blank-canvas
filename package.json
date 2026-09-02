@@ -6,10 +6,15 @@
   "scripts": {
     "dev": "tsx server.ts",
     "worker": "tsx worker.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build:client": "vite build",
+    "build:server": "esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build:worker": "esbuild worker.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/worker.cjs",
+    "build": "npm run build:client && npm run build:server && npm run build:worker",
     "start": "node dist/server.cjs",
+    "start:worker": "node dist/worker.cjs",
     "lint": "tsc --noEmit",
-    "test": "tsx --test src/utils/__tests__/*.test.ts"
+    "test": "tsx --test src/utils/__tests__/*.test.ts",
+    "validate": "npm run lint && npm test && npm run build"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

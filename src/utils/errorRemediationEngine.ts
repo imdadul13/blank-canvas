@@ -906,6 +906,53 @@ export function generateConceptRemediationPackage(
       topicName: cleanTopicName,
       isAiGenerated: false,
     },
+    {
+      id: `dyn-q3-${conceptId}`,
+      sessionId: `retest-${conceptId}`,
+      sequenceNumber: 3,
+      scenario: `Exam vignette and high-yield discriminator for ${cleanTopicName}.`,
+      question: `Which exam trap must be avoided when evaluating ${cleanTopicName}?`,
+      options: [
+        {
+          optionId: 'opt-1',
+          key: 'A',
+          text:
+            topicIntel.commonExamTraps[0] ||
+            topicPearls[2]?.statement ||
+            'Confusing lookalike clinical presentations or contraindications',
+          isCorrect: true,
+        },
+        {
+          optionId: 'opt-2',
+          key: 'B',
+          text: 'Failing to perform routine baseline vitals assessment',
+          isCorrect: false,
+        },
+        {
+          optionId: 'opt-3',
+          key: 'C',
+          text: 'Relying strictly on confirmatory histopathology',
+          isCorrect: false,
+        },
+        {
+          optionId: 'opt-4',
+          key: 'D',
+          text: 'Over-interpreting normal physiological variations',
+          isCorrect: false,
+        },
+      ],
+      correctOptionId: 'opt-1',
+      correctAnswer: 'A',
+      explanation:
+        topicIntel.commonExamTraps[0] ||
+        topicPearls[2]?.statement ||
+        'Carefully verify specific exclusion criteria and lookalike mimics to avoid classic exam traps.',
+      subjectId,
+      subjectName: sub?.name || subjectId,
+      topicId,
+      topicName: cleanTopicName,
+      isAiGenerated: false,
+    },
   ];
 
   // Derive genuine quickExplanation facts

@@ -10,7 +10,7 @@ RUN npm ci
 # Copy source code and assets
 COPY . .
 
-# Build Vite frontend and Express server bundle
+# Build Vite frontend, server bundle, and worker bundle
 RUN npm run build
 
 # Production runtime stage
@@ -18,19 +18,18 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=3000
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy compiled bundles and static assets
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server ./server
-COPY --from=builder /app/worker.ts ./worker.ts
-COPY --from=builder /app/server.ts ./server.ts
 COPY --from=builder /app/public ./public
 
-# Ensure uploads directory exists
-RUN mkdir -p /app/public/uploads/telegram/media /app/data
+# Ensure uploads and data directories exist
+RUN mkdir -p /app/public/uploads/telegram/media /app/data /app/server/db /app/server/data
 
 EXPOSE 3000
 

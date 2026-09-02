@@ -53,15 +53,18 @@ export async function downloadAndPreserveMedia(
     const localFilePath = path.join(MEDIA_DIR, filename);
     const publicUrl = "/uploads/telegram/media/" + filename;
 
-    await new Promise<void>((resolve, reject) => {
+    await new Promise<void>((resolve) => {
       const client = url.startsWith("https") ? https : http;
       const fileStream = fs.createWriteStream(localFilePath);
 
-      client
+      const req = client
         .get(url, (res) => {
           if (res.statusCode !== 200) {
+            res.resume();
             fileStream.close();
-            if (fs.existsSync(localFilePath)) fs.unlinkSync(localFilePath);
+            if (fs.existsSync(localFilePath)) {
+              try { fs.unlinkSync(localFilePath); } catch (_) {}
+            }
             return resolve(); // Soft fail: keep remote URL if download blocked
           }
           res.pipe(fileStream);
@@ -69,12 +72,28 @@ export async function downloadAndPreserveMedia(
             fileStream.close();
             resolve();
           });
+          fileStream.on("error", () => {
+            res.resume();
+            fileStream.close();
+            resolve();
+          });
         })
-        .on("error", (err) => {
+        .on("error", () => {
           fileStream.close();
-          if (fs.existsSync(localFilePath)) fs.unlinkSync(localFilePath);
+          if (fs.existsSync(localFilePath)) {
+            try { fs.unlinkSync(localFilePath); } catch (_) {}
+          }
           resolve(); // Soft fail
         });
+
+      req.setTimeout(3000, () => {
+        req.destroy();
+        fileStream.close();
+        if (fs.existsSync(localFilePath)) {
+          try { fs.unlinkSync(localFilePath); } catch (_) {}
+        }
+        resolve();
+      });
     });
 
     const isSaved = fs.existsSync(localFilePath) && fs.statSync(localFilePath).size > 0;
