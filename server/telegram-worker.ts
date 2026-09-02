@@ -132,7 +132,24 @@ export async function initTelegramCloudWorker(): Promise<boolean> {
 // 2. MTPROTO QR CODE & PHONE NUMBER AUTHENTICATION FLOW
 // ----------------------------------------------------------------------------
 
-export async function generateTelegramLoginQr(apiIdParam?: number, apiHashParam?: string): Promise<{
+interface QrSessionState {
+  token: Buffer;
+  expires: number;
+  qrLink: string;
+  qrDataUrl: string;
+  isAuthenticated: boolean;
+  requires2FA: boolean;
+  userProfile?: { id: string; firstName: string; username?: string; phone: string };
+  error?: string;
+  createdAt: number;
+}
+
+let activeQrSession: QrSessionState | null = null;
+
+export async function generateTelegramLoginQr(
+  apiIdParam?: number,
+  apiHashParam?: string
+): Promise<{
   success: boolean;
   qrLink?: string;
   qrDataUrl?: string;
@@ -144,7 +161,24 @@ export async function generateTelegramLoginQr(apiIdParam?: number, apiHashParam?
     apiHash: apiHashParam || getTelegramApiConfig().apiHash,
   };
 
+  if (!apiId || !apiHash) {
+    return {
+      success: false,
+      error: "Missing Telegram API credentials. Please set TELEGRAM_API_ID and TELEGRAM_API_HASH.",
+    };
+  }
+
   try {
+    // If activeClient is already running but not authenticated, disconnect cleanly
+    if (activeClient) {
+      try {
+        const isAuth = await activeClient.isUserAuthorized().catch(() => false);
+        if (!isAuth) {
+          await activeClient.disconnect().catch(() => {});
+        }
+      } catch (_) {}
+    }
+
     const stringSession = new StringSession("");
     activeClient = new TelegramClient(stringSession, apiId, apiHash, {
       connectionRetries: 3,
@@ -152,18 +186,101 @@ export async function generateTelegramLoginQr(apiIdParam?: number, apiHashParam?
 
     await activeClient.connect();
 
-    const res = await activeClient.invoke(new Api.auth.ExportLoginToken({
-      apiId,
-      apiHash,
-      exceptIds: [],
-    }));
+    // Attach event handler to catch user scan and authorization push from Telegram
+    activeClient.addEventHandler(async (update) => {
+      if (update instanceof Api.UpdateLoginToken && activeQrSession) {
+        console.log("[TelegramAuth] Received UpdateLoginToken from Telegram! Finalizing authentication...");
+        try {
+          let res2 = await activeClient!.invoke(
+            new Api.auth.ExportLoginToken({
+              apiId,
+              apiHash,
+              exceptIds: [],
+            })
+          );
+
+          if (res2 instanceof Api.auth.LoginTokenMigrateTo) {
+            await (activeClient as any)._switchDC(res2.dcId);
+            res2 = await activeClient!.invoke(
+              new Api.auth.ImportLoginToken({ token: res2.token })
+            );
+          }
+
+          if (
+            res2 instanceof Api.auth.LoginTokenSuccess &&
+            res2.authorization instanceof Api.auth.Authorization
+          ) {
+            const user = res2.authorization.user;
+            const sessionString = (activeClient!.session as StringSession).save();
+            const encrypted = encryptSession(sessionString);
+            const accountRow: TelegramAccountRow = {
+              id: "acc-" + String((user as any).id || Date.now()),
+              userId: String((user as any).id || ""),
+              phoneNumber: (user as any).phone ? "+" + String((user as any).phone).replace(/^\+/, "") : "",
+              firstName: (user as any).firstName || "Doctor",
+              username: (user as any).username || "",
+              encryptedSession: encrypted,
+              isAuthenticated: true,
+              connectedAt: new Date().toISOString(),
+              lastActiveAt: new Date().toISOString(),
+            };
+            CloudDb.saveAccount(accountRow);
+            startWorkerCycles();
+
+            activeQrSession.isAuthenticated = true;
+            activeQrSession.userProfile = {
+              id: accountRow.userId,
+              firstName: accountRow.firstName,
+              username: accountRow.username,
+              phone: accountRow.phoneNumber,
+            };
+            console.log(`[TelegramAuth] QR login successfully completed for @${accountRow.username || accountRow.firstName}!`);
+          }
+        } catch (authErr: any) {
+          console.error("[TelegramAuth] QR token finalization error:", authErr);
+          if (String(authErr?.message || authErr).includes("SESSION_PASSWORD_NEEDED")) {
+            if (activeQrSession) activeQrSession.requires2FA = true;
+          }
+        }
+      }
+    });
+
+    let res = await activeClient.invoke(
+      new Api.auth.ExportLoginToken({
+        apiId,
+        apiHash,
+        exceptIds: [],
+      })
+    );
+
+    // Handle DC migration if token is hosted on another DC
+    if (res instanceof Api.auth.LoginTokenMigrateTo) {
+      await (activeClient as any)._switchDC(res.dcId);
+      res = await activeClient.invoke(
+        new Api.auth.ExportLoginToken({
+          apiId,
+          apiHash,
+          exceptIds: [],
+        })
+      );
+    }
 
     if (res instanceof Api.auth.LoginToken) {
       const tokenBase64 = res.token.toString("base64url");
       const qrLink = `tg://login?token=${tokenBase64}`;
       const qrDataUrl = generateQrDataUrl(qrLink, 256);
 
-      console.log(`[TelegramAuth] Exported MTProto login QR token (expires in ${res.expires}s).`);
+      activeQrSession = {
+        token: res.token,
+        expires: res.expires,
+        qrLink,
+        qrDataUrl,
+        isAuthenticated: false,
+        requires2FA: false,
+        createdAt: Date.now(),
+      };
+
+      console.log(`[TelegramAuth] Exported MTProto login QR token (expires in ${res.expires}s). URL: ${qrLink.substring(0, 35)}...`);
 
       return {
         success: true,
@@ -171,7 +288,10 @@ export async function generateTelegramLoginQr(apiIdParam?: number, apiHashParam?
         qrDataUrl,
         expires: res.expires,
       };
-    } else if (res instanceof Api.auth.LoginTokenSuccess && res.authorization instanceof Api.auth.Authorization) {
+    } else if (
+      res instanceof Api.auth.LoginTokenSuccess &&
+      res.authorization instanceof Api.auth.Authorization
+    ) {
       const user = res.authorization.user;
       const sessionString = (activeClient.session as StringSession).save();
       const encrypted = encryptSession(sessionString);
@@ -216,109 +336,54 @@ export async function checkTelegramQrLoginStatus(): Promise<{
   userProfile?: { id: string; firstName: string; username?: string; phone: string };
   error?: string;
 }> {
-  if (!activeClient) {
+  if (!activeClient || !activeQrSession) {
     return { success: false, error: "Telegram client session expired. Please refresh QR code." };
   }
 
-  try {
-    const { apiId, apiHash } = getTelegramApiConfig();
-    const res = await activeClient.invoke(new Api.auth.ExportLoginToken({
-      apiId,
-      apiHash,
-      exceptIds: [],
-    }));
-
-    if (res instanceof Api.auth.LoginTokenSuccess && res.authorization instanceof Api.auth.Authorization) {
-      const user = res.authorization.user;
-      const sessionString = (activeClient.session as StringSession).save();
-      const encrypted = encryptSession(sessionString);
-
-      const accountRow: TelegramAccountRow = {
-        id: "acc-" + String((user as any).id || Date.now()),
-        userId: String((user as any).id || ""),
-        phoneNumber: (user as any).phone ? "+" + String((user as any).phone).replace(/^\+/, "") : "",
-        firstName: (user as any).firstName || "Doctor",
-        username: (user as any).username || "",
-        encryptedSession: encrypted,
-        isAuthenticated: true,
-        connectedAt: new Date().toISOString(),
-        lastActiveAt: new Date().toISOString(),
-      };
-
-      CloudDb.saveAccount(accountRow);
-      startWorkerCycles();
-
-      console.log(`[TelegramAuth] QR authorization successful for user ${accountRow.userId}!`);
-
-      return {
-        success: true,
-        isAuthenticated: true,
-        userProfile: {
-          id: accountRow.userId,
-          firstName: accountRow.firstName,
-          username: accountRow.username,
-          phone: accountRow.phoneNumber,
-        },
-      };
-    } else if (res instanceof Api.auth.LoginTokenMigrateTo) {
-      await (activeClient as any)._switchDC(res.dcId);
-      const migrated = await activeClient.invoke(new Api.auth.ImportLoginToken({
-        token: res.token,
-      }));
-
-      if (migrated instanceof Api.auth.LoginTokenSuccess && migrated.authorization instanceof Api.auth.Authorization) {
-        const user = migrated.authorization.user;
-        const sessionString = (activeClient.session as StringSession).save();
-        const encrypted = encryptSession(sessionString);
-
-        const accountRow: TelegramAccountRow = {
-          id: "acc-" + String((user as any).id || Date.now()),
-          userId: String((user as any).id || ""),
-          phoneNumber: (user as any).phone ? "+" + String((user as any).phone).replace(/^\+/, "") : "",
-          firstName: (user as any).firstName || "Doctor",
-          username: (user as any).username || "",
-          encryptedSession: encrypted,
-          isAuthenticated: true,
-          connectedAt: new Date().toISOString(),
-          lastActiveAt: new Date().toISOString(),
-        };
-
-        CloudDb.saveAccount(accountRow);
-        startWorkerCycles();
-
-        return {
-          success: true,
-          isAuthenticated: true,
-          userProfile: {
-            id: accountRow.userId,
-            firstName: accountRow.firstName,
-            username: accountRow.username,
-            phone: accountRow.phoneNumber,
-          },
-        };
-      }
-    }
-
-    // Still waiting for user scan
+  // 1. If active QR session was verified via UpdateLoginToken event:
+  if (activeQrSession.isAuthenticated) {
     return {
       success: true,
-      isAuthenticated: false,
-    };
-  } catch (err: any) {
-    const errMsg = String(err?.message || err);
-    if (errMsg.includes("SESSION_PASSWORD_NEEDED")) {
-      return {
-        success: true,
-        requires2FA: true,
-      };
-    }
-
-    const mapped = mapTelegramAuthError(err);
-    return {
-      success: false,
-      error: mapped.userMessage,
+      isAuthenticated: true,
+      userProfile: activeQrSession.userProfile,
     };
   }
+
+  // 2. If 2FA password is required:
+  if (activeQrSession.requires2FA) {
+    return {
+      success: true,
+      requires2FA: true,
+    };
+  }
+
+  // 3. Non-destructive check of client authorization without exporting or invalidating the token:
+  try {
+    const isAuth = await activeClient.isUserAuthorized().catch(() => false);
+    if (isAuth) {
+      activeQrSession.isAuthenticated = true;
+      const acc = CloudDb.getAccount();
+      if (acc) {
+        activeQrSession.userProfile = {
+          id: acc.userId,
+          firstName: acc.firstName,
+          username: acc.username,
+          phone: acc.phoneNumber,
+        };
+      }
+      return {
+        success: true,
+        isAuthenticated: true,
+        userProfile: activeQrSession.userProfile,
+      };
+    }
+  } catch (_) {}
+
+  // Still waiting for scan; token remains completely valid and untouched
+  return {
+    success: true,
+    isAuthenticated: false,
+  };
 }
 
 export async function sendTelegramAuthCode(phoneNumber: string, apiIdParam?: number, apiHashParam?: string): Promise<{

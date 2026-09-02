@@ -357,41 +357,50 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     } catch (_) {}
   }, []);
 
-  // Synchronize current messages and active quiz with localStorage memory
+  // Synchronize current messages and active quiz with localStorage memory (debounced to avoid thread locking)
+  const saveTimeoutRef = useRef<any>(null);
   useEffect(() => {
     if (messages.length === 0) return;
-    setSessions((prev) => {
-      const idx = prev.findIndex((s) => s.id === activeSessionId);
-      let title = prev[idx]?.title || 'New Consultation';
-      if (title === 'New Consultation' || title === 'Consultation') {
-        const firstUser = messages.find((m) => m.role === 'user');
-        if (firstUser && firstUser.content) {
-          title = firstUser.content.slice(0, 42).trim() + (firstUser.content.length > 42 ? '...' : '');
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+
+    saveTimeoutRef.current = setTimeout(() => {
+      setSessions((prev) => {
+        const idx = prev.findIndex((s) => s.id === activeSessionId);
+        let title = prev[idx]?.title || 'New Consultation';
+        if (title === 'New Consultation' || title === 'Consultation') {
+          const firstUser = messages.find((m) => m.role === 'user');
+          if (firstUser && firstUser.content) {
+            title = firstUser.content.slice(0, 42).trim() + (firstUser.content.length > 42 ? '...' : '');
+          }
         }
-      }
 
-      const updatedSession: CoachSession = {
-        id: activeSessionId,
-        title,
-        createdAt: prev[idx]?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        messages,
-        quizSession,
-      };
+        const updatedSession: CoachSession = {
+          id: activeSessionId,
+          title,
+          createdAt: prev[idx]?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          messages,
+          quizSession,
+        };
 
-      let next: CoachSession[];
-      if (idx >= 0) {
-        next = [...prev];
-        next[idx] = updatedSession;
-      } else {
-        next = [updatedSession, ...prev];
-      }
+        let next: CoachSession[];
+        if (idx >= 0) {
+          next = [...prev];
+          next[idx] = updatedSession;
+        } else {
+          next = [updatedSession, ...prev];
+        }
 
-      try {
-        localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(next));
-      } catch (_) {}
-      return next;
-    });
+        try {
+          localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(next));
+        } catch (_) {}
+        return next;
+      });
+    }, 500);
+
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
   }, [messages, quizSession, activeSessionId]);
 
   // Auto-send initial prompt if initialTopic or initialQuery is provided from external trigger
@@ -611,6 +620,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
           const reader = streamRes.body.getReader();
           const decoder = new TextDecoder();
           let accumulated = '';
+          let lastFlush = 0;
 
           try {
             while (true) {
@@ -618,20 +628,29 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               if (done) break;
               const chunk = decoder.decode(value, { stream: true });
               const lines = chunk.split('\n');
+              let newTextAdded = false;
+
               for (const line of lines) {
                 if (line.startsWith('data: ')) {
                   try {
                     const payload = JSON.parse(line.slice(6));
                     if (payload.text) {
                       accumulated += payload.text;
-                      setMessages((prev) =>
-                        prev.map((msg) =>
-                          msg.id === streamingMsgId ? { ...msg, content: accumulated } : msg
-                        )
-                      );
+                      newTextAdded = true;
                     }
                   } catch {}
                 }
+              }
+
+              const now = Date.now();
+              if (newTextAdded && now - lastFlush > 60) {
+                lastFlush = now;
+                const currentText = accumulated;
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === streamingMsgId ? { ...msg, content: currentText } : msg
+                  )
+                );
               }
             }
           } finally {
@@ -639,6 +658,11 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
           }
 
           if (accumulated.trim()) {
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === streamingMsgId ? { ...msg, content: accumulated } : msg
+              )
+            );
             return;
           }
         }
@@ -955,12 +979,39 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             )}
           </div>
         </div>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold font-display tracking-tight text-slate-900">
-          Study Coach
-        </h1>
-        <p className="text-sm sm:text-base text-slate-500 max-w-2xl leading-relaxed">
-          High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted weak-area remediation.
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold font-display tracking-tight text-slate-900">
+              Study Coach
+            </h1>
+            <p className="text-sm sm:text-base text-slate-500 max-w-2xl leading-relaxed mt-1">
+              High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted weak-area remediation.
+            </p>
+          </div>
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(true)}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs sm:text-sm font-semibold text-slate-800 shadow-xs transition-all cursor-pointer hover:border-slate-400 active:scale-95"
+              title="Open full consultation history"
+            >
+              <History className="h-4 w-4 text-sky-600" />
+              <span>Saved History</span>
+              <span className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-xs font-bold font-mono">
+                {sessions.length}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={handleNewSession}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold font-['Outfit'] shadow-xs transition-all cursor-pointer active:scale-95"
+              title="Start a new chat session"
+            >
+              <Plus className="h-4 w-4" />
+              <span>New Chat</span>
+            </button>
+          </div>
+        </div>
       </header>
 
       {/* 1. Active Consultation & Memory Control Bar */}

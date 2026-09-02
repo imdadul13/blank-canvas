@@ -67,237 +67,240 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
   const blocks: React.ReactNode[] = [];
   let i = 0;
 
-  while (i < rawLines.length) {
-    const startIndex = i;
-    const line = rawLines[i];
-    const trimmed = line.trim();
+  try {
+    while (i < rawLines.length) {
+      const startIndex = i;
+      const line = rawLines[i];
+      const trimmed = line.trim();
 
-    // Skip empty lines
-    if (!trimmed) {
-      i++;
-      continue;
-    }
-
-    // 0. Horizontal Rule (---, ***, ___)
-    if (/^(?:---|\*\*\*|___)\s*$/.test(trimmed)) {
-      blocks.push(
-        <hr key={`hr-${blocks.length}`} className="w-full my-3 border-slate-200" />
-      );
-      i++;
-      continue;
-    }
-
-    // 1. Table Detection (any consecutive lines starting with |)
-    if (trimmed.startsWith('|')) {
-      const tableLines: string[] = [];
-      while (i < rawLines.length && rawLines[i].trim().startsWith('|')) {
-        tableLines.push(rawLines[i].trim());
+      // Skip empty lines
+      if (!trimmed) {
         i++;
+        continue;
       }
 
-      if (tableLines.length >= 2) {
-        const headerCells = tableLines[0].split('|').slice(1, -1).map(c => c.trim());
-        const rowLines = tableLines.slice(1).filter(l => !l.includes('---'));
-
+      // 0. Horizontal Rule (---, ***, ___)
+      if (/^(?:---|\*\*\*|___)\s*$/.test(trimmed)) {
         blocks.push(
-          <div key={`table-${blocks.length}`} className="w-full overflow-x-auto my-3 rounded-2xl border border-slate-200 bg-white shadow-2xs">
-            <table className="w-full min-w-full text-left text-xs border-collapse">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider font-['Outfit']">
-                <tr>
-                  {headerCells.map((h, hIdx) => (
-                    <th key={hIdx} className="py-2.5 px-3.5 border-r border-slate-200 last:border-r-0">{formatInline(h)}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {rowLines.map((rowLine, rIdx) => {
-                  const cells = rowLine.split('|').slice(1, -1).map(c => c.trim());
-                  return (
-                    <tr key={rIdx} className="hover:bg-slate-50/50 transition-colors">
-                      {cells.map((cell, cIdx) => (
-                        <td key={cIdx} className="py-2.5 px-3.5 text-slate-700 leading-relaxed border-r border-slate-100 last:border-r-0">
-                          {formatInline(cell)}
-                        </td>
-                      ))}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <hr key={`hr-${blocks.length}`} className="w-full my-3 border-slate-200" />
         );
-      } else if (tableLines.length === 1) {
-        // Single partial table line (e.g. streaming in progress)
-        blocks.push(
-          <p key={`table-single-${blocks.length}`} className="w-full text-sm font-mono text-slate-700 my-1 break-words">
-            {formatInline(tableLines[0])}
-          </p>
-        );
+        i++;
+        continue;
       }
-      continue;
-    }
 
-    // 2. Headings (#, ##, ###, ####, #####, ###### with space)
-    const headingMatch = trimmed.match(/^(#{1,6})\s+(.+)$/);
-    if (headingMatch) {
-      const level = headingMatch[1].length;
-      const headingText = headingMatch[2];
+      // 1. Table Detection (any consecutive lines starting with |)
+      if (trimmed.startsWith('|')) {
+        const tableLines: string[] = [];
+        while (i < rawLines.length && rawLines[i].trim().startsWith('|')) {
+          tableLines.push(rawLines[i].trim());
+          i++;
+        }
 
-      if (level === 1) {
-        blocks.push(
-          <h1 key={`h1-${blocks.length}`} className="w-full text-xl font-bold font-['Outfit'] text-slate-900 mt-5 mb-2.5 border-b border-slate-200 pb-2">
-            {formatInline(headingText)}
-          </h1>
-        );
-      } else if (level === 2) {
-        blocks.push(
-          <h2 key={`h2-${blocks.length}`} className="w-full text-lg font-bold font-['Outfit'] text-slate-900 mt-5 mb-2 border-b border-slate-100 pb-1.5">
-            {formatInline(headingText)}
-          </h2>
-        );
-      } else if (level === 3) {
-        blocks.push(
-          <h3 key={`h3-${blocks.length}`} className="w-full text-base font-bold font-['Outfit'] text-slate-900 mt-4 mb-1.5">
-            {formatInline(headingText)}
-          </h3>
-        );
-      } else {
-        blocks.push(
-          <h4 key={`h4-${blocks.length}`} className="w-full text-sm font-bold font-['Outfit'] text-slate-900 mt-3 mb-1">
-            {formatInline(headingText)}
-          </h4>
-        );
+        if (tableLines.length >= 2) {
+          const headerCells = tableLines[0].split('|').slice(1, -1).map(c => c.trim());
+          const rowLines = tableLines.slice(1).filter(l => !l.includes('---'));
+
+          blocks.push(
+            <div key={`table-${blocks.length}`} className="w-full my-4 overflow-x-auto rounded-2xl border border-slate-200/90 shadow-2xs">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    {headerCells.map((h, hIdx) => (
+                      <th key={`th-${hIdx}`} className="py-2.5 px-3.5 font-bold text-slate-900 font-mono uppercase tracking-wider">
+                        {formatInline(h)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {rowLines.map((row, rIdx) => {
+                    const cells = row.split('|').slice(1, -1).map(c => c.trim());
+                    return (
+                      <tr key={`tr-${rIdx}`} className="hover:bg-slate-50/60 transition-colors">
+                        {cells.map((cell, cIdx) => (
+                          <td key={`td-${cIdx}`} className="py-2 px-3.5 text-slate-700">
+                            {formatInline(cell)}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          );
+        } else if (tableLines.length === 1) {
+          blocks.push(
+            <p key={`p-${blocks.length}`} className="text-sm leading-relaxed text-slate-700">
+              {formatInline(tableLines[0])}
+            </p>
+          );
+        }
+        continue;
       }
-      i++;
-      continue;
-    }
 
-    // 3. High-Yield Callout / Alert Box (💡, ⚠️, 🧠, 🎯, >)
-    if (/^[💡⚠️🧠🎯]/.test(trimmed) || trimmed.startsWith('>')) {
-      const calloutLines: string[] = [];
+      // 2. Headings (#, ##, ###, ####, #####, ###### with space)
+      const headingMatch = trimmed.match(/^(#{1,6})\s+(.+)$/);
+      if (headingMatch) {
+        const level = headingMatch[1].length;
+        const headingText = headingMatch[2];
+
+        if (level === 1) {
+          blocks.push(
+            <h1 key={`h1-${blocks.length}`} className="w-full text-xl font-bold font-['Outfit'] text-slate-900 mt-5 mb-2.5 border-b border-slate-200 pb-2">
+              {formatInline(headingText)}
+            </h1>
+          );
+        } else if (level === 2) {
+          blocks.push(
+            <h2 key={`h2-${blocks.length}`} className="w-full text-lg font-bold font-['Outfit'] text-slate-900 mt-5 mb-2 border-b border-slate-100 pb-1.5">
+              {formatInline(headingText)}
+            </h2>
+          );
+        } else if (level === 3) {
+          blocks.push(
+            <h3 key={`h3-${blocks.length}`} className="w-full text-base font-bold font-['Outfit'] text-slate-900 mt-4 mb-1.5">
+              {formatInline(headingText)}
+            </h3>
+          );
+        } else {
+          blocks.push(
+            <h4 key={`h4-${blocks.length}`} className="w-full text-sm font-bold font-['Outfit'] text-slate-900 mt-3 mb-1">
+              {formatInline(headingText)}
+            </h4>
+          );
+        }
+        i++;
+        continue;
+      }
+
+      // 3. High-Yield Callout / Alert Box (💡, ⚠️, 🧠, 🎯, >)
+      if (/^[💡⚠️🧠🎯]/.test(trimmed) || trimmed.startsWith('>')) {
+        const calloutLines: string[] = [];
+        while (
+          i < rawLines.length &&
+          rawLines[i].trim() &&
+          (/^[💡⚠️🧠🎯]/.test(rawLines[i].trim()) ||
+            rawLines[i].trim().startsWith('>') ||
+            (calloutLines.length > 0 &&
+              !rawLines[i].trim().startsWith('#') &&
+              !rawLines[i].trim().startsWith('- ') &&
+              !rawLines[i].trim().startsWith('* ') &&
+              !rawLines[i].trim().startsWith('|') &&
+              !/^\d+\.\s/.test(rawLines[i].trim())))
+        ) {
+          calloutLines.push(rawLines[i].trim().replace(/^>\s*/, ''));
+          i++;
+        }
+
+        if (calloutLines.length > 0) {
+          const fullCalloutText = calloutLines.join(' ');
+          let bg = 'bg-sky-50/90 border-sky-200 text-sky-950';
+          if (fullCalloutText.includes('⚠️')) bg = 'bg-amber-50/90 border-amber-200 text-amber-950';
+          if (fullCalloutText.includes('🧠')) bg = 'bg-purple-50/90 border-purple-200 text-purple-950';
+          if (fullCalloutText.includes('🎯')) bg = 'bg-emerald-50/90 border-emerald-200 text-emerald-950';
+
+          blocks.push(
+            <div key={`callout-${blocks.length}`} className={`w-full my-3 p-4 rounded-2xl border ${bg} text-sm leading-relaxed shadow-2xs break-words`}>
+              {formatInline(fullCalloutText)}
+            </div>
+          );
+        }
+        continue;
+      }
+
+      // 4. Bullet Lists (- , * , • , + )
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('• ') || trimmed.startsWith('+ ')) {
+        const listItems: string[] = [];
+        while (
+          i < rawLines.length &&
+          (rawLines[i].trim().startsWith('- ') ||
+            rawLines[i].trim().startsWith('* ') ||
+            rawLines[i].trim().startsWith('• ') ||
+            rawLines[i].trim().startsWith('+ '))
+        ) {
+          listItems.push(rawLines[i].trim().replace(/^[-*•+]\s+/, ''));
+          i++;
+        }
+
+        blocks.push(
+          <ul key={`ul-${blocks.length}`} className="w-full my-2.5 space-y-1.5 pl-5 list-disc text-sm text-slate-700 leading-relaxed">
+            {listItems.map((item, idx) => (
+              <li key={`li-${idx}`}>{formatInline(item)}</li>
+            ))}
+          </ul>
+        );
+        continue;
+      }
+
+      // 5. Numbered Lists (1. , 2. )
+      if (/^\d+\.\s/.test(trimmed)) {
+        const numItems: string[] = [];
+        while (i < rawLines.length && /^\d+\.\s/.test(rawLines[i].trim())) {
+          numItems.push(rawLines[i].trim().replace(/^\d+\.\s+/, ''));
+          i++;
+        }
+
+        blocks.push(
+          <ol key={`ol-${blocks.length}`} className="w-full my-2.5 space-y-1.5 pl-5 list-decimal text-sm text-slate-700 leading-relaxed">
+            {numItems.map((item, idx) => (
+              <li key={`oli-${idx}`}>{formatInline(item)}</li>
+            ))}
+          </ol>
+        );
+        continue;
+      }
+
+      // 6. Regular Paragraphs
+      const paragraphLines: string[] = [];
       while (
         i < rawLines.length &&
         rawLines[i].trim() &&
-        (/^[💡⚠️🧠🎯]/.test(rawLines[i].trim()) ||
-          rawLines[i].trim().startsWith('>') ||
-          (calloutLines.length > 0 &&
-            !rawLines[i].trim().startsWith('#') &&
-            !rawLines[i].trim().startsWith('- ') &&
-            !rawLines[i].trim().startsWith('* ') &&
-            !rawLines[i].trim().startsWith('|') &&
-            !/^\d+\.\s/.test(rawLines[i].trim())))
+        !rawLines[i].trim().startsWith('#') &&
+        !rawLines[i].trim().startsWith('- ') &&
+        !rawLines[i].trim().startsWith('* ') &&
+        !rawLines[i].trim().startsWith('• ') &&
+        !rawLines[i].trim().startsWith('+ ') &&
+        !rawLines[i].trim().startsWith('|') &&
+        !rawLines[i].trim().startsWith('>') &&
+        !/^[💡⚠️🧠🎯]/.test(rawLines[i].trim()) &&
+        !/^\d+\.\s/.test(rawLines[i].trim()) &&
+        !/^(?:---|\*\*\*|___)\s*$/.test(rawLines[i].trim())
       ) {
-        calloutLines.push(rawLines[i].trim().replace(/^>\s*/, ''));
+        paragraphLines.push(rawLines[i].trim());
         i++;
       }
 
-      if (calloutLines.length > 0) {
-        const fullCalloutText = calloutLines.join(' ');
-        let bg = 'bg-sky-50/90 border-sky-200 text-sky-950';
-        if (fullCalloutText.includes('⚠️')) bg = 'bg-amber-50/90 border-amber-200 text-amber-950';
-        if (fullCalloutText.includes('🧠')) bg = 'bg-purple-50/90 border-purple-200 text-purple-950';
-        if (fullCalloutText.includes('🎯')) bg = 'bg-emerald-50/90 border-emerald-200 text-emerald-950';
-
+      if (paragraphLines.length > 0) {
         blocks.push(
-          <div key={`callout-${blocks.length}`} className={`w-full my-3 p-4 rounded-2xl border ${bg} text-sm leading-relaxed shadow-2xs break-words`}>
-            {formatInline(fullCalloutText)}
-          </div>
-        );
-      }
-      continue;
-    }
-
-    // 4. Bullet Lists (- , * , • , + )
-    if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('• ') || trimmed.startsWith('+ ')) {
-      const listItems: string[] = [];
-      while (
-        i < rawLines.length &&
-        (rawLines[i].trim().startsWith('- ') ||
-          rawLines[i].trim().startsWith('* ') ||
-          rawLines[i].trim().startsWith('• ') ||
-          rawLines[i].trim().startsWith('+ '))
-      ) {
-        listItems.push(rawLines[i].trim().replace(/^[-*•+]\s+/, ''));
-        i++;
-      }
-
-      blocks.push(
-        <ul key={`ul-${blocks.length}`} className="w-full space-y-1.5 my-2 pl-4 list-disc text-slate-800 text-sm leading-relaxed marker:text-slate-400">
-          {listItems.map((itemText, lIdx) => (
-            <li key={lIdx} className="pl-1 break-words">
-              {formatInline(itemText)}
-            </li>
-          ))}
-        </ul>
-      );
-      continue;
-    }
-
-    // 5. Numbered Lists (1. , 2. )
-    if (/^\d+\.\s/.test(trimmed)) {
-      const listItems: string[] = [];
-      while (i < rawLines.length && /^\d+\.\s/.test(rawLines[i].trim())) {
-        listItems.push(rawLines[i].trim().replace(/^\d+\.\s+/, ''));
-        i++;
-      }
-
-      blocks.push(
-        <ol key={`ol-${blocks.length}`} className="w-full space-y-1.5 my-2 pl-4 list-decimal text-slate-800 text-sm leading-relaxed marker:font-bold marker:text-slate-500 font-['Outfit']">
-          {listItems.map((itemText, lIdx) => (
-            <li key={lIdx} className="pl-1 break-words">
-              <span className="font-normal font-['Plus_Jakarta_Sans']">{formatInline(itemText)}</span>
-            </li>
-          ))}
-        </ol>
-      );
-      continue;
-    }
-
-    // 6. Regular Paragraph
-    const paraLines: string[] = [];
-    while (
-      i < rawLines.length &&
-      rawLines[i].trim() &&
-      !rawLines[i].trim().startsWith('#') &&
-      !rawLines[i].trim().startsWith('|') &&
-      !rawLines[i].trim().startsWith('- ') &&
-      !rawLines[i].trim().startsWith('* ') &&
-      !rawLines[i].trim().startsWith('• ') &&
-      !rawLines[i].trim().startsWith('+ ') &&
-      !/^\d+\.\s/.test(rawLines[i].trim()) &&
-      !/^[💡⚠️🧠🎯]/.test(rawLines[i].trim()) &&
-      !rawLines[i].trim().startsWith('>') &&
-      !/^(?:---|\*\*\*|___)\s*$/.test(rawLines[i].trim())
-    ) {
-      paraLines.push(rawLines[i].trim());
-      i++;
-    }
-
-    if (paraLines.length > 0) {
-      blocks.push(
-        <p key={`p-${blocks.length}`} className="w-full text-sm sm:text-base text-slate-800 leading-relaxed my-1.5 break-words">
-          {formatInline(paraLines.join(' '))}
-        </p>
-      );
-    }
-
-    // 7. Critical Safeguard: If no block consumed the line, advance i unconditionally
-    if (i === startIndex) {
-      const fallbackText = rawLines[i].trim();
-      if (fallbackText) {
-        blocks.push(
-          <p key={`p-fallback-${blocks.length}`} className="w-full text-sm sm:text-base text-slate-800 leading-relaxed my-1.5 break-words">
-            {formatInline(fallbackText)}
+          <p key={`p-${blocks.length}`} className="w-full text-sm leading-relaxed text-slate-700 my-2">
+            {formatInline(paragraphLines.join(' '))}
           </p>
         );
       }
-      i++;
-    }
-  }
 
-  return (
-    <div className={`w-full max-w-none text-slate-800 space-y-2.5 font-['Plus_Jakarta_Sans'] ${className}`}>
-      {blocks}
-    </div>
-  );
+      // Strict guaranteed advancement: if no block handler advanced the index, increment i by 1
+      if (i === startIndex) {
+        blocks.push(
+          <p key={`p-fallback-${blocks.length}`} className="w-full text-sm leading-relaxed text-slate-700 my-1">
+            {formatInline(trimmed)}
+          </p>
+        );
+        i++;
+      }
+    }
+
+    return (
+      <div className={`w-full max-w-none text-slate-800 space-y-2.5 font-['Plus_Jakarta_Sans'] ${className}`}>
+        {blocks}
+      </div>
+    );
+  } catch (err) {
+    console.warn('Markdown parsing fallback activated:', err);
+    return (
+      <div className={`w-full max-w-none text-slate-800 space-y-2 font-['Plus_Jakarta_Sans'] ${className}`}>
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{content}</p>
+      </div>
+    );
+  }
 };

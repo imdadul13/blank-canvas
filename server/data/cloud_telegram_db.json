@@ -11,7 +11,7 @@
       "memberCount": 25000,
       "isMonitored": true,
       "lastProcessedMessageId": 2004,
-      "lastSyncedAt": "2026-09-02T07:25:35.432Z"
+      "lastSyncedAt": "2026-09-02T07:39:38.431Z"
     },
     {
       "id": "src-1002",
@@ -22,7 +22,7 @@
       "memberCount": 12000,
       "isMonitored": false,
       "lastProcessedMessageId": 9999,
-      "lastSyncedAt": "2026-09-02T07:25:35.431Z"
+      "lastSyncedAt": "2026-09-02T07:39:38.429Z"
     }
   ],
   "messages": [
@@ -31,11 +31,11 @@
       "accountId": "primary",
       "sourceId": "src-1001",
       "telegramMessageId": 2004,
-      "messageDate": "2026-09-02T07:25:35.432Z",
+      "messageDate": "2026-09-02T07:39:38.430Z",
       "rawText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
       "mediaType": "NONE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-02T07:25:35.432Z",
+      "receivedAt": "2026-09-02T07:39:38.430Z",
       "retryCount": 0
     },
     {
@@ -43,11 +43,11 @@
       "accountId": "primary",
       "sourceId": "src-1002",
       "telegramMessageId": 9999,
-      "messageDate": "2026-09-02T07:25:35.431Z",
+      "messageDate": "2026-09-02T07:39:38.428Z",
       "rawText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine is first line.",
       "mediaType": "NONE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-02T07:25:35.431Z",
+      "receivedAt": "2026-09-02T07:39:38.428Z",
       "retryCount": 0
     },
     {
@@ -55,11 +55,11 @@
       "accountId": "primary",
       "sourceId": "src-1001",
       "telegramMessageId": 2003,
-      "messageDate": "2026-09-02T07:25:35.182Z",
+      "messageDate": "2026-09-02T07:39:33.253Z",
       "rawText": "Observe the clinical video showing rhythmic horizontal eye oscillation. Diagnosis?\nA) Horizontal Jerk Nystagmus\nB) Opsoclonus\nC) Ocular flutter\nD) Saccades\nAns: A\nExp: Jerk nystagmus with slow drift.",
       "mediaType": "VIDEO",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-02T07:25:35.182Z",
+      "receivedAt": "2026-09-02T07:39:33.253Z",
       "retryCount": 0
     },
     {
@@ -67,11 +67,11 @@
       "accountId": "primary",
       "sourceId": "src-1001",
       "telegramMessageId": 2002,
-      "messageDate": "2026-09-02T07:25:33.914Z",
+      "messageDate": "2026-09-02T07:39:30.695Z",
       "rawText": "A 45-year-old male presents with epigastric pain radiating to back. CT abdomen is attached. What is the diagnosis?\nA) Acute pancreatitis\nB) Peptic ulcer\nC) Cholecystitis\nD) Appendicitis\nAns: A\nExp: CT demonstrates necrotizing pancreatitis.",
       "mediaType": "IMAGE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-02T07:25:33.914Z",
+      "receivedAt": "2026-09-02T07:39:30.695Z",
       "retryCount": 0
     },
     {
@@ -83,32 +83,32 @@
       "rawText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine (6mg rapid bolus) is the first-line drug of choice for acute termination of stable PSVT.",
       "mediaType": "NONE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-02T07:25:33.907Z",
+      "receivedAt": "2026-09-02T07:39:30.687Z",
       "retryCount": 0
     }
   ],
   "media": [
     {
-      "id": "med-1788333935180-63w3",
+      "id": "med-1788334773251-2d3f",
       "messageId": "msg-src-1001-2002",
       "mediaType": "IMAGE",
-      "storageUrl": "/uploads/telegram/media/photo_2002_1788333933914.jpg",
-      "filePath": "/Users/imdadul/Downloads/blank-canvas/public/uploads/telegram/media/photo_2002_1788333933914.jpg",
-      "createdAt": "2026-09-02T07:25:35.180Z"
+      "storageUrl": "/uploads/telegram/media/photo_2002_1788334770695.jpg",
+      "filePath": "/Users/imdadul/Downloads/blank-canvas/public/uploads/telegram/media/photo_2002_1788334770695.jpg",
+      "createdAt": "2026-09-02T07:39:33.251Z"
     },
     {
-      "id": "med-1788333935429-izud",
+      "id": "med-1788334778427-k7t1",
       "messageId": "msg-src-1001-2003",
       "mediaType": "VIDEO",
-      "storageUrl": "/uploads/telegram/media/vid_2003_1788333935182.mp4",
+      "storageUrl": "/uploads/telegram/media/vid_2003_1788334773254.mp4",
       "thumbnailUrl": "https://api.telegram.org/file/bot/photos/nystagmus_thumb.jpg",
-      "filePath": "/Users/imdadul/Downloads/blank-canvas/public/uploads/telegram/media/vid_2003_1788333935182.mp4",
-      "createdAt": "2026-09-02T07:25:35.429Z"
+      "filePath": "/Users/imdadul/Downloads/blank-canvas/public/uploads/telegram/media/vid_2003_1788334773254.mp4",
+      "createdAt": "2026-09-02T07:39:38.427Z"
     }
   ],
   "questions": [
     {
-      "id": "q-cloud-1788333935429-kwnh",
+      "id": "q-cloud-1788334778428-82nr",
       "sourceId": "src-1001",
       "sourceMessageId": "msg-src-1001-2003",
       "subject": "medicine",
@@ -150,11 +150,11 @@
       ],
       "sourceChannel": "Target FMGE High Yield",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-02T07:25:35.429Z",
+      "createdAt": "2026-09-02T07:39:38.428Z",
       "contentFingerprint": "19bbfabe44931f6b8296ad88cc8c4d5f7577014affea3b385d01712873433129"
     },
     {
-      "id": "q-cloud-1788333935181-pg3c",
+      "id": "q-cloud-1788334773252-wtjy",
       "sourceId": "src-1001",
       "sourceMessageId": "msg-src-1001-2002",
       "subject": "surgery",
@@ -196,11 +196,11 @@
       ],
       "sourceChannel": "Target FMGE High Yield",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-02T07:25:35.181Z",
+      "createdAt": "2026-09-02T07:39:33.252Z",
       "contentFingerprint": "607ea1c4739d08e29d0a69930f9d8acebcdbfb727ee9ea1e26d91d91a2678a0d"
     },
     {
-      "id": "q-cloud-1788333933911-5pfd",
+      "id": "q-cloud-1788334770690-5r4e",
       "sourceId": "src-1001",
       "sourceMessageId": "msg-src-1001-2001",
       "subject": "medicine",
@@ -242,7 +242,7 @@
       ],
       "sourceChannel": "Target FMGE High Yield",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-02T07:25:33.911Z",
+      "createdAt": "2026-09-02T07:39:30.690Z",
       "contentFingerprint": "d20b576f32d36dd3eeb9cc73241067c2f29aad07393c8f15bd3270a3a1745d9f",
       "duplicateSources": [
         {
@@ -253,7 +253,7 @@
       ]
     },
     {
-      "id": "q-cloud-1788333935431-v4r6",
+      "id": "q-cloud-1788334778429-q96r",
       "sourceId": "src-1002",
       "sourceMessageId": "msg-src-1002-9999",
       "subject": "medicine",
@@ -295,100 +295,100 @@
       ],
       "sourceChannel": "FMGE Clinical Recalls Discussion",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-02T07:25:35.431Z",
+      "createdAt": "2026-09-02T07:39:38.429Z",
       "contentFingerprint": "d20b576f32d36dd3eeb9cc73241067c2f29aad07393c8f15bd3270a3a1745d9f",
       "isDuplicate": true,
-      "duplicateOfQuestionId": "q-cloud-1788333933911-5pfd"
+      "duplicateOfQuestionId": "q-cloud-1788334770690-5r4e"
     }
   ],
   "tips": [],
   "notices": [
     {
-      "id": "not-1788333935432-lle3",
+      "id": "not-1788334778431-a93e",
       "sourceMessageId": "msg-src-1001-2004",
       "originalText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
       "cleanedText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
       "importance": "important",
-      "noticeDate": "2026-09-02T07:25:35.432Z",
+      "noticeDate": "2026-09-02T07:39:38.431Z",
       "sourceChannel": "Target FMGE High Yield",
-      "createdAt": "2026-09-02T07:25:35.432Z"
+      "createdAt": "2026-09-02T07:39:38.431Z"
     }
   ],
   "pearls": [
     {
-      "id": "prl-1788333935429-q6we",
+      "id": "prl-1788334778428-rtzx",
       "sourceMessageId": "msg-src-1001-2003",
-      "questionId": "q-cloud-1788333935429-kwnh",
+      "questionId": "q-cloud-1788334778428-82nr",
       "title": "Clinical High-Yield Recall",
       "takeaway": "FMGE PEARL: Jerk nystagmus is named after the direction of the fast corrective phase (e.g. right-beating). In peripheral vestibular lesions (e.g. vestibular neuritis), nystagmus beats away from the lesion and is suppressed by visual fixation (Frenzel glasses).",
       "subject": "medicine",
       "topic": "Clinical High-Yield Recall",
       "isSaved": true,
-      "createdAt": "2026-09-02T07:25:35.429Z"
+      "createdAt": "2026-09-02T07:39:38.428Z"
     },
     {
-      "id": "prl-1788333935181-zq5n",
+      "id": "prl-1788334773252-g17f",
       "sourceMessageId": "msg-src-1001-2002",
-      "questionId": "q-cloud-1788333935181-pg3c",
+      "questionId": "q-cloud-1788334773252-wtjy",
       "title": "Clinical High-Yield Recall",
       "takeaway": "FMGE PEARL: Serum Lipase is the most sensitive and specific biomarker for acute pancreatitis (remains elevated 8-14 days vs 3-5 days for amylase). Contrast-enhanced CT (CECT) after 72 hours is the gold standard to evaluate pancreatic necrosis (Balthazar score).",
       "subject": "surgery",
       "topic": "Clinical High-Yield Recall",
       "isSaved": true,
-      "createdAt": "2026-09-02T07:25:35.181Z"
+      "createdAt": "2026-09-02T07:39:33.252Z"
     },
     {
-      "id": "prl-1788333933912-uiut",
+      "id": "prl-1788334770691-9n01",
       "sourceMessageId": "msg-src-1001-2001",
-      "questionId": "q-cloud-1788333933911-5pfd",
+      "questionId": "q-cloud-1788334770690-5r4e",
       "title": "Clinical High-Yield Recall",
       "takeaway": "FMGE PEARL: IV Adenosine (6 mg rapid IV push via large antecubital vein followed by 20 mL saline flush; repeat with 12 mg if needed) is the 1st-line drug of choice for acute termination of stable narrow-complex PSVT. It causes transient AV node conduction block (half-life < 10 seconds). Always warn the patient of transient chest pressure and flushing.",
       "subject": "medicine",
       "topic": "Clinical High-Yield Recall",
       "isSaved": true,
-      "createdAt": "2026-09-02T07:25:33.912Z"
+      "createdAt": "2026-09-02T07:39:30.691Z"
     }
   ],
   "crossChecks": [
     {
-      "id": "cc-1788333935431-g38z",
-      "questionId": "q-cloud-1788333935431-v4r6",
+      "id": "cc-1788334778430-wnex",
+      "questionId": "q-cloud-1788334778429-q96r",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
       "confidence": 0.96,
-      "verifiedAt": "2026-09-02T07:25:35.431Z"
+      "verifiedAt": "2026-09-02T07:39:38.430Z"
     },
     {
-      "id": "cc-1788333935430-0h3w",
-      "questionId": "q-cloud-1788333935429-kwnh",
+      "id": "cc-1788334778428-c5kf",
+      "questionId": "q-cloud-1788334778428-82nr",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
       "confidence": 0.96,
-      "verifiedAt": "2026-09-02T07:25:35.430Z"
+      "verifiedAt": "2026-09-02T07:39:38.428Z"
     },
     {
-      "id": "cc-1788333935181-d2bh",
-      "questionId": "q-cloud-1788333935181-pg3c",
+      "id": "cc-1788334773253-6u06",
+      "questionId": "q-cloud-1788334773252-wtjy",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
       "confidence": 0.96,
-      "verifiedAt": "2026-09-02T07:25:35.181Z"
+      "verifiedAt": "2026-09-02T07:39:33.253Z"
     },
     {
-      "id": "cc-1788333933912-dlqo",
-      "questionId": "q-cloud-1788333933911-5pfd",
+      "id": "cc-1788334770691-size",
+      "questionId": "q-cloud-1788334770690-5r4e",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
       "confidence": 0.96,
-      "verifiedAt": "2026-09-02T07:25:33.912Z"
+      "verifiedAt": "2026-09-02T07:39:30.691Z"
     }
   ],
   "heartbeats": [
@@ -396,11 +396,11 @@
       "id": "hb-cloud-worker-1",
       "workerId": "cloud-worker-1",
       "workerStatus": "ONLINE",
-      "lastHeartbeat": "2026-09-02T07:25:35.431Z",
+      "lastHeartbeat": "2026-09-02T07:39:38.430Z",
       "activeSourcesCount": 1,
       "errorCount": 0,
-      "updatedAt": "2026-09-02T07:25:35.431Z",
-      "lastSuccessfulTelegramUpdate": "2026-09-02T07:25:35.431Z"
+      "updatedAt": "2026-09-02T07:39:38.430Z",
+      "lastSuccessfulTelegramUpdate": "2026-09-02T07:39:38.430Z"
     }
   ],
   "jobs": []
