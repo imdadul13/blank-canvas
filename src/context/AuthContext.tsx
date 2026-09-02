@@ -12,7 +12,7 @@ import {
   browserLocalPersistence,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
-import { AppState, UserProfile, SyncStatus, McqAttempt } from '../types';
+import { AppState, UserProfile, SyncStatus, McqAttempt, OnboardingPreparationStage, StudyPreferenceKey } from '../types';
 import { getInitialAppState } from '../data/sampleData';
 import {
   getUserProfileDoc,
@@ -41,7 +41,7 @@ import { recordMcqAttempt, hydrateAttemptsFromExistingState, NewMcqAttemptInput 
  * To RESTORE standard Firebase Authentication with real Firestore accounts:
  * Change this ONE line to: export const DEV_AUTH_BYPASS = false;
  */
-export const DEV_AUTH_BYPASS = true;
+export const DEV_AUTH_BYPASS = false;
 
 /** Development Session User Identity (Bypass Mode Only) */
 const DEV_USER: User = {
@@ -104,7 +104,19 @@ interface AuthContextType {
   updateAppState: (updater: AppState | ((prev: AppState) => AppState)) => void;
   recordQuestionAttempt: (input: NewMcqAttemptInput) => McqAttempt;
   forceSyncToCloud: () => Promise<void>;
-  completeOnboarding: (examDate: string, targetScore: number, dailyHours: number, source?: string) => Promise<void>;
+  completeOnboarding: (
+    examDate: string,
+    targetScore: number,
+    dailyHours: number,
+    options?: {
+      source?: string;
+      preparationStage?: OnboardingPreparationStage;
+      studyPreferences?: StudyPreferenceKey[];
+      baselineScore?: number;
+      baselineQuestions?: number;
+    }
+  ) => Promise<void>;
+  saveOnboardingProgress: (partial: Partial<UserProfile>) => Promise<void>;
   handleMigrateLocalData: () => Promise<void>;
   handleStartFresh: () => Promise<void>;
 }
@@ -190,10 +202,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const hasPendingLocalChangesRef = useRef(false);
   const appStateRef = useRef(appState);
   const authSessionRef = useRef(0);
+  const profileRef = useRef<UserProfile | null>(profile);
 
   useEffect(() => {
     appStateRef.current = appState;
   }, [appState]);
+
+  useEffect(() => {
+    profileRef.current = profile;
+  }, [profile]);
 
   // Explicitly initialize Firebase Auth persistence once (when not in bypass mode)
   useEffect(() => {
@@ -246,6 +263,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAppState(getInitialAppState());
   };
 
+  // Synchronous check of whether the current in-memory profile has completed
+  // onboarding. Used to keep async restoration (auth listener / snapshots) from
+  // downgrading a freshly-completed onboarding flow back to incomplete.
+  const profileRefCompleted = () => !!profileRef.current?.onboardingCompleted;
+
   // Auth State Listener
   useEffect(() => {
     if (DEV_AUTH_BYPASS) {
@@ -295,7 +317,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           userProf = await createUserProfileDoc(currentUser);
           isNewAccount = true;
         }
-        setProfile(userProf);
+        // Guard against a cross-mount/stale-race downgrade: if the in-memory profile
+        // was already completed (a just-finished onboarding flow), never reset it to
+        // incomplete with a stale snapshot. This keeps the routing decision stable.
+        setProfile((prev) => {
+          if (prev?.onboardingCompleted && !userProf.onboardingCompleted) return prev;
+          return userProf;
+        });
 
         // 2. Load cloud study data
         let cloudState = await getUserStateFromCloud(currentUser.uid);
@@ -342,8 +370,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await saveUserStateToCloud(currentUser.uid, initial);
           lastCloudSavedStringRef.current = JSON.stringify(initial);
 
-          // If onboarding wasn't completed, show onboarding
-          if (!userProf.onboardingCompleted) {
+          // If onboarding wasn't completed, show onboarding (but never re-show for a
+          // profile already completed by the in-flight flow).
+          if (!userProf.onboardingCompleted && !profileRefCompleted()) {
             setShowOnboarding(true);
           }
         } else {
@@ -363,6 +392,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setAppState(mergedState);
           lastCloudSavedStringRef.current = JSON.stringify(mergedState);
           saveUserLocalCache(currentUser.uid, mergedState);
+
+          // Returning user with incomplete onboarding -> resume the flow.
+          if (!userProf.onboardingCompleted && !profileRefCompleted()) {
+            setShowOnboarding(true);
+          }
         }
 
         // 3. Set up real-time listener for multi-device sync
@@ -615,11 +649,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Google Sign-In
   const signInWithGoogle = async () => {
     try {
-      setIsLoading(true);
       const result = await signInWithPopup(auth, googleProvider);
       console.log('[AUTH] Firebase auth result (Google):', result.user.uid);
     } catch (err) {
-      setIsLoading(false);
       console.error('[AUTH] Google Sign-In Error:', err);
       throw err;
     }
@@ -628,11 +660,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Email Sign-In
   const signInWithEmail = async (email: string, pass: string) => {
     try {
-      setIsLoading(true);
       const result = await signInWithEmailAndPassword(auth, email, pass);
       console.log('[AUTH] Firebase auth result (Email Sign-In):', result.user.uid);
     } catch (err) {
-      setIsLoading(false);
       console.error('[AUTH] Email Sign-In Error:', err);
       throw err;
     }
@@ -641,7 +671,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Email Sign-Up
   const signUpWithEmail = async (email: string, pass: string, displayName: string) => {
     try {
-      setIsLoading(true);
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
       console.log('[AUTH] Firebase auth result (Email Sign-Up):', cred.user.uid);
       
@@ -662,7 +691,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.warn('Initial profile doc creation notice:', firestoreErr);
       });
     } catch (err) {
-      setIsLoading(false);
       console.error('[AUTH] Email Sign-Up Error:', err);
       throw err;
     }
@@ -688,24 +716,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      setIsLoading(true);
       if (isGuest) {
         localStorage.removeItem('fmge_guest_mode');
         setIsGuest(false);
         setProfile(null);
         cleanupUserSession();
-        setIsLoading(false);
         return;
       }
-      // 1. Flush pending save first and wait for it
-      await flushPendingSave();
-      // 2. Sign out from Firebase
+      // 1. Best-effort flush pending save in the background (non-blocking).
+      //    Never let a slow or failing cloud write prevent sign-out.
+      flushPendingSave().catch((err) => {
+        console.warn('[AUTH] Pending save flush failed during sign-out (non-fatal):', err);
+      });
+      // 2. Sign out from Firebase (always proceeds regardless of cloud save state)
       await signOut(auth);
-      // 3. onAuthStateChanged will receive null and call cleanupUserSession(), setUser(null), setIsLoading(false)
+      // 3. onAuthStateChanged will receive null and call cleanupUserSession(), setUser(null)
     } catch (err) {
       setSyncStatus(navigator.onLine ? 'error' : 'offline');
       console.error('[AUTH] Sign Out Error:', err);
-      setIsLoading(false);
       throw err;
     }
   };
@@ -761,38 +789,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     examDate: string,
     targetScore: number,
     dailyHours: number,
-    source?: string
+    options?: {
+      source?: string;
+      preparationStage?: OnboardingPreparationStage;
+      studyPreferences?: StudyPreferenceKey[];
+      baselineScore?: number;
+      baselineQuestions?: number;
+    }
   ) => {
+    const now = new Date().toISOString();
+    const profileUpdates: Partial<UserProfile> = {
+      examDate,
+      targetScore,
+      dailyHoursTarget: dailyHours,
+      onboardingCompleted: true,
+      onboardingVersion: 1,
+      onboardingCompletedAt: now,
+      profileUpdatedAt: now,
+      preparationStage: options?.preparationStage,
+      studyPreferences: options?.studyPreferences,
+      baselineScore: options?.baselineScore,
+      baselineQuestions: options?.baselineQuestions,
+      preferences: {
+        ...profile?.preferences,
+        coachingSource: options?.source || profile?.preferences?.coachingSource || 'Marrow',
+      },
+    };
+
     if (DEV_AUTH_BYPASS) {
-      await updateProfileData({
-        examDate,
-        targetScore,
-        dailyHoursTarget: dailyHours,
-        onboardingCompleted: true,
-        preferences: {
-          ...profile?.preferences,
-          coachingSource: source || profile?.preferences?.coachingSource || 'Marrow',
-        },
-      });
+      await updateProfileData(profileUpdates);
       setShowOnboarding(false);
       return;
     }
 
     if (!user) return;
     try {
-      await updateProfileData({
-        examDate,
-        targetScore,
-        dailyHoursTarget: dailyHours,
-        onboardingCompleted: true,
-        preferences: {
-          ...profile?.preferences,
-          coachingSource: source || profile?.preferences?.coachingSource || 'Marrow',
-        },
-      });
+      await updateProfileData(profileUpdates);
       setShowOnboarding(false);
     } catch (err) {
       console.error('Failed to complete onboarding:', err);
+      throw err;
+    }
+  };
+
+  // Persist partial onboarding progress so closing the app midway can resume later.
+  const saveOnboardingProgress = async (partial: Partial<UserProfile>) => {
+    if (DEV_AUTH_BYPASS) {
+      setProfile((prev) => {
+        const updated = prev
+          ? { ...prev, ...partial, profileUpdatedAt: new Date().toISOString() }
+          : ({ ...DEV_PROFILE, ...partial } as UserProfile);
+        try {
+          localStorage.setItem('fmge_dev_profile', JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      return;
+    }
+    if (!user) return;
+    try {
+      await updateUserProfileDoc(user.uid, {
+        ...partial,
+        profileUpdatedAt: new Date().toISOString(),
+      });
+      setProfile((prev) =>
+        prev
+          ? { ...prev, ...partial, profileUpdatedAt: new Date().toISOString() }
+          : prev
+      );
+    } catch (err) {
+      console.error('Failed to save onboarding progress:', err);
       throw err;
     }
   };
@@ -848,6 +914,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         recordQuestionAttempt,
         forceSyncToCloud,
         completeOnboarding,
+        saveOnboardingProgress,
         handleMigrateLocalData,
         handleStartFresh,
       }}

@@ -31,7 +31,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/40 backdrop-blur-xs overflow-y-auto font-['Plus_Jakarta_Sans']">
-      <div className="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-200/90">
+      <div className="relative w-full max-w-4xl my-auto bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-200/90">
         <button
           type="button"
           onClick={onClose}

@@ -20,7 +20,13 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { AppSettings, AppState } from '../types';
+import { AppSettings, AppState, OnboardingPreparationStage, StudyPreferenceKey } from '../types';
+import {
+  PREPARATION_STAGE_OPTIONS,
+  STUDY_PREFERENCES_OPTIONS,
+  STUDY_PREFERENCE_LABELS,
+  isValidBaselineScore,
+} from '../utils/onboarding';
 import { AppStats, downloadBackupFile, normalizeAppState } from '../utils/storage';
 
 interface DoctorProfileModalProps {
@@ -49,6 +55,10 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
   const [activeTab, setActiveTab] = useState<'blueprint' | 'telemetry' | 'cloud'>('blueprint');
   const [formData, setFormData] = useState<AppSettings>(state.settings);
+  const [prepStage, setPrepStage] = useState<OnboardingPreparationStage | ''>(profile?.preparationStage || '');
+  const [studyPrefs, setStudyPrefs] = useState<StudyPreferenceKey[]>(profile?.studyPreferences || []);
+  const [baselineScore, setBaselineScore] = useState<number | ''>(profile?.baselineScore ?? '');
+  const [baselineQuestions, setBaselineQuestions] = useState<number | ''>(profile?.baselineQuestions ?? '');
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
@@ -56,9 +66,19 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setFormData(state.settings);
+      setPrepStage(profile?.preparationStage || '');
+      setStudyPrefs(profile?.studyPreferences || []);
+      setBaselineScore(profile?.baselineScore ?? '');
+      setBaselineQuestions(profile?.baselineQuestions ?? '');
       setSyncFeedback(null);
     }
-  }, [isOpen, state.settings]);
+  }, [isOpen, state.settings, profile]);
+
+  const toggleStudyPref = (pref: StudyPreferenceKey) => {
+    setStudyPrefs((prev) =>
+      prev.includes(pref) ? prev.filter((p) => p !== pref) : [...prev, pref]
+    );
+  };
 
   if (!isOpen) return null;
 
@@ -92,6 +112,10 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
           examDate: formData.examDate,
           targetScore: formData.targetScore,
           dailyHoursTarget: formData.dailyStudyHourGoal,
+          preparationStage: prepStage || profile?.preparationStage,
+          studyPreferences: studyPrefs,
+          baselineScore: baselineScore === '' ? profile?.baselineScore : Number(baselineScore),
+          baselineQuestions: baselineQuestions === '' ? profile?.baselineQuestions : Number(baselineQuestions),
           preferences: {
             ...profile?.preferences,
             coachingSource: formData.coachingSource,
@@ -432,6 +456,93 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                     className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
                     required
                   />
+                </div>
+              </div>
+
+              {/* Onboarding Study Signals */}
+              <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-4">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-slate-500" />
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
+                    Study Strategy (from your onboarding plan)
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
+                    Preparation Stage
+                  </label>
+                  <select
+                    value={prepStage}
+                    onChange={(e) => setPrepStage(e.target.value as OnboardingPreparationStage | '')}
+                    className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none transition-all cursor-pointer"
+                  >
+                    <option value="">Not specified</option>
+                    {PREPARATION_STAGE_OPTIONS.map((stageOption) => (
+                      <option key={stageOption.id} value={stageOption.id}>
+                        {stageOption.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
+                    Learning Style Preferences
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {STUDY_PREFERENCES_OPTIONS.map((pref) => {
+                      const active = studyPrefs.includes(pref.id);
+                      return (
+                        <button
+                          key={pref.id}
+                          type="button"
+                          onClick={() => toggleStudyPref(pref.id)}
+                          className={`px-2.5 py-1 rounded-full text-[10.5px] font-semibold transition-all cursor-pointer ${
+                            active
+                              ? 'bg-slate-900 text-white shadow-2xs'
+                              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                          }`}
+                        >
+                          {STUDY_PREFERENCE_LABELS[pref.id] || pref.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
+                      Baseline Score (/300) — optional
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={300}
+                      value={baselineScore}
+                      onChange={(e) => setBaselineScore(e.target.value === '' ? '' : Number(e.target.value))}
+                      placeholder="e.g. 120 (skip if none)"
+                      className={`w-full h-11 px-3.5 rounded-xl bg-slate-50 border text-sm font-semibold focus:bg-white focus:outline-none transition-all ${
+                        isValidBaselineScore(baselineScore === '' ? undefined : Number(baselineScore))
+                          ? 'border-slate-200 text-slate-900 focus:border-slate-900'
+                          : 'border-rose-300 text-rose-600 focus:border-rose-400'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
+                      Baseline Questions Answered
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={baselineQuestions}
+                      onChange={(e) => setBaselineQuestions(e.target.value === '' ? '' : Number(e.target.value))}
+                      placeholder="e.g. 50"
+                      className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
+                    />
+                  </div>
                 </div>
               </div>
 

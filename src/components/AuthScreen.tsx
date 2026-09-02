@@ -19,6 +19,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { resolveAuthError } from '../utils/authErrors';
 
 /* ─── ONE SHOT brand mark ─── */
 const OneShotMark: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {
@@ -130,23 +131,9 @@ export const AuthScreen: React.FC = () => {
       await signInWithGoogle();
     } catch (err: any) {
       setIsLoading(false);
-      const code = err?.code || '';
+      const { code, message } = resolveAuthError(err, 'google', currentHost);
       setErrorCode(code);
-      if (code === 'auth/unauthorized-domain') {
-        setErrorMsg(
-          `Google Sign-In is restricted for this preview domain (${currentHost}). You can authorize this domain in Firebase Console, or continue instantly in Local Practice Mode below.`
-        );
-      } else if (code === 'auth/popup-closed-by-user') {
-        setErrorMsg('Google sign-in popup was closed before completing.');
-      } else if (code === 'auth/popup-blocked') {
-        setErrorMsg('Sign-in pop-up was blocked by your browser. Please allow popups or use Local Mode.');
-      } else if (code === 'auth/cancelled-popup-request') {
-        setErrorMsg('Sign-in request was cancelled.');
-      } else if (code === 'auth/network-request-failed') {
-        setErrorMsg('Network error. Please check your internet connection.');
-      } else {
-        setErrorMsg(err.message || 'Google sign-in failed. Please try again or continue in Local Mode.');
-      }
+      setErrorMsg(message);
     }
   };
 
@@ -163,27 +150,9 @@ export const AuthScreen: React.FC = () => {
       await signInWithEmail(cleanEmail, password);
     } catch (err: any) {
       setIsLoading(false);
-      const code = err?.code || '';
+      const { code, message } = resolveAuthError(err, 'signin');
       setErrorCode(code);
-      if (code === 'auth/operation-not-allowed') {
-        setErrorMsg(
-          'Email/Password sign-in is disabled in your Firebase project. Sign in with Google or start immediately in Local Mode.'
-        );
-      } else if (
-        code === 'auth/invalid-credential' ||
-        code === 'auth/wrong-password' ||
-        code === 'auth/user-not-found'
-      ) {
-        setErrorMsg('Incorrect email or password. Please verify and try again.');
-      } else if (code === 'auth/invalid-email') {
-        setErrorMsg('Please enter a valid email address.');
-      } else if (code === 'auth/too-many-requests') {
-        setErrorMsg('Too many failed attempts. Please wait a few minutes or sign in with Google.');
-      } else if (code === 'auth/network-request-failed') {
-        setErrorMsg('Network error. Please check your internet connection.');
-      } else {
-        setErrorMsg(err.message || 'Failed to sign in. Please check your credentials.');
-      }
+      setErrorMsg(message);
     }
   };
 
@@ -205,17 +174,9 @@ export const AuthScreen: React.FC = () => {
       await signUpWithEmail(cleanEmail, password, cleanName || 'Dr. Aspirant');
     } catch (err: any) {
       setIsLoading(false);
-      const code = err?.code || '';
+      const { code, message } = resolveAuthError(err, 'signup');
       setErrorCode(code);
-      if (code === 'auth/email-already-in-use') {
-        setErrorMsg('An account with this email already exists. Please sign in instead.');
-      } else if (code === 'auth/invalid-email') {
-        setErrorMsg('Please enter a valid email address.');
-      } else if (code === 'auth/weak-password') {
-        setErrorMsg('Password is too weak. Please use at least 6 characters.');
-      } else {
-        setErrorMsg(err.message || 'Failed to create account. Please try again.');
-      }
+      setErrorMsg(message);
     }
   };
 
@@ -234,15 +195,9 @@ export const AuthScreen: React.FC = () => {
       setSuccessMsg('Password reset link sent! Please check your inbox.');
     } catch (err: any) {
       setIsLoading(false);
-      const code = err?.code || '';
+      const { code, message } = resolveAuthError(err, 'forgot');
       setErrorCode(code);
-      if (code === 'auth/user-not-found') {
-        setErrorMsg('No account found with this email.');
-      } else if (code === 'auth/invalid-email') {
-        setErrorMsg('Please enter a valid email address.');
-      } else {
-        setErrorMsg(err.message || 'Failed to send reset email. Please verify your email address.');
-      }
+      setErrorMsg(message);
     }
   };
 

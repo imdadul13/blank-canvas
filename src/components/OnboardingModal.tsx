@@ -33,7 +33,7 @@ export const OnboardingModal: React.FC = () => {
   const handleFinish = async () => {
     setIsSubmitting(true);
     try {
-      await completeOnboarding(examDate, targetScore, dailyHours, coachingSource);
+      await completeOnboarding(examDate, targetScore, dailyHours, { source: 'onboarding-modal' });
     } catch (err) {
       console.error(err);
       setIsSubmitting(false);

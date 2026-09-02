@@ -430,6 +430,23 @@ export interface TelegramChannelConfig {
   updatedAt?: string;
 }
 
+export type OnboardingPreparationStage =
+  | 'just_starting'
+  | 'building_foundation'
+  | 'most_subjects_completed'
+  | 'in_revision'
+  | 'mostly_mcqs_gt'
+  | 'final_revision';
+
+export type StudyPreferenceKey =
+  | 'high_yield_notes'
+  | 'clinical_cases'
+  | 'flashcards'
+  | 'mcqs'
+  | 'grand_tests'
+  | 'videos_lectures'
+  | 'rapid_revision';
+
 export interface UserProfile {
   uid: string;
   displayName: string;
@@ -441,6 +458,20 @@ export interface UserProfile {
   createdAt: string;
   lastActiveAt: string;
   onboardingCompleted: boolean;
+  /** Version of the onboarding flow the user completed. Allows future migrations. */
+  onboardingVersion?: number;
+  /** Self-declared preparation stage; drives personalization signals. */
+  preparationStage?: OnboardingPreparationStage;
+  /** How the user prefers to learn; used as an additional personalization signal. */
+  studyPreferences?: StudyPreferenceKey[];
+  /** Optional recent Grand Test score (0-300). Absent when the user has no baseline. */
+  baselineScore?: number;
+  /** Optional number of questions answered in the baseline GT session. */
+  baselineQuestions?: number;
+  /** When onboarding was completed (ISO string). */
+  onboardingCompletedAt?: string;
+  /** Last time the profile was edited (ISO string). */
+  profileUpdatedAt?: string;
   preferences?: {
     coachingSource?: string;
     primaryPlatform?: string;

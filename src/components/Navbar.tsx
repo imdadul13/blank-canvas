@@ -15,7 +15,6 @@ import {
   ChevronRight,
   Activity,
   Menu,
-  Search,
   Bell
 } from 'lucide-react';
 import { AppStats } from '../utils/storage';
@@ -251,17 +250,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Right Action Icons (Search, Bell, Cloud, Avatar) */}
+        {/* Right Action Icons (Bell, Cloud, Avatar) */}
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveTab('syllabus')}
-            className="p-1.5 text-slate-500 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-colors"
-            title="Search"
-          >
-            <Search className="h-4 w-4" />
-          </button>
-
           <button
             type="button"
             onClick={onOpenNotifications}
@@ -300,7 +290,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Floating Rounded Bottom Navigation Bar */}
       <nav
-        className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1.5rem)] w-auto bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_12px_36px_rgba(15,23,42,0.14)] rounded-full px-2 py-1 font-['Plus_Jakarta_Sans']"
+        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1.5rem)] w-auto bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_12px_36px_rgba(15,23,42,0.14)] rounded-full px-2 py-1 font-['Plus_Jakarta_Sans']"
+        style={{ bottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))' }}
         aria-label="Mobile Navigation"
       >
         <div className="flex items-center gap-1">

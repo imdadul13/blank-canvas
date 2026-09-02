@@ -77,4 +77,42 @@ describe('Study Topic Content Integrity & Category Awareness', () => {
     assert.ok(fullCardText.includes('CD30'));
     assert.ok(!fullCardText.includes('bronchospasm'));
   });
+
+  it('rejects multi-hop cross-topic contamination (WPW -> Asthma -> Nephrotic)', () => {
+    // A missing world where an Asthma response leaks cardiology (WPW / RV MI) content.
+    const asthmaWithCardioLeak =
+      'Asthma management with GINA guidelines. Short-acting beta-agonist rescue. ' +
+      'The right ventricular myocardial infarction and Wolff-Parkinson-White syndrome require immediate cardiology referral.';
+    const asthmaResult = validateTopicContentConsistency(
+      asthmaWithCardioLeak, 'General Medicine', 'Pulmonology - Asthma (GINA Guidelines) & COPD (GOLD)', 'clinical_disease'
+    );
+    assert.equal(asthmaResult.hasContamination, true);
+
+    // Clean asthma content must pass.
+    const cleanAsthma =
+      'Asthma stepwise therapy uses inhaled corticosteroids and SABA rescue. ' +
+      'GINA guidelines recommend low-dose ICS-formoterol as needed. Spirometry shows an obstructive pattern with bronchodilator reversibility.';
+    const cleanAsthmaResult = validateTopicContentConsistency(
+      cleanAsthma, 'General Medicine', 'Pulmonology - Asthma (GINA Guidelines) & COPD (GOLD)', 'clinical_disease'
+    );
+    assert.equal(cleanAsthmaResult.hasContamination, false);
+
+    // Nephrotic content must not carry the prior cardiology context either.
+    const nephroticWithCardioLeak =
+      'Nephrotic syndrome presents with heavy proteinuria and hypoalbuminemia, ' +
+      'but RV myocardial infarction and inferior STEMI are unrelated entities from a prior turn.';
+    const nephroticResult = validateTopicContentConsistency(
+      nephroticWithCardioLeak, 'General Medicine', 'Nephrology - Glomerular Diseases (Nephrotic Syndrome)', 'clinical_disease'
+    );
+    assert.equal(nephroticResult.hasContamination, true);
+
+    // Clean nephrotic content passes.
+    const cleanNephrotic =
+      'Nephrotic syndrome is defined by proteinuria >3.5g/day, hypoalbuminemia, edema and hyperlipidemia. ' +
+      'Minimal change disease is the most common cause in children; membranous nephropathy in adults.';
+    const cleanNephroticResult = validateTopicContentConsistency(
+      cleanNephrotic, 'General Medicine', 'Nephrology - Glomerular Diseases (Nephrotic Syndrome)', 'clinical_disease'
+    );
+    assert.equal(cleanNephroticResult.hasContamination, false);
+  });
 });

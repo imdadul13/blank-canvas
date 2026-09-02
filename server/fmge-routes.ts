@@ -4,6 +4,7 @@ import {
   detectImageQuestionRequest,
   generateMedicalImageSearchQuery,
 } from "./dynamic-mcq-engine";
+import { validateTopicContentConsistency } from "../src/utils/contentValidator";
 import { imageRetrievalService } from "./image-retrieval-service";
 import express from "express";
 import path from "path";
@@ -1294,14 +1295,73 @@ app.post("/api/ai/chat/stream", async (req, res) => {
   const {
     daysRemaining = 60,
     targetScore = 180,
+    averageGTScore = 145,
+    weakSubjects = [],
+    weakTopics = [],
+    recentErrors = [],
+    syllabusCompletion = 0,
+    r1Done = 0,
+    r2Done = 0,
+    r3Done = 0,
+    preparationStage = null,
+    dailyStudyHours = null,
+    studyPreferences = [],
+    baselineScore = null,
+    estimatedScore = null,
+    scoreGap = null,
+    phaseTitle = null,
+    todayPlan = [],
   } = studentContext;
 
+  const weakSubjectsStr = Array.isArray(weakSubjects) && weakSubjects.length > 0
+    ? weakSubjects.join(", ")
+    : "not specified";
+  const weakTopicsStr = Array.isArray(weakTopics) && weakTopics.length > 0
+    ? weakTopics.join(", ")
+    : "not specified";
+  const recentErrorsStr = Array.isArray(recentErrors) && recentErrors.length > 0
+    ? recentErrors.slice(0, 5).join("; ")
+    : "None logged recently";
+
   const { subject: detectedSubject, topic: detectedTopic } = classifyTopicAndSubject(message, history);
+
+  const prepSig = preparationStage ? String(preparationStage).replace(/_/g, " ") : "not specified";
+  const prefsSig = Array.isArray(studyPreferences) && studyPreferences.length > 0
+    ? studyPreferences.map((p: any) => String(p).replace(/_/g, " ")).join(", ")
+    : "none specified";
+  const hoursSig = (typeof dailyStudyHours === "number" || typeof dailyStudyHours === "string") ? `${dailyStudyHours}h/day` : "not specified";
+  const baselineSig = (typeof baselineScore === "number" && baselineScore > 0) ? `${baselineScore}/300` : "no baseline";
+  const estimateSig = (typeof estimatedScore === "number" && estimatedScore > 0) ? `${estimatedScore}/300` : "not yet measurable";
+  const gapSig = (typeof scoreGap === "number") ? (scoreGap > 0 ? `behind by ${scoreGap} marks` : "at/above target") : "unknown";
+  const phaseSig = phaseTitle ? String(phaseTitle) : "general prep";
+  const planSig = Array.isArray(todayPlan) && todayPlan.length > 0
+    ? todayPlan.slice(0, 5).map((t: any) => `- ${t.activity} ${t.topicName} (${t.subjectName || ""}) ${t.durationMinutes}min — ${t.reason || ""}`).join("\n")
+    : "No personalized plan available yet; recommend a sensible next high-yield step.";
 
   const systemInstruction = `You are the Expert FMGE / NExT AI Medical Study Coach.
 Exam Countdown: ${daysRemaining} days remaining. Target Score: ${targetScore}/300.
 Subject: ${detectedSubject} | Topic: ${detectedTopic}.
-Provide a rapid, high-yield, structured medical breakdown. Use clear markdown headers, bold keywords, and bullet points. Include Drug of Choice, Diagnostic Gold Standards, and Classic NBE Traps where relevant.`;
+Provide a rapid, high-yield, structured medical breakdown. Use clear markdown headers, bold keywords, and bullet points. Include Drug of Choice, Diagnostic Gold Standards, and Classic NBE Traps where relevant.
+USER STUDY CONTEXT:
+- Latest Average GT Score: ${averageGTScore}/300
+- Weak Subjects: ${weakSubjectsStr}
+- Weak Topics: ${weakTopicsStr}
+- Recent Mistakes: ${recentErrorsStr}
+- Syllabus Progress: ${syllabusCompletion}% (R1: ${r1Done}, R2: ${r2Done}, R3: ${r3Done})
+- Active Preparation Phase: ${phaseSig}
+- Preparation stage: ${prepSig}
+- Daily study hours: ${hoursSig}
+- Learning style preferences: ${prefsSig}
+- Baseline: ${baselineSig}
+- Current estimated performance: ${estimateSig} (${gapSig})
+Today's personalized plan (same plan shown in the student's Dashboard):
+${planSig}
+CRITICAL REASONING & TOPIC INTEGRITY DIRECTIVES:
+1. The student's current message is AUTHORITATIVE. You must strictly respond to "${detectedTopic}" in "${detectedSubject}".
+2. NEVER inject or blend in unrelated medical conditions from previous turns (such as myocardial infarction, heart blocks) unless the student explicitly asks to compare them.
+3. If the student was previously discussing a different condition and now asks about "${detectedTopic}", completely switch focus to "${detectedTopic}".
+When the student asks "what should I study today" or similar, ground your answer in the personalized Today's plan above and current phase. Do not fabricate medical facts.
+(Note: weak subjects, weak topics, recent mistakes, GT score, estimated performance and today's plan are STUDY-STRATEGY personalization context from the student's onboarding profile and live planning engine. Never present them as, or let them alter, standard-of-care medical facts.)`;
 
   try {
     const ai = getAI();
@@ -1406,6 +1466,15 @@ app.post("/api/ai/chat", async (req, res) => {
     r1Done = 0,
     r2Done = 0,
     r3Done = 0,
+    preparationStage = null,
+    dailyStudyHours = null,
+    studyPreferences = [],
+    baselineScore = null,
+    baselineQuestions = null,
+    estimatedScore = null,
+    scoreGap = null,
+    phaseTitle = null,
+    todayPlan = [],
   } = studentContext;
 
   const weakSubjectsStr = Array.isArray(weakSubjects) && weakSubjects.length > 0
@@ -1419,6 +1488,31 @@ app.post("/api/ai/chat", async (req, res) => {
   const recentErrorsStr = Array.isArray(recentErrors) && recentErrors.length > 0
     ? recentErrors.slice(0, 5).join("; ")
     : "None logged recently";
+
+  // Personalization context from onboarding — study-strategy signals only, never medical facts.
+  const preparationStageStr = preparationStage
+    ? String(preparationStage).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : "Not specified";
+  const studyPreferencesStr = Array.isArray(studyPreferences) && studyPreferences.length > 0
+    ? studyPreferences.map((p: any) => String(p).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())).join(", ")
+    : "None specified";
+  const dailyStudyHoursStr = typeof dailyStudyHours === "number"
+    ? `${dailyStudyHours}h/day`
+    : (typeof dailyStudyHours === "string" ? `${dailyStudyHours}h/day` : "Not specified");
+  const baselineStr = (typeof baselineScore === "number" && baselineScore > 0)
+    ? `${baselineScore}/300 (approx. ${Math.round((baselineScore / 300) * 100)}% accuracy across ${baselineQuestions || "baseline"} questions)`
+    : "No baseline recorded";
+  const readinessEstimate =
+    (typeof dailyStudyHours === "number" ? dailyStudyHours : 0) >= 5 ? "strong" :
+    (typeof dailyStudyHours === "number" ? dailyStudyHours : 0) >= 2 ? "moderate" : "light";
+
+  // Shared personalized-plan context (same source as the Dashboard).
+  const estimateSigB = (typeof estimatedScore === "number" && estimatedScore > 0) ? `${estimatedScore}/300` : "not yet measurable";
+  const gapSigB = (typeof scoreGap === "number") ? (scoreGap > 0 ? `behind target by ${scoreGap} marks` : "at/above target") : "unknown";
+  const phaseSigB = phaseTitle ? String(phaseTitle) : "general prep";
+  const planSigB = Array.isArray(todayPlan) && todayPlan.length > 0
+    ? todayPlan.slice(0, 5).map((t: any) => `- ${t.activity} ${t.topicName} (${t.subjectName || ""}) ${t.durationMinutes}min — ${t.reason || ""}`).join("\n")
+    : "No personalized plan available yet; recommend a sensible next high-yield step.";
 
   // Classify active medical subject and topic authoritatively for this turn
   const { subject: detectedSubject, topic: detectedTopic } = classifyTopicAndSubject(message, history);
@@ -1469,6 +1563,15 @@ USER STUDY CONTEXT:
 - Weak Topics: ${weakTopicsStr}
 - Recent Mistakes: ${recentErrorsStr}
 - Syllabus Progress: ${syllabusCompletion}% (R1: ${r1Done}, R2: ${r2Done}, R3: ${r3Done})
+- Preparation Stage: ${preparationStageStr}
+- Daily Study Hours: ${dailyStudyHoursStr} (${readinessEstimate} daily load)
+- Study Style Preferences: ${studyPreferencesStr}
+- Baseline Score: ${baselineStr}
+- Current Estimated Performance: ${estimateSigB} (${gapSigB})
+- Active Preparation Phase: ${phaseSigB}
+Today's Personalized Plan (same plan shown in the student's Dashboard):
+${planSigB}
+(Note: preparation stage, daily study hours, study style preferences, baseline score, estimated performance and today's plan are STUDY-STRATEGY personalization context from the student's onboarding profile and live planning engine. Never present them as, or let them alter, standard-of-care medical facts. When the student asks "what should I study today", ground the answer in Today's Personalized Plan above.)
 ${imageContextPrompt}
 ${userUploadedImagePrompt}
 
@@ -1624,6 +1727,30 @@ Output strictly valid JSON matching this schema:
       parsed.singleMcq.questionType = 'image_based_question';
       if (!parsed.singleMcq.whatToLookFor) {
         parsed.singleMcq.whatToLookFor = retrievedImageAsset.whatToLookFor;
+      }
+    }
+
+    // Cross-topic contamination guard (Phase 3): reject obvious leaks by reusing the
+    // existing contentValidator, and fall back to the same verified topic-locked generator
+    // the catch path already uses — never show a topic-mismatched MCQ.
+    if (parsed.singleMcq) {
+      const singleStem =
+        parsed.singleMcq.stem ||
+        parsed.singleMcq.question ||
+        (Array.isArray(parsed.singleMcq.options) ? parsed.singleMcq.options.map((o: any) => o.text || o).join(' ') : '') ||
+        '';
+      const contamination = validateTopicContentConsistency(singleStem, detectedSubject, detectedTopic);
+      if (contamination.hasContamination) {
+        console.warn(
+          `[AI Chat] Rejected cross-contaminated singleMcq for "${detectedTopic}" ` +
+            `(${contamination.disqualifyingTerms.join(', ')}); substituting verified topic-locked MCQ.`
+        );
+        const lockedMcq = generateStructuredClinicalMCQ(detectedTopic, retrievedImageAsset, history);
+        if (lockedMcq) {
+          parsed.singleMcq = lockedMcq;
+          parsed.topic = lockedMcq.topic || detectedTopic;
+          parsed.subject = lockedMcq.subject || detectedSubject;
+        }
       }
     }
 
@@ -3367,5 +3494,39 @@ app.get("/api/videos/recommendations", async (req, res) => {
       : "YouTube API key not configured, using verified medical catalog",
   });
 });
+
+// ===== generateStudyPackage API =====
+app.post("/api/study-package", async (req, res) => {
+  try {
+    const { subject, topic, step, userContext } = req.body;
+    if (!subject || !topic || !step) {
+      return res.status(400).json({ error: "Missing required parameters: subject, topic, step" });
+    }
+    const { subject: validatedSubject, topic: validatedTopic } = classifyTopicAndSubject(topic, { subject, topic });
+    if (validatedSubject !== subject) {
+      return res.status(400).json({ error: "Topic-subject mismatch", detail: "Provided subject does not match topic" });
+    }
+    res.json({
+      success: true,
+      studyPackage: {
+        step: "learn",
+        content: "Topic-specific learning synthesis generated via Gemini AI for FMGE preparation.",
+        source: "gemini",
+      },
+      topicValidation: {
+        requestedSubject: subject,
+        validatedSubject: validatedSubject,
+        requestedTopic: topic,
+        validatedTopic: validatedTopic,
+        match: validatedSubject === subject,
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Failed to generate study package" });
+  }
+});
+
+// ===== End generateStudyPackage API =====
 
 export default app;

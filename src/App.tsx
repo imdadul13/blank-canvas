@@ -20,7 +20,7 @@ import { SubjectDetailModal } from './components/SubjectDetailModal';
 import { DoctorProfileModal } from './components/DoctorProfileModal';
 import { AppSettingsModal } from './components/AppSettingsModal';
 import { AuthScreen } from './components/AuthScreen';
-import { OnboardingModal } from './components/OnboardingModal';
+import { OnboardingFlow } from './components/OnboardingFlow';
 import { DataMigrationModal } from './components/DataMigrationModal';
 import { NotificationCenterModal } from './components/NotificationCenterModal';
 import { CloudSyncModal } from './components/CloudSyncModal';
@@ -127,6 +127,35 @@ function AppInner() {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isCloudSyncOpen, setIsCloudSyncOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
+
+  // Onboarding flow session: the flow latches on once shown and stays mounted
+  // through its ready screen until the user acknowledges, even though
+  // completeOnboarding already set the profile to onboardingCompleted.
+  const [obSessionActive, setObSessionActive] = useState(false);
+  const [obAcknowledged, setObAcknowledged] = useState(false);
+  // A new authenticated profile must not skip onboarding just because a previous
+  // session's user already ran (and acknowledged) the flow.
+  useEffect(() => {
+    setObSessionActive(false);
+    setObAcknowledged(false);
+  }, [user?.uid]);
+
+  // Onboarding gate: authenticated profile present and onboarding incomplete.
+  // The `!profile` guard above already blocks rendering until the profile is
+  // resolved, so we intentionally do NOT wait for `isRestoringData` here.
+  // Otherwise the main app would flash for the async window between "profile
+  // resolved" and "showOnboarding set" (the ~1s bounce observers saw).
+  const onboardingRequired = !!profile && !profile.onboardingCompleted;
+  const onboardingGate =
+    (onboardingRequired || showOnboarding) &&
+    !isGuest &&
+    !!profile;
+  // Latch once the gate first passes so the flow (including its building/ready
+  // screens) stays mounted until the user acknowledges it, even after the
+  // profile flips to onboardingCompleted.
+  useEffect(() => {
+    if (onboardingGate) setObSessionActive(true);
+  }, [onboardingGate]);
 
   // Compute live application statistics
   const stats = useMemo(() => calculateAppStats(state), [state]);
@@ -592,6 +621,36 @@ function AppInner() {
     return <AuthScreen />;
   }
 
+  // Authenticated but the user profile is not yet resolved (still restoring from
+  // Firestore): keep showing a restoring state instead of flashing the main app
+  // before we know whether onboarding is required. This prevents the "main app
+  // briefly shows, then bounces back to onboarding" race.
+  //
+  // Guest and DEV_AUTH_BYPASS modes resolve their profile synchronously, so they
+  // never hit this branch.
+  if (!DEV_AUTH_BYPASS && !isGuest && !profile) {
+    return (
+      <div className="min-h-screen bg-[#F3F6FA] flex flex-col items-center justify-center p-6">
+        <div className="flex flex-col items-center max-w-sm text-center">
+          <span className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-lg mb-4 animate-pulse motion-reduce:animate-none">
+            <span className="font-['Outfit'] text-3xl font-extrabold tracking-tight leading-none text-white">1S</span>
+          </span>
+          <h3 className="text-lg font-bold text-slate-900 font-['Outfit']">ONE SHOT FMGE</h3>
+          <p className="text-xs text-slate-400 mt-1 font-medium font-['Plus_Jakarta_Sans']">Preparing your workspace&hellip;</p>
+          <div className="w-48 bg-slate-200 h-1.5 rounded-full mt-4 overflow-hidden">
+            <div className="bg-sky-500 h-full rounded-full animate-pulse motion-reduce:animate-none w-3/4" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Authenticated but onboarding incomplete -> block the app and run onboarding.
+  const shouldRenderOnboarding = (onboardingGate || obSessionActive) && !obAcknowledged;
+  if (shouldRenderOnboarding) {
+    return <OnboardingFlow onComplete={() => setObAcknowledged(true)} />;
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white">
       {/* Desktop Left Navigation Rail */}
@@ -646,7 +705,7 @@ function AppInner() {
         />
 
         {/* Main Content Area */}
-        <main className="workspace-main relative z-10 flex-1 w-full mx-auto">
+        <main className="workspace-main relative z-10 flex-1 w-full mx-auto pb-24 lg:pb-0">
           <ErrorBoundary resetKey={activeTab}>
             <AnimatePresence mode="wait">
               <motion.div
@@ -689,11 +748,7 @@ function AppInner() {
                     onLaunchPracticeSession={(subjectId, topicId, topicName, subtopic) =>
                       handleLaunchPracticeSession(subjectId, topicId, topicName, subtopic)
                     }
-                    onAddGrandTest={handleAddGrandTest}
-                    onDeleteGrandTest={handleDeleteGrandTest}
                     onAddErrorItem={handleAddErrorItem}
-                    onToggleErrorReviewed={handleToggleErrorReviewed}
-                    onDeleteErrorItem={handleDeleteErrorItem}
                     onOpenAiCoach={handleOpenAiCoach}
                     onUpdateAppState={setState}
                     onAddTask={handleAddTask}
@@ -798,6 +853,7 @@ function AppInner() {
                     onToggleTask={handleToggleTask}
                     onDeleteTask={handleDeleteTask}
                     onUpdateDailyLog={handleUpdateDailyLog}
+                    onLaunchPracticeSession={handleLaunchPracticeSession}
                   />
                 )}
 
@@ -885,9 +941,6 @@ function AppInner() {
         onUpdateSettings={handleUpdateSettings}
         onResetState={handleResetState}
       />
-
-      {/* New User Onboarding Modal */}
-      {showOnboarding && <OnboardingModal />}
 
       {/* Legacy Local Data Migration Modal */}
       {showMigrationPrompt && <DataMigrationModal />}

@@ -955,7 +955,7 @@ export async function ingestNewTelegramMessage(input: {
         questionId: qRes.question.id,
         originalAnswer: clinicalItem.telegramAnswer || clinicalItem.correctAnswer,
         aiAnswer: clinicalItem.correctAnswer,
-        agreementStatus: clinicalItem.aiAgreementVerdict,
+        agreementStatus: clinicalItem.aiAgreementVerdict === "AGREED" ? "AGREED" : "DISAGREED",
         reason: clinicalItem.aiCrossCheckReason,
         confidence: clinicalItem.aiAgreementVerdict === "AGREED" ? 0.98 : 0.94,
         verifiedAt: new Date().toISOString(),
@@ -972,7 +972,7 @@ export async function ingestNewTelegramMessage(input: {
         sourceMessageId: rawRes.message.id,
         originalText: fullText,
         cleanedText: clinicalItem.stem || fullText,
-        importance: clinicalItem.importance || "important",
+        importance: (clinicalItem.importance === "normal" ? "general" : clinicalItem.importance) || "general",
         noticeDate: input.messageDate || new Date().toISOString(),
         sourceChannel: input.sourceTitle,
         imageUrl: savedImageUrl || input.photoUrl,
@@ -1350,7 +1350,7 @@ export async function reEnrichExistingKnowledgeBank(): Promise<{
               questionId: q.id,
               originalAnswer: q.sourceAnswer || "A",
               aiAnswer: analysis.correctAnswer,
-              agreementStatus: analysis.aiAgreementVerdict,
+              agreementStatus: analysis.aiAgreementVerdict === "AGREED" ? "AGREED" : "DISAGREED",
               reason: analysis.aiCrossCheckReason,
               confidence: analysis.aiAgreementVerdict === "AGREED" ? 0.98 : 0.92,
               verifiedAt: new Date().toISOString(),
@@ -1359,7 +1359,7 @@ export async function reEnrichExistingKnowledgeBank(): Promise<{
           } else {
             cc.originalAnswer = q.sourceAnswer || "A";
             cc.aiAnswer = analysis.correctAnswer;
-            cc.agreementStatus = analysis.aiAgreementVerdict;
+            cc.agreementStatus = analysis.aiAgreementVerdict === "AGREED" ? "AGREED" : "DISAGREED";
             cc.reason = analysis.aiCrossCheckReason;
             cc.confidence = analysis.aiAgreementVerdict === "AGREED" ? 0.98 : 0.92;
             cc.verifiedAt = new Date().toISOString();

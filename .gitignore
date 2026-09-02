@@ -6,6 +6,7 @@ coverage/
 *.log
 .env*
 !.env.example
+.firebase/
 public/uploads/telegram/media/photo_*
 public/uploads/telegram/media/vid_*
 public/uploads/telegram/media/tg_*

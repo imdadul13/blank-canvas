@@ -14,7 +14,9 @@
     "start:worker": "node dist/worker.cjs",
     "lint": "tsc --noEmit",
     "test": "tsx --test src/utils/__tests__/*.test.ts",
-    "validate": "npm run lint && npm test && npm run build"
+    "validate": "npm run lint && npm test && npm run build",
+    "emulators": "firebase emulators:start --only auth,firestore",
+    "dev:local": "VITE_USE_FIREBASE_EMULATORS=true npm run dev"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -85,6 +87,7 @@
     "@types/react-dom": "^19.2.5",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
+    "firebase-tools": "^15.28.2",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",

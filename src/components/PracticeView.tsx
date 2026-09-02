@@ -1,17 +1,7 @@
 import React, { useState } from 'react';
-import {
-  Play,
-  ArrowRight,
-  HelpCircle,
-  FileText,
-  MessageSquare,
-  Sparkles,
-  ChevronRight,
-  Activity,
-} from 'lucide-react';
-import { AppState, GrandTest, ErrorNotebookItem, DailyTask } from '../types';
+import { Play } from 'lucide-react';
+import { AppState, ErrorNotebookItem, DailyTask } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
-import { GrandTestsView } from './GrandTestsView';
 import { TelegramHubView } from './TelegramHubView';
 
 interface PracticeViewProps {
@@ -22,26 +12,18 @@ interface PracticeViewProps {
     topicName: string,
     subtopic?: string
   ) => void;
-  onAddGrandTest: (gt: GrandTest) => void;
-  onDeleteGrandTest: (id: string) => void;
   onAddErrorItem: (item: ErrorNotebookItem) => void;
-  onToggleErrorReviewed: (id: string) => void;
-  onDeleteErrorItem: (id: string) => void;
   onOpenAiCoach: (initialTab?: 'vignette' | 'concept' | 'diagnosis') => void;
   onUpdateAppState: (updater: (prev: AppState) => AppState) => void;
   onAddTask?: (task: DailyTask) => void;
 }
 
-type PracticeSubTab = 'drills' | 'grandtests' | 'telegram';
+type PracticeSubTab = 'drills' | 'telegram';
 
 export const PracticeView: React.FC<PracticeViewProps> = ({
   state,
   onLaunchPracticeSession,
-  onAddGrandTest,
-  onDeleteGrandTest,
   onAddErrorItem,
-  onToggleErrorReviewed,
-  onDeleteErrorItem,
   onOpenAiCoach,
   onUpdateAppState,
   onAddTask,
@@ -75,7 +57,6 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1 border-b border-slate-200/80 pb-4">
         {[
           { id: 'drills', label: '10-MCQ Clinical Drills', count: null },
-          { id: 'grandtests', label: 'Grand Tests (300Q)', count: state.grandTests?.length || 0 },
           { id: 'telegram', label: 'Live Community Feed', count: null },
         ].map((tab) => {
           const isActive = activeSubTab === tab.id;
@@ -170,21 +151,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         </div>
       )}
 
-      {/* ================= VIEW 2: GRAND TESTS ================= */}
-      {activeSubTab === 'grandtests' && (
-        <GrandTestsView
-          state={state}
-          onAddGrandTest={onAddGrandTest}
-          onDeleteGrandTest={onDeleteGrandTest}
-          onAddErrorItem={onAddErrorItem}
-          onToggleErrorReviewed={onToggleErrorReviewed}
-          onDeleteErrorItem={onDeleteErrorItem}
-          onOpenAiCoach={onOpenAiCoach}
-          onUpdateAppState={onUpdateAppState}
-        />
-      )}
-
-      {/* ================= VIEW 3: TELEGRAM HUB ================= */}
+      {/* ================= VIEW 2: TELEGRAM HUB ================= */}
       {activeSubTab === 'telegram' && (
         <TelegramHubView
           onAddToErrorNotebook={onAddErrorItem}

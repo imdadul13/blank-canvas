@@ -125,6 +125,13 @@ export async function createUserProfileDoc(
     createdAt: new Date().toISOString(),
     lastActiveAt: new Date().toISOString(),
     onboardingCompleted: initialData?.onboardingCompleted ?? false,
+    onboardingVersion: initialData?.onboardingVersion,
+    preparationStage: initialData?.preparationStage,
+    studyPreferences: initialData?.studyPreferences,
+    baselineScore: initialData?.baselineScore,
+    baselineQuestions: initialData?.baselineQuestions,
+    onboardingCompletedAt: initialData?.onboardingCompletedAt,
+    profileUpdatedAt: initialData?.profileUpdatedAt,
     preferences: {
       coachingSource: initialData?.preferences?.coachingSource || 'Marrow / Prepladder',
       primaryPlatform: initialData?.preferences?.primaryPlatform || 'Marrow',

@@ -44,11 +44,13 @@ describe('AI Study Coach — Predictor Trigger & History Integration', () => {
   it('3. Predictor trigger constructs prompt and titles session cleanly', () => {
     const topic = 'Burns Management - Parkland Formula & Rule of Nines';
     const subject = 'Surgery';
-    const tab = 'concept';
 
-    const promptText = tab === 'vignette'
-      ? `Give me an FMGE clinical vignette MCQ on ${topic}`
-      : `Explain ${topic} (${subject || 'High-Yield Medicine'}) with core FMGE clinical concepts, high-yield diagnostic criteria, and exam pearls`;
+    const buildPrompt = (tab: 'concept' | 'vignette') =>
+      tab === 'vignette'
+        ? `Give me an FMGE clinical vignette MCQ on ${topic}`
+        : `Explain ${topic} (${subject || 'High-Yield Medicine'}) with core FMGE clinical concepts, high-yield diagnostic criteria, and exam pearls`;
+
+    const promptText = buildPrompt('concept');
 
     assert.ok(promptText.includes('Burns Management'));
     assert.ok(promptText.includes('Surgery'));

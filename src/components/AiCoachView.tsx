@@ -32,6 +32,11 @@ import {
   Search,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuth } from '../context/AuthContext';
+import {
+  getLearningContext,
+  getPersonalizedDailyPlan,
+} from '../utils/personalizationEngine';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { GrandTest, AppState, MedicalImageAsset } from '../types';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
@@ -163,6 +168,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   onClose,
   onClearInitialTrigger,
 }) => {
+  const { profile } = useAuth();
   const [inputQuery, setInputQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
@@ -277,6 +283,12 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     let r2Count = 0;
     let r3Count = 0;
 
+    // Shared personalized context derived from the SAME engine the Dashboard uses
+    // (single source of truth). If state is present it gives estimated score,
+    // gap, baseline, phase, GT cadence and today's live plan.
+    const profileCtx = state ? getLearningContext(profile, state) : null;
+    const todayPlan = state ? getPersonalizedDailyPlan(profile, state) : null;
+
     FMGE_SUBJECTS.forEach((subject) => {
       subject.topics.forEach((topic) => {
         totalTopicsCount++;
@@ -293,20 +305,23 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       ? Math.round((notesCompletedCount / totalTopicsCount) * 100)
       : 0;
 
-    // Weak subjects derived from GT, Error Notebook, and uncompleted major subjects
+    // Weak subjects derived from GT, Error Notebook, and uncompleted major subjects.
+    // Preferences the shared engine's weak-subject list (same source as the Dashboard).
     let weakSubList: string[] = [];
-    if (latestGT?.weakSubjectIds && latestGT.weakSubjectIds.length > 0) {
-      weakSubList = latestGT.weakSubjectIds.map(id => FMGE_SUBJECTS.find(s => s.id === id)?.name || id);
+    if (profileCtx && profileCtx.weakSubjects.length > 0) {
+      weakSubList = profileCtx.weakSubjects.map((id) => FMGE_SUBJECTS.find((s) => s.id === id)?.name || id);
+    } else if (latestGT?.weakSubjectIds && latestGT.weakSubjectIds.length > 0) {
+      weakSubList = latestGT.weakSubjectIds.map((id) => FMGE_SUBJECTS.find((s) => s.id === id)?.name || id);
     }
     if (weakSubList.length === 0 && state?.errorNotebook && state.errorNotebook.length > 0) {
       const counts: Record<string, number> = {};
-      state.errorNotebook.forEach(err => {
+      state.errorNotebook.forEach((err) => {
         counts[err.subjectId] = (counts[err.subjectId] || 0) + 1;
       });
       weakSubList = Object.entries(counts)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 4)
-        .map(([sId]) => FMGE_SUBJECTS.find(s => s.id === sId)?.name || sId);
+        .map(([sId]) => FMGE_SUBJECTS.find((s) => s.id === sId)?.name || sId);
     }
     if (weakSubList.length === 0) {
       weakSubList = ['General Medicine', 'Pharmacology', 'Obstetrics & Gynecology', 'Pathology'];
@@ -333,8 +348,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     }
 
     return {
-      daysRemaining: daysRemaining || 60,
-      targetScore: state?.settings?.targetScore || 185,
+      daysRemaining: profileCtx?.daysRemaining ?? daysRemaining ?? 60,
+      targetScore: profileCtx?.targetScore ?? state?.settings?.targetScore ?? 185,
       averageGTScore: avgGT,
       weakSubjects: weakSubList,
       weakTopics: weakTopicList,
@@ -343,8 +358,31 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       r1Done: r1Count,
       r2Done: r2Count,
       r3Done: r3Count,
+      // Onboarding signals: student personalization context only — never medical facts.
+      preparationStage: profile?.preparationStage || null,
+      dailyStudyHours: profile?.dailyHoursTarget || state?.settings?.dailyStudyHourGoal || null,
+      studyPreferences: profile?.studyPreferences || [],
+      baselineScore: profile?.baselineScore,
+      baselineQuestions: profile?.baselineQuestions,
+      // Shared single-source-of-truth fields (same values the Dashboard uses).
+      estimatedScore: profileCtx?.estimatedScore ?? null,
+      scoreGap: profileCtx?.scoreGap ?? null,
+      baselinePending: profileCtx?.baselinePending ?? false,
+      availableMinutes: profileCtx?.availableMinutes ?? null,
+      phase: profileCtx?.phase ?? null,
+      phaseTitle: profileCtx?.phaseTitle ?? '',
+      gtCadence: profileCtx?.gtCadenceDays ?? null,
+      gtFrequencyLabel: profileCtx?.gtFrequencyLabel ?? '',
+      daysToExam: profileCtx?.daysRemaining ?? null,
+      todayPlan: todayPlan?.tasks.slice(0, 5).map((t) => ({
+        activity: t.activity,
+        subjectName: t.subjectName,
+        topicName: t.topicName,
+        durationMinutes: t.durationMinutes,
+        reason: t.reason,
+      })) ?? [],
     };
-  }, [state, latestGT, daysRemaining]);
+  }, [state, latestGT, daysRemaining, profile]);
 
   const weakSubjects = computedStudentContext.weakSubjects;
   const recentErrors = computedStudentContext.recentErrors;
@@ -1195,16 +1233,6 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             </div>
           </div>
 
-          {/* New Chat Button */}
-          <button
-            type="button"
-            onClick={handleNewSession}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold font-['Outfit'] shadow-xs transition-all cursor-pointer active:scale-98"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>New Chat</span>
-          </button>
-
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
@@ -1346,16 +1374,6 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             <span className="px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold font-mono">
               {sessions.length}
             </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleNewSession}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold font-['Outfit'] transition-all cursor-pointer shadow-xs active:scale-95"
-            title="Start a fresh consultation"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>New Chat</span>
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence, useReducedMotion, useMotionValue, useTransform, animate } from 'motion/react';
 import {
   Play,
   ArrowRight,
@@ -18,7 +19,10 @@ import {
   RotateCcw,
   Calendar,
   Cloud,
-  FileText
+  FileText,
+  Target,
+  Timer,
+  TrendingUp
 } from 'lucide-react';
 import { AppState, DailyTask, PracticeSessionContext } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -29,7 +33,14 @@ import {
   getNextBestStudyAction,
   getDaysRemainingToExam,
 } from '../utils/adaptivePriorityEngine';
-import { MedicalWaveform } from './MedicalWaveform';
+import {
+  getPersonalizedDailyPlan,
+  getLearningContext,
+  PersonalizedPlan,
+  PersonalizedPlanTask,
+  LearningContext,
+} from '../utils/personalizationEngine';
+import { MedicalHeroVisual } from './MedicalHeroVisual';
 import { TopicMasteryWorkspace } from './TopicMasteryWorkspace';
 import { NotificationCenterModal } from './NotificationCenterModal';
 
@@ -62,6 +73,33 @@ interface DashboardViewProps {
   onOpenProfile?: () => void;
 }
 
+/** Polite, SwiftUI-style number interpolation. No-op under reduced motion. */
+function AnimatedNumber({ value, className }: { value: number; className?: string }) {
+  const reduced = useReducedMotion();
+  const mv = useMotionValue(reduced ? value : 0);
+  const displayed = useTransform(mv, (v) => Math.round(v));
+
+  useEffect(() => {
+    if (reduced) {
+      mv.set(value);
+      return;
+    }
+    const controls = animate(mv, value, { duration: 0.6, ease: 'easeOut' });
+    return () => controls.stop();
+  }, [value, reduced, mv]);
+
+  return <motion.span className={className}>{displayed}</motion.span>;
+}
+
+/** Constrained entrance helpers: fade + subtle upward movement, respecting reduced motion. */
+const SECTION_ENTER = (delay: number, reduced: boolean) =>
+  reduced ? {} : { delay, y: 8, opacity: 0 };
+const SECTION_SHOW = { y: 0, opacity: 1 };
+const SECTION_TRANSITION = (reduced: boolean) =>
+  reduced ? { duration: 0 } : { duration: 0.28, ease: [0.22, 1, 0.36, 1] as const };
+const SPRING = (reduced: boolean) =>
+  reduced ? { duration: 0 } : { type: 'spring' as const, stiffness: 420, damping: 34 };
+
 export const DashboardView: React.FC<DashboardViewProps> = ({
   state,
   stats,
@@ -89,6 +127,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+  // Respect prefers-reduced-motion for the SwiftUI-style entrance/transition motion.
+  const reducedMotion = useReducedMotion();
+
   // Dynamic greeting based on time of day
   const hour = new Date().getHours();
   const greeting = useMemo(() => {
@@ -99,10 +140,36 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const daysRemaining = useMemo(() => getDaysRemainingToExam(state), [state]);
 
-  // Adaptive recommendation
+  // Adaptive recommendation (WHAT should I study next, grounded in real priority data)
   const adaptiveRecommendation = useMemo(() => {
     return getNextBestStudyAction(state);
   }, [state]);
+
+  // Personalized planning context derived from the onboarding profile + state.
+  // Single source of truth shared with the AI Coach.
+  const learningContext: LearningContext = useMemo(
+    () => getLearningContext(profile, state),
+    [profile, state]
+  );
+
+  const dailyPlan: PersonalizedPlan = useMemo(
+    () => getPersonalizedDailyPlan(profile, state),
+    [profile, state]
+  );
+
+  // Task in the plan that's a "do now" action (learning/mcq).
+  const nextActionTask = useMemo(() => {
+    const actionable = dailyPlan.tasks.find(
+      (t) => t.activity === 'learn' || t.activity === 'mcqs'
+    );
+    return actionable || dailyPlan.tasks[0];
+  }, [dailyPlan]);
+
+  // Today's remaining plan tasks (the primary focus is surfaced separately in Today's Focus).
+  const todayPlanTasks = useMemo(() => {
+    const primaryId = nextActionTask?.id;
+    return dailyPlan.tasks.filter((t) => t.id !== primaryId).slice(0, 3);
+  }, [dailyPlan, nextActionTask]);
 
   const recommendedSubject = useMemo(() => {
     return FMGE_SUBJECTS.find((s) => s.id === adaptiveRecommendation.subjectId) || FMGE_SUBJECTS[0];
@@ -134,18 +201,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     };
   }, [selectedFilterSubjectId, activeFocusSubject, adaptiveRecommendation, state.topicsState]);
 
-  // Last studied topic for "Continue Studying"
-  const recentStudyTopic = useMemo(() => {
-    const physSubject = FMGE_SUBJECTS.find((s) => s.id === 'physiology') || FMGE_SUBJECTS[1];
-    return {
-      subject: physSubject,
-      topicId: 'phys-1',
-      topicName: 'General Physiology & Cell Membrane Transport',
-      status: 'Notes completed · QBank practice pending',
-    };
-  }, []);
-
-  // Quick subject list with status
+  // Subject progress with FMGE relevance — lightweight, information-dense.
   const subjectList = useMemo(() => {
     return FMGE_SUBJECTS.map((sub) => {
       const allTopics = [...sub.topics, ...(state.subjectProgress?.[sub.id]?.customTopics || [])];
@@ -189,501 +245,505 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return results;
   }, [searchQuery]);
 
-  const userName = user?.displayName || profile?.displayName || state.settings.userName || 'Dr. unsay';
-  const initials = (userName || 'Dr')
+  const userName = user?.displayName || profile?.displayName || state.settings.userName || 'Doctor';
+  const initials = (userName || 'Doctor')
     .split(' ')
     .map((w) => w[0])
     .slice(0, 2)
     .join('')
     .toUpperCase();
 
+  // Exam date & target come from the authenticated profile (via appState.settings).
+  const savedExamDate = profile?.examDate || state.settings?.examDate;
+  const savedTargetScore = profile?.targetScore || state.settings?.targetScore;
+
+  // Today's Focus facts — all from real adaptive/planning data, never hardcoded.
+  const focusMinutes = adaptiveRecommendation.allocatedMinutes || nextActionTask?.durationMinutes || 20;
+  const focusMarks = adaptiveRecommendation.weightage || activeFocusSubject.weightage;
+  const hasRevisionDue = dailyPlan.revisionDueCount > 0;
+  const errorsToReview = dailyPlan.errorRemediationCount > 0;
+
+  const startFocusSession = () =>
+    setActiveMasteryTopic({
+      subjectId: activeFocusSubject.id,
+      topicId: activeFocusTopic.id,
+      topicName: activeFocusTopic.name,
+    });
+
   return (
-    <div className="relative min-h-screen font-['Plus_Jakarta_Sans'] text-slate-900 pb-28 lg:pb-12">
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8 space-y-5 sm:space-y-7">
-        {/* Top Header Row */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="font-['Outfit'] text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-              {greeting}, {userName} <span className="inline-block animate-wave origin-bottom-right">👋</span>
+    <div className="relative min-h-screen font-['Plus_Jakarta_Sans'] text-slate-900 pb-4 lg:pb-12">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-6 lg:pt-8 space-y-4 sm:space-y-6 lg:space-y-8">
+
+        {/* ═══ 1. GREETING + EXAM CONTEXT ═══ */}
+        <motion.div
+          initial={SECTION_ENTER(0, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4"
+        >
+          <div className="order-2 sm:order-1">
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500 font-medium">
+              <span className="inline-flex items-center gap-1.5">
+                <Target className="h-4 w-4 text-sky-600" />
+                <AnimatedNumber value={daysRemaining} className="font-bold text-slate-800 tabular-nums" />
+                <span>days to FMGE</span>
+              </span>
+              <span className="text-slate-300">·</span>
+              <span>Target {savedTargetScore ? `${savedTargetScore}+` : 'Set target'}</span>
+              <span className="text-slate-300">·</span>
+              <span>19 subjects</span>
+            </p>
+            <h1 className="font-['Outfit'] text-2xl sm:text-[28px] font-extrabold tracking-tight text-slate-900 mt-1.5">
+              {greeting}, {userName}
             </h1>
-            <div className="flex items-center gap-2.5 mt-0.5">
-              <p className="text-xs sm:text-sm font-medium text-slate-500">
-                <button
-                  type="button"
-                  onClick={onOpenProfile}
-                  className="font-semibold text-slate-700 hover:text-slate-900 transition-colors cursor-pointer"
-                  title="Click to change target exam date"
-                >
-                  {daysRemaining} days to FMGE ({state.settings?.examDate || '2026-06-28'})
-                </button> · Target {state.settings?.targetScore || 200}+ · 19 Subjects
-              </p>
+          </div>
+
+          <div className="order-1 sm:order-2 flex items-center gap-2.5 justify-between sm:justify-end w-full sm:w-auto">
+            <div className="flex items-center gap-2.5">
+              {/* Study-atmosphere shuffle (cycles background theme — the 80/40/None opacity control lives in Settings and is untouched) */}
               {onShuffleBg && (
                 <button
                   type="button"
                   onClick={onShuffleBg}
-                  className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold text-slate-500 bg-white/80 hover:bg-white border border-slate-200/80 shadow-2xs transition-all cursor-pointer"
-                  title="Click to shuffle study atmosphere"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10px] font-mono font-semibold text-slate-500 bg-white/80 hover:bg-white border border-slate-200/80 shadow-sm transition-colors cursor-pointer"
+                  title="Cycle study atmosphere"
+                  aria-label="Cycle study atmosphere"
                 >
-                  <Sparkles className="h-2.5 w-2.5 text-amber-500" />
-                  <span>{activeBg.label} ({activeBg.period}) ⇄</span>
+                  <Sparkles className="h-3 w-3 text-sky-500" />
+                  <span>{activeBg.label} ⇄</span>
                 </button>
               )}
-            </div>
-          </div>
 
-          {/* Desktop Search bar & notification trigger */}
-          <div className="hidden sm:flex items-center gap-2.5">
-            <div className="relative w-64">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setIsSearchOpen(true);
-                }}
-                onFocus={() => setIsSearchOpen(true)}
-                placeholder="Search anything... ⌘K"
-                className="w-full h-10 pl-9 pr-4 text-xs bg-white border border-slate-200 rounded-full shadow-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setIsSearchOpen(true);
+                  }}
+                  onFocus={() => setIsSearchOpen(true)}
+                  placeholder="Search topics..."
+                  aria-label="Search topics"
+                  className="flex-1 sm:w-48 pl-9 pr-8 h-10 rounded-full bg-white border border-slate-200 focus:border-slate-400 text-sm text-slate-800 placeholder:text-slate-400 shadow-sm focus:outline-none transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
 
-            {/* Notification Bell (Opens real Notification Center) */}
-            <button
-              type="button"
-              onClick={() => setIsNotificationCenterOpen(true)}
-              className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white border border-slate-200 shadow-xs text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors shrink-0"
-              title="View Study Notifications"
-            >
-              <Bell className="h-4.5 w-4.5 stroke-[1.8]" />
-              <span className="absolute top-2 right-2 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
-              </span>
-            </button>
-
-            {/* Avatar Pill */}
-            <button
-              type="button"
-              onClick={onOpenProfile}
-              className="flex items-center justify-center h-10 w-10 rounded-full bg-slate-900 text-white font-['Outfit'] font-bold text-xs shadow-xs shrink-0 hover:bg-slate-800 transition-all cursor-pointer ring-2 ring-slate-900/10"
-              title="View Doctor Profile & Exam Blueprint"
-            >
-              {initials}
-            </button>
-          </div>
-        </div>
-
-        {/* Live Search Matrix Dropdown */}
-        {isSearchOpen && searchResults.length > 0 && (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-4 space-y-2 animate-in fade-in duration-150 z-30">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Search Results</span>
+              {/* Notification Bell */}
               <button
                 type="button"
-                onClick={() => setIsSearchOpen(false)}
-                className="text-xs text-slate-400 hover:text-slate-700 cursor-pointer"
+                onClick={() => setIsNotificationCenterOpen(true)}
+                className="relative hidden lg:flex items-center justify-center h-10 w-10 rounded-full bg-white border border-slate-200 shadow-sm text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors shrink-0"
+                title="View Study Notifications"
+                aria-label="View Study Notifications"
               >
-                Close (ESC)
+                <Bell className="h-4.5 w-4.5 stroke-[1.8]" />
+                <span className="absolute top-2 right-2.5 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
+                </span>
+              </button>
+
+              {/* Avatar */}
+              <button
+                type="button"
+                onClick={onOpenProfile}
+                className="hidden lg:flex items-center justify-center h-10 w-10 rounded-full bg-slate-900 text-white font-['Outfit'] font-bold text-xs shadow-sm shrink-0 hover:bg-slate-800 transition-all cursor-pointer ring-2 ring-slate-900/10"
+                title="View Doctor Profile & Exam Blueprint"
+                aria-label="Open profile"
+              >
+                {initials}
               </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-              {searchResults.map(({ subject, topic }) => (
-                <div
-                  key={`${subject.id}-${topic.id}`}
-                  className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-slate-100 transition-colors"
+          </div>
+        </motion.div>
+
+        {/* Live Search Modal (kept functional) */}
+        <AnimatePresence>
+          {isSearchOpen && searchResults.length > 0 && (
+            <motion.div
+              initial={reducedMotion ? false : { opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={SECTION_TRANSITION(reducedMotion)}
+              className="bg-white rounded-2xl border border-slate-200 shadow-xl p-4 space-y-2 z-30"
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Search Results</span>
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen(false)}
+                  className="text-xs text-slate-400 hover:text-slate-700 cursor-pointer"
                 >
-                  <div className="min-w-0 pr-2">
-                    <span className="text-[10px] font-bold text-sky-600 uppercase tracking-wider block">{subject.name}</span>
-                    <span className="text-xs font-semibold text-slate-800 truncate block">{topic.name}</span>
+                  Close (ESC)
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                {searchResults.map(({ subject, topic }) => (
+                  <div
+                    key={`${subject.id}-${topic.id}`}
+                    className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-slate-100 transition-colors"
+                  >
+                    <div className="min-w-0 pr-2">
+                      <span className="text-[10px] font-bold text-sky-600 uppercase tracking-wider block">{subject.name}</span>
+                      <span className="text-xs font-semibold text-slate-800 truncate block">{topic.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsSearchOpen(false);
+                          setActiveMasteryTopic({
+                            subjectId: subject.id,
+                            topicId: topic.id,
+                            topicName: topic.name,
+                          });
+                        }}
+                        className="px-2.5 py-1 text-[11px] font-bold bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                      >
+                        Study
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsSearchOpen(false);
+                          onLaunchPracticeSession?.(subject.id, topic.id, topic.name);
+                        }}
+                        className="px-2 py-1 text-[11px] font-semibold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                      >
+                        10 MCQs
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsSearchOpen(false);
-                        setActiveMasteryTopic({
-                          subjectId: subject.id,
-                          topicId: topic.id,
-                          topicName: topic.name,
-                        });
-                      }}
-                      className="px-2.5 py-1 text-[11px] font-bold bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-                    >
-                      Study
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsSearchOpen(false);
-                        onLaunchPracticeSession?.(subject.id, topic.id, topic.name);
-                      }}
-                      className="px-2 py-1 text-[11px] font-semibold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                    >
-                      10 MCQs
-                    </button>
-                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ═══ 2. SUBJECT FILTER — sliding active indicator, full scrollable access ═══ */}
+        <motion.div
+          initial={SECTION_ENTER(0.03, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="-mx-4 px-4 sm:mx-0 sm:px-0"
+        >
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-none select-none snap-x">
+            {[{ id: 'all', name: 'All Subjects', meta: '19' }, ...FMGE_SUBJECTS.map((s) => ({ id: s.id, name: s.name, meta: undefined as string | undefined }))].map((f) => {
+              const active = selectedFilterSubjectId === f.id;
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setSelectedFilterSubjectId(f.id)}
+                  aria-pressed={active}
+                  className={`relative snap-start inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors duration-150 cursor-pointer ${
+                    active ? 'text-white' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="dashboard-filter-active"
+                      transition={SPRING(reducedMotion)}
+                      className="absolute inset-0 rounded-full bg-slate-900 shadow-xs"
+                    />
+                  )}
+                  <span className="relative z-10">{f.name}</span>
+                  {f.meta && <span className={`relative z-10 ${active ? 'text-white/70' : 'text-slate-400'}`}>({f.meta})</span>}
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        {/* ═══ 3. TODAY'S FOCUS — the single strongest actionable element ═══ */}
+        <motion.section
+          initial={SECTION_ENTER(0.06, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+        >
+          <div className="relative rounded-3xl bg-white border border-slate-200/80 shadow-[0_12px_40px_-15px_rgba(15,23,42,0.08)] overflow-hidden">
+            <div className="flex flex-col lg:flex-row">
+              {/* Left: focus content */}
+              <div className="flex-1 p-4 sm:p-6 lg:p-8 lg:max-w-[58%] space-y-4">
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200/60 font-mono">
+                    ★ Today&apos;s Focus
+                  </span>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
+                    {activeFocusSubject.name}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* Subject Filter Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none select-none">
-          <button
-            type="button"
-            onClick={() => setSelectedFilterSubjectId('all')}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer ${
-              selectedFilterSubjectId === 'all'
-                ? 'bg-slate-900 text-white shadow-xs'
-                : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-            }`}
-          >
-            All Subjects (19)
-          </button>
-          {FMGE_SUBJECTS.slice(0, 8).map((sub) => {
-            const active = selectedFilterSubjectId === sub.id;
-            return (
-              <button
-                key={sub.id}
-                type="button"
-                onClick={() => setSelectedFilterSubjectId(sub.id)}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-150 cursor-pointer ${
-                  active
-                    ? 'bg-slate-900 text-white font-semibold shadow-xs'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                {sub.name}
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            onClick={() => onNavigateTab('syllabus')}
-            className="px-3 py-1.5 rounded-full text-xs font-medium text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 whitespace-nowrap cursor-pointer"
-          >
-            •••
-          </button>
-        </div>
+                <div>
+                  <h2 className="font-['Outfit'] text-2xl sm:text-[32px] font-extrabold tracking-tight text-slate-900 leading-tight">
+                    {activeFocusTopic.name}
+                  </h2>
+                  <p className="text-sm text-slate-600 leading-relaxed max-w-xl mt-1.5">
+                    {adaptiveRecommendation.actionDescription || activeFocusTopic.reason}
+                  </p>
+                </div>
 
-        {/* Main Hero Card (TODAY'S FOCUS) */}
-        <div className="relative rounded-3xl bg-white border border-slate-200/80 shadow-[0_12px_40px_-15px_rgba(15,23,42,0.08)] p-6 sm:p-8 overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            {/* Left Content Column */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="flex items-center gap-2.5">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200/60 font-mono">
-                  ★ TODAY'S FOCUS
-                </span>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-                  {activeFocusSubject.name.toUpperCase()} · {activeFocusSubject.weightage} MARKS
-                </span>
-              </div>
-
-              <h2 className="font-['Outfit'] text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                {activeFocusTopic.name}
-              </h2>
-
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
-                {activeFocusTopic.reason}
-              </p>
-
-              {/* Study Badges */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200/70">
-                  <Clock className="h-3.5 w-3.5 text-slate-400" /> ~20 minutes
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200/70">
-                  <BookOpen className="h-3.5 w-3.5 text-slate-400" /> 10 Clinical MCQs
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200/70">
-                  <Sparkles className="h-3.5 w-3.5 text-slate-400" /> Active Recall (R2)
-                </span>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveMasteryTopic({
-                      subjectId: activeFocusSubject.id,
-                      topicId: activeFocusTopic.id,
-                      topicName: activeFocusTopic.name,
-                    })
-                  }
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-sm transition-all duration-150 cursor-pointer"
-                >
-                  <Play className="h-4 w-4 fill-white" /> Start Session
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onSelectSubject(activeFocusSubject.id)}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
-                >
-                  Subject Roadmap <ArrowRight className="h-4 w-4 text-slate-400" />
-                </button>
-              </div>
-            </div>
-
-            {/* Right Telemetry Column (Visible on Desktop / Stacked underneath on Mobile) */}
-            <div className="lg:col-span-5">
-              <div className="relative rounded-2xl bg-slate-950 border border-slate-800 p-5 text-white shadow-inner flex flex-col justify-between h-48 sm:h-52">
-                {/* Telemetry Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-slate-400">
-                      CLINICAL TELEMETRY · {activeFocusSubject.name.toUpperCase()}
+                {/* WHY / HOW LONG / WHAT ACTION — real facts */}
+                <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200/70">
+                    <GraduationCap className="h-3.5 w-3.5 text-slate-400" />
+                    <AnimatedNumber value={focusMarks} /> marks
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200/70">
+                    <Timer className="h-3.5 w-3.5 text-slate-400" />
+                    <AnimatedNumber value={focusMinutes} /> min
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200/70">
+                    <BookOpen className="h-3.5 w-3.5 text-slate-400" /> Clinical MCQ
+                  </span>
+                  {activeFocusTopic.isHighYield && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-slate-900 text-white border border-slate-800">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> High-yield
                     </span>
-                  </div>
-                  <span className="font-mono text-[10px] font-bold text-sky-400 bg-sky-950/80 px-2 py-0.5 rounded-full border border-sky-800/60">
-                    {activeFocusSubject.weightage} MARKS
-                  </span>
+                  )}
+                  {hasRevisionDue && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                      <RotateCcw className="h-3.5 w-3.5" /> Revision due
+                    </span>
+                  )}
                 </div>
 
-                {/* Animated Medical Waveform */}
-                <div className="my-auto py-1 sm:py-2">
-                  <MedicalWaveform height={44} color="#38bdf8" className="w-full opacity-90" />
-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 pt-1">
-                    <span>LEAD II · 25mm/s</span>
-                    <span className="text-slate-300 font-medium">HR 72 BPM · NSR</span>
-                    <span>NBE HIGH-YIELD</span>
-                  </div>
-                </div>
-
-                {/* Telemetry Footer */}
-                <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[11px] font-mono">
-                  <span className="text-slate-400 truncate max-w-[180px]">{activeFocusTopic.name}</span>
-                  <span className="text-emerald-400 font-semibold uppercase tracking-wider">DIAGNOSTIC TRIAD</span>
+                {/* CTA */}
+                <div className="flex flex-wrap items-center gap-3 pt-1.5">
+                  <motion.button
+                    type="button"
+                    onClick={startFocusSession}
+                    whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-sm transition-colors cursor-pointer"
+                  >
+                    <Play className="h-4 w-4 fill-white" /> Start Session
+                  </motion.button>
+                  <motion.button
+                    type="button"
+                    onClick={() => onSelectSubject(activeFocusSubject.id)}
+                    whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
+                  >
+                    Subject Roadmap <ArrowRight className="h-4 w-4 text-slate-400" />
+                  </motion.button>
                 </div>
               </div>
+
+              {/* Right: medical visual — fills right side of hero, edge-to-edge */}
+              <motion.div
+                initial={reducedMotion ? false : { opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="relative lg:w-[42%] h-40 sm:h-48 lg:h-auto min-h-[160px] px-4 lg:px-0 pb-4 lg:pb-0"
+              >
+                <MedicalHeroVisual
+                  subjectId={activeFocusSubject.id}
+                  subjectName={activeFocusSubject.name}
+                  subjectColor={activeFocusSubject.color}
+                  className="w-full h-full lg:absolute lg:inset-0"
+                />
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.section>
 
-        {/* Continue Studying Row */}
-        <div className="space-y-2.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-            CONTINUE STUDYING
-          </span>
+        {/* ═══ 4. TODAY'S PLAN ═══ */}
+        <motion.section
+          initial={SECTION_ENTER(0.09, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="space-y-3"
+        >
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                Today&apos;s Plan
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {learningContext.phaseTitle}
+                {learningContext.baselinePending
+                  ? ' — initial plan from your onboarding. Complete a diagnostic to make this more precise.'
+                  : ''}
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white border border-slate-200/80 text-slate-600">
+                <Calendar className="h-3 w-3 text-slate-400" /> {learningContext.gtFrequencyLabel}
+              </span>
+            </div>
+          </div>
 
-          <div
-            onClick={() =>
-              setActiveMasteryTopic({
-                subjectId: recentStudyTopic.subject.id,
-                topicId: recentStudyTopic.topicId,
-                topicName: recentStudyTopic.topicName,
-              })
-            }
-            className="flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all cursor-pointer group"
+          {learningContext.baselinePending && (
+            <div className="rounded-2xl border border-sky-200/70 bg-sky-50/70 px-4 py-3 text-xs text-sky-900 flex items-start gap-2">
+              <Activity className="h-4 w-4 text-sky-600 shrink-0 mt-0.5" />
+              <span>
+                Initial plan based on your onboarding. Complete a diagnostic
+                ({savedTargetScore ? `target ${savedTargetScore}+` : 'set a target'}) to make recommendations more precise.
+              </span>
+            </div>
+          )}
+
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs divide-y divide-slate-100 overflow-hidden">
+            <AnimatePresence initial={false}>
+              {todayPlanTasks.length === 0 && dailyPlan.tasks.length === 0 && (
+                <motion.div
+                  key="empty-plan"
+                  initial={SECTION_ENTER(0, reducedMotion)}
+                  animate={SECTION_SHOW}
+                  exit={{ opacity: 0 }}
+                  transition={SECTION_TRANSITION(reducedMotion)}
+                  className="p-5 text-sm text-slate-500"
+                >
+                  Add study data to generate your personalized plan.
+                </motion.div>
+              )}
+              {todayPlanTasks.map((task, index) => (
+                <PlanTaskRow
+                  key={task.id}
+                  task={task}
+                  index={index}
+                  reducedMotion={reducedMotion}
+                  onLaunch={onLaunchPracticeSession}
+                  onAskCoach={onOpenAiCoach}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onNavigateTab('daily')}
+            className="w-full text-center text-xs font-semibold text-sky-700 hover:text-sky-900 py-1.5 transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="h-9 w-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 shrink-0">
-                <BookOpen className="h-4.5 w-4.5 text-slate-700" />
-              </div>
-              <div className="space-y-0.5 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-sky-600 font-mono">
-                    {recentStudyTopic.subject.name.toUpperCase()}
-                  </span>
-                  <span className="text-xs text-slate-400">· Last practiced recently</span>
-                </div>
-                <h3 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-sky-600 transition-colors truncate">
-                  {recentStudyTopic.topicName}
-                </h3>
-                <p className="text-xs text-slate-500 truncate">{recentStudyTopic.status}</p>
-              </div>
-            </div>
+            Open full plan
+          </button>
+        </motion.section>
 
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 group-hover:text-slate-900 shrink-0 pl-2">
-              <span>Continue</span>
-              <ArrowRight className="h-4 w-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-            </div>
+        {/* ═══ 5. YOUR PROGRESS ═══ */}
+        <motion.section
+          initial={SECTION_ENTER(0.12, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="space-y-3"
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">Your Progress</h3>
+            <button
+              type="button"
+              onClick={() => onNavigateTab('syllabus')}
+              className="text-xs font-semibold text-sky-700 hover:text-sky-900 transition-colors cursor-pointer"
+            >
+              View curriculum →
+            </button>
           </div>
-        </div>
 
-        {/* Bottom Section: 2-Column Desktop Split (Curriculum Matrix + Quick Actions Grid) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column (Curriculum Matrix, 7/12 width) */}
-          <div className="lg:col-span-7 space-y-3">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono block">
-              YOUR STUDY · FMGE CURRICULUM MATRIX
-            </span>
-
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs divide-y divide-slate-100 overflow-hidden">
-              {subjectList.slice(0, 5).map((sub) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {subjectList.slice(0, 8).map((sub) => {
+              const active = selectedFilterSubjectId === sub.id;
+              return (
                 <div
                   key={sub.id}
                   onClick={() => onSelectSubject(sub.id)}
-                  className="flex items-center justify-between p-3.5 sm:px-5 hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                  className={`group flex items-center gap-3 rounded-2xl border bg-white px-3.5 py-3 cursor-pointer transition-all hover:border-slate-300 ${
+                    active ? 'border-slate-900 ring-1 ring-slate-900/10' : 'border-slate-200/80'
+                  }`}
                 >
-                  {/* Subject Name & Icon */}
-                  <div className="flex items-center gap-3 min-w-0 sm:w-2/5">
-                    <div className="h-7 w-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 shrink-0 group-hover:bg-slate-900 group-hover:text-white transition-colors">
-                      <Activity className="h-3.5 w-3.5 stroke-[2]" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[13px] font-bold text-slate-900 truncate group-hover:text-sky-700 transition-colors">{sub.name}</span>
+                      <span className="text-xs font-mono font-semibold text-slate-500 tabular-nums shrink-0">{sub.percentage}%</span>
                     </div>
-                    <span className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                      {sub.name}
-                    </span>
-                  </div>
-
-                  {/* Marks */}
-                  <div className="hidden sm:block text-xs font-mono text-slate-400 w-20">
-                    {sub.weightage} marks
-                  </div>
-
-                  {/* Progress Bar & Percentage */}
-                  <div className="flex items-center gap-2.5 w-1/3 max-w-[140px]">
-                    <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full bg-slate-800 rounded-full transition-all duration-300"
-                        style={{ width: `${sub.percentage}%` }}
-                      />
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-slate-800 rounded-full"
+                          initial={reducedMotion ? false : { width: 0 }}
+                          animate={{ width: `${sub.percentage}%` }}
+                          transition={reducedMotion ? { duration: 0 } : { duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-400 shrink-0">{sub.weightage}m</span>
                     </div>
-                    <span className="text-xs font-mono font-semibold text-slate-600 shrink-0">
-                      {sub.percentage}%
-                    </span>
                   </div>
+                  <span className={`hidden sm:inline-flex shrink-0 items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${sub.statusColor}`}>
+                    {sub.statusText}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </motion.section>
 
-                  {/* Status Pill Badge */}
-                  <div className="flex items-center gap-1 shrink-0 pl-1">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold border ${sub.statusColor}`}
-                    >
-                      {sub.statusText}
+        {/* ═══ 6. CONTEXTUAL ACTIONS — only when real state exists ═══ */}
+        <motion.section
+          initial={SECTION_ENTER(0.15, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="space-y-3"
+        >
+          <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+            Up Next
+          </h3>
+
+          {!hasRevisionDue && !errorsToReview ? (
+            <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-3.5 text-sm text-slate-500 flex items-center gap-2.5">
+              <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
+              You&apos;re all caught up — review when new revision or errors appear.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {hasRevisionDue && (
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('revision')}
+                  className="group flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 text-left cursor-pointer hover:border-slate-300 hover:bg-slate-50/50 transition-all"
+                >
+                  <span className="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                    <RotateCcw className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">
+                      {dailyPlan.revisionDueCount} revision{dailyPlan.revisionDueCount > 1 ? 's' : ''} due
                     </span>
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-slate-600 transition-colors" />
-                  </div>
-                </div>
-              ))}
-
-              {/* View all subjects footer */}
-              <div
-                onClick={() => onNavigateTab('syllabus')}
-                className="p-3 bg-slate-50/50 hover:bg-slate-100/70 text-center text-xs font-semibold text-sky-700 transition-colors cursor-pointer"
-              >
-                View All 19 Subjects →
-              </div>
+                    <span className="block text-xs text-slate-500">Spaced recall is ready</span>
+                  </span>
+                  <ArrowRight className="ml-auto h-4 w-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+                </button>
+              )}
+              {errorsToReview && (
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('errors')}
+                  className="group flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 text-left cursor-pointer hover:border-slate-300 hover:bg-slate-50/50 transition-all"
+                >
+                  <span className="h-10 w-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                    <FileSpreadsheet className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-bold text-slate-900 group-hover:text-rose-700 transition-colors">
+                      {dailyPlan.errorRemediationCount} error{dailyPlan.errorRemediationCount > 1 ? 's' : ''} to review
+                    </span>
+                    <span className="block text-xs text-slate-500">Remediate missed questions</span>
+                  </span>
+                  <ArrowRight className="ml-auto h-4 w-4 text-slate-300 group-hover:text-rose-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+                </button>
+              )}
             </div>
-          </div>
-
-          {/* Right Column (Quick Actions 2x3 Grid, 5/12 width) */}
-          <div className="lg:col-span-5 space-y-3">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono block">
-              QUICK ACTIONS
-            </span>
-
-            <div className="grid grid-cols-2 gap-3">
-              {/* 1. 10 MCQs Topic Drill */}
-              <div
-                onClick={() => onNavigateTab('practice')}
-                className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
-              >
-                <div className="h-8 w-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-2">
-                  <FileText className="h-4 w-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 group-hover:text-purple-700 transition-colors">
-                    10 MCQs
-                  </h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Topic Drill</p>
-                </div>
-              </div>
-
-              {/* 2. Grand Test */}
-              <div
-                onClick={() => onNavigateTab('grandtests')}
-                className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
-              >
-                <div className="h-8 w-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-2">
-                  <GraduationCap className="h-4 w-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 group-hover:text-sky-700 transition-colors">
-                    Grand Test
-                  </h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Full Syllabus</p>
-                </div>
-              </div>
-
-              {/* 3. Study Coach */}
-              <div
-                onClick={() => onOpenAiCoach('strategy')}
-                className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
-              >
-                <div className="h-8 w-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
-                  <MessageSquare className="h-4 w-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
-                    Study Coach
-                  </h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Ask Anything</p>
-                </div>
-              </div>
-
-              {/* 4. Error Vault */}
-              <div
-                onClick={() => onNavigateTab('errors')}
-                className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
-              >
-                <div className="h-8 w-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-2">
-                  <FileSpreadsheet className="h-4 w-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 group-hover:text-rose-700 transition-colors">
-                    Error Vault
-                  </h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Review Mistakes</p>
-                </div>
-              </div>
-
-              {/* 5. Revision */}
-              <div
-                onClick={() => onNavigateTab('revision')}
-                className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
-              >
-                <div className="h-8 w-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2">
-                  <RotateCcw className="h-4 w-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">
-                    Revision
-                  </h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Spaced Recall</p>
-                </div>
-              </div>
-
-              {/* 6. Daily Planner */}
-              <div
-                onClick={() => onNavigateTab('daily')}
-                className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between"
-              >
-                <div className="h-8 w-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-2">
-                  <Calendar className="h-4 w-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 group-hover:text-teal-700 transition-colors">
-                    Daily Planner
-                  </h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Plan Your Day</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          )}
+        </motion.section>
       </div>
 
       {/* Topic Mastery Workspace Modal */}
@@ -712,5 +772,87 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         onLaunchPracticeSession={onLaunchPracticeSession}
       />
     </div>
+  );
+};
+
+interface PlanTaskRowProps {
+  task: PersonalizedPlanTask;
+  index: number;
+  reducedMotion: boolean;
+  onLaunch?: (subjectId: string, topicId: string, topicName: string, subtopic?: string) => void;
+  onAskCoach?: (
+    initialTab?: 'vignette' | 'concept' | 'diagnosis' | 'strategy',
+    subjectId?: string,
+    topicName?: string
+  ) => void;
+}
+
+const PLAN_ACTIVITY_ICON: Record<string, string> = {
+  learn: 'Active learning',
+  recall: 'Recall',
+  mcqs: 'MCQ drill',
+  errors: 'Error remediation',
+  revision: 'Revision',
+};
+
+const PlanTaskRow: React.FC<PlanTaskRowProps> = ({ task, index, reducedMotion, onLaunch, onAskCoach }) => {
+  const launchPractice = () =>
+    onLaunch?.(task.subjectId, task.topicId, task.topicName);
+  const openCoach = () =>
+    onAskCoach?.(task.activity === 'errors' ? 'concept' : 'strategy', task.subjectId, task.topicName);
+
+  return (
+    <motion.div
+      layout={!reducedMotion}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={SECTION_TRANSITION(reducedMotion)}
+      className="flex items-center justify-between gap-3 p-4 hover:bg-slate-50/80 transition-colors"
+    >
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div
+            className="h-9 w-9 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-center text-slate-600 shrink-0"
+            style={{ borderColor: `${task.subjectColor}22`, backgroundColor: `${task.subjectColor}0d`, color: task.subjectColor }}
+          >
+            <BookOpen className="h-4.5 w-4.5" />
+          </div>
+          <div className="space-y-0.5 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-bold uppercase tracking-wider font-mono" style={{ color: task.subjectColor }}>
+                {task.subjectName.toUpperCase()}
+              </span>
+              <span className="text-[11px] font-medium text-sky-600">
+                {PLAN_ACTIVITY_ICON[task.activity] || task.activityLabel}
+              </span>
+            </div>
+            <h4 className="text-sm font-bold text-slate-900 truncate">{task.topicName}</h4>
+            <p className="text-xs text-slate-500 truncate">{task.reason}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="hidden sm:inline text-xs font-semibold text-slate-500 tabular-nums">{task.durationMinutes} min</span>
+        <button
+          type="button"
+          onClick={launchPractice}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold text-white shadow-sm hover:opacity-90 active:scale-95 transition-opacity cursor-pointer"
+          style={{ backgroundColor: task.subjectColor }}
+        >
+          <Play className="h-3.5 w-3.5 fill-white" /> Start
+        </button>
+        {task.activity === 'errors' && (
+          <button
+            type="button"
+            onClick={openCoach}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
+          >
+            <MessageSquare className="h-3.5 w-3.5 text-slate-500" /> Coach
+          </button>
+        )}
+      </div>
+    </motion.div>
   );
 };

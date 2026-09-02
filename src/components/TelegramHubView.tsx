@@ -1223,7 +1223,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                           onAddToErrorNotebook?.({
                             subjectId: (q.subject || "medicine").toLowerCase().replace(/[^a-z]/g, ""),
                             topicId: "telegram-recall",
-                            topicName: q.topic || "Telegram Ingestion",
+                            topic: q.topic || "Telegram Ingestion",
                             questionGist: q.questionText,
                             myMistake: "Telegram practice error review",
                             correctConcept: `${q.explanation} (Answer: Option ${q.correctAnswer})`,
@@ -1490,7 +1490,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                           onAddToErrorNotebook?.({
                             subjectId: item.subject.toLowerCase().replace(/[^a-z]/g, ""),
                             topicId: "telegram-saved",
-                            topicName: item.title,
+                            topic: item.title,
                             questionGist: item.content,
                             myMistake: "Saved review card",
                             correctConcept: item.explanation || item.content,
