@@ -28,7 +28,13 @@ async function startServer() {
     });
   });
 
-  // Vite middleware for development vs static build in production
+  const distPath = path.join(process.cwd(), "dist");
+  const publicPath = path.join(process.cwd(), "public");
+
+  // Serve static assets from public folder (uploads, images, favicon)
+  app.use(express.static(publicPath));
+
+  // Vite middleware for development vs compiled static build in production
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: {
@@ -49,10 +55,11 @@ async function startServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
-    const distPath = path.join(process.cwd(), "dist");
+  } else {
+    // In Production (e.g. Render): Serve optimized production bundle
     app.use(
       express.static(distPath, {
-        maxAge: "1h",
+        maxAge: "1d",
         setHeaders: (res, filePath) => {
           if (filePath.endsWith(".html")) {
             res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -62,13 +69,15 @@ async function startServer() {
         },
       })
     );
-    app.get("*", (req, res) => {
-      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-      res.setHeader("Pragma", "no-cache");
-      res.setHeader("Expires", "0");
-      res.sendFile(path.join(distPath, "index.html"));
-    });
   }
+
+  // SPA fallback for HTML5 client routing (works in both dev and prod)
+  app.get("*", (req, res) => {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    res.sendFile(path.join(distPath, "index.html"));
+  });
 
   const server = app.listen(PORT, HOST, () => {
     console.log(`[Server] ONE SHOT FMGE running on http://${HOST}:${PORT} (${process.env.NODE_ENV || "development"})`);
