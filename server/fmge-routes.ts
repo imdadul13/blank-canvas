@@ -50,16 +50,14 @@ function getAI(): GoogleGenAI {
 }
 
 
-// Resilient helper with multi-model fallback across active Gemini models
-async function callGeminiWithRetry(params: any, retries = 2, delayMs = 800): Promise<any> {
+// Resilient helper with multi-model fallback across active, working Gemini models
+async function callGeminiWithRetry(params: any, retries = 1, delayMs = 500): Promise<any> {
   const ai = getAI();
   const models = [
-    params.model || "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-3.5-flash",
+    params.model || "gemini-flash-lite-latest",
+    "gemini-flash-lite-latest",
     "gemini-3.6-flash",
-    "gemini-3.1-flash-lite",
-    "gemini-3.7-flash",
+    "gemini-3.5-flash-lite",
   ];
   let lastErr: any = null;
 
@@ -1328,7 +1326,7 @@ Provide a rapid, high-yield, structured medical breakdown. Use clear markdown he
       parts: currentParts,
     });
 
-    const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.1-flash-lite", "gemini-3.7-flash"];
+    const models = ["gemini-flash-lite-latest", "gemini-3.6-flash", "gemini-3.5-flash-lite"];
     let streamSuccess = false;
 
     for (const model of models) {
@@ -1351,10 +1349,12 @@ Provide a rapid, high-yield, structured medical breakdown. Use clear markdown he
           }
         }
 
-        res.write(`data: ${JSON.stringify({ done: true, fullText })}\n\n`);
-        res.end();
-        streamSuccess = true;
-        break;
+        if (fullText.trim().length > 0) {
+          res.write(`data: ${JSON.stringify({ done: true, fullText })}\n\n`);
+          res.end();
+          streamSuccess = true;
+          break;
+        }
       } catch (err: any) {
         console.warn(`[Streaming AI Chat] Model ${model} failed, trying next fallback:`, err.message);
       }

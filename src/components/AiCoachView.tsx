@@ -359,8 +359,10 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
   // Synchronize current messages and active quiz with localStorage memory (debounced to avoid thread locking)
   const saveTimeoutRef = useRef<any>(null);
+  const isStreamingRef = useRef(false);
+
   useEffect(() => {
-    if (messages.length === 0) return;
+    if (messages.length === 0 || isStreamingRef.current) return;
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 
     saveTimeoutRef.current = setTimeout(() => {
@@ -604,17 +606,24 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
       setMessages([...newMessages, placeholderMsg]);
       setIsLoading(false); // streaming message itself shows live progress
+      isStreamingRef.current = true;
+
+      const streamController = new AbortController();
+      const streamTimeout = setTimeout(() => streamController.abort(), 18000); // 18s max timeout
 
       try {
         const streamRes = await fetch('/api/ai/chat/stream', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: streamController.signal,
           body: JSON.stringify({
             message: text,
             history: newMessages.slice(-6).map((m) => ({ role: m.role, content: m.content })),
             studentContext: computedStudentContext,
           }),
         });
+
+        clearTimeout(streamTimeout);
 
         if (streamRes.ok && streamRes.body) {
           const reader = streamRes.body.getReader();
@@ -643,7 +652,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               }
 
               const now = Date.now();
-              if (newTextAdded && now - lastFlush > 60) {
+              if (newTextAdded && now - lastFlush > 80) {
                 lastFlush = now;
                 const currentText = accumulated;
                 setMessages((prev) =>
@@ -657,20 +666,25 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             reader.releaseLock?.();
           }
 
-          if (accumulated.trim()) {
+          // If streaming delivered a solid response (>80 chars), finalize it
+          if (accumulated.trim().length > 80) {
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === streamingMsgId ? { ...msg, content: accumulated } : msg
               )
             );
+            isStreamingRef.current = false;
             return;
           }
         }
       } catch (streamErr) {
-        console.warn('[Streaming Chat] Stream error, falling back to standard batch endpoint:', streamErr);
+        console.warn('[Streaming Chat] Stream error or timeout, falling back to standard endpoint:', streamErr);
+      } finally {
+        clearTimeout(streamTimeout);
+        isStreamingRef.current = false;
       }
 
-      // If streaming produced no output, remove the empty placeholder before fallback
+      // If streaming produced insufficient output, remove placeholder and fall through to robust batch endpoint
       setMessages(newMessages);
     }
 
