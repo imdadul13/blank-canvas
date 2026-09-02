@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Sparkles,
   Send,
@@ -24,6 +24,12 @@ import {
   Paperclip,
   X,
   Maximize2,
+  History,
+  Plus,
+  Trash2,
+  Clock,
+  MessageSquare,
+  Search,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -82,6 +88,56 @@ interface ActiveQuizSession {
   userAnswers: Record<number, string>;
 }
 
+export interface CoachSession {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  messages: ChatMessage[];
+  quizSession?: ActiveQuizSession | null;
+}
+
+const COACH_STORAGE_KEY = 'fmge_ai_coach_sessions_v1';
+
+export function createDefaultGreetingMessage(): ChatMessage {
+  return {
+    id: 'msg-welcome',
+    role: 'assistant',
+    content: `👋 Hello Doctor! I am your **FMGE AI Study Coach**.
+
+I am grounded in high-yield NMC examination patterns and tailored to your live study tracker data.
+
+### What would you like to do?
+- **Concept explanations**: Ask any clinical breakdown or disease mechanism
+- **Differentiating pairs**: Compare tricky conditions (e.g. *Crohn's vs Ulcerative Colitis*)
+- **Clinical MCQs**: Test yourself with complete exam vignettes
+- **Weak subject quiz**: Start a targeted practice drill`,
+    timestamp: new Date(),
+    suggestedFollowUps: [
+      'Quiz me on high-yield questions from my weakest subjects',
+      'What is the difference between Crohn\'s disease and ulcerative colitis?',
+      'Explain nephrotic syndrome',
+      'Give me an FMGE MCQ on heart blocks',
+    ],
+  };
+}
+
+function formatRelativeDate(isoString?: string): string {
+  if (!isoString) return 'Earlier';
+  const d = new Date(isoString);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 2) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
 interface AiCoachViewProps {
   state?: AppState;
   latestGT?: GrandTest | null;
@@ -109,6 +165,36 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+
+  // Persistent Consultation Session History & Memory State
+  const [sessions, setSessions] = useState<CoachSession[]>(() => {
+    try {
+      const saved = localStorage.getItem(COACH_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (_) {}
+    return [];
+  });
+
+  const [activeSessionId, setActiveSessionId] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem(COACH_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed[0].id;
+        }
+      }
+    } catch (_) {}
+    return `session-${Date.now()}`;
+  });
+
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [historySearch, setHistorySearch] = useState('');
   
   // Interactive Multi-Question Quiz Mode State
   const [quizSession, setQuizSession] = useState<ActiveQuizSession | null>(null);
@@ -242,32 +328,71 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   const weakSubjects = computedStudentContext.weakSubjects;
   const recentErrors = computedStudentContext.recentErrors;
 
-  // Initial greeting message
+  // Initial session loader and auto-recovery
   useEffect(() => {
-    if (messages.length === 0) {
-      const greeting: ChatMessage = {
-        id: 'msg-welcome',
-        role: 'assistant',
-        content: `👋 Hello Doctor! I am your **FMGE AI Study Coach**.
-
-I am grounded in high-yield NMC examination patterns and tailored to your study tracker data.
-
-### What would you like to do?
-- **Concept explanations**: Ask any clinical breakdown or disease mechanism
-- **Differentiating pairs**: Compare tricky conditions (e.g. *Crohn's vs Ulcerative Colitis*)
-- **Clinical MCQs**: Test yourself with complete exam vignettes
-- **Weak subject quiz**: Start a targeted practice drill`,
-        timestamp: new Date(),
-        suggestedFollowUps: [
-          'Quiz me on high-yield questions from my weakest subjects',
-          'What is the difference between Crohn\'s disease and ulcerative colitis?',
-          'Explain nephrotic syndrome',
-          'Give me an FMGE MCQ on heart blocks',
-        ]
-      };
-      setMessages([greeting]);
+    if (sessions.length > 0) {
+      const current = sessions.find((s) => s.id === activeSessionId) || sessions[0];
+      if (current && current.messages && current.messages.length > 0) {
+        setMessages(current.messages);
+        if (current.quizSession) setQuizSession(current.quizSession);
+        return;
+      }
     }
+
+    const defaultGreeting = createDefaultGreetingMessage();
+    const newSessionId = `session-${Date.now()}`;
+    const initialSession: CoachSession = {
+      id: newSessionId,
+      title: 'New Consultation',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      messages: [defaultGreeting],
+      quizSession: null,
+    };
+    setSessions([initialSession]);
+    setActiveSessionId(newSessionId);
+    setMessages([defaultGreeting]);
+    try {
+      localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify([initialSession]));
+    } catch (_) {}
   }, []);
+
+  // Synchronize current messages and active quiz with localStorage memory
+  useEffect(() => {
+    if (messages.length === 0) return;
+    setSessions((prev) => {
+      const idx = prev.findIndex((s) => s.id === activeSessionId);
+      let title = prev[idx]?.title || 'New Consultation';
+      if (title === 'New Consultation' || title === 'Consultation') {
+        const firstUser = messages.find((m) => m.role === 'user');
+        if (firstUser && firstUser.content) {
+          title = firstUser.content.slice(0, 42).trim() + (firstUser.content.length > 42 ? '...' : '');
+        }
+      }
+
+      const updatedSession: CoachSession = {
+        id: activeSessionId,
+        title,
+        createdAt: prev[idx]?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        messages,
+        quizSession,
+      };
+
+      let next: CoachSession[];
+      if (idx >= 0) {
+        next = [...prev];
+        next[idx] = updatedSession;
+      } else {
+        next = [updatedSession, ...prev];
+      }
+
+      try {
+        localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(next));
+      } catch (_) {}
+      return next;
+    });
+  }, [messages, quizSession, activeSessionId]);
 
   // Auto-send initial prompt if initialTopic or initialQuery is provided from external trigger
   useEffect(() => {
@@ -733,6 +858,80 @@ I am grounded in high-yield NMC examination patterns and tailored to your study 
     e.target.style.height = `${Math.min(e.target.scrollHeight, 180)}px`;
   };
 
+  const handleNewSession = () => {
+    const newId = `session-${Date.now()}`;
+    const defaultGreeting = createDefaultGreetingMessage();
+    const newSession: CoachSession = {
+      id: newId,
+      title: 'New Consultation',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      messages: [defaultGreeting],
+      quizSession: null,
+    };
+    const next = [newSession, ...sessions];
+    setSessions(next);
+    setActiveSessionId(newId);
+    setMessages([defaultGreeting]);
+    setQuizSession(null);
+    setIsHistoryOpen(false);
+    try {
+      localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(next));
+    } catch (_) {}
+  };
+
+  const handleSelectSession = (s: CoachSession) => {
+    setActiveSessionId(s.id);
+    setMessages(s.messages || [createDefaultGreetingMessage()]);
+    setQuizSession(s.quizSession || null);
+    setIsHistoryOpen(false);
+  };
+
+  const handleDeleteSession = (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const filtered = sessions.filter((s) => s.id !== sessionId);
+    setSessions(filtered);
+    try {
+      localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(filtered));
+    } catch (_) {}
+
+    if (sessionId === activeSessionId) {
+      if (filtered.length > 0) {
+        handleSelectSession(filtered[0]);
+      } else {
+        handleNewSession();
+      }
+    }
+  };
+
+  const handleClearAllHistory = () => {
+    if (window.confirm('Clear all consultation history? This will reset all saved AI Coach discussions.')) {
+      try {
+        localStorage.removeItem(COACH_STORAGE_KEY);
+      } catch (_) {}
+      setSessions([]);
+      handleNewSession();
+    }
+  };
+
+  const activeSession = sessions.find((s) => s.id === activeSessionId) || {
+    id: activeSessionId,
+    title: 'Current Consultation',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    messages,
+  };
+
+  const filteredSessions = useMemo(() => {
+    if (!historySearch.trim()) return sessions;
+    const q = historySearch.toLowerCase();
+    return sessions.filter(
+      (s) =>
+        s.title.toLowerCase().includes(q) ||
+        (s.messages || []).some((m) => m.content.toLowerCase().includes(q))
+    );
+  }, [sessions, historySearch]);
+
   const quickActions = [
     { label: 'Quiz me on my weak areas', query: 'Quiz me on high-yield questions from my weakest subjects' },
     { label: 'Explain Nephrotic Syndrome', query: 'Explain nephrotic syndrome with high-yield points, biopsy findings, and classic exam traps.' },
@@ -763,6 +962,51 @@ I am grounded in high-yield NMC examination patterns and tailored to your study 
           High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted weak-area remediation.
         </p>
       </header>
+
+      {/* 1. Active Consultation & Memory Control Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="h-9 w-9 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700 shrink-0">
+            <MessageSquare className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                Active Consultation Memory
+              </span>
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <h3 className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit'] truncate max-w-xs sm:max-w-md">
+              {activeSession?.title || 'Current Consultation'}
+            </h3>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsHistoryOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95"
+            title="View consultation history and past AI discussions"
+          >
+            <History className="h-3.5 w-3.5 text-slate-500" />
+            <span>History</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold font-mono">
+              {sessions.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleNewSession}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold font-['Outfit'] transition-all cursor-pointer shadow-xs active:scale-95"
+            title="Start a fresh consultation"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>New Chat</span>
+          </button>
+        </div>
+      </div>
 
       {/* 2. Interactive Multi-Question Quiz Mode Shell */}
       {quizSession && (
@@ -1385,6 +1629,147 @@ I am grounded in high-yield NMC examination patterns and tailored to your study 
         title={activeModalImage.title}
         whatToLookFor={activeModalImage.whatToLookFor}
       />
+
+      {/* Consultation History & Memory Drawer */}
+      <AnimatePresence>
+        {isHistoryOpen && (
+          <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-xs">
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative w-full max-w-md h-full bg-white shadow-2xl flex flex-col font-['Plus_Jakarta_Sans'] border-l border-slate-200"
+            >
+              {/* Drawer Header */}
+              <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-white">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
+                    <History className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold font-['Outfit'] text-slate-900">
+                      Consultation History
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {sessions.length} saved session{sessions.length === 1 ? '' : 's'} with memory
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsHistoryOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Drawer Actions: New Chat & Search */}
+              <div className="p-4 border-b border-slate-100 space-y-3 bg-slate-50/70">
+                <button
+                  type="button"
+                  onClick={handleNewSession}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold font-['Outfit'] shadow-xs transition-all cursor-pointer active:scale-98"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Start New Consultation</span>
+                </button>
+
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={historySearch}
+                    onChange={(e) => setHistorySearch(e.target.value)}
+                    placeholder="Search past consultations or topics..."
+                    className="w-full pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Session List */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
+                {filteredSessions.length === 0 ? (
+                  <div className="text-center py-12 space-y-2">
+                    <MessageSquare className="h-8 w-8 text-slate-300 mx-auto" />
+                    <p className="text-xs font-semibold text-slate-700">No matching consultations</p>
+                    <p className="text-[11px] text-slate-400">Ask the coach a question to start your study history</p>
+                  </div>
+                ) : (
+                  filteredSessions.map((s) => {
+                    const isActive = s.id === activeSessionId;
+                    const messageCount = (s.messages || []).length;
+                    const firstUserMsg = s.messages?.find((m) => m.role === 'user');
+
+                    return (
+                      <div
+                        key={s.id}
+                        onClick={() => handleSelectSession(s)}
+                        className={`group relative p-3 rounded-2xl border transition-all cursor-pointer ${
+                          isActive
+                            ? 'bg-sky-50/80 border-sky-300 ring-1 ring-sky-300 shadow-2xs'
+                            : 'bg-white hover:bg-slate-50 border-slate-200/80 hover:border-slate-300 shadow-2xs'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <div className="flex items-center gap-1.5">
+                              {isActive && (
+                                <span className="px-2 py-0.5 rounded-md bg-sky-600 text-white text-[9px] font-bold font-mono">
+                                  ACTIVE
+                                </span>
+                              )}
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                {formatRelativeDate(s.updatedAt || s.createdAt)}
+                              </span>
+                            </div>
+                            <h4 className="text-xs font-bold text-slate-900 font-['Outfit'] line-clamp-1 group-hover:text-sky-950">
+                              {s.title}
+                            </h4>
+                            <p className="text-[11px] text-slate-500 line-clamp-1">
+                              {firstUserMsg?.content || 'Clinical consultation'}
+                            </p>
+                            <div className="flex items-center gap-2 pt-1 text-[10px] text-slate-400 font-mono">
+                              <Clock className="h-3 w-3" />
+                              <span>{messageCount} turn{messageCount === 1 ? '' : 's'}</span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteSession(s.id, e)}
+                            className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer shrink-0"
+                            title="Delete consultation"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Drawer Footer */}
+              {sessions.length > 0 && (
+                <div className="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs">
+                  <button
+                    type="button"
+                    onClick={handleClearAllHistory}
+                    className="font-semibold text-rose-600 hover:text-rose-700 hover:underline cursor-pointer"
+                  >
+                    Clear All History
+                  </button>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    Persisted in Memory
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

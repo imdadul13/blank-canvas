@@ -3,6 +3,7 @@ import path from "path";
 import https from "https";
 import http from "http";
 import crypto from "crypto";
+import { enrichClinicalQuestionServer } from "./clinical-distractor-engine";
 import {
   RawTelegramMessage,
   TelegramMCQ,
@@ -205,6 +206,7 @@ export function extractQuestionDetails(
   explanation: string;
   whyOtherOptionsAreWrong: { key: string; reason: string }[];
   highYieldPearl: string;
+  mnemonic?: string;
 } {
   const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
 
@@ -282,27 +284,21 @@ export function extractQuestionDetails(
     explanation = "Option " + correctKey + " is the high-yield correct answer based on standard FMGE clinical guidelines.";
   }
 
-  // Generate "Why Other Options Are Wrong" distractor breakdown
-  const whyOtherOptionsAreWrong: { key: string; reason: string }[] = [];
-  for (const opt of options) {
-    if (opt.key.toUpperCase() !== correctKey.toUpperCase()) {
-      whyOtherOptionsAreWrong.push({
-        key: opt.key,
-        reason: "Option " + opt.key + " (" + opt.text + ") represents a later or alternative finding, not the primary/earliest clinical sign.",
-      });
-    }
-  }
-
-  // Generate concise High-Yield Exam Pearl
-  const highYieldPearl = "FMGE PEARL: Always check option (" + correctKey + ") first when evaluating acute clinical presentation for " + stem.slice(0, 45) + "...";
+  // Generate intelligent clinical distractor breakdown, high-yield pearl, and mnemonic
+  const enrichment = enrichClinicalQuestionServer({
+    stem,
+    options,
+    correctKey,
+  });
 
   return {
     stem,
     options,
     correctKey,
     explanation,
-    whyOtherOptionsAreWrong,
-    highYieldPearl,
+    whyOtherOptionsAreWrong: enrichment.whyOtherOptionsAreWrong,
+    highYieldPearl: enrichment.highYieldPearl,
+    mnemonic: enrichment.mnemonic,
   };
 }
 

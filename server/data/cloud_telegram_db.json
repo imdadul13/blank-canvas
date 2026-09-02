@@ -11,7 +11,7 @@
       "memberCount": 25000,
       "isMonitored": true,
       "lastProcessedMessageId": 2004,
-      "lastSyncedAt": "2026-09-01T17:04:56.951Z"
+      "lastSyncedAt": "2026-09-02T07:25:35.432Z"
     },
     {
       "id": "src-1002",
@@ -22,7 +22,7 @@
       "memberCount": 12000,
       "isMonitored": false,
       "lastProcessedMessageId": 9999,
-      "lastSyncedAt": "2026-09-01T17:04:56.949Z"
+      "lastSyncedAt": "2026-09-02T07:25:35.431Z"
     }
   ],
   "messages": [
@@ -31,11 +31,11 @@
       "accountId": "primary",
       "sourceId": "src-1001",
       "telegramMessageId": 2004,
-      "messageDate": "2026-09-01T17:04:56.951Z",
+      "messageDate": "2026-09-02T07:25:35.432Z",
       "rawText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
       "mediaType": "NONE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-01T17:04:56.951Z",
+      "receivedAt": "2026-09-02T07:25:35.432Z",
       "retryCount": 0
     },
     {
@@ -43,11 +43,11 @@
       "accountId": "primary",
       "sourceId": "src-1002",
       "telegramMessageId": 9999,
-      "messageDate": "2026-09-01T17:04:56.949Z",
+      "messageDate": "2026-09-02T07:25:35.431Z",
       "rawText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine is first line.",
       "mediaType": "NONE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-01T17:04:56.949Z",
+      "receivedAt": "2026-09-02T07:25:35.431Z",
       "retryCount": 0
     },
     {
@@ -55,11 +55,11 @@
       "accountId": "primary",
       "sourceId": "src-1001",
       "telegramMessageId": 2003,
-      "messageDate": "2026-09-01T17:04:56.703Z",
+      "messageDate": "2026-09-02T07:25:35.182Z",
       "rawText": "Observe the clinical video showing rhythmic horizontal eye oscillation. Diagnosis?\nA) Horizontal Jerk Nystagmus\nB) Opsoclonus\nC) Ocular flutter\nD) Saccades\nAns: A\nExp: Jerk nystagmus with slow drift.",
       "mediaType": "VIDEO",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-01T17:04:56.703Z",
+      "receivedAt": "2026-09-02T07:25:35.182Z",
       "retryCount": 0
     },
     {
@@ -67,11 +67,11 @@
       "accountId": "primary",
       "sourceId": "src-1001",
       "telegramMessageId": 2002,
-      "messageDate": "2026-09-01T17:04:55.860Z",
+      "messageDate": "2026-09-02T07:25:33.914Z",
       "rawText": "A 45-year-old male presents with epigastric pain radiating to back. CT abdomen is attached. What is the diagnosis?\nA) Acute pancreatitis\nB) Peptic ulcer\nC) Cholecystitis\nD) Appendicitis\nAns: A\nExp: CT demonstrates necrotizing pancreatitis.",
       "mediaType": "IMAGE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-01T17:04:55.860Z",
+      "receivedAt": "2026-09-02T07:25:33.914Z",
       "retryCount": 0
     },
     {
@@ -83,32 +83,32 @@
       "rawText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine (6mg rapid bolus) is the first-line drug of choice for acute termination of stable PSVT.",
       "mediaType": "NONE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-01T17:04:55.856Z",
+      "receivedAt": "2026-09-02T07:25:33.907Z",
       "retryCount": 0
     }
   ],
   "media": [
     {
-      "id": "med-1788282296702-xru5",
+      "id": "med-1788333935180-63w3",
       "messageId": "msg-src-1001-2002",
       "mediaType": "IMAGE",
-      "storageUrl": "/uploads/telegram/media/photo_2002_1788282295861.jpg",
-      "filePath": "/Users/imdadul/Downloads/blank-canvas/public/uploads/telegram/media/photo_2002_1788282295861.jpg",
-      "createdAt": "2026-09-01T17:04:56.702Z"
+      "storageUrl": "/uploads/telegram/media/photo_2002_1788333933914.jpg",
+      "filePath": "/Users/imdadul/Downloads/blank-canvas/public/uploads/telegram/media/photo_2002_1788333933914.jpg",
+      "createdAt": "2026-09-02T07:25:35.180Z"
     },
     {
-      "id": "med-1788282296947-qy93",
+      "id": "med-1788333935429-izud",
       "messageId": "msg-src-1001-2003",
       "mediaType": "VIDEO",
-      "storageUrl": "/uploads/telegram/media/vid_2003_1788282296703.mp4",
+      "storageUrl": "/uploads/telegram/media/vid_2003_1788333935182.mp4",
       "thumbnailUrl": "https://api.telegram.org/file/bot/photos/nystagmus_thumb.jpg",
-      "filePath": "/Users/imdadul/Downloads/blank-canvas/public/uploads/telegram/media/vid_2003_1788282296703.mp4",
-      "createdAt": "2026-09-01T17:04:56.947Z"
+      "filePath": "/Users/imdadul/Downloads/blank-canvas/public/uploads/telegram/media/vid_2003_1788333935182.mp4",
+      "createdAt": "2026-09-02T07:25:35.429Z"
     }
   ],
   "questions": [
     {
-      "id": "q-cloud-1788282296947-cba5",
+      "id": "q-cloud-1788333935429-kwnh",
       "sourceId": "src-1001",
       "sourceMessageId": "msg-src-1001-2003",
       "subject": "medicine",
@@ -137,24 +137,24 @@
       "whyOtherOptionsAreWrong": [
         {
           "key": "B",
-          "reason": "Option B (Opsoclonus) is an alternative finding, not the primary presentation."
+          "reason": "Option B (Opsoclonus) consists of chaotic, multidirectional, rapid involuntary conjugate saccades without an intersaccadic interval, classically linked to pediatric Neuroblastoma or paraneoplastic syndromes."
         },
         {
           "key": "C",
-          "reason": "Option C (Ocular flutter) is an alternative finding, not the primary presentation."
+          "reason": "Option C (Ocular flutter) features purely horizontal back-to-back saccadic oscillations without an intersaccadic interval, lacking the distinct slow drift and fast corrective phase of jerk nystagmus."
         },
         {
           "key": "D",
-          "reason": "Option D (Saccades) is an alternative finding, not the primary presentation."
+          "reason": "Option D (Saccades) are normal high-speed conjugate eye movements that shift foveal fixation from one target to another, not repetitive rhythmic pathological oscillations."
         }
       ],
       "sourceChannel": "Target FMGE High Yield",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-01T17:04:56.947Z",
+      "createdAt": "2026-09-02T07:25:35.429Z",
       "contentFingerprint": "19bbfabe44931f6b8296ad88cc8c4d5f7577014affea3b385d01712873433129"
     },
     {
-      "id": "q-cloud-1788282296702-o91z",
+      "id": "q-cloud-1788333935181-pg3c",
       "sourceId": "src-1001",
       "sourceMessageId": "msg-src-1001-2002",
       "subject": "surgery",
@@ -183,24 +183,24 @@
       "whyOtherOptionsAreWrong": [
         {
           "key": "B",
-          "reason": "Option B (Peptic ulcer) is an alternative finding, not the primary presentation."
+          "reason": "Option B (Peptic ulcer perforation) presents with sudden-onset board-like abdominal rigidity and subdiaphragmatic free air (pneumoperitoneum) on erect chest X-ray, rather than peripancreatic fluid stranding."
         },
         {
           "key": "C",
-          "reason": "Option C (Cholecystitis) is an alternative finding, not the primary presentation."
+          "reason": "Option C (Acute cholecystitis) causes right upper quadrant tenderness with positive Murphy sign, gallbladder wall thickening (>4 mm), and pericholecystic fluid on ultrasound; lipase is typically normal."
         },
         {
           "key": "D",
-          "reason": "Option D (Appendicitis) is an alternative finding, not the primary presentation."
+          "reason": "Option D (Acute appendicitis) presents with periumbilical pain migrating to McBurney point in the right lower quadrant, accompanied by Rovsing and psoas signs, without elevated serum lipase."
         }
       ],
       "sourceChannel": "Target FMGE High Yield",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-01T17:04:56.702Z",
+      "createdAt": "2026-09-02T07:25:35.181Z",
       "contentFingerprint": "607ea1c4739d08e29d0a69930f9d8acebcdbfb727ee9ea1e26d91d91a2678a0d"
     },
     {
-      "id": "q-cloud-1788282295859-dp52",
+      "id": "q-cloud-1788333933911-5pfd",
       "sourceId": "src-1001",
       "sourceMessageId": "msg-src-1001-2001",
       "subject": "medicine",
@@ -229,20 +229,20 @@
       "whyOtherOptionsAreWrong": [
         {
           "key": "B",
-          "reason": "Option B (Amiodarone) is an alternative finding, not the primary presentation."
+          "reason": "Option B (Amiodarone) is a Class III antiarrhythmic used primarily for ventricular tachycardia (VT/VF) and atrial fibrillation. Its onset of action is far too slow for acute PSVT termination."
         },
         {
           "key": "C",
-          "reason": "Option C (Verapamil) is an alternative finding, not the primary presentation."
+          "reason": "Option C (Verapamil) is a non-dihydropyridine calcium channel blocker used as a second-line agent. It is strictly contraindicated in pre-excited AFib (WPW) and heart failure due to negative inotropic depression."
         },
         {
           "key": "D",
-          "reason": "Option D (Digoxin) is an alternative finding, not the primary presentation."
+          "reason": "Option D (Digoxin) is a cardiac glycoside with a delayed onset of action (>60-120 minutes) and narrow therapeutic window. It is used for chronic rate control in AFib with heart failure, never for acute PSVT."
         }
       ],
       "sourceChannel": "Target FMGE High Yield",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-01T17:04:55.859Z",
+      "createdAt": "2026-09-02T07:25:33.911Z",
       "contentFingerprint": "d20b576f32d36dd3eeb9cc73241067c2f29aad07393c8f15bd3270a3a1745d9f",
       "duplicateSources": [
         {
@@ -253,7 +253,7 @@
       ]
     },
     {
-      "id": "q-cloud-1788282296949-jwfr",
+      "id": "q-cloud-1788333935431-v4r6",
       "sourceId": "src-1002",
       "sourceMessageId": "msg-src-1002-9999",
       "subject": "medicine",
@@ -282,91 +282,113 @@
       "whyOtherOptionsAreWrong": [
         {
           "key": "B",
-          "reason": "Option B (Amiodarone) is an alternative finding, not the primary presentation."
+          "reason": "Option B (Amiodarone) is a Class III antiarrhythmic used primarily for ventricular tachycardia (VT/VF) and atrial fibrillation. Its onset of action is far too slow for acute PSVT termination."
         },
         {
           "key": "C",
-          "reason": "Option C (Verapamil) is an alternative finding, not the primary presentation."
+          "reason": "Option C (Verapamil) is a non-dihydropyridine calcium channel blocker used as a second-line agent. It is strictly contraindicated in pre-excited AFib (WPW) and heart failure due to negative inotropic depression."
         },
         {
           "key": "D",
-          "reason": "Option D (Digoxin) is an alternative finding, not the primary presentation."
+          "reason": "Option D (Digoxin) is a cardiac glycoside with a delayed onset of action (>60-120 minutes) and narrow therapeutic window. It is used for chronic rate control in AFib with heart failure, never for acute PSVT."
         }
       ],
       "sourceChannel": "FMGE Clinical Recalls Discussion",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-01T17:04:56.949Z",
+      "createdAt": "2026-09-02T07:25:35.431Z",
       "contentFingerprint": "d20b576f32d36dd3eeb9cc73241067c2f29aad07393c8f15bd3270a3a1745d9f",
       "isDuplicate": true,
-      "duplicateOfQuestionId": "q-cloud-1788282295859-dp52"
+      "duplicateOfQuestionId": "q-cloud-1788333933911-5pfd"
     }
   ],
   "tips": [],
   "notices": [
     {
-      "id": "not-1788282296951-8fze",
+      "id": "not-1788333935432-lle3",
       "sourceMessageId": "msg-src-1001-2004",
       "originalText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
       "cleanedText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
       "importance": "important",
-      "noticeDate": "2026-09-01T17:04:56.951Z",
+      "noticeDate": "2026-09-02T07:25:35.432Z",
       "sourceChannel": "Target FMGE High Yield",
-      "createdAt": "2026-09-01T17:04:56.951Z"
+      "createdAt": "2026-09-02T07:25:35.432Z"
     }
   ],
   "pearls": [
     {
-      "id": "prl-1788282295860-4z0t",
-      "sourceMessageId": "msg-src-1001-2001",
-      "questionId": "q-cloud-1788282295859-dp52",
+      "id": "prl-1788333935429-q6we",
+      "sourceMessageId": "msg-src-1001-2003",
+      "questionId": "q-cloud-1788333935429-kwnh",
       "title": "Clinical High-Yield Recall",
-      "takeaway": "FMGE PEARL: Always verify option (A) in acute presentation.",
+      "takeaway": "FMGE PEARL: Jerk nystagmus is named after the direction of the fast corrective phase (e.g. right-beating). In peripheral vestibular lesions (e.g. vestibular neuritis), nystagmus beats away from the lesion and is suppressed by visual fixation (Frenzel glasses).",
       "subject": "medicine",
       "topic": "Clinical High-Yield Recall",
       "isSaved": true,
-      "createdAt": "2026-09-01T17:04:55.860Z"
+      "createdAt": "2026-09-02T07:25:35.429Z"
+    },
+    {
+      "id": "prl-1788333935181-zq5n",
+      "sourceMessageId": "msg-src-1001-2002",
+      "questionId": "q-cloud-1788333935181-pg3c",
+      "title": "Clinical High-Yield Recall",
+      "takeaway": "FMGE PEARL: Serum Lipase is the most sensitive and specific biomarker for acute pancreatitis (remains elevated 8-14 days vs 3-5 days for amylase). Contrast-enhanced CT (CECT) after 72 hours is the gold standard to evaluate pancreatic necrosis (Balthazar score).",
+      "subject": "surgery",
+      "topic": "Clinical High-Yield Recall",
+      "isSaved": true,
+      "createdAt": "2026-09-02T07:25:35.181Z"
+    },
+    {
+      "id": "prl-1788333933912-uiut",
+      "sourceMessageId": "msg-src-1001-2001",
+      "questionId": "q-cloud-1788333933911-5pfd",
+      "title": "Clinical High-Yield Recall",
+      "takeaway": "FMGE PEARL: IV Adenosine (6 mg rapid IV push via large antecubital vein followed by 20 mL saline flush; repeat with 12 mg if needed) is the 1st-line drug of choice for acute termination of stable narrow-complex PSVT. It causes transient AV node conduction block (half-life < 10 seconds). Always warn the patient of transient chest pressure and flushing.",
+      "subject": "medicine",
+      "topic": "Clinical High-Yield Recall",
+      "isSaved": true,
+      "createdAt": "2026-09-02T07:25:33.912Z"
     }
   ],
   "crossChecks": [
     {
-      "id": "cc-1788282296950-ykbk",
-      "questionId": "q-cloud-1788282296949-jwfr",
+      "id": "cc-1788333935431-g38z",
+      "questionId": "q-cloud-1788333935431-v4r6",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
       "confidence": 0.96,
-      "verifiedAt": "2026-09-01T17:04:56.950Z"
+      "verifiedAt": "2026-09-02T07:25:35.431Z"
     },
     {
-      "id": "cc-1788282296948-fxgy",
-      "questionId": "q-cloud-1788282296947-cba5",
+      "id": "cc-1788333935430-0h3w",
+      "questionId": "q-cloud-1788333935429-kwnh",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
       "confidence": 0.96,
-      "verifiedAt": "2026-09-01T17:04:56.948Z"
+      "verifiedAt": "2026-09-02T07:25:35.430Z"
     },
     {
-      "id": "cc-1788282296703-d019",
-      "questionId": "q-cloud-1788282296702-o91z",
+      "id": "cc-1788333935181-d2bh",
+      "questionId": "q-cloud-1788333935181-pg3c",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
       "confidence": 0.96,
-      "verifiedAt": "2026-09-01T17:04:56.703Z"
+      "verifiedAt": "2026-09-02T07:25:35.181Z"
     },
     {
-      "id": "cc-1788282295860-kkes",
-      "questionId": "q-cloud-1788282295859-dp52",
+      "id": "cc-1788333933912-dlqo",
+      "questionId": "q-cloud-1788333933911-5pfd",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Clinical stem, option distractor analysis, and answer key verified against FMGE high-yield guidelines.",
       "confidence": 0.96,
-      "verifiedAt": "2026-09-01T17:04:55.860Z"
+      "verifiedAt": "2026-09-02T07:25:33.912Z"
     }
   ],
   "heartbeats": [
@@ -374,11 +396,11 @@
       "id": "hb-cloud-worker-1",
       "workerId": "cloud-worker-1",
       "workerStatus": "ONLINE",
-      "lastHeartbeat": "2026-09-01T17:04:56.950Z",
+      "lastHeartbeat": "2026-09-02T07:25:35.431Z",
       "activeSourcesCount": 1,
       "errorCount": 0,
-      "updatedAt": "2026-09-01T17:04:56.950Z",
-      "lastSuccessfulTelegramUpdate": "2026-09-01T17:04:56.950Z"
+      "updatedAt": "2026-09-02T07:25:35.431Z",
+      "lastSuccessfulTelegramUpdate": "2026-09-02T07:25:35.431Z"
     }
   ],
   "jobs": []

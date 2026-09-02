@@ -35,8 +35,10 @@ import {
   QrCode,
   Smartphone,
   CheckCheck,
+  Brain,
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { enrichClinicalQuestion } from "../utils/clinicalDistractorHelper";
 import {
   TelegramMCQ,
   DailyTask,
@@ -793,70 +795,101 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     })}
                   </div>
 
-                  {/* Explanation & Distractor Drawer */}
-                  {isRevealed && (
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-3 animate-fadeIn">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                          <span className="text-xs font-bold font-['Outfit'] text-slate-900">
-                            Telegram Answer: Option {q.correctAnswer}
-                          </span>
+                  {/* Explanation, Pearl, Mnemonic & Distractor Drawer */}
+                  {isRevealed && (() => {
+                    const enrichment = enrichClinicalQuestion(q);
+                    const distractors = enrichment.whyOtherOptionsAreWrong;
+
+                    return (
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-3.5 animate-fadeIn">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                            <span className="text-xs font-bold font-['Outfit'] text-slate-900">
+                              Telegram Answer: Option {q.correctAnswer}
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      <p className="text-xs text-slate-600 leading-relaxed">
-                        {q.explanation}
-                      </p>
+                        <p className="text-xs text-slate-700 leading-relaxed font-normal">
+                          {q.explanation}
+                        </p>
 
-                      {/* AI Cross-Check Analysis */}
-                      {crossCheck && (
-                        <div className={`p-3 rounded-xl border text-xs space-y-1.5 ${
-                          crossCheck.agreementStatus === "DISAGREED"
-                            ? "bg-amber-50 border-amber-200 text-amber-900"
-                            : "bg-emerald-50 border-emerald-200 text-emerald-900"
-                        }`}>
-                          <div className="flex items-center gap-1.5 font-bold font-['Outfit']">
-                            {crossCheck.agreementStatus === "DISAGREED" ? (
-                              <>
-                                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-                                <span>⚠️ ANSWER CONFLICT: Telegram Answer ({crossCheck.originalAnswer}) vs AI Analysis ({crossCheck.aiAnswer})</span>
-                              </>
-                            ) : (
-                              <>
-                                <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-                                <span>AI Cross-Check Verified ({crossCheck.aiAnswer})</span>
-                              </>
+                        {/* High-Yield FMGE Pearl */}
+                        {enrichment.highYieldPearl && (
+                          <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200/90 text-xs space-y-1 text-amber-950 shadow-2xs">
+                            <div className="flex items-center gap-1.5 font-bold font-['Outfit'] text-amber-900">
+                              <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
+                              <span>💡 FMGE High-Yield Takeaway</span>
+                            </div>
+                            <p className="text-[11px] leading-relaxed text-amber-900/90 font-medium">
+                              {enrichment.highYieldPearl}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Clinical Mnemonic & Memory Hook */}
+                        {enrichment.mnemonic && (
+                          <div className="p-3 rounded-xl bg-purple-50/90 border border-purple-200/90 text-xs space-y-1 text-purple-950 shadow-2xs">
+                            <div className="flex items-center gap-1.5 font-bold font-['Outfit'] text-purple-900">
+                              <Brain className="h-4 w-4 text-purple-600 shrink-0" />
+                              <span>🧠 Clinical Memory Hook & Mnemonic</span>
+                            </div>
+                            <p className="text-[11px] leading-relaxed text-purple-900/90 font-medium">
+                              {enrichment.mnemonic}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* AI Cross-Check Analysis */}
+                        {crossCheck && (
+                          <div className={`p-3 rounded-xl border text-xs space-y-1.5 ${
+                            crossCheck.agreementStatus === "DISAGREED"
+                              ? "bg-amber-50 border-amber-200 text-amber-900"
+                              : "bg-emerald-50 border-emerald-200 text-emerald-900"
+                          }`}>
+                            <div className="flex items-center gap-1.5 font-bold font-['Outfit']">
+                              {crossCheck.agreementStatus === "DISAGREED" ? (
+                                <>
+                                  <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+                                  <span>⚠️ ANSWER CONFLICT: Telegram Answer ({crossCheck.originalAnswer}) vs AI Analysis ({crossCheck.aiAnswer})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                                  <span>AI Cross-Check Verified ({crossCheck.aiAnswer})</span>
+                                </>
+                              )}
+                            </div>
+                            <p className="text-[11px] leading-relaxed opacity-90">{crossCheck.reason}</p>
+                          </div>
+                        )}
+
+                        {distractors && distractors.length > 0 && (
+                          <div className="pt-2 border-t border-slate-200/60">
+                            <button
+                              onClick={() => setExpandedWhyWrong((prev) => ({ ...prev, [q.id]: !isWhyWrongOpen }))}
+                              className="flex items-center gap-1 text-[11px] font-bold font-['Outfit'] text-slate-700 hover:text-slate-950 cursor-pointer"
+                            >
+                              {isWhyWrongOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                              Why Other Options Are Wrong ({distractors.length})
+                            </button>
+
+                            {isWhyWrongOpen && (
+                              <div className="mt-2.5 space-y-2 animate-fadeIn">
+                                {distractors.map((dist: any) => (
+                                  <div key={dist.key} className="p-2.5 rounded-xl bg-white border border-slate-200 text-[11px] shadow-2xs leading-relaxed">
+                                    <strong className="text-slate-900 font-bold font-['Outfit']">Option {dist.key}:</strong>{" "}
+                                    <span className="text-slate-700">{dist.reason}</span>
+                                  </div>
+                                ))}
+                              </div>
                             )}
                           </div>
-                          <p className="text-[11px] leading-relaxed opacity-90">{crossCheck.reason}</p>
-                        </div>
-                      )}
-
-                      {q.whyOtherOptionsAreWrong && q.whyOtherOptionsAreWrong.length > 0 && (
-                        <div className="pt-2 border-t border-slate-200/60">
-                          <button
-                            onClick={() => setExpandedWhyWrong((prev) => ({ ...prev, [q.id]: !isWhyWrongOpen }))}
-                            className="flex items-center gap-1 text-[11px] font-bold font-['Outfit'] text-slate-600 hover:text-slate-900 cursor-pointer"
-                          >
-                            {isWhyWrongOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                            Why Other Options Are Wrong ({q.whyOtherOptionsAreWrong.length})
-                          </button>
-
-                          {isWhyWrongOpen && (
-                            <div className="mt-2 space-y-1.5 animate-fadeIn">
-                              {q.whyOtherOptionsAreWrong.map((dist: any) => (
-                                <div key={dist.key} className="p-2 rounded-xl bg-white border border-slate-200/80 text-[11px]">
-                                  <strong className="text-slate-800">Option {dist.key}:</strong>{" "}
-                                  <span className="text-slate-600">{dist.reason}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               );
             })

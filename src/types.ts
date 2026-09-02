@@ -352,6 +352,7 @@ export interface TelegramMCQ {
   explanation: string;
   whyOtherOptionsAreWrong?: { key: string; reason: string }[];
   highYieldPearl?: string;
+  mnemonic?: string;
   difficulty?: 'standard' | 'high-yield' | 'trap';
   tags: string[];
   questionType?: 'mcq' | 'ibq' | 'video' | 'pearl' | 'poll';

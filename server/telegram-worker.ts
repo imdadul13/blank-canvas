@@ -25,6 +25,7 @@ import {
   mapTelegramAuthError,
 } from "./phone-validation";
 import { generateQrDataUrl } from "./qr-code-generator";
+import { enrichClinicalQuestionServer } from "./clinical-distractor-engine";
 
 const MEDIA_STORAGE_DIR = path.join(process.cwd(), "public", "uploads", "telegram", "media");
 if (!fs.existsSync(MEDIA_STORAGE_DIR)) {
@@ -868,17 +869,22 @@ export function parseClinicalMcq(text: string) {
     correctKey = "A";
   }
 
-  const whyOtherOptionsAreWrong = options
-    .filter((o) => o.key.toUpperCase() !== correctKey.toUpperCase())
-    .map((o) => ({ key: o.key, reason: `Option ${o.key} (${o.text}) is an alternative finding, not the primary presentation.` }));
+  const enrichment = enrichClinicalQuestionServer({
+    stem,
+    options,
+    correctKey,
+  });
 
   return {
     stem,
     options,
     correctKey,
     explanation: explanation || `Option ${correctKey} is the correct high-yield FMGE answer.`,
-    whyOtherOptionsAreWrong,
-    examPearl: `FMGE PEARL: Always verify option (${correctKey}) in acute presentation.`,
+    whyOtherOptionsAreWrong: enrichment.whyOtherOptionsAreWrong,
+    examPearl: enrichment.highYieldPearl,
+    highYieldPearl: enrichment.highYieldPearl,
+    mnemonic: enrichment.mnemonic,
+    memoryHook: enrichment.mnemonic,
     topic: "Clinical High-Yield Recall",
   };
 }
