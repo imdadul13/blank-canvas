@@ -11,7 +11,7 @@
       "memberCount": 25000,
       "isMonitored": true,
       "lastProcessedMessageId": 2004,
-      "lastSyncedAt": "2026-09-03T20:04:34.792Z"
+      "lastSyncedAt": "2026-09-03T20:16:27.890Z"
     },
     {
       "id": "src-1002",
@@ -22,7 +22,7 @@
       "memberCount": 12000,
       "isMonitored": false,
       "lastProcessedMessageId": 9999,
-      "lastSyncedAt": "2026-09-03T20:04:34.484Z"
+      "lastSyncedAt": "2026-09-03T20:16:27.593Z"
     }
   ],
   "messages": [
@@ -31,11 +31,11 @@
       "accountId": "primary",
       "sourceId": "src-1001",
       "telegramMessageId": 2004,
-      "messageDate": "2026-09-03T20:04:34.792Z",
+      "messageDate": "2026-09-03T20:16:27.890Z",
       "rawText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
       "mediaType": "NONE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-03T20:04:34.792Z",
+      "receivedAt": "2026-09-03T20:16:27.890Z",
       "retryCount": 0
     },
     {
@@ -43,11 +43,11 @@
       "accountId": "primary",
       "sourceId": "src-1002",
       "telegramMessageId": 9999,
-      "messageDate": "2026-09-03T20:04:34.483Z",
+      "messageDate": "2026-09-03T20:16:27.593Z",
       "rawText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine is first line.",
       "mediaType": "NONE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-03T20:04:34.483Z",
+      "receivedAt": "2026-09-03T20:16:27.593Z",
       "retryCount": 0
     },
     {
@@ -55,11 +55,11 @@
       "accountId": "primary",
       "sourceId": "src-1001",
       "telegramMessageId": 2003,
-      "messageDate": "2026-09-03T20:04:33.929Z",
+      "messageDate": "2026-09-03T20:16:27.057Z",
       "rawText": "Observe the clinical video showing rhythmic horizontal eye oscillation. Diagnosis?\nA) Horizontal Jerk Nystagmus\nB) Opsoclonus\nC) Ocular flutter\nD) Saccades\nAns: A\nExp: Jerk nystagmus with slow drift.",
       "mediaType": "VIDEO",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-03T20:04:33.929Z",
+      "receivedAt": "2026-09-03T20:16:27.057Z",
       "retryCount": 0
     },
     {
@@ -67,11 +67,11 @@
       "accountId": "primary",
       "sourceId": "src-1001",
       "telegramMessageId": 2002,
-      "messageDate": "2026-09-03T20:04:32.921Z",
+      "messageDate": "2026-09-03T20:16:25.647Z",
       "rawText": "A 45-year-old male presents with epigastric pain radiating to back. CT abdomen is attached. What is the diagnosis?\nA) Acute pancreatitis\nB) Peptic ulcer\nC) Cholecystitis\nD) Appendicitis\nAns: A\nExp: CT demonstrates necrotizing pancreatitis.",
       "mediaType": "IMAGE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-03T20:04:32.921Z",
+      "receivedAt": "2026-09-03T20:16:25.647Z",
       "retryCount": 0
     },
     {
@@ -83,32 +83,32 @@
       "rawText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine (6mg rapid bolus) is the first-line drug of choice for acute termination of stable PSVT.",
       "mediaType": "NONE",
       "status": "PROCESSED",
-      "receivedAt": "2026-09-03T20:04:32.272Z",
+      "receivedAt": "2026-09-03T20:16:25.056Z",
       "retryCount": 0
     }
   ],
   "media": [
     {
-      "id": "med-1788465873648-olku",
+      "id": "med-1788466586392-4z27",
       "messageId": "msg-src-1001-2002",
       "mediaType": "IMAGE",
-      "storageUrl": "/uploads/telegram/media/photo_2002_1788465872921.jpg",
-      "filePath": "/Users/imdadul/Downloads/blank-canvas-github/public/uploads/telegram/media/photo_2002_1788465872921.jpg",
-      "createdAt": "2026-09-03T20:04:33.648Z"
+      "storageUrl": "/uploads/telegram/media/photo_2002_1788466585647.jpg",
+      "filePath": "/Users/imdadul/Downloads/blank-canvas-github/public/uploads/telegram/media/photo_2002_1788466585647.jpg",
+      "createdAt": "2026-09-03T20:16:26.392Z"
     },
     {
-      "id": "med-1788465874176-5uzp",
+      "id": "med-1788466587301-eh3l",
       "messageId": "msg-src-1001-2003",
       "mediaType": "VIDEO",
-      "storageUrl": "/uploads/telegram/media/vid_2003_1788465873929.mp4",
+      "storageUrl": "/uploads/telegram/media/vid_2003_1788466587058.mp4",
       "thumbnailUrl": "https://api.telegram.org/file/bot/photos/nystagmus_thumb.jpg",
-      "filePath": "/Users/imdadul/Downloads/blank-canvas-github/public/uploads/telegram/media/vid_2003_1788465873929.mp4",
-      "createdAt": "2026-09-03T20:04:34.176Z"
+      "filePath": "/Users/imdadul/Downloads/blank-canvas-github/public/uploads/telegram/media/vid_2003_1788466587058.mp4",
+      "createdAt": "2026-09-03T20:16:27.301Z"
     }
   ],
   "questions": [
     {
-      "id": "q-cloud-1788465874481-zq78",
+      "id": "q-cloud-1788466587590-bip1",
       "sourceId": "src-1001",
       "sourceMessageId": "msg-src-1001-2003",
       "subject": "general medicine",
@@ -152,14 +152,14 @@
       ],
       "examPearl": "Identify the primary clinical discriminator to rule out distractor options.",
       "sourceChannel": "Target FMGE High Yield",
-      "videoUrl": "/uploads/telegram/media/vid_2003_1788465873929.mp4",
+      "videoUrl": "/uploads/telegram/media/vid_2003_1788466587058.mp4",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-03T20:04:34.481Z",
+      "createdAt": "2026-09-03T20:16:27.590Z",
       "contentFingerprint": "19bbfabe44931f6b8296ad88cc8c4d5f7577014affea3b385d01712873433129",
       "duplicateSources": []
     },
     {
-      "id": "q-cloud-1788465873927-17p5",
+      "id": "q-cloud-1788466587055-bg53",
       "sourceId": "src-1001",
       "sourceMessageId": "msg-src-1001-2002",
       "subject": "general medicine",
@@ -203,14 +203,14 @@
       ],
       "examPearl": "Identify the primary clinical discriminator to rule out distractor options.",
       "sourceChannel": "Target FMGE High Yield",
-      "imageUrl": "/uploads/telegram/media/photo_2002_1788465872921.jpg",
+      "imageUrl": "/uploads/telegram/media/photo_2002_1788466585647.jpg",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-03T20:04:33.927Z",
+      "createdAt": "2026-09-03T20:16:27.055Z",
       "contentFingerprint": "607ea1c4739d08e29d0a69930f9d8acebcdbfb727ee9ea1e26d91d91a2678a0d",
       "duplicateSources": []
     },
     {
-      "id": "q-cloud-1788465872920-nwgk",
+      "id": "q-cloud-1788466585646-u5m9",
       "sourceId": "src-1001",
       "sourceMessageId": "msg-src-1001-2001",
       "subject": "general medicine",
@@ -255,7 +255,7 @@
       "examPearl": "Identify the primary clinical discriminator to rule out distractor options.",
       "sourceChannel": "Target FMGE High Yield",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-03T20:04:32.920Z",
+      "createdAt": "2026-09-03T20:16:25.646Z",
       "contentFingerprint": "d20b576f32d36dd3eeb9cc73241067c2f29aad07393c8f15bd3270a3a1745d9f",
       "duplicateSources": [
         {
@@ -266,7 +266,7 @@
       ]
     },
     {
-      "id": "q-cloud-1788465874788-6zgv",
+      "id": "q-cloud-1788466587887-5o61",
       "sourceId": "src-1002",
       "sourceMessageId": "msg-src-1002-9999",
       "subject": "general medicine",
@@ -311,78 +311,78 @@
       "examPearl": "Identify the primary clinical discriminator to rule out distractor options.",
       "sourceChannel": "FMGE Clinical Recalls Discussion",
       "difficulty": "high-yield",
-      "createdAt": "2026-09-03T20:04:34.788Z",
+      "createdAt": "2026-09-03T20:16:27.887Z",
       "contentFingerprint": "d20b576f32d36dd3eeb9cc73241067c2f29aad07393c8f15bd3270a3a1745d9f",
       "isDuplicate": true,
-      "duplicateOfQuestionId": "q-cloud-1788465872920-nwgk"
+      "duplicateOfQuestionId": "q-cloud-1788466585646-u5m9"
     }
   ],
   "tips": [],
   "notices": [
     {
-      "id": "not-1788465875100-g7vx",
+      "id": "not-1788466588179-fs68",
       "sourceMessageId": "msg-src-1001-2004",
       "originalText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
       "cleanedText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification announced.",
       "importance": "important",
-      "noticeDate": "2026-09-03T20:04:35.100Z",
+      "noticeDate": "2026-09-03T20:16:28.179Z",
       "sourceChannel": "Target FMGE High Yield",
-      "createdAt": "2026-09-03T20:04:35.100Z"
+      "createdAt": "2026-09-03T20:16:28.179Z"
     }
   ],
   "pearls": [
     {
-      "id": "prl-1788465872921-ir3p",
+      "id": "prl-1788466585646-od4f",
       "sourceMessageId": "msg-src-1001-2001",
-      "questionId": "q-cloud-1788465872920-nwgk",
+      "questionId": "q-cloud-1788466585646-u5m9",
       "title": "Clinical High-Yield Practice — High-Yield Pearl",
       "takeaway": "Identify the primary clinical discriminator to rule out distractor options.",
       "subject": "general medicine",
       "topic": "Clinical High-Yield Practice",
       "isSaved": true,
-      "createdAt": "2026-09-03T20:04:32.921Z"
+      "createdAt": "2026-09-03T20:16:25.646Z"
     }
   ],
   "crossChecks": [
     {
-      "id": "cc-1788465874789-lde3",
-      "questionId": "q-cloud-1788465874788-6zgv",
+      "id": "cc-1788466587887-cq1q",
+      "questionId": "q-cloud-1788466587887-5o61",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Verified clinical concept based on standard FMGE high-yield guidelines.",
       "confidence": 0.98,
-      "verifiedAt": "2026-09-03T20:04:34.789Z"
+      "verifiedAt": "2026-09-03T20:16:27.887Z"
     },
     {
-      "id": "cc-1788465874481-di8b",
-      "questionId": "q-cloud-1788465874481-zq78",
+      "id": "cc-1788466587591-y6sl",
+      "questionId": "q-cloud-1788466587590-bip1",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Verified clinical concept based on standard FMGE high-yield guidelines.",
       "confidence": 0.98,
-      "verifiedAt": "2026-09-03T20:04:34.481Z"
+      "verifiedAt": "2026-09-03T20:16:27.591Z"
     },
     {
-      "id": "cc-1788465873928-9wgq",
-      "questionId": "q-cloud-1788465873927-17p5",
+      "id": "cc-1788466587056-a9fm",
+      "questionId": "q-cloud-1788466587055-bg53",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Verified clinical concept based on standard FMGE high-yield guidelines.",
       "confidence": 0.98,
-      "verifiedAt": "2026-09-03T20:04:33.928Z"
+      "verifiedAt": "2026-09-03T20:16:27.056Z"
     },
     {
-      "id": "cc-1788465872921-ne46",
-      "questionId": "q-cloud-1788465872920-nwgk",
+      "id": "cc-1788466585646-y8rr",
+      "questionId": "q-cloud-1788466585646-u5m9",
       "originalAnswer": "A",
       "aiAnswer": "A",
       "agreementStatus": "AGREED",
       "reason": "Verified clinical concept based on standard FMGE high-yield guidelines.",
       "confidence": 0.98,
-      "verifiedAt": "2026-09-03T20:04:32.921Z"
+      "verifiedAt": "2026-09-03T20:16:25.646Z"
     }
   ],
   "heartbeats": [
@@ -390,11 +390,11 @@
       "id": "hb-cloud-worker-1",
       "workerId": "cloud-worker-1",
       "workerStatus": "ONLINE",
-      "lastHeartbeat": "2026-09-03T20:04:34.790Z",
+      "lastHeartbeat": "2026-09-03T20:16:27.888Z",
       "activeSourcesCount": 1,
       "errorCount": 0,
-      "updatedAt": "2026-09-03T20:04:34.790Z",
-      "lastSuccessfulTelegramUpdate": "2026-09-03T20:04:34.790Z"
+      "updatedAt": "2026-09-03T20:16:27.888Z",
+      "lastSuccessfulTelegramUpdate": "2026-09-03T20:16:27.888Z"
     }
   ],
   "jobs": [],
