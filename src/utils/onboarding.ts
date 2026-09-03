@@ -114,7 +114,7 @@ export function formatExamDate(examDate?: string | null): string {
   if (!examDate) return '—';
   const parsed = parseLocalDate(examDate);
   if (!parsed) return examDate;
-  return parsed.toLocaleDateString(undefined, {
+  return parsed.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
