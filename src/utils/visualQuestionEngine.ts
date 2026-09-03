@@ -11,6 +11,7 @@
 
 import { PracticeSessionQuestion, VisualIntent } from '../types';
 import rawIbqData from '../../data/ibq_bank.json';
+import { validateTopicContentConsistency } from './contentValidator';
 
 export interface RawIBQItem {
   id: string;
@@ -1074,7 +1075,7 @@ export function getVerifiedIBQForTopic(
 
   const allowed = aliasMap[subNorm] || [subNorm];
 
-  // 1. Topic match in VERIFIED_IBQ_BANK
+  // 1. Topic match in VERIFIED_IBQ_BANK with strict validation
   if (topicNorm) {
     const topicKeywords = topicNorm.split(' ').filter(w => w.length > 2);
     const matched = VERIFIED_IBQ_BANK.find(ibq => {
@@ -1087,20 +1088,24 @@ export function getVerifiedIBQForTopic(
       const subMatches = allowed.some(a => ibqSub.includes(a) || a.includes(ibqSub));
       if (!subMatches) return false;
 
-      return topicKeywords.some(kw => ibqTopic.includes(kw) || ibqVignette.includes(kw));
+      const keywordMatched = topicKeywords.some(kw => ibqTopic.includes(kw) || ibqVignette.includes(kw));
+      if (!keywordMatched) return false;
+
+      // Validate against cross-topic contamination (e.g. knee/peroneal in abdomen topic)
+      const valResult = validateTopicContentConsistency(
+        `${ibq.topic} ${ibq.vignette} ${ibq.explanation?.detailedRationale || ''}`,
+        subjectNameOrId,
+        topicNameOrId || ''
+      );
+      return valResult.isValid && !valResult.hasContamination;
     });
 
     if (matched) return matched;
   }
 
-  // 2. Subject-level match from VERIFIED_IBQ_BANK if topic did not match specifically
-  const subjectMatched = VERIFIED_IBQ_BANK.find(ibq => {
-    if (usedIds && usedIds.has(ibq.id)) return false;
-    if (!ibq.options || ibq.options.length < 4) return false;
-    const ibqSub = normalizeText(ibq.subject);
-    return allowed.some(a => ibqSub.includes(a) || a.includes(ibqSub));
-  });
-  return subjectMatched || null;
+  // Strict Rule: NO WRONG IMAGE IS BETTER THAN UNRELATED IMAGE.
+  // Never fall back to an arbitrary subject-level question if the topic did not match specifically.
+  return null;
 }
 
 /**
@@ -1117,6 +1122,8 @@ export function getVerifiedVisualAssetForTopic(
   if (!topicNorm) return null;
 
   const aliasMap: Record<string, string[]> = {
+    anatomy: ['anatomy', 'anat'],
+    anat: ['anatomy', 'anat'],
     cardiology: ['cardiology', 'medicine', 'ecg', 'heart'],
     medicine: ['cardiology', 'pulmonology', 'nephrology', 'gastroenterology', 'neurology', 'medicine'],
     dermatology: ['dermatology', 'derm', 'skin'],
@@ -1143,7 +1150,15 @@ export function getVerifiedVisualAssetForTopic(
     const subMatches = allowed.some(a => ibqSub.includes(a) || a.includes(ibqSub));
     if (!subMatches) return false;
 
-    return topicKeywords.some(kw => ibqTopic.includes(kw) || ibqVignette.includes(kw));
+    const keywordMatched = topicKeywords.some(kw => ibqTopic.includes(kw) || ibqVignette.includes(kw));
+    if (!keywordMatched) return false;
+
+    const valResult = validateTopicContentConsistency(
+      `${ibq.topic} ${ibq.vignette}`,
+      subjectNameOrId,
+      topicNameOrId || ''
+    );
+    return valResult.isValid && !valResult.hasContamination;
   });
 
   if (matchedIbq && matchedIbq.imageSrc) {
@@ -1165,7 +1180,15 @@ export function getVerifiedVisualAssetForTopic(
 
     const normTarget = normalizeText(asset.visualTarget);
     const normTerms = asset.searchTerms.map(t => normalizeText(t)).join(' ');
-    return topicKeywords.some(kw => normTarget.includes(kw) || normTerms.includes(kw));
+    const keywordMatched = topicKeywords.some(kw => normTarget.includes(kw) || normTerms.includes(kw));
+    if (!keywordMatched) return false;
+
+    const valResult = validateTopicContentConsistency(
+      `${asset.visualTarget} ${asset.whatToLookFor} ${asset.keyVisualFinding}`,
+      subjectNameOrId,
+      topicNameOrId || ''
+    );
+    return valResult.isValid && !valResult.hasContamination;
   });
 
   if (assetMatched) {

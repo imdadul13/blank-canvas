@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-02T20:31:25.119Z",
+  "updatedAt": "2026-09-03T20:08:37.870Z",
   "telegram_messages": [
     {
       "id": "raw-tg-1788378352557-yixo5",
@@ -448,12 +448,12 @@
       "category": "High-Yield Clinical Recalls",
       "isActive": true,
       "status": "active",
-      "lastSynced": "02:01 AM",
+      "lastSynced": "01:38 am",
       "lastSyncedMessageId": 10006,
       "itemCount": 3,
       "videoCount": 0,
       "imageCount": 0,
-      "lastSyncedAt": "2026-09-02T20:31:25.118Z"
+      "lastSyncedAt": "2026-09-03T20:08:37.868Z"
     }
   ],
   "telegram_user_sessions": [],
@@ -466,6 +466,6 @@
     "totalTipsCreated": 1,
     "totalNoticesCreated": 1,
     "totalDuplicatesMerged": 1,
-    "lastSyncTimestamp": "2026-09-02T20:31:25.119Z"
+    "lastSyncTimestamp": "2026-09-03T20:08:37.870Z"
   }
 }

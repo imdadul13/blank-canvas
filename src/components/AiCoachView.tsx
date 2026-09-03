@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
-  Sparkles,
+  Stethoscope,
   Send,
   RotateCw,
   Copy,
@@ -30,6 +30,8 @@ import {
   Clock,
   MessageSquare,
   Search,
+  Brain,
+  Award,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
@@ -1184,7 +1186,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold font-display tracking-tight text-slate-900">
-              Study Coach
+              Faculty Mentor
             </h1>
             <p className="text-sm sm:text-base text-slate-500 max-w-2xl leading-relaxed mt-1">
               High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted weak-area remediation.
@@ -1561,100 +1563,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         </div>
       )}
 
-      {/* 3. Conversational Input & Shortcuts */}
-      <div className="rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-sm space-y-4">
-        {/* Image Attachment Preview Badge */}
-        {attachedImage && (
-          <div className="flex items-center gap-3 p-2.5 bg-sky-50 border border-sky-200 rounded-2xl w-fit max-w-full">
-            <img
-              src={attachedImage.previewUrl}
-              alt="Investigation Preview"
-              className="h-12 w-12 object-cover rounded-xl border border-sky-300 shadow-2xs cursor-zoom-in"
-              onClick={() => setActiveModalImage({ isOpen: true, imageUrl: attachedImage.previewUrl, title: attachedImage.fileName })}
-            />
-            <div className="text-xs min-w-0 pr-2">
-              <p className="font-semibold text-slate-800 truncate">{attachedImage.fileName}</p>
-              <p className="text-[10px] text-sky-700 font-medium">Ready for AI Vision diagnostic analysis</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setAttachedImage(null)}
-              className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors cursor-pointer"
-              title="Remove attached image"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
-        <div className="relative flex items-end gap-2 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-900/5 transition-all">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/jpg"
-            className="hidden"
-            onChange={handleImageSelect}
-          />
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className={`flex items-center justify-center h-10 w-10 rounded-xl transition-colors shrink-0 cursor-pointer ${
-              attachedImage
-                ? 'bg-sky-100 text-sky-700 hover:bg-sky-200'
-                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/70'
-            }`}
-            title="Attach Medical Image (ECG, X-Ray, Slide, Clinical Photo)"
-          >
-            <ImageIcon className="h-4 w-4" />
-          </button>
-          <textarea
-            ref={textareaRef}
-            rows={1}
-            value={inputQuery}
-            onChange={handleTextareaInput}
-            onKeyDown={handleKeyDown}
-            placeholder={attachedImage ? "Ask a question about this attached medical image..." : "Ask me anything about your FMGE preparation..."}
-            className="flex-1 bg-transparent border-0 focus:outline-none focus:ring-0 text-sm text-slate-900 placeholder:text-slate-400 resize-none py-2 px-3 min-h-[44px] max-h-[180px] leading-relaxed"
-          />
-          <button
-            type="button"
-            onClick={() => handleSendMessage()}
-            disabled={(!inputQuery.trim() && !attachedImage) || isLoading}
-            className={`flex items-center justify-center h-10 px-4 rounded-xl text-xs font-bold font-['Outfit'] transition-all shrink-0 cursor-pointer ${
-              (inputQuery.trim() || attachedImage) && !isLoading
-                ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-xs active:scale-95'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-            }`}
-          >
-            {isLoading ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                <span>Ask Coach</span>
-                <Send className="h-3.5 w-3.5 ml-1.5" />
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Minimal Quick Action Suggestions */}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <span className="text-xs text-slate-400 font-medium mr-1">Suggestions:</span>
-          {quickActions.map((action, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => handleSendMessage(action.query)}
-              disabled={isLoading}
-              className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-slate-300 rounded-full text-xs font-medium text-slate-700 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95 disabled:opacity-50"
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 4. Conversational Message Stream */}
+      {/* 3. Conversational Message Stream */}
       <div className="space-y-4">
         {messages.map((msg) => (
           <motion.div
@@ -1666,7 +1575,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
           >
             {/* User Bubble */}
             {msg.role === 'user' ? (
-              <div className="max-w-2xl bg-slate-900 text-white rounded-2xl rounded-tr-xs px-5 py-3.5 text-sm shadow-sm leading-relaxed space-y-2.5">
+              <div className="max-w-2xl min-w-0 break-words bg-slate-900 text-white rounded-2xl rounded-tr-xs px-5 py-3.5 text-sm shadow-sm leading-relaxed space-y-2.5">
                 {msg.userAttachedImage && (
                   <div
                     className="relative group rounded-xl overflow-hidden border border-slate-700/80 max-w-xs cursor-zoom-in bg-slate-950 shadow-inner"
@@ -1913,7 +1822,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                                           }
                                           className="px-3 py-1.5 rounded-xl bg-sky-100/80 hover:bg-sky-200 text-sky-900 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                                         >
-                                          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                                          <Eye className="w-3.5 h-3.5 text-teal-600" />
                                           <span>Open Annotated Visual Inspection</span>
                                         </button>
                                       </div>
@@ -1986,17 +1895,118 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             animate={{ opacity: 1 }}
             className="flex items-center gap-3 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-sm w-fit"
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 text-white text-xs font-bold font-['Outfit']">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#006B63] text-white text-xs font-bold font-['Outfit']">
               1S
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <RefreshCw className="h-3.5 w-3.5 animate-spin text-sky-500" />
-              <span>Analyzing high-yield FMGE guidelines...</span>
+            <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+              <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#006B63]" />
+              <span>Consulting National Board clinical faculty standards...</span>
             </div>
           </motion.div>
         )}
 
         <div ref={chatBottomRef} />
+      </div>
+
+      {/* 4. Bottom Docked Search & Chat Input Bar (Clinical Desk Mechanism) */}
+      <div className="sticky bottom-0 z-20 pt-3 pb-2 bg-gradient-to-t from-slate-50 via-slate-50/95 to-transparent space-y-2.5">
+        {/* Image Attachment Preview Badge */}
+        {attachedImage && (
+          <div className="flex items-center gap-3 p-2 bg-teal-50 border border-teal-200 rounded-2xl w-fit max-w-full shadow-2xs animate-fadeIn">
+            <img
+              src={attachedImage.previewUrl}
+              alt="Investigation Preview"
+              className="h-11 w-11 object-cover rounded-xl border border-teal-300 shadow-2xs cursor-zoom-in"
+              onClick={() => setActiveModalImage({ isOpen: true, imageUrl: attachedImage.previewUrl, title: attachedImage.fileName })}
+            />
+            <div className="text-xs min-w-0 pr-2">
+              <p className="font-semibold text-slate-800 truncate max-w-xs">{attachedImage.fileName}</p>
+              <p className="text-[10px] text-teal-800 font-medium">Ready for clinical investigation review</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAttachedImage(null)}
+              className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors cursor-pointer"
+              title="Remove attached image"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Quick Action Suggestion Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+          <span className="text-[11px] text-slate-500 font-semibold shrink-0 flex items-center gap-1 mr-1">
+            <Brain className="h-3.5 w-3.5 text-[#006B63]" />
+            High-Yield:
+          </span>
+          {quickActions.map((action, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleSendMessage(action.query)}
+              disabled={isLoading}
+              className="whitespace-nowrap px-3 py-1 bg-white hover:bg-slate-100 border border-slate-200/90 hover:border-slate-300 rounded-full text-xs font-medium text-slate-700 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95 disabled:opacity-50 shrink-0"
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Main Clinical Prompt & Inquiry Bar */}
+        <div className="relative rounded-3xl border border-slate-300/90 bg-white p-2 sm:p-2.5 shadow-md focus-within:border-[#006B63] focus-within:ring-2 focus-within:ring-[#006B63]/10 transition-all">
+          <div className="flex items-end gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/jpg"
+              className="hidden"
+              onChange={handleImageSelect}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={`flex items-center justify-center h-10 w-10 rounded-2xl transition-colors shrink-0 cursor-pointer ${
+                attachedImage
+                  ? 'bg-teal-100 text-teal-800 hover:bg-teal-200'
+                  : 'text-slate-400 hover:text-slate-800 hover:bg-slate-100'
+              }`}
+              title="Attach Medical Image (ECG, X-Ray, Slide, Histopathology, Clinical Photo)"
+            >
+              <ImageIcon className="h-4 w-4" />
+            </button>
+
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              value={inputQuery}
+              onChange={handleTextareaInput}
+              onKeyDown={handleKeyDown}
+              placeholder={attachedImage ? "Ask a question about this attached medical image..." : "Ask Clinical Faculty Mentor anything (e.g. CKD staging criteria, ECG findings, Drugs of Choice)..."}
+              className="flex-1 bg-transparent border-0 focus:outline-none focus:ring-0 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 resize-none py-2.5 px-2 min-h-[44px] max-h-[160px] leading-relaxed"
+            />
+
+            <button
+              type="button"
+              onClick={() => handleSendMessage()}
+              disabled={(!inputQuery.trim() && !attachedImage) || isLoading}
+              className={`flex items-center justify-center h-10 px-4 rounded-2xl text-xs font-bold font-['Outfit'] transition-all shrink-0 cursor-pointer ${
+                (inputQuery.trim() || attachedImage) && !isLoading
+                  ? 'bg-[#006B63] text-white hover:bg-[#005049] shadow-xs active:scale-95'
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+              }`}
+            >
+              {isLoading ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <span className="hidden sm:inline">Consult</span>
+                  <Send className="h-3.5 w-3.5 sm:ml-1.5" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
       </main>
       </div>

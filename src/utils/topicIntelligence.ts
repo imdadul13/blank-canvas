@@ -269,7 +269,73 @@ export const TOPIC_INTELLIGENCE_REGISTRY: Record<
     ],
     relatedTerms: ['Lachman', 'McMurray', 'fibular neck', 'dorsiflexion', 'plantarflexion', 'gastrocnemius', 'soleus'],
     highYieldKeywords: ['knee', 'peroneal', 'tibial', 'acl', 'pcl', 'meniscus', 'popliteal', 'fibula', 'lachman', 'mcmurray'],
-    negativeKeywords: ['myocardial', 'infarction', 'stemi', 'ecg', 'arrhythmia', 'linezolid', 'preeclampsia', 'parkland'],
+    negativeKeywords: ['myocardial', 'infarction', 'stemi', 'ecg', 'arrhythmia', 'linezolid', 'preeclampsia', 'parkland', 'brachial', 'plexus', 'erb', 'klumpke', 'celiac', 'peritoneum'],
+  },
+
+  'anat-8': {
+    canonicalName: 'Abdomen - Peritoneum, Epiploic Foramen & Celiac Trunk',
+    topicType: 'anatomical_structure',
+    conceptClusters: [
+      'boundaries of Epiploic Foramen of Winslow (anterior: free edge of lesser omentum with portal triad; posterior: IVC; superior: caudate lobe of liver; inferior: 1st part of duodenum)',
+      'Pringle maneuver (compression of hepatoduodenal ligament / portal triad to arrest hepatic bleeding)',
+      'peritoneal recesses and pouches: Morison hepatorenal pouch (most dependent space in supine position, evaluated on FAST ultrasound)',
+      'rectovesical pouch (males) and rectouterine pouch of Douglas (females, culdocentesis for ectopic pregnancy/pelvic fluid)',
+      'celiac trunk (originates at T12 level, branches into Left Gastric, Splenic, and Common Hepatic arteries)',
+      'peptic ulcer arterial erosion: posterior gastric wall ulcer erodes into Splenic Artery; posterior duodenal bulb ulcer erodes into Gastroduodenal Artery',
+      'greater omentum ("policeman of abdomen") and lesser omentum (hepatogastric and hepatoduodenal ligaments)',
+      'peritoneal folds and ligaments (median, medial, and lateral umbilical folds; falciform ligament with ligamentum teres hepatis)',
+    ],
+    synonyms: [
+      'peritoneum and peritoneal cavity',
+      'epiploic foramen of winslow',
+      'celiac trunk anatomy',
+      'morison pouch',
+      'pouch of douglas',
+      'omental bursa',
+      'lesser sac and greater sac',
+      'pringle maneuver',
+      'celiac axis',
+      'gastroduodenal artery ulcer bleed',
+      'splenic artery ulcer bleed',
+    ],
+    relatedTerms: ['Winslow', 'Pringle', 'Morison pouch', 'Douglas pouch', 'hepatoduodenal', 'celiac trunk', 'splenic artery', 'gastroduodenal artery', 'left gastric artery', 'lesser sac'],
+    highYieldKeywords: ['peritoneum', 'celiac', 'epiploic', 'winslow', 'morison', 'douglas', 'pringle', 'omental', 'omenta', 'gastric artery', 'splenic artery', 'gastroduodenal', 'hepatoduodenal', 'lesser sac'],
+    negativeKeywords: [
+      'brachial', 'plexus', 'erb', 'duchenne', 'klumpke', 'waiter tip', 'claw hand', 'wrist drop', 'radial nerve',
+      'ulnar nerve', 'median nerve', 'axillary nerve', 'peroneal', 'knee joint', 'lachman', 'mcmurray', 'foot drop',
+      'myocardial', 'infarction', 'stemi', 'ecg', 'asthma', 'copd', 'parkland',
+    ],
+  },
+
+  'anat-13': {
+    canonicalName: 'Embryology - Pharyngeal Arches, Pouches & Heart Dev',
+    topicType: 'anatomical_structure',
+    conceptClusters: [
+      'Pharyngeal Arch derivatives & cranial nerves: Arch 1 (CN V3 - mastication, Meckel cartilage, malleus, incus); Arch 2 (CN VII - facial expression, Reichert cartilage, stapes, styloid); Arch 3 (CN IX - stylopharyngeus, greater horn of hyoid); Arch 4 (CN X superior laryngeal - cricothyroid, pharyngeal constrictors); Arch 6 (CN X recurrent laryngeal - intrinsic laryngeal muscles except cricothyroid)',
+      'Pharyngeal Pouches: Pouch 1 (auditory tube, middle ear); Pouch 2 (palatine tonsil crypts); Pouch 3 (inferior parathyroids, thymus); Pouch 4 (superior parathyroids, ultimobranchial body / C-cells of thyroid)',
+      'DiGeorge syndrome (22q11 microdeletion: failure of 3rd and 4th pharyngeal pouches -> absent thymus / T-cell deficiency, absent parathyroids / hypocalcemia, conotruncal heart defects)',
+      'Pharyngeal Clefts: Cleft 1 (external acoustic meatus); persistent cleft 2-4 (branchial cleft cyst lateral to sternocleidomastoid)',
+      'Heart Embryology: Truncus arteriosus (ascending aorta & pulmonary trunk via neural crest cell spiraling); Bulbus cordis (smooth outflow tracts RV conus & LV vestibule); Primitive ventricle (trabeculated RV/LV); Primitive atrium (trabeculated RA/LA)',
+      'Sinus venosus: right horn forms smooth part of RA (sinus venarum); left horn forms coronary sinus',
+      'Endocardial cushions: atrial septum primum/secundum, membranous ventricular septum, AV valves (failure -> AV canal defect in Down syndrome)',
+      'Aortic arch derivatives: Arch 1 (maxillary artery); Arch 2 (stapedial artery); Arch 3 (common carotid & proximal ICA); Arch 4 (systemic aortic arch on left, proximal subclavian on right); Arch 6 (pulmonary arteries & ductus arteriosus)',
+    ],
+    synonyms: [
+      'pharyngeal arches',
+      'branchial apparatus',
+      'pharyngeal pouches and clefts',
+      'cardiac embryology',
+      'digeorge syndrome embryology',
+      'truncus arteriosus development',
+      'endocardial cushion defect',
+      'aortic arch derivatives',
+    ],
+    relatedTerms: ['pharyngeal arch', 'pharyngeal pouch', 'pharyngeal cleft', 'truncus arteriosus', 'bulbus cordis', 'sinus venosus', 'endocardial cushion', 'Meckel', 'Reichert', 'DiGeorge', 'neural crest'],
+    highYieldKeywords: ['pharyngeal', 'arch', 'pouch', 'cleft', 'branchial', 'embryology', 'truncus arteriosus', 'bulbus cordis', 'sinus venosus', 'endocardial cushion', 'digeorge', 'meckel', 'reichert', 'aortic arch'],
+    negativeKeywords: [
+      'brachial plexus', 'erb', 'klumpke', 'waiter tip', 'claw hand', 'wrist drop', 'radial nerve',
+      'peroneal', 'knee joint', 'foot drop', 'popliteal', 'inguinal hernia', 'myocardial infarction stemi',
+    ],
   },
 
   // =================== PHYSIOLOGY ===================
@@ -379,6 +445,32 @@ export const TOPIC_INTELLIGENCE_REGISTRY: Record<
     negativeKeywords: ['asthma', 'copd', 'brachial plexus', 'knee joint', 'parkland', 'pritchard'],
   },
 
+  'med-2': {
+    canonicalName: 'Cardiology - Acute Coronary Syndromes (ACS) & Heart Failure',
+    topicType: 'clinical_disease',
+    conceptClusters: [
+      'STEMI vs NSTEMI vs Unstable Angina: full-thickness vs subendocardial ischemia, cardiac biomarkers (Cardiac Troponin I/T is most specific, CK-MB for reinfarction within 48-72h)',
+      'ECG localization: Inferior wall (II, III, aVF - RCA), Anteroseptal (V1-V4 - LAD), Lateral (I, aVL, V5, V6 - LCx), Right Ventricular MI (V3R-V4R - avoid nitrates, give IV normal saline)',
+      'Primary PCI within 90 minutes door-to-balloon time; Thrombolysis (tPA/Tenecteplase) within 30 minutes door-to-needle time if PCI unavailable within 120 mins',
+      'Dual Antiplatelet Therapy (DAPT): Aspirin + P2Y12 inhibitor (Ticagrelor or Prasugrel over Clopidogrel)',
+      'Heart Failure with reduced Ejection Fraction (HFrEF, EF <= 40%): 4 pillars of Guideline-Directed Medical Therapy (GDMT): (1) ARNI/ACEi/ARB, (2) Beta-blocker (Metoprolol succinate, Carvedilol, Bisoprolol), (3) MRA (Spironolactone, Eplerenone), (4) SGLT2 inhibitor (Empagliflozin, Dapagliflozin)',
+      'Killip classification in post-MI heart failure (Class I no rales, Class II crackles <50%, Class III pulmonary edema, Class IV cardiogenic shock)',
+    ],
+    synonyms: [
+      'acute coronary syndrome',
+      'acute coronary syndrome & stemi',
+      'stemi and nstemi',
+      'myocardial infarction',
+      'heart failure gdmt',
+      'troponin ck-mb mi',
+      'inferior wall mi rv infarction',
+      'killip classification',
+    ],
+    relatedTerms: ['stemi', 'nstemi', 'troponin', 'pci', 'rca', 'lad', 'lcx', 'rv infarction', 'dapt', 'aspirin', 'heart failure', 'gdmt', 'spironolactone', 'sglt2i'],
+    highYieldKeywords: ['stemi', 'nstemi', 'infarction', 'coronary', 'troponin', 'pci', 'heart failure', 'killip', 'angina'],
+    negativeKeywords: ['brachial plexus', 'knee joint', 'parkland', 'pritchard', 'organophosphate'],
+  },
+
   'med-4': {
     canonicalName: 'Pulmonology - Asthma (GINA Guidelines), COPD (GOLD Guidelines)',
     topicType: 'clinical_disease',
@@ -419,28 +511,41 @@ export function getNormalizedTopicIntelligence(
   const subjectName = foundSubject?.name || subjectId;
   const resolvedTopicName = topicName || foundSubject?.topics.find(t => t.id === topicId)?.name || topicId;
 
-  // 1. Direct registry lookup by exact ID or biochem/physio alias
+  // 1. Direct registry lookup by exact ID if canonical name or synonyms match resolved topic name
   const exact = TOPIC_INTELLIGENCE_REGISTRY[topicId];
   if (exact) {
-    return {
-      subjectId,
-      subjectName,
-      topicId,
-      canonicalName: exact.canonicalName,
-      topicType: exact.topicType,
-      conceptClusters: exact.conceptClusters,
-      synonyms: exact.synonyms,
-      relatedTerms: exact.relatedTerms,
-      highYieldKeywords: exact.highYieldKeywords,
-      negativeKeywords: exact.negativeKeywords,
-    };
+    const exactLower = exact.canonicalName.toLowerCase();
+    const resolvedLower = resolvedTopicName.toLowerCase();
+    const isTopicMatch =
+      exactLower.includes(resolvedLower) ||
+      resolvedLower.includes(exactLower) ||
+      exact.synonyms.some(s => resolvedLower.includes(s.toLowerCase()) || s.toLowerCase().includes(resolvedLower));
+
+    if (isTopicMatch) {
+      return {
+        subjectId,
+        subjectName,
+        topicId,
+        canonicalName: exact.canonicalName,
+        topicType: exact.topicType,
+        conceptClusters: exact.conceptClusters,
+        synonyms: exact.synonyms,
+        relatedTerms: exact.relatedTerms,
+        highYieldKeywords: exact.highYieldKeywords,
+        negativeKeywords: exact.negativeKeywords,
+      };
+    }
   }
 
   // 2. Lookup by topic name keywords in registry
-  const lowerName = resolvedTopicName.toLowerCase();
+  const lowerName = resolvedTopicName.toLowerCase().trim();
   for (const [key, val] of Object.entries(TOPIC_INTELLIGENCE_REGISTRY)) {
-    const valName = val.canonicalName.toLowerCase();
-    if (valName.includes(lowerName) || lowerName.includes(valName.split(' - ')[1]?.toLowerCase() || valName)) {
+    const valName = val.canonicalName.toLowerCase().trim();
+    // Strict exact match or synonym match
+    if (
+      valName === lowerName ||
+      val.synonyms.some(s => s.toLowerCase().trim() === lowerName)
+    ) {
       return {
         subjectId,
         subjectName,
@@ -476,15 +581,47 @@ export function getNormalizedTopicIntelligence(
       ];
       break;
 
-    case 'anatomical_structure':
-      conceptClusters = [
-        `Anatomical boundaries, fascial compartments, nerve roots & vascular relations in ${resolvedTopicName}`,
-        `Course of peripheral nerves, motor branches, sensory innervation & cutaneous dermatomes`,
-        `Classic nerve entrapment syndromes, traumatic injuries, muscle denervation & postural signs`,
-        `Surgical landmarks, fascial spaces, collateral anastomoses & clinical examination maneuvers`,
-        `FMGE discriminator buzzwords, anatomical relations & classic examiner traps`,
-      ];
+    case 'anatomical_structure': {
+      const lowerT = resolvedTopicName.toLowerCase();
+      const isVisceral = lowerT.includes('abdomen') || lowerT.includes('peritone') || lowerT.includes('celiac') || lowerT.includes('pelvi') || lowerT.includes('hernia') || lowerT.includes('thorax') || lowerT.includes('mediastin') || lowerT.includes('lung') || lowerT.includes('viscera');
+      const isCranial = lowerT.includes('head') || lowerT.includes('neck') || lowerT.includes('cranial') || lowerT.includes('pharyn') || lowerT.includes('laryn') || lowerT.includes('triang');
+      const isEmbryo = lowerT.includes('embryo') || lowerT.includes('arch') || lowerT.includes('pouch') || lowerT.includes('cleft') || lowerT.includes('develop');
+
+      if (isVisceral) {
+        conceptClusters = [
+          `Peritoneal folds, omenta, spaces & dependent fluid accumulation recesses (Morison & Douglas pouches) in ${resolvedTopicName}`,
+          `Visceral arterial trunks, branches, collateral anastomotic arcades & surgical clamping maneuvers`,
+          `High-frequency surgical landmarks, hernia orifices, visceral relations & cross-sectional imaging`,
+          `Vascular erosion in peptic ulceration, visceral ischemia & emergency trauma FAST ultrasound findings`,
+          `FMGE discriminator surgical buzzwords, fascial boundaries & classic examiner traps`,
+        ];
+      } else if (isEmbryo) {
+        conceptClusters = [
+          `Embryological germ layers, pharyngeal apparatus, arches, pouches & cleft derivatives in ${resolvedTopicName}`,
+          `Cranial nerve innervation and skeletal/muscular derivatives of individual embryonic structures`,
+          `Congenital malformations, branchial anomalies, persistent embryonic structures & syndromic associations`,
+          `Cardiovascular development, septation mechanisms, aortic arch derivatives & congenital heart anomalies`,
+          `FMGE embryology discriminator pearls, high-yield timeline milestones & classic exam traps`,
+        ];
+      } else if (isCranial) {
+        conceptClusters = [
+          `Cranial triangles, fascial layers & topographical relations in ${resolvedTopicName}`,
+          `Course of cranial nerves, parasympathetic ganglia, autonomic pathways & foramina of skull base`,
+          `Neurovascular relations, carotid sheath contents, venous sinuses & lymphatic drainage levels`,
+          `Surgical approaches, nerve preservation landmarks & clinical entrapment/palsy signs`,
+          `FMGE head & neck discriminator pearls, cross-sectional landmarks & examiner traps`,
+        ];
+      } else {
+        conceptClusters = [
+          `Anatomical boundaries, fascial compartments, nerve roots & vascular relations in ${resolvedTopicName}`,
+          `Course of peripheral nerves, motor branches, sensory innervation & cutaneous dermatomes`,
+          `Classic nerve entrapment syndromes, traumatic injuries, muscle denervation & postural signs`,
+          `Surgical landmarks, fascial spaces, collateral anastomoses & clinical examination maneuvers`,
+          `FMGE discriminator buzzwords, anatomical relations & classic examiner traps`,
+        ];
+      }
       break;
+    }
 
     case 'physiological_mechanism':
       conceptClusters = [

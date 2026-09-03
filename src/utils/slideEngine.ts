@@ -1,6 +1,7 @@
 import { SlideDeck, VisualSlideItem, NormalizedTopicIntelligence } from '../types';
 import { getNormalizedTopicIntelligence } from './topicIntelligence';
 import { getMedicalTopicKnowledge } from './topicKnowledgeBase';
+import { filterTopicSafeContent } from './contentValidator';
 
 export const VERIFIED_TOPIC_SLIDES: Record<string, VisualSlideItem[]> = {
   // Anatomy - Knee Joint & Nerve Lesions
@@ -803,7 +804,7 @@ export function generateSlideDeck(
 ): SlideDeck {
   const topicIntel: NormalizedTopicIntelligence = getNormalizedTopicIntelligence(subjectId, topicId, topicName);
   const key = topicId;
-  const verifiedSlides = VERIFIED_TOPIC_SLIDES[key] || VERIFIED_TOPIC_SLIDES[`${subjectId}-1`] || [];
+  const verifiedSlides = VERIFIED_TOPIC_SLIDES[key] || [];
 
   if (VERIFIED_TOPIC_SLIDES[key] && VERIFIED_TOPIC_SLIDES[key].length > 0) {
     return {
@@ -887,6 +888,11 @@ export function generateSlideDeck(
       break;
 
     case 'anatomical_structure':
+      // Region-aware slide generation: only limb/nerve topics feature characteristic
+      // peripheral-nerve posture examples; abdomen/embryology/thorax/pelvis/head-neck
+      // topics must never receive cross-regional nerve-lesion content.
+      const isNeuromuscularRegion =
+        /upper limb|lower limb|knee|brachial|plexus|nerve|peroneal|tibial|radial|ulnar|median|femoral|hand|foot/i.test(topicIntel.canonicalName);
       dynamicSlides.push(
         {
           id: `slide-${topicId}-1`,
@@ -906,7 +912,7 @@ export function generateSlideDeck(
           id: `slide-${topicId}-2`,
           slideNumber: 2,
           title: 'Innervation, Blood Supply & Functional Mechanics',
-          subtitle: 'Peripheral Distribution & Dermatomes',
+          subtitle: 'Regional Distribution & Autonomous Zones',
           category: 'anatomy_patho',
           bullets: [
             'Motor branches: Muscle innervation and classic functional deficits.',
@@ -918,15 +924,23 @@ export function generateSlideDeck(
         {
           id: `slide-${topicId}-3`,
           slideNumber: 3,
-          title: 'Clinical Lesions, Nerve Entrapments & Surgical Traps',
-          subtitle: 'High-Yield Postures & Signs',
+          title: isNeuromuscularRegion ? 'Clinical Lesions, Nerve Entrapments & Surgical Traps' : 'Regional Clinical Correlations & Surgical Traps',
+          subtitle: isNeuromuscularRegion ? 'High-Yield Postures & Signs' : 'Topographical Correlates',
           category: 'exam_traps',
-          bullets: [
-            'Characteristic clinical deformities (e.g. wrist drop, claw hand, foot drop, winged scapula).',
-            'Surgical neck, shaft, and joint fracture associations.',
-            'Entrapment points across fibro-osseous canals.',
-          ],
-          examTrapWarning: 'Always evaluate proximal vs distal nerve lesions; distal lesions exhibit paradoxical worsening of deformities.',
+          bullets: isNeuromuscularRegion
+            ? [
+                'Characteristic clinical deformities (e.g. wrist drop, claw hand, foot drop, winged scapula).',
+                'Surgical neck, shaft, and joint fracture associations.',
+                'Entrapment points across fibro-osseous canals.',
+              ]
+            : [
+                'Peritoneal/visceral relations, spaces, and their clinical relevance.',
+                'Surgical approaches and high-yield access routes.',
+                'Vascular territories and their pathological sequelae.',
+              ],
+          ...(isNeuromuscularRegion
+            ? { examTrapWarning: 'Always evaluate proximal vs distal nerve lesions; distal lesions exhibit paradoxical worsening of deformities.' }
+            : { examTrapWarning: 'Map the regional anatomy to its applied surgical and pathological correlations for FMGE.' }),
         }
       );
       break;
@@ -1035,11 +1049,16 @@ export function generateSlideDeck(
     }
   }
 
+  // Shared topic-contamination validation boundary: drop any slide whose content carries
+  // cross-topic/regional-anatomy contamination for the ACTIVE topic before it reaches the UI.
+  const topicNameForValidation = topicName || topicIntel.canonicalName;
+  const safeSlides = filterTopicSafeContent(dynamicSlides, subjectId, topicId, topicNameForValidation, (s) => `${s.title} ${s.subtitle} ${(s.bullets || []).join(' ')} ${(s.keyTakeaways || []).join(' ')} ${s.examTrapWarning || ''}`, topicIntel.topicType);
+
   return {
     topicId,
     topicName: topicIntel.canonicalName,
     subjectId,
     subjectName: topicIntel.subjectName,
-    slides: dynamicSlides,
+    slides: safeSlides,
   };
 }

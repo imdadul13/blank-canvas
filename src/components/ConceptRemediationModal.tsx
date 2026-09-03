@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
-  Sparkles,
+  RotateCcw,
   BookOpen,
   Layers,
   Award,
@@ -131,19 +132,20 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm overflow-y-auto">
+  return createPortal(
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm overflow-y-auto">
+      <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        className="bg-white border border-slate-200/80 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl text-slate-900 flex flex-col max-h-[92vh]"
+        className="bg-white border border-slate-200/80 rounded-3xl w-full my-auto max-w-3xl overflow-hidden shadow-2xl text-slate-900 flex flex-col max-h-[92vh]"
       >
         {/* ================= MODAL HEADER ================= */}
         <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-2xl bg-sky-50 border border-sky-200 text-sky-700 flex items-center justify-center font-bold">
-              <Sparkles className="h-5 w-5" />
+              <RotateCcw className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -202,7 +204,7 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
                 : 'text-slate-500 hover:text-slate-900 hover:bg-white'
             }`}
           >
-            <Sparkles className="h-3.5 w-3.5" />
+            <Layers className="h-3.5 w-3.5" />
             <span>Flashcards ({flashcards.length})</span>
           </button>
 
@@ -232,7 +234,7 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
         </div>
 
         {/* ================= BODY CONTENT ================= */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4">
+        <div className="p-5 sm:p-6 overflow-y-auto flex-1 min-h-0 space-y-4">
           {/* TAB 1: QUICK EXPLANATION */}
           {activeTab === 'explanation' && (
             <div className="space-y-4">
@@ -635,7 +637,7 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
         {/* ================= MODAL FOOTER ================= */}
         <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3 shrink-0">
           <div className="text-xs text-slate-500 flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-sky-500" />
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
             <span>Remediating concept gaps permanently eliminates recurring exam mistakes.</span>
           </div>
 
@@ -647,6 +649,8 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
           </button>
         </div>
       </motion.div>
-    </div>
+      </div>
+    </div>,
+    document.body
   );
 };

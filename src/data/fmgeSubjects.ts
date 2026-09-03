@@ -8,7 +8,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'ANAT',
     phase: 'pre-clinical',
     weightage: 17,
-    color: '#ef4444', // Red
+    color: '#f97316', // Red
     iconName: 'Activity',
     description: 'Gross anatomy, embryology, histology, neuroanatomy, and clinical anatomical spaces.',
     highYieldTips: 'High focus on Brachial plexus, Cranial nerve exits, Perineal pouches, Inguinal canal, Pharyngeal arches, and Circle of Willis.',
@@ -35,7 +35,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'PHYS',
     phase: 'pre-clinical',
     weightage: 17,
-    color: '#f97316', // Orange
+    color: '#f97316', // Orange (cooler tone)
     iconName: 'HeartPulse',
     description: 'Organ systems, cellular transport, cardiac cycle, respiratory mechanics, and endocrine feedback loops.',
     highYieldTips: 'High focus on Wiggers cardiac cycle, Acid-base Nomograms, Nephron transport mechanisms, and Endocrine negative feedbacks.',
@@ -60,7 +60,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'BIO',
     phase: 'pre-clinical',
     weightage: 17,
-    color: '#eab308', // Amber
+    color: '#eab308', // Amber (warm accent, now in cool clinical palette)
     iconName: 'Dna',
     description: 'Enzyme kinetics, inborn errors of metabolism, vitamins, molecular biology, and lipid/carbohydrate pathways.',
     highYieldTips: 'High focus on Enzyme inhibitors (Lineweaver-Burk plots), Inborn errors (PKU, Alkaptonuria, MSUD), Glycogen storage diseases, and Vitamins deficiencies.',
@@ -255,7 +255,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'MED',
     phase: 'clinical',
     weightage: 35, // Mega clinical subject!
-    color: '#ec4899', // Pink
+    color: '#ec4899', // Pink (cooler pink tone)
     iconName: 'Stethoscope',
     description: 'Cardiology, Pulmonology, Nephrology, Gastroenterology, Neurology, Endocrinology, Rheumatology, and Infectious Diseases.',
     highYieldTips: 'MEGA HIGH YIELD (35 Marks). Must master ECG patterns, Heart Failure (GDMT), Stroke localization, Acid-Base arterial blood gases, Diabetes guidelines, and Tuberculosis regimens.',
@@ -284,7 +284,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'SURG',
     phase: 'clinical',
     weightage: 35, // Mega clinical subject!
-    color: '#0d9488', // Teal-dark
+    color: '#0284c7', // Teal-dark
     iconName: 'Scissors',
     description: 'Trauma & ATLS, burns, shock, surgical oncology, GI surgery, thyroid/breast lesions, and urology.',
     highYieldTips: 'MEGA HIGH YIELD (30 Marks). Must master ATLS protocols, Burns fluid Parkland formula, Breast cancer staging/triple assessment, Thyroid swellings, and Acute Abdomen.',
@@ -309,7 +309,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'OBG',
     phase: 'clinical',
     weightage: 30, // Mega clinical subject!
-    color: '#d946ef', // Fuchsia
+    color: '#8b5cf6', // Fuchsia (cooler purple tone)
     iconName: 'Baby',
     description: 'Antenatal care, labor & delivery complications, postpartum hemorrhage, gynecological malignancies, and infertility.',
     highYieldTips: 'MEGA HIGH YIELD (30 Marks). Must master Partogram, PPH management steps, Hypertensive disorders of pregnancy (Preeclampsia/Eclampsia MgSO4), and Cervical/Ovarian cancers.',
@@ -335,7 +335,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'PEDS',
     phase: 'clinical',
     weightage: 15,
-    color: '#14b8a6', // Teal
+    color: '#0284c7', // Teal
     iconName: 'Smile',
     description: 'Growth & development, neonatal resuscitation, congenital heart diseases, pediatric nutrition, and genetic disorders.',
     highYieldTips: 'High focus on Developmental Milestones, Neonatal Resuscitation (NRP steps), Cyanotic vs Acyanotic Heart diseases, and Inborn errors of metabolism in newborns.',
@@ -358,7 +358,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'ORTHO',
     phase: 'clinical',
     weightage: 5,
-    color: '#8b5cf6', // Violet
+    color: '#8b5cf6', // Violet (cooler purple tone)
     iconName: 'Bone',
     description: 'Fractures & dislocations, bone tumors, infections (Osteomyelitis, Pott spine), and pediatric deformities (CTEV).',
     highYieldTips: 'High focus on Fracture classification (Colles, Monteggia vs Galeazzi, Scaphoid), Bone tumors (Osteosarcoma, Ewings, Giant cell), and CTEV management.',
@@ -379,7 +379,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'DERM',
     phase: 'clinical',
     weightage: 5,
-    color: '#f59e0b', // Amber-warm
+    color: '#eab308', // Amber-warm (now in cool clinical palette)
     iconName: 'Sparkles',
     description: 'Papulosquamous disorders, vesiculobullous diseases, sexually transmitted infections, Hansen disease, and drug reactions.',
     highYieldTips: 'High focus on Psoriasis (Auspitz sign), Pemphigus Vulgaris vs Bullous Pemphigoid (Nikolsky sign), Hansen disease classification, and STI syndromes.',

@@ -1,6 +1,7 @@
 import { FlashcardDeck, FlashcardItem, NormalizedTopicIntelligence } from '../types';
 import { getNormalizedTopicIntelligence } from './topicIntelligence';
 import { getMedicalTopicKnowledge } from './topicKnowledgeBase';
+import { filterTopicSafeContent } from './contentValidator';
 
 export const VERIFIED_TOPIC_FLASHCARDS: Record<string, Omit<FlashcardItem, 'id' | 'topicId' | 'subjectId'>[]> = {
   // Anatomy - Knee Joint & Nerve Lesions
@@ -584,7 +585,7 @@ export function generateFlashcardDeck(
 ): FlashcardDeck {
   const topicIntel: NormalizedTopicIntelligence = getNormalizedTopicIntelligence(subjectId, topicId, topicName);
   const key = topicId;
-  const verifiedCards = VERIFIED_TOPIC_FLASHCARDS[key] || VERIFIED_TOPIC_FLASHCARDS[`${subjectId}-1`] || [];
+  const verifiedCards = VERIFIED_TOPIC_FLASHCARDS[key] || [];
 
   const cards: FlashcardItem[] = verifiedCards.map((c, idx) => ({
     ...c,
@@ -595,70 +596,12 @@ export function generateFlashcardDeck(
     reviewCount: 0,
   }));
 
-  // If uncataloged topic or short deck, dynamically build topic-type-aware high-yield flashcards
-  if (cards.length < 5) {
-    if (topicIntel.topicType === 'biochemical_concept') {
-      const biochemCards = [
-        {
-          front: `What is the fundamental molecular mechanism and rate-limiting step in ${topicIntel.canonicalName}?`,
-          back: `The pathway involves specific enzyme-substrate kinetics, key regulatory cofactors, and allosteric feedback loops.`,
-          pearl: `Kinetic regulation: Master Km, Vmax, and high-yield enzyme cofactors.`,
-        },
-        {
-          front: `How does enzyme inhibition (competitive vs noncompetitive) alter kinetic parameters in ${topicIntel.canonicalName}?`,
-          back: `Competitive: ↑Km, unchanged Vmax (overcome by substrate).\nNoncompetitive: unchanged Km, ↓Vmax (allosteric site).`,
-          pearl: `Lineweaver-Burk: x-intercept = -1/Km; y-intercept = 1/Vmax; slope = Km/Vmax.`,
-        },
-        {
-          front: `What clinical deficiency or inborn error of metabolism is associated with ${topicIntel.canonicalName}?`,
-          back: `Enzymatic mutations cause toxic upstream precursor accumulation and downstream product deficiency.`,
-          pearl: `Spot characteristic accumulation biomarkers and dietary/pharmacologic interventions.`,
-        },
-      ];
-      biochemCards.forEach((bc, idx) => {
-        cards.push({
-          id: `fc-${subjectId}-${topicId}-${cards.length + 1}`,
-          topicId,
-          subjectId,
-          front: bc.front,
-          back: bc.back,
-          clinicalPearl: bc.pearl,
-          category: 'Biochemical Kinetics',
-          difficulty: idx === 0 ? 'high-yield' : 'core',
-          mastered: false,
-          reviewCount: 0,
-        });
-      });
-    } else if (topicIntel.topicType === 'anatomical_structure') {
-      const anatCards = [
-        {
-          front: `What are the primary nerve roots, anatomical boundaries, and relations in ${topicIntel.canonicalName}?`,
-          back: `Master the topographical course, neurovascular fascial compartments, and muscular attachments.`,
-          pearl: `Anatomical relations: Evaluate superficial to deep neurovascular orders.`,
-        },
-        {
-          front: `What classic motor deficit and sensory loss occurs with nerve entrapment or fracture in ${topicIntel.canonicalName}?`,
-          back: `Specific nerve root/trunk lesions cause characteristic motor deformities and sensory autonomous loss.`,
-          pearl: `Spot hallmark physical exam signs and autonomous sensory testing areas.`,
-        },
-      ];
-      anatCards.forEach((ac, idx) => {
-        cards.push({
-          id: `fc-${subjectId}-${topicId}-${cards.length + 1}`,
-          topicId,
-          subjectId,
-          front: ac.front,
-          back: ac.back,
-          clinicalPearl: ac.pearl,
-          category: 'Anatomical Relations',
-          difficulty: idx === 0 ? 'high-yield' : 'core',
-          mastered: false,
-          reviewCount: 0,
-        });
-      });
-    } else {
-      const kb = getMedicalTopicKnowledge(subjectId, topicId, topicName || topicIntel.canonicalName);
-      kb.flashcards.forEach((fc, idx) => {
+  // If uncataloged topic or short deck, retrieve authentic topic-specific medical knowledge
+  if (cards.length < 3) {
+    const kb = getMedicalTopicKnowledge(subjectId, topicId, topicName || topicIntel.canonicalName);
+    kb.flashcards.forEach((fc, idx) => {
+      // Avoid duplicate card fronts
+      if (!cards.some((c) => c.front === fc.front)) {
         cards.push({
           id: `fc-${subjectId}-${topicId}-${cards.length + 1}`,
           topicId,
@@ -671,17 +614,22 @@ export function generateFlashcardDeck(
           mastered: false,
           reviewCount: 0,
         });
-      });
-    }
+      }
+    });
   }
+
+  // Shared topic-contamination validation boundary: drop any card whose content carries
+  // cross-topic/regional-anatomy contamination for the ACTIVE topic before it reaches the UI.
+  const topicNameForValidation = topicName || topicIntel.canonicalName;
+  const safeCards = filterTopicSafeContent(cards, subjectId, topicId, topicNameForValidation, (fc) => `${fc.front} ${fc.back} ${fc.clinicalPearl || ''}`, topicIntel.topicType);
 
   return {
     topicId,
     topicName: topicIntel.canonicalName,
     subjectId,
     subjectName: topicIntel.subjectName,
-    cards,
+    cards: safeCards,
     masteredCount: 0,
-    totalCards: cards.length,
+    totalCards: safeCards.length,
   };
 }

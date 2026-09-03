@@ -3,7 +3,6 @@ import {
   BarChart3,
   TrendingUp,
   RotateCcw,
-  Sparkles,
   CheckCircle2,
   Clock,
   BookOpen,
@@ -133,7 +132,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   }, [subjectAnalytics, selectedDiscipline]);
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-8 font-['Plus_Jakarta_Sans'] text-slate-900">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-8 text-slate-900">
       {/* Header */}
       <header className="space-y-2">
         <div className="flex items-center gap-2">
@@ -160,19 +159,32 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">
               Exam Preparedness
             </span>
-            <ShieldCheck className="h-4 w-4 text-sky-600" />
+            <ShieldCheck className="h-4 w-4 text-[#00685f]" />
           </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-['Outfit'] text-3xl font-extrabold text-slate-900">
-              {globalMetrics.overallPreparedness}%
-            </span>
-            <span className="text-xs text-slate-400">Index</span>
-          </div>
-          <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
-            <div
-              className="h-full bg-sky-600 rounded-full transition-all duration-500"
-              style={{ width: `${globalMetrics.overallPreparedness}%` }}
-            />
+          <div className="flex items-center justify-center py-1">
+            <div className="relative inline-flex items-center justify-center">
+              <svg width="88" height="88" viewBox="0 0 88 88" className="-rotate-90">
+                <circle cx="44" cy="44" r="37" fill="none" stroke="#ece5db" strokeWidth="8" />
+                <circle
+                  cx="44"
+                  cy="44"
+                  r="37"
+                  fill="none"
+                  stroke="#00685f"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 37}
+                  strokeDashoffset={2 * Math.PI * 37 * (1 - globalMetrics.overallPreparedness / 100)}
+                  style={{ transition: 'stroke-dashoffset 0.6s cubic-bezier(0.22,1,0.36,1)' }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="font-['Outfit'] text-xl font-extrabold text-slate-900 leading-none">
+                  {globalMetrics.overallPreparedness}%
+                </span>
+                <span className="text-[9px] text-slate-400 mt-0.5 font-mono">INDEX</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -182,7 +194,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">
               Notes Completed
             </span>
-            <BookOpen className="h-4 w-4 text-emerald-600" />
+            <BookOpen className="h-4 w-4 text-[#2c694e]" />
           </div>
           <div className="flex items-baseline gap-1.5">
             <span className="font-['Outfit'] text-3xl font-extrabold text-slate-900">
@@ -194,7 +206,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           </div>
           <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
             <div
-              className="h-full bg-emerald-600 rounded-full transition-all duration-500"
+              className="h-full bg-[#2c694e] rounded-full transition-all duration-500"
               style={{ width: `${globalMetrics.syllabusCoverage}%` }}
             />
           </div>
@@ -206,7 +218,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">
               QBank Drilled
             </span>
-            <HelpCircle className="h-4 w-4 text-purple-600" />
+            <HelpCircle className="h-4 w-4 text-[#008378]" />
           </div>
           <div className="flex items-baseline gap-1.5">
             <span className="font-['Outfit'] text-3xl font-extrabold text-slate-900">
@@ -218,7 +230,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           </div>
           <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
             <div
-              className="h-full bg-purple-600 rounded-full transition-all duration-500"
+              className="h-full bg-[#008378] rounded-full transition-all duration-500"
               style={{ width: `${globalMetrics.qBankPenetration}%` }}
             />
           </div>
@@ -230,7 +242,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">
               R1 Spaced Recall
             </span>
-            <RotateCcw className="h-4 w-4 text-indigo-600" />
+            <span className="h-4 w-4 text-[#594d41]" />
           </div>
           <div className="flex items-baseline gap-1.5">
             <span className="font-['Outfit'] text-3xl font-extrabold text-slate-900">
@@ -242,7 +254,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           </div>
           <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
             <div
-              className="h-full bg-indigo-600 rounded-full transition-all duration-500"
+              className="h-full bg-[#594d41] rounded-full transition-all duration-500"
               style={{ width: `${globalMetrics.revisionDepth}%` }}
             />
           </div>
@@ -285,7 +297,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               {/* Left Subject Info */}
               <div className="space-y-1 sm:w-1/3 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-sky-600 font-mono">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#00685f] font-mono">
                     {sub.weightage} MARKS · {sub.disciplineType.toUpperCase()}
                   </span>
                 </div>
@@ -305,7 +317,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                     <span className="font-bold text-slate-700">{sub.notesPct}%</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${sub.notesPct}%` }} />
+                    <div className="h-full bg-[#2c694e] rounded-full" style={{ width: `${sub.notesPct}%` }} />
                   </div>
                 </div>
 
@@ -315,7 +327,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                     <span className="font-bold text-slate-700">{sub.qBankPct}%</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full bg-purple-500 rounded-full" style={{ width: `${sub.qBankPct}%` }} />
+                    <div className="h-full bg-[#2c694e] rounded-full" style={{ width: `${sub.qBankPct}%` }} />
                   </div>
                 </div>
 
@@ -325,7 +337,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                     <span className="font-bold text-slate-700">{sub.r1Pct}%</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${sub.r1Pct}%` }} />
+                    <div className="h-full bg-[#594d41] rounded-full" style={{ width: `${sub.r1Pct}%` }} />
                   </div>
                 </div>
               </div>

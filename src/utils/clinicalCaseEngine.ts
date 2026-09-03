@@ -2,6 +2,7 @@ import { ClinicalCaseItem, TopicClinicalCasesDeck, TopicLearningContext } from '
 import { getTopicLearningContext } from './topicIntelligence';
 import { shuffleQuestionOptions } from './practiceSessionEngine';
 import { getMedicalTopicKnowledge } from './topicKnowledgeBase';
+import { filterTopicSafeContent } from './contentValidator';
 
 export const VERIFIED_TOPIC_CLINICAL_CASES: Record<string, Array<Omit<ClinicalCaseItem, 'id' | 'options' | 'correctOptionId' | 'correctAnswer'> & { options: Array<{ key: string; text: string; isCorrect: boolean }> }>> = {
   // Anatomy - Knee Joint & Nerve Lesions
@@ -491,7 +492,7 @@ export function generateTopicClinicalCasesDeck(
   topicName?: string
 ): TopicClinicalCasesDeck {
   const context: TopicLearningContext = getTopicLearningContext(subjectId, topicId, topicName);
-  const verifiedList = VERIFIED_TOPIC_CLINICAL_CASES[topicId] || VERIFIED_TOPIC_CLINICAL_CASES[`${subjectId}-1`] || [];
+  const verifiedList = VERIFIED_TOPIC_CLINICAL_CASES[topicId] || [];
 
   let cases: ClinicalCaseItem[] = [];
 
@@ -561,12 +562,16 @@ export function generateTopicClinicalCasesDeck(
     });
   }
 
+  // Shared topic-contamination validation boundary: drop any case whose content carries
+  // cross-topic/regional-anatomy contamination for the ACTIVE topic before it reaches the UI.
+  const safeCases = filterTopicSafeContent(cases, subjectId, topicId, context.topicName, (c) => `${c.title} ${c.patientDemographics} ${c.presentation} ${c.physicalExamOrLabs} ${c.diagnosticQuestion} ${c.clinicalExplanation} ${c.examPearl} ${(c.options || []).map((o) => o.text).join(' ')}`, context.topicType);
+
   return {
     topicId: context.topicId,
     topicName: context.topicName,
     subjectId: context.subjectId,
     subjectName: context.subjectName,
-    cases,
+    cases: safeCases,
   };
 }
 

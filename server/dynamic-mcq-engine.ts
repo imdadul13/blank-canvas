@@ -185,9 +185,22 @@ function cleanQueryString(raw: string): string {
  */
 export function classifyTopicAndSubject(
   rawQuery: string,
-  history: Array<{ role: string; content: string }> = []
+  history: Array<{ role: string; content: string }> = [],
+  activeContext?: { subject?: string; topic?: string }
 ): { subject: string; topic: string } {
   const lower = rawQuery.toLowerCase();
+
+  // The ACTIVE explicit topic context is AUTHORITATIVE whenever a caller is inside a
+  // topic-specific workflow. Old conversation history must never override the current
+  // subject/topic/session context, so history inference is skipped entirely when an
+  // explicit context is provided.
+  if (activeContext && (activeContext.subject || activeContext.topic)) {
+    return {
+      subject: activeContext.subject || 'General Medicine',
+      topic: activeContext.topic || rawQuery || 'Clinical Topic',
+    };
+  }
+
   const isGenericNext =
     lower.includes('another mcq') ||
     lower.includes('another question') ||

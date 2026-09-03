@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Play } from 'lucide-react';
+import { Play, HelpCircle } from 'lucide-react';
 import { AppState, ErrorNotebookItem, DailyTask } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
-import { TelegramHubView } from './TelegramHubView';
 
 interface PracticeViewProps {
   state: AppState;
@@ -18,146 +17,99 @@ interface PracticeViewProps {
   onAddTask?: (task: DailyTask) => void;
 }
 
-type PracticeSubTab = 'drills' | 'telegram';
-
 export const PracticeView: React.FC<PracticeViewProps> = ({
   state,
   onLaunchPracticeSession,
-  onAddErrorItem,
-  onOpenAiCoach,
-  onUpdateAppState,
-  onAddTask,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<PracticeSubTab>('drills');
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('medicine');
 
   const selectedSubject = FMGE_SUBJECTS.find((s) => s.id === selectedSubjectId) || FMGE_SUBJECTS[0];
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-8 font-sans text-slate-900">
+    <div className="page-container space-y-8 font-['Inter'] text-[#121e1b]">
       {/* ================= EDITORIAL HEADER ================= */}
       <header className="space-y-2">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <span className="font-mono text-xs font-semibold uppercase tracking-wider text-[#66716F]">
             HIGH-YIELD PRACTICE INSTRUMENTS
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-mono font-medium">
-            EXAM READY
+          <span className="px-2.5 py-0.5 rounded-full bg-[#006B63] text-white text-[10px] font-mono font-medium">
+            10-MCQ ADAPTIVE DRILLS
           </span>
         </div>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold font-display tracking-tight text-slate-900">
-          Questions &amp; Practice Drills
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold font-['Newsreader'] tracking-tight text-[#121e1b]">
+          Clinical Vignettes &amp; Practice Drills
         </h1>
-        <p className="text-sm sm:text-base text-slate-500 max-w-2xl leading-relaxed">
-          10-MCQ clinical vignette drills with instant distractor breakdowns, 300-question full-length grand tests, and community questions.
+        <p className="text-sm sm:text-base text-[#3d4947] max-w-2xl leading-relaxed">
+          10-MCQ clinical vignette drills with instant distractor breakdowns, active recall testing, and concept remediation.
         </p>
       </header>
 
-      {/* ================= SUBTAB PILLS ================= */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1 border-b border-slate-200/80 pb-4">
-        {[
-          { id: 'drills', label: '10-MCQ Clinical Drills', count: null },
-          { id: 'telegram', label: 'Live Community Feed', count: null },
-        ].map((tab) => {
-          const isActive = activeSubTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveSubTab(tab.id as any)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold font-display transition-all cursor-pointer whitespace-nowrap border ${
-                isActive
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                  : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border-slate-200'
-              }`}
-            >
-              <span>{tab.label}</span>
-              {tab.count !== null && (
-                <span className={`ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'}`}>
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      {/* ================= SUBJECT FILTER PILLS ================= */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
+          {FMGE_SUBJECTS.map((sub) => {
+            const isSelected = sub.id === selectedSubjectId;
+            return (
+              <button
+                key={sub.id}
+                type="button"
+                onClick={() => setSelectedSubjectId(sub.id)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer border ${
+                  isSelected
+                    ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs'
+                    : 'bg-white hover:bg-[#F7F9F8] text-[#3d4947] hover:text-[#121e1b] border-[#DCE4E1]'
+                }`}
+              >
+                <span>{sub.name}</span>
+                <span className="ml-1 text-[10px] font-mono opacity-75">({sub.weightage}M)</span>
+              </button>
+            );
+          })}
+        </div>
 
-      {/* ================= VIEW 1: TOPIC 10-MCQ DRILLS ================= */}
-      {activeSubTab === 'drills' && (
-        <div className="space-y-6">
-          {/* Subject Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
-            {FMGE_SUBJECTS.map((sub) => {
-              const isSelected = sub.id === selectedSubjectId;
-              return (
-                <button
-                  key={sub.id}
-                  type="button"
-                  onClick={() => setSelectedSubjectId(sub.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold font-display shrink-0 transition-all cursor-pointer border ${
-                    isSelected
-                      ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                      : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border-slate-200'
-                  }`}
-                >
-                  <span>{sub.name}</span>
-                  <span className="ml-1 text-[10px] font-mono opacity-70">({sub.weightage}M)</span>
-                </button>
-              );
-            })}
+        {/* Topics Card Container */}
+        <div className="clinical-card p-6 sm:p-8 space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-[#F5F7F8] text-xs font-semibold uppercase tracking-wider text-[#66716F] font-mono">
+            <span>{selectedSubject.name} High-Yield Modules</span>
+            <span>10-MCQ Clinical Drill</span>
           </div>
 
-          {/* Topics Card Container */}
-          <div className="editorial-surface p-6 sm:p-8 space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
-              <span>{selectedSubject.name} High-Yield Modules</span>
-              <span>10-MCQ Adaptive Drill</span>
-            </div>
-
-            <div className="divide-y divide-slate-100">
-              {selectedSubject.topics.map((topic) => (
-                <div
-                  key={topic.id}
-                  className="py-4 px-2 flex items-center justify-between gap-4 hover:bg-slate-50/80 rounded-2xl transition-all group"
-                >
-                  <div className="min-w-0 pr-4 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold font-display text-slate-900 group-hover:text-sky-900 transition-colors">
-                        {topic.name}
+          <div className="divide-y divide-[#F5F7F8]">
+            {selectedSubject.topics.map((topic) => (
+              <div
+                key={topic.id}
+                className="py-4 px-2 flex items-center justify-between gap-4 hover:bg-[#F7F9F8] rounded-lg transition-all group"
+              >
+                <div className="min-w-0 pr-4 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold font-['Newsreader'] text-[#121e1b] group-hover:text-[#006B63] transition-colors">
+                      {topic.name}
+                    </span>
+                    {topic.isHighYield && (
+                      <span className="px-2 py-0.5 rounded-full bg-[#F5F7F8] text-[#006B63] text-[9px] font-mono font-semibold uppercase">
+                        HIGH YIELD
                       </span>
-                      {topic.isHighYield && (
-                        <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[9px] font-mono font-semibold uppercase">
-                          HIGH YIELD
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-500">
-                      Standard FMGE clinical vignette distribution · 10 questions with distractor analysis
-                    </p>
+                    )}
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => onLaunchPracticeSession(selectedSubject.id, topic.id, topic.name)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-all cursor-pointer shrink-0 shadow-xs hover:shadow-md"
-                  >
-                    <Play className="h-3 w-3 fill-current" />
-                    <span>Start 10-MCQs</span>
-                  </button>
+                  <p className="text-xs text-[#66716F]">
+                    Standard FMGE clinical vignette distribution · 10 questions with distractor analysis
+                  </p>
                 </div>
-              ))}
-            </div>
+
+                <button
+                  type="button"
+                  onClick={() => onLaunchPracticeSession(selectedSubject.id, topic.id, topic.name)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#006B63] hover:bg-[#005049] text-white text-xs font-semibold transition-all cursor-pointer shrink-0 shadow-xs hover:shadow-sm"
+                >
+                  <Play className="h-3 w-3 fill-current" />
+                  <span>Start 10-MCQs</span>
+                </button>
+              </div>
+            ))}
           </div>
         </div>
-      )}
-
-      {/* ================= VIEW 2: TELEGRAM HUB ================= */}
-      {activeSubTab === 'telegram' && (
-        <TelegramHubView
-          onAddToErrorNotebook={onAddErrorItem}
-          onUpdateAppState={onUpdateAppState}
-        />
-      )}
+      </div>
     </div>
   );
 };

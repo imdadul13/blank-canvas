@@ -1,4 +1,5 @@
 import React from 'react';
+import { sanitizeLatexAndMath } from '../utils/textFormatting';
 
 interface MarkdownRendererProps {
   content: string;
@@ -8,10 +9,14 @@ interface MarkdownRendererProps {
 /**
  * High-performance, robust Markdown Renderer for FMGE AI Coach.
  * Accurately parses headings, bullet lists, numbered lists, tables, callouts, and paragraphs line-by-line.
+ * Automatically sanitizes LaTeX math notation ($\ge$, $\rightarrow$, $m^2$) into clean Unicode symbols.
  * Uses bulletproof loop advancement to strictly prevent any infinite rendering freeze on streaming or malformed AI output.
  */
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className = '' }) => {
   if (!content) return null;
+
+  // Clean raw LaTeX formatting, math notation and special characters
+  const cleanContent = sanitizeLatexAndMath(content);
 
   // Helper for inline tokens: bold (**text**), italic (*text*), code (`code`)
   const formatInline = (text: string): React.ReactNode[] => {
@@ -62,8 +67,8 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
     return tokens.length > 0 ? tokens : [text];
   };
 
-  // Split content into lines and group into structured blocks
-  const rawLines = content.split('\n');
+  // Split sanitized content into lines and group into structured blocks
+  const rawLines = cleanContent.split('\n');
   const blocks: React.ReactNode[] = [];
   let i = 0;
 
@@ -131,7 +136,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
           );
         } else if (tableLines.length === 1) {
           blocks.push(
-            <p key={`p-${blocks.length}`} className="text-sm leading-relaxed text-slate-700">
+            <p key={`p-${blocks.length}`} className="text-sm leading-relaxed text-slate-700 break-words">
               {formatInline(tableLines[0])}
             </p>
           );
@@ -273,7 +278,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
 
       if (paragraphLines.length > 0) {
         blocks.push(
-          <p key={`p-${blocks.length}`} className="w-full text-sm leading-relaxed text-slate-700 my-2">
+          <p key={`p-${blocks.length}`} className="w-full text-sm leading-relaxed text-slate-700 my-2 break-words">
             {formatInline(paragraphLines.join(' '))}
           </p>
         );
@@ -282,7 +287,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
       // Strict guaranteed advancement: if no block handler advanced the index, increment i by 1
       if (i === startIndex) {
         blocks.push(
-          <p key={`p-fallback-${blocks.length}`} className="w-full text-sm leading-relaxed text-slate-700 my-1">
+          <p key={`p-fallback-${blocks.length}`} className="w-full text-sm leading-relaxed text-slate-700 my-1 break-words">
             {formatInline(trimmed)}
           </p>
         );
@@ -299,7 +304,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
     console.warn('Markdown parsing fallback activated:', err);
     return (
       <div className={`w-full max-w-none text-slate-800 space-y-2 font-['Plus_Jakarta_Sans'] ${className}`}>
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{content}</p>
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 break-words">{content}</p>
       </div>
     );
   }

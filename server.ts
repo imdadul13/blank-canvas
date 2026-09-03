@@ -69,15 +69,15 @@ async function startServer() {
         },
       })
     );
-  }
 
-  // SPA fallback for HTML5 client routing (works in both dev and prod)
-  app.get("*", (req, res) => {
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
-    res.sendFile(path.join(distPath, "index.html"));
-  });
+    // SPA fallback for HTML5 client routing in production
+    app.get("*", (req, res) => {
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+  }
 
   const server = app.listen(PORT, HOST, () => {
     console.log(`[Server] ONE SHOT FMGE running on http://${HOST}:${PORT} (${process.env.NODE_ENV || "development"})`);

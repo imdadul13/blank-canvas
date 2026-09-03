@@ -1,6 +1,7 @@
 import { TopicHighYieldPearl, TopicLearningContext } from '../types';
 import { getTopicLearningContext } from './topicIntelligence';
 import { getMedicalTopicKnowledge } from './topicKnowledgeBase';
+import { filterTopicSafeContent } from './contentValidator';
 
 export const VERIFIED_TOPIC_PEARLS: Record<string, TopicHighYieldPearl[]> = {
   // Anatomy - Knee Joint & Nerve Lesions
@@ -428,15 +429,19 @@ export function generateTopicPearls(
   topicName?: string
 ): TopicHighYieldPearl[] {
   const context: TopicLearningContext = getTopicLearningContext(subjectId, topicId, topicName);
-  const verified = VERIFIED_TOPIC_PEARLS[topicId] || VERIFIED_TOPIC_PEARLS[`${subjectId}-1`] || [];
+  const verified = VERIFIED_TOPIC_PEARLS[topicId] || [];
+
+  // Shared topic-contamination validation boundary applied to every generated pearl deck.
+  const safe = (pearls: TopicHighYieldPearl[]): TopicHighYieldPearl[] =>
+    filterTopicSafeContent(pearls, subjectId, topicId, context.topicName, (p) => `${p.statement} ${p.discriminatorTip || ''} ${p.examTrapWarning || ''}`, context.topicType);
 
   if (VERIFIED_TOPIC_PEARLS[topicId] && VERIFIED_TOPIC_PEARLS[topicId].length > 0) {
-    return VERIFIED_TOPIC_PEARLS[topicId];
+    return safe(VERIFIED_TOPIC_PEARLS[topicId]);
   }
 
   // Dynamic topic-type-aware pearls for uncataloged topics
   if (context.topicType === 'biochemical_concept') {
-    return [
+    return safe([
       {
         id: `pearl-${topicId}-1`,
         topicId,
@@ -467,11 +472,11 @@ export function generateTopicPearls(
         statement: `Kinetic Regulation: ${context.conceptClusters[0] || 'Enzymatic rate-limiting steps'} govern metabolic pathway flow.`,
         category: 'Metabolic Regulation',
       },
-    ];
+    ]);
   }
 
   if (context.topicType === 'anatomical_structure') {
-    return [
+    return safe([
       {
         id: `pearl-${topicId}-1`,
         topicId,
@@ -495,11 +500,11 @@ export function generateTopicPearls(
         statement: `Surgical Spaces: ${context.conceptClusters[0] || 'Anatomical fascial compartments'} dictate surgical approaches and infection spread.`,
         category: 'Surgical Anatomy',
       },
-    ];
+    ]);
   }
 
   if (context.topicType === 'pharmacological_class') {
-    return [
+    return safe([
       {
         id: `pearl-${topicId}-1`,
         topicId,
@@ -516,11 +521,11 @@ export function generateTopicPearls(
         category: 'Contraindications',
         examTrapWarning: `Specific toxicity reversal antidotes are top-priority exam questions.`,
       },
-    ];
+    ]);
   }
 
   const kb = getMedicalTopicKnowledge(subjectId, topicId, context.topicName);
-  return [
+  return safe([
     {
       id: `pearl-${topicId}-1`,
       topicId,
@@ -545,6 +550,6 @@ export function generateTopicPearls(
       category: 'Management & Pearls',
       discriminatorTip: kb.keyTakeaways[1] || kb.goldStandardTest,
     },
-  ];
+  ]);
 }
 

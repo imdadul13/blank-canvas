@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Play,
@@ -9,12 +10,17 @@ import {
   ArrowRight,
   ExternalLink,
   ZoomIn,
-  Sparkles,
   BookOpen,
   Brain,
   CheckCircle2,
   Stethoscope,
   Activity,
+  AlertCircle,
+  Layers,
+  Table,
+  Zap,
+  RefreshCw,
+  Eye,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import {
@@ -34,6 +40,7 @@ import { fetchTopicVideoRecommendations, getCuratedVideosForTopic } from '../uti
 import { getNormalizedTopicIntelligence } from '../utils/topicIntelligence';
 import { getVerifiedVisualAssetForTopic } from '../utils/visualQuestionEngine';
 import { calculateTopicPerformanceMetrics } from '../utils/performanceEngine';
+import { getMedicalTopicKnowledge } from '../utils/topicKnowledgeBase';
 import { MedicalImageViewerModal } from './MedicalImageViewerModal';
 
 interface TopicMasteryWorkspaceProps {
@@ -58,13 +65,64 @@ interface TopicMasteryWorkspaceProps {
 type StepType = 'learn' | 'recall' | 'apply' | 'test' | 'review' | 'master';
 
 const STEPS: { id: StepType; label: string; num: string; desc: string }[] = [
-  { id: 'learn', label: 'Learn', num: '01', desc: 'Core Concepts & Video' },
+  { id: 'learn', label: 'Rapid Revision', num: '01', desc: 'Core Synthesis & Master Grid' },
   { id: 'recall', label: 'Recall', num: '02', desc: 'Active Flashcards' },
   { id: 'apply', label: 'Apply', num: '03', desc: 'Clinical Cases & IBQ' },
   { id: 'test', label: 'Test', num: '04', desc: '10-MCQ Diagnostic Drill' },
   { id: 'review', label: 'Review', num: '05', desc: 'Mistakes & Traps' },
   { id: 'master', label: 'Master', num: '06', desc: 'Pearls & Retention' },
 ];
+
+/**
+ * Safe fallback component for steps where verified topic content is unavailable.
+ */
+const ContentUnavailableCard: React.FC<{
+  title?: string;
+  message?: string;
+  actionLabel?: string;
+  onAction?: () => void;
+  secondaryActionLabel?: string;
+  onSecondaryAction?: () => void;
+}> = ({
+  title = 'Content Unavailable for this Topic',
+  message = 'To uphold strict medical exam integrity, unverified or cross-topic content has been withheld for this specific topic.',
+  actionLabel,
+  onAction,
+  secondaryActionLabel,
+  onSecondaryAction,
+}) => (
+  <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/90 text-center space-y-4 my-4">
+    <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-700">
+      <AlertCircle className="h-6 w-6" />
+    </div>
+    <div className="space-y-1.5 max-w-md mx-auto">
+      <h3 className="text-base font-semibold font-display text-slate-900">{title}</h3>
+      <p className="text-xs text-slate-600 leading-relaxed">{message}</p>
+    </div>
+    {(actionLabel || secondaryActionLabel) && (
+      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+        {actionLabel && onAction && (
+          <button
+            type="button"
+            onClick={onAction}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer"
+          >
+            {actionLabel}
+          </button>
+        )}
+        {secondaryActionLabel && onSecondaryAction && (
+          <button
+            type="button"
+            onClick={onSecondaryAction}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold font-display transition-colors cursor-pointer"
+          >
+            {secondaryActionLabel}
+          </button>
+        )}
+      </div>
+    )}
+  </div>
+);
 
 export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
   subjectId,
@@ -77,11 +135,25 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
   onOpenAiCoach,
 }) => {
   const topicStateKey = `${subjectId}-${topicId}`;
+  // Authoritative active-topic identity used to discard stale async responses when the
+  // user switches topics before a request resolves.
+  const activeTopicKeyRef = useRef<string>(`${subjectId}::${topicId}`);
   const currentTopicState = state.topicsState?.[topicStateKey] || {};
   const topicMetrics = useMemo(
     () => calculateTopicPerformanceMetrics(subjectId, topicId, state.mcqAttempts || []),
     [subjectId, topicId, state.mcqAttempts]
   );
+
+  // Verified base topic knowledge
+  const baseKnowledge = useMemo(
+    () => getMedicalTopicKnowledge(subjectId, topicId, topicName),
+    [subjectId, topicId, topicName]
+  );
+
+  // Gemini AI Live Deepening State
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiMasteryData, setAiMasteryData] = useState<any | null>(null);
+  const [aiStatus, setAiStatus] = useState<string | null>(null);
 
   const initialStep: StepType = useMemo(() => {
     if (topicMetrics.totalAttempts >= 10 && topicMetrics.accuracy >= 80 && currentTopicState.r1Done) {
@@ -98,19 +170,76 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
 
   const [activeStep, setActiveStep] = useState<StepType>(initialStep);
 
-  // Step 1: Learn
+  // Step 1: Rapid Revision & Slides
   const [videos, setVideos] = useState<EducationalVideo[]>([]);
-  const [slideDeck] = useState<SlideDeck>(() => generateSlideDeck(subjectId, topicId, topicName));
+  const slideDeck = useMemo<SlideDeck>(() => generateSlideDeck(subjectId, topicId, topicName), [subjectId, topicId, topicName]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
-  // Step 2: Recall
-  const [flashcardDeck] = useState<FlashcardDeck>(() => generateFlashcardDeck(subjectId, topicId, topicName));
+  // Step 2: Recall (Flashcards)
+  const baseFlashcardDeck = useMemo<FlashcardDeck>(() => generateFlashcardDeck(subjectId, topicId, topicName), [subjectId, topicId, topicName]);
+  const flashcardDeck = useMemo<FlashcardDeck>(() => {
+    if (aiMasteryData?.flashcards && Array.isArray(aiMasteryData.flashcards) && aiMasteryData.flashcards.length > 0) {
+      return {
+        topicId,
+        topicName,
+        subjectId,
+        subjectName: subjectId,
+        cards: aiMasteryData.flashcards.map((fc: any, idx: number) => ({
+          id: `ai-fc-${subjectId}-${topicId}-${idx + 1}`,
+          topicId,
+          subjectId,
+          front: fc.front || 'Question',
+          back: fc.back || 'Answer',
+          clinicalPearl: fc.clinicalPearl,
+          category: 'Gemini AI Rapid Recall',
+          difficulty: 'high-yield',
+          mastered: false,
+          reviewCount: 0,
+        })),
+        masteredCount: 0,
+        totalCards: aiMasteryData.flashcards.length,
+      };
+    }
+    return baseFlashcardDeck;
+  }, [aiMasteryData, baseFlashcardDeck, subjectId, topicId, topicName]);
+
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [knownCardIds, setKnownCardIds] = useState<Set<string>>(new Set());
+  const [showAllFlashcardsGrid, setShowAllFlashcardsGrid] = useState(false);
 
-  // Step 3: Apply
-  const [casesDeck] = useState<TopicClinicalCasesDeck>(() => generateTopicClinicalCasesDeck(subjectId, topicId, topicName));
+  // Step 3: Apply (Clinical Cases)
+  const baseCasesDeck = useMemo<TopicClinicalCasesDeck>(() => generateTopicClinicalCasesDeck(subjectId, topicId, topicName), [subjectId, topicId, topicName]);
+  const casesDeck = useMemo<TopicClinicalCasesDeck>(() => {
+    if (aiMasteryData?.clinicalCases && Array.isArray(aiMasteryData.clinicalCases) && aiMasteryData.clinicalCases.length > 0) {
+      return {
+        topicId,
+        topicName,
+        subjectId,
+        subjectName: subjectId,
+        cases: aiMasteryData.clinicalCases.map((c: any, idx: number) => ({
+          id: `ai-case-${subjectId}-${topicId}-${idx + 1}`,
+          caseNumber: idx + 1,
+          title: c.title || `Clinical Vignette ${idx + 1}`,
+          patientDemographics: c.patientDemographics || 'Patient presentation',
+          presentation: c.presentation || '',
+          physicalExamOrLabs: c.physicalExamOrLabs || '',
+          diagnosticQuestion: c.diagnosticQuestion || 'What is the most likely diagnosis or next best step?',
+          options: (c.options || []).map((o: any, oIdx: number) => ({
+            key: o.key || ['A', 'B', 'C', 'D'][oIdx] || 'A',
+            text: o.text || '',
+            isCorrect: !!o.isCorrect,
+          })),
+          correctAnswer: (c.options || []).find((o: any) => o.isCorrect)?.key || 'A',
+          clinicalExplanation: c.clinicalExplanation || 'Evidence-based clinical guideline reasoning.',
+          examPearl: c.examPearl || '',
+          focusArea: 'Gemini AI High-Yield Vignette',
+        })),
+      };
+    }
+    return baseCasesDeck;
+  }, [aiMasteryData, baseCasesDeck, subjectId, topicId, topicName]);
+
   const [currentCaseIndex, setCurrentCaseIndex] = useState(0);
   const [selectedCaseOption, setSelectedCaseOption] = useState<string | null>(null);
   const [isCaseSubmitted, setIsCaseSubmitted] = useState(false);
@@ -118,11 +247,84 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
   const [zoomImage, setZoomImage] = useState<string | null>(null);
 
   // Step 6: Pearls & Mnemonics
-  const pearls: TopicHighYieldPearl[] = useMemo(
+  const basePearls: TopicHighYieldPearl[] = useMemo(
     () => generateTopicPearls(subjectId, topicId, topicName),
     [subjectId, topicId, topicName]
   );
-  const topicIntel = useMemo(() => getNormalizedTopicIntelligence(subjectId, topicId, topicName), [subjectId, topicId, topicName]);
+  const pearls = useMemo<TopicHighYieldPearl[]>(() => {
+    if (aiMasteryData?.pearls && Array.isArray(aiMasteryData.pearls) && aiMasteryData.pearls.length > 0) {
+      return aiMasteryData.pearls.map((p: any, idx: number) => ({
+        id: `ai-pearl-${subjectId}-${topicId}-${idx + 1}`,
+        topicId,
+        subjectId,
+        statement: p.statement || p.pearl || '',
+        category: 'Gemini AI Memory Hook',
+        discriminatorTip: p.discriminatorTip,
+        examTrapWarning: p.examTrapWarning || p.trap,
+      }));
+    }
+    return basePearls;
+  }, [aiMasteryData, basePearls, subjectId, topicId, topicName]);
+
+  // Reset indices and interactive states on topic switch
+  useEffect(() => {
+    activeTopicKeyRef.current = `${subjectId}::${topicId}`;
+    setCurrentSlideIndex(0);
+    setCurrentCardIndex(0);
+    setIsCardFlipped(false);
+    setCurrentCaseIndex(0);
+    setSelectedCaseOption(null);
+    setIsCaseSubmitted(false);
+    setAiMasteryData(null);
+    setAiStatus(null);
+    setShowAllFlashcardsGrid(false);
+  }, [subjectId, topicId, topicName]);
+
+  // Fetch AI Live Deepening Pack
+  // The authoritative topic identity for THIS request is captured at call time so a
+  // late-arriving response from a previously-active topic can never render inside a
+  // different topic (stale-response / race-condition protection).
+  const fetchGeminiMastery = async () => {
+    const requestTopicKey = `${subjectId}::${topicId}`;
+    setIsAiLoading(true);
+    setAiStatus('Connecting to Gemini AI for live medical deepening...');
+    try {
+      const res = await fetch('/api/study/topic-mastery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subjectId, topicId, topicName }),
+      });
+      const result = await res.json();
+      if (activeTopicKeyRef.current !== requestTopicKey) {
+        return;
+      }
+      if (result.success && result.data) {
+        setAiMasteryData(result.data);
+        setAiStatus('✨ Live Gemini AI rapid revision master pack loaded!');
+        confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+      } else {
+        setAiStatus('Loaded verified NBE blueprint knowledge base.');
+      }
+    } catch {
+      if (activeTopicKeyRef.current !== requestTopicKey) {
+        return;
+      }
+      setAiStatus('Serving verified NBE blueprint knowledge base.');
+    } finally {
+      if (activeTopicKeyRef.current === requestTopicKey) {
+        setIsAiLoading(false);
+      }
+    }
+  };
+
+  // Keep the active 6-step stage visible on small screens by auto-scrolling its
+  // button into view along the horizontal roadmap rail (overflow-x-auto above).
+  const stageRailRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const rail = stageRailRef.current;
+    const active = rail?.querySelector<HTMLButtonElement>(`[data-step="${activeStep}"]`);
+    active?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, [activeStep]);
 
   useEffect(() => {
     let isMounted = true;
@@ -133,7 +335,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
         topicName,
         subjectName: subjectId,
         subjectCode: subjectId.slice(0, 3).toUpperCase(),
-        subjectColor: '#0f172a',
+        subjectColor: 'var(--color-slate-900)',
         isHighYield: true,
         weightage: 15,
         accuracy: topicMetrics.accuracy,
@@ -173,46 +375,106 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
   };
 
   const handleMarkMastered = () => {
+    const alreadyMastered = currentTopicState.notesDone && currentTopicState.qBankDone && currentTopicState.r1Done;
+    if (alreadyMastered) return;
     onToggleTopicState(subjectId, topicId, 'notesDone');
     onToggleTopicState(subjectId, topicId, 'qBankDone');
     onToggleTopicState(subjectId, topicId, 'r1Done');
     confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
   };
 
-  return (
-    <div className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto font-sans text-slate-900">
-      <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200/90 overflow-hidden">
+  // High-Yield Active Data (AI enriched or Base verified)
+  const activeSummary = aiMasteryData?.highYieldSummary || baseKnowledge.highYieldSummary;
+  const activeCoreConcepts = aiMasteryData?.coreConcepts || baseKnowledge.coreConcepts;
+  const activeGoldStandard = aiMasteryData?.goldStandardTest || baseKnowledge.goldStandardTest;
+  const activeFirstLine = aiMasteryData?.firstLineTreatment || baseKnowledge.firstLineTreatment;
+  const activeClassicPresentation = aiMasteryData?.classicPresentation || baseKnowledge.classicPresentation;
+  const activeTriads = aiMasteryData?.diagnosticTriads;
+  const activeExamTrap = aiMasteryData?.examTrap || baseKnowledge.examTrap;
+  const activeRevisionTable = aiMasteryData?.rapidRevisionTable;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-xs overflow-y-auto font-sans text-slate-900">
+      <div className="flex min-h-full items-center justify-center p-2 sm:p-4 md:p-6">
+      <div className="bg-white rounded-3xl max-w-5xl w-full my-auto max-h-[94vh] flex flex-col shadow-2xl border border-slate-200/90 overflow-hidden">
         {/* ================= EDITORIAL TEXTBOOK HEADER ================= */}
-        <header className="p-6 sm:p-8 border-b border-slate-100 flex items-start justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
+        <header className="p-5 sm:p-7 border-b border-slate-100 flex flex-col sm:flex-row sm:items-start justify-between gap-4 bg-gradient-to-r from-slate-50 via-white to-slate-50">
+          <div className="space-y-1.5 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono text-xs font-semibold uppercase tracking-wider text-slate-400">
                 {subjectId.toUpperCase()} · NBE BLUEPRINT
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-mono font-medium">
-                HIGH YIELD
+              <span className="px-2.5 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-mono font-medium flex items-center gap-1">
+                <Zap className="h-3 w-3 text-amber-400 fill-current" />
+                RAPID REVISION HUB
               </span>
+              {aiMasteryData && (
+                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono font-semibold flex items-center gap-1">
+                  <CheckCircle2 className="h-2.5 w-2.5" />
+                  HIGH-YIELD SYNTHESIS ACTIVE
+                </span>
+              )}
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold font-display tracking-tight text-slate-900">
+            <h2 className="text-2xl sm:text-3xl font-semibold font-display tracking-tight text-slate-900 truncate">
               {topicName}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 max-w-xl">
-              6-step structured mastery journey: Core synthesis, active recall, clinical vignette reasoning, and exam trap analysis.
+            <p className="text-xs sm:text-sm text-slate-500">
+              High-yield FMGE board core synthesis, active flashcard recall, clinical vignette reasoning, and rapid revision grids.
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-start">
+            {/* Live Deepening Button */}
+            <button
+              type="button"
+              onClick={fetchGeminiMastery}
+              disabled={isAiLoading}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 text-xs font-semibold font-display transition-all cursor-pointer shadow-xs disabled:opacity-50"
+              title="Enhance this topic with high-yield clinical intelligence"
+            >
+              {isAiLoading ? (
+                <>
+                  <RefreshCw className="h-3.5 w-3.5 animate-spin text-indigo-600" />
+                  <span>Synthesizing...</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="h-3.5 w-3.5 text-indigo-600" />
+                  <span>{aiMasteryData ? 'Refresh Clinical Pack' : '⚡ Deepen High-Yield Pack'}</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 text-slate-400 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </header>
 
+        {/* Status Notification Pill */}
+        {aiStatus && (
+          <div className="px-6 py-2 bg-indigo-50/70 border-b border-indigo-100 text-xs text-indigo-800 font-medium flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Zap className="h-3 w-3 text-indigo-600" />
+              {aiStatus}
+            </span>
+            <button
+              type="button"
+              onClick={() => setAiStatus(null)}
+              className="text-indigo-400 hover:text-indigo-700 text-[11px] cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {/* ================= 6-STEP ROADMAP RAIL ================= */}
-        <div className="bg-slate-50 border-b border-slate-100 px-6 sm:px-8 py-3 overflow-x-auto scrollbar-none">
-          <div className="flex items-center justify-between min-w-[560px] gap-2">
+        <div ref={stageRailRef} className="bg-slate-50 border-b border-slate-100 px-4 sm:px-8 py-2.5 overflow-x-auto scrollbar-none">
+          <div className="flex items-center justify-start min-w-max gap-2">
             {STEPS.map((step, idx) => {
               const isActive = activeStep === step.id;
               const isPast = STEPS.findIndex((s) => s.id === activeStep) > idx;
@@ -221,6 +483,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 <button
                   key={step.id}
                   type="button"
+                  data-step={step.id}
                   onClick={() => setActiveStep(step.id)}
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold font-display transition-all cursor-pointer ${
                     isActive
@@ -240,15 +503,145 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
         </div>
 
         {/* ================= STEP CONTENT CANVAS ================= */}
-        <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-8">
-          {/* ================= STEP 1: LEARN ================= */}
+        <div className="p-5 sm:p-8 overflow-y-auto flex-1 min-h-0 space-y-8">
+          {/* ================= STEP 1: RAPID REVISION & HIGH YIELD CORE ================= */}
           {activeStep === 'learn' && (
             <div className="space-y-8">
-              {/* 1. Video Explanation */}
+              {/* 1. HIGH YIELD RAPID REVISION MASTER CARD */}
+              <div className="p-6 sm:p-7 rounded-3xl bg-slate-50 border border-slate-200/90 shadow-xs space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-200/70 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-xl bg-slate-900 text-white">
+                      <Zap className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <h3 className="text-base font-semibold font-display text-slate-900">
+                        Rapid Revision Clinical Blueprint
+                      </h3>
+                      <p className="text-xs text-slate-500">Board-tested discriminators, gold-standard tests, and DOC</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono uppercase font-semibold text-slate-400 bg-white px-2.5 py-1 rounded-full border border-slate-200">
+                    FMGE High Yield
+                  </span>
+                </div>
+
+                {/* High-Yield Clinical Summary */}
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-400">
+                    High-Yield Pathophysiology & Core Mechanism
+                  </span>
+                  <p className="text-sm text-slate-800 leading-relaxed font-medium">
+                    {activeSummary}
+                  </p>
+                </div>
+
+                {/* Clinical Discriminator 2x2 Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Hallmark Presentation / Triad */}
+                  <div className="p-4 rounded-2xl bg-white border border-slate-200/80 space-y-1">
+                    <span className="text-xs font-semibold font-display text-sky-800 flex items-center gap-1.5">
+                      <Stethoscope className="h-3.5 w-3.5 text-sky-600" />
+                      Hallmark Presentation & Triad
+                    </span>
+                    <p className="text-xs text-slate-700 font-normal leading-relaxed">
+                      {activeTriads ? `🎯 ${activeTriads} • ` : ''}{activeClassicPresentation}
+                    </p>
+                  </div>
+
+                  {/* Gold-Standard Investigation */}
+                  <div className="p-4 rounded-2xl bg-white border border-slate-200/80 space-y-1">
+                    <span className="text-xs font-semibold font-display text-indigo-800 flex items-center gap-1.5">
+                      <Activity className="h-3.5 w-3.5 text-indigo-600" />
+                      Investigation of Choice (IOC) / Gold Standard
+                    </span>
+                    <p className="text-xs text-slate-700 font-normal leading-relaxed">
+                      🔬 {activeGoldStandard}
+                    </p>
+                  </div>
+
+                  {/* First-Line Management / DOC */}
+                  <div className="p-4 rounded-2xl bg-white border border-slate-200/80 space-y-1">
+                    <span className="text-xs font-semibold font-display text-emerald-800 flex items-center gap-1.5">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                      First-Line Management / Drug of Choice (DOC)
+                    </span>
+                    <p className="text-xs text-slate-700 font-normal leading-relaxed">
+                      💊 {activeFirstLine}
+                    </p>
+                  </div>
+
+                  {/* Exam Trap Warning */}
+                  <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200/80 space-y-1">
+                    <span className="text-xs font-semibold font-display text-rose-800 flex items-center gap-1.5">
+                      <AlertCircle className="h-3.5 w-3.5 text-rose-600" />
+                      FMGE Board Trap & Lookalike Distractor
+                    </span>
+                    <p className="text-xs text-rose-900 font-normal leading-relaxed">
+                      ⚠️ {activeExamTrap}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Core Concept Takeaways */}
+                {activeCoreConcepts && activeCoreConcepts.length > 0 && (
+                  <div className="pt-2 border-t border-slate-200/70 space-y-2">
+                    <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-400">
+                      Essential Board High-Yield Takeaways
+                    </span>
+                    <ul className="space-y-1.5 text-xs text-slate-700">
+                      {activeCoreConcepts.map((concept: string, idx: number) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="h-1.5 w-1.5 rounded-full bg-slate-900 mt-1.5 shrink-0" />
+                          <span>{concept}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* 2. RAPID REVISION MASTER COMPARISON TABLE (If present) */}
+              {activeRevisionTable && activeRevisionTable.headers && activeRevisionTable.rows && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Table className="h-4 w-4 text-slate-700" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 font-mono">
+                      Rapid Revision Comparison Grid
+                    </span>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 overflow-x-auto shadow-xs">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-100 text-slate-700 font-semibold font-display border-b border-slate-200">
+                        <tr>
+                          {activeRevisionTable.headers.map((h: string, i: number) => (
+                            <th key={i} className="px-4 py-3 whitespace-nowrap">
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {activeRevisionTable.rows.map((row: string[], rIdx: number) => (
+                          <tr key={rIdx} className="hover:bg-slate-50/80 transition-colors">
+                            {row.map((cell: string, cIdx: number) => (
+                              <td key={cIdx} className="px-4 py-3 text-slate-800 font-medium">
+                                {cell}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Curated Medical Video */}
               {videos.length > 0 && (
                 <div className="space-y-3">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
-                    Curated Medical Lecture
+                    Curated Medical High-Yield Lecture
                   </span>
                   <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
@@ -274,7 +667,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 </div>
               )}
 
-              {/* 2. Slides & Notes */}
+              {/* 4. Slides Deck */}
               {slideDeck.slides.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -340,221 +733,304 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   onClick={() => setActiveStep('recall')}
                   className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer"
                 >
-                  <span>Next: Active Recall (Flashcards)</span>
+                  <span>Next: Active Recall ({flashcardDeck.cards.length} Flashcards)</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
           )}
 
-          {/* ================= STEP 2: RECALL ================= */}
+          {/* ================= STEP 2: RECALL (FLASHCARDS) ================= */}
           {activeStep === 'recall' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
-                  Active Recall Flashcards ({currentCardIndex + 1} of {flashcardDeck.cards.length})
-                </span>
-                <span className="font-mono text-xs text-slate-500">
-                  {knownCardIds.size} Mastered
-                </span>
-              </div>
+              {flashcardDeck.cards.length > 0 ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
+                      Active Recall Flashcards ({currentCardIndex + 1} of {flashcardDeck.cards.length})
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowAllFlashcardsGrid((prev) => !prev)}
+                        className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer"
+                      >
+                        <Layers className="h-3.5 w-3.5" />
+                        <span>{showAllFlashcardsGrid ? 'Card by Card' : 'Show All Cards'}</span>
+                      </button>
+                      <span className="font-mono text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        {knownCardIds.size} Mastered
+                      </span>
+                    </div>
+                  </div>
 
-              {/* Flashcard Component */}
-              <div
-                onClick={() => setIsCardFlipped((prev) => !prev)}
-                className="p-8 rounded-3xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 transition-all duration-200 min-h-[220px] flex flex-col justify-between cursor-pointer group"
-              >
-                <div className="space-y-3">
-                  <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-400">
-                    {isCardFlipped ? 'Answer & Explanation' : 'Question Prompt (Click to flip)'}
-                  </span>
-                  <p className="text-lg font-semibold font-display text-slate-900 leading-snug">
-                    {isCardFlipped
-                      ? flashcardDeck.cards[currentCardIndex]?.back
-                      : flashcardDeck.cards[currentCardIndex]?.front}
-                  </p>
-                </div>
+                  {!showAllFlashcardsGrid ? (
+                    <>
+                      {/* Flashcard Component */}
+                      <div
+                        onClick={() => setIsCardFlipped((prev) => !prev)}
+                        className="p-8 rounded-3xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 transition-all duration-200 min-h-[240px] flex flex-col justify-between cursor-pointer group shadow-xs"
+                      >
+                        <div className="space-y-3">
+                          <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-400">
+                            {isCardFlipped ? 'Answer & Clinical Rationale' : 'Question Prompt (Click to reveal answer)'}
+                          </span>
+                          <p className="text-lg font-semibold font-display text-slate-900 leading-snug whitespace-pre-line break-words min-w-0">
+                            {isCardFlipped
+                              ? flashcardDeck.cards[currentCardIndex]?.back
+                              : flashcardDeck.cards[currentCardIndex]?.front}
+                          </p>
+                          {isCardFlipped && flashcardDeck.cards[currentCardIndex]?.clinicalPearl && (
+                            <div className="mt-3 p-3 rounded-xl bg-amber-50/80 border border-amber-200/70 text-xs text-amber-900 font-medium">
+                              💡 Pearl: {flashcardDeck.cards[currentCardIndex].clinicalPearl}
+                            </div>
+                          )}
+                        </div>
 
-                <div className="flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-slate-200/60">
-                  <span>Click card to reveal</span>
-                  <RotateCcw className="h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
-                </div>
-              </div>
+                        <div className="flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-slate-200/60">
+                          <span>Click card to reveal</span>
+                          <RotateCcw className="h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
+                        </div>
+                      </div>
 
-              {/* Flashcard Actions */}
-              <div className="flex items-center justify-between gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCardFlipped(false);
-                    setCurrentCardIndex((prev) => Math.max(0, prev - 1));
-                  }}
-                  disabled={currentCardIndex === 0}
-                  className="px-4 py-2 rounded-full border border-slate-200 text-xs font-semibold font-display disabled:opacity-30 hover:bg-slate-50 cursor-pointer"
-                >
-                  Previous Card
-                </button>
+                      {/* Flashcard Actions */}
+                      <div className="flex items-center justify-between gap-3 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsCardFlipped(false);
+                            setCurrentCardIndex((prev) => Math.max(0, prev - 1));
+                          }}
+                          disabled={currentCardIndex === 0}
+                          className="px-4 py-2 rounded-full border border-slate-200 text-xs font-semibold font-display disabled:opacity-30 hover:bg-slate-50 cursor-pointer"
+                        >
+                          Previous Card
+                        </button>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const card = flashcardDeck.cards[currentCardIndex];
-                      if (card) {
-                        setKnownCardIds((prev) => new Set([...prev, card.id]));
-                      }
-                      setIsCardFlipped(false);
-                      if (currentCardIndex < flashcardDeck.cards.length - 1) {
-                        setCurrentCardIndex((prev) => prev + 1);
-                      } else {
-                        setActiveStep('apply');
-                      }
-                    }}
-                    className="px-5 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer"
-                  >
-                    I Know This ✓
-                  </button>
-                </div>
-              </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const card = flashcardDeck.cards[currentCardIndex];
+                              if (card) {
+                                setKnownCardIds((prev) => new Set([...prev, card.id]));
+                              }
+                              setIsCardFlipped(false);
+                              if (currentCardIndex < flashcardDeck.cards.length - 1) {
+                                setCurrentCardIndex((prev) => prev + 1);
+                              } else {
+                                setActiveStep('apply');
+                              }
+                            }}
+                            className="px-5 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer"
+                          >
+                            I Know This ✓
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    /* Show All Cards Grid */
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {flashcardDeck.cards.map((card, idx) => (
+                        <div key={card.id} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+                          <span className="text-[10px] font-mono font-semibold uppercase text-slate-400">
+                            Card {idx + 1}
+                          </span>
+                          <p className="text-sm font-semibold font-display text-slate-900">
+                            {card.front}
+                          </p>
+                          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-xs text-slate-800 font-medium whitespace-pre-line break-words">
+                            {card.back}
+                          </div>
+                          {card.clinicalPearl && (
+                            <p className="text-xs text-amber-800 font-normal">
+                              💡 {card.clinicalPearl}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-end pt-4 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setActiveStep('apply')}
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer"
+                    >
+                      <span>Next: Clinical Vignettes</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <ContentUnavailableCard
+                  title="Flashcards Unavailable"
+                  message={`Verified flashcards matching "${topicName}" have been withheld to prevent cross-topic memorization errors.`}
+                  actionLabel="Next: Clinical Reasoning (Cases)"
+                  onAction={() => setActiveStep('apply')}
+                  secondaryActionLabel={onOpenAiCoach ? "Ask AI Study Coach" : undefined}
+                  onSecondaryAction={onOpenAiCoach ? () => onOpenAiCoach('concept', subjectId, topicName) : undefined}
+                />
+              )}
             </div>
           )}
 
-          {/* ================= STEP 3: APPLY ================= */}
+          {/* ================= STEP 3: APPLY (CLINICAL CASES) ================= */}
           {activeStep === 'apply' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
-                  Clinical Vignette Reasoning
-                </span>
-                <span className="font-mono text-xs text-slate-500">
-                  Case {currentCaseIndex + 1} of {casesDeck.cases.length}
-                </span>
-              </div>
-
-              {/* Visual Asset if Available */}
-              {verifiedVisualAsset && (
-                <div className="p-4 rounded-2xl bg-slate-950 text-white flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={verifiedVisualAsset.imageUrl}
-                      alt={topicName}
-                      className="h-16 w-24 object-cover rounded-lg border border-slate-700 cursor-pointer"
-                      onClick={() => setZoomImage(verifiedVisualAsset.imageUrl)}
-                    />
-                    <div>
-                      <span className="text-[10px] font-mono text-sky-400 uppercase">Image-Based Investigation</span>
-                      <h4 className="text-sm font-semibold font-display text-white">{verifiedVisualAsset.title}</h4>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setZoomImage(verifiedVisualAsset.imageUrl)}
-                    className="px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-xs font-semibold font-display text-slate-200 inline-flex items-center gap-1.5"
-                  >
-                    <ZoomIn className="h-3.5 w-3.5" />
-                    <span>Fullscreen</span>
-                  </button>
-                </div>
-              )}
-
-              {/* Case Stem */}
-              {casesDeck.cases[currentCaseIndex] && (
-                <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-4">
-                  <div className="space-y-1.5">
-                    <span className="text-xs font-mono font-semibold uppercase text-sky-700">
-                      {casesDeck.cases[currentCaseIndex].patientDemographics}
+              {casesDeck.cases.length > 0 ? (
+                <>
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
+                      Clinical Vignette Reasoning
                     </span>
-                    <p className="text-sm text-slate-700 leading-relaxed font-normal">
-                      {casesDeck.cases[currentCaseIndex].presentation}
-                    </p>
-                    {casesDeck.cases[currentCaseIndex].physicalExamOrLabs && (
-                      <p className="text-sm text-slate-600 font-medium">
-                        {casesDeck.cases[currentCaseIndex].physicalExamOrLabs}
-                      </p>
-                    )}
+                    <span className="font-mono text-xs text-slate-500">
+                      Case {currentCaseIndex + 1} of {casesDeck.cases.length}
+                    </span>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100 space-y-2">
-                    <p className="text-sm font-semibold font-display text-slate-900">
-                      {casesDeck.cases[currentCaseIndex].diagnosticQuestion}
-                    </p>
-
-                    <div className="space-y-2 pt-2">
-                      {casesDeck.cases[currentCaseIndex].options.map((opt) => {
-                        const optKey = opt.key || opt.optionId;
-                        const isSelected = selectedCaseOption === optKey;
-                        const isCorrect = optKey === casesDeck.cases[currentCaseIndex].correctAnswer || opt.isCorrect;
-
-                        let style = 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100/70';
-                        if (isCaseSubmitted) {
-                          if (isCorrect) {
-                            style = 'bg-emerald-50 border-emerald-300 text-emerald-900';
-                          } else if (isSelected) {
-                            style = 'bg-rose-50 border-rose-300 text-rose-900';
-                          }
-                        } else if (isSelected) {
-                          style = 'bg-slate-900 border-slate-900 text-white';
-                        }
-
-                        return (
-                          <button
-                            key={optKey}
-                            type="button"
-                            onClick={() => !isCaseSubmitted && setSelectedCaseOption(optKey)}
-                            className={`w-full text-left p-3.5 rounded-xl border text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${style}`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="font-mono font-bold">{optKey}.</span>
-                              <span>{opt.text}</span>
-                            </div>
-                            {isCaseSubmitted && isCorrect && <Check className="h-4 w-4 text-emerald-600" />}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Submission and Explanation */}
-                  <div className="pt-2">
-                    {!isCaseSubmitted ? (
+                  {/* Visual Asset if Available */}
+                  {verifiedVisualAsset && (
+                    <div className="p-4 rounded-2xl bg-slate-950 text-white flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={verifiedVisualAsset.imageUrl}
+                          alt={topicName}
+                          className="h-16 w-24 object-cover rounded-lg border border-slate-700 cursor-pointer"
+                          onClick={() => setZoomImage(verifiedVisualAsset.imageUrl)}
+                        />
+                        <div>
+                          <span className="text-[10px] font-mono text-sky-400 uppercase">Image-Based Investigation</span>
+                          <h4 className="text-sm font-semibold font-display text-white">{verifiedVisualAsset.title}</h4>
+                        </div>
+                      </div>
                       <button
                         type="button"
-                        disabled={!selectedCaseOption}
-                        onClick={() => setIsCaseSubmitted(true)}
-                        className="px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors disabled:opacity-40 cursor-pointer"
+                        onClick={() => setZoomImage(verifiedVisualAsset.imageUrl)}
+                        className="px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-xs font-semibold font-display text-slate-200 inline-flex items-center gap-1.5"
                       >
-                        Submit Diagnosis
+                        <ZoomIn className="h-3.5 w-3.5" />
+                        <span>Fullscreen</span>
                       </button>
-                    ) : (
-                      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-800 space-y-2">
-                        <span className="font-semibold text-slate-900 font-display">Clinical Rationale:</span>
-                        <p>{casesDeck.cases[currentCaseIndex].clinicalExplanation}</p>
+                    </div>
+                  )}
+
+                  {/* Case Stem */}
+                  {casesDeck.cases[currentCaseIndex] && (
+                    <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-4">
+                      <div className="space-y-1.5">
+                        <span className="text-xs font-mono font-semibold uppercase text-sky-700">
+                          {casesDeck.cases[currentCaseIndex].patientDemographics}
+                        </span>
+                        <p className="text-sm text-slate-700 leading-relaxed font-normal">
+                          {casesDeck.cases[currentCaseIndex].presentation}
+                        </p>
+                        {casesDeck.cases[currentCaseIndex].physicalExamOrLabs && (
+                          <p className="text-sm text-slate-600 font-medium">
+                            {casesDeck.cases[currentCaseIndex].physicalExamOrLabs}
+                          </p>
+                        )}
                       </div>
-                    )}
+
+                      <div className="pt-2 border-t border-slate-100 space-y-2">
+                        <p className="text-sm font-semibold font-display text-slate-900">
+                          {casesDeck.cases[currentCaseIndex].diagnosticQuestion}
+                        </p>
+
+                        <div className="space-y-2 pt-2">
+                          {casesDeck.cases[currentCaseIndex].options.map((opt) => {
+                            const optKey = opt.key || (opt as any).optionId;
+                            const isSelected = selectedCaseOption === optKey;
+                            const isCorrect = optKey === casesDeck.cases[currentCaseIndex].correctAnswer || opt.isCorrect;
+
+                            let style = 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100/70';
+                            if (isCaseSubmitted) {
+                              if (isCorrect) {
+                                style = 'bg-emerald-50 border-emerald-300 text-emerald-900';
+                              } else if (isSelected) {
+                                style = 'bg-rose-50 border-rose-300 text-rose-900';
+                              }
+                            } else if (isSelected) {
+                              style = 'bg-slate-900 border-slate-900 text-white';
+                            }
+
+                            return (
+                              <button
+                                key={optKey}
+                                type="button"
+                                onClick={() => !isCaseSubmitted && setSelectedCaseOption(optKey)}
+                                className={`w-full text-left p-3.5 rounded-xl border text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${style}`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="font-mono font-bold">{optKey}.</span>
+                                  <span>{opt.text}</span>
+                                </div>
+                                {isCaseSubmitted && isCorrect && <Check className="h-4 w-4 text-emerald-600" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Submission and Explanation */}
+                      <div className="pt-2">
+                        {!isCaseSubmitted ? (
+                          <button
+                            type="button"
+                            disabled={!selectedCaseOption}
+                            onClick={() => setIsCaseSubmitted(true)}
+                            className="px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors disabled:opacity-40 cursor-pointer"
+                          >
+                            Submit Diagnosis
+                          </button>
+                        ) : (
+                          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-800 space-y-2">
+                            <span className="font-semibold text-slate-900 font-display">Clinical Rationale:</span>
+                            <p>{casesDeck.cases[currentCaseIndex].clinicalExplanation}</p>
+                            {casesDeck.cases[currentCaseIndex].examPearl && (
+                              <p className="text-amber-800 font-medium">
+                                💡 Pearl: {casesDeck.cases[currentCaseIndex].examPearl}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Navigation */}
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectCase(Math.max(0, currentCaseIndex - 1))}
+                      disabled={currentCaseIndex === 0}
+                      className="px-4 py-2 rounded-full border border-slate-200 text-xs font-semibold font-display disabled:opacity-30 hover:bg-slate-50 cursor-pointer"
+                    >
+                      Previous Case
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveStep('test')}
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer"
+                    >
+                      <span>Next: 10-MCQ Diagnostic Drill</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
                   </div>
-                </div>
+                </>
+              ) : (
+                <ContentUnavailableCard
+                  title="Clinical Vignettes Unavailable"
+                  message={`Verified clinical cases matching "${topicName}" have been withheld to maintain medical diagnostic accuracy.`}
+                  actionLabel="Next: 10-MCQ Diagnostic Drill"
+                  onAction={() => setActiveStep('test')}
+                  secondaryActionLabel={onOpenAiCoach ? "Discuss Topic with AI Coach" : undefined}
+                  onSecondaryAction={onOpenAiCoach ? () => onOpenAiCoach('vignette', subjectId, topicName) : undefined}
+                />
               )}
-
-              {/* Navigation */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => handleSelectCase(Math.max(0, currentCaseIndex - 1))}
-                  disabled={currentCaseIndex === 0}
-                  className="px-4 py-2 rounded-full border border-slate-200 text-xs font-semibold font-display disabled:opacity-30 hover:bg-slate-50 cursor-pointer"
-                >
-                  Previous Case
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveStep('test')}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer"
-                >
-                  <span>Next: 10-MCQ Diagnostic Drill</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
             </div>
           )}
 
@@ -679,7 +1155,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
           {activeStep === 'master' && (
             <div className="space-y-6">
               {/* FMGE Pearls */}
-              {pearls.length > 0 && (
+              {pearls.length > 0 ? (
                 <div className="space-y-3">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono">
                     High-Yield Pearls & Mnemonics
@@ -696,6 +1172,13 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                     ))}
                   </div>
                 </div>
+              ) : (
+                <ContentUnavailableCard
+                  title="High-Yield Pearls Unavailable"
+                  message={`Verified high-yield pearls matching "${topicName}" are currently being compiled. Unrelated pearls were withheld.`}
+                  actionLabel={onOpenAiCoach ? "Ask AI Study Coach" : undefined}
+                  onAction={onOpenAiCoach ? () => onOpenAiCoach('strategy', subjectId, topicName) : undefined}
+                />
               )}
 
               {/* Topic Status Checklist */}
@@ -703,7 +1186,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 <span className="font-semibold text-slate-900 font-display">Completed Learning Pathway:</span>
                 <div className="flex flex-wrap items-center gap-4 text-slate-600 font-medium">
                   <span className="flex items-center gap-1">
-                    <Check className="h-3.5 w-3.5 text-emerald-600" /> Learn
+                    <Check className="h-3.5 w-3.5 text-emerald-600" /> Rapid Revision
                   </span>
                   <span className="flex items-center gap-1">
                     <Check className="h-3.5 w-3.5 text-emerald-600" /> Recall
@@ -755,6 +1238,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
           )}
         </div>
       </div>
+      </div>
 
       {/* Image Zoom Modal */}
       {zoomImage && (
@@ -766,6 +1250,8 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
           whatToLookFor="Verified diagnostic visual finding for this clinical concept."
         />
       )}
-    </div>
+    </div>,
+    document.body
   );
 };
+

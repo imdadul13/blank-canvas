@@ -8,7 +8,6 @@ import {
   BookOpen,
   Play,
   RotateCcw,
-  Sparkles,
   AlertTriangle,
   HelpCircle,
   Stethoscope,
@@ -45,6 +44,11 @@ interface ErrorsViewProps {
     topicName?: string
   ) => void;
   onSelectSubject?: (subjectId: string) => void;
+  onToggleTopicState?: (
+    subjectId: string,
+    topicId: string,
+    flag: 'notesDone' | 'qBankDone' | 'r1Done'
+  ) => void;
 }
 
 export const ErrorsView: React.FC<ErrorsViewProps> = ({
@@ -56,6 +60,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
   onLaunchPracticeSession,
   onOpenAiCoach,
   onSelectSubject,
+  onToggleTopicState,
 }) => {
   const [activeRemediationPackage, setActiveRemediationPackage] = useState<ConceptRemediationPackage | null>(null);
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('all');
@@ -318,7 +323,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                             </span>
                           )}
                         </div>
-                        <h3 className="text-sm sm:text-base font-semibold font-display text-slate-900 leading-snug">
+                        <h3 className="text-sm sm:text-base font-semibold font-display text-slate-900 leading-snug break-words">
                           {err.questionGist}
                         </h3>
                       </div>
@@ -597,7 +602,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                 );
               }
             }}
-            onToggleTopicState={() => {}}
+            onToggleTopicState={onToggleTopicState || (() => {})}
             onOpenAiCoach={onOpenAiCoach}
           />
         )}

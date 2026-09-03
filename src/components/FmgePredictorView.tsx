@@ -8,13 +8,13 @@ import {
   CheckCircle2,
   CalendarPlus,
   BookOpen,
-  Sparkles,
   Layers,
   ChevronRight,
   Zap,
   Info,
   SlidersHorizontal,
-  Bot
+  Target,
+  Stethoscope
 } from 'lucide-react';
 import {
   AppState,
@@ -173,7 +173,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
         </div>
 
         {/* Mode Selector */}
-        <div className="bg-slate-100 p-1 rounded-2xl border border-slate-200 flex items-center gap-1 self-start md:self-center">
+        <div className="bg-slate-100 p-1 rounded-2xl border border-slate-200 flex flex-wrap items-center gap-1 self-start md:self-center">
           {[
             { id: 'combined', label: 'Combined', icon: Layers, desc: 'Balanced exam & error weighting' },
             { id: 'exam', label: 'Exam Focus', icon: TrendingUp, desc: 'Subject marks & high-yield signals' },
@@ -273,7 +273,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+              <Zap className="w-4 h-4 text-amber-500" />
               <h3 className="font-['Outfit'] text-sm font-bold text-slate-900">
                 Today's Recommended Strategic Sprints
               </h3>
@@ -444,8 +444,8 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                       }}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition-all cursor-pointer shadow-2xs"
                     >
-                      <Bot className="w-3.5 h-3.5 text-sky-400" />
-                      <span>AI Coach</span>
+                      <Stethoscope className="w-3.5 h-3.5 text-sky-400" />
+                      <span>Mentor</span>
                     </button>
                   </div>
                 </div>

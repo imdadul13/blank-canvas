@@ -6,7 +6,6 @@ import {
   Plus,
   Copy,
   Check,
-  Sparkles,
   Tag,
   BookOpen,
   Brain,
@@ -211,7 +210,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             value={activeTopicQuery}
             onChange={(e) => setActiveTopicQuery(e.target.value)}
             placeholder="Type any medical topic (e.g. COPD, Celiac Disease, Asthma, Glaucoma, Tetralogy of Fallot, Leprosy...)"
-            className="w-full h-13 pl-11 pr-36 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-900 focus:outline-none transition-all shadow-2xs"
+            className="w-full h-13 pl-11 pr-9 sm:pr-14 md:pr-36 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-900 focus:outline-none transition-all shadow-2xs"
           />
           <Search className="absolute left-4 h-5 w-5 text-slate-400" />
           <button
@@ -222,12 +221,12 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             {isGenerating ? (
               <>
                 <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>AI Generating...</span>
+                <span>Synthesizing...</span>
               </>
             ) : (
               <>
-                <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                <span>Generate ⚡</span>
+                <Zap className="h-3.5 w-3.5 text-amber-400" />
+                <span>Synthesize ⚡</span>
               </>
             )}
           </button>
@@ -317,7 +316,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   <span className="h-6 w-6 rounded-lg bg-sky-100 text-sky-800 font-bold font-mono text-xs flex items-center justify-center border border-sky-200">
                     {item.letter}
                   </span>
-                  <span className="text-xs font-bold text-slate-900 truncate">{item.meaning}</span>
+                  <span className="text-xs font-bold text-slate-900 truncate min-w-0 flex-1">{item.meaning}</span>
                 </div>
                 <p className="text-[11px] text-slate-600 leading-relaxed pl-8">
                   {item.clinicalNote}
@@ -491,7 +490,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                     {pearl.highYieldKey}
                   </div>
 
-                  <p className="text-xs text-slate-600 whitespace-pre-line leading-relaxed">
+                  <p className="text-xs text-slate-600 whitespace-pre-line leading-relaxed break-words">
                     {pearl.explanation}
                   </p>
                 </div>

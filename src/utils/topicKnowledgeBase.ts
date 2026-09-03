@@ -99,6 +99,137 @@ export const FMGE_TOPIC_KNOWLEDGE_BASE: Record<string, MedicalTopicKnowledge> = 
     },
   },
 
+  'anat-8': {
+    topicId: 'anat-8',
+    subjectId: 'anatomy',
+    topicTitle: 'Abdomen - Peritoneum, Epiploic Foramen & Celiac Trunk',
+    highYieldSummary: 'Surgical anatomy of the peritoneum, greater and lesser sacs, epiploic foramen of Winslow boundaries, Morison pouch, Douglas pouch, celiac axis branching, and peptic ulcer vascular erosion.',
+    coreConcepts: [
+      'Epiploic Foramen of Winslow Boundaries: Anterior: free border of lesser omentum (hepatoduodenal ligament) containing the Portal Triad (Bile Duct anterior-right, Proper Hepatic Artery anterior-left, Portal Vein posterior). Posterior: Inferior Vena Cava (IVC). Superior: Caudate process/lobe of liver. Inferior: 1st part of duodenum.',
+      'Pringle Maneuver: Clamping of the hepatoduodenal ligament / portal triad to control catastrophic hepatic parenchymal bleeding. If hemorrhage continues, consider IVC or hepatic vein injury.',
+      'Peritoneal Recesses & Fluid Stasis: Morison Hepatorenal Pouch is the most dependent peritoneal space in the supine position; evaluated first in FAST (Focused Assessment with Sonography for Trauma). Rectouterine pouch of Douglas is the most dependent peritoneal space in females when standing/sitting; site of culdocentesis for hemoperitoneum.',
+      'Celiac Trunk Anatomy: Originates from abdominal aorta at T12 level; trifurcates into Left Gastric Artery, Splenic Artery (tortuous course along upper border of pancreas), and Common Hepatic Artery (branches into Proper Hepatic Artery and Gastroduodenal Artery).',
+      'Peptic Ulcer Vascular Erosion Traps: Posterior wall gastric ulcers erode into the Splenic Artery; posterior wall duodenal bulb (1st part) ulcers erode into the Gastroduodenal Artery (severe upper GI hemorrhage). Anterior duodenal ulcers perforate into the peritoneal cavity causing free air under diaphragm.',
+    ],
+    keyTakeaways: [
+      'Epiploic foramen: Portal triad is anterior (bile duct right, hepatic artery left, portal vein posterior); IVC is posterior.',
+      'Morison pouch is the most dependent peritoneal space in supine patients, making it the primary target on FAST trauma ultrasound.',
+      'Posterior duodenal ulcer bleeds from Gastroduodenal Artery; posterior gastric ulcer bleeds from Splenic Artery; anterior ulcers perforate.',
+    ],
+    goldStandardTest: 'Contrast-Enhanced CT (CECT) of Abdomen / FAST (Focused Assessment with Sonography for Trauma) for free fluid.',
+    firstLineTreatment: 'Hemodynamic resuscitation followed by urgent upper GI endoscopy (clipping/thermal coagulation) or emergency laparotomy (Pringle maneuver for liver injury).',
+    classicPresentation: 'A 45-year-old male with chronic peptic ulcer disease presents with massive hematemesis and melena; endoscopy reveals bleeding from a posterior duodenal bulb ulcer eroding into the gastroduodenal artery.',
+    examTrap: 'Examiner trap: Posterior duodenal bulb ulcers erode into the Gastroduodenal artery; posterior gastric body ulcers erode into the Splenic artery. Anterior ulcers cause peritonitis/free air, not arterial hemorrhage.',
+    flashcards: [
+      {
+        front: 'What are the four anatomical boundaries of the Epiploic Foramen of Winslow?',
+        back: 'Anterior: Free border of lesser omentum (hepatoduodenal ligament) containing Portal Triad.\nPosterior: Inferior Vena Cava (IVC).\nSuperior: Caudate lobe of liver.\nInferior: 1st part of duodenum.',
+        clinicalPearl: 'The Pringle maneuver compresses the anterior boundary to arrest hepatic inflow.',
+      },
+      {
+        front: 'What are the three direct branches of the Celiac Trunk?',
+        back: '1. Left Gastric Artery (smallest branch, runs along lesser curvature)\n2. Splenic Artery (largest/tortuous branch, runs along upper border of pancreas)\n3. Common Hepatic Artery (gives off Gastroduodenal and Proper Hepatic arteries).',
+        clinicalPearl: 'Originates from the abdominal aorta at the level of T12 vertebra.',
+      },
+      {
+        front: 'Which artery is eroded by a bleeding posterior duodenal bulb ulcer versus a posterior gastric ulcer?',
+        back: 'Posterior Duodenal Bulb Ulcer: Gastroduodenal Artery.\nPosterior Gastric Ulcer: Splenic Artery.',
+        clinicalPearl: 'Anterior ulcers perforate causing pneumoperitoneum; posterior ulcers erode major arteries causing hemorrhagic shock.',
+      },
+      {
+        front: 'What is the most dependent peritoneal recess in a supine patient and how is it clinically evaluated?',
+        back: 'Morison\'s Hepatorenal Pouch (recess between right kidney and liver).\nClinical evaluation: FAST ultrasound (Focused Assessment with Sonography for Trauma).',
+        clinicalPearl: 'Collects as little as 250 mL of blood/fluid in trauma resuscitation.',
+      },
+      {
+        front: 'What structures make up the Portal Triad within the hepatoduodenal ligament?',
+        back: '1. Bile Duct (anterior and to the right)\n2. Proper Hepatic Artery (anterior and to the left)\n3. Portal Vein (posterior to both).',
+        clinicalPearl: 'Memory hook: "DAP" - Duct right, Artery left, Portal vein posterior.',
+      },
+    ],
+    clinicalCase: {
+      title: 'Clinical Vignette: Abdominal Trauma & Hemoperitoneum',
+      patientDemographics: '34-year-old male motor vehicle collision victim',
+      presentation: 'Patient arrives in the emergency department with blunt abdominal trauma, tachycardic at 122 bpm, BP 88/54 mmHg, with right upper quadrant tenderness and abdominal guarding.',
+      physicalExamOrLabs: 'FAST ultrasound demonstrates an anechoic fluid stripe in the hepatorenal space (Morison pouch). Hemoglobin is 8.2 g/dL. Emergent exploratory laparotomy is initiated.',
+      diagnosticQuestion: 'To rapidly arrest massive parenchymal hepatic hemorrhage during exploratory laparotomy, which anatomical structure is clamped during the Pringle maneuver, and what forms its posterior boundary?',
+      options: [
+        { key: 'A', text: 'Hepatoduodenal ligament clamped; posterior boundary of foramen is the Inferior Vena Cava (IVC)', isCorrect: true },
+        { key: 'B', text: 'Gastrosplenic ligament clamped; posterior boundary is the Left Renal Vein', isCorrect: false },
+        { key: 'C', text: 'Falciform ligament clamped; posterior boundary is the Caudate Lobe', isCorrect: false },
+        { key: 'D', text: 'Hepatogastric ligament clamped; posterior boundary is the Abdominal Aorta', isCorrect: false },
+      ],
+      clinicalExplanation: 'The Pringle maneuver involves cross-clamping the hepatoduodenal ligament (the free edge of the lesser omentum) which forms the anterior boundary of the epiploic foramen of Winslow. The structures clamped are the Portal Triad (Bile duct, Proper Hepatic artery, and Portal vein). The posterior boundary of the epiploic foramen is the Inferior Vena Cava (IVC).',
+      examPearl: 'If bleeding persists despite the Pringle maneuver, suspect retrohepatic IVC or hepatic venous injury.',
+    },
+  },
+
+  'anat-13': {
+    topicId: 'anat-13',
+    subjectId: 'anatomy',
+    topicTitle: 'Embryology - Pharyngeal Arches, Pouches & Heart Dev',
+    highYieldSummary: 'Embryological development of the pharyngeal apparatus (arches, pouches, clefts), cranial nerve correlations, congenital branchial anomalies, DiGeorge syndrome, aortic arch derivatives, and cardiac septation.',
+    coreConcepts: [
+      'Pharyngeal Arch Derivatives & Cranial Nerves: Arch 1 (CN V3) -> Muscles of mastication, mylohyoid, anterior belly digastric, tensor veli palatini, tensor tympani; Meckel cartilage (malleus, incus). Arch 2 (CN VII) -> Muscles of facial expression, stapedius, stylohyoid, posterior belly digastric; Reichert cartilage (stapes, styloid process, lesser horn of hyoid). Arch 3 (CN IX) -> Stylopharyngeus, greater horn and body of hyoid. Arch 4 (CN X superior laryngeal) -> Cricothyroid, pharyngeal constrictors, levator veli palatini. Arch 6 (CN X recurrent laryngeal) -> All intrinsic laryngeal muscles except cricothyroid.',
+      'Pharyngeal Pouches (Endoderm): Pouch 1 -> Auditory (Eustachian) tube, tympanic middle ear cavity. Pouch 2 -> Palatine tonsil epithelial lining and crypts. Pouch 3 -> Inferior parathyroid glands and Thymus. Pouch 4 -> Superior parathyroid glands and Ultimobranchial body (calcifying C-cells of thyroid).',
+      'DiGeorge Syndrome (22q11.2 Microdeletion): Defective development of the 3rd and 4th pharyngeal pouches due to failure of neural crest migration. Triad: 1) Thymic aplasia (severe T-cell immunodeficiency); 2) Parathyroid aplasia (hypocalcemic tetany/seizures); 3) Conotruncal cardiac malformations (Tetralogy of Fallot, Truncus Arteriosus, Interrupted Aortic Arch).',
+      'Pharyngeal Clefts (Ectoderm): Cleft 1 -> External acoustic meatus epithelium. Persistent 2nd-4th Clefts -> Branchial cleft cyst (painless cyst on lateral neck along anterior border of sternocleidomastoid).',
+      'Cardiac Embryology: Truncus arteriosus (neural crest spiraling -> ascending aorta & pulmonary trunk); Bulbus cordis (smooth parts of RV/LV outflow tracts: conus arteriosus and aortic vestibule); Primitive ventricle (trabeculated RV and LV); Primitive atrium (trabeculated RA and LA); Sinus venosus right horn (smooth RA / sinus venarum), left horn (coronary sinus); Endocardial cushions (AV valves, atrial septum primum/secundum, membranous VSD).',
+      'Aortic Arch Derivatives: Arch 1 (maxillary artery); Arch 2 (stapedial artery); Arch 3 (common carotid, proximal internal carotid); Arch 4 (left: aortic arch; right: proximal right subclavian); Arch 6 (pulmonary arteries and ductus arteriosus).',
+    ],
+    keyTakeaways: [
+      'Arch cranial nerves: 1 = V3, 2 = VII, 3 = IX, 4 = X (superior laryngeal), 6 = X (recurrent laryngeal).',
+      'Pouches: 3rd pouch gives INFERIOR parathyroids + thymus; 4th pouch gives SUPERIOR parathyroids + C-cells.',
+      'DiGeorge syndrome = 22q11 deletion, 3rd/4th pouch defect, absent thymic shadow on infant CXR, hypocalcemia, conotruncal heart defects.',
+    ],
+    goldStandardTest: 'Fluorescence In Situ Hybridization (FISH) / Chromosomal Microarray for 22q11.2 microdeletion; CXR (absent thymic shadow); Serum calcium & intact PTH.',
+    firstLineTreatment: 'Emergency IV calcium gluconate for hypocalcemic tetany; thymic transplantation or allogeneic hematopoietic cell transplant; surgical repair of conotruncal cardiac defects.',
+    classicPresentation: 'A 3-day-old infant presents with muscle twitching, seizures, low serum calcium (6.2 mg/dL), systolic ejection murmur, and chest X-ray lacking a normal thymic sail sign (DiGeorge syndrome).',
+    examTrap: 'The 3rd pharyngeal pouch migrates inferiorly with the thymus, giving rise to the INFERIOR parathyroid glands. The 4th pouch gives rise to the SUPERIOR parathyroids. Do not reverse 3rd vs 4th pouch parathyroid origins.',
+    flashcards: [
+      {
+        front: 'Which cranial nerve innervates the muscular derivatives of the 1st, 2nd, 3rd, 4th, and 6th pharyngeal arches?',
+        back: '1st Arch: Mandibular nerve (CN V3)\n2nd Arch: Facial nerve (CN VII)\n3rd Arch: Glossopharyngeal nerve (CN IX)\n4th Arch: Superior laryngeal branch of Vagus (CN X)\n6th Arch: Recurrent laryngeal branch of Vagus (CN X).',
+        clinicalPearl: '5th arch regresses completely without adult derivatives.',
+      },
+      {
+        front: 'What adult structures develop from the 3rd and 4th pharyngeal pouches?',
+        back: '3rd Pouch: Inferior Parathyroid glands and Thymus.\n4th Pouch: Superior Parathyroid glands and Ultimobranchial body (calcitonin-producing C cells of thyroid).',
+        clinicalPearl: 'The 3rd pouch derivatives migrate farther down into the mediastinum than the 4th.',
+      },
+      {
+        front: 'What is the underlying embryological defect and clinical triad in DiGeorge syndrome?',
+        back: 'Embryological defect: Failure of 3rd and 4th pharyngeal pouch development due to defective neural crest migration (22q11.2 microdeletion).\nClinical Triad: 1. Hypocalcemia (parathyroid hypoplasia)\n2. T-cell deficiency (thymic aplasia)\n3. Conotruncal heart defects (e.g., Tetralogy of Fallot, Truncus Arteriosus).',
+        clinicalPearl: 'Look for absent thymic shadow on neonatal chest radiograph.',
+      },
+      {
+        front: 'What are the embryological origins of the smooth versus trabeculated parts of the adult ventricles?',
+        back: 'Trabeculated parts of LV and RV: Primitive Ventricle.\nSmooth parts of LV (aortic vestibule) and RV (conus arteriosus/infundibulum): Bulbus Cordis.',
+        clinicalPearl: 'Truncus arteriosus gives rise to the ascending aorta and pulmonary trunk.',
+      },
+      {
+        front: 'What structures develop from the 1st, 3rd, 4th, and 6th aortic arches?',
+        back: '1st Arch: Part of Maxillary artery\n3rd Arch: Common Carotid artery and proximal Internal Carotid artery\n4th Arch: Aortic arch (left) and proximal Right Subclavian artery (right)\n6th Arch: Proximal Pulmonary arteries and Ductus Arteriosus.',
+        clinicalPearl: 'Recurrent laryngeal nerve loops around 6th arch (ligamentum arteriosum on left; right 6th arch regresses, so loops around right 4th arch / subclavian).',
+      },
+    ],
+    clinicalCase: {
+      title: 'Clinical Vignette: Neonatal Hypocalcemia & Absent Thymus',
+      patientDemographics: '4-day-old male newborn born at term',
+      presentation: 'Newborn presents to the neonatal intensive care unit with jitteriness, carpopedal spasms, and generalized seizures. Vital signs show mild tachypnea and heart rate of 165 bpm. A grade 3/6 harsh systolic ejection murmur is heard along the left sternal border.',
+      physicalExamOrLabs: 'Serum calcium is critically low at 6.1 mg/dL (normal 8.5-10.5), serum phosphorus is elevated at 7.8 mg/dL, and intact PTH is undetectable. Chest radiograph demonstrates a normal heart contour without the expected thymic silhouette ("absent thymic shadow"). Echocardiogram reveals Tetralogy of Fallot.',
+      diagnosticQuestion: 'Which embryonic structures failed to develop properly in this infant, leading to the parathyroid and thymic abnormalities?',
+      options: [
+        { key: 'A', text: 'Failure of normal differentiation of the 3rd and 4th pharyngeal pouches', isCorrect: true },
+        { key: 'B', text: 'Persistence of the 2nd pharyngeal cleft forming a branchial fistula', isCorrect: false },
+        { key: 'C', text: 'Abnormal development of the 1st and 2nd pharyngeal arches', isCorrect: false },
+        { key: 'D', text: 'Premature regression of the 6th aortic arch', isCorrect: false },
+      ],
+      clinicalExplanation: 'This neonate has classic DiGeorge syndrome (Catch-22 / 22q11.2 microdeletion syndrome), caused by failure of neural crest cell migration into the 3rd and 4th pharyngeal pouches. The 3rd pouch normally forms the thymus and inferior parathyroids; the 4th pouch forms the superior parathyroids and ultimobranchial bodies. Loss of parathyroid development causes profound hypocalcemia, while thymic aplasia results in severe T-cell deficiency and absent thymic shadow.',
+      examPearl: 'Memory hook for DiGeorge: CATCH-22: Cardiac defects, Abnormal facies, Thymic hypoplasia, Cleft palate, Hypocalcemia, 22q11 deletion.',
+    },
+  },
+
   // =================== 2. PHYSIOLOGY ===================
   'phys-1': {
     topicId: 'phys-1',
@@ -1120,94 +1251,313 @@ function synthesizeTopicKnowledge(
     };
   }
 
-  // 2. SURGERY
-  if (s.includes('surg') || t.includes('trauma') || t.includes('burn') || t.includes('atls') || t.includes('appendic') || t.includes('hernia') || t.includes('cholecyst')) {
-    if (t.includes('burn') || t.includes('parkland')) return FMGE_TOPIC_KNOWLEDGE_BASE['surg-2'];
-    return FMGE_TOPIC_KNOWLEDGE_BASE['surg-1'];
-  }
+  // Subject-specific authentic medical knowledge synthesizers
+  const sId = (subjectId || '').toLowerCase();
+  const lowTitle = rawTitle.toLowerCase();
 
-  // 3. OBGYN
-  if (s.includes('obg') || s.includes('gyn') || t.includes('pregnancy') || t.includes('labor') || t.includes('preeclampsia') || t.includes('eclampsia') || t.includes('hemorrhage') || t.includes('partum')) {
-    return FMGE_TOPIC_KNOWLEDGE_BASE['obg-4'];
-  }
+  // 1. FORENSIC MEDICINE & TOXICOLOGY (FMT)
+  if (sId.includes('foren') || sId.includes('fmt')) {
+    let specificAntidote = 'Atropine (titrate to clear chest secretions) + Pralidoxime (2-PAM) for OP poisoning; Physostigmine for Dhatura; Dimercaprol (BAL) for Arsenic; Penicillamine for Copper; Deferoxamine for Iron; Anti-Snake Venom (ASV polyvalent) for venomous snakebites; Prazosin for Scorpion stings; IV Magnesium Sulfate for Aluminum Phosphide.';
+    let specificDiagnosis = 'Toxicology screening (Gastric aspirate / urine chromatography), post-mortem blood analysis, and characteristic visceral odors.';
+    let specificPresentation = `Patient brought with acute exposure, altered sensorium, toxidrome signs, and suspected poisoning related to ${rawTitle}.`;
+    let specificTrap = 'Do NOT use gastric lavage in corrosive poisoning (risk of esophageal perforation) or volatile hydrocarbons (risk of chemical pneumonitis). In OP poisoning, do not stop atropine based on pupil dilation—titrate to pulmonary secretions!';
 
-  // 4. ANATOMY
-  if (s.includes('anat')) return FMGE_TOPIC_KNOWLEDGE_BASE['anat-1'];
+    if (lowTitle.includes('thanato') || lowTitle.includes('rigor') || lowTitle.includes('death') || lowTitle.includes('livor')) {
+      specificAntidote = 'Estimation of time since death via Nysten rule (rigor mortis starts in 1-2h in eyelid, spreads downwards in 12h, persists 12h, disappears in 12h), rectal temperature (Algor mortis), and post-mortem lividity fixity at 6-8h.';
+      specificDiagnosis = 'Algor mortis cooling curve, rigor mortis mapping, and post-mortem chemistry (Vitreous humor potassium).';
+      specificPresentation = 'Medicolegal autopsy case requiring precise estimation of time since death and differentiation of ante-mortem vs post-mortem changes.';
+      specificTrap = 'Cadaveric spasm indicates the last voluntary act before death (e.g. grass in drowning, weapon in suicide) with NO stage of primary relaxation, unlike rigor mortis.';
+    } else if (lowTitle.includes('injury') || lowTitle.includes('wound') || lowTitle.includes('firearm') || lowTitle.includes('hanging')) {
+      specificAntidote = 'Medicolegal wound documentation, rule of mechanical injuries, and ballistic entry/exit collar analysis.';
+      specificDiagnosis = 'Stereomicroscopy for tattooing/blackening, beveling of skull bones (internal beveling at entry, external at exit), and ligature mark characteristics.';
+      specificPresentation = `Trauma autopsy case evaluating blunt/sharp force injury, firearm wound ballistics, or asphyxial deaths in ${rawTitle}.`;
+      specificTrap = 'Hanging shows an oblique, non-continuous ligature mark above the thyroid cartilage with a pale dry parchmentized base, whereas strangulation shows a transverse, continuous mark below the thyroid cartilage.';
+    }
 
-  // 5. PHYSIOLOGY
-  if (s.includes('phys')) return FMGE_TOPIC_KNOWLEDGE_BASE['phys-1'];
-
-  // 6. BIOCHEMISTRY
-  if (s.includes('bio')) return FMGE_TOPIC_KNOWLEDGE_BASE['bio-1'];
-
-  // 7. PATHOLOGY
-  if (s.includes('path')) return FMGE_TOPIC_KNOWLEDGE_BASE['path-1'];
-
-  // 8. PHARMACOLOGY
-  if (s.includes('pharm')) return FMGE_TOPIC_KNOWLEDGE_BASE['pharm-1'];
-
-  // 9. FORENSIC MEDICINE
-  if (s.includes('fmt') || s.includes('forensic')) return FMGE_TOPIC_KNOWLEDGE_BASE['fmt-1'];
-
-  // 10. PSM / COMMUNITY MEDICINE
-  if (s.includes('psm') || s.includes('community')) return FMGE_TOPIC_KNOWLEDGE_BASE['psm-6'];
-
-  // 11. MEDICINE
-  if (s.includes('med')) return FMGE_TOPIC_KNOWLEDGE_BASE['med-4'];
-
-  // Default subject-matched record from existing base
-  const subjectRecord = Object.values(FMGE_TOPIC_KNOWLEDGE_BASE).find(
-    (k) => k.subjectId.toLowerCase().includes(s) || s.includes(k.subjectId.toLowerCase())
-  );
-  if (subjectRecord) {
     return {
-      ...subjectRecord,
       topicId,
+      subjectId,
       topicTitle: rawTitle,
+      highYieldSummary: `High-yield FMGE forensic medicine and toxicology review for ${rawTitle}. Key focus on diagnostic toxidromes, medicolegal wound patterns, post-mortem intervals, and statutory IPC/BNS provisions.`,
+      coreConcepts: [
+        `Hallmark Toxidrome / Medicolegal Criteria: Core diagnostic markers and characteristic physical/visceral signs in ${rawTitle}.`,
+        `Definitive Diagnosis & Confirmation: ${specificDiagnosis}`,
+        `First-Line Medical / Antidote Management: ${specificAntidote}`,
+        `Board Exam Trap & Distractor: ${specificTrap}`,
+        'Medicolegal Protocols: Chain of custody, preserving viscera in saturated saline (except carbolic acid / fluorides), and statutory reporting duties.',
+      ],
+      keyTakeaways: [
+        specificAntidote,
+        specificDiagnosis,
+        specificTrap,
+      ],
+      goldStandardTest: specificDiagnosis,
+      firstLineTreatment: specificAntidote,
+      classicPresentation: specificPresentation,
+      examTrap: specificTrap,
+      flashcards: [
+        {
+          front: `What is the hallmark diagnostic finding or clinical toxidrome associated with ${rawTitle}?`,
+          back: `Characteristic clinical signs, pupil reactions, visceral odors, and autopsy markers in ${rawTitle}.`,
+          clinicalPearl: 'FMT questions prioritize pathognomonic odors (e.g. bitter almonds = Cyanide, garlic = Arsenic/Phosphorus/OP, rotten eggs = H2S, shoe polish = Nitrobenzene).',
+        },
+        {
+          front: `What is the specific antidote or gold-standard therapeutic intervention in ${rawTitle}?`,
+          back: specificAntidote,
+          clinicalPearl: 'Always administer specific antidotes promptly after stabilizing airway, breathing, and circulation.',
+        },
+        {
+          front: `What is the most critical medicolegal board exam trap in ${rawTitle}?`,
+          back: specificTrap,
+          clinicalPearl: 'Distinguish ante-mortem vital reaction (extravasated RBCs, enzyme activity) from post-mortem artifacts.',
+        },
+        {
+          front: `How is time since death or injury pattern objectively calculated in ${rawTitle}?`,
+          back: specificDiagnosis,
+          clinicalPearl: 'Vitreous potassium (K+) rises linearly after death and is unaffected by external temperature changes.',
+        },
+      ],
+      clinicalCase: {
+        title: `Medicolegal Clinical Evaluation: ${rawTitle}`,
+        patientDemographics: 'Emergency department presentation / Medicolegal autopsy examination',
+        presentation: specificPresentation,
+        physicalExamOrLabs: specificDiagnosis,
+        diagnosticQuestion: 'What is the most appropriate antidote, emergency intervention, or medicolegal conclusion?',
+        options: [
+          { key: 'A', text: specificAntidote, isCorrect: true },
+          { key: 'B', text: 'Perform induced emesis or unindicated gastric lavage without airway protection', isCorrect: false },
+          { key: 'C', text: 'Withhold all specific antidotes and discharge without medicolegal documentation', isCorrect: false },
+          { key: 'D', text: 'Administer contraindicated sedatives and observe without toxicology testing', isCorrect: false },
+        ],
+        clinicalExplanation: `In forensic toxicology and trauma medicine, accurate diagnostic recognition, timely antidote administration (${specificAntidote}), and strict medicolegal protocols are essential for patient survival and judicial integrity.`,
+        examPearl: specificTrap,
+      },
     };
   }
 
-  // Generic clinical specialty synthesis
+  // 2. COMMUNITY MEDICINE / PSM
+  if (sId.includes('psm') || sId.includes('comm') || sId.includes('spm')) {
+    let psmSummary = `Public health and epidemiology review for ${rawTitle}. Covers National Health Programs (NTEP, NVBDCP, RMNCH+A), immunization schedules, biostatistical tests, and epidemiological study designs.`;
+    let psmDx = 'Epidemiological surveillance, Odds Ratio (OR = ad/bc in Case-Control) vs Relative Risk (RR in Cohort), Sensitivity, Specificity, Positive Predictive Value, and Chi-Square / t-test selection.';
+    let psmRx = 'National Immunization Schedule (NIS) protocols, Cold Chain maintenance (+2°C to +8°C in ILR, -15°C to -25°C in Deep Freezer for OPV), and national program drug regimens (e.g. 2HRZE+4HRE for TB; ACT for Malaria).';
+    let psmTrap = 'Vaccine Vial Monitor (VVM): Discard vaccine if the inner square matches or is darker than the outer circle (Stage 3 & 4), even if before the expiry date!';
+
+    return {
+      topicId,
+      subjectId,
+      topicTitle: rawTitle,
+      highYieldSummary: psmSummary,
+      coreConcepts: [
+        `Core Epidemiological Principles in ${rawTitle}: Calculation of incidence, prevalence, attack rates, and disease burden indicators (DALY, QALY).`,
+        `Biostatistics & Study Designs: Differentiate Case-Control (Odds Ratio) from Cohort studies (Relative Risk & Attributable Risk).`,
+        `Screening Tests: Sensitivity = TP/(TP+FN); Specificity = TN/(TN+FP); PPV increases with increasing disease prevalence.`,
+        `National Programs & Cold Chain: ${psmRx}`,
+        `High-Yield Board Trap: ${psmTrap}`,
+      ],
+      keyTakeaways: [
+        'Cohort study measures Relative Risk directly; Case-Control study estimates Relative Risk via Odds Ratio (ad/bc).',
+        psmRx,
+        psmTrap,
+      ],
+      goldStandardTest: psmDx,
+      firstLineTreatment: psmRx,
+      classicPresentation: `Community health assessment or epidemiological survey assessing risk factors, screening accuracy, and program coverage for ${rawTitle}.`,
+      examTrap: psmTrap,
+      flashcards: [
+        {
+          front: `What is the formula and interpretation of Sensitivity vs Specificity in ${rawTitle}?`,
+          back: '• Sensitivity = TP / (TP + FN) [Rules OUT disease when negative: SNOUT]\n• Specificity = TN / (TN + FP) [Rules IN disease when positive: SPIN]',
+          clinicalPearl: 'A high sensitivity test is ideal for screening; a high specificity test is ideal for confirmation.',
+        },
+        {
+          front: `What is the cold chain storage temperature for vaccines in ${rawTitle}?`,
+          back: '• Ice-Lined Refrigerator (ILR): +2°C to +8°C (most vaccines)\n• Deep Freezer: -15°C to -25°C (OPV, Rotavirus, yellow fever)',
+          clinicalPearl: 'T-series vaccines (TT, DPT, Hepatitis B) must NEVER be frozen (Shake test positive indicates vaccine damage).',
+        },
+        {
+          front: `What is the high-yield exam trap regarding study designs and statistical tests in ${rawTitle}?`,
+          back: psmTrap,
+          clinicalPearl: 'Parametric tests: Student t-test compares 2 means; ANOVA compares >2 means; Chi-square tests proportions.',
+        },
+      ],
+      clinicalCase: {
+        title: `Epidemiological & Public Health Evaluation: ${rawTitle}`,
+        patientDemographics: 'Community health survey / Primary health centre protocol',
+        presentation: `A public health officer is evaluating screening test performance and preventive intervention coverage for ${rawTitle}.`,
+        physicalExamOrLabs: psmDx,
+        diagnosticQuestion: 'Which public health intervention or biostatistical interpretation is correct?',
+        options: [
+          { key: 'A', text: psmRx, isCorrect: true },
+          { key: 'B', text: 'Administer frozen DPT vaccine without performing the shake test', isCorrect: false },
+          { key: 'C', text: 'Use Chi-square test to compare quantitative continuous means across 3 groups', isCorrect: false },
+          { key: 'D', text: 'Calculate Relative Risk directly from an unrepresentative case-control study', isCorrect: false },
+        ],
+        clinicalExplanation: `In community medicine and biostatistics, evidence-based preventive protocols (${psmRx}) and rigorous statistical testing guarantee community health program efficacy and valid epidemiologic inferences.`,
+        examPearl: psmTrap,
+      },
+    };
+  }
+
+  // 3. PHARMACOLOGY
+  if (sId.includes('pharm')) {
+    return {
+      topicId,
+      subjectId,
+      topicTitle: rawTitle,
+      highYieldSummary: `High-yield pharmacology review for ${rawTitle}. Focuses on mechanism of action, receptor selectivity, clinical indications, adverse drug reactions, and specific antidotes.`,
+      coreConcepts: [
+        `Receptor & Molecular Mechanism: Primary drug target, second-messenger cascade, and pharmacodynamic profile in ${rawTitle}.`,
+        `Drug of Choice & Guideline Regimens: Approved first-line indications, loading vs maintenance dosing, and renal adjustments.`,
+        `Adverse Effects & Black Box Warnings: Hallmark toxicities (e.g. QT prolongation, hepatotoxicity, nephrotoxicity, bone marrow suppression).`,
+        `Drug Interactions & CYP Metabolism: Inducers (Rifampin, Carbamazepine, Phenytoin) vs Inhibitors (Macrolides, Azoles, Cimetidine).`,
+        `Specific Antidote & Reversal Protocols: Timely administration of specific antagonists in overdose scenarios.`,
+      ],
+      keyTakeaways: [
+        'Memorize drug of choice for emergency conditions and pregnancy-safe alternatives.',
+        'Distinguish competitive antagonists (parallel right shift of dose-response curve) from non-competitive antagonists (downward flattening).',
+        'Know specific toxicity antidotes (e.g. Paracetamol: NAC; Opioids: Naloxone; Benzodiazepines: Flumazenil; Digoxin: DigiFab; Heparin: Protamine).',
+      ],
+      goldStandardTest: 'Therapeutic Drug Monitoring (TDM) / Serum drug levels and organ toxicity screening (LFT, RFT, ECG).',
+      firstLineTreatment: `Guideline-directed drug of choice and stepwise titration protocol for ${rawTitle}.`,
+      classicPresentation: `Patient presenting with clinical indication or acute drug toxicity related to ${rawTitle}.`,
+      examTrap: 'Never use non-selective beta-blockers in active bronchial asthma or Prinzmetal angina. Never give ACE inhibitors in bilateral renal artery stenosis or pregnancy.',
+      flashcards: [
+        {
+          front: `What is the primary mechanism of action and receptor target for drugs in ${rawTitle}?`,
+          back: `Direct receptor agonism/antagonism, enzyme inhibition, or ion channel modulation specific to ${rawTitle}.`,
+          clinicalPearl: 'Receptor selectivity often diminishes at supra-therapeutic dosages.',
+        },
+        {
+          front: `What is the hallmark adverse drug reaction (ADR) or toxicity of ${rawTitle}?`,
+          back: 'Specific organ toxicity, electrolyte abnormality, or idiosyncratic hypersensitivity reaction.',
+          clinicalPearl: 'Stevens-Johnson Syndrome (SJS) is strongly associated with HLA-B*1502 (Carbamazepine) and HLA-B*5701 (Abacavir).',
+        },
+        {
+          front: `What is the specific antidote or reversal strategy for toxicity involving ${rawTitle}?`,
+          back: 'Targeted competitive receptor antagonist, antibody fragment, or physiological antidote.',
+          clinicalPearl: 'In paracetamol overdose, N-acetylcysteine (NAC) replenishes glutathione; most effective within 8 hours of ingestion.',
+        },
+      ],
+      clinicalCase: {
+        title: `Clinical Pharmacology Case: ${rawTitle}`,
+        patientDemographics: '52-year-old patient on chronic medical therapy',
+        presentation: `Presents with clinical symptoms requiring evidence-based pharmacotherapy or experiencing acute drug-induced toxicity in ${rawTitle}.`,
+        physicalExamOrLabs: 'Laboratory screening demonstrates drug level alterations, electrolyte disturbances, or characteristic ECG changes.',
+        diagnosticQuestion: 'What is the most appropriate drug of choice, management of toxicity, or dosage adjustment?',
+        options: [
+          { key: 'A', text: `Initiate guideline-directed first-line pharmacotherapy with appropriate monitoring for ${rawTitle}`, isCorrect: true },
+          { key: 'B', text: 'Administer full-dose contraindicated agent with CYP450 inhibitor co-administration', isCorrect: false },
+          { key: 'C', text: 'Withhold all emergency antidote therapy in acute severe drug toxicity', isCorrect: false },
+          { key: 'D', text: 'Increase dosage without monitoring in acute organ failure', isCorrect: false },
+        ],
+        clinicalExplanation: `Rational pharmacotherapy for ${rawTitle} requires selecting the guideline drug of choice, avoiding known adverse interactions, and monitoring therapeutic drug levels and organ clearance.`,
+        examPearl: 'Always verify renal and hepatic function before prescribing narrow therapeutic index drugs.',
+      },
+    };
+  }
+
+  // 4. PATHOLOGY & MICROBIOLOGY
+  if (sId.includes('path') || sId.includes('micro')) {
+    return {
+      topicId,
+      subjectId,
+      topicTitle: rawTitle,
+      highYieldSummary: `High-yield pathology and microbiology review for ${rawTitle}. Master pathognomonic histopathological features, special stains, immunohistochemistry markers, and microbiological diagnostic tests.`,
+      coreConcepts: [
+        `Etiopathogenesis & Microscopic Hallmarks: Pathognomonic cell morphology, inclusion bodies, or bacterial/fungal structures in ${rawTitle}.`,
+        `Special Stains & Culturing: Ziehl-Neelsen for AFB, Gram stain, India Ink for Cryptococcus, PAS, Masson Trichrome, or Congo Red (apple-green birefringence).`,
+        `Immunohistochemistry & Molecular Genetics: Specific CD markers, translocations (e.g. t(9;22) CML, t(8;14) Burkitt), and oncogene mutations.`,
+        `Definitive Gold-Standard Diagnosis: Histopathology biopsy, PCR assay, serology (ELISA, Western blot), or automated culture systems (BACTEC).`,
+        `High-Frequency Board Trap: Differentiate lookalike histological patterns and false-positive serological cross-reactions.`,
+      ],
+      keyTakeaways: [
+        'Identify pathognomonic buzzwords (e.g. Reed-Sternberg cells = Hodgkin; Auer rods = AML; Starry sky = Burkitt; Orphan Annie eyes = Papillary thyroid cancer).',
+        'Special stains: Congo red with polarized microscopy yields apple-green birefringence in amyloidosis; PAS stains glycogen and fungi.',
+        'Microbiology: Optochin sensitive = Strep pneumoniae; Bacitracin sensitive = Strep pyogenes; Novobiocin resistant = Staph saprophyticus.',
+      ],
+      goldStandardTest: `Histopathological tissue biopsy with immunohistochemistry / PCR and culture for ${rawTitle}.`,
+      firstLineTreatment: `Targeted antimicrobial regimen or disease-specific guideline therapy for ${rawTitle}.`,
+      classicPresentation: `Patient presenting with characteristic clinical signs, biopsy findings, and laboratory markers of ${rawTitle}.`,
+      examTrap: 'Do not confuse similar-appearing inclusions (e.g. Negri bodies in Rabies vs Guarnieri bodies in Smallpox vs Cowdry bodies in HSV).',
+      flashcards: [
+        {
+          front: `What is the pathognomonic microscopic finding or special stain for ${rawTitle}?`,
+          back: `Characteristic cellular inclusion, architectural pattern, or diagnostic staining reaction for ${rawTitle}.`,
+          clinicalPearl: 'FMGE board questions frequently test the classic microscopic buzzwords and translocations.',
+        },
+        {
+          front: `What is the gold-standard confirmatory diagnostic assay for ${rawTitle}?`,
+          back: `Tissue histopathology, PCR nucleic acid amplification, or automated culture identification.`,
+          clinicalPearl: 'Differentiate rapid screening tests from definitive confirmatory gold-standard investigations.',
+        },
+        {
+          front: `What is the top board exam distractor or lookalike differential in ${rawTitle}?`,
+          back: 'Confusing related microbiological species or lookalike histopathological neoplasms.',
+          clinicalPearl: 'Scrutinize patient age, histological architecture, and IHC marker profiles.',
+        },
+      ],
+      clinicalCase: {
+        title: `Pathological & Diagnostic Evaluation: ${rawTitle}`,
+        patientDemographics: 'Clinical and biopsy evaluation in an adult patient',
+        presentation: `Presents with symptoms and examination findings requiring diagnostic tissue evaluation and laboratory workup for ${rawTitle}.`,
+        physicalExamOrLabs: 'Biopsy and laboratory assays reveal characteristic histological features, special stain positivity, and diagnostic markers.',
+        diagnosticQuestion: 'What is the most likely diagnosis, pathognomonic marker, or definitive confirmatory test?',
+        options: [
+          { key: 'A', text: `Diagnostic confirmation through gold-standard histological or microbiological identification for ${rawTitle}`, isCorrect: true },
+          { key: 'B', text: 'Empirical broad-spectrum therapy without obtaining diagnostic cultures or biopsy', isCorrect: false },
+          { key: 'C', text: 'Discharge without follow-up of abnormal histopathology findings', isCorrect: false },
+          { key: 'D', text: 'Misinterpret classic pathognomonic cellular morphology as normal artifact', isCorrect: false },
+        ],
+        clinicalExplanation: `Definitive diagnosis of ${rawTitle} requires correlation of clinical presentation with pathognomonic histopathological features, specific immunohistochemical staining, and microbiological culture confirmation.`,
+        examPearl: 'Always verify CD marker expression and chromosomal translocations in hematopathology vignettes.',
+      },
+    };
+  }
+
+  // Specialty synthesis strictly bounded to the target topic title
+  const clusters = [
+    `Clinical & Applied Concepts (${rawTitle}): Core anatomical, physiological, and clinical principles for FMGE.`,
+    `Diagnostic Stratification: Gold-standard confirmatory modalities and hallmark clinical presentation in ${rawTitle}.`,
+    `Stepwise Management: Guideline-directed first-line drug of choice, dosage, or definitive surgical protocol for ${rawTitle}.`,
+    `Exam Pitfalls & Traps: Top distractor traps, lookalikes, and high-frequency exam pearls for ${rawTitle}.`,
+    `Core Monitoring: Objective criteria for treatment response, complications, and emergency escalation in ${rawTitle}.`,
+  ];
+
+  // Generic clinical specialty synthesis strictly bounded to the target topic
   return {
     topicId,
     subjectId,
     topicTitle: rawTitle,
-    highYieldSummary: `Clinical high-yield core synthesis for ${rawTitle} in ${subjectId.toUpperCase()}, emphasizing board-tested diagnostic criteria and evidence-based management.`,
-    coreConcepts: [
-      `Clinical Core (${rawTitle}): Primary pathophysiological mechanisms, diagnostic criteria, and clinical features tested in FMGE.`,
-      'Diagnostic Stratification: Differentiate initial screening tests from definitive confirmatory gold-standard modalities.',
-      'Stepwise Management: Protocolized therapeutic escalation from first-line medical therapy to interventional modalities.',
-      'Exam Pitfalls & Traps: Distinguish classic clinical presentations from lookalike differentials and exam distractors.',
-      'Core Monitoring: Systematic assessment of treatment response, toxicities, and guideline-directed escalation triggers.',
-    ],
+    highYieldSummary: `Clinical high-yield core synthesis for ${rawTitle} in ${subjectId.toUpperCase()}, emphasizing board-tested diagnostic criteria, anatomical/physiological relations, and evidence-based management.`,
+    coreConcepts: clusters,
     keyTakeaways: [
-      `Master the hallmark clinical signs and diagnostic criteria for ${rawTitle}.`,
-      'Prioritize definitive diagnostic confirmation over non-specific screening findings.',
-      'Follow international guideline consensus for therapeutic escalation.',
+      `Master the hallmark clinical signs, structural relations, and diagnostic criteria for ${rawTitle}.`,
+      `Prioritize definitive diagnostic confirmation over non-specific screening findings in ${rawTitle}.`,
+      `Follow international guideline consensus and first-line drug protocols for ${rawTitle}.`,
     ],
-    goldStandardTest: `Definitive histopathologic, radiographic, or biomarker confirmation for ${rawTitle}.`,
-    firstLineTreatment: `Evidence-based first-line guideline therapy for ${rawTitle}.`,
-    classicPresentation: `A patient presenting with hallmark symptoms and signs of ${rawTitle}.`,
-    examTrap: `Do not confuse ${rawTitle} with closely related lookalike clinical mimics on board vignettes.`,
+    goldStandardTest: `Definitive diagnostic modality, imaging, or biomarker confirmation for ${rawTitle}.`,
+    firstLineTreatment: `Evidence-based first-line guideline therapy and drug of choice for ${rawTitle}.`,
+    classicPresentation: `A patient presenting with hallmark symptoms, examination findings, and classic clinical signs of ${rawTitle}.`,
+    examTrap: `Do not confuse ${rawTitle} with closely related lookalike clinical mimics or adjacent anatomical structures on board vignettes.`,
     flashcards: [
       {
-        front: `What is the key diagnostic discriminator for ${rawTitle}?`,
-        back: 'Identify the hallmark clinical sign and confirm with the definitive gold-standard diagnostic modality.',
-        clinicalPearl: 'Always verify the primary diagnostic criteria before initiating aggressive therapy.',
+        front: `What is the key high-yield discriminator for ${rawTitle}?`,
+        back: `Identify the hallmark clinical sign, anatomical boundary, or biochemical mechanism for ${rawTitle}.`,
+        clinicalPearl: `Always verify the primary diagnostic criteria for ${rawTitle} before initiating aggressive therapy.`,
       },
       {
-        front: `What is the first-line evidence-based management for ${rawTitle}?`,
-        back: 'Initiate protocolized first-line medical or surgical intervention according to international clinical practice guidelines.',
+        front: `What is the first-line evidence-based management or clinical priority in ${rawTitle}?`,
+        back: `Initiate protocolized first-line medical or surgical intervention for ${rawTitle} according to clinical practice guidelines.`,
         clinicalPearl: 'Prompt institution of first-line therapy prevents secondary complications.',
       },
       {
-        front: `What is the definitive gold-standard test to establish diagnosis of ${rawTitle}?`,
-        back: 'Perform targeted gold-standard biopsy, imaging, or specific serological/molecular biomarker confirmation.',
+        front: `What is the definitive gold-standard test or anatomical landmark to establish diagnosis of ${rawTitle}?`,
+        back: `Perform targeted gold-standard imaging, laboratory assay, or surgical identification for ${rawTitle}.`,
         clinicalPearl: 'Distinguish initial screening modalities from definitive confirmatory diagnostic tests.',
       },
       {
         front: `What is the most high-frequency board exam trap associated with ${rawTitle}?`,
-        back: 'Confusing this entity with close syndromic mimics or initiating inappropriate empirical therapy without confirmation.',
+        back: `Confusing ${rawTitle} with adjacent anatomical structures or starting inappropriate empirical therapy without confirmation.`,
         clinicalPearl: 'Scrutinize patient age, demographic risks, and unique discriminating exam findings.',
       },
       {
@@ -1223,7 +1573,7 @@ function synthesizeTopicKnowledge(
       physicalExamOrLabs: 'Diagnostic workup reveals characteristic laboratory and imaging findings.',
       diagnosticQuestion: 'What is the most appropriate next step in diagnosis or management?',
       options: [
-        { key: 'A', text: 'Guideline-directed first-line diagnostic confirmation and management', isCorrect: true },
+        { key: 'A', text: `Guideline-directed first-line diagnostic confirmation and management for ${rawTitle}`, isCorrect: true },
         { key: 'B', text: 'Inappropriate empirical high-risk therapy without diagnostic confirmation', isCorrect: false },
         { key: 'C', text: 'Discharge with reassurance and no follow-up plan', isCorrect: false },
         { key: 'D', text: 'Immediate unindicated invasive exploratory intervention', isCorrect: false },
@@ -1242,42 +1592,51 @@ export function getMedicalTopicKnowledge(
   topicId: string,
   topicName?: string
 ): MedicalTopicKnowledge {
-  const sId = (subjectId || '').toLowerCase();
-  const tId = (topicId || '').toLowerCase();
-  const name = (topicName || '').toLowerCase();
+  const sId = (subjectId || '').toLowerCase().trim();
+  const tId = (topicId || '').toLowerCase().trim();
+  const name = (topicName || '').toLowerCase().trim();
 
   // 1. Exact match in knowledge base
   if (FMGE_TOPIC_KNOWLEDGE_BASE[tId]) {
     return FMGE_TOPIC_KNOWLEDGE_BASE[tId];
   }
 
-  // 2. Exact match in knowledge base by ID aliases
+  // 2. Exact match in knowledge base by ID (strict equality or direct sub-topic 'tId-sub')
   for (const key of Object.keys(FMGE_TOPIC_KNOWLEDGE_BASE)) {
-    if (tId === key || tId.startsWith(key)) {
+    if (tId === key || tId === `${key}-1`) {
       return FMGE_TOPIC_KNOWLEDGE_BASE[key];
     }
   }
 
-  // 3. Match specific high-yield topic IDs
-  if (tId.includes('ped-1') || ((sId.includes('ped') || name.includes('pediatric')) && (name.includes('growth') || name.includes('anthropometry') || name.includes('weight') || name.includes('height')))) {
+  // 3. Match specific high-yield topic IDs by canonical title or distinctive keywords
+  if (tId === 'anat-8' || (name.includes('peritoneum') && (name.includes('celiac') || name.includes('foramen')))) {
+    return FMGE_TOPIC_KNOWLEDGE_BASE['anat-8'];
+  }
+  if (tId === 'anat-13' || (name.includes('embryology') && (name.includes('pharyngeal') || name.includes('heart dev')))) {
+    return FMGE_TOPIC_KNOWLEDGE_BASE['anat-13'];
+  }
+  if (tId === 'anat-4' || (name.includes('knee joint') && name.includes('peroneal'))) {
+    if (FMGE_TOPIC_KNOWLEDGE_BASE['anat-4']) return FMGE_TOPIC_KNOWLEDGE_BASE['anat-4'];
+  }
+  if (tId === 'ped-1' || ((sId.includes('ped') || name.includes('pediatric')) && (name.includes('growth') || name.includes('anthropometry')))) {
     return FMGE_TOPIC_KNOWLEDGE_BASE['ped-1'];
   }
-  if (tId.includes('ped-2') || ((sId.includes('ped') || name.includes('pediatric')) && (name.includes('milestone') || name.includes('motor') || name.includes('social') || name.includes('pincer')))) {
+  if (tId === 'ped-2' || ((sId.includes('ped') || name.includes('pediatric')) && (name.includes('milestone') || name.includes('pincer')))) {
     return FMGE_TOPIC_KNOWLEDGE_BASE['ped-2'];
   }
-  if (tId.includes('ped-3') || ((sId.includes('ped') || name.includes('pediatric')) && (name.includes('resuscitation') || name.includes('nrp') || name.includes('apgar')))) {
+  if (tId === 'ped-3' || ((sId.includes('ped') || name.includes('pediatric')) && (name.includes('resuscitation') || name.includes('nrp') || name.includes('apgar')))) {
     return FMGE_TOPIC_KNOWLEDGE_BASE['ped-3'];
   }
-  if (tId.includes('surg-1') || (sId.includes('surg') && (name.includes('trauma') || name.includes('atls') || name.includes('fast')))) {
+  if (tId === 'surg-1' || (sId.includes('surg') && (name.includes('trauma') || name.includes('atls') || name.includes('fast')))) {
     return FMGE_TOPIC_KNOWLEDGE_BASE['surg-1'];
   }
-  if (tId.includes('surg-2') || (sId.includes('surg') && (name.includes('burn') || name.includes('parkland')))) {
+  if (tId === 'surg-2' || (sId.includes('surg') && (name.includes('burn') || name.includes('parkland')))) {
     return FMGE_TOPIC_KNOWLEDGE_BASE['surg-2'];
   }
-  if (tId.includes('obg-4') || (sId.includes('obg') && (name.includes('preeclampsia') || name.includes('eclampsia') || name.includes('mgso4') || name.includes('pritchard')))) {
+  if (tId === 'obg-4' || (sId.includes('obg') && (name.includes('preeclampsia') || name.includes('mgso4') || name.includes('pritchard')))) {
     return FMGE_TOPIC_KNOWLEDGE_BASE['obg-4'];
   }
 
-  // 4. Dynamic subject-aware synthesis (GUARANTEES 100% subject consistency, NEVER leaks microbiology)
+  // 4. Dynamic topic-specific synthesis (GUARANTEES 100% topic consistency, NEVER leaks unrelated topics)
   return synthesizeTopicKnowledge(subjectId, topicId, topicName);
 }

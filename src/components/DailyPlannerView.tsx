@@ -11,7 +11,7 @@ import {
   Target,
   Smile,
   Calendar,
-  Sparkles,
+  BookmarkCheck,
   Volume2,
   VolumeX,
   Check
@@ -245,20 +245,20 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
   return (
     <div className="space-y-6 pb-20">
       {/* Top Bento Header & Goals Banner */}
-      <div className="bento-card p-6 bg-white flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bento-card p-6 bg-[#faf7f2] flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-white font-bold">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#faf7f2] text-[#121e1b] font-bold">
             <Clock className="h-5 w-5" />
           </div>
           <div>
-            <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-bold text-slate-900">Daily Study Planner & Focus Engine</h2>
-              <span className="rounded-full bg-amber-50 text-amber-900 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-amber-200 flex items-center space-x-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-lg font-bold text-[#121e1b]">Daily Study Planner & Focus Engine</h2>
+              <span className="rounded-full bg-[#f4eee7] text-[#121e1b] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-amber-200 flex items-center space-x-1">
                 <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
                 <span>Target: {state.settings.dailyStudyHourGoal}h / day</span>
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[#3d4947] mt-0.5">
               Maintain high-yield MCQ momentum and log structured focus blocks.
             </p>
           </div>
@@ -266,21 +266,21 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
         {/* Today's Stats Counters */}
         <div className="flex items-center space-x-3 self-start md:self-center">
-          <div className="bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200 text-center">
-            <span className="text-[10px] text-slate-400 font-bold uppercase block">Study Hours</span>
-            <span className="font-display text-base font-extrabold text-slate-900">
+          <div className="bg-[#f4eee7] px-4 py-2.5 rounded-2xl border border-[#e0d8cd] text-center">
+            <span className="text-[10px] text-[#3d4947] font-bold uppercase block">Study Hours</span>
+            <span className="font-display text-base font-extrabold text-[#121e1b]">
               {(todayLog.studyMinutes / 60).toFixed(1)} / {state.settings.dailyStudyHourGoal}h
             </span>
           </div>
 
-          <div className="bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200 text-center">
-            <span className="text-[10px] text-slate-400 font-bold uppercase block">MCQs Solved</span>
+          <div className="bg-[#f4eee7] px-4 py-2.5 rounded-2xl border border-[#e0d8cd] text-center">
+            <span className="text-[10px] text-[#3d4947] font-bold uppercase block">MCQs Solved</span>
             <input
               type="number"
               min="0"
               value={todayLog.questionsSolved}
               onChange={(e) => onUpdateDailyLog(todayStr, { questionsSolved: Number(e.target.value) })}
-              className="w-16 text-center font-display text-base font-extrabold text-slate-900 bg-white border border-slate-200 rounded-xl py-0.5"
+              className="w-16 text-center font-display text-base font-extrabold text-[#121e1b] bg-[#faf7f2] border border-[#e0d8cd] rounded-xl py-0.5"
             />
           </div>
         </div>
@@ -291,17 +291,17 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
         <div className="rounded-3xl border border-sky-200/80 bg-gradient-to-br from-sky-50 to-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-600">
-                <Sparkles className="h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#e0d8cd] text-[#121e1b]">
+                <BookmarkCheck className="h-5 w-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold font-['Outfit'] text-slate-900">Today&apos;s Personalized Plan</h3>
-                  <span className="rounded-full bg-sky-100 text-sky-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                  <h3 className="text-sm font-bold font-['Outfit'] text-[#121e1b]">Today&apos;s Personalized Plan</h3>
+                  <span className="rounded-2xl bg-[#e0d8cd] text-[#121e1b] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                     <Target className="h-3 w-3" /> {dailyPlan.phaseTitle}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-[#3d4947] mt-0.5">
                   {dailyPlan.tasks.length} task{dailyPlan.tasks.length > 1 ? 's' : ''} · {dailyPlan.availableMinutes} min
                 </p>
               </div>
@@ -310,14 +310,14 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={startTopPriority}
-                className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#e0d8cd] hover:bg-[#f4eee7] text-[#121e1b] px-4 py-2 text-xs font-semibold shadow-sm transition-colors cursor-pointer"
               >
                 <Play className="h-3.5 w-3.5 fill-white" /> Start Top Priority
               </button>
               <button
                 type="button"
                 onClick={addPlanToChecklist}
-                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 text-xs font-semibold transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#e0d8cd] bg-[#faf7f2] hover:bg-[#f4eee7] text-slate-700 px-4 py-2 text-xs font-semibold transition-colors cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5" /> Add to Checklist
               </button>
@@ -328,36 +328,36 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             {dailyPlan.tasks.slice(0, 4).map((task) => (
               <div
                 key={task.id}
-                className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white px-3.5 py-2.5"
+                className="flex items-center gap-3 rounded-2xl border border-[#e0d8cd]/80 bg-[#faf7f2] px-3.5 py-2.5"
               >
                 <span
                   className="w-1.5 self-stretch rounded-full"
-                  style={{ backgroundColor: task.subjectColor || '#0f172a' }}
+                  style={{ backgroundColor: task.subjectColor || '#4a3b32' }}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 truncate">
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{task.subjectCode}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-[#3d4947]">{task.subjectCode}</span>
                     <span className="text-[11px] font-medium text-sky-600">{task.activityLabel}</span>
                   </div>
-                  <p className="text-xs font-semibold text-slate-800 truncate">{task.topicName}</p>
+                  <p className="text-xs font-semibold text-[#3d4947] truncate">{task.topicName}</p>
                 </div>
-                <span className="text-[11px] font-semibold text-slate-500 tabular-nums shrink-0">{task.durationMinutes} min</span>
+                <span className="text-[11px] font-semibold text-[#3d4947] tabular-nums shrink-0">{task.durationMinutes} min</span>
               </div>
             ))}
           </div>
-          <p className="text-[11px] text-slate-400 mt-3">{dailyPlan.phaseDescription}</p>
+          <p className="text-[11px] text-[#3d4947] mt-3">{dailyPlan.phaseDescription}</p>
         </div>
       )}
 
       {/* Main Bento Grid: Pomodoro Focus Box & Task Planner */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left Column (Span 4): Built-In Focus Pomodoro Timer */}
-        <div className="lg:col-span-5 bento-card p-6 bg-slate-900 text-white space-y-6 flex flex-col justify-between">
+        <div className="lg:col-span-5 p-6 bg-[#faf7f2] text-[#121e1b] space-y-6 flex flex-col justify-between rounded-2xl">
           <div>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="w-2 h-2 bg-sky-400 rounded-full animate-ping" />
-                <h3 className="font-bold font-['Outfit'] text-white text-base">Study Focus Timer</h3>
+                <h3 className="font-bold font-['Outfit'] text-[#121e1b] text-base">Study Focus Timer</h3>
               </div>
 
               {/* Ambient Sound Mode selector */}
@@ -365,7 +365,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <button
                   onClick={() => handleSoundToggle(soundMode === 'alpha' ? 'off' : 'alpha')}
                   className={`text-[10px] font-bold font-['Outfit'] uppercase px-2.5 py-1 rounded-full transition-colors cursor-pointer ${
-                    soundMode === 'alpha' ? 'bg-sky-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                    soundMode === 'alpha' ? 'bg-sky-500 text-[#121e1b]' : 'bg-[#e0d8cd] text-[#3d4947] hover:text-[#121e1b]'
                   }`}
                   title="Alpha Waves (10Hz Focus)"
                 >
@@ -374,7 +374,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <button
                   onClick={() => handleSoundToggle(soundMode === 'rain' ? 'off' : 'rain')}
                   className={`text-[10px] font-bold font-['Outfit'] uppercase px-2.5 py-1 rounded-full transition-colors cursor-pointer ${
-                    soundMode === 'rain' ? 'bg-sky-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                    soundMode === 'rain' ? 'bg-sky-500 text-[#121e1b]' : 'bg-[#e0d8cd] text-[#3d4947] hover:text-[#121e1b]'
                   }`}
                   title="Soft Rain"
                 >
@@ -383,7 +383,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <button
                   onClick={() => handleSoundToggle(soundMode === 'whitenoise' ? 'off' : 'whitenoise')}
                   className={`text-[10px] font-bold font-['Outfit'] uppercase px-2.5 py-1 rounded-full transition-colors cursor-pointer ${
-                    soundMode === 'whitenoise' ? 'bg-sky-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                    soundMode === 'whitenoise' ? 'bg-sky-500 text-[#121e1b]' : 'bg-[#e0d8cd] text-[#3d4947] hover:text-[#121e1b]'
                   }`}
                   title="White Noise"
                 >
@@ -393,11 +393,11 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             </div>
 
             {/* Timer Modes */}
-            <div className="grid grid-cols-4 gap-1 p-1 bg-slate-800/90 rounded-full mt-4 text-[11px] font-bold font-['Outfit'] text-center">
+            <div className="grid grid-cols-4 gap-1 p-1 bg-[#e0d8cd]/90 rounded-full mt-4 text-[11px] font-bold font-['Outfit'] text-center">
               <button
                 onClick={() => handleModeChange('pomodoro')}
                 className={`py-1.5 rounded-full transition-colors cursor-pointer ${
-                  timerMode === 'pomodoro' ? 'bg-sky-500 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                  timerMode === 'pomodoro' ? 'bg-sky-500 text-[#121e1b] shadow-xs' : 'text-[#3d4947] hover:text-[#121e1b]'
                 }`}
               >
                 25m
@@ -405,7 +405,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 onClick={() => handleModeChange('short_break')}
                 className={`py-1.5 rounded-full transition-colors cursor-pointer ${
-                  timerMode === 'short_break' ? 'bg-sky-500 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                  timerMode === 'short_break' ? 'bg-sky-500 text-[#121e1b] shadow-xs' : 'text-[#3d4947] hover:text-[#121e1b]'
                 }`}
               >
                 5m
@@ -413,7 +413,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 onClick={() => handleModeChange('long_break')}
                 className={`py-1.5 rounded-full transition-colors cursor-pointer ${
-                  timerMode === 'long_break' ? 'bg-sky-500 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                  timerMode === 'long_break' ? 'bg-sky-500 text-[#121e1b] shadow-xs' : 'text-[#3d4947] hover:text-[#121e1b]'
                 }`}
               >
                 15m
@@ -421,7 +421,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 onClick={() => handleModeChange('stopwatch')}
                 className={`py-1.5 rounded-full transition-colors cursor-pointer ${
-                  timerMode === 'stopwatch' ? 'bg-sky-500 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                  timerMode === 'stopwatch' ? 'bg-sky-500 text-[#121e1b] shadow-xs' : 'text-[#3d4947] hover:text-[#121e1b]'
                 }`}
               >
                 Watch
@@ -433,7 +433,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <div className="font-mono text-6xl sm:text-7xl font-bold tracking-tight text-sky-300">
                 {formatTime(timeLeft)}
               </div>
-              <div className="text-xs text-slate-400 mt-2 capitalize font-semibold">
+              <div className="text-xs text-[#3d4947] mt-2 capitalize font-semibold">
                 {timerMode === 'pomodoro' ? 'Deep Focus Sprint' : timerMode.replace('_', ' ')}
               </div>
             </div>
@@ -442,14 +442,14 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             <div className="flex items-center justify-center space-x-3">
               <button
                 onClick={() => setIsRunning(!isRunning)}
-                className="w-14 h-14 rounded-full bg-white text-slate-900 hover:bg-slate-100 flex items-center justify-center font-bold shadow-lg active:scale-95 transition-all cursor-pointer"
+                className="w-14 h-14 rounded-full bg-[#faf7f2] text-[#121e1b] hover:bg-[#faf7f2] flex items-center justify-center font-bold shadow-lg active:scale-95 transition-all cursor-pointer"
               >
                 {isRunning ? <Pause className="h-6 w-6 fill-current" /> : <Play className="h-6 w-6 fill-current ml-0.5" />}
               </button>
 
               <button
                 onClick={() => handleModeChange(timerMode)}
-                className="p-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-full transition-colors cursor-pointer"
+                className="p-3.5 bg-[#e0d8cd] hover:bg-slate-700 text-slate-300 hover:text-[#121e1b] rounded-full transition-colors cursor-pointer"
                 title="Reset Timer"
               >
                 <RotateCcw className="h-5 w-5" />
@@ -457,19 +457,19 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             </div>
           </div>
 
-          <div className="text-center pt-4 border-t border-slate-800 text-[11px] text-slate-400">
+          <div className="text-center pt-4 border-t border-[#e0d8cd] text-[11px] text-[#3d4947]">
             Completing 25m focus automatically logs +25 min to today&apos;s study record.
           </div>
         </div>
 
         {/* Right Column (Span 7): Today's Tasks Checklist */}
-        <div className="lg:col-span-7 rounded-3xl border border-slate-200/80 bg-white p-6 space-y-4 shadow-sm">
+        <div className="lg:col-span-7 rounded-2xl border border-[#e0d8cd]/80 bg-[#faf7f2] p-6 space-y-4 shadow-sm">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 bg-sky-500 rounded-full" />
               <div>
-                <h3 className="text-base font-bold font-['Outfit'] text-slate-900">Today&apos;s Study Action Checklist</h3>
-                <p className="text-xs text-slate-500">
+                <h3 className="text-base font-bold font-['Outfit'] text-[#121e1b]">Today&apos;s Study Action Checklist</h3>
+                <p className="text-xs text-[#3d4947]">
                   Completed {state.dailyTasks.filter((t) => t.completed).length} of {state.dailyTasks.length} tasks
                 </p>
               </div>
@@ -477,7 +477,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
             <button
               onClick={() => setShowAddTask(true)}
-              className="flex items-center gap-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 text-xs font-semibold shadow-xs transition-all"
+              className="flex items-center gap-1.5 rounded-full bg-[#e0d8cd] hover:bg-[#f4eee7] text-[#121e1b] px-4 py-2 text-xs font-semibold shadow-xs transition-all"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Add Task</span>
@@ -492,42 +492,40 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               return (
                 <div
                   key={task.id}
-                  className={`p-3.5 rounded-2xl border flex items-center justify-between transition-all ${
-                    task.completed
-                      ? 'bg-slate-50 border-slate-200 text-slate-400'
-                      : 'bg-white border-slate-200 hover:border-slate-300 text-slate-800 shadow-xs'
-                  }`}
+                  className="p-3.5 rounded-2xl border flex items-center items-start justify-between transition-all border-[#e0d8cd] ${
+                    task.completed ? 'bg-[#f4eee7] text-[#3d4947]' : 'bg-[#faf7f2] text-[#121e1b]'
+                  }"
                 >
                   <div
                     onClick={() => onToggleTask(task.id)}
-                    className="flex items-center space-x-3 cursor-pointer flex-1"
+                    className="flex items-start space-x-3 cursor-pointer flex-1"
                   >
                     <button
                       type="button"
-                      className={`h-5 w-5 rounded-full flex items-center justify-center transition-colors ${
-                        task.completed ? 'bg-emerald-500 text-white' : 'border border-slate-300 hover:border-slate-500'
-                      }`}
+                      className="h-5 w-5 rounded-full flex items-center justify-center transition-colors ${
+                        task.completed ? 'bg-sky-600 text-[#121e1b]' : 'border border-slate-200 hover:border-slate-400'
+                      }"
                     >
                       {task.completed && <Check className="h-3 w-3" />}
                     </button>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2">
                         <span
-                          className="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white uppercase"
-                          style={{ backgroundColor: sub?.color || '#0f172a' }}
+                          className="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-[#121e1b] uppercase"
+                          style={{ backgroundColor: sub?.color || '#4a3b32' }}
                         >
                           {sub?.code || 'GEN'}
                         </span>
-                        <span className={`text-xs font-semibold ${task.completed ? 'line-through text-slate-400' : 'text-slate-900'}`}>
+                        <span className="text-xs font-semibold truncate">
                           {task.title}
                         </span>
                       </div>
-                      <div className="flex items-center space-x-2 mt-1 text-[11px] text-slate-500">
-                        <span className="capitalize font-medium">{task.type}</span>
-                        <span>•</span>
-                        <span>{task.durationMinutes} min</span>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className="capitalize font-medium text-[11px]">{task.type}</span>
+                        <span className="mx-1">•</span>
+                        <span className="text-[11px]">{task.durationMinutes} min</span>
                         {task.priority === 'high' && (
-                          <span className="px-2 py-0.2 rounded-full bg-rose-50 text-rose-700 border border-rose-200 font-bold text-[10px]">
+                          <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200">
                             High Priority
                           </span>
                         )}
@@ -537,7 +535,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
                   <button
                     onClick={() => onDeleteTask(task.id)}
-                    className="text-slate-300 hover:text-rose-600 p-1.5 rounded-full hover:bg-rose-50 transition-colors"
+                    className="text-[#3d4947] hover:text-rose-600 p-1.5 rounded-full hover:bg-rose-50 transition-colors"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -547,8 +545,8 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           </div>
 
           {state.dailyTasks.length === 0 && (
-            <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-              <p className="text-xs text-slate-500">No tasks planned for today yet. Add your daily high-yield goals above!</p>
+            <div className="text-center py-10 bg-[#f4eee7] rounded-2xl border border-dashed border-slate-300">
+              <p className="text-xs text-[#3d4947]">No tasks planned for today yet. Add your daily high-yield goals above!</p>
             </div>
           )}
         </div>
@@ -556,10 +554,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
       {/* MODAL: ADD TASK */}
       {showAddTask && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-            <h3 className="text-lg font-bold text-slate-900">Add Today's Study Task</h3>
-            <p className="text-xs text-slate-500 mt-0.5">Plan a high-yield study or MCQ block.</p>
+        <div className="fixed inset-0 z-50 bg-[#faf7f2]/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#e0d8cd]">
+            <h3 className="text-lg font-bold text-[#121e1b]">Add Today's Study Task</h3>
+            <p className="text-xs text-[#3d4947] mt-0.5">Plan a high-yield study or MCQ block.</p>
 
             <form onSubmit={handleCreateTask} className="space-y-4 mt-4 text-xs">
               <div>
@@ -570,7 +568,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   placeholder="e.g. Solve 50 MCQs of OBG Preeclampsia"
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full p-2.5 bg-[#f4eee7] border border-[#e0d8cd] rounded-xl text-xs"
                 />
               </div>
 
@@ -580,7 +578,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <select
                     value={newTaskSubject}
                     onChange={(e) => setNewTaskSubject(e.target.value)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"
+                    className="w-full p-2.5 bg-[#f4eee7] border border-[#e0d8cd] rounded-xl text-xs font-medium"
                   >
                     {FMGE_SUBJECTS.map((sub) => (
                       <option key={sub.id} value={sub.id}>
@@ -595,7 +593,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <select
                     value={newTaskType}
                     onChange={(e) => setNewTaskType(e.target.value as any)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"
+                    className="w-full p-2.5 bg-[#f4eee7] border border-[#e0d8cd] rounded-xl text-xs font-medium"
                   >
                     <option value="qbank">QBank / MCQs</option>
                     <option value="video">Video / Notes</option>
@@ -616,7 +614,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                     step="5"
                     value={newTaskDuration}
                     onChange={(e) => setNewTaskDuration(Number(e.target.value))}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"
+                    className="w-full p-2.5 bg-[#f4eee7] border border-[#e0d8cd] rounded-xl text-xs font-medium"
                   />
                 </div>
 
@@ -625,7 +623,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <select
                     value={newTaskPriority}
                     onChange={(e) => setNewTaskPriority(e.target.value as any)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"
+                    className="w-full p-2.5 bg-[#f4eee7] border border-[#e0d8cd] rounded-xl text-xs font-medium"
                   >
                     <option value="high">High Priority</option>
                     <option value="medium">Medium</option>
@@ -638,13 +636,13 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowAddTask(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full font-bold"
+                  className="px-4 py-2 bg-[#faf7f2] hover:bg-slate-200 text-slate-700 rounded-full font-bold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-full font-bold shadow-xs"
+                  className="px-4 py-2 bg-[#e0d8cd] hover:bg-[#f4eee7] text-[#121e1b] rounded-full font-bold shadow-xs"
                 >
                   Add Task
                 </button>

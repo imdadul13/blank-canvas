@@ -3,53 +3,28 @@ import {
   BarChart3,
   Plus,
   Trash2,
-  CheckCircle2,
-  AlertTriangle,
-  Sparkles,
-  BookOpen,
   Calendar,
-  Layers,
+  AlertTriangle,
   Award,
-  Flame,
-  Check
+  CheckCircle2,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { GrandTest, ErrorNotebookItem, AppState } from '../types';
+import { GrandTest, AppState } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { getLocalDateKey } from '../utils/date';
-import { ConceptRemediationModal } from './ConceptRemediationModal';
-import {
-  extractConceptGap,
-  generateConceptRemediationPackage,
-  groupErrorsByConcept,
-  ConceptRemediationPackage,
-} from '../utils/errorRemediationEngine';
 
 interface GrandTestsViewProps {
   state: AppState;
   onAddGrandTest: (gt: GrandTest) => void;
   onDeleteGrandTest: (id: string) => void;
-  onAddErrorItem: (item: ErrorNotebookItem) => void;
-  onToggleErrorReviewed: (id: string) => void;
-  onDeleteErrorItem: (id: string) => void;
-  onOpenAiCoach: (initialTab?: 'vignette' | 'concept' | 'diagnosis') => void;
-  onUpdateAppState?: (updater: (prev: AppState) => AppState) => void;
 }
 
 export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
   state,
   onAddGrandTest,
   onDeleteGrandTest,
-  onAddErrorItem,
-  onToggleErrorReviewed,
-  onDeleteErrorItem,
-  onOpenAiCoach,
-  onUpdateAppState,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'tests' | 'error_notebook'>('tests');
   const [showAddGTModal, setShowAddGTModal] = useState(false);
-  const [showAddErrorModal, setShowAddErrorModal] = useState(false);
-  const [activeRemediationPackage, setActiveRemediationPackage] = useState<ConceptRemediationPackage | null>(null);
 
   // New GT Form State
   const [newGT, setNewGT] = useState<Partial<GrandTest>>({
@@ -67,17 +42,6 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
     weakSubjectIds: [],
     strongSubjectIds: [],
     keyMistakesNotes: '',
-  });
-
-  // New Error Notebook Item State
-  const [newError, setNewError] = useState<Partial<ErrorNotebookItem>>({
-    subjectId: 'medicine',
-    topic: '',
-    questionGist: '',
-    myMistake: '',
-    correctConcept: '',
-    isReviewed: false,
-    dateAdded: getLocalDateKey(),
   });
 
   const handleSaveGT = (e: React.FormEvent) => {
@@ -131,34 +95,6 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
     });
   };
 
-  const handleSaveError = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newError.questionGist || !newError.correctConcept) return;
-
-    const item: ErrorNotebookItem = {
-      id: `err-${Date.now()}`,
-      subjectId: newError.subjectId || 'medicine',
-      topic: newError.topic || 'General Topic',
-      questionGist: newError.questionGist || '',
-      myMistake: newError.myMistake || '',
-      correctConcept: newError.correctConcept || '',
-      isReviewed: false,
-      dateAdded: newError.dateAdded || getLocalDateKey(),
-    };
-
-    onAddErrorItem(item);
-    setShowAddErrorModal(false);
-    setNewError({
-      subjectId: 'medicine',
-      topic: '',
-      questionGist: '',
-      myMistake: '',
-      correctConcept: '',
-      isReviewed: false,
-      dateAdded: getLocalDateKey(),
-    });
-  };
-
   const toggleWeakSubject = (subjectId: string) => {
     const curr = newGT.weakSubjectIds || [];
     if (curr.includes(subjectId)) {
@@ -169,374 +105,194 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
   };
 
   const gts = state.grandTests || [];
-  const errors = state.errorNotebook || [];
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Top Bento Header & Action Bar */}
-      <div className="bento-card p-6 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-white font-bold">
-            <BarChart3 className="h-5 w-5" />
+    <div className="page-container space-y-8 font-['Inter'] text-[#121e1b]">
+      {/* ================= EDITORIAL HEADER ================= */}
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs font-semibold uppercase tracking-wider text-[#66716F]">
+              NBE 300-QUESTION CBT BENCHMARK
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-[#006B63] text-white text-[10px] font-mono font-medium">
+              150 PASS MARK
+            </span>
           </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-bold text-slate-900">Grand Tests & 20th Error Notebook</h2>
-              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-700">
-                300Q CBT Benchmark
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Analyze GT mock trajectory across Marrow, Prepladder, Cerebellum, and maintain your 20th notebook.
-            </p>
-          </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold font-['Newsreader'] tracking-tight text-[#121e1b]">
+            Grand Tests &amp; Mock Exams
+          </h1>
+          <p className="text-sm sm:text-base text-[#3d4947] max-w-2xl leading-relaxed">
+            Track mock test progression across Marrow, Prepladder, Cerebellum, and DAMS. Analyze Paper 1 &amp; 2 splits.
+          </p>
         </div>
 
-        {/* Subtab Toggle Buttons */}
-        <div className="flex items-center space-x-2">
-          <div className="flex p-1 bg-slate-100 rounded-full">
-            <button
-              onClick={() => setActiveSubTab('tests')}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                activeSubTab === 'tests' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Grand Tests ({gts.length})
-            </button>
-            <button
-              onClick={() => setActiveSubTab('error_notebook')}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                activeSubTab === 'error_notebook' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              20th Error Notebook ({errors.length})
-            </button>
-          </div>
+        <button
+          type="button"
+          onClick={() => setShowAddGTModal(true)}
+          className="self-start sm:self-center inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#006B63] hover:bg-[#005049] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer shrink-0"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Log New Grand Test</span>
+        </button>
+      </header>
 
-          {activeSubTab === 'tests' ? (
-            <button
-              onClick={() => setShowAddGTModal(true)}
-              className="flex items-center gap-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 text-xs font-semibold shadow-xs transition-all"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Log GT</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowAddErrorModal(true)}
-              className="flex items-center gap-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 text-xs font-semibold shadow-xs transition-all"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Add Mistake</span>
-            </button>
-          )}
-        </div>
-      </div>
+      {/* ================= GT SCORE PROGRESSION GRID ================= */}
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {gts.map((gt) => {
+            const isPassed = gt.score >= 150;
+            const accuracy = Math.round((gt.correctCount / (gt.correctCount + gt.incorrectCount || 1)) * 100);
 
-      {/* VIEW 1: GRAND TESTS BENTO GRID */}
-      {activeSubTab === 'tests' && (
-        <div className="space-y-6">
-          {/* GT Score Progression List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {gts.map((gt) => {
-              const isPassed = gt.score >= 150;
-              const accuracy = Math.round((gt.correctCount / (gt.correctCount + gt.incorrectCount || 1)) * 100);
-
-              return (
-                <div
-                  key={gt.id}
-                  className={`bento-card p-6 bg-white flex flex-col justify-between relative overflow-hidden ${
-                    isPassed ? 'border-emerald-200' : 'border-slate-200'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                          {gt.platform}
-                        </span>
-                        <h3 className="text-base font-bold text-slate-900 mt-2">{gt.title}</h3>
-                        <div className="flex items-center space-x-1.5 text-xs text-slate-400 mt-0.5">
-                          <Calendar className="h-3.5 w-3.5" />
-                          <span>{gt.date}</span>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => onDeleteGrandTest(gt.id)}
-                        className="text-slate-300 hover:text-rose-600 p-1.5 rounded-full hover:bg-rose-50 transition-colors"
-                        title="Delete Test Record"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    {/* Score Callout */}
-                    <div className="my-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-baseline justify-between">
-                      <div>
-                        <div className="text-[10px] text-slate-400 font-bold uppercase">Final Score</div>
-                        <div className="flex items-baseline space-x-1">
-                          <span className={`font-display text-3xl font-extrabold ${isPassed ? 'text-emerald-600' : 'text-rose-600'}`}>
-                            {gt.score}
-                          </span>
-                          <span className="text-xs text-slate-400 font-medium">/ 300</span>
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <span
-                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase ${
-                            isPassed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                          }`}
-                        >
-                          {isPassed ? 'PASS (150+)' : 'NEEDS BOOST'}
-                        </span>
-                        <div className="text-[11px] text-slate-500 mt-1 font-semibold">Accuracy: {accuracy}%</div>
+            return (
+              <div
+                key={gt.id}
+                className={`clinical-card p-6 flex flex-col justify-between relative overflow-hidden ${
+                  isPassed ? 'border-[#2c694e]/40' : 'border-[#DCE4E1]'
+                }`}
+              >
+                <div>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#f4eee7] text-[#006B63]">
+                        {gt.platform}
+                      </span>
+                      <h3 className="text-base font-semibold font-['Newsreader'] text-[#121e1b] mt-2">{gt.title}</h3>
+                      <div className="flex items-center space-x-1.5 text-xs text-[#66716F] mt-0.5">
+                        <Calendar className="h-3.5 w-3.5" />
+                        <span>{gt.date}</span>
                       </div>
                     </div>
 
-                    {/* Papers Breakdown */}
-                    <div className="grid grid-cols-2 gap-2 text-xs py-2 border-t border-slate-100">
-                      <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/60">
-                        <span className="text-slate-400 block text-[10px] font-bold uppercase">Paper 1 (Pre/Para)</span>
-                        <span className="font-bold text-slate-800">{gt.paper1Score ?? '--'} / 150 M</span>
-                      </div>
-                      <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100/60">
-                        <span className="text-slate-400 block text-[10px] font-bold uppercase">Paper 2 (Clinical)</span>
-                        <span className="font-bold text-slate-800">{gt.paper2Score ?? '--'} / 150 M</span>
-                      </div>
-                    </div>
-
-                    {/* Weak Subjects tags */}
-                    {gt.weakSubjectIds && gt.weakSubjectIds.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-slate-100">
-                        <div className="text-[10px] font-bold uppercase text-rose-600 mb-1.5 flex items-center space-x-1">
-                          <AlertTriangle className="h-3 w-3" />
-                          <span>Weak Areas:</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          {gt.weakSubjectIds.map((id) => {
-                            const sub = FMGE_SUBJECTS.find((s) => s.id === id);
-                            return (
-                              <span
-                                key={id}
-                                className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200"
-                              >
-                                {sub?.name || id}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => onDeleteGrandTest(gt.id)}
+                      className="text-[#66716F] hover:text-rose-600 p-1.5 rounded-md hover:bg-rose-50 transition-colors cursor-pointer"
+                      title="Delete Test Record"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
 
-                  {/* Notes / Reflections */}
-                  {gt.keyMistakesNotes && (
-                    <div className="mt-3 text-xs text-slate-600 bg-amber-50/70 p-3 rounded-2xl border border-amber-200/60">
-                      <span className="font-bold text-amber-900 block text-[10px] uppercase mb-0.5">Test Reflections:</span>
-                      <p className="line-clamp-2">{gt.keyMistakesNotes}</p>
+                  {/* Score Callout */}
+                  <div className="my-4 p-4 rounded-lg bg-[#F7F9F8] border border-[#DCE4E1] flex items-baseline justify-between">
+                    <div>
+                      <div className="text-[10px] text-[#66716F] font-mono font-bold uppercase">Final Score</div>
+                      <div className="flex items-baseline space-x-1">
+                        <span className={`text-3xl font-bold font-['Newsreader'] ${isPassed ? 'text-[#2c694e]' : 'text-rose-600'}`}>
+                          {gt.score}
+                        </span>
+                        <span className="text-xs text-[#66716F] font-medium font-mono">/ 300</span>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <span
+                        className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase ${
+                          isPassed ? 'bg-[#F5F7F8] text-[#2c694e]' : 'bg-rose-100 text-rose-800'
+                        }`}
+                      >
+                        {isPassed ? 'PASS (150+)' : 'NEEDS BOOST'}
+                      </span>
+                      <div className="text-[11px] text-[#66716F] mt-1 font-semibold">Accuracy: {accuracy}%</div>
+                    </div>
+                  </div>
+
+                  {/* Papers Breakdown */}
+                  <div className="grid grid-cols-2 gap-2 text-xs py-2 border-t border-[#F5F7F8]">
+                    <div className="bg-[#F7F9F8] p-2.5 rounded-md border border-[#DCE4E1]">
+                      <span className="text-[#66716F] block text-[10px] font-bold uppercase font-mono">Paper 1 (Pre/Para)</span>
+                      <span className="font-semibold text-[#121e1b]">{gt.paper1Score ?? '--'} / 150 M</span>
+                    </div>
+                    <div className="bg-[#F7F9F8] p-2.5 rounded-md border border-[#DCE4E1]">
+                      <span className="text-[#66716F] block text-[10px] font-bold uppercase font-mono">Paper 2 (Clinical)</span>
+                      <span className="font-semibold text-[#121e1b]">{gt.paper2Score ?? '--'} / 150 M</span>
+                    </div>
+                  </div>
+
+                  {/* Weak Subjects tags */}
+                  {gt.weakSubjectIds && gt.weakSubjectIds.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-[#F5F7F8]">
+                      <div className="text-[10px] font-bold uppercase text-rose-600 mb-1.5 flex items-center space-x-1">
+                        <AlertTriangle className="h-3 w-3" />
+                        <span>Weak Areas:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {gt.weakSubjectIds.map((id) => {
+                          const sub = FMGE_SUBJECTS.find((s) => s.id === id);
+                          return (
+                            <span
+                              key={id}
+                              className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200"
+                            >
+                              {sub?.name || id}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
-              );
-            })}
-          </div>
 
-          {gts.length === 0 && (
-            <div className="text-center py-16 bento-card bg-white p-8 space-y-4">
-              <div className="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
-                <BarChart3 className="h-6 w-6" />
+                {/* Notes / Reflections */}
+                {gt.keyMistakesNotes && (
+                  <div className="mt-3 text-xs text-[#3d4947] bg-amber-50/70 p-3 rounded-md border border-amber-200/60">
+                    <span className="font-bold text-amber-900 block text-[10px] uppercase mb-0.5">Test Reflections:</span>
+                    <p className="line-clamp-2">{gt.keyMistakesNotes}</p>
+                  </div>
+                )}
               </div>
-              <h3 className="text-base font-bold text-slate-900">No Grand Tests Logged Yet</h3>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Log your full 300-mark mock tests to track your trajectory towards the 150-mark qualifying cutoff.
-              </p>
-              <button
-                onClick={() => setShowAddGTModal(true)}
-                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-full shadow-xs transition-all"
-              >
-                + Log Your First GT
-              </button>
-            </div>
-          )}
+            );
+          })}
         </div>
-      )}
 
-      {/* VIEW 2: 20TH ERROR NOTEBOOK */}
-      {activeSubTab === 'error_notebook' && (
-        <div className="space-y-5">
-          <div className="bento-card p-5 bg-amber-50/70 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-950">
-            <div className="flex items-center space-x-2.5">
-              <Sparkles className="h-5 w-5 text-amber-600 shrink-0" />
-              <span>
-                <strong>The 20th Notebook Method:</strong> Record your repeated test traps, volatile values, and confusion points here. Reviewing this before the exam is proven to boost scores by 20-30 marks!
-              </span>
+        {gts.length === 0 && (
+          <div className="text-center py-16 clinical-card p-8 space-y-4">
+            <div className="h-12 w-12 rounded-full bg-[#F7F9F8] flex items-center justify-center mx-auto text-[#006B63]">
+              <BarChart3 className="h-6 w-6" />
             </div>
+            <h3 className="text-base font-semibold font-['Newsreader'] text-[#121e1b]">No Grand Tests Logged Yet</h3>
+            <p className="text-xs text-[#66716F] max-w-md mx-auto">
+              Log your full 300-mark mock tests to track your trajectory towards the 150-mark qualifying cutoff.
+            </p>
             <button
-              onClick={() => setShowAddErrorModal(true)}
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-full shrink-0 shadow-xs transition-all"
+              type="button"
+              onClick={() => setShowAddGTModal(true)}
+              className="px-5 py-2.5 bg-[#006B63] hover:bg-[#005049] text-white text-xs font-semibold rounded-md shadow-xs transition-all cursor-pointer"
             >
-              + Add Entry
+              + Log Your First GT
             </button>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {errors.map((err) => {
-              const sub = FMGE_SUBJECTS.find((s) => s.id === err.subjectId);
-              const conceptGap = extractConceptGap(err.subjectId, err.topicId || 'top-1', err.questionGist, err.myMistake);
-
-              return (
-                <div
-                  key={err.id}
-                  className={`bento-card p-6 bg-white flex flex-col justify-between ${
-                    err.isReviewed ? 'opacity-75' : 'border-rose-200/80 shadow-xs'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span
-                          className="px-3 py-0.5 rounded-full text-[10px] font-bold text-white uppercase"
-                          style={{ backgroundColor: sub?.color || '#0f172a' }}
-                        >
-                          {sub?.name || err.subjectId}
-                        </span>
-                        <span className="text-xs font-semibold text-slate-500">{err.topic}</span>
-                      </div>
-
-                      <div className="flex items-center space-x-1.5">
-                        <button
-                          onClick={() => onToggleErrorReviewed(err.id)}
-                          className={`text-xs px-3 py-1 rounded-full font-bold transition-all ${
-                            err.isReviewed
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
-                          }`}
-                        >
-                          {err.isReviewed ? '✓ Reviewed' : 'Mark Reviewed'}
-                        </button>
-                        <button
-                          onClick={() => onDeleteErrorItem(err.id)}
-                          className="text-slate-300 hover:text-rose-600 p-1.5 rounded-full hover:bg-rose-50 transition-colors"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Concept Gap Highlight Box */}
-                    <div className="mt-3 p-3 rounded-2xl bg-sky-50/70 border border-sky-200/80 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sky-900 text-[10px] uppercase font-['Outfit']">
-                          Concept Gap: {conceptGap.conceptName}
-                        </span>
-                        <span className="text-[10px] font-bold text-sky-700 font-['Outfit']">High-Yield FMGE</span>
-                      </div>
-                      <p className="text-sky-950 text-[11px] mt-0.5 leading-relaxed font-medium">
-                        💡 <strong>Why this matters:</strong> {conceptGap.whyItMatters}
-                      </p>
-                    </div>
-
-                    {/* Question Gist */}
-                    <div className="mt-3 text-xs">
-                      <span className="font-bold text-slate-400 block mb-1 text-[10px] uppercase font-['Outfit']">
-                        Question Gist / Trap:
-                      </span>
-                      <p className="text-slate-800 bg-slate-50 p-3 rounded-2xl border border-slate-100 font-medium">
-                        {err.questionGist}
-                      </p>
-                    </div>
-
-                    {/* My Mistake vs Correct Concept */}
-                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                      <div className="bg-rose-50 p-3 rounded-2xl border border-rose-100">
-                        <span className="font-bold text-rose-800 block text-[10px] uppercase mb-0.5 font-['Outfit']">My Mistake:</span>
-                        <p className="text-rose-900">{err.myMistake || 'Misread question or marked wrong option.'}</p>
-                      </div>
-
-                      <div className="bg-emerald-50 p-3 rounded-2xl border border-emerald-100">
-                        <span className="font-bold text-emerald-800 block text-[10px] uppercase mb-0.5 font-['Outfit']">High-Yield Pearl:</span>
-                        <p className="text-emerald-900 font-medium">{err.correctConcept}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom Action Row: Fix This Concept */}
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                    <span className="text-[10px] text-slate-400">
-                      Added: {err.dateAdded}
-                    </span>
-
-                    <button
-                      onClick={() => {
-                        const pkg = generateConceptRemediationPackage(
-                          err.subjectId,
-                          err.topicId || 'top-1',
-                          conceptGap.conceptId,
-                          conceptGap.conceptName,
-                          'repeated'
-                        );
-                        setActiveRemediationPackage(pkg);
-                      }}
-                      className="px-4 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
-                    >
-                      <Sparkles className="h-3.5 w-3.5 text-sky-300" />
-                      <span>FIX THIS CONCEPT</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {errors.length === 0 && (
-            <div className="text-center py-16 bento-card bg-white p-8 space-y-4">
-              <div className="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
-                <BookOpen className="h-6 w-6" />
-              </div>
-              <h3 className="text-base font-bold text-slate-900">Your 20th Notebook is Empty</h3>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Whenever you get a question wrong in Grand Tests or QBank, record the core pearl here.
-              </p>
-              <button
-                onClick={() => setShowAddErrorModal(true)}
-                className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-full shadow-xs transition-all"
-              >
-                + Add First Mistake
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
 
       {/* MODAL: ADD GRAND TEST */}
       {showAddGTModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-slate-900">Log Grand Test / Mock Result</h3>
-            <p className="text-xs text-slate-500 mt-0.5">Record your 300-marks score to analyze trends.</p>
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#DCE4E1] max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-semibold font-['Newsreader'] text-[#121e1b]">Log Grand Test / Mock Result</h3>
+            <p className="text-xs text-[#66716F] mt-0.5">Record your 300-marks score to analyze trends.</p>
 
             <form onSubmit={handleSaveGT} className="space-y-4 mt-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Test Title</label>
+                  <label className="block font-bold text-[#3d4947] mb-1 text-[10px] uppercase font-mono">Test Title</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Marrow GT 16 / Prepladder CBT"
                     value={newGT.title}
                     onChange={(e) => setNewGT({ ...newGT, title: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                    className="w-full p-2.5 bg-[#F7F9F8] border border-[#E4E8EB] rounded-md text-xs focus:border-[#006B63] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Platform / Source</label>
+                  <label className="block font-bold text-[#3d4947] mb-1 text-[10px] uppercase font-mono">Platform / Source</label>
                   <select
                     value={newGT.platform}
                     onChange={(e) => setNewGT({ ...newGT, platform: e.target.value as any })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"
+                    className="w-full p-2.5 bg-[#F7F9F8] border border-[#E4E8EB] rounded-md text-xs font-medium focus:border-[#006B63] focus:outline-none"
                   >
                     <option value="Marrow">Marrow</option>
                     <option value="Prepladder">Prepladder</option>
@@ -549,9 +305,9 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Score (/ 300)</label>
+                  <label className="block font-bold text-[#3d4947] mb-1 text-[10px] uppercase font-mono">Score (/ 300)</label>
                   <input
                     type="number"
                     min="0"
@@ -559,77 +315,77 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                     required
                     value={newGT.score}
                     onChange={(e) => setNewGT({ ...newGT, score: Number(e.target.value) })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                    className="w-full p-2.5 bg-[#F7F9F8] border border-[#E4E8EB] rounded-md text-xs font-bold text-[#121e1b] focus:border-[#006B63] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Paper 1 (/ 150)</label>
+                  <label className="block font-bold text-[#3d4947] mb-1 text-[10px] uppercase font-mono">Paper 1 (/ 150)</label>
                   <input
                     type="number"
                     min="0"
                     max="150"
                     value={newGT.paper1Score}
                     onChange={(e) => setNewGT({ ...newGT, paper1Score: Number(e.target.value) })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"
+                    className="w-full p-2.5 bg-[#F7F9F8] border border-[#E4E8EB] rounded-md text-xs font-medium focus:border-[#006B63] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Paper 2 (/ 150)</label>
+                  <label className="block font-bold text-[#3d4947] mb-1 text-[10px] uppercase font-mono">Paper 2 (/ 150)</label>
                   <input
                     type="number"
                     min="0"
                     max="150"
                     value={newGT.paper2Score}
                     onChange={(e) => setNewGT({ ...newGT, paper2Score: Number(e.target.value) })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"
+                    className="w-full p-2.5 bg-[#F7F9F8] border border-[#E4E8EB] rounded-md text-xs font-medium focus:border-[#006B63] focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Correct Count</label>
+                  <label className="block font-bold text-[#3d4947] mb-1 text-[10px] uppercase font-mono">Correct Count</label>
                   <input
                     type="number"
                     min="0"
                     max="300"
                     value={newGT.correctCount}
                     onChange={(e) => setNewGT({ ...newGT, correctCount: Number(e.target.value) })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                    className="w-full p-2.5 bg-[#F7F9F8] border border-[#E4E8EB] rounded-md text-xs focus:border-[#006B63] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Incorrect Count</label>
+                  <label className="block font-bold text-[#3d4947] mb-1 text-[10px] uppercase font-mono">Incorrect Count</label>
                   <input
                     type="number"
                     min="0"
                     max="300"
                     value={newGT.incorrectCount}
                     onChange={(e) => setNewGT({ ...newGT, incorrectCount: Number(e.target.value) })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                    className="w-full p-2.5 bg-[#F7F9F8] border border-[#E4E8EB] rounded-md text-xs focus:border-[#006B63] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Test Date</label>
+                  <label className="block font-bold text-[#3d4947] mb-1 text-[10px] uppercase font-mono">Test Date</label>
                   <input
                     type="date"
                     value={newGT.date}
                     onChange={(e) => setNewGT({ ...newGT, date: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                    className="w-full p-2.5 bg-[#F7F9F8] border border-[#E4E8EB] rounded-md text-xs focus:border-[#006B63] focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* Weak Subjects Tagging */}
               <div>
-                <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">
+                <label className="block font-bold text-[#3d4947] mb-1 text-[10px] uppercase font-mono">
                   Tag Weak Subjects in this GT (Click to toggle)
                 </label>
-                <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2.5 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2.5 bg-[#F7F9F8] rounded-lg border border-[#E4E8EB]">
                   {FMGE_SUBJECTS.map((sub) => {
                     const isSelected = newGT.weakSubjectIds?.includes(sub.id);
                     return (
@@ -637,10 +393,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                         type="button"
                         key={sub.id}
                         onClick={() => toggleWeakSubject(sub.id)}
-                        className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
+                        className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
                           isSelected
                             ? 'bg-rose-600 text-white'
-                            : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300'
+                            : 'bg-white text-[#3d4947] border border-[#DCE4E1] hover:border-[#E4E8EB]'
                         }`}
                       >
                         {sub.name} (~{sub.weightage}M)
@@ -651,27 +407,27 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Key Reflections / Notes</label>
+                <label className="block font-bold text-[#3d4947] mb-1 text-[10px] uppercase font-mono">Key Reflections / Notes</label>
                 <textarea
                   rows={2}
                   placeholder="e.g. Silly calculation errors in PSM. Need to revise OBG partogram..."
                   value={newGT.keyMistakesNotes}
                   onChange={(e) => setNewGT({ ...newGT, keyMistakesNotes: e.target.value })}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full p-2.5 bg-[#F7F9F8] border border-[#E4E8EB] rounded-md text-xs focus:border-[#006B63] focus:outline-none"
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-[#F5F7F8]">
                 <button
                   type="button"
                   onClick={() => setShowAddGTModal(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full font-bold"
+                  className="px-4 py-2 bg-[#f4eee7] hover:bg-[#F5F7F8] text-[#3d4947] rounded-md font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-full font-bold shadow-xs"
+                  className="px-4 py-2 bg-[#006B63] hover:bg-[#005049] text-white rounded-md font-semibold shadow-xs cursor-pointer"
                 >
                   Save GT Result
                 </button>
@@ -679,111 +435,6 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             </form>
           </div>
         </div>
-      )}
-
-      {/* MODAL: ADD 20TH NOTEBOOK ERROR */}
-      {showAddErrorModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-slate-900">Add Mistake to 20th Notebook</h3>
-            <p className="text-xs text-slate-500 mt-0.5">Turn exam errors into guaranteed marks.</p>
-
-            <form onSubmit={handleSaveError} className="space-y-4 mt-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Subject</label>
-                  <select
-                    value={newError.subjectId}
-                    onChange={(e) => setNewError({ ...newError, subjectId: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium"
-                  >
-                    {FMGE_SUBJECTS.map((sub) => (
-                      <option key={sub.id} value={sub.id}>
-                        {sub.name} (~{sub.weightage}M)
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Topic Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Parkland formula / Preeclampsia"
-                    value={newError.topic}
-                    onChange={(e) => setNewError({ ...newError, topic: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1 text-[10px] uppercase">Question Gist / Context</label>
-                <textarea
-                  rows={2}
-                  required
-                  placeholder="What was the question asking? (e.g. 3 hours post burn arrival fluid calculation)"
-                  value={newError.questionGist}
-                  onChange={(e) => setNewError({ ...newError, questionGist: e.target.value })}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-rose-700 mb-1 text-[10px] uppercase">What was my mistake / trap?</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Counted 8 hours from hospital arrival instead of injury time"
-                  value={newError.myMistake}
-                  onChange={(e) => setNewError({ ...newError, myMistake: e.target.value })}
-                  className="w-full p-2.5 bg-rose-50/60 border border-rose-200 rounded-xl text-xs text-rose-900"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-emerald-700 mb-1 text-[10px] uppercase">Correct High-Yield Concept / Rule</label>
-                <textarea
-                  rows={2}
-                  required
-                  placeholder="e.g. Parkland 8-hour window is strictly counted from the TIME OF INJURY!"
-                  value={newError.correctConcept}
-                  onChange={(e) => setNewError({ ...newError, correctConcept: e.target.value })}
-                  className="w-full p-2.5 bg-emerald-50/60 border border-emerald-200 rounded-xl text-xs text-emerald-900 font-medium"
-                />
-              </div>
-
-              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setShowAddErrorModal(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full font-bold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-full font-bold shadow-xs"
-                >
-                  Save to Notebook
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* CLOSED-LOOP CONCEPT REMEDIATION MODAL */}
-      {activeRemediationPackage && (
-        <ConceptRemediationModal
-          remediationPackage={activeRemediationPackage}
-          onClose={() => setActiveRemediationPackage(null)}
-          onUpdateAppState={(updater) => {
-            if (onUpdateAppState) {
-              onUpdateAppState(updater);
-            }
-          }}
-        />
       )}
     </div>
   );

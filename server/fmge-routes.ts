@@ -5,6 +5,10 @@ import {
   generateMedicalImageSearchQuery,
 } from "./dynamic-mcq-engine";
 import { validateTopicContentConsistency } from "../src/utils/contentValidator";
+import {
+  validateComprehensiveMcq,
+  validateQuestionTopicMatch,
+} from "../src/utils/practiceSessionEngine";
 import { imageRetrievalService } from "./image-retrieval-service";
 import express from "express";
 import path from "path";
@@ -498,14 +502,35 @@ Output valid JSON matching this schema:
       };
     });
 
+      // Topic/content validation boundary: NEVER let Gemini's output carry cross-topic or
+      // regional-anatomy contamination through to the user for the ACTIVE topic. Every AI
+      // question is checked for 10-point validity AND semantic topic match; any contaminated
+      // or off-topic question is redacted. If none remain, fall through to the verified bank.
+      const validQuestions = formattedQuestions.filter((q: any) =>
+        validateComprehensiveMcq(
+          {
+            scenario: q.scenario,
+            question: q.question,
+            options: q.options,
+            explanation: q.explanation,
+          },
+          subjectName || subjectId,
+          topicName
+        ).isValid
+      );
+
+      if (validQuestions.length === 0) {
+        throw new Error("AI practice-session questions failed topic-integrity validation (serving verified bank)");
+      }
+
     res.json({
       success: true,
       subjectId,
       subjectName,
       topicId,
       topicName,
-      count: formattedQuestions.length,
-      questions: formattedQuestions,
+      count: validQuestions.length,
+      questions: validQuestions,
     });
   } catch (error: any) {
     console.warn("AI Practice Session batch generation notice (serving verified clinical bank):", error.message);
@@ -552,11 +577,197 @@ Output valid JSON matching this schema:
   }
 });
 
+// AI: Generate Comprehensive FMGE Rapid Revision Master Deck (Topic Mastery Hub)
+app.post("/api/study/topic-mastery", async (req, res) => {
+  const { subjectId = "medicine", topicId = "topic-1", topicName = "Clinical Topic" } = req.body;
+  const rawQuery = topicName || topicId || subjectId || "";
+  const { subject: detectedSubject, topic: detectedTopic } = classifyTopicAndSubject(rawQuery, [], { subject: subjectId, topic: topicName });
+
+  try {
+    const prompt = `You are the Chief Academic Officer for FMGE/NExT Medical Board Examinations.
+Generate an authoritative, 100% genuine medical Rapid Revision Master Deck for this high-yield FMGE topic.
+
+Subject: ${detectedSubject} (${subjectId})
+Topic: ${detectedTopic} (${topicName})
+
+CRITICAL MANDATES:
+1. Provide actual, concrete medical facts, exact drug names, dosages, diagnostic triads, gold standard tests, and exam traps.
+2. DO NOT output meta-suggestions, advice on how to study, or generic templates like "Stepwise Management".
+3. Return valid JSON strictly matching the schema below.
+
+JSON Schema:
+{
+  "highYieldSummary": "Concise 2-3 sentence overview containing the hallmark board buzzwords, pathophysiology, and clinical importance.",
+  "coreConcepts": [
+    "Point 1: Key anatomical relations / physiological mechanism / pathophysiology with exact names.",
+    "Point 2: Diagnostic criteria or hallmark clinical presentation with specific numbers/triads.",
+    "Point 3: Best initial vs gold-standard diagnostic modalities.",
+    "Point 4: First-line guideline drug of choice, dosage, or surgical procedure.",
+    "Point 5: High-frequency board exam pitfalls and classic distractors."
+  ],
+  "diagnosticTriads": "Key triad, pentad, or pathognomonic finding (e.g. Charcot Triad, Beck Triad, Virchow Triad).",
+  "goldStandardTest": "Definitive gold-standard investigation (e.g. CECT Abdomen, Biopsy, PCR, Coronary Angiography).",
+  "firstLineTreatment": "Drug of choice or first-line protocol (e.g. IV Ceftriaxone, Surgical Appendectomy, Low-dose ICS-Formoterol).",
+  "classicPresentation": "1-sentence classic board question vignette stem presentation.",
+  "examTrap": "Top trick, distractor trap, or lookalike differential tested by NBE/FMGE examiners.",
+  "keyTakeaways": [
+    "Takeaway 1: Highest-yield discriminator.",
+    "Takeaway 2: Treatment or diagnostic rule.",
+    "Takeaway 3: Volatile memory anchor / mnemonic."
+  ],
+  "rapidRevisionTable": {
+    "headers": ["Entity / Subtype", "Hallmark Finding / Sign", "Investigation of Choice", "First-Line Rx / DOC"],
+    "rows": [
+      ["Type 1 / Acute", "Finding A", "Test A", "Treatment A"],
+      ["Type 2 / Chronic", "Finding B", "Test B", "Treatment B"],
+      ["Complication / Trap", "Finding C", "Test C", "Treatment C"]
+    ]
+  },
+  "flashcards": [
+    {
+      "front": "Specific high-yield question 1?",
+      "back": "Exact, concise factual answer 1.",
+      "clinicalPearl": "High-yield pearl 1."
+    },
+    {
+      "front": "Specific high-yield question 2?",
+      "back": "Exact, concise factual answer 2.",
+      "clinicalPearl": "High-yield pearl 2."
+    },
+    {
+      "front": "Specific high-yield question 3?",
+      "back": "Exact, concise factual answer 3.",
+      "clinicalPearl": "High-yield pearl 3."
+    },
+    {
+      "front": "Specific high-yield question 4?",
+      "back": "Exact, concise factual answer 4.",
+      "clinicalPearl": "High-yield pearl 4."
+    },
+    {
+      "front": "Specific high-yield question 5?",
+      "back": "Exact, concise factual answer 5.",
+      "clinicalPearl": "High-yield pearl 5."
+    }
+  ],
+  "clinicalCases": [
+    {
+      "title": "Clinical Vignette 1",
+      "patientDemographics": "Patient age, gender, and risk profile",
+      "presentation": "Clinical presentation with vitals and symptoms.",
+      "physicalExamOrLabs": "Key physical findings and lab/imaging values.",
+      "diagnosticQuestion": "What is the most likely diagnosis or next best step?",
+      "options": [
+        { "key": "A", "text": "Correct option", "isCorrect": true },
+        { "key": "B", "text": "Distractor 1", "isCorrect": false },
+        { "key": "C", "text": "Distractor 2", "isCorrect": false },
+        { "key": "D", "text": "Distractor 3", "isCorrect": false }
+      ],
+      "clinicalExplanation": "Detailed step-by-step diagnostic reasoning.",
+      "examPearl": "Core discriminator pearl."
+    }
+  ],
+  "pearls": [
+    {
+      "statement": "High-yield one-liner fact 1.",
+      "discriminatorTip": "Discriminator tip 1.",
+      "examTrapWarning": "Trap 1."
+    },
+    {
+      "statement": "High-yield one-liner fact 2.",
+      "discriminatorTip": "Discriminator tip 2.",
+      "examTrapWarning": "Trap 2."
+    },
+    {
+      "statement": "High-yield one-liner fact 3.",
+      "discriminatorTip": "Discriminator tip 3.",
+      "examTrapWarning": "Trap 3."
+    }
+  ]
+}`;
+
+    const response = await callGeminiWithRetry({
+      model: "gemini-flash-lite-latest",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        systemInstruction: "You are the Chief Academic Officer for FMGE Medical Examination. Generate authentic medical rapid revision decks with zero fluff. Output only valid JSON.",
+      },
+    });
+
+    const text = response.text || "{}";
+    const data = JSON.parse(text);
+
+    if (!data.highYieldSummary || !Array.isArray(data.coreConcepts) || data.coreConcepts.length < 2) {
+      throw new Error("Gemini response missing core medical concepts");
+    }
+
+    // Topic/content validation boundary: NEVER let Gemini's output carry cross-topic or
+    // regional-anatomy contamination for the ACTIVE topic through to the UI. The client's
+    // authoritative topicName is the semantic target. Individual artifacts that are
+    // contaminated are redacted (never shown); if the core summary itself is contaminated,
+    // the whole deck is rejected so the client falls back to the verified knowledge base.
+    const authoritativeTopic = topicName || detectedTopic || topicId;
+    const isContaminated = (content: string) =>
+      validateTopicContentConsistency(content, subjectId, authoritativeTopic).hasContamination;
+
+    // Redact per-artifact contamination (flashcards, clinical cases, pearls).
+    if (Array.isArray(data.flashcards)) {
+      data.flashcards = data.flashcards.filter((fc: any) =>
+        !isContaminated(`${fc.front || ''} ${fc.back || ''} ${fc.clinicalPearl || ''}`)
+      );
+    }
+    if (Array.isArray(data.clinicalCases)) {
+      data.clinicalCases = data.clinicalCases.filter((c: any) =>
+        !isContaminated(`${c.title || ''} ${c.presentation || ''} ${c.physicalExamOrLabs || ''} ${c.diagnosticQuestion || ''} ${c.clinicalExplanation || ''} ${(c.options || []).map((o: any) => o.text).join(' ')}`)
+      );
+    }
+    if (Array.isArray(data.pearls)) {
+      data.pearls = data.pearls.filter((p: any) =>
+        !isContaminated(`${p.statement || ''} ${p.discriminatorTip || ''} ${p.examTrapWarning || ''}`)
+      );
+    }
+
+    // Core summary contamination check: reject the deck entirely (fall back to verified KB).
+    const coreText = [
+      data.highYieldSummary,
+      ...((data.coreConcepts as string[]) || []),
+      data.diagnosticTriads || '',
+      data.goldStandardTest || '',
+      data.firstLineTreatment || '',
+      data.classicPresentation || '',
+    ].join(' ');
+    if (isContaminated(coreText)) {
+      throw new Error("AI-generated topic mastery content failed topic-integrity validation");
+    }
+
+    res.json({
+      success: true,
+      subjectId,
+      subjectName: detectedSubject || subjectId,
+      topicId,
+      topicName: detectedTopic || topicName,
+      isAiGenerated: true,
+      data,
+    });
+  } catch (error: any) {
+    console.warn("AI Topic Mastery generation falling back to verified medical knowledge base:", error.message);
+    res.json({
+      success: false,
+      subjectId,
+      topicId,
+      topicName,
+      isAiGenerated: false,
+      error: error.message,
+    });
+  }
+});
+
 // AI: Generate FMGE Clinical Vignette Practice Question
 app.post("/api/ai/vignette-question", async (req, res) => {
   const { subject = "medicine", topic = "High Yield Topic", difficulty = "high-yield", subjectName } = req.body;
   const rawQuery = topic || subjectName || subject || "";
-  const { subject: detectedSubject, topic: detectedTopic } = classifyTopicAndSubject(rawQuery);
+  const { subject: detectedSubject, topic: detectedTopic } = classifyTopicAndSubject(rawQuery, [], { subject: subjectName || subject, topic });
 
   try {
     const prompt = `You are an expert medical professor and Senior Question Author for the Foreign Medical Graduate Examination (FMGE / NExT India).
@@ -1342,6 +1553,7 @@ app.post("/api/ai/chat/stream", async (req, res) => {
 Exam Countdown: ${daysRemaining} days remaining. Target Score: ${targetScore}/300.
 Subject: ${detectedSubject} | Topic: ${detectedTopic}.
 Provide a rapid, high-yield, structured medical breakdown. Use clear markdown headers, bold keywords, and bullet points. Include Drug of Choice, Diagnostic Gold Standards, and Classic NBE Traps where relevant.
+FORMATTING & SYMBOL RULES: Output clean, standard plain text with basic Markdown (bold, headers, bullets). NEVER output LaTeX math delimiters or syntax like $\\ge$, $\\le$, $\\rightarrow$, $\\times$, $\\pm$, $m^2$. Always use direct Unicode symbols like '≥', '≤', '→', '±', '×', 'm²', '°C', '↑', '↓', 'μg'.
 USER STUDY CONTEXT:
 - Latest Average GT Score: ${averageGTScore}/300
 - Weak Subjects: ${weakSubjectsStr}
@@ -1599,6 +1811,7 @@ CRITICAL REASONING & TOPIC INTEGRITY DIRECTIVES:
      * Name exact first-line Drugs of Choice (e.g. "Oral Prednisolone 60 mg/m²/day for Minimal Change Disease", "IV Magnesium Sulfate Zuspan regimen for Eclampsia", "Permanent Pacemaker for Complete Heart Block").
      * Detail exact FMGE clinical traps, memory hooks, and discriminators.
    - ABSOLUTE BAN ON PLACEHOLDER TEXT: Never output generic phrases such as "Master the primary pathological mechanism", "Definitive imaging, biopsy, or laboratory assay protocol in General Medicine", or "Evidence-based guideline first-line regimen". Always provide the actual medical facts.
+   - FORMATTING RULES: Never use LaTeX math delimiters or syntax (such as $\\ge$, $\\le$, $\\rightarrow$, $\\times$, $\\pm$, $m^2$). Use standard readable text and Unicode symbols directly (≥, ≤, →, ±, ×, m², °, ↑, ↓, μg).
 
 4. Output Format:
 Output strictly valid JSON matching this schema:
@@ -3502,7 +3715,7 @@ app.post("/api/study-package", async (req, res) => {
     if (!subject || !topic || !step) {
       return res.status(400).json({ error: "Missing required parameters: subject, topic, step" });
     }
-    const { subject: validatedSubject, topic: validatedTopic } = classifyTopicAndSubject(topic, { subject, topic });
+    const { subject: validatedSubject, topic: validatedTopic } = classifyTopicAndSubject(topic);
     if (validatedSubject !== subject) {
       return res.status(400).json({ error: "Topic-subject mismatch", detail: "Provided subject does not match topic" });
     }

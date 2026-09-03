@@ -10,7 +10,6 @@ import {
   Video,
   Play,
   X,
-  Sparkles,
   Layers,
   Activity,
   ZoomIn,
@@ -41,6 +40,7 @@ import {
   Trash2,
   Edit3,
   Filter,
+  Zap,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { enrichClinicalQuestion } from "../utils/clinicalDistractorHelper";
@@ -805,10 +805,10 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   onClick={handleReEnrichWithGemini}
                   disabled={isReEnriching}
                   className="px-3.5 py-2.5 rounded-2xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-2xs"
-                  title="Run Gemini clinical solver, distractor analysis, and pearls verification"
+                  title="Run clinical solver, distractor analysis, and pearls verification"
                 >
-                  <Sparkles className={`h-3.5 w-3.5 ${isReEnriching ? "animate-spin text-purple-600" : "text-purple-600"}`} />
-                  {isReEnriching ? "Gemini Verifying..." : "🧠 Gemini AI Cross-Check"}
+                  <Zap className={`h-3.5 w-3.5 ${isReEnriching ? "animate-spin text-purple-600" : "text-purple-600"}`} />
+                  {isReEnriching ? "Verifying..." : "⚡ Clinical Cross-Check"}
                 </button>
               </>
             )}
@@ -831,7 +831,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         {syncBannerNotice && (
           <div className="p-3 rounded-2xl bg-sky-50 border border-sky-200 text-sky-950 text-xs flex items-center justify-between gap-2 animate-fadeIn shadow-2xs font-medium">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-sky-600 shrink-0" />
+              <Zap className="h-4 w-4 text-sky-600 shrink-0" />
               <span>{syncBannerNotice}</span>
             </div>
             <button onClick={() => setSyncBannerNotice(null)} className="text-sky-400 hover:text-sky-700 cursor-pointer">
@@ -869,7 +869,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             { id: "videos", label: "Videos (" + videoQuestions.length + ")", icon: Video },
             { id: "tips", label: "Tips (" + tips.length + ")", icon: Lightbulb },
             { id: "notices", label: "Notices (" + notices.length + ")", icon: Bell },
-            { id: "pearls", label: "Exam Pearls (" + pearls.length + ")", icon: Sparkles },
+            { id: "pearls", label: "Exam Pearls (" + pearls.length + ")", icon: Zap },
             { id: "cross_checks", label: "AI Cross-Check (" + crossChecks.length + ")", icon: ShieldCheck },
             { id: "sources", label: "Sources (" + workerHealth.activeSourcesCount + " Active)", icon: Layers },
             { id: "debugger", label: "Raw Messages (" + messages.length + ")", icon: Terminal },
@@ -988,7 +988,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                       <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold font-['Outfit'] bg-slate-100 text-slate-700 uppercase">
                         {q.subject || "MEDICINE"}
                       </span>
-                      <span className="text-xs font-medium text-slate-600 truncate max-w-xs">
+                      <span className="text-xs font-medium text-slate-600 truncate max-w-xs min-w-0">
                         {q.topic || "Clinical Recall"}
                       </span>
                       {q.imageAssetId && (
@@ -1026,7 +1026,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   </div>
 
                   {/* Question Stem */}
-                  <p className="text-sm font-semibold text-slate-900 leading-relaxed">
+                  <p className="text-sm font-semibold text-slate-900 leading-relaxed break-words">
                     {q.questionText}
                   </p>
 
@@ -1116,7 +1116,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                         {enrichment.highYieldPearl && (
                           <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200/90 text-xs space-y-1 text-amber-950 shadow-2xs">
                             <div className="flex items-center gap-1.5 font-bold font-['Outfit'] text-amber-900">
-                              <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
+                              <Zap className="h-4 w-4 text-amber-600 shrink-0" />
                               <span>💡 FMGE High-Yield Takeaway</span>
                             </div>
                             <p className="text-[11px] leading-relaxed text-amber-900/90 font-medium">
@@ -1253,7 +1253,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                         className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-700 border border-slate-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer"
                         title="Send to Medical Pearls Vault"
                       >
-                        <Sparkles className="h-3.5 w-3.5 text-purple-600" />
+                        <Bookmark className="h-3.5 w-3.5 text-purple-600" />
                         To Pearls
                       </button>
                     </div>
@@ -1380,7 +1380,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     )}
 
                     {/* Content */}
-                    <p className="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-line">
+                    <p className="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-line break-words min-w-0">
                       {item.content}
                     </p>
 
@@ -1399,8 +1399,8 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                                     : "bg-slate-50 border-slate-200 text-slate-600"
                                 }`}
                               >
-                                <span><strong className="font-mono">{opt.key})</strong> {opt.text}</span>
-                                {isCorrect && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />}
+                                <span className="min-w-0 flex-1 break-words"><strong className="font-mono">{opt.key})</strong> {opt.text}</span>
+                                {isCorrect && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 ml-1.5" />}
                               </div>
                             );
                           })}
@@ -1482,7 +1482,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                         className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
                         title="Export to Medical Pearls Vault"
                       >
-                        <Sparkles className="h-3.5 w-3.5" /> To Pearls Vault
+                        <Bookmark className="h-3.5 w-3.5" /> To Pearls Vault
                       </button>
 
                       <button
@@ -1561,13 +1561,13 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                         </div>
                       )}
 
-                      <p className="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-line">
+                      <p className="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-line break-words min-w-0">
                         {noticeContent}
                       </p>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[11px] text-slate-400 font-mono truncate max-w-[180px]">
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 min-w-0">
+                      <span className="text-[11px] text-slate-400 font-mono truncate max-w-[180px] min-w-0">
                         Source: {n.sourceChannel || "Official Channel"}
                       </span>
                       <button
@@ -1582,7 +1582,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                           sourceChannel: n.sourceChannel,
                           tags: ["NBE Notice", "Official"],
                         })}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
+                        className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
                           savedBookmarkIds[n.id]
                             ? "bg-amber-100 text-amber-900 border border-amber-300"
                             : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
@@ -1643,13 +1643,13 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                         </div>
                       )}
 
-                      <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 leading-relaxed font-medium whitespace-pre-line">
+                      <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 leading-relaxed font-medium whitespace-pre-line break-words">
                         {displayText}
                       </div>
                     </div>
 
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
-                      <span className="text-[11px] text-slate-400 font-mono truncate max-w-[160px]">
+                      <span className="text-[11px] text-slate-400 font-mono truncate max-w-[160px] min-w-0">
                         Source: {t.sourceChannel || "Monitored Channel"}
                       </span>
                       <div className="flex items-center gap-1.5">
@@ -1690,7 +1690,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                           className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-700 border border-slate-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
                           title="Add to Pearls Vault"
                         >
-                          <Sparkles className="h-3.5 w-3.5 text-purple-600" />
+                          <Bookmark className="h-3.5 w-3.5 text-purple-600" />
                         </button>
                       </div>
                     </div>
@@ -1709,13 +1709,13 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         <div className="space-y-4">
           {filteredPearls.length === 0 ? (
             <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
-              <Sparkles className="h-8 w-8 text-amber-500 mx-auto" />
+              <Zap className="h-8 w-8 text-amber-500 mx-auto" />
               <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
                 {pearls.length === 0 ? "No Exam Pearls Yet" : "No Exam Pearls Match Your Filter"}
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 {pearls.length === 0
-                  ? "High-yield clinical takeaways, gold standards, and mnemonics extracted by Gemini will stream here automatically."
+                  ? "High-yield clinical takeaways, gold standards, and mnemonics extracted by the system will stream here automatically."
                   : "Try adjusting your search query or subject filter."}
               </p>
             </div>
@@ -1789,7 +1789,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                           className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
                           title="Add to Medical Pearls Vault"
                         >
-                          <Sparkles className="h-3.5 w-3.5" />
+                          <Bookmark className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </div>

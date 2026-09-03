@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   Clock,
   ChevronRight,
-  Sparkles,
   BookOpen,
   Activity,
   Layers,
@@ -43,6 +42,7 @@ import {
 import { MedicalHeroVisual } from './MedicalHeroVisual';
 import { TopicMasteryWorkspace } from './TopicMasteryWorkspace';
 import { NotificationCenterModal } from './NotificationCenterModal';
+import { hasUnreadNotifications } from '../utils/notificationEngine';
 
 interface DashboardViewProps {
   state: AppState;
@@ -122,6 +122,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Notification center modal state
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
+
+  // Unread badge reflects live visible notifications (respects persisted dismissals)
+  const hasUnread = useMemo(
+    () => hasUnreadNotifications(state),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state, isNotificationCenterOpen]
+  );
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -211,13 +218,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       const percentage = Math.round((doneNotes / Math.max(1, allTopics.length)) * 100);
 
       let statusText = 'On Track';
-      let statusColor = 'text-emerald-700 bg-emerald-50 border-emerald-200/60';
+      let statusColor = 'text-[#2c694e] bg-[#e9f1ec] border-[#d3e0d9]';
       if (percentage < 30) {
         statusText = 'Needs Focus';
-        statusColor = 'text-amber-700 bg-amber-50 border-amber-200/60';
+        statusColor = 'text-[#8a5a12] bg-[#faf3e3] border-[#ecd9ae]';
       } else if (percentage >= 50) {
         statusText = 'Strong';
-        statusColor = 'text-sky-700 bg-sky-50 border-sky-200/60';
+        statusColor = 'text-[#006B63] bg-[#e6f0ee] border-[#cfe2df]';
       }
       return {
         ...sub,
@@ -284,7 +291,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="order-2 sm:order-1">
             <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500 font-medium">
               <span className="inline-flex items-center gap-1.5">
-                <Target className="h-4 w-4 text-sky-600" />
+                <Target className="h-4 w-4 text-[#006B63]" />
                 <AnimatedNumber value={daysRemaining} className="font-bold text-slate-800 tabular-nums" />
                 <span>days to FMGE</span>
               </span>
@@ -309,7 +316,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   title="Cycle study atmosphere"
                   aria-label="Cycle study atmosphere"
                 >
-                  <Sparkles className="h-3 w-3 text-sky-500" />
+                  <Activity className="h-3 w-3 text-teal-600" />
                   <span>{activeBg.label} ⇄</span>
                 </button>
               )}
@@ -350,10 +357,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 aria-label="View Study Notifications"
               >
                 <Bell className="h-4.5 w-4.5 stroke-[1.8]" />
-                <span className="absolute top-2 right-2.5 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
-                </span>
+                {hasUnread && (
+                  <span className="absolute top-2 right-2.5 flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
+                  </span>
+                )}
               </button>
 
               {/* Avatar */}
@@ -397,7 +406,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-slate-100 transition-colors"
                   >
                     <div className="min-w-0 pr-2">
-                      <span className="text-[10px] font-bold text-sky-600 uppercase tracking-wider block">{subject.name}</span>
+                      <span className="text-[10px] font-bold text-[#006B63] uppercase tracking-wider block">{subject.name}</span>
                       <span className="text-xs font-semibold text-slate-800 truncate block">{topic.name}</span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -479,7 +488,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Left: focus content */}
               <div className="flex-1 p-4 sm:p-6 lg:p-8 lg:max-w-[58%] space-y-4">
                 <div className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200/60 font-mono">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#e6f0ee] text-[#006B63] border border-[#cfe2df] font-mono">
                     ★ Today&apos;s Focus
                   </span>
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
@@ -511,11 +520,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </span>
                   {activeFocusTopic.isHighYield && (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-slate-900 text-white border border-slate-800">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> High-yield
+                      <CheckCircle2 className="h-3.5 w-3.5 text-[#2c694e]" /> High-yield
                     </span>
                   )}
                   {hasRevisionDue && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#efeae3] text-[#594d41] border border-[#e0d7c9]">
                       <RotateCcw className="h-3.5 w-3.5" /> Revision due
                     </span>
                   )}
@@ -547,12 +556,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 initial={reducedMotion ? false : { opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className="relative lg:w-[42%] h-40 sm:h-48 lg:h-auto min-h-[160px] px-4 lg:px-0 pb-4 lg:pb-0"
+                className="relative lg:w-[42%] h-48 sm:h-56 lg:h-auto min-h-[200px] lg:min-h-[260px] px-3 sm:px-4 lg:px-0 pb-3 sm:pb-4 lg:pb-0 flex items-center justify-center"
               >
                 <MedicalHeroVisual
                   subjectId={activeFocusSubject.id}
                   subjectName={activeFocusSubject.name}
                   subjectColor={activeFocusSubject.color}
+                  topicId={activeFocusTopic.id}
+                  topicName={activeFocusTopic.name}
                   className="w-full h-full lg:absolute lg:inset-0"
                 />
               </motion.div>
@@ -587,8 +598,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {learningContext.baselinePending && (
-            <div className="rounded-2xl border border-sky-200/70 bg-sky-50/70 px-4 py-3 text-xs text-sky-900 flex items-start gap-2">
-              <Activity className="h-4 w-4 text-sky-600 shrink-0 mt-0.5" />
+            <div className="rounded-2xl border border-[#cfe2df] bg-[#e6f0ee]/70 px-4 py-3 text-xs text-[#18625a] flex items-start gap-2">
+              <Activity className="h-4 w-4 text-[#006B63] shrink-0 mt-0.5" />
               <span>
                 Initial plan based on your onboarding. Complete a diagnostic
                 ({savedTargetScore ? `target ${savedTargetScore}+` : 'set a target'}) to make recommendations more precise.
@@ -644,7 +655,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={() => onNavigateTab('syllabus')}
-              className="text-xs font-semibold text-sky-700 hover:text-sky-900 transition-colors cursor-pointer"
+              className="text-xs font-semibold text-[#006B63] hover:text-[#005049] transition-colors cursor-pointer"
             >
               View curriculum →
             </button>
@@ -663,7 +674,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[13px] font-bold text-slate-900 truncate group-hover:text-sky-700 transition-colors">{sub.name}</span>
+                      <span className="text-[13px] font-bold text-slate-900 truncate group-hover:text-[#006B63] transition-colors">{sub.name}</span>
                       <span className="text-xs font-mono font-semibold text-slate-500 tabular-nums shrink-0">{sub.percentage}%</span>
                     </div>
                     <div className="flex items-center gap-2 mt-1.5">
@@ -700,7 +711,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {!hasRevisionDue && !errorsToReview ? (
             <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-3.5 text-sm text-slate-500 flex items-center gap-2.5">
-              <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
+              <CheckCircle2 className="h-4.5 w-4.5 text-[#2c694e] shrink-0" />
               You&apos;re all caught up — review when new revision or errors appear.
             </div>
           ) : (
@@ -711,16 +722,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   onClick={() => onNavigateTab('revision')}
                   className="group flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 text-left cursor-pointer hover:border-slate-300 hover:bg-slate-50/50 transition-all"
                 >
-                  <span className="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <span className="h-10 w-10 rounded-xl bg-[#efeae3] text-[#594d41] flex items-center justify-center shrink-0">
                     <RotateCcw className="h-5 w-5" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-sm font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">
+                    <span className="block text-sm font-bold text-slate-900 group-hover:text-[#594d41] transition-colors">
                       {dailyPlan.revisionDueCount} revision{dailyPlan.revisionDueCount > 1 ? 's' : ''} due
                     </span>
                     <span className="block text-xs text-slate-500">Spaced recall is ready</span>
                   </span>
-                  <ArrowRight className="ml-auto h-4 w-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  <ArrowRight className="ml-auto h-4 w-4 text-slate-300 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all shrink-0" />
                 </button>
               )}
               {errorsToReview && (
@@ -823,7 +834,7 @@ const PlanTaskRow: React.FC<PlanTaskRowProps> = ({ task, index, reducedMotion, o
               <span className="text-[10px] font-bold uppercase tracking-wider font-mono" style={{ color: task.subjectColor }}>
                 {task.subjectName.toUpperCase()}
               </span>
-              <span className="text-[11px] font-medium text-sky-600">
+              <span className="text-[11px] font-medium text-[#006B63]">
                 {PLAN_ACTIVITY_ICON[task.activity] || task.activityLabel}
               </span>
             </div>
