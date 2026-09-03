@@ -1,31 +1,104 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-surface: #faf7f2;
+  --color-surface-dim: #e0d8cd;
+  --color-surface-bright: #faf7f2;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f4eee7;
+  --color-surface-container: #f1ebe3;
+  --color-surface-container-high: #ebe5db;
+  --color-surface-container-highest: #e5ddd3;
+  --color-on-surface: #121e1b;
+  --color-on-surface-variant: #3d4947;
+  --color-inverse-surface: #273330;
+  --color-inverse-on-surface: #f5eee5;
+  --color-outline: #6d7a77;
+  --color-outline-variant: #bcc9c6;
+  --color-surface-tint: #006a61;
+  --color-primary: #00685f;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #008378;
+  --color-on-primary-container: #f4fffc;
+  --color-inverse-primary: #6bd8cb;
+  --color-secondary: #2c694e;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #aeeecb;
+  --color-on-secondary-container: #316e52;
+  --color-tertiary: #8d4b00;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #b15f00;
+  --color-on-tertiary-container: #fffbff;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-primary-fixed: #89f5e7;
+  --color-primary-fixed-dim: #6bd8cb;
+  --color-on-primary-fixed: #00201d;
+  --color-on-primary-fixed-variant: #005049;
+  --color-secondary-fixed: #b1f0ce;
+  --color-secondary-fixed-dim: #95d4b3;
+  --color-on-secondary-fixed: #002114;
+  --color-on-secondary-fixed-variant: #0e5138;
+  --color-tertiary-fixed: #ffdcc3;
+  --color-tertiary-fixed-dim: #ffb77d;
+  --color-on-tertiary-fixed: #2f1500;
+  --color-on-tertiary-fixed-variant: #6e3900;
+  --font-headline-xl: 'Newsreader', Georgia, serif;
+  --font-headline-lg: 'Newsreader', Georgia, serif;
+  --font-headline-md: 'Newsreader', Georgia, serif;
+  --font-headline-sm: 'Newsreader', Georgia, serif;
+  --font-body-lg: 'Inter', -apple-system, sans-serif;
+  --font-body-md: 'Inter', -apple-system, sans-serif;
+  --font-body-sm: 'Inter', -apple-system, sans-serif;
+  --font-label-md: 'Inter', -apple-system, sans-serif;
+  --font-label-sm: 'Inter', -apple-system, sans-serif;
+  --font-mono-clinical: 'JetBrains Mono', monospace;
+  --font-mono-metric: 'JetBrains Mono', monospace;
+}
+
+@theme {
+  /* Warm Ivory · Taupe · Espresso — premium neutral scale (overrides default slate) */
+  --color-slate-50: #f8f5ef;
+  --color-slate-100: #eee9df;
+  --color-slate-200: #e2d9cb;
+  --color-slate-300: #cfc2ae;
+  --color-slate-400: #b5a58f;
+  --color-slate-500: #a0917d;
+  --color-slate-600: #877867;
+  --color-slate-700: #6d5f50;
+  --color-slate-800: #594d41;
+  --color-slate-900: #4a3b32;
+  --color-slate-950: #392e27;
+}
+
 :root {
-  --background: 220 20% 98%;
-  --foreground: 222 47% 11%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-  --primary: 222 47% 11%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 215 16% 47%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 20% 96%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 199 89% 48%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214 20% 90%;
-  --input: 214 20% 90%;
-  --ring: 222 47% 11%;
-  --radius: 1.25rem;
-  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-  --font-serif: 'Instrument Serif', Georgia, serif;
-  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --background: #faf7f2;
+  --foreground: #121e1b;
+  --card: #ffffff;
+  --card-foreground: #121e1b;
+  --primary: #00685f;
+  --primary-foreground: #ffffff;
+  --secondary: #2c694e;
+  --secondary-foreground: #ffffff;
+  --muted: #f1ebe3;
+  --muted-foreground: #3d4947;
+  --accent: #008378;
+  --accent-foreground: #ffffff;
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
+  --border: #e5ddd3;
+  --input: #bcc9c6;
+  --ring: #00685f;
+  --radius: 0.75rem;
+  --font-display: 'Newsreader', 'Outfit', Georgia, serif;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-body: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+  --ease-swift: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 * {
@@ -34,37 +107,104 @@
 }
 
 html {
-  background-color: #f8fafc;
+  background-color: #faf7f2;
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #faf7f2;
+  color: #121e1b;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.font-sans {
-  font-family: var(--font-body) !important;
+/* ================= TYPOGRAPHY SCALES ================= */
+.font-headline-xl {
+  font-family: 'Newsreader', Georgia, serif !important;
+  font-size: 2.25rem;
+  line-height: 2.75rem;
+  letter-spacing: -0.02em;
+  font-weight: 500;
 }
 
-.font-display {
-  font-family: var(--font-display) !important;
+.font-headline-lg {
+  font-family: 'Newsreader', Georgia, serif !important;
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  letter-spacing: -0.015em;
+  font-weight: 500;
 }
 
-.font-serif-accent {
-  font-family: var(--font-serif) !important;
+.font-headline-md {
+  font-family: 'Newsreader', Georgia, serif !important;
+  font-size: 1.375rem;
+  line-height: 1.875rem;
+  font-weight: 500;
 }
 
-.font-mono {
-  font-family: var(--font-mono) !important;
+.font-headline-sm {
+  font-family: 'Newsreader', Georgia, serif !important;
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+  font-weight: 600;
 }
 
-/* Base interactive elements */
+.font-body-lg {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1.0625rem;
+  line-height: 1.75rem;
+  font-weight: 400;
+}
+
+.font-body-md {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.9375rem;
+  line-height: 1.5rem;
+  font-weight: 400;
+}
+
+.font-body-sm {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+}
+
+.font-label-md {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+.font-label-sm {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+}
+
+.font-mono-clinical {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+
+.font-mono-metric {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 1.125rem;
+  line-height: 1.375rem;
+  font-weight: 600;
+}
+
+/* ================= SWIFTUI-STYLE INTERACTIVE ELEVATION & SPRINGS ================= */
 button, input, select, textarea {
   font-family: inherit;
 }
@@ -72,126 +212,129 @@ button, input, select, textarea {
 button {
   cursor: pointer;
   touch-action: manipulation;
-  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1),
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
               background-color 0.15s ease,
               border-color 0.15s ease,
               color 0.15s ease,
-              box-shadow 0.15s ease;
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 button:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 ::selection {
-  background: #cbd5e1;
-  color: #0f172a;
+  background: #89f5e7;
+  color: #00201d;
 }
 
-/* Quiet Clinical Pastel Glassmorphic Workspace Surfaces */
-.workspace-surface {
-  background: rgba(255, 255, 255, 0.90);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  border-radius: 2rem;
-  box-shadow: 0 16px 40px -10px rgba(140, 130, 170, 0.12);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+/* SwiftUI-styled Cards & Surfaces with high clarity and contrast */
+.clinical-card, .swift-card {
+  background: #ffffff;
+  border: 1px solid #e5ddd3;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.workspace-surface-hover:hover {
-  border-color: rgba(216, 180, 254, 0.8);
-  box-shadow: 0 20px 48px -8px rgba(140, 120, 180, 0.16);
+.clinical-card:hover, .swift-card:hover {
+  border-color: #bcc9c6;
+  box-shadow: 0 6px 16px -3px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
 }
 
-/* Bento modern cards mapped to soft pastel glass surfaces */
-.bento-card {
-  background: rgba(255, 255, 255, 0.90);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  border-radius: 2rem;
-  box-shadow: 0 16px 40px -10px rgba(140, 130, 170, 0.12);
-  position: relative;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.bento-card:hover {
-  border-color: rgba(216, 180, 254, 0.9);
-  box-shadow: 0 20px 48px -8px rgba(140, 120, 180, 0.16);
-}
-
-.bento-card-interactive {
+.swift-card-interactive {
   cursor: pointer;
 }
 
-.bento-card-interactive:hover {
+.swift-card-interactive:hover {
   transform: translateY(-2px);
+  border-color: #00685f;
 }
 
-.bento-glass {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  border-radius: 2rem;
-  box-shadow: 0 20px 50px -10px rgba(140, 130, 170, 0.14);
+.swift-card-interactive:active {
+  transform: scale(0.985);
 }
 
-.bento-dark-card {
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 2rem;
-  box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.25);
-  color: #ffffff;
+/* Translucent Apple Glass Surface */
+.swift-glass {
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(229, 221, 211, 0.85);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px -4px rgba(0, 104, 95, 0.06);
 }
 
-/* Custom rounded corners */
-.rounded-3xl {
-  border-radius: 2rem !important;
-}
-
-.rounded-2xl {
-  border-radius: 1.25rem !important;
-}
-
-.rounded-4xl {
-  border-radius: 2.5rem !important;
-}
-
-/* Modern Pill Button & Tags */
-.pill-button {
-  border-radius: 9999px;
+.clinical-pill, .swift-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.375rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
   font-weight: 600;
-  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  letter-spacing: -0.01em;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.pill-tag {
-  border-radius: 9999px;
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.65rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  transition: all 0.15s ease;
+.clinical-pill:active, .swift-pill:active {
+  transform: scale(0.95);
 }
 
-/* Progress rail utility */
-.progress-rail-track {
-  background-color: #f1f5f9;
-  border-radius: 9999px;
-  overflow: hidden;
-  height: 0.375rem;
+/* Editorial information surface — shared by subject/topic/error views.
+   Defined here so every page uses one surface language instead of relying on
+   an undefined class (previously rendered as a silent no-op). */
+.editorial-surface {
+  background: #ffffff;
+  border: 1px solid #e6dcd1;
+  border-radius: 0.875rem;
+  box-shadow: 0 1px 3px 0 rgba(60, 45, 30, 0.05), 0 1px 2px -1px rgba(60, 45, 30, 0.03);
 }
 
-.progress-rail-fill {
-  background-color: #0f172a;
-  border-radius: 9999px;
-  height: 100%;
-  transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+.page-container {
+  width: 100%;
+  max-width: 80rem; /* 1280px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 1.5rem;
+  padding-bottom: 3.5rem;
+  animation: swift-fade-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  .page-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 2rem;
+    padding-bottom: 4.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Animations */
+@keyframes swift-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-swift-in {
+  animation: swift-fade-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Custom scrollbars */
@@ -203,27 +346,14 @@ button:active {
   scrollbar-width: none;
 }
 
-/* Soft Focus Ring */
+/* Soft Clinical Focus Ring */
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #0f172a !important;
-  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.08);
+  border-color: #00685f !important;
+  box-shadow: 0 0 0 3px rgba(0, 104, 95, 0.15) !important;
 }
 
-/* Subtle Pulse */
-@keyframes pulse-subtle {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.skeleton-pulse {
-  animation: pulse-subtle 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
+/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -232,129 +362,3 @@ input:focus, select:focus, textarea:focus {
     scroll-behavior: auto !important;
   }
 }
-
-@keyframes float-slow {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-8px) rotate(1.5deg);
-  }
-}
-
-@keyframes float-reverse {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(6px) rotate(-1.5deg);
-  }
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    opacity: 0.55;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.06);
-  }
-}
-
-.animate-float-slow {
-  animation: float-slow 7s ease-in-out infinite;
-}
-
-.animate-float-reverse {
-  animation: float-reverse 6s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 5s ease-in-out infinite;
-}
-
-/* Editorial Medical Learning Instrument Utilities (Linear × Notion × Apple Health) */
-.page-container {
-  width: 100%;
-  max-width: 64rem; /* 1024px */
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 1.5rem;
-  padding-bottom: 2.5rem;
-}
-
-@media (min-width: 640px) {
-  .page-container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-    padding-top: 2rem;
-    padding-bottom: 3rem;
-  }
-}
-
-.editorial-canvas {
-  background-color: #f8fafc;
-  min-height: 100vh;
-}
-
-.editorial-surface {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 1.25rem;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.editorial-surface-hover:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
-}
-
-.editorial-hero {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.05);
-}
-
-.editorial-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  transition: all 0.15s ease;
-}
-
-.editorial-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.875rem 1rem;
-  border-radius: 0.875rem;
-  transition: background-color 0.15s ease;
-  min-height: 44px;
-}
-
-.editorial-row-interactive {
-  cursor: pointer;
-}
-
-.editorial-row-interactive:hover {
-  background-color: #f1f5f9;
-}
-
-.touch-target {
-  min-height: 44px;
-  min-width: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
