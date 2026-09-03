@@ -20,21 +20,21 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { resolveAuthError } from '../utils/authErrors';
+import OneShotLogo from './OneShotLogo';
 
 /* ─── ONE SHOT brand mark ─── */
 const OneShotMark: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {
   const dims =
     size === 'sm'
-      ? 'h-8 w-8 text-xs'
+      ? 'h-8 w-8'
       : size === 'lg'
-      ? 'h-16 w-16 text-2xl'
-      : 'h-11 w-11 text-base';
+      ? 'h-16 w-16'
+      : 'h-11 w-11';
   return (
-    <span
-      className={`inline-flex items-center justify-center rounded-2xl bg-slate-900 text-white font-bold font-['Outfit'] shadow-sm shrink-0 ${dims}`}
-    >
-      1S
-    </span>
+    <OneShotLogo
+      variant="icon"
+      className={`rounded-2xl shadow-sm shrink-0 ${dims}`}
+    />
   );
 };
 
@@ -210,7 +210,7 @@ export const AuthScreen: React.FC = () => {
   ───────────────────────────────────────────────────────────── */
   if (mode === 'welcome') {
     return (
-      <div className="min-h-screen bg-[#F3F6FA] flex flex-col justify-between p-4 sm:p-6 lg:p-10 font-['Plus_Jakarta_Sans']">
+      <div className="min-h-screen bg-[#F7F9F8] flex flex-col justify-between p-4 sm:p-6 lg:p-10">
         {/* Top Header Brand */}
         <header className="w-full max-w-6xl mx-auto flex items-center justify-between py-2">
           <div className="flex items-center gap-3">
@@ -311,7 +311,7 @@ export const AuthScreen: React.FC = () => {
 
         {/* Footer */}
         <footer className="w-full max-w-6xl mx-auto py-3 text-center text-xs text-slate-400">
-          ONE SHOT FMGE · Deterministic NBE Medical Preparation Platform
+          ONE SHOT FMGE · FMGE Preparation Platform
         </footer>
       </div>
     );
@@ -321,7 +321,7 @@ export const AuthScreen: React.FC = () => {
      2. AUTH MODES (Sign In / Sign Up / Forgot Password)
   ───────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-[#F3F6FA] flex flex-col justify-center items-center p-4 sm:p-6 font-['Plus_Jakarta_Sans']">
+    <div className="min-h-screen bg-[#F7F9F8] flex flex-col justify-center items-center p-4 sm:p-6">
       <div className="w-full max-w-md">
         {/* Back to welcome */}
         <div className="mb-4 flex items-center justify-between">

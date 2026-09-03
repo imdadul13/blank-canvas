@@ -13,6 +13,7 @@ import {
   Layers,
   TrendingUp,
 } from 'lucide-react';
+import OneShotLogo from './OneShotLogo';
 import { useAuth } from '../context/AuthContext';
 import {
   OnboardingPreparationStage,
@@ -268,16 +269,11 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
   const years = useMemo(() => buildYearWindow(currentYear, yearStart), [yearStart, currentYear]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#FAFBFC] font-['Plus_Jakarta_Sans'] selection:bg-sky-900/10">
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#F7F9F8] selection:bg-[#89f5e7] selection:text-[#00201d]">
       {/* Header / progress — stays fixed at the top */}
       <header className="shrink-0 w-full max-w-3xl mx-auto px-5 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.25rem)] sm:pt-8 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-white font-['Outfit'] text-xs font-bold">
-            1S
-          </span>
-          <span className="font-['Outfit'] text-sm font-bold tracking-tight text-slate-900">
-            ONE SHOT FMGE
-          </span>
+          <OneShotLogo variant="compact" />
         </div>
 
         <div className="flex items-center gap-3">
@@ -929,7 +925,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
 
       {/* Action bar — stays reachable; content scrolls above it */}
       {step !== 'welcome' && step !== 'building' && step !== 'ready' && (
-        <footer className="shrink-0 w-full bg-[#FAFBFC]/95 backdrop-blur-sm border-t border-slate-200/70 px-5 sm:px-8 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-4">
+        <footer className="shrink-0 w-full bg-[#F7F9F8]/95 backdrop-blur-sm border-t border-[#DCE4E1]/70 px-5 sm:px-8 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-4">
           <div className="w-full max-w-3xl mx-auto">
             {saveError && (
               <p className="mb-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold p-3">

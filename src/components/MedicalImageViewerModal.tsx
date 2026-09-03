@@ -8,7 +8,6 @@ import {
   ShieldCheck,
   Eye,
   Layers,
-  Sparkles,
   CheckCircle2,
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
@@ -159,7 +158,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
         </div>
 
         {/* Toolbar Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Annotated Breakdown Toggle (Available if annotated version exists) */}
           {effectiveAnnotatedUrl && (
             <button
@@ -172,7 +171,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
               }`}
               title="Toggle Diagnostic Annotations on/off"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <Eye className="w-3.5 h-3.5 text-sky-300" />
               <span>{showAnnotated ? 'Hide Annotations' : 'Show Annotations'}</span>
             </button>
           )}

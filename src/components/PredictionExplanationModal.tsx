@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   X,
-  Sparkles,
+  Zap,
   Flame,
   CheckCircle2,
   AlertCircle,
@@ -125,7 +125,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
   const signalsList = [
     { key: 'priorityScore', data: signals.priorityScore || { raw: 75, weight: 20, weighted: 15, label: 'Topic Priority Base' }, icon: Flame, color: 'text-amber-600' },
     { key: 'subjectWeight', data: signals.subjectWeight || { raw: 70, weight: 15, weighted: 10.5, label: `Subject Weight (${topic.subjectWeightage || 20}m)` }, icon: TrendingUp, color: 'text-indigo-600' },
-    { key: 'highYieldSignal', data: signals.highYieldSignal || { raw: 80, weight: 15, weighted: 12, label: 'Historical / High-Yield Signal' }, icon: Sparkles, color: 'text-rose-600' },
+    { key: 'highYieldSignal', data: signals.highYieldSignal || { raw: 80, weight: 15, weighted: 12, label: 'Historical / High-Yield Signal' }, icon: Zap, color: 'text-amber-600' },
     { key: 'clinicalVignettePotential', data: signals.clinicalVignettePotential || { raw: 70, weight: 10, weighted: 7, label: 'Clinical Vignette Potential' }, icon: Stethoscope, color: 'text-sky-600' },
     { key: 'imageBasedPotential', data: signals.imageBasedPotential || { raw: 65, weight: 5, weighted: 3.25, label: 'Image-Based Question (IBQ) Potential' }, icon: Eye, color: 'text-blue-600' },
     { key: 'docPotential', data: signals.docPotential || { raw: 75, weight: 10, weighted: 7.5, label: 'Management / Drug-of-Choice (DOC)' }, icon: Pill, color: 'text-purple-600' },
@@ -148,7 +148,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200 font-['Plus_Jakarta_Sans']"
+      className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200 font-['Plus_Jakarta_Sans']"
       id="prediction-explanation-modal"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
@@ -156,6 +156,14 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
         }
       }}
     >
+      <div
+        className="flex min-h-full items-center justify-center p-3 sm:p-4"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            onClose();
+          }
+        }}
+      >
       <div
         className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
@@ -173,7 +181,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
           <div className="flex flex-wrap items-center gap-2 mb-2.5">
             <span
               className="px-3 py-1 rounded-full text-[11px] font-bold text-white uppercase tracking-wider font-['Outfit'] shadow-xs"
-              style={{ backgroundColor: topic.subjectColor || '#0f172a' }}
+              style={{ backgroundColor: topic.subjectColor || '#4a3b32' }}
             >
               {topic.subjectCode || 'SUB'} · {topic.subjectName || 'Subject'} ({topic.subjectWeightage || 0} marks)
             </span>
@@ -211,7 +219,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 sm:p-6 space-y-6 flex-1 overflow-y-auto bg-[#F8FAFC]">
+        <div className="p-5 sm:p-6 space-y-6 flex-1 overflow-y-auto min-h-0 bg-[#F7F9F8]">
           {/* Quick Actions Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white border border-slate-200/90 rounded-2xl shadow-xs">
             <div className="flex items-center gap-2.5">
@@ -281,7 +289,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
                 }}
                 className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
-                <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+                <Stethoscope className="w-3.5 h-3.5 text-sky-400" />
                 Solve Vignette
               </button>
             </div>
@@ -342,10 +350,10 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
                     key={key}
                     className="p-3.5 rounded-2xl border border-slate-200/80 bg-white hover:bg-slate-50/80 transition-colors shadow-2xs"
                   >
-                    <div className="flex items-center justify-between text-xs mb-2">
+                    <div className="flex items-center justify-between gap-2 text-xs mb-2">
                       <div className="flex items-center gap-2">
                         <Icon className={`w-4 h-4 ${color}`} />
-                        <span className="font-bold text-slate-800 font-['Outfit']">{labelVal}</span>
+                        <span className="font-bold text-slate-800 font-['Outfit'] truncate max-w-[140px] sm:max-w-none">{labelVal}</span>
                         <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
                           Weight {weightVal}%
                         </span>
@@ -382,7 +390,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
           {topic.highYieldPearl && (
             <div className="p-4 bg-sky-50/80 border border-sky-200 rounded-2xl space-y-1.5">
               <div className="flex items-center gap-2 text-xs font-bold text-sky-900 font-['Outfit']">
-                <Sparkles className="w-4 h-4 text-sky-600" />
+                <Zap className="w-4 h-4 text-amber-500" />
                 <span>HIGH-YIELD RECALL PEARL</span>
               </div>
               <p className="text-xs text-sky-950 font-medium leading-relaxed pl-6">
@@ -395,9 +403,9 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
           <div className="border border-slate-200/80 bg-white p-5 rounded-2xl space-y-3 shadow-2xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-sky-600" />
+                <Zap className="w-4 h-4 text-sky-600" />
                 <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide font-['Outfit']">
-                  AI Strategy &amp; Vignette Traps
+                  Clinical Strategy &amp; Vignette Traps
                 </h4>
               </div>
               {!aiStrategy && (
@@ -410,12 +418,12 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
                   {isLoadingAi ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      Analyzing...
+                      Synthesizing...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-3.5 h-3.5 text-sky-300" />
-                      Get AI Strategy
+                      <Zap className="w-3.5 h-3.5 text-sky-300" />
+                      Clinical Strategy
                     </>
                   )}
                 </button>
@@ -463,8 +471,9 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
             Done
           </button>
         </div>
+        </div>
       </div>
-    </div>,
+      </div>,
     document.body
   );
 };

@@ -1,23 +1,21 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Bell,
   CheckCircle2,
-  Clock,
-  AlertTriangle,
   ArrowRight,
-  BookOpen,
-  RotateCcw,
   Sparkles,
-  Droplet,
-  Brain,
-  Eye,
-  Coffee,
-  Check,
-  Zap
 } from 'lucide-react';
 import { AppState } from '../types';
-import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
+import {
+  buildNotifications,
+  loadDismissals,
+  saveDismissals,
+  shouldShow,
+  type DismissalRecord,
+  type SmartNotification,
+} from '../utils/notificationEngine';
 
 interface NotificationCenterModalProps {
   isOpen: boolean;
@@ -32,18 +30,6 @@ interface NotificationCenterModalProps {
   ) => void;
 }
 
-interface SmartNotification {
-  id: string;
-  category: 'revision' | 'wellness' | 'focus' | 'error' | 'exam';
-  title: string;
-  description: string;
-  time: string;
-  actionLabel: string;
-  onAction: () => void;
-  icon: React.ElementType;
-  iconColor: string;
-}
-
 export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = ({
   isOpen,
   onClose,
@@ -53,124 +39,81 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
   onLaunchPracticeSession,
 }) => {
   const [activeFilter, setActiveFilter] = useState<'all' | 'clinical' | 'wellness'>('all');
-  const [dismissedIds, setDismissedIds] = useState<string[]>([]);
+  const [dismissals, setDismissals] = useState<Record<string, DismissalRecord>>(loadDismissals);
   const [wellnessLoggedToast, setWellnessLoggedToast] = useState<string | null>(null);
 
-  // Dynamic time-based smart notifications
-  const allNotifications: SmartNotification[] = useMemo(() => {
-    const list: SmartNotification[] = [
-      {
-        id: 'notif-wellness-water',
-        category: 'wellness',
-        title: 'Hydration & 20-20-20 Visual Rest',
-        description: '45-minute continuous study block reached. Drink 250ml water and glance 20 feet away for 20 seconds to prevent cognitive fatigue.',
-        time: 'Just now',
-        actionLabel: 'Drink Water & Refresh',
-        onAction: () => {
-          setWellnessLoggedToast('Great job! 250ml hydration & eye rest logged. Cognitive stamina restored.');
-          setTimeout(() => setWellnessLoggedToast(null), 3500);
-        },
-        icon: Droplet,
-        iconColor: 'text-sky-600 bg-sky-50 border-sky-200/80',
-      },
-      {
-        id: 'notif-focus-circadian',
-        category: 'focus',
-        title: 'Circadian Focus Booster Protocol',
-        description: 'Switch from passive note reading to high-intensity active recall: 10 quick clinical MCQs to trigger dopamine-mediated consolidation.',
-        time: '5m ago',
-        actionLabel: 'Start 10-MCQ Sprint',
-        onAction: () => {
-          onClose();
-          onLaunchPracticeSession?.('pharmacology', 'pharm-1', 'General Pharmacology - Pharmacokinetics & Receptors');
-        },
-        icon: Brain,
-        iconColor: 'text-purple-600 bg-purple-50 border-purple-200/80',
-      },
-      {
-        id: 'notif-revision-r2',
-        category: 'revision',
-        title: 'Spaced Revision R2 Due Today',
-        description: 'Pulmonology — Asthma & COPD reached its 7-day R2 retention decay threshold. Active recall now prevents memory loss.',
-        time: '15m ago',
-        actionLabel: 'Start R2 Revision',
-        onAction: () => {
-          onClose();
-          onNavigateTab('revision');
-        },
-        icon: RotateCcw,
-        iconColor: 'text-indigo-600 bg-indigo-50 border-indigo-200/80',
-      },
-      {
-        id: 'notif-error-vault',
-        category: 'error',
-        title: 'High-Yield Trap in Forensic Medicine',
-        description: '2 recent mistakes identified in Thanatology (Post-mortem interval calculations). Review the diagnostic discriminator.',
-        time: '1h ago',
-        actionLabel: 'Remediate Mistake',
-        onAction: () => {
-          onClose();
-          onNavigateTab('errors');
-        },
-        icon: AlertTriangle,
-        iconColor: 'text-rose-600 bg-rose-50 border-rose-200/80',
-      },
-      {
-        id: 'notif-exam-gt',
-        category: 'exam',
-        title: '70-Day Grand Test Milestone',
-        description: 'Full 300-question NBE Mock Exam scheduled. Test test-day stamina, pacing (1 min/Q), and negative marking discipline.',
-        time: 'Today',
-        actionLabel: 'Open Grand Tests',
-        onAction: () => {
-          onClose();
-          onNavigateTab('grandtests');
-        },
-        icon: BookOpen,
-        iconColor: 'text-amber-600 bg-amber-50 border-amber-200/80',
-      },
-    ];
+  useEffect(() => {
+    saveDismissals(dismissals);
+  }, [dismissals]);
 
-    return list;
-  }, [onClose, onNavigateTab, onLaunchPracticeSession]);
+  const persistDismiss = (id: string, condition: string) =>
+    setDismissals((prev) => ({ ...prev, [id]: { hiddenAt: Date.now(), condition } }));
+
+  const allNotifications: SmartNotification[] = useMemo(
+    () =>
+      buildNotifications(
+        state,
+        dismissals,
+        {
+          onClose,
+          onNavigateTab,
+          onSelectSubject,
+          onLaunchPracticeSession,
+          onDismiss: persistDismiss,
+          onBreakLogged: (msg) => {
+            setWellnessLoggedToast(msg);
+            setTimeout(() => setWellnessLoggedToast(null), 3500);
+          },
+        }
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state, dismissals, onClose, onNavigateTab, onSelectSubject, onLaunchPracticeSession]
+  );
 
   if (!isOpen) return null;
 
-  const activeNotifications = allNotifications.filter((n) => !dismissedIds.includes(n.id));
+  const visibleNotifications = allNotifications.filter((n) => shouldShow(n, dismissals));
 
-  const filteredNotifications = activeNotifications.filter((n) => {
+  const filteredNotifications = visibleNotifications.filter((n) => {
     if (activeFilter === 'clinical') return ['revision', 'error', 'exam'].includes(n.category);
     if (activeFilter === 'wellness') return ['wellness', 'focus'].includes(n.category);
     return true;
   });
 
-  const handleDismiss = (id: string, e: React.MouseEvent) => {
+  const handleDismiss = (n: SmartNotification, e: React.MouseEvent) => {
     e.stopPropagation();
-    setDismissedIds((prev) => [...prev, id]);
+    persistDismiss(n.id, n.condition);
   };
 
   const handleDismissAll = () => {
-    setDismissedIds(allNotifications.map((n) => n.id));
+    setDismissals((prev) => {
+      const next = { ...prev };
+      visibleNotifications.forEach((n) => {
+        next[n.id] = { hiddenAt: Date.now(), condition: n.condition };
+      });
+      return next;
+    });
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 font-['Plus_Jakarta_Sans']">
-      <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200/90 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+  return createPortal(
+    <div className="fixed inset-0 z-[80] bg-slate-900/40 backdrop-blur-xs overflow-y-auto font-['Plus_Jakarta_Sans'] text-slate-900">
+      <div className="flex min-h-full items-center justify-center p-3 sm:p-4">
+      <div className="bg-white rounded-3xl max-w-lg w-full my-auto shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden max-h-[92vh] animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-gradient-to-br from-slate-50 to-white">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
               <Bell className="h-5 w-5" />
             </div>
             <div>
               <h3 className="font-['Outfit'] text-base font-bold text-slate-900 flex items-center gap-2">
-                Study Intelligence & Alerts
+                Study Intelligence
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-sky-50 text-sky-700 border border-sky-200">
-                  {activeNotifications.length} Active
+                  {visibleNotifications.length} Active
                 </span>
               </h3>
               <p className="text-xs text-slate-400">
-                Real-time clinical triggers, spaced recall, and cognitive wellness
+                Sensed from your actual progress, mistakes & schedule
               </p>
             </div>
           </div>
@@ -179,18 +122,19 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
             type="button"
             onClick={onClose}
             className="p-1.5 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+            title="Close"
           >
             <X className="h-4.5 w-4.5" />
           </button>
         </div>
 
         {/* Filter Pills */}
-        <div className="px-5 pt-3 pb-2 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="px-5 pt-3 pb-2 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
           <div className="flex items-center gap-1.5">
             {[
-              { id: 'all', label: `All (${activeNotifications.length})` },
-              { id: 'clinical', label: 'Clinical & Revision' },
-              { id: 'wellness', label: 'Focus & Breaks' },
+              { id: 'all', label: `All (${visibleNotifications.length})` },
+              { id: 'clinical', label: 'Clinical' },
+              { id: 'wellness', label: 'Wellness' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -207,11 +151,11 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
             ))}
           </div>
 
-          {activeNotifications.length > 0 && (
+          {visibleNotifications.length > 0 && (
             <button
               type="button"
               onClick={handleDismissAll}
-              className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 cursor-pointer"
+              className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 cursor-pointer shrink-0"
             >
               Dismiss All
             </button>
@@ -227,13 +171,13 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
         )}
 
         {/* List of Smart Notifications */}
-        <div className="p-5 divide-y divide-slate-100 max-h-[60vh] overflow-y-auto space-y-4">
+        <div className="p-5 divide-y divide-slate-100 space-y-4 min-h-0 flex-1 overflow-y-auto">
           {filteredNotifications.length === 0 ? (
             <div className="py-12 text-center space-y-2">
               <CheckCircle2 className="h-10 w-10 text-emerald-500 mx-auto" />
               <h4 className="text-sm font-bold text-slate-900">All Caught Up!</h4>
               <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                No pending study alerts or cognitive break reminders right now. Keep up the high-yield momentum!
+                No overdue mistakes, open priorities, or due recalls right now. Your schedule is clear — keep the momentum.
               </p>
             </div>
           ) : (
@@ -246,17 +190,22 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                       <Icon className="h-4.5 w-4.5" />
                     </div>
                     <div className="min-w-0 flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <h4 className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
                           {n.title}
+                          {n.priority === 'high' && (
+                            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-rose-50 text-rose-600 border border-rose-200">
+                              PRIORITY
+                            </span>
+                          )}
                         </h4>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0">
                           <span className="text-[10px] text-slate-400 font-mono">{n.time}</span>
                           <button
                             type="button"
-                            onClick={(e) => handleDismiss(n.id, e)}
+                            onClick={(e) => handleDismiss(n, e)}
                             className="text-slate-300 hover:text-slate-600 p-0.5 rounded cursor-pointer"
-                            title="Dismiss notification"
+                            title="Dismiss for now"
                           >
                             <X className="h-3.5 w-3.5" />
                           </button>
@@ -285,9 +234,9 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0">
           <span className="flex items-center gap-1.5">
-            <Zap className="h-3.5 w-3.5 text-amber-500" /> Adaptive FMGE clinical scheduler
+            <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Sensed from your live state · resurfaced only when relevant
           </span>
           <button
             type="button"
@@ -298,6 +247,8 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </div>,
+    document.body
   );
 };

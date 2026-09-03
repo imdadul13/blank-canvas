@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Check,
@@ -7,6 +8,7 @@ import {
   BookOpen,
   Plus,
   ChevronRight,
+  Zap,
 } from 'lucide-react';
 import { FMGESubject, TopicItem, ConfidenceLevel, SubjectProgress, AppState, PracticeSessionContext } from '../types';
 import { TopicMasteryWorkspace } from './TopicMasteryWorkspace';
@@ -76,10 +78,11 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
     setIsHighYieldTopic(false);
   };
 
-  return (
+  return createPortal(
     <>
-      <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto font-sans text-slate-900">
-        <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200/90 overflow-hidden">
+      <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs overflow-y-auto font-sans text-slate-900">
+        <div className="flex min-h-full items-center justify-center p-3 sm:p-6">
+        <div className="bg-white rounded-3xl max-w-4xl w-full my-auto max-h-[90vh] flex flex-col shadow-2xl border border-slate-200/90 overflow-hidden">
           {/* ================= EDITORIAL WORKSPACE HEADER ================= */}
           <div className="p-6 sm:p-8 border-b border-slate-100 flex items-start justify-between bg-gradient-to-br from-slate-50 to-white">
             <div className="space-y-2">
@@ -109,7 +112,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
           </div>
 
           {/* ================= CONTENT SCROLL ================= */}
-          <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-8 divide-y divide-slate-100">
+          <div className="p-6 sm:p-8 overflow-y-auto flex-1 min-h-0 space-y-8 divide-y divide-slate-100">
             {/* 1. RECOMMENDED NEXT TOPIC HERO */}
             {recommendedTopic && (
               <div className="space-y-3 pb-2">
@@ -132,7 +135,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                       {recommendedTopic.name}
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Core NBE exam question source · Complete 6-step mastery journey
+                      Core NBE exam question source · High-yield rapid revision master deck
                     </p>
                   </div>
 
@@ -147,8 +150,8 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                     }
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-all shadow-xs cursor-pointer shrink-0"
                   >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    <span>Open Learning Journey</span>
+                    <Zap className="h-3.5 w-3.5 text-amber-400 fill-current" />
+                    <span>⚡ Rapid Revision Hub</span>
                   </button>
                 </div>
               </div>
@@ -176,9 +179,18 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                       key={topic.id}
                       className="py-4 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 rounded-2xl transition-colors"
                     >
-                      <div className="min-w-0 pr-2 space-y-1.5">
+                      <div
+                        className="min-w-0 pr-2 space-y-1.5 cursor-pointer group flex-1"
+                        onClick={() =>
+                          setActiveTopicForMastery({
+                            subjectId: subject.id,
+                            topicId: topic.id,
+                            topicName: topic.name,
+                          })
+                        }
+                      >
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold font-display text-slate-900">
+                          <span className="text-sm font-semibold font-display text-slate-900 group-hover:text-sky-700 transition-colors">
                             {topic.name}
                           </span>
                           {topic.isHighYield && (
@@ -189,7 +201,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                         </div>
 
                         {/* Status Pills */}
-                        <div className="flex items-center gap-3 text-xs text-slate-500">
+                        <div className="flex items-center gap-3 text-xs text-slate-500" onClick={(e) => e.stopPropagation()}>
                           <label className="flex items-center gap-1.5 cursor-pointer select-none">
                             <input
                               type="checkbox"
@@ -243,9 +255,10 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                               topicName: topic.name,
                             })
                           }
-                          className="px-4 py-1.5 rounded-full border border-slate-200 hover:border-slate-300 hover:bg-white text-slate-800 text-xs font-semibold font-display transition-all cursor-pointer"
+                          className="px-4 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-xs"
                         >
-                          Study
+                          <Zap className="h-3 w-3 text-amber-400 fill-current" />
+                          <span>Rapid Revision</span>
                         </button>
 
                         <button
@@ -296,6 +309,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
             </div>
           </div>
         </div>
+        </div>
       </div>
 
       {/* Embedded 6-Step Topic Mastery Workspace Modal */}
@@ -315,6 +329,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
           onOpenAiCoach={onOpenAiCoach}
         />
       )}
-    </>
+    </>,
+    document.body
   );
 };

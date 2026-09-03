@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
-  Sparkles,
   CheckCircle2,
   AlertCircle,
   Clock,
@@ -273,14 +273,15 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
         .filter((i) => !sessionSummary.userAnswers[i]?.isCorrect)
     : [];
 
-  return (
-    <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto font-['Plus_Jakarta_Sans']">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm overflow-y-auto font-['Plus_Jakarta_Sans']">
+      <div className="flex min-h-full items-center justify-center p-3 sm:p-5">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 10 }}
         transition={{ duration: 0.18 }}
-        className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh] border border-slate-200/80 text-slate-900"
+        className="bg-white rounded-3xl max-w-3xl w-full my-auto overflow-hidden shadow-2xl flex flex-col max-h-[92vh] border border-slate-200/80 text-slate-900"
       >
         {/* MODAL HEADER */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-white">
@@ -325,7 +326,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
         )}
 
         {/* MODAL BODY */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-5">
+        <div className="p-5 sm:p-6 overflow-y-auto flex-1 min-h-0 space-y-5">
           {isLoading ? (
             <div className="py-16 text-center space-y-4">
               <div className="w-8 h-8 border-2 border-slate-900 border-t-transparent rounded-full animate-spin mx-auto" />
@@ -735,7 +736,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                               }
                               className="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-900 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                             >
-                              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                              <Eye className="w-3.5 h-3.5 text-sky-700" />
                               <span>Open Annotated Visual Inspection</span>
                             </button>
                           </div>
@@ -749,7 +750,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
                     {currentQ.highYieldPearl && (
                       <div className="p-3 bg-white/90 rounded-2xl border border-slate-200 text-xs text-slate-800 flex items-start gap-2 shadow-2xs">
-                        <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                        <Zap className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                         <div>
                           <strong className="text-amber-950">FMGE Key Takeaway: </strong>
                           <span>{currentQ.highYieldPearl}</span>
@@ -799,6 +800,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
           ) : null}
         </div>
       </motion.div>
+      </div>
 
       {/* Image Zoom Lightbox */}
       <MedicalImageViewerModal
@@ -810,6 +812,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
         title={activeModalImage.title}
         whatToLookFor={activeModalImage.whatToLookFor}
       />
-    </div>
+    </div>,
+    document.body
   );
 };
