@@ -279,7 +279,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="relative min-h-screen font-['Plus_Jakarta_Sans'] text-slate-900 pb-4 lg:pb-12">
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-6 lg:pt-8 space-y-4 sm:space-y-6 lg:space-y-8">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 space-y-4 sm:space-y-6 lg:space-y-8">
 
         {/* ═══ 1. GREETING + EXAM CONTEXT ═══ */}
         <motion.div
