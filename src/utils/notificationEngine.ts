@@ -904,8 +904,102 @@ export function buildNotifications(
     }
   }
 
+  // Rule 16: UNREVIEWED ERRORS BACKLOG (Actionable)
+  // Surfaces when student has >= 3 unreviewed errors in Error Vault and no recurrent trap active
+  if (unreviewedMistakes.length >= 3 && !recurrentEntry) {
+    const bucket = unreviewedMistakes.length >= 10 ? '10-plus' : unreviewedMistakes.length >= 6 ? '6-9' : '3-5';
+    const semId = `unreviewed_errors_backlog:${bucket}`;
+    candidates.push({
+      id: semId,
+      ruleId: 'unreviewed_errors_backlog',
+      category: 'error',
+      priority: 'medium',
+      severity: 'actionable',
+      condition: `unreviewed:${bucket}`,
+      cooldownMs: 0,
+      baseline: unreviewedMistakes.length,
+      badge: 'ERROR VAULT',
+      title: `${unreviewedMistakes.length} Unreviewed Question Traps`,
+      description: `You have ${unreviewedMistakes.length} mistakes waiting in your Error Notebook. Reviewing distractors and diagnostic traps now prevents repeating them on exam day.`,
+      time: 'Error Backlog',
+      actionLabel: 'Review Error Vault',
+      onAction: () => {
+        actions.onClose();
+        actions.onNavigateTab('errors');
+      },
+      icon: AlertTriangle,
+      iconColor: 'text-rose-600 bg-rose-50 border-rose-200/80',
+      subjectId: unreviewedMistakes[0]?.subjectId,
+    });
+  }
+
+  // Rule 17: GRAND TEST BASELINE NEEDED (Actionable)
+  // Proactively detects when a candidate has 0 full-length mock attempts
+  if (!state.grandTests || state.grandTests.length === 0) {
+    const semId = 'gt_baseline_needed:first-mock';
+    candidates.push({
+      id: semId,
+      ruleId: 'gt_baseline_needed',
+      category: 'exam',
+      priority: 'medium',
+      severity: 'actionable',
+      condition: 'gt_count:0',
+      cooldownMs: 0,
+      baseline: 0,
+      badge: 'MOCK BENCHMARK',
+      title: 'Establish Your Grand Test Baseline',
+      description: 'You have not recorded a full 300-Q mock exam yet. Taking a diagnostic Grand Test benchmarks your Paper 1 vs Paper 2 pacing and identifies hidden syllabus gaps.',
+      time: 'Diagnostic Benchmark',
+      actionLabel: 'Schedule Grand Test',
+      onAction: () => {
+        actions.onClose();
+        actions.onNavigateTab('grandtests');
+      },
+      icon: GraduationCap,
+      iconColor: 'text-indigo-600 bg-indigo-50 border-indigo-200/80',
+    });
+  }
+
+  // Rule 18: CORE HIGH-WEIGHTAGE SUBJECT GAP (Actionable)
+  // Flags top 3 subjects (Medicine ~35M, Surgery ~30M, OBG ~30M) if completely unstarted
+  const coreSubjects = ['medicine', 'surgery', 'obg'];
+  for (const coreSubId of coreSubjects) {
+    const subProgress = state.subjectProgress?.[coreSubId];
+    const subDef = FMGE_SUBJECTS.find((s) => s.id === coreSubId);
+    if (subDef) {
+      const doneNotes = subDef.topics.filter(
+        (t) => state.topicsState?.[`${coreSubId}-${t.id}`]?.notesDone ?? t.notesDone
+      ).length;
+      if (doneNotes === 0 && (!subProgress || subProgress.confidence === 'low' || subProgress.confidence === 'not-started' || !subProgress.confidence)) {
+        const semId = `core_subject_gap:${coreSubId}`;
+        candidates.push({
+          id: semId,
+          ruleId: 'core_subject_gap',
+          category: 'focus',
+          priority: 'medium',
+          severity: 'actionable',
+          condition: `core_gap:${coreSubId}:0`,
+          cooldownMs: 0,
+          badge: 'HIGH-YIELD CORE',
+          title: `Unstarted Heavyweight: ${subDef.name}`,
+          description: `${subDef.name} accounts for ~${subDef.weightage} marks in FMGE. Securing core topics in this subject is essential to build your pass buffer.`,
+          time: `Weightage: ~${subDef.weightage}M`,
+          actionLabel: `Study ${subDef.name}`,
+          onAction: () => {
+            actions.onClose();
+            actions.onSelectSubject?.(coreSubId);
+          },
+          icon: BookOpen,
+          iconColor: 'text-teal-600 bg-teal-50 border-teal-200/80',
+          subjectId: coreSubId,
+        });
+        break; // Max 1 core gap
+      }
+    }
+  }
+
   // --------------------------------------------------------------------------
-  // RANKING & CAPPING (Maximum 4-5 Active Insights)
+  // RANKING & CAPPING (Maximum 5-6 Active Insights)
   // --------------------------------------------------------------------------
 
   // 1. Filter out dismissed or resolved insights
@@ -953,18 +1047,18 @@ export function buildNotifications(
     if (sev === 'critical' && criticalCount < 1) {
       result.push(item);
       criticalCount += 1;
-    } else if (sev === 'actionable' && actionableCount < 2) {
+    } else if (sev === 'actionable' && actionableCount < 3) {
       result.push(item);
       actionableCount += 1;
     } else if (sev === 'achievement' && achievementCount < 1) {
       result.push(item);
       achievementCount += 1;
-    } else if (sev === 'routine' && routineCount < 1) {
+    } else if (sev === 'routine' && routineCount < 2) {
       result.push(item);
       routineCount += 1;
     }
 
-    if (result.length >= 5) break;
+    if (result.length >= 6) break;
   }
 
   return result;
