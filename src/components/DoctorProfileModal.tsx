@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import {
   X,
@@ -18,8 +18,15 @@ import {
   Zap,
   Save,
   Activity,
-  ShieldCheck
+  ShieldCheck,
+  GraduationCap,
+  Sparkles,
+  ChevronRight,
+  Check,
+  Compass,
+  ArrowUpRight
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { AppSettings, AppState, OnboardingPreparationStage, StudyPreferenceKey } from '../types';
 import {
@@ -81,8 +88,6 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
     );
   };
 
-  if (!isOpen) return null;
-
   const initials = (formData.userName || profile?.displayName || user?.displayName || 'Dr')
     .split(' ')
     .map((w) => w[0])
@@ -90,13 +95,26 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
     .join('')
     .toUpperCase();
 
-  const daysRemaining = Math.max(
-    1,
-    Math.ceil((new Date(formData.examDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-  );
+  const daysRemaining = useMemo(() => {
+    if (!formData.examDate) return 1;
+    const diff = new Date(formData.examDate).getTime() - Date.now();
+    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  }, [formData.examDate]);
 
-  const handleSaveBlueprint = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const formattedExamDate = useMemo(() => {
+    if (!formData.examDate) return 'Not configured';
+    try {
+      const d = new Date(formData.examDate + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+      return formData.examDate;
+    }
+  }, [formData.examDate]);
+
+  if (!isOpen) return null;
+
+  const handleSaveBlueprint = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setIsSaving(true);
     try {
       // 1. Update AppState settings
@@ -123,7 +141,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
           },
         });
       }
-      setSyncFeedback('Profile & exam blueprint saved!');
+      setSyncFeedback('Profile & exam blueprint saved successfully!');
       setTimeout(() => {
         onClose();
       }, 500);
@@ -139,10 +157,10 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
     setIsSyncing(true);
     setSyncFeedback(null);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 700));
       localStorage.setItem('fmge_app_state_v1', JSON.stringify(state));
       localStorage.setItem('fmge_last_sync_timestamp', new Date().toISOString());
-      setSyncFeedback('Cloud handshake complete. All progress synced.');
+      setSyncFeedback('Cloud handshake verified. All progress synced.');
       setTimeout(() => setSyncFeedback(null), 3000);
     } catch (err) {
       setSyncFeedback('Synced to local storage.');
@@ -153,7 +171,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
   const handleExportBackup = () => {
     downloadBackupFile(state);
-    setSyncFeedback('Encrypted JSON backup file downloaded.');
+    setSyncFeedback('Encrypted JSON backup file generated & downloaded.');
     setTimeout(() => setSyncFeedback(null), 3000);
   };
 
@@ -180,50 +198,109 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
     reader.readAsText(file);
   };
 
+  const targetScoreBuffer = Math.max(0, (formData.targetScore || 200) - 150);
+
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans']">
-      <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-150">
-        {/* Top Doctor Identity Banner */}
-        <div className="p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-          <div className="flex items-center gap-3.5">
-            <div className="h-12 w-12 rounded-2xl bg-slate-900 text-white font-['Outfit'] font-bold text-base flex items-center justify-center shadow-xs shrink-0">
-              {initials}
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="font-['Outfit'] text-base font-bold text-slate-900 truncate">
-                  {formData.userName || 'Dr. Aspirant'}
-                </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono bg-sky-50 text-sky-700 border border-sky-200 shrink-0">
-                  FMGE 2026
-                </span>
+    <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] animate-in fade-in duration-150">
+      <div className="relative bg-[#FAF9F6] rounded-3xl max-w-xl w-full shadow-2xl border border-stone-200/90 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150">
+        
+        {/* ── 1. Premium Doctor Identity Banner ── */}
+        <div className="p-5 sm:p-6 border-b border-stone-200/80 bg-gradient-to-b from-white via-[#FAF9F5] to-[#FAF9F5] relative z-10">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3.5 min-w-0">
+              {/* Doctor Avatar with subtle clinical teal aura */}
+              <div className="relative shrink-0">
+                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-gradient-to-br from-[#006B63] to-[#004D47] text-white flex items-center justify-center font-['Outfit'] font-bold text-base sm:text-lg shadow-md shadow-teal-950/15 overflow-hidden">
+                  {user?.photoURL || profile?.photoURL ? (
+                    <img
+                      src={user?.photoURL || profile?.photoURL || ''}
+                      alt={formData.userName || 'Doctor'}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span>{initials}</span>
+                  )}
+                </div>
+                <div
+                  className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 border-2 border-white shadow-2xs flex items-center justify-center"
+                  title="Cloud Synced"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                </div>
               </div>
-              <p className="text-xs text-slate-500 truncate flex items-center gap-1.5 mt-0.5">
-                <span>{user?.email || profile?.email || 'Doctor Session'}</span>
-                <span className="h-1 w-1 rounded-full bg-slate-300" />
-                <span className="text-emerald-600 font-semibold text-[11px] flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Cloud Synced
-                </span>
-              </p>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-['Newsreader',_serif] text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight truncate">
+                    {formData.userName || 'Dr. Aspirant'}
+                  </h3>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-teal-500/10 text-[#00685F] border border-teal-500/20 shrink-0">
+                    <ShieldCheck className="h-3 w-3 text-[#00685F]" />
+                    FMGE 2026
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 mt-1 text-xs text-stone-500 flex-wrap">
+                  <span className="truncate max-w-[180px] sm:max-w-[240px]">
+                    {user?.email || profile?.email || 'Doctor Session'}
+                  </span>
+                  <span className="h-1 w-1 rounded-full bg-stone-300" />
+                  <span className="text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Verified Candidate
+                  </span>
+                </div>
+              </div>
             </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 text-stone-400 hover:text-stone-700 rounded-full hover:bg-stone-200/50 transition-colors cursor-pointer shrink-0"
+              aria-label="Close profile modal"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          {/* Quick Metrics Bar in Header */}
+          <div className="mt-4 pt-3.5 border-t border-stone-200/60 grid grid-cols-3 gap-2">
+            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-3 py-1.5 border border-stone-200/60 text-center">
+              <span className="text-[10px] uppercase font-semibold text-stone-400 tracking-wider block">
+                Target Score
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit']">
+                {formData.targetScore || 200} <span className="text-[10px] text-stone-400 font-normal">/300</span>
+              </span>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-3 py-1.5 border border-stone-200/60 text-center">
+              <span className="text-[10px] uppercase font-semibold text-stone-400 tracking-wider block">
+                Countdown
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-amber-600 font-['Outfit'] flex items-center justify-center gap-1">
+                <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
+                {daysRemaining}d left
+              </span>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-3 py-1.5 border border-stone-200/60 text-center">
+              <span className="text-[10px] uppercase font-semibold text-stone-400 tracking-wider block">
+                Daily Goal
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-[#006B63] font-['Outfit']">
+                {formData.dailyStudyHourGoal || 6}h <span className="text-[10px] text-stone-400 font-normal">/day</span>
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="px-5 pt-3 pb-2 border-b border-slate-100 flex items-center gap-1.5 overflow-x-auto scrollbar-none bg-white">
+        {/* ── 2. Minimal Segmented Tab Navigation ── */}
+        <div className="px-4 sm:px-6 pt-3 pb-3 border-b border-stone-200/80 bg-[#FAF9F5] flex items-center gap-1.5 overflow-x-auto scrollbar-none">
           {[
-            { id: 'blueprint', label: 'Doctor Profile & Blueprint', icon: Target },
-            { id: 'telemetry', label: 'Performance Telemetry', icon: Activity },
-            { id: 'cloud', label: 'Cloud Multi-Device Backup', icon: Cloud },
+            { id: 'blueprint', label: 'Exam Blueprint', icon: Target },
+            { id: 'telemetry', label: 'Telemetry & Progress', icon: Activity },
+            { id: 'cloud', label: 'Cloud & Backup', icon: Cloud },
           ].map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -232,13 +309,13 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   active
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                    ? 'bg-[#00685F] text-white shadow-xs font-bold'
+                    : 'bg-white/80 text-stone-600 border border-stone-200/80 hover:bg-white hover:text-stone-900'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className={`h-3.5 w-3.5 ${active ? 'text-teal-200' : 'text-stone-400'}`} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -247,192 +324,158 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
         {/* Feedback Banner */}
         {syncFeedback && (
-          <div className="mx-5 mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in">
+          <div className="mx-5 mt-3 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in">
             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-            <span>{syncFeedback}</span>
+            <span className="font-semibold">{syncFeedback}</span>
           </div>
         )}
 
-        {/* Body Content */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6">
-          {/* ================= TAB 1: DOCTOR PROFILE & BLUEPRINT ================= */}
+        {/* ── 3. Modal Body Content ── */}
+        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6 bg-white">
+          {/* ================= TAB 1: EXAM BLUEPRINT ================= */}
           {activeTab === 'blueprint' && (
-            <form onSubmit={handleSaveBlueprint} className="space-y-4 animate-in fade-in duration-150">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
+            <form onSubmit={handleSaveBlueprint} className="space-y-5 animate-in fade-in duration-150">
+              
+              {/* Doctor Display Name */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-stone-700">
                   Doctor Display Name
                 </label>
-                <input
-                  type="text"
-                  value={formData.userName}
-                  onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
-                  placeholder="e.g. Dr. Aspirant"
-                  className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
-                  required
-                />
+                <div className="relative">
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={formData.userName}
+                    onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+                    placeholder="e.g. Dr. Aspirant"
+                    className="w-full h-11 pl-10 pr-3.5 rounded-xl bg-stone-50/70 border border-stone-200 text-sm font-semibold text-stone-900 placeholder:text-stone-400 focus:bg-white focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 focus:outline-none transition-all"
+                    required
+                  />
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
-                    Target FMGE Exam Date
-                  </label>
-
-                  {/* Explicit Month, Day, Year Selectors (Guaranteed to work across all browsers) */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {/* Month Selector */}
-                    <div>
-                      <label className="text-[10px] font-semibold text-slate-400 block mb-0.5">Month</label>
-                      <select
-                        value={(() => {
-                          const parts = (formData.examDate || '2026-06-28').split('-');
-                          return Number(parts[1]) || 6;
-                        })()}
-                        onChange={(e) => {
-                          const m = Number(e.target.value);
-                          const parts = (formData.examDate || '2026-06-28').split('-');
-                          const y = Number(parts[0]) || 2026;
-                          const d = Number(parts[2]) || 15;
-                          const maxDay = new Date(y, m, 0).getDate();
-                          const finalDay = Math.min(d, maxDay);
-                          const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(finalDay).padStart(2, '0')}`;
-                          setFormData({ ...formData, examDate: dateStr });
-                        }}
-                        className="w-full h-10 px-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none cursor-pointer"
-                      >
-                        {[
-                          { val: 1, name: 'Jan (01)' },
-                          { val: 2, name: 'Feb (02)' },
-                          { val: 3, name: 'Mar (03)' },
-                          { val: 4, name: 'Apr (04)' },
-                          { val: 5, name: 'May (05)' },
-                          { val: 6, name: 'Jun (06)' },
-                          { val: 7, name: 'Jul (07)' },
-                          { val: 8, name: 'Aug (08)' },
-                          { val: 9, name: 'Sep (09)' },
-                          { val: 10, name: 'Oct (10)' },
-                          { val: 11, name: 'Nov (11)' },
-                          { val: 12, name: 'Dec (12)' },
-                        ].map((month) => (
-                          <option key={month.val} value={month.val}>
-                            {month.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Day Selector */}
-                    <div>
-                      <label className="text-[10px] font-semibold text-slate-400 block mb-0.5">Day</label>
-                      <select
-                        value={(() => {
-                          const parts = (formData.examDate || '2026-06-28').split('-');
-                          return Number(parts[2]) || 28;
-                        })()}
-                        onChange={(e) => {
-                          const d = Number(e.target.value);
-                          const parts = (formData.examDate || '2026-06-28').split('-');
-                          const y = Number(parts[0]) || 2026;
-                          const m = Number(parts[1]) || 6;
-                          const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                          setFormData({ ...formData, examDate: dateStr });
-                        }}
-                        className="w-full h-10 px-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none cursor-pointer"
-                      >
-                        {Array.from({ length: 31 }, (_, i) => i + 1).map((dayNum) => (
-                          <option key={dayNum} value={dayNum}>
-                            {dayNum}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Year Selector */}
-                    <div>
-                      <label className="text-[10px] font-semibold text-slate-400 block mb-0.5">Year</label>
-                      <select
-                        value={(() => {
-                          const parts = (formData.examDate || '2026-06-28').split('-');
-                          return Number(parts[0]) || 2026;
-                        })()}
-                        onChange={(e) => {
-                          const y = Number(e.target.value);
-                          const parts = (formData.examDate || '2026-06-28').split('-');
-                          const m = Number(parts[1]) || 6;
-                          const d = Number(parts[2]) || 28;
-                          const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                          setFormData({ ...formData, examDate: dateStr });
-                        }}
-                        className="w-full h-10 px-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none cursor-pointer"
-                      >
-                        {[2026, 2027, 2028].map((yearNum) => (
-                          <option key={yearNum} value={yearNum}>
-                            {yearNum}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+              {/* Target Date Section */}
+              <div className="p-4 rounded-2xl bg-stone-50/70 border border-stone-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-[#006B63]" />
+                    <label className="text-xs font-semibold text-stone-800">
+                      Target FMGE Exam Date
+                    </label>
                   </div>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/80">
+                    <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
+                    {daysRemaining} days remaining
+                  </span>
+                </div>
 
-                  {/* 1-Click Target Presets */}
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                {/* Direct native date picker with formatted human-readable badge */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+                  <input
+                    type="date"
+                    value={formData.examDate || '2026-06-28'}
+                    onChange={(e) => setFormData({ ...formData, examDate: e.target.value })}
+                    className="h-10 px-3.5 rounded-xl bg-white border border-stone-200 text-xs font-semibold text-stone-800 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 focus:outline-none cursor-pointer"
+                  />
+                  <div className="text-xs text-stone-500 flex items-center gap-1.5">
+                    <span>Scheduled for:</span>
+                    <strong className="text-stone-900 font-semibold">{formattedExamDate}</strong>
+                  </div>
+                </div>
+
+                {/* One-Click Target Preset Chips */}
+                <div className="space-y-1 pt-1">
+                  <span className="text-[10px] uppercase font-semibold text-stone-400 tracking-wider block">
+                    Quick Sprint Presets
+                  </span>
+                  <div className="flex flex-wrap items-center gap-1.5">
                     {[
                       { label: 'FMGE June 2026', date: '2026-06-28' },
                       { label: 'FMGE Dec 2026', date: '2026-12-15' },
-                      { label: '30d Sprint', date: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10) },
-                      { label: '60d Sprint', date: new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10) },
-                    ].map((preset) => (
-                      <button
-                        key={preset.label}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, examDate: preset.date })}
-                        className={`px-2.5 py-1 rounded-lg text-[10.5px] font-semibold transition-all cursor-pointer ${
-                          formData.examDate === preset.date
-                            ? 'bg-slate-900 text-white shadow-2xs'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
+                      { label: '30-Day Sprint', date: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10) },
+                      { label: '60-Day Sprint', date: new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10) },
+                    ].map((preset) => {
+                      const isSelected = formData.examDate === preset.date;
+                      return (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, examDate: preset.date })}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-[#00685F] text-white shadow-2xs font-bold'
+                              : 'bg-white text-stone-600 border border-stone-200/80 hover:bg-stone-100'
+                          }`}
+                        >
+                          {preset.label}
+                        </button>
+                      );
+                    })}
                   </div>
+                </div>
+              </div>
 
-                  <p className="text-[11px] text-slate-500 pt-0.5 flex items-center gap-1">
-                    <span>Active Target:</span>
-                    <span className="font-bold text-slate-900 font-mono bg-sky-50 px-1.5 py-0.5 rounded text-sky-700 border border-sky-100">
-                      {formData.examDate} · {daysRemaining} days left
+              {/* Target Score & Buffer */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-semibold text-stone-700">
+                      Target Score (/300)
+                    </label>
+                    <span className="text-[11px] text-emerald-700 font-semibold">
+                      +{targetScoreBuffer} safety buffer
                     </span>
+                  </div>
+                  <div className="relative">
+                    <Target className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                    <input
+                      type="number"
+                      min={150}
+                      max={300}
+                      value={formData.targetScore}
+                      onChange={(e) => setFormData({ ...formData, targetScore: Number(e.target.value) })}
+                      className="w-full h-11 pl-10 pr-3.5 rounded-xl bg-stone-50/70 border border-stone-200 text-sm font-semibold text-stone-900 focus:bg-white focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 focus:outline-none transition-all"
+                      required
+                    />
+                  </div>
+                  <p className="text-[11px] text-stone-400 leading-tight">
+                    NBE Pass Mark: 150 · Target buffer protects against exam-day variance.
                   </p>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
-                    Target Score (/300)
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-stone-700">
+                    Daily Study Target (Hours)
                   </label>
-                  <input
-                    type="number"
-                    min={150}
-                    max={300}
-                    value={formData.targetScore}
-                    onChange={(e) => setFormData({ ...formData, targetScore: Number(e.target.value) })}
-                    className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
-                    required
-                  />
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    Pass Mark: 150 · Target Buffer: {formData.targetScore - 150} marks
+                  <div className="relative">
+                    <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
+                    <input
+                      type="number"
+                      min={1}
+                      max={16}
+                      value={formData.dailyStudyHourGoal}
+                      onChange={(e) => setFormData({ ...formData, dailyStudyHourGoal: Number(e.target.value) })}
+                      className="w-full h-11 pl-10 pr-3.5 rounded-xl bg-stone-50/70 border border-stone-200 text-sm font-semibold text-stone-900 focus:bg-white focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 focus:outline-none transition-all"
+                      required
+                    />
+                  </div>
+                  <p className="text-[11px] text-stone-400 leading-tight">
+                    Recommended FMGE benchmark: 6 – 8 hours per day.
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
-                    Primary Coaching Platform
-                  </label>
+              {/* Primary Coaching Platform */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-stone-700">
+                  Primary Coaching Resource
+                </label>
+                <div className="relative">
+                  <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
                   <select
                     value={formData.coachingSource || 'Marrow / Prepladder'}
                     onChange={(e) => setFormData({ ...formData, coachingSource: e.target.value })}
-                    className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
+                    className="w-full h-11 pl-10 pr-3.5 rounded-xl bg-stone-50/70 border border-stone-200 text-sm font-semibold text-stone-900 focus:bg-white focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 focus:outline-none transition-all cursor-pointer"
                   >
                     <option value="Marrow / Prepladder">Marrow / Prepladder</option>
                     <option value="Marrow">Marrow</option>
@@ -443,40 +486,25 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                     <option value="Self Study / Standard Textbooks">Self Study / Standard Textbooks</option>
                   </select>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
-                    Daily Study Target (Hours)
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={16}
-                    value={formData.dailyStudyHourGoal}
-                    onChange={(e) => setFormData({ ...formData, dailyStudyHourGoal: Number(e.target.value) })}
-                    className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
-                    required
-                  />
-                </div>
               </div>
 
-              {/* Onboarding Study Signals */}
-              <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-4">
+              {/* Onboarding Study Signals & Style */}
+              <div className="rounded-2xl border border-stone-200/80 bg-stone-50/60 p-4 space-y-4">
                 <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-slate-500" />
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
-                    Study Strategy (from your onboarding plan)
-                  </label>
+                  <BookOpen className="h-4 w-4 text-[#006B63]" />
+                  <span className="text-xs font-bold text-stone-800">
+                    Study Strategy &amp; Learning Preferences
+                  </span>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
-                    Preparation Stage
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-stone-700">
+                    Current Preparation Stage
                   </label>
                   <select
                     value={prepStage}
                     onChange={(e) => setPrepStage(e.target.value as OnboardingPreparationStage | '')}
-                    className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none transition-all cursor-pointer"
+                    className="w-full h-10 px-3 rounded-xl bg-white border border-stone-200 text-xs font-semibold text-stone-900 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 focus:outline-none transition-all cursor-pointer"
                   >
                     <option value="">Not specified</option>
                     {PREPARATION_STAGE_OPTIONS.map((stageOption) => (
@@ -487,9 +515,9 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
-                    Learning Style Preferences
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-stone-700">
+                    Preferred Learning Formats
                   </label>
                   <div className="flex flex-wrap gap-1.5">
                     {STUDY_PREFERENCES_OPTIONS.map((pref) => {
@@ -499,23 +527,25 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                           key={pref.id}
                           type="button"
                           onClick={() => toggleStudyPref(pref.id)}
-                          className={`px-2.5 py-1 rounded-full text-[10.5px] font-semibold transition-all cursor-pointer ${
+                          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                             active
-                              ? 'bg-slate-900 text-white shadow-2xs'
-                              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                              ? 'bg-[#00685F] text-white shadow-2xs font-bold'
+                              : 'bg-white text-stone-600 border border-stone-200/80 hover:bg-stone-100'
                           }`}
                         >
-                          {STUDY_PREFERENCE_LABELS[pref.id] || pref.label}
+                          {active && <Check className="h-3 w-3 text-teal-200" />}
+                          <span>{STUDY_PREFERENCE_LABELS[pref.id] || pref.label}</span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Optional Baseline Diagnostic Score */}
+                <div className="pt-2 border-t border-stone-200/60 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
-                      Baseline Score (/300) — optional
+                    <label className="block text-[11px] font-semibold text-stone-600 mb-1">
+                      Baseline Mock Score (/300)
                     </label>
                     <input
                       type="number"
@@ -523,39 +553,29 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                       max={300}
                       value={baselineScore}
                       onChange={(e) => setBaselineScore(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="e.g. 120 (skip if none)"
-                      className={`w-full h-11 px-3.5 rounded-xl bg-slate-50 border text-sm font-semibold focus:bg-white focus:outline-none transition-all ${
+                      placeholder="e.g. 120 (optional)"
+                      className={`w-full h-9 px-3 rounded-xl bg-white border text-xs font-semibold focus:outline-none transition-all ${
                         isValidBaselineScore(baselineScore === '' ? undefined : Number(baselineScore))
-                          ? 'border-slate-200 text-slate-900 focus:border-slate-900'
+                          ? 'border-stone-200 text-stone-900 focus:border-[#006B63]'
                           : 'border-rose-300 text-rose-600 focus:border-rose-400'
                       }`}
                     />
                   </div>
+
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-1.5">
-                      Baseline Questions Answered
+                    <label className="block text-[11px] font-semibold text-stone-600 mb-1">
+                      Baseline Questions Attempted
                     </label>
                     <input
                       type="number"
                       min={1}
                       value={baselineQuestions}
                       onChange={(e) => setBaselineQuestions(e.target.value === '' ? '' : Number(e.target.value))}
-                      placeholder="e.g. 50"
-                      className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
+                      placeholder="e.g. 50 (optional)"
+                      className="w-full h-9 px-3 rounded-xl bg-white border border-stone-200 text-xs font-semibold text-stone-900 focus:border-[#006B63] focus:outline-none transition-all"
                     />
                   </div>
                 </div>
-              </div>
-
-              <div className="flex justify-end pt-3">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition-all cursor-pointer shadow-xs disabled:opacity-50"
-                >
-                  <Save className="h-4 w-4" />
-                  <span>{isSaving ? 'Saving...' : 'Save & Sync Blueprint'}</span>
-                </button>
               </div>
             </form>
           )}
@@ -565,59 +585,84 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
             <div className="space-y-6 animate-in fade-in duration-150">
               {/* Summary KPIs */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
-                  <span className="text-[10px] text-slate-400 font-mono uppercase">Readiness</span>
-                  <div className="text-base font-extrabold text-slate-900 font-['Outfit']">
+                <div className="p-3.5 rounded-2xl bg-stone-50/70 border border-stone-200/80 shadow-2xs space-y-1">
+                  <span className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider">
+                    Readiness
+                  </span>
+                  <div className="text-xl font-extrabold text-slate-900 font-['Outfit']">
                     {stats.overallReadinessScore}%
                   </div>
+                  <p className="text-[10px] text-emerald-700 font-semibold">
+                    {stats.overallReadinessScore >= 50 ? 'Strong Trajectory' : 'Building Baseline'}
+                  </p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
-                  <span className="text-[10px] text-slate-400 font-mono uppercase">Days Left</span>
-                  <div className="text-base font-extrabold text-amber-600 font-['Outfit'] flex items-center gap-1">
-                    <Flame className="h-4 w-4 fill-amber-500" />
-                    <span>{stats.daysRemaining}d</span>
+                <div className="p-3.5 rounded-2xl bg-stone-50/70 border border-stone-200/80 shadow-2xs space-y-1">
+                  <span className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider">
+                    Days Left
+                  </span>
+                  <div className="text-xl font-extrabold text-amber-600 font-['Outfit'] flex items-center gap-1">
+                    <Flame className="h-4 w-4 fill-amber-500 text-amber-500" />
+                    <span>{daysRemaining}d</span>
                   </div>
+                  <p className="text-[10px] text-stone-400">Until exam day</p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
-                  <span className="text-[10px] text-slate-400 font-mono uppercase">Today Qs</span>
-                  <div className="text-base font-extrabold text-slate-900 font-['Outfit']">
+                <div className="p-3.5 rounded-2xl bg-stone-50/70 border border-stone-200/80 shadow-2xs space-y-1">
+                  <span className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider">
+                    Today Qs
+                  </span>
+                  <div className="text-xl font-extrabold text-slate-900 font-['Outfit']">
                     {stats.todayQuestionsSolved || 10}
                   </div>
+                  <p className="text-[10px] text-stone-400">Solved today</p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
-                  <span className="text-[10px] text-slate-400 font-mono uppercase">Grand Tests</span>
-                  <div className="text-base font-extrabold text-slate-900 font-['Outfit']">
+                <div className="p-3.5 rounded-2xl bg-stone-50/70 border border-stone-200/80 shadow-2xs space-y-1">
+                  <span className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider">
+                    Grand Tests
+                  </span>
+                  <div className="text-xl font-extrabold text-[#006B63] font-['Outfit']">
                     {state.grandTests?.length || 0}
+                  </div>
+                  <p className="text-[10px] text-stone-400">300-Q Mocks</p>
+                </div>
+              </div>
+
+              {/* Calibrated Target Blueprint Card */}
+              <div className="p-4 rounded-2xl bg-stone-50/70 border border-stone-200/80 space-y-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 block">
+                  Calibrated Target Blueprint
+                </span>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="p-3 bg-white rounded-xl border border-stone-200/70 shadow-2xs">
+                    <Calendar className="h-4 w-4 text-[#006B63] mx-auto mb-1" />
+                    <div className="text-xs font-bold text-slate-900">{formattedExamDate}</div>
+                    <p className="text-[10px] text-teal-700 font-semibold">{daysRemaining}d left</p>
+                  </div>
+
+                  <div className="p-3 bg-white rounded-xl border border-stone-200/70 shadow-2xs">
+                    <Target className="h-4 w-4 text-amber-500 mx-auto mb-1" />
+                    <div className="text-xs font-bold text-slate-900">{formData.targetScore || 200} / 300</div>
+                    <p className="text-[10px] text-stone-400">Target Score</p>
+                  </div>
+
+                  <div className="p-3 bg-white rounded-xl border border-stone-200/70 shadow-2xs">
+                    <Clock className="h-4 w-4 text-purple-600 mx-auto mb-1" />
+                    <div className="text-xs font-bold text-slate-900">{formData.dailyStudyHourGoal || 6}h / day</div>
+                    <p className="text-[10px] text-stone-400">Daily Pacing</p>
                   </div>
                 </div>
               </div>
 
-              {/* Target Blueprint Card */}
-              <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono block">
-                  CALIBRATED TARGET BLUEPRINT
-                </span>
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="p-3 bg-white rounded-xl border border-slate-200/60 shadow-2xs">
-                    <Calendar className="h-4 w-4 text-sky-600 mx-auto mb-1" />
-                    <div className="text-xs font-bold text-slate-900">{formData.examDate}</div>
-                    <p className="text-[10px] text-sky-600 font-semibold">{daysRemaining}d left</p>
-                  </div>
-
-                  <div className="p-3 bg-white rounded-xl border border-slate-200/60 shadow-2xs">
-                    <Target className="h-4 w-4 text-amber-500 mx-auto mb-1" />
-                    <div className="text-xs font-bold text-slate-900">{formData.targetScore} / 300</div>
-                    <p className="text-[10px] text-slate-400">Target Score</p>
-                  </div>
-
-                  <div className="p-3 bg-white rounded-xl border border-slate-200/60 shadow-2xs">
-                    <Clock className="h-4 w-4 text-purple-600 mx-auto mb-1" />
-                    <div className="text-xs font-bold text-slate-900">{formData.dailyStudyHourGoal}h / day</div>
-                    <p className="text-[10px] text-slate-400">Daily Target</p>
-                  </div>
+              {/* Study Consistency Advice */}
+              <div className="p-4 rounded-2xl bg-[#E8F5F3] border border-teal-200/70 flex items-start gap-3">
+                <Sparkles className="h-5 w-5 text-[#006B63] shrink-0 mt-0.5" />
+                <div className="space-y-0.5 text-xs text-stone-700">
+                  <span className="font-bold text-[#006B63] block">Clinical Consistency Principle</span>
+                  <p className="leading-relaxed">
+                    Consistent daily completion of 50 high-yield questions with error analysis delivers higher retention than marathon weekend sessions.
+                  </p>
                 </div>
               </div>
             </div>
@@ -626,18 +671,19 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
           {/* ================= TAB 3: CLOUD & MULTI-DEVICE BACKUP ================= */}
           {activeTab === 'cloud' && (
             <div className="space-y-6 animate-in fade-in duration-150">
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+              {/* Cloud Handshake Status */}
+              <div className="p-4 rounded-2xl bg-stone-50/70 border border-stone-200/80 flex items-center justify-between gap-3">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-900 uppercase font-mono">
-                      Cloud Handshake
+                    <span className="text-xs font-bold text-slate-900">
+                      Cloud Sync Engine
                     </span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                       Live
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500">
-                    Auto-sync active for credentials {user?.email || profile?.email || 'Local session'}.
+                  <p className="text-xs text-stone-500">
+                    Auto-sync active for {user?.email || profile?.email || 'Local session'}.
                   </p>
                 </div>
 
@@ -645,40 +691,40 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   type="button"
                   onClick={handleForceSync}
                   disabled={isSyncing}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#00685F] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98]"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                  <span>{isSyncing ? 'Syncing...' : 'Force Sync Now'}</span>
+                  <span>{isSyncing ? 'Syncing...' : 'Sync Now'}</span>
                 </button>
               </div>
 
               {/* Data Export & Import */}
               <div className="space-y-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono block">
-                  OFFLINE PORTABLE BACKUP & RESTORE
+                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 block">
+                  Portable Offline Backup &amp; Migration
                 </span>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={handleExportBackup}
-                    className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:bg-slate-50 transition-colors text-left space-y-1.5 cursor-pointer group"
+                    className="p-4 rounded-2xl bg-white border border-stone-200/80 hover:bg-stone-50 transition-colors text-left space-y-1.5 cursor-pointer group"
                   >
-                    <div className="flex items-center justify-between text-slate-700 font-bold text-xs">
-                      <span className="group-hover:text-sky-600 transition-colors">Download JSON Backup</span>
-                      <Download className="h-4 w-4 text-slate-400" />
+                    <div className="flex items-center justify-between text-slate-800 font-bold text-xs">
+                      <span className="group-hover:text-[#006B63] transition-colors">Download JSON Backup</span>
+                      <Download className="h-4 w-4 text-stone-400 group-hover:text-[#006B63] transition-colors" />
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
-                      Exports all 19-subject checkboxes, Error Notebook, and mock test scores.
+                    <p className="text-[11px] text-stone-500 leading-relaxed">
+                      Exports all 19-subject checkboxes, Error Notebook, and mock scores.
                     </p>
                   </button>
 
-                  <label className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:bg-slate-50 transition-colors text-left space-y-1.5 cursor-pointer group block">
-                    <div className="flex items-center justify-between text-slate-700 font-bold text-xs">
+                  <label className="p-4 rounded-2xl bg-white border border-stone-200/80 hover:bg-stone-50 transition-colors text-left space-y-1.5 cursor-pointer group block">
+                    <div className="flex items-center justify-between text-slate-800 font-bold text-xs">
                       <span className="group-hover:text-purple-600 transition-colors">Restore From Backup</span>
-                      <Upload className="h-4 w-4 text-slate-400" />
+                      <Upload className="h-4 w-4 text-stone-400 group-hover:text-purple-600 transition-colors" />
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                    <p className="text-[11px] text-stone-500 leading-relaxed">
                       Upload a JSON backup file to instantly restore full study state.
                     </p>
                     <input
@@ -691,16 +737,16 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 </div>
               </div>
 
-              {/* Sign Out */}
-              <div className="pt-2 flex justify-between items-center border-t border-slate-100">
-                <span className="text-xs text-slate-400">Current Doctor Session</span>
+              {/* Sign Out Action */}
+              <div className="pt-3 flex justify-between items-center border-t border-stone-200/60">
+                <span className="text-xs text-stone-500">Current Doctor Credentials</span>
                 <button
                   type="button"
                   onClick={() => {
                     signOutUser?.();
                     onClose();
                   }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   <span>Sign Out</span>
@@ -710,17 +756,33 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span>Doctor Credentials &amp; Study Pacing</span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="font-bold text-slate-700 hover:text-slate-900 cursor-pointer"
-          >
-            Done
-          </button>
+        {/* ── 4. Polished Action Footer ── */}
+        <div className="p-4 bg-[#FAF9F5] border-t border-stone-200/80 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-[11px] text-stone-500 font-medium">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Encrypted credentials &amp; study blueprint</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 rounded-xl hover:bg-stone-200/50 transition-colors cursor-pointer"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSaveBlueprint()}
+              disabled={isSaving}
+              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#00685F] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98]"
+            >
+              <Save className="h-3.5 w-3.5" />
+              <span>{isSaving ? 'Saving...' : 'Save Blueprint'}</span>
+            </button>
+          </div>
         </div>
+
       </div>
     </div>,
     document.body
