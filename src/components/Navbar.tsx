@@ -417,15 +417,36 @@ function AmbientMedicalMotif() {
         </svg>
       </div>
 
-      {/* Brand Tagline in 2 lines with refined Newsreader editorial typography */}
-      <div className="mt-[-12px] pl-2 z-10 relative">
-        <p className="font-['Newsreader',_serif] italic text-[15px] leading-[1.25] text-[#006B63] font-semibold tracking-tight">
-          Better Doctors
-        </p>
-        <p className="font-['Newsreader',_serif] italic text-[15px] leading-[1.25] text-[#006B63] font-semibold tracking-tight flex items-center">
-          <span>Brighter Tomorrows.</span>
-          <span className="text-[9.5px] font-sans not-italic font-bold ml-1 text-amber-600 align-super">™</span>
-        </p>
+      {/* Doctor Progression & Creed subtle block */}
+      <div className="mt-[-14px] pl-2.5 z-10 relative space-y-2">
+        <div className="space-y-0.5 opacity-40 hover:opacity-75 transition-opacity">
+          <p className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#006B63] uppercase leading-none">
+            LEARN
+          </p>
+          <p className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#006B63] uppercase leading-none">
+            PRACTICE
+          </p>
+          <p className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#006B63] uppercase leading-none">
+            IMPROVE
+          </p>
+          <p className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#006B63] uppercase leading-none">
+            BECOME
+          </p>
+          <p className="text-[9.5px] font-mono font-extrabold tracking-[0.16em] text-[#006B63] uppercase leading-none pt-0.5">
+            A BETTER DOCTOR
+          </p>
+        </div>
+
+        {/* Brand Tagline in 2 lines with refined Newsreader editorial typography */}
+        <div className="pt-1">
+          <p className="font-['Newsreader',_serif] italic text-[15px] leading-[1.25] text-[#006B63] font-semibold tracking-tight">
+            Better Doctors.
+          </p>
+          <p className="font-['Newsreader',_serif] italic text-[15px] leading-[1.25] text-[#006B63] font-semibold tracking-tight flex items-center">
+            <span>Brighter Tomorrows.</span>
+            <span className="text-[9.5px] font-sans not-italic font-bold ml-1 text-amber-600 align-super">™</span>
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -538,20 +559,25 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   type="button"
                   onClick={() => setActiveTab(id)}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative z-10 w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-[14px] transition-all duration-150 cursor-pointer active:scale-[0.98] ${
+                  className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-all duration-150 cursor-pointer active:scale-[0.98] ${
                     active
                       ? 'text-[#006B63] font-semibold'
                       : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-slate-50/80'
                   }`}
                 >
-                  <Icon
-                    className={`h-[19px] w-[19px] shrink-0 transition-colors duration-150 ${
-                      active
-                        ? 'text-[#006B63] fill-[#006B63]/25 stroke-[#006B63] stroke-[2.2]'
-                        : 'text-slate-500 stroke-[1.8]'
-                    }`}
-                  />
-                  <span>{label}</span>
+                  <div className="flex items-center gap-3">
+                    <Icon
+                      className={`h-[19px] w-[19px] shrink-0 transition-colors duration-150 ${
+                        active
+                          ? 'text-[#006B63] fill-[#006B63]/25 stroke-[#006B63] stroke-[2.2]'
+                          : 'text-slate-500 stroke-[1.8]'
+                      }`}
+                    />
+                    <span>{label}</span>
+                  </div>
+                  {active && (
+                    <ChevronRight className="h-4 w-4 text-[#006B63] stroke-[2.5]" />
+                  )}
                 </button>
               </div>
             );

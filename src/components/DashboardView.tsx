@@ -766,8 +766,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             )}
           </div>
 
-          {/* Right Action Icons: Notification Bell + Avatar (Desktop only; on mobile the global top header provides them) */}
-          <div className="hidden lg:flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Right Action Icons: Top Quote + Notification Bell + Avatar (Desktop only; on mobile the global top header provides them) */}
+          <div className="hidden lg:flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Top Creed Quote */}
+            <div className="hidden xl:flex flex-col items-end pr-1 text-right select-none">
+              <span className="font-['Newsreader',_serif] italic text-xs font-semibold text-slate-700 tracking-tight">
+                &ldquo;Discipline today leads to freedom tomorrow.&rdquo;
+              </span>
+              <span className="text-[9.5px] font-mono uppercase tracking-wider text-[#006B63] font-bold">
+                Doctor&apos;s Creed
+              </span>
+            </div>
+
             <button
               type="button"
               onClick={() => setIsNotificationCenterOpen(true)}
