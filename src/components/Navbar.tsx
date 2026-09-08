@@ -127,76 +127,183 @@ export const isTabActive = (id: ActiveTab, currentTab: ActiveTab) => {
      "Brighter Tomorrows.™"
    - Fully contained within the sidebar width (no horizontal bleed)
    ──────────────────────────────────────────────────────────────── */
+/* ─── Ambient Lower Sidebar Medical Motif ───────────────────────────
+   Premium Clinical Signature Art:
+   - Breathing circadian auroras with smooth fluid motion
+   - Precision Asclepius & Caduceus staff with shimmering winged corona
+   - Live continuous ECG telemetry pulse that sweeps along the vector wave
+   - Levitating radiant amber node with concentric cardiac ripple rings
+   - Micro floating clinical particles / sparkles that float upward
+   - Deep editorial tagline in Newsreader typography:
+     "Better Doctors"
+     "Brighter Tomorrows.™"
+   ──────────────────────────────────────────────────────────────── */
 function AmbientMedicalMotif() {
+  const reducedMotion = useReducedMotion();
+
   return (
     <div
-      className="flex-1 flex flex-col justify-end relative px-4 pb-7 pt-4 select-none overflow-hidden min-h-[260px]"
+      className="flex-1 flex flex-col justify-end relative px-4 pb-7 pt-4 select-none overflow-hidden min-h-[270px]"
       aria-hidden="true"
     >
       {/* Seamless atmospheric gradient wash filling the lower vertical void */}
-      <div className="absolute inset-0 bg-gradient-to-t from-teal-50/70 via-emerald-50/25 to-transparent pointer-events-none" />
-      <div className="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-teal-100/30 blur-3xl pointer-events-none" />
-      <div className="absolute left-0 bottom-16 w-36 h-36 rounded-full bg-amber-100/25 blur-2xl pointer-events-none" />
-      <div className="absolute right-4 top-10 w-28 h-28 rounded-full bg-teal-50/40 blur-2xl pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#006B63]/12 via-teal-50/40 to-transparent pointer-events-none" />
 
-      <div className="relative w-full h-[200px]">
+      {/* Breathing ambient radial aura orbs */}
+      <motion.div
+        animate={
+          reducedMotion
+            ? undefined
+            : {
+                scale: [1, 1.25, 1],
+                opacity: [0.35, 0.6, 0.35],
+                x: [0, 8, 0],
+              }
+        }
+        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute -right-8 -bottom-10 w-48 h-48 rounded-full bg-gradient-to-tl from-teal-200/40 to-emerald-100/20 blur-3xl pointer-events-none"
+      />
+      <motion.div
+        animate={
+          reducedMotion
+            ? undefined
+            : {
+                scale: [1.1, 0.95, 1.1],
+                opacity: [0.25, 0.45, 0.25],
+                y: [0, -10, 0],
+              }
+        }
+        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute left-0 bottom-16 w-36 h-36 rounded-full bg-gradient-to-tr from-amber-200/30 via-teal-100/20 to-transparent blur-2xl pointer-events-none"
+      />
+
+      {/* Floating Micro Celestial Sparkles */}
+      {!reducedMotion && (
+        <div className="absolute inset-x-4 bottom-24 h-28 pointer-events-none overflow-hidden">
+          <motion.span
+            className="absolute h-1 w-1 rounded-full bg-amber-400/70"
+            style={{ left: '25%', bottom: '20%' }}
+            animate={{
+              y: [0, -35, -50],
+              opacity: [0, 0.8, 0],
+              scale: [0.5, 1.2, 0.4],
+            }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
+          />
+          <motion.span
+            className="absolute h-1.5 w-1.5 rounded-full bg-teal-400/60"
+            style={{ left: '72%', bottom: '30%' }}
+            animate={{
+              y: [0, -45, -60],
+              opacity: [0, 0.9, 0],
+              scale: [0.6, 1.4, 0.4],
+            }}
+            transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut', delay: 1.8 }}
+          />
+          <motion.span
+            className="absolute h-1 w-1 rounded-full bg-emerald-400/60"
+            style={{ left: '50%', bottom: '15%' }}
+            animate={{
+              y: [0, -30, -45],
+              opacity: [0, 0.7, 0],
+              scale: [0.4, 1, 0.3],
+            }}
+            transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 2.8 }}
+          />
+        </div>
+      )}
+
+      <div className="relative w-full h-[205px]">
         <svg
           viewBox="0 0 240 210"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full"
+          className="w-full h-full overflow-visible"
           aria-hidden="true"
         >
           <defs>
             {/* Luminous dynamic gradient for the clinical rhythm line */}
             <linearGradient id="ecg-line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#006B63" stopOpacity="0.25" />
+              <stop offset="0%" stopColor="#006B63" stopOpacity="0.20" />
               <stop offset="35%" stopColor="#0D9488" stopOpacity="0.75" />
               <stop offset="65%" stopColor="#F59E0B" stopOpacity="0.95" />
-              <stop offset="78%" stopColor="#0D9488" stopOpacity="0.65" />
-              <stop offset="100%" stopColor="#006B63" stopOpacity="0.20" />
+              <stop offset="82%" stopColor="#0D9488" stopOpacity="0.65" />
+              <stop offset="100%" stopColor="#006B63" stopOpacity="0.18" />
             </linearGradient>
 
             {/* Expansive radial glow for the amber pulse node */}
             <radialGradient id="pulse-aura-grad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.55" />
-              <stop offset="50%" stopColor="#F59E0B" stopOpacity="0.20" />
+              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.65" />
+              <stop offset="45%" stopColor="#F59E0B" stopOpacity="0.25" />
               <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+            </radialGradient>
+
+            {/* Caduceus gold finial glow */}
+            <radialGradient id="caduceus-finial-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#FBBF24" stopOpacity="0.9" />
+              <stop offset="60%" stopColor="#006B63" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#006B63" stopOpacity="0" />
             </radialGradient>
           </defs>
 
           {/* Background gentle acoustic resonance arcs filling upper space */}
-          <path
+          <motion.path
             d="M 16 45 C 50 60, 85 95, 125 145"
             stroke="#006B63"
             strokeWidth="0.85"
-            strokeOpacity="0.10"
+            strokeOpacity="0.12"
             fill="none"
+            animate={reducedMotion ? undefined : { strokeOpacity: [0.08, 0.18, 0.08] }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           />
-          <path
+          <motion.path
             d="M 38 48 C 72 68, 105 110, 140 155"
             stroke="#006B63"
             strokeWidth="0.7"
-            strokeOpacity="0.07"
+            strokeOpacity="0.08"
             fill="none"
+            animate={reducedMotion ? undefined : { strokeOpacity: [0.05, 0.14, 0.05] }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
           />
 
-          {/* Tall Grand Caduceus line-art motif rising gracefully */}
-          <g stroke="#006B63" strokeOpacity="0.15" fill="none">
+          {/* Tall Grand Caduceus line-art motif rising gracefully with breathing aura */}
+          <motion.g
+            stroke="#006B63"
+            strokeOpacity="0.18"
+            fill="none"
+            animate={reducedMotion ? undefined : { opacity: [0.85, 1, 0.85] }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          >
             {/* Central staff with top finial */}
             <line x1="172" y1="16" x2="172" y2="165" strokeWidth="1.8" strokeLinecap="round" />
-            <circle cx="172" cy="14" r="3.5" fill="#006B63" fillOpacity="0.15" />
-            {/* Symmetrical wings */}
-            <path
+            {/* Radiant Star at top finial */}
+            <circle cx="172" cy="14" r="5" fill="url(#caduceus-finial-glow)" />
+            <circle cx="172" cy="14" r="2.2" fill="#F59E0B" />
+
+            {/* Symmetrical wings with gentle lift */}
+            <motion.path
               d="M 172 30 C 152 14, 128 18, 120 30 C 136 36, 154 32, 172 40"
               strokeWidth="1.4"
               strokeLinecap="round"
+              animate={reducedMotion ? undefined : { d: [
+                "M 172 30 C 152 14, 128 18, 120 30 C 136 36, 154 32, 172 40",
+                "M 172 29 C 150 12, 126 17, 118 29 C 135 35, 153 31, 172 39",
+                "M 172 30 C 152 14, 128 18, 120 30 C 136 36, 154 32, 172 40",
+              ] }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
             />
-            <path
+            <motion.path
               d="M 172 30 C 192 14, 216 18, 224 30 C 208 36, 190 32, 172 40"
               strokeWidth="1.4"
               strokeLinecap="round"
+              animate={reducedMotion ? undefined : { d: [
+                "M 172 30 C 192 14, 216 18, 224 30 C 208 36, 190 32, 172 40",
+                "M 172 29 C 194 12, 218 17, 226 29 C 209 35, 191 31, 172 39",
+                "M 172 30 C 192 14, 216 18, 224 30 C 208 36, 190 32, 172 40",
+              ] }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
             />
+
             {/* Coiled Serpents */}
             <path
               d="M 172 38 C 146 48, 146 66, 172 76 C 198 86, 198 104, 172 114 C 146 124, 146 142, 172 152"
@@ -208,10 +315,11 @@ function AmbientMedicalMotif() {
               strokeWidth="1.5"
               strokeLinecap="round"
             />
-          </g>
+          </motion.g>
 
-          {/* Clinical Waveform Rhythm — tall, resonant curve */}
+          {/* Clinical Waveform Rhythm — tall, resonant baseline curve */}
           <path
+            id="ecg-track-path"
             d="M 10 135
                L 34 135
                C 40 135, 46 95, 52 95
@@ -227,24 +335,96 @@ function AmbientMedicalMotif() {
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
-            className="ecg-line-draw"
+            className="drop-shadow-xs"
           />
 
+          {/* Animated Sweeping Pulse Beam over the ECG Path */}
+          {!reducedMotion && (
+            <motion.path
+              d="M 10 135
+                 L 34 135
+                 C 40 135, 46 95, 52 95
+                 C 58 95, 64 170, 70 170
+                 C 76 170, 81 118, 86 118
+                 C 91 118, 96 148, 101 148
+                 C 108 148, 114 96, 122 96
+                 C 130 96, 138 132, 148 132
+                 C 158 132, 168 120, 176 122
+                 C 194 126, 212 155, 230 185"
+              stroke="#FDE68A"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+              fill="none"
+              strokeDasharray="30 260"
+              animate={{ strokeDashoffset: [290, -290] }}
+              transition={{ duration: 3.2, repeat: Infinity, ease: 'linear', repeatDelay: 1.2 }}
+            />
+          )}
+
+          {/* Concentric Cardiac Ripple Waves around Gold Node (cx=176, cy=122) */}
+          {!reducedMotion && (
+            <>
+              <motion.circle
+                cx="176"
+                cy="122"
+                r="9"
+                stroke="#F59E0B"
+                strokeWidth="1.2"
+                fill="none"
+                animate={{
+                  scale: [1, 2.6],
+                  opacity: [0.7, 0],
+                }}
+                transition={{
+                  duration: 2.6,
+                  repeat: Infinity,
+                  ease: 'easeOut',
+                }}
+              />
+              <motion.circle
+                cx="176"
+                cy="122"
+                r="14"
+                stroke="#006B63"
+                strokeWidth="1"
+                fill="none"
+                animate={{
+                  scale: [1, 2.2],
+                  opacity: [0.5, 0],
+                }}
+                transition={{
+                  duration: 2.6,
+                  repeat: Infinity,
+                  ease: 'easeOut',
+                  delay: 0.6,
+                }}
+              />
+            </>
+          )}
+
           {/* Luminous Gold Accent Node sitting at wave crest (cx=176, cy=122) */}
-          <circle cx="176" cy="122" r="18" fill="url(#pulse-aura-grad)" className="ecg-dot-aura" />
-          <circle cx="176" cy="122" r="8.5" fill="#F59E0B" className="ecg-dot-halo" />
-          <circle cx="176" cy="122" r="3.8" fill="#D97706" className="ecg-dot-core" />
-          <circle cx="176" cy="122" r="1.8" fill="#FFFDF5" />
+          <motion.circle
+            cx="176"
+            cy="122"
+            r="20"
+            fill="url(#pulse-aura-grad)"
+            animate={reducedMotion ? undefined : { scale: [1, 1.25, 1], opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <circle cx="176" cy="122" r="8.5" fill="#F59E0B" />
+          <circle cx="176" cy="122" r="4.2" fill="#D97706" />
+          <circle cx="176" cy="122" r="2" fill="#FFFDF5" />
         </svg>
       </div>
 
-      {/* Brand Tagline in 2 lines with refined typography */}
-      <div className="mt-[-14px] pl-2 z-10 relative">
-        <p className="font-serif italic text-[14px] leading-[1.25] text-[#006B63] font-semibold tracking-normal">
+      {/* Brand Tagline in 2 lines with refined Newsreader editorial typography */}
+      <div className="mt-[-12px] pl-2 z-10 relative">
+        <p className="font-['Newsreader',_serif] italic text-[15px] leading-[1.25] text-[#006B63] font-semibold tracking-tight">
           Better Doctors
         </p>
-        <p className="font-serif italic text-[14px] leading-[1.25] text-[#006B63] font-semibold tracking-normal">
-          Brighter Tomorrows.<span className="text-[9.5px] font-sans not-italic font-bold ml-0.5 text-amber-600 align-super">™</span>
+        <p className="font-['Newsreader',_serif] italic text-[15px] leading-[1.25] text-[#006B63] font-semibold tracking-tight flex items-center">
+          <span>Brighter Tomorrows.</span>
+          <span className="text-[9.5px] font-sans not-italic font-bold ml-1 text-amber-600 align-super">™</span>
         </p>
       </div>
     </div>
