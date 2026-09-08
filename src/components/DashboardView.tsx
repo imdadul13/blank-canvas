@@ -174,8 +174,8 @@ function CircularCountdown({
           value={days}
           className="font-black text-3xl sm:text-4xl text-slate-900 tracking-tight font-['Outfit'] tabular-nums leading-none"
         />
-        <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 mt-1 leading-tight tracking-wider uppercase font-mono">
-          days left
+        <span className="text-[9.5px] font-bold text-[#638E88] mt-1 leading-tight tracking-wider uppercase font-mono">
+          DAYS LEFT
         </span>
       </div>
     </div>
@@ -721,13 +721,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }
 
   return (
-    <div className="relative min-h-screen font-['Plus_Jakarta_Sans'] text-slate-900 pb-16 lg:pb-12 pt-4 sm:pt-6 lg:pt-6">
-      {/* Subtle atmospheric medical & mountain visual background */}
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(0,107,99,0.035)_0%,rgba(14,165,233,0.025)_50%,transparent_80%)]" />
-      <div className="pointer-events-none fixed top-0 right-0 w-[540px] h-[360px] -z-10 opacity-[0.035] overflow-hidden">
-        <svg viewBox="0 0 540 360" fill="none" className="w-full h-full stroke-[#006B63]">
-          <path d="M40 360 L 220 180 L 320 270 L 460 130 L 540 200" strokeWidth="2" strokeLinecap="round" />
-          <path d="M0 360 L 160 220 L 270 310 L 400 170 L 540 290" strokeWidth="1.2" strokeLinecap="round" />
+    <div className="relative min-h-screen font-['Plus_Jakarta_Sans'] text-slate-900 pb-16 lg:pb-12 pt-4 sm:pt-6 lg:pt-6 bg-[#F4FAF8]">
+      {/* Subtle atmospheric medical wash and neural/molecular node connections */}
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(0,107,99,0.06)_0%,rgba(14,165,233,0.03)_50%,transparent_80%)]" />
+      <div className="pointer-events-none fixed top-0 right-0 w-[500px] h-[360px] -z-10 opacity-[0.09] overflow-hidden">
+        <svg viewBox="0 0 500 360" fill="none" className="w-full h-full stroke-[#006B63]">
+          <circle cx="420" cy="60" r="5" fill="#006B63" />
+          <circle cx="340" cy="110" r="4" fill="#006B63" />
+          <circle cx="450" cy="150" r="6" fill="#006B63" />
+          <circle cx="280" cy="170" r="4" fill="#006B63" />
+          <circle cx="360" cy="220" r="5" fill="#006B63" />
+          <circle cx="460" cy="260" r="4" fill="#006B63" />
+          <line x1="420" y1="60" x2="340" y2="110" strokeWidth="1.2" />
+          <line x1="420" y1="60" x2="450" y2="150" strokeWidth="1.2" />
+          <line x1="340" y1="110" x2="280" y2="170" strokeWidth="1.2" />
+          <line x1="340" y1="110" x2="360" y2="220" strokeWidth="1.2" />
+          <line x1="450" y1="150" x2="360" y2="220" strokeWidth="1.2" />
+          <line x1="360" y1="220" x2="460" y2="260" strokeWidth="1.2" />
         </svg>
       </div>
 
@@ -748,7 +758,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onFocus={() => setIsSearchOpen(true)}
               placeholder="Search topics, subjects, questions..."
               aria-label="Search topics"
-              className="w-full pl-9 sm:pl-10 pr-8 sm:pr-14 h-10 sm:h-11 rounded-full bg-white border border-slate-200/90 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 shadow-xs focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 transition-all"
+              className="w-full pl-9 sm:pl-10 pr-8 sm:pr-14 h-10 sm:h-11 rounded-full bg-white border border-[#D5EAE3] text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 shadow-xs focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 transition-all"
             />
             {searchQuery ? (
               <button
@@ -760,28 +770,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <X className="h-3.5 w-3.5" />
               </button>
             ) : (
-              <span className="hidden sm:inline-flex absolute right-3.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-mono text-slate-400 font-medium">
+              <span className="hidden sm:inline-flex absolute right-3.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-[#F0F5F3] text-[10px] font-mono text-slate-400 font-medium">
                 ⌘ K
               </span>
             )}
           </div>
 
-          {/* Right Action Icons: Top Quote + Notification Bell + Avatar (Desktop only; on mobile the global top header provides them) */}
+          {/* Right Action Icons: Top Quote + Notification Bell + Avatar (Desktop only) */}
           <div className="hidden lg:flex items-center gap-3 sm:gap-4 shrink-0">
             {/* Top Creed Quote */}
             <div className="hidden xl:flex flex-col items-end pr-1 text-right select-none">
-              <span className="font-['Newsreader',_serif] italic text-xs font-semibold text-slate-700 tracking-tight">
-                &ldquo;Discipline today leads to freedom tomorrow.&rdquo;
+              <span className="italic text-[11.5px] font-medium text-slate-500 tracking-tight leading-snug">
+                Discipline today leads to<br />freedom tomorrow. —
               </span>
-              <span className="text-[9.5px] font-mono uppercase tracking-wider text-[#006B63] font-bold">
-                Doctor&apos;s Creed
-              </span>
+              <span className="h-[2px] w-6 bg-[#006B63] rounded-full mt-0.5 ml-auto" />
             </div>
 
             <button
               type="button"
               onClick={() => setIsNotificationCenterOpen(true)}
-              className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white border border-slate-200/90 shadow-xs text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors shrink-0"
+              className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white border border-[#D5EAE3] shadow-xs text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors shrink-0"
               title="View Study Notifications"
               aria-label="View Study Notifications"
             >
@@ -797,10 +805,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={onOpenProfile}
-              className="flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white border border-slate-200/90 shadow-xs hover:bg-slate-50 transition-colors cursor-pointer group"
+              className="flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white border border-[#D5EAE3] shadow-xs hover:bg-slate-50 transition-colors cursor-pointer group"
               title="Doctor Profile & Blueprint"
             >
-              <div className="h-8 w-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-['Outfit'] font-bold text-xs shrink-0 ring-2 ring-slate-900/10">
+              <div className="h-8 w-8 rounded-full bg-[#2A2322] text-white flex items-center justify-center font-['Outfit'] font-bold text-xs shrink-0 ring-2 ring-slate-900/10">
                 {initials}
               </div>
               <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
@@ -882,325 +890,134 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion)}
-          className={`rounded-3xl border shadow-sm p-4 sm:p-5 lg:p-6 relative overflow-hidden transition-all duration-700 ${
-            timeOfDay === 'night'
-              ? 'bg-gradient-to-br from-[#0B1519] via-[#0D1F23] via-50% to-[#081518] border-teal-800/40 text-slate-100 shadow-teal-950/20'
-              : timeOfDay === 'evening'
-              ? 'bg-gradient-to-br from-[#FFFBF5] via-[#FCF8F2] via-45% to-[#F5EFE6] border-amber-200/70 text-slate-900 shadow-amber-950/5'
-              : 'bg-gradient-to-br from-[#F4FAF8] via-[#FAFDFB] via-40% to-[#EEF7F4] border-teal-200/80 text-slate-900 shadow-teal-950/5'
-          }`}
+          className="rounded-3xl border border-[#BEE4DC] shadow-[0_4px_20px_rgba(0,107,99,0.04)] p-4 sm:p-5 lg:p-6 relative overflow-hidden bg-gradient-to-br from-[#EEF9F6] via-[#F6FCFA] to-[#E5F5F0] text-slate-900"
         >
           {/* Subtle Ambient Radial Aura Mesh */}
           <div
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${
-              timeOfDay === 'night'
-                ? 'bg-[radial-gradient(ellipse_80%_60%_at_15%_20%,rgba(13,148,136,0.18),transparent_65%),radial-gradient(ellipse_70%_50%_at_85%_80%,rgba(2,132,199,0.15),transparent_70%)]'
-                : timeOfDay === 'evening'
-                ? 'bg-[radial-gradient(ellipse_80%_60%_at_15%_20%,rgba(251,191,36,0.22),transparent_65%),radial-gradient(ellipse_70%_50%_at_85%_80%,rgba(244,63,94,0.12),transparent_70%)]'
-                : 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(45,212,191,0.28),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(167,243,208,0.22),transparent_70%)]'
-            }`}
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(45,212,191,0.22),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(167,243,208,0.18),transparent_70%)]"
           />
 
-          {/* Precision Architectural Top Light Line & Shimmer */}
+          {/* Precision Architectural Top Light Line */}
           <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
-            <div
-              className={`absolute inset-0 ${
-                timeOfDay === 'night'
-                  ? 'bg-gradient-to-r from-transparent via-teal-400/40 to-transparent'
-                  : 'bg-gradient-to-r from-transparent via-[#006B63]/30 to-transparent'
-              }`}
-            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#006B63]/25 to-transparent" />
             <motion.div
               animate={{ x: ['-100%', '300%'] }}
               transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
-              className={`w-52 sm:w-80 h-full ${
-                timeOfDay === 'night'
-                  ? 'bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_18px_#38bdf8]'
-                  : 'bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_16px_#2dd4bf]'
-              }`}
+              className="w-52 sm:w-80 h-full bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_16px_#2dd4bf]"
             />
           </div>
 
-          {/* Subtle bottom border luster */}
-          <div
-            className={`pointer-events-none absolute bottom-0 left-0 right-0 h-[1.5px] ${
-              timeOfDay === 'night'
-                ? 'bg-gradient-to-r from-transparent via-teal-500/25 to-transparent'
-                : 'bg-gradient-to-r from-transparent via-teal-600/15 to-transparent'
-            }`}
-          />
-
-          {/* Deep celestial breathing orbs */}
-          <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: timeOfDay === 'night' ? [0.2, 0.4, 0.2] : [0.35, 0.55, 0.35],
-              x: [0, 14, 0],
-            }}
-            transition={{ duration: 8.5, repeat: Infinity, ease: 'easeInOut' }}
-            className={`pointer-events-none absolute -top-16 -right-16 h-72 w-72 rounded-full blur-3xl ${
-              timeOfDay === 'night'
-                ? 'bg-gradient-to-br from-cyan-500/20 via-teal-400/15 to-transparent'
-                : timeOfDay === 'evening'
-                ? 'bg-gradient-to-br from-amber-400/25 via-rose-300/20 to-transparent'
-                : 'bg-gradient-to-br from-teal-400/30 via-emerald-300/20 to-transparent'
-            }`}
-          />
-          <motion.div
-            animate={{
-              scale: [1.12, 1, 1.12],
-              opacity: timeOfDay === 'night' ? [0.15, 0.3, 0.15] : [0.25, 0.42, 0.25],
-              y: [0, -12, 0],
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-            className={`pointer-events-none absolute -bottom-16 -left-12 h-64 w-64 rounded-full blur-3xl ${
-              timeOfDay === 'night'
-                ? 'bg-gradient-to-tr from-teal-600/20 via-indigo-900/15 to-transparent'
-                : 'bg-gradient-to-tr from-cyan-200/30 via-teal-100/25 to-transparent'
-            }`}
-          />
-
-          {/* Mountain Scenery with Birds & Real-Time Celestial Solar/Lunar Motion */}
+          {/* Mountain Scenery with Birds & Soft Turquoise Atmosphere */}
           <DoctorMountainArt
             variant="backdrop"
-            forceTimeOfDay={timeOfDay}
-            className={`transition-opacity duration-700 ${
-              timeOfDay === 'night'
-                ? 'opacity-30 sm:opacity-40 md:opacity-[0.58]'
-                : 'opacity-25 sm:opacity-35 md:opacity-[0.52]'
-            }`}
+            forceTimeOfDay="morning"
+            className="transition-opacity duration-700 opacity-40 sm:opacity-50 md:opacity-[0.62]"
           />
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
-            {/* Left side: Doctor Telemetry + Editorial Name Header + Strategic Subtitle */}
+            {/* Left side: Doctor Circadian Greeting + Bold Name + Strategic Subtitle */}
             <div className="space-y-1.5 max-w-xl">
               {/* Doctor Circadian Pill */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <div
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide border shadow-2xs transition-colors ${
-                    timeOfDay === 'night'
-                      ? 'bg-indigo-950/60 text-indigo-200 border-indigo-700/40'
-                      : timeOfDay === 'evening'
-                      ? 'bg-amber-100/70 text-amber-800 border-amber-300/60'
-                      : 'bg-teal-50 text-[#00685F] border-teal-200/80'
-                  }`}
-                >
-                  <GreetingIcon className="h-3.5 w-3.5 stroke-[2.2]" />
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                  <GreetingIcon className="h-3.5 w-3.5 text-slate-400 stroke-[2.2]" />
                   <span>{greeting}</span>
-                </div>
-
-                {/* Clinical Readiness Verified Indicator */}
-                <div
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold border ${
-                    timeOfDay === 'night'
-                      ? 'bg-teal-950/50 text-teal-300 border-teal-700/40'
-                      : 'bg-white/80 text-stone-600 border-stone-200/80 backdrop-blur-xs'
-                  }`}
-                >
-                  <ShieldCheck className="h-3 w-3 text-teal-600" />
-                  <span>FMGE Candidate</span>
-                  <span className="h-1 w-1 rounded-full bg-emerald-500 ml-0.5 animate-pulse" />
                 </div>
               </div>
 
-              {/* Doctor Name with Editorial Serif Distinction */}
+              {/* Doctor Name */}
               <div className="pt-0.5">
-                <h1
-                  className={`text-2xl sm:text-3xl lg:text-[34px] lg:leading-tight font-semibold tracking-tight font-['Newsreader',_serif] ${
-                    timeOfDay === 'night' ? 'text-white' : 'text-slate-900'
-                  }`}
-                >
+                <h1 className="text-3xl sm:text-4xl lg:text-[38px] font-extrabold tracking-tight text-[#0B2A26] font-['Plus_Jakarta_Sans'] leading-tight">
                   {userName}
                 </h1>
-                <p
-                  className={`text-xs sm:text-[13px] leading-relaxed italic mt-0.5 ${
-                    timeOfDay === 'night' ? 'text-slate-300/85' : 'text-stone-600'
-                  }`}
-                >
+                <p className="text-xs sm:text-sm leading-relaxed italic mt-1 text-[#4E7670]">
                   &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
                 </p>
               </div>
             </div>
 
-            {/* Right side: Doctor's Mountain Creed Badge with Refined Glass & Spring Interaction */}
+            {/* Right side: Doctor's Mountain Creed Floating Badge */}
             <motion.div
               whileHover={{ scale: 1.02, y: -2 }}
               transition={{ type: 'spring', stiffness: 350, damping: 20 }}
-              className={`hidden md:flex items-center gap-3.5 backdrop-blur-md border rounded-2xl px-4 py-3 shrink-0 shadow-xs cursor-pointer transition-all ${
-                timeOfDay === 'night'
-                  ? 'bg-slate-900/70 border-teal-700/40 hover:bg-slate-900/90 hover:border-teal-500/60'
-                  : 'bg-white/85 border-teal-200/80 hover:bg-white hover:border-teal-300'
-              }`}
+              className="hidden md:flex items-center gap-3.5 bg-white/90 backdrop-blur-md border border-white/90 rounded-2xl px-4 py-2.5 shadow-xs cursor-pointer"
             >
-              <div className="h-8 w-12 shrink-0 relative">
+              <div className="h-8 w-11 shrink-0 relative">
                 <svg viewBox="0 0 44 24" fill="none" className="w-full h-full drop-shadow-2xs">
-                  <path
-                    d="M2 24L18 6L26 14L38 24H2Z"
-                    fill={timeOfDay === 'night' ? '#2DD4BF' : '#006B63'}
-                    fillOpacity={timeOfDay === 'night' ? '0.35' : '0.28'}
-                  />
-                  <path
-                    d="M14 24L28 9L36 19L42 24H14Z"
-                    fill={timeOfDay === 'night' ? '#38BDF8' : '#0284c7'}
-                    fillOpacity={timeOfDay === 'night' ? '0.3' : '0.22'}
-                  />
+                  <path d="M2 24L18 6L26 14L38 24H2Z" fill="#006B63" fillOpacity="0.25" />
+                  <path d="M14 24L28 9L36 19L42 24H14Z" fill="#0284C7" fillOpacity="0.2" />
                   <path d="M18 6L21 3V7L18 6Z" fill="#F43F5E" />
                 </svg>
               </div>
               <div className="text-right space-y-0.5">
-                <p
-                  className={`text-xs font-semibold font-['Newsreader',_serif] italic ${
-                    timeOfDay === 'night' ? 'text-teal-200' : 'text-[#00685F]'
-                  }`}
-                >
+                <p className="text-xs font-bold italic text-[#0D3833]">
                   &ldquo;Discipline today leads to freedom tomorrow.&rdquo;
                 </p>
-                <p
-                  className={`text-[9.5px] font-mono font-semibold uppercase tracking-wider ${
-                    timeOfDay === 'night' ? 'text-slate-400' : 'text-stone-400'
-                  }`}
-                >
+                <p className="text-[9.5px] font-mono font-bold uppercase tracking-wider text-[#5B948C]">
                   DOCTOR&apos;S CREED · FMGE READY
                 </p>
               </div>
             </motion.div>
           </div>
 
-          {/* 4 Stat Badges Row */}
-          <div
-            className={`grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 pt-3.5 mt-3.5 border-t relative z-10 ${
-              timeOfDay === 'night' ? 'border-teal-800/30' : 'border-teal-900/10'
-            }`}
-          >
+          {/* 4 Stat Cards Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-4 mt-4 border-t border-[#D0EBE5] relative z-10">
             {/* Card 1: Days remaining */}
-            <div
-              className={`flex items-center gap-2.5 sm:gap-3 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 border shadow-2xs backdrop-blur-md ${
-                timeOfDay === 'night'
-                  ? 'bg-slate-900/60 border-teal-800/40 hover:bg-slate-900/80 hover:border-teal-600/50'
-                  : 'bg-white/85 border-teal-200/80 hover:bg-white hover:border-teal-300'
-              }`}
-            >
-              <div
-                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-xl flex items-center justify-center shrink-0 ${
-                  timeOfDay === 'night' ? 'bg-teal-500/20 text-teal-300' : 'bg-teal-500/10 text-[#006B63]'
-                }`}
-              >
-                <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <div className="flex items-center gap-3 rounded-2xl p-3 bg-white border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all min-w-0">
+              <div className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63]">
+                <Calendar className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span
-                  className={`block text-xs sm:text-sm lg:text-base font-extrabold font-['Outfit'] tabular-nums leading-tight truncate ${
-                    timeOfDay === 'night' ? 'text-white' : 'text-slate-900'
-                  }`}
-                >
+                <span className="block text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 truncate">
                   <AnimatedNumber value={daysRemaining} />
                 </span>
-                <span
-                  className={`block text-[10px] sm:text-[11px] font-medium truncate ${
-                    timeOfDay === 'night' ? 'text-slate-400' : 'text-stone-400'
-                  }`}
-                >
+                <span className="block text-[11px] font-medium text-[#608882] truncate">
                   days to FMGE
                 </span>
               </div>
             </div>
 
             {/* Card 2: Target Score */}
-            <div
-              className={`flex items-center gap-2.5 sm:gap-3 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 border shadow-2xs backdrop-blur-md ${
-                timeOfDay === 'night'
-                  ? 'bg-slate-900/60 border-teal-800/40 hover:bg-slate-900/80 hover:border-teal-600/50'
-                  : 'bg-white/85 border-teal-200/80 hover:bg-white hover:border-teal-300'
-              }`}
-            >
-              <div
-                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-xl flex items-center justify-center shrink-0 ${
-                  timeOfDay === 'night' ? 'bg-teal-500/20 text-teal-300' : 'bg-teal-500/10 text-[#006B63]'
-                }`}
-              >
-                <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <div className="flex items-center gap-3 rounded-2xl p-3 bg-white border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all min-w-0">
+              <div className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63]">
+                <Target className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span
-                  className={`block text-xs sm:text-sm lg:text-base font-extrabold font-['Outfit'] tabular-nums leading-tight truncate ${
-                    timeOfDay === 'night' ? 'text-white' : 'text-slate-900'
-                  }`}
-                >
+                <span className="block text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 truncate">
                   {savedTargetScore ? `${savedTargetScore}+` : '200+'}
                 </span>
-                <span
-                  className={`block text-[10px] sm:text-[11px] font-medium truncate ${
-                    timeOfDay === 'night' ? 'text-slate-400' : 'text-stone-400'
-                  }`}
-                >
+                <span className="block text-[11px] font-medium text-[#608882] truncate">
                   Target Score
                 </span>
               </div>
             </div>
 
             {/* Card 3: Subjects count */}
-            <div
-              className={`flex items-center gap-2.5 sm:gap-3 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 border shadow-2xs backdrop-blur-md ${
-                timeOfDay === 'night'
-                  ? 'bg-slate-900/60 border-teal-800/40 hover:bg-slate-900/80 hover:border-teal-600/50'
-                  : 'bg-white/85 border-teal-200/80 hover:bg-white hover:border-teal-300'
-              }`}
-            >
-              <div
-                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-xl flex items-center justify-center shrink-0 ${
-                  timeOfDay === 'night' ? 'bg-sky-500/20 text-sky-300' : 'bg-sky-500/10 text-sky-600'
-                }`}
-              >
-                <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <div className="flex items-center gap-3 rounded-2xl p-3 bg-white border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all min-w-0">
+              <div className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0 bg-[#E5F1FA] text-[#0A6EB4]">
+                <BookOpen className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span
-                  className={`block text-xs sm:text-sm lg:text-base font-extrabold font-['Outfit'] tabular-nums leading-tight truncate ${
-                    timeOfDay === 'night' ? 'text-white' : 'text-slate-900'
-                  }`}
-                >
+                <span className="block text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 truncate">
                   19
                 </span>
-                <span
-                  className={`block text-[10px] sm:text-[11px] font-medium truncate ${
-                    timeOfDay === 'night' ? 'text-slate-400' : 'text-stone-400'
-                  }`}
-                >
+                <span className="block text-[11px] font-medium text-[#608882] truncate">
                   Subjects
                 </span>
               </div>
             </div>
 
             {/* Card 4: Progress / Streak */}
-            <div
-              className={`flex items-center gap-2.5 sm:gap-3 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 border shadow-2xs backdrop-blur-md ${
-                timeOfDay === 'night'
-                  ? 'bg-slate-900/60 border-teal-800/40 hover:bg-slate-900/80 hover:border-teal-600/50'
-                  : 'bg-white/85 border-teal-200/80 hover:bg-white hover:border-teal-300'
-              }`}
-            >
-              <div
-                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-xl flex items-center justify-center shrink-0 ${
-                  timeOfDay === 'night' ? 'bg-amber-500/20 text-amber-300' : 'bg-amber-500/10 text-amber-600'
-                }`}
-              >
-                <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <div className="flex items-center gap-3 rounded-2xl p-3 bg-white border border-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all min-w-0">
+              <div className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0 bg-[#FEF1E6] text-[#E07018]">
+                <Zap className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span
-                  className={`block text-xs sm:text-sm lg:text-base font-extrabold font-['Outfit'] leading-tight truncate ${
-                    timeOfDay === 'night' ? 'text-white' : 'text-slate-900'
-                  }`}
-                >
+                <span className="block text-sm sm:text-base font-extrabold font-['Outfit'] leading-tight text-slate-900 truncate">
                   Keep going
                 </span>
-                <span
-                  className={`block text-[10px] sm:text-[11px] font-medium truncate ${
-                    timeOfDay === 'night' ? 'text-slate-400' : 'text-stone-400'
-                  }`}
-                  title="Small steps. Big progress."
-                >
+                <span className="block text-[11px] font-medium text-[#608882] truncate" title="Small steps. Big progress.">
                   Small steps. Big progress.
                 </span>
               </div>
@@ -1267,337 +1084,152 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.08, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className={`rounded-3xl bg-gradient-to-br ${focusTheme.bg} ${focusTheme.border} border shadow-[0_16px_40px_-12px_rgba(15,23,42,0.08)] hover:shadow-lg p-5 sm:p-6 lg:p-7 relative overflow-hidden transition-all duration-300`}
+              className="rounded-[28px] border border-[#BEE4DC] bg-gradient-to-br from-[#EAF8F5] via-white to-[#E1F3EF] shadow-[0_8px_30px_rgba(0,107,99,0.04)] p-6 sm:p-7 relative overflow-hidden transition-all duration-300"
             >
               {/* Dynamic Subject-Themed Ambient Background Glow Orbs */}
               <div
-                className="absolute -top-24 -right-24 w-80 h-80 sm:w-96 sm:h-96 rounded-full pointer-events-none filter blur-3xl opacity-60 transition-all duration-500"
+                className="absolute -top-24 -right-24 w-80 h-80 rounded-full pointer-events-none filter blur-3xl opacity-50 transition-all duration-500"
                 style={{
                   background: `radial-gradient(circle, ${focusTheme.glow} 0%, transparent 70%)`,
                 }}
               />
               <div
-                className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full pointer-events-none filter blur-3xl opacity-40 transition-all duration-500"
+                className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full pointer-events-none filter blur-3xl opacity-30 transition-all duration-500"
                 style={{
                   background: `radial-gradient(circle, ${focusTheme.glow} 0%, transparent 70%)`,
                 }}
               />
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-7 relative z-10">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                 {/* Left side: Focus Text & Actions */}
-                <div className="flex-1 space-y-3.5 min-w-0">
+                <div className="flex-1 space-y-3.5 min-w-0 max-w-md">
                   {/* Category Header Badges */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/90 text-[#006B63] border border-teal-200/70 font-mono shadow-2xs backdrop-blur-xs">
-                      + TODAY&apos;S FOCUS
-                    </span>
-                    <span className={`text-[11px] font-bold uppercase tracking-wider font-mono px-2.5 py-0.5 rounded-full border shadow-2xs backdrop-blur-xs ${focusTheme.badge}`}>
-                      {activeFocusSubject.name.toUpperCase()}
-                    </span>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10.5px] font-bold uppercase tracking-wider bg-[#E0F5F1] text-[#007F75] border border-[#BDE8DF] font-mono shadow-2xs">
+                        ✦ TODAY&apos;S FOCUS
+                      </span>
+                    </div>
+                    <div>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-[10.5px] font-bold uppercase tracking-wider font-mono bg-[#DCF2F9] text-[#0284A5] shadow-2xs">
+                        {activeFocusSubject.name.toUpperCase()}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Topic Title */}
-                  <div>
-                    <h2 className="font-['Outfit'] text-xl sm:text-2xl lg:text-[26px] font-black tracking-tight text-slate-900 leading-tight break-words">
+                  <div className="pt-1">
+                    <h2 className="font-['Outfit'] text-2xl sm:text-[26px] font-black tracking-tight text-[#0B2A26] leading-tight break-words">
                       {activeFocusTopic.name}
                     </h2>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-1.5 max-w-lg line-clamp-2 sm:line-clamp-none">
+                    <p className="text-xs sm:text-[13px] text-[#527670] leading-relaxed mt-2 max-w-sm">
                       {adaptiveRecommendation.actionDescription || activeFocusTopic.reason}
                     </p>
                   </div>
 
-                  {/* 4 Meta Badges */}
-                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-0.5">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/80 text-slate-700 border border-slate-200/80 shadow-2xs backdrop-blur-xs">
-                      <Calendar className="h-3 w-3 text-slate-400" />
-                      <AnimatedNumber value={focusMarks} /> marks
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/80 text-slate-700 border border-slate-200/80 shadow-2xs backdrop-blur-xs">
-                      <Clock className="h-3 w-3 text-slate-400" />
-                      <AnimatedNumber value={focusMinutes} /> min
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/80 text-slate-700 border border-slate-200/80 shadow-2xs backdrop-blur-xs">
-                      <BookOpen className="h-3 w-3 text-slate-400" /> Clinical MCQ
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50/90 text-rose-600 border border-rose-200/80 shadow-2xs backdrop-blur-xs">
-                      <Flame className="h-3 w-3 fill-rose-500 text-rose-500" /> High-yield
-                    </span>
+                  {/* 4 Meta Badges in 2 Rows */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs">
+                        <Calendar className="h-3.5 w-3.5 text-[#3E655F]/70" />
+                        <AnimatedNumber value={focusMarks} /> marks
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs">
+                        <Clock className="h-3.5 w-3.5 text-[#3E655F]/70" />
+                        <AnimatedNumber value={focusMinutes} /> min
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs">
+                        <BookOpen className="h-3.5 w-3.5 text-[#3E655F]/70" /> Clinical MCQ
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#FFF0F0] text-[#D32F2F] border border-[#FED7D7] shadow-2xs">
+                        <Flame className="h-3.5 w-3.5 fill-[#D32F2F] text-[#D32F2F]" /> High-yield
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Action Buttons (Desktop layout: inside left column) */}
-                  <div className="hidden sm:flex flex-wrap items-center gap-2 sm:gap-2.5 pt-2">
+                  {/* Action Button: Start Session (Desktop & Mobile) */}
+                  <div className="pt-3">
                     <button
                       type="button"
                       onClick={startFocusSession}
-                      className="inline-flex items-center justify-center gap-2 w-full xs:w-auto px-5 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#006B63] hover:bg-[#00524c] text-white shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer min-h-[44px]"
+                      className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full text-sm font-bold bg-[#006B63] hover:bg-[#00554E] text-white shadow-md hover:shadow-lg active:scale-[0.98] transition-all cursor-pointer min-h-[46px]"
                     >
-                      <Play className="h-3.5 w-3.5 fill-white" /> Start Session
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onSelectSubject(activeFocusSubject.id)}
-                      className="inline-flex items-center justify-center gap-2 w-full xs:w-auto px-4.5 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-white/90 border border-slate-200/90 hover:bg-white active:scale-[0.98] shadow-2xs transition-all cursor-pointer min-h-[44px]"
-                    >
-                      Subject Roadmap <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
+                      <Play className="h-4 w-4 fill-white" /> Start Session
                     </button>
                   </div>
                 </div>
 
-                {/* Right side: Integrated 3D Anatomical Visual with Radiant Ambient Glow — Enlarged & Fully Responsive */}
-                <div className="relative w-full sm:w-68 md:w-76 lg:w-72 xl:w-84 shrink-0 flex flex-col items-center justify-center pt-2 sm:pt-0">
-                  {/* Luminous gradient aura directly around the artwork */}
-                  <div
-                    className="absolute inset-0 -m-6 sm:-m-8 rounded-full filter blur-2xl pointer-events-none opacity-80 transition-all duration-500"
-                    style={{
-                      background: `radial-gradient(circle at 50% 50%, ${focusTheme.glow} 0%, transparent 72%)`,
-                    }}
-                  />
-
-                  {/* Anatomical Model Stage — Substantially enlarged, responsive on phone and desktop */}
-                  <div className="relative w-full h-44 xs:h-52 sm:h-54 md:h-64 lg:h-60 xl:h-68 flex items-center justify-center z-10">
-                    <MedicalHeroVisual
-                      subjectId={activeFocusSubject.id}
-                      subjectName={activeFocusSubject.name}
-                      subjectColor={activeFocusSubject.color}
-                      topicId={activeFocusTopic.id}
-                      topicName={activeFocusTopic.name}
-                      className="w-full h-full"
-                    />
+                {/* Right side: Integrated 3D Anatomical Visual Stage */}
+                <div className="relative w-full sm:w-72 md:w-80 shrink-0 flex flex-col items-center justify-center pt-2 md:pt-0">
+                  {/* Floating Telemetry Pill Top */}
+                  <div className="mb-2 z-20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-[#BEE4DC] shadow-xs">
+                    <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+                    <span className="text-[11px] font-mono font-bold text-slate-700">72 bpm · Sinus Rhythm</span>
                   </div>
 
-                  {/* ECG Waveform & Contextual Live Metadata floating naturally underneath */}
-                  <div className={`w-full max-w-[260px] sm:max-w-[280px] mt-2 flex items-center justify-between gap-2 px-3 py-1.5 rounded-full bg-white/85 ${focusTheme.border} border shadow-2xs backdrop-blur-md relative z-10`}>
+                  {/* Circular Clinical Reasoning Watermark behind the Heart */}
+                  <div className="relative w-full h-52 sm:h-60 flex items-center justify-center">
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                      <svg viewBox="0 0 280 280" className="w-full h-full stroke-[#006B63] fill-none">
+                        <circle cx="140" cy="140" r="130" strokeDasharray="4 4" strokeWidth="1" strokeOpacity="0.25" />
+                        <circle cx="140" cy="140" r="105" strokeWidth="0.8" strokeOpacity="0.18" />
+                        {/* Upper arc text */}
+                        <path id="upper-reasoning-arc" d="M 35 140 A 105 105 0 0 1 245 140" fill="none" />
+                        <text className="text-[8px] font-mono font-bold tracking-[0.25em] fill-[#006B63] opacity-50">
+                          <textPath href="#upper-reasoning-arc" startOffset="50%" textAnchor="middle">
+                            CLINICAL REASONING
+                          </textPath>
+                        </text>
+                        {/* Lower arc text */}
+                        <path id="lower-reasoning-arc" d="M 245 140 A 105 105 0 0 1 35 140" fill="none" />
+                        <text className="text-[8px] font-mono font-bold tracking-[0.25em] fill-[#006B63] opacity-50">
+                          <textPath href="#lower-reasoning-arc" startOffset="50%" textAnchor="middle">
+                            BETTER OUTCOMES
+                          </textPath>
+                        </text>
+                        {/* Faint ECG lines & markers */}
+                        <path d="M 15 140 L 70 140 L 82 118 L 94 165 L 106 128 L 118 140 L 265 140" strokeWidth="1.2" strokeOpacity="0.2" />
+                        <text x="75" y="112" className="text-[9px] font-mono font-semibold fill-[#006B63] opacity-35">P</text>
+                        <text x="88" y="108" className="text-[9px] font-mono font-bold fill-[#006B63] opacity-45">R</text>
+                        <text x="96" y="176" className="text-[9px] font-mono font-semibold fill-[#006B63] opacity-35">QRS</text>
+                        <text x="122" y="132" className="text-[9px] font-mono font-semibold fill-[#006B63] opacity-35">T</text>
+                      </svg>
+                    </div>
+
+                    {/* 3D Anatomical Visual */}
+                    <div className="relative w-full h-full flex items-center justify-center z-10">
+                      <MedicalHeroVisual
+                        subjectId={activeFocusSubject.id}
+                        subjectName={activeFocusSubject.name}
+                        subjectColor={activeFocusSubject.color}
+                        topicId={activeFocusTopic.id}
+                        topicName={activeFocusTopic.name}
+                        className="w-full h-full"
+                      />
+                    </div>
+                  </div>
+
+                  {/* ECG Waveform & Contextual Live Metadata underneath */}
+                  <div className="w-full max-w-[240px] mt-2 flex items-center justify-between gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-[#BEE4DC] shadow-xs relative z-10">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="relative flex h-2 w-2 shrink-0">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 motion-reduce:hidden" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                      </span>
-                      <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 truncate">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+                      <span className="text-[10.5px] font-mono font-bold uppercase tracking-wider text-slate-700 truncate">
                         {activeFocusSubject.name}
                       </span>
                     </div>
 
                     {/* ECG SVG Waveform */}
-                    <div className="w-14 sm:w-16 h-3.5 flex items-center shrink-0">
-                      <svg viewBox="0 0 80 20" className="w-full h-full stroke-[#006B63] fill-none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M0 10 L25 10 L30 3 L35 17 L40 5 L45 12 L50 10 L80 10" />
+                    <div className="w-12 h-3.5 flex items-center shrink-0">
+                      <svg viewBox="0 0 60 18" className="w-full h-full stroke-[#006B63] fill-none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M0 9 L18 9 L22 3 L26 15 L30 5 L34 11 L38 9 L60 9" />
                       </svg>
                     </div>
 
-                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 tabular-nums shrink-0">
+                    <span className="text-[10.5px] font-semibold text-slate-400 shrink-0">
                       Live
                     </span>
-                  </div>
-                </div>
-
-                {/* Mobile Action Buttons (Mobile layout: cleanly anchored at bottom of card) */}
-                <div className="flex sm:hidden flex-col xs:flex-row items-center gap-2 pt-1 w-full relative z-10">
-                  <button
-                    type="button"
-                    onClick={startFocusSession}
-                    className="inline-flex items-center justify-center gap-2 w-full px-5 py-2.5 rounded-full text-xs font-bold bg-[#006B63] hover:bg-[#00524c] text-white shadow-sm active:scale-[0.98] transition-all cursor-pointer min-h-[44px]"
-                  >
-                    <Play className="h-3.5 w-3.5 fill-white" /> Start Session
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onSelectSubject(activeFocusSubject.id)}
-                    className="inline-flex items-center justify-center gap-2 w-full px-4.5 py-2.5 rounded-full text-xs font-semibold text-slate-700 bg-white/90 border border-slate-200/90 active:scale-[0.98] shadow-2xs transition-all cursor-pointer min-h-[44px]"
-                  >
-                    Subject Roadmap <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
-                  </button>
-                </div>
-              </div>
-            </motion.section>
-
-            {/* ── TODAY'S PLAN ── */}
-            <motion.section
-              initial={SECTION_ENTER(0.12, reducedMotion)}
-              animate={SECTION_SHOW}
-              transition={SECTION_TRANSITION(reducedMotion)}
-              className="space-y-3"
-            >
-              {/* Header */}
-              <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 sm:gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#006B63] shrink-0">
-                    <Calendar className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-bold text-slate-900">Today&apos;s Plan</h3>
-                    <p className="text-[11px] text-slate-500 truncate">
-                      Phase 3 — Exam Conditioning — initial plan from your onboarding.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0 self-start xs:self-auto">
-                  <span className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold bg-white border border-slate-200/80 text-slate-600">
-                    {learningContext.gtFrequencyLabel || 'Every 7 days • full GT'} ⌄
-                  </span>
-                </div>
-              </div>
-
-              {/* Tasks List */}
-              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] divide-y divide-slate-100 overflow-hidden">
-                {todayPlanTasks.length === 0 && dailyPlan.tasks.length === 0 && (
-                  <div className="p-5 text-sm text-slate-500 text-center">
-                    Add study data to generate your personalized plan.
-                  </div>
-                )}
-                {todayPlanTasks.map((task, index) => (
-                  <div
-                    key={task.id}
-                    className={`flex items-start sm:items-center justify-between gap-2 sm:gap-3 p-3 sm:p-4 transition-all ${
-                      index === 0
-                        ? 'bg-gradient-to-r from-rose-50/30 via-slate-50/20 to-white border-l-2 sm:border-l-3 border-l-rose-500'
-                        : 'hover:bg-slate-50/70'
-                    }`}
-                  >
-                    <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                      {/* Number Badge (1, 2, 3...) in soft circle */}
-                      <div
-                        className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full font-bold text-[11px] sm:text-xs flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${
-                          index === 0
-                            ? 'bg-rose-100 text-rose-700 ring-2 ring-rose-200/50 font-extrabold'
-                            : 'bg-slate-100 text-slate-600'
-                        }`}
-                      >
-                        {index + 1}
-                      </div>
-
-                      {/* Book icon */}
-                      <div
-                        className={`hidden sm:flex h-8 w-8 rounded-xl items-center justify-center shrink-0 ${
-                          index === 0
-                            ? 'bg-rose-50/90 border border-rose-100 text-rose-500'
-                            : 'bg-slate-50 border border-slate-100 text-slate-400'
-                        }`}
-                      >
-                        <BookOpen className="h-4 w-4" />
-                      </div>
-
-                      {/* Task Info with extra mobile breathing room and 2-line wrapping */}
-                      <div className="space-y-0.5 min-w-0 flex-1 pr-1 sm:pr-2">
-                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                          <span
-                            className={`text-[10px] font-bold uppercase tracking-wider font-mono ${
-                              index === 0 ? 'text-rose-600' : 'text-slate-600'
-                            }`}
-                          >
-                            {task.subjectName.toUpperCase()}
-                          </span>
-                          <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-teal-50 text-[#006B63] border border-teal-100">
-                            MCQ drill
-                          </span>
-                        </div>
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 leading-snug break-words">
-                          {task.topicName}
-                        </h4>
-                        <p className="text-[10px] sm:text-[11px] text-slate-500 truncate max-w-md">
-                          {task.reason}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Right side: Duration + Start Button + Menu */}
-                    <div className="flex items-center gap-1 sm:gap-2 shrink-0 self-center sm:self-auto">
-                      <div className="hidden sm:flex items-center gap-1 text-xs font-semibold text-slate-400 tabular-nums">
-                        <Clock className="h-3.5 w-3.5" />
-                        <span>{task.durationMinutes} min</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => onLaunchPracticeSession?.(task.subjectId, task.topicId, task.topicName)}
-                        className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#f43f5e] hover:bg-[#e11d48] shadow-xs active:scale-95 transition-all cursor-pointer min-h-[32px]"
-                      >
-                        <Play className="h-3 w-3 fill-white" /> Start
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onOpenAiCoach('concept', task.subjectId, task.topicName)}
-                        className="p-1 sm:p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                        title="Options"
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleSubTabChange('planner')}
-                className="w-full text-center text-xs font-semibold text-[#006B63] hover:underline py-1 transition-colors cursor-pointer"
-              >
-                Open full plan →
-              </button>
-            </motion.section>
-
-            {/* ── UP NEXT (Revision & Error Remediation) ── */}
-            <motion.section
-              initial={SECTION_ENTER(0.16, reducedMotion)}
-              animate={SECTION_SHOW}
-              transition={SECTION_TRANSITION(reducedMotion)}
-              className="space-y-3"
-            >
-              <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#006B63]">
-                  <Compass className="h-4 w-4" />
-                </div>
-                <h3 className="text-sm font-bold text-slate-900">Up Next</h3>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {/* Card 1: Revision (Mint/Green Visual Identity) */}
-                <div
-                  onClick={() => onNavigateTab('revision')}
-                  className="rounded-3xl bg-gradient-to-br from-white via-white to-emerald-50/30 border border-emerald-100/90 shadow-2xs p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:border-emerald-300 hover:shadow-xs active:scale-[0.99] transition-all duration-200 cursor-pointer group min-h-[64px]"
-                >
-                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <CheckCircle2 className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                        Revision
-                      </span>
-                      <span className="block text-[11px] sm:text-xs font-semibold text-emerald-800 mt-0.5">
-                        {hasRevisionDue ? `${dailyPlan.revisionDueCount} items due` : "You're all caught up!"}
-                      </span>
-                      <span className="block text-[10px] text-slate-400 mt-0.5 truncate">
-                        Review when new revision items appear.
-                      </span>
-                    </div>
-                  </div>
-                  <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                    <BookOpen className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-                  </div>
-                </div>
-
-                {/* Card 2: Error Remediation (Amber/Orange Visual Identity) */}
-                <div
-                  onClick={() => onNavigateTab('errors')}
-                  className="rounded-3xl bg-gradient-to-br from-white via-white to-amber-50/30 border border-amber-100/90 shadow-2xs p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:border-amber-300 hover:shadow-xs active:scale-[0.99] transition-all duration-200 cursor-pointer group min-h-[64px]"
-                >
-                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <Zap className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
-                        Error Remediation
-                      </span>
-                      <span className="block text-[11px] sm:text-xs font-semibold text-amber-800 mt-0.5">
-                        {errorsToReview ? `${dailyPlan.errorRemediationCount} errors to review` : "You're all caught up!"}
-                      </span>
-                      <span className="block text-[10px] text-slate-400 mt-0.5 truncate">
-                        Review when new errors appear.
-                      </span>
-                    </div>
-                  </div>
-                  <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                    <FileText className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
                   </div>
                 </div>
               </div>
@@ -1605,35 +1237,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* ══════════════ RIGHT COLUMN (lg:col-span-5) ══════════════ */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-5">
 
             {/* ── YOUR EXAM JOURNEY (Teal/Mint Identity) ── */}
             <motion.section
               initial={SECTION_ENTER(0.1, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-3xl bg-gradient-to-b from-white via-white to-teal-50/20 border border-teal-100/70 shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-md p-5 sm:p-6 space-y-4 transition-all duration-200"
+              className="rounded-[28px] bg-white border border-[#D5EAE3] shadow-[0_4px_20px_rgba(0,107,99,0.03)] p-5 sm:p-6 space-y-4"
             >
               {/* Card Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#006B63]">
+                  <div className="h-7 w-7 rounded-lg bg-[#E3F5F1] flex items-center justify-center text-[#006B63]">
                     <Compass className="h-4 w-4" />
                   </div>
-                  <h3 className="text-sm font-bold text-slate-900">Your Exam Journey</h3>
+                  <h3 className="text-sm font-bold text-[#0E322D]">Your Exam Journey</h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => onNavigateTab('progress')}
-                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer min-h-[32px] flex items-center"
+                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer flex items-center"
                 >
                   View details →
                 </button>
               </div>
 
               {/* Circular Gauge + Stats Block */}
-              <div className="flex items-center justify-between gap-3 sm:gap-4 pt-1 sm:pt-2">
-                {/* Circular Gauge (Apple Fitness/Health ring) */}
+              <div className="flex items-center justify-between gap-3 sm:gap-4 pt-1">
+                {/* Circular Gauge */}
                 <CircularCountdown
                   days={daysRemaining}
                   totalDays={90}
@@ -1641,7 +1273,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 />
 
                 {/* Right Stat Items */}
-                <div className="space-y-2.5 sm:space-y-3 flex-1 min-w-0">
+                <div className="space-y-2.5 flex-1 min-w-0">
                   {/* Target score */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5">
@@ -1668,9 +1300,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span className="text-slate-500 font-medium">Preparation Elapsed</span>
                       <span className="font-bold text-slate-800 tabular-nums">~ 16%</span>
                     </div>
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-[#E5F3F0] rounded-full overflow-hidden">
                       <motion.div
-                        className="h-full bg-gradient-to-r from-[#006B63] via-[#0D9488] to-[#10B981] rounded-full"
+                        className="h-full bg-[#00897B] rounded-full"
                         initial={reducedMotion ? false : { width: 0 }}
                         whileInView={{ width: '16%' }}
                         viewport={{ once: true }}
@@ -1681,36 +1313,36 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
               </div>
 
-              {/* Sprout Quote Box */}
-              <div className="rounded-2xl bg-teal-50/60 border border-teal-100/70 p-3 flex items-center gap-2.5">
+              {/* Quote Box */}
+              <div className="rounded-2xl bg-[#EFF8F6] border border-[#DEF0EB] p-2.5 px-3 flex items-center gap-2.5 mt-2">
                 <div className="h-6 w-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
                   <Sparkles className="h-3.5 w-3.5" />
                 </div>
-                <p className="text-xs font-medium text-[#18625a] italic leading-tight">
+                <p className="text-xs font-medium text-[#245C54] italic leading-tight">
                   &ldquo;A little progress each day adds up to big results.&rdquo;
                 </p>
               </div>
             </motion.section>
 
-            {/* ── YOUR STUDY STREAK (Subtle Warm/Orange Accent) ── */}
+            {/* ── YOUR STUDY STREAK ── */}
             <motion.section
               initial={SECTION_ENTER(0.14, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-3xl bg-gradient-to-b from-white via-white to-amber-50/20 border border-amber-100/70 shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-md p-5 sm:p-6 space-y-4 transition-all duration-200"
+              className="rounded-[28px] bg-white border border-[#D5EAE3] shadow-[0_4px_20px_rgba(0,107,99,0.03)] p-5 sm:p-6 space-y-4"
             >
               {/* Card Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500">
-                    <Flame className="h-4 w-4 fill-orange-500" />
+                  <div className="h-7 w-7 rounded-lg bg-orange-500/10 flex items-center justify-center text-[#E07018]">
+                    <Flame className="h-4 w-4 fill-[#E07018]" />
                   </div>
-                  <h3 className="text-sm font-bold text-slate-900">Your Study Streak</h3>
+                  <h3 className="text-sm font-bold text-[#0E322D]">Your Study Streak</h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleSubTabChange('planner')}
-                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer min-h-[32px] flex items-center"
+                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer flex items-center"
                 >
                   View calendar →
                 </button>
@@ -1720,15 +1352,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="grid grid-cols-7 gap-1 sm:gap-1.5 text-center">
                 {weekDays.map(({ dayName, dateNum, isCompleted, isToday }) => (
                   <div key={dayName} className="flex flex-col items-center gap-1 sm:gap-1.5">
-                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400">
+                    <span className="text-[10px] sm:text-[11px] font-medium text-[#719690]">
                       {dayName}
                     </span>
                     <div
                       className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all ${
-                        isCompleted
-                          ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-2xs ring-2 ring-emerald-500/20 font-bold'
-                          : 'bg-slate-50/70 border border-slate-100 text-slate-400 font-medium opacity-60'
-                      } ${isToday ? 'ring-2 ring-orange-500 ring-offset-2 font-black !opacity-100' : ''}`}
+                        isToday
+                          ? 'bg-[#00897B] text-white ring-2 ring-[#E07018] ring-offset-2 font-black shadow-xs'
+                          : isCompleted
+                          ? 'bg-[#00897B] text-white font-bold shadow-2xs'
+                          : 'text-slate-600 font-medium'
+                      }`}
                     >
                       {dateNum}
                     </div>
@@ -1737,247 +1371,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between pt-1 text-xs">
-                <div className="flex items-center gap-1.5 font-bold text-slate-700">
-                  <Flame className="h-4 w-4 text-orange-500 fill-orange-500" />
-                  <span>{currentStreak || 3} days this week</span>
-                </div>
-                <span className="text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60 text-[11px]">
-                  Keep it going! 🔥
-                </span>
+              <div className="flex items-center gap-2 pt-1 text-xs text-[#608B85]">
+                <Calendar className="h-3.5 w-3.5 text-[#5C948B] shrink-0" />
+                <span>Consistency compounds into confidence.</span>
               </div>
             </motion.section>
-
-            {/* ── YOUR PROGRESS (Dynamic Subject Bars with Contextual Accents) ── */}
-            <motion.section
-              initial={SECTION_ENTER(0.18, reducedMotion)}
-              animate={SECTION_SHOW}
-              transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-3xl bg-white border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-md p-5 sm:p-6 space-y-4 transition-all duration-200"
-            >
-              {/* Card Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#006B63]">
-                    <BarChart3 className="h-4 w-4" />
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-900">Your Progress</h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onNavigateTab('syllabus')}
-                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer min-h-[32px] flex items-center"
-                >
-                  View curriculum →
-                </button>
-              </div>
-
-              {/* Subject Rows */}
-              <div className="space-y-2.5 sm:space-y-3">
-                {subjectList.slice(0, 5).map((sub, idx) => {
-                  const visual = getContextualProgressStyle(sub.percentage, sub.statusText);
-                  const studyTimeApprox = sub.weightage ? `~${Math.max(1, Math.round(sub.weightage * 1.5))}h` : '~2h';
-
-                  return (
-                    <div
-                      key={sub.id}
-                      onClick={() => onSelectSubject(sub.id)}
-                      className="group p-2 sm:p-2.5 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer space-y-1.5"
-                    >
-                      <div className="flex items-center justify-between text-xs gap-1.5">
-                        <span className="font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
-                          {sub.name}
-                        </span>
-                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                          <span className="font-mono font-extrabold text-slate-900 tabular-nums">
-                            <AnimatedNumber value={sub.percentage} />%
-                          </span>
-                          <span className="font-mono text-[10px] text-slate-400">
-                            {studyTimeApprox} • {sub.weightage}m
-                          </span>
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${visual.badge}`}
-                          >
-                            <span className={`h-1.5 w-1.5 rounded-full ${visual.dot}`} />
-                            {visual.statusText}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Smooth Animated Progress Bar */}
-                      <div className={`w-full h-2 sm:h-2.5 ${visual.track || 'bg-slate-100'} rounded-full overflow-hidden`}>
-                        <motion.div
-                          className={`h-full rounded-full ${visual.bar}`}
-                          initial={reducedMotion ? false : { width: 0 }}
-                          whileInView={{ width: `${Math.max(sub.percentage, 4)}%` }}
-                          viewport={{ once: true }}
-                          transition={
-                            reducedMotion
-                              ? { duration: 0 }
-                              : { duration: 0.75, delay: idx * 0.04, ease: [0.16, 1, 0.3, 1] }
-                          }
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* View all subjects action */}
-              <div className="pt-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => onNavigateTab('syllabus')}
-                  className="w-full text-center text-xs font-semibold text-[#006B63] hover:underline py-1 transition-colors cursor-pointer flex items-center justify-center gap-1 min-h-[36px]"
-                >
-                  View all subjects →
-                </button>
-              </div>
-            </motion.section>
-
-            {/* ── MOTIVATIONAL QUOTE CARD ── */}
-            <div className="rounded-3xl bg-gradient-to-br from-sky-50 via-teal-50/60 to-emerald-50 border border-teal-100/70 p-5 relative overflow-hidden">
-              <div className="relative z-10 space-y-1">
-                <span className="text-3xl font-serif text-[#006B63]/40 leading-none block select-none">
-                  &ldquo;
-                </span>
-                <p className="text-sm font-extrabold text-slate-900 leading-tight">
-                  Better preparation.
-                </p>
-                <p className="text-sm font-extrabold text-[#006B63] leading-tight">
-                  A brighter tomorrow.
-                </p>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono block pt-1">
-                  ONE SHOT FMGE
-                </span>
-              </div>
-              {/* Subtle mountain graphic on bottom right */}
-              <div className="absolute right-2 bottom-0 pointer-events-none opacity-30">
-                <svg width="100" height="55" viewBox="0 0 100 55" fill="none">
-                  <path d="M10 55L45 15L60 30L90 55H10Z" fill="#0d9488" />
-                  <path d="M40 55L70 20L95 50L100 55H40Z" fill="#0284c7" />
-                </svg>
-              </div>
-            </div>
 
           </div>
         </div>
-
-        {/* ── EXPLORE OTHER HIGH-YIELD SUBJECTS ── */}
-        <motion.section
-          initial={SECTION_ENTER(0.2, reducedMotion)}
-          animate={SECTION_SHOW}
-          transition={SECTION_TRANSITION(reducedMotion)}
-          className="space-y-4 pt-2"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-xl bg-teal-500/10 flex items-center justify-center text-[#006B63] shrink-0">
-                <Flame className="h-4.5 w-4.5 fill-[#006B63] text-[#006B63]" />
-              </div>
-              <div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 font-['Outfit'] leading-tight">
-                  Explore Other High-Yield Subjects
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Curated 3D anatomical models and clinical blueprints weighted by NBE exam pattern
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => onNavigateTab('syllabus')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#006B63] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
-            >
-              View all 19 subjects <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          {/* Grid of Subject Cards — Perfectly Scaled, Soft Specialty Gradients & Fully Responsive Across Mobile and Desktop */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3 lg:gap-3.5">
-            {subjectList.map((sub) => {
-              const isCurrent = sub.id === activeFocusSubject.id;
-              const hyCount = sub.topics.filter((t) => t.isHighYield).length;
-              const theme = SUBJECT_CARD_THEMES[sub.id] || DEFAULT_CARD_THEME;
-
-              return (
-                <div
-                  key={sub.id}
-                  onClick={() => {
-                    setSelectedFilterSubjectId(sub.id);
-                    onSelectSubject(sub.id);
-                  }}
-                  className={`group relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col justify-between transition-all duration-200 cursor-pointer border bg-gradient-to-b ${theme.bg} ${
-                    isCurrent
-                      ? 'border-[#006B63] shadow-md ring-2 ring-[#006B63]/25'
-                      : `${theme.border} shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5`
-                  } active:scale-[0.98]`}
-                >
-                  {/* Weightage Badge top right */}
-                  <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20">
-                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold border shadow-2xs backdrop-blur-xs ${theme.badge}`}>
-                      {sub.weightage}m
-                    </span>
-                  </div>
-
-                  {/* 3D Medical Artwork Stage with soft radial backdrop glow matching theme */}
-                  <div className="relative w-full h-18 sm:h-20 md:h-20 lg:h-20 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1 sm:p-1.5 group-hover:scale-105 transition-transform duration-300 ease-out">
-                    <div
-                      className="absolute inset-0 filter blur-sm pointer-events-none rounded-full"
-                      style={{
-                        background: `radial-gradient(circle at 50% 55%, ${theme.glow} 0%, transparent 72%)`,
-                      }}
-                    />
-                    <div className="relative w-full h-full flex items-center justify-center z-10">
-                      <MedicalSubjectCardVisual subjectId={sub.id} />
-                    </div>
-                  </div>
-
-                  {/* Content & Metadata */}
-                  <div className="mt-1.5 sm:mt-2 pt-0.5 space-y-1">
-                    <div className="flex items-start justify-between gap-1">
-                      <div className="min-w-0 flex-1">
-                        <h4
-                          className="text-[11px] sm:text-xs md:text-[13px] font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate"
-                          title={sub.name}
-                        >
-                          {sub.name}
-                        </h4>
-                        <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">
-                          {hyCount} High-yield
-                        </p>
-                      </div>
-
-                      {/* Reference Mockup Arrow Action Circle */}
-                      <div
-                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5 ${
-                          isCurrent
-                            ? 'bg-[#006B63] text-white shadow-xs'
-                            : `bg-white/80 ${theme.arrowText} border border-slate-200/70 shadow-2xs ${theme.arrowBg}`
-                        }`}
-                      >
-                        <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                      </div>
-                    </div>
-
-                    {/* Micro Progress Bar */}
-                    <div className="flex items-center gap-1.5 pt-0.5">
-                      <div className="flex-1 h-1 sm:h-1.5 bg-slate-200/60 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-[#006B63] to-[#10B981] rounded-full transition-all duration-300"
-                          style={{ width: `${Math.max(sub.percentage, 4)}%` }}
-                        />
-                      </div>
-                      <span className="font-mono text-[9px] sm:text-[10px] font-semibold text-slate-600 tabular-nums shrink-0">
-                        {sub.percentage}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </motion.section>
       </div>
 
       {/* Topic Mastery Workspace Modal */}

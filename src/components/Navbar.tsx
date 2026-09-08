@@ -237,99 +237,71 @@ function AmbientMedicalMotif() {
               <stop offset="45%" stopColor="#F59E0B" stopOpacity="0.25" />
               <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
             </radialGradient>
-
-            {/* Caduceus gold finial glow */}
-            <radialGradient id="caduceus-finial-glow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#FBBF24" stopOpacity="0.9" />
-              <stop offset="60%" stopColor="#006B63" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#006B63" stopOpacity="0" />
-            </radialGradient>
           </defs>
 
-          {/* Background gentle acoustic resonance arcs filling upper space */}
-          <motion.path
-            d="M 16 45 C 50 60, 85 95, 125 145"
-            stroke="#006B63"
-            strokeWidth="0.85"
-            strokeOpacity="0.12"
-            fill="none"
-            animate={reducedMotion ? undefined : { strokeOpacity: [0.08, 0.18, 0.08] }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.path
-            d="M 38 48 C 72 68, 105 110, 140 155"
-            stroke="#006B63"
-            strokeWidth="0.7"
-            strokeOpacity="0.08"
-            fill="none"
-            animate={reducedMotion ? undefined : { strokeOpacity: [0.05, 0.14, 0.05] }}
-            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
-          />
-
-          {/* Tall Grand Caduceus line-art motif rising gracefully with breathing aura */}
+          {/* Anatomical Heart & Coronary Network Line-Art Watermark */}
           <motion.g
             stroke="#006B63"
-            strokeOpacity="0.18"
+            strokeOpacity="0.16"
+            strokeWidth="1.25"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             fill="none"
             animate={reducedMotion ? undefined : { opacity: [0.85, 1, 0.85] }}
-            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
           >
-            {/* Central staff with top finial */}
-            <line x1="172" y1="16" x2="172" y2="165" strokeWidth="1.8" strokeLinecap="round" />
-            {/* Radiant Star at top finial */}
-            <circle cx="172" cy="14" r="5" fill="url(#caduceus-finial-glow)" />
-            <circle cx="172" cy="14" r="2.2" fill="#F59E0B" />
+            {/* Aortic Arch & Brachiocephalic branches */}
+            <path d="M 130 50 C 130 30, 154 18, 172 24 C 185 28, 192 42, 188 56" strokeWidth="1.4" />
+            <line x1="142" y1="24" x2="142" y2="10" strokeWidth="1.3" />
+            <line x1="156" y1="21" x2="159" y2="8" strokeWidth="1.3" />
+            <line x1="170" y1="23" x2="177" y2="12" strokeWidth="1.3" />
 
-            {/* Symmetrical wings with gentle lift */}
-            <motion.path
-              d="M 172 30 C 152 14, 128 18, 120 30 C 136 36, 154 32, 172 40"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              animate={reducedMotion ? undefined : { d: [
-                "M 172 30 C 152 14, 128 18, 120 30 C 136 36, 154 32, 172 40",
-                "M 172 29 C 150 12, 126 17, 118 29 C 135 35, 153 31, 172 39",
-                "M 172 30 C 152 14, 128 18, 120 30 C 136 36, 154 32, 172 40",
-              ] }}
-              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <motion.path
-              d="M 172 30 C 192 14, 216 18, 224 30 C 208 36, 190 32, 172 40"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              animate={reducedMotion ? undefined : { d: [
-                "M 172 30 C 192 14, 216 18, 224 30 C 208 36, 190 32, 172 40",
-                "M 172 29 C 194 12, 218 17, 226 29 C 209 35, 191 31, 172 39",
-                "M 172 30 C 192 14, 216 18, 224 30 C 208 36, 190 32, 172 40",
-              ] }}
-              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            {/* Pulmonary Trunk & Artery branches */}
+            <path d="M 115 56 C 110 42, 124 32, 136 38" strokeWidth="1.3" />
+            <path d="M 188 52 C 198 56, 208 66, 205 82" strokeWidth="1.3" />
+
+            {/* Cardiac Muscle Silhouette & Ventricular Apex */}
+            <path
+              d="M 128 50 C 102 65, 86 92, 90 122 C 94 154, 122 186, 146 205 C 154 210, 162 205, 170 195 C 190 172, 215 138, 210 98 C 206 70, 190 52, 174 50"
+              strokeWidth="1.5"
             />
 
-            {/* Coiled Serpents */}
-            <path
-              d="M 172 38 C 146 48, 146 66, 172 76 C 198 86, 198 104, 172 114 C 146 124, 146 142, 172 152"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-            <path
-              d="M 172 38 C 198 48, 198 66, 172 76 C 146 86, 146 104, 172 114 C 198 124, 198 142, 172 152"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
+            {/* Anterior Interventricular Sulcus & Coronary Arteries network */}
+            <path d="M 150 58 C 144 82, 142 116, 150 156 C 154 174, 152 192, 148 202" strokeDasharray="3.5 2.5" />
+            <path d="M 144 88 C 130 98, 114 108, 108 126" />
+            <path d="M 116 114 C 106 128, 104 144, 108 158" />
+            <path d="M 148 120 C 160 130, 176 138, 190 144" />
+            <path d="M 162 134 C 168 148, 178 162, 176 178" />
+
+            {/* Vascular branch nodes */}
+            <circle cx="108" cy="126" r="1.5" fill="#006B63" fillOpacity="0.25" />
+            <circle cx="108" cy="158" r="1.5" fill="#006B63" fillOpacity="0.25" />
+            <circle cx="190" cy="144" r="1.5" fill="#006B63" fillOpacity="0.25" />
+            <circle cx="176" cy="178" r="1.5" fill="#006B63" fillOpacity="0.25" />
           </motion.g>
 
-          {/* Clinical Waveform Rhythm — tall, resonant baseline curve */}
+          {/* Clinical Waveform Rhythm traversing horizontally */}
           <path
             id="ecg-track-path"
-            d="M 10 135
-               L 34 135
-               C 40 135, 46 95, 52 95
-               C 58 95, 64 170, 70 170
-               C 76 170, 81 118, 86 118
-               C 91 118, 96 148, 101 148
-               C 108 148, 114 96, 122 96
-               C 130 96, 138 132, 148 132
-               C 158 132, 168 120, 176 122
-               C 194 126, 212 155, 230 185"
+            d="M 6 138
+               L 36 138
+               L 42 130
+               L 48 138
+               L 56 138
+               L 62 108
+               L 68 168
+               L 74 125
+               L 80 146
+               L 86 138
+               L 112 138
+               L 118 128
+               L 126 138
+               L 150 138
+               L 156 120
+               L 162 152
+               L 168 134
+               L 174 138
+               L 234 138"
             stroke="url(#ecg-line-gradient)"
             strokeWidth="2.2"
             strokeLinecap="round"
@@ -341,16 +313,25 @@ function AmbientMedicalMotif() {
           {/* Animated Sweeping Pulse Beam over the ECG Path */}
           {!reducedMotion && (
             <motion.path
-              d="M 10 135
-                 L 34 135
-                 C 40 135, 46 95, 52 95
-                 C 58 95, 64 170, 70 170
-                 C 76 170, 81 118, 86 118
-                 C 91 118, 96 148, 101 148
-                 C 108 148, 114 96, 122 96
-                 C 130 96, 138 132, 148 132
-                 C 158 132, 168 120, 176 122
-                 C 194 126, 212 155, 230 185"
+              d="M 6 138
+                 L 36 138
+                 L 42 130
+                 L 48 138
+                 L 56 138
+                 L 62 108
+                 L 68 168
+                 L 74 125
+                 L 80 146
+                 L 86 138
+                 L 112 138
+                 L 118 128
+                 L 126 138
+                 L 150 138
+                 L 156 120
+                 L 162 152
+                 L 168 134
+                 L 174 138
+                 L 234 138"
               stroke="#FDE68A"
               strokeWidth="2.6"
               strokeLinecap="round"
@@ -361,18 +342,18 @@ function AmbientMedicalMotif() {
             />
           )}
 
-          {/* Concentric Cardiac Ripple Waves around Gold Node (cx=176, cy=122) */}
+          {/* Concentric Cardiac Ripple Waves around Gold Node (cx=174, cy=138) */}
           {!reducedMotion && (
             <>
               <motion.circle
-                cx="176"
-                cy="122"
-                r="9"
+                cx="174"
+                cy="138"
+                r="8"
                 stroke="#F59E0B"
                 strokeWidth="1.2"
                 fill="none"
                 animate={{
-                  scale: [1, 2.6],
+                  scale: [1, 2.5],
                   opacity: [0.7, 0],
                 }}
                 transition={{
@@ -382,14 +363,14 @@ function AmbientMedicalMotif() {
                 }}
               />
               <motion.circle
-                cx="176"
-                cy="122"
-                r="14"
+                cx="174"
+                cy="138"
+                r="13"
                 stroke="#006B63"
                 strokeWidth="1"
                 fill="none"
                 animate={{
-                  scale: [1, 2.2],
+                  scale: [1, 2.1],
                   opacity: [0.5, 0],
                 }}
                 transition={{
@@ -402,23 +383,23 @@ function AmbientMedicalMotif() {
             </>
           )}
 
-          {/* Luminous Gold Accent Node sitting at wave crest (cx=176, cy=122) */}
+          {/* Luminous Gold Accent Node sitting at wave crest */}
           <motion.circle
-            cx="176"
-            cy="122"
-            r="20"
+            cx="174"
+            cy="138"
+            r="16"
             fill="url(#pulse-aura-grad)"
             animate={reducedMotion ? undefined : { scale: [1, 1.25, 1], opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
           />
-          <circle cx="176" cy="122" r="8.5" fill="#F59E0B" />
-          <circle cx="176" cy="122" r="4.2" fill="#D97706" />
-          <circle cx="176" cy="122" r="2" fill="#FFFDF5" />
+          <circle cx="174" cy="138" r="6.5" fill="#F59E0B" />
+          <circle cx="174" cy="138" r="3.2" fill="#D97706" />
+          <circle cx="174" cy="138" r="1.5" fill="#FFFDF5" />
         </svg>
       </div>
 
       {/* Doctor Progression & Creed subtle block */}
-      <div className="mt-[-14px] pl-2.5 z-10 relative space-y-2">
+      <div className="mt-[-10px] pl-2.5 z-10 relative space-y-2">
         <div className="space-y-0.5 opacity-40 hover:opacity-75 transition-opacity">
           <p className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#006B63] uppercase leading-none">
             LEARN
@@ -437,7 +418,7 @@ function AmbientMedicalMotif() {
           </p>
         </div>
 
-        {/* Brand Tagline in 2 lines with refined Newsreader editorial typography */}
+        {/* Brand Tagline in 2 lines with refined typography */}
         <div className="pt-1">
           <p className="font-['Newsreader',_serif] italic text-[15px] leading-[1.25] text-[#006B63] font-semibold tracking-tight">
             Better Doctors.
@@ -547,12 +528,12 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 {active && !reducedMotion && (
                   <motion.div
                     layoutId="sidebar-active-pill"
-                    className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#E6F4F1] to-[#EDF8F6]"
+                    className="absolute inset-0 rounded-2xl bg-[#D8F1EB]"
                     transition={EASE_SPRING}
                   />
                 )}
                 {active && reducedMotion && (
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#E6F4F1] to-[#EDF8F6]" />
+                  <div className="absolute inset-0 rounded-2xl bg-[#D8F1EB]" />
                 )}
 
                 <button
@@ -561,7 +542,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   aria-current={active ? 'page' : undefined}
                   className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-all duration-150 cursor-pointer active:scale-[0.98] ${
                     active
-                      ? 'text-[#006B63] font-semibold'
+                      ? 'text-[#006B63] font-bold'
                       : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-slate-50/80'
                   }`}
                 >
@@ -599,12 +580,12 @@ export const SidebarDock: React.FC<NavbarProps> = ({
               {isSecondaryActive && !reducedMotion && (
                 <motion.div
                   layoutId="sidebar-active-pill"
-                  className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#E6F4F1] to-[#EDF8F6]"
+                  className="absolute inset-0 rounded-2xl bg-[#D8F1EB]"
                   transition={EASE_SPRING}
                 />
               )}
               {isSecondaryActive && reducedMotion && (
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#E6F4F1] to-[#EDF8F6]" />
+                <div className="absolute inset-0 rounded-2xl bg-[#D8F1EB]" />
               )}
 
               <button
@@ -615,7 +596,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 aria-label="More utilities"
                 className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-all duration-150 cursor-pointer active:scale-[0.98] ${
                   isSecondaryActive || isMoreMenuOpen
-                    ? 'text-[#006B63] font-semibold bg-[#E8F5F3]'
+                    ? 'text-[#006B63] font-bold bg-[#D8F1EB]'
                     : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-slate-50/80'
                 }`}
               >
@@ -629,7 +610,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   >
                     <MoreHorizontal className="h-4 w-4 stroke-[2]" />
                   </div>
-                  <span>More</span>
+                  <span>... More</span>
                 </div>
                 <ChevronRight
                   className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
