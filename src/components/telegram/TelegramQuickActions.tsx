@@ -25,12 +25,12 @@ export const TelegramQuickActions: React.FC<TelegramQuickActionsProps> = ({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5">
         {/* Action 1: Search */}
         <button
           type="button"
           onClick={onSearchFocus}
-          className="rounded-2xl border border-stone-200/90 bg-white p-4 text-left shadow-2xs hover:border-stone-300 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between group"
+          className="h-full rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-4.5 text-left shadow-2xs hover:border-stone-300 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#00685f] border border-teal-100/70 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -52,7 +52,7 @@ export const TelegramQuickActions: React.FC<TelegramQuickActionsProps> = ({
         <button
           type="button"
           onClick={onGoToSaved}
-          className="rounded-2xl border border-stone-200/90 bg-white p-4 text-left shadow-2xs hover:border-stone-300 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between group"
+          className="h-full rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-4.5 text-left shadow-2xs hover:border-stone-300 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 border border-sky-100/70 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -74,7 +74,7 @@ export const TelegramQuickActions: React.FC<TelegramQuickActionsProps> = ({
         <button
           type="button"
           onClick={onGoToCrossChecks}
-          className="rounded-2xl border border-stone-200/90 bg-white p-4 text-left shadow-2xs hover:border-stone-300 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between group"
+          className="h-full rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-4.5 text-left shadow-2xs hover:border-stone-300 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 border border-purple-100/70 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -96,7 +96,7 @@ export const TelegramQuickActions: React.FC<TelegramQuickActionsProps> = ({
         <button
           type="button"
           onClick={onGoToSources}
-          className="rounded-2xl border border-stone-200/90 bg-white p-4 text-left shadow-2xs hover:border-stone-300 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between group"
+          className="h-full rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-4.5 text-left shadow-2xs hover:border-stone-300 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100/70 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">

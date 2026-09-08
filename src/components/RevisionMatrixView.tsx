@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   BookOpen,
   Zap,
@@ -789,8 +790,9 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
       </div>
 
       {/* ================= 6. REVISION CALENDAR MODAL ================= */}
-      {isCalendarModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+      {isCalendarModalOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="p-5 border-b border-slate-100 flex items-center justify-between">
@@ -864,7 +866,8 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

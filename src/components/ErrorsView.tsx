@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Plus,
   Trash2,
@@ -1344,8 +1345,9 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
 
       {/* ================= 5. MODALS PRESERVED ================= */}
       {/* Log Mistake Modal */}
-      {showAddErrorModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      {showAddErrorModal &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h2 className="text-xl font-semibold font-display text-slate-900">
@@ -1446,12 +1448,13 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                   type="submit"
                   className="px-5 py-2 rounded-full bg-slate-900 text-white text-xs font-semibold font-display hover:bg-slate-800 cursor-pointer shadow-xs"
                 >
-                  Save Mistake
+                  Save Error Note
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Full Concept Remediation Package Modal */}

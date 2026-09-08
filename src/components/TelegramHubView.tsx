@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import {
   RefreshCw,
   Search,
@@ -48,6 +49,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { motion } from "motion/react";
 import { enrichClinicalQuestion } from "../utils/clinicalDistractorHelper";
 import {
   TelegramMCQ,
@@ -918,44 +920,349 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-fadeIn pb-56 sm:pb-40 lg:pb-16 font-['Plus_Jakarta_Sans'] max-w-7xl mx-auto w-full min-w-0 max-w-full overflow-x-clip">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6 sm:space-y-8 animate-fadeIn pb-56 sm:pb-40 lg:pb-16 font-['Plus_Jakarta_Sans'] min-w-0 max-w-full overflow-x-clip">
       {/* ========================================================================= */}
-      {/* 1. TOP BREADCRUMB & EDITORIAL HEADER */}
+      {/* 1. TOP BREADCRUMB & EDITORIAL HERO HEADER */}
       {/* ========================================================================= */}
       <div className="space-y-3">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
-          <span>More</span>
-          <span>›</span>
-          <span className="text-slate-700">Telegram Knowledge Bank</span>
-        </div>
-
-        {/* Editorial Header + Quote Card */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
-              Telegram Knowledge Bank
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium">
-              Curated. Organized. Exam-focused. Powered by your community.
-            </p>
+        {/* Breadcrumb Navigation */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider font-mono">
+            <span className="text-stone-500">UTILITIES</span>
+            <span className="text-stone-400">•</span>
+            <span className="text-[#006B63] font-bold">COMMUNITY KNOWLEDGE HUB</span>
           </div>
 
-          {/* Desktop/Tablet Quote Card */}
-          <div className="rounded-2xl bg-[#ECF7F5]/90 border border-[#cbebe5] p-3.5 sm:p-4 max-w-md flex items-start gap-3 shadow-2xs">
-            <div className="font-serif text-3xl text-[#00685f] leading-none select-none">
-              “
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-teal-50 text-teal-800 border border-teal-200">
+              <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-teal-500'}`} />
+              {isConnected ? 'MTProto Live Synced' : 'Community Feed Active'}
+            </span>
+          </div>
+        </div>
+
+        {/* Hero Header Card with Motion & Visual Animations */}
+        <motion.header
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          className="relative overflow-hidden rounded-3xl border border-sky-200/60 bg-gradient-to-br from-[#EFF8FC] via-[#FAFDFE] via-45% to-[#E6F3FA] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+        >
+          {/* Dynamic Animated Ambient Effects */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+            {/* Luminous system theme top border shimmer track */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-sky-500/25 to-transparent" />
+              <motion.div
+                animate={{ x: ['-100%', '300%'] }}
+                transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.0 }}
+                className="w-48 sm:w-72 h-full bg-gradient-to-r from-transparent via-sky-400 to-transparent shadow-[0_0_14px_#38bdf8]"
+              />
             </div>
-            <div className="space-y-1">
-              <p className="font-serif italic text-xs sm:text-sm text-slate-800 leading-snug">
-                Good resources don't just inform you, they stay with you.
+
+            {/* Subtle bottom border gradient luster */}
+            <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-sky-500/20 to-transparent" />
+
+            {/* Soft glowing corner radial gradient orbs with breathing motion */}
+            <motion.div
+              animate={{
+                scale: [1, 1.18, 1],
+                opacity: [0.35, 0.6, 0.35],
+                x: [0, 16, 0],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-sky-400/35 via-teal-200/25 to-transparent blur-3xl"
+            />
+            <motion.div
+              animate={{
+                scale: [1.1, 1, 1.1],
+                opacity: [0.2, 0.4, 0.2],
+                y: [0, -10, 0],
+              }}
+              transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -bottom-16 -left-12 h-60 w-60 rounded-full bg-gradient-to-tr from-cyan-300/25 via-sky-100/20 to-transparent blur-3xl"
+            />
+
+            {/* Subtle Community Matrix Grid */}
+            <svg
+              className="absolute inset-0 h-full w-full opacity-[0.035] text-sky-950 pointer-events-none select-none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <pattern id="tg-hero-grid" width="28" height="28" patternUnits="userSpaceOnUse">
+                  <path d="M 28 0 L 0 0 0 28" fill="none" stroke="currentColor" strokeWidth="0.75" />
+                  <circle cx="28" cy="28" r="0.75" fill="currentColor" opacity="0.6" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#tg-hero-grid)" />
+            </svg>
+
+          {/* Premium Global Satellite Observatory & Cosmic Telemetry Artwork */}
+          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[520px] overflow-hidden opacity-45 sm:opacity-60 md:opacity-[0.72] select-none pointer-events-none block">
+            <svg viewBox="0 0 520 145" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
+              <defs>
+                <linearGradient id="tg-earth-limb" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#0369A1" stopOpacity="0.85" />
+                  <stop offset="50%" stopColor="#0284C7" stopOpacity="0.75" />
+                  <stop offset="100%" stopColor="#0F172A" stopOpacity="0.95" />
+                </linearGradient>
+                <linearGradient id="tg-dish-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FFFFFF" />
+                  <stop offset="50%" stopColor="#BAE6FD" />
+                  <stop offset="100%" stopColor="#0284C7" />
+                </linearGradient>
+                <linearGradient id="tg-satellite-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#38BDF8" />
+                  <stop offset="100%" stopColor="#14B8A6" />
+                </linearGradient>
+                <radialGradient id="tg-atmosphere-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.5" />
+                  <stop offset="50%" stopColor="#0284C7" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#0284C7" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              {/* Distant Cosmos Nebula Glow */}
+              <motion.circle
+                cx="420"
+                cy="50"
+                r="65"
+                fill="url(#tg-atmosphere-glow)"
+                animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              {/* Twinkling Constellation Stars */}
+              <g fill="#E0F2FE">
+                <motion.circle cx="240" cy="25" r="1.4" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 2.8, repeat: Infinity }} />
+                <motion.circle cx="285" cy="18" r="1.2" animate={{ opacity: [0.2, 0.9, 0.2] }} transition={{ duration: 3.4, repeat: Infinity, delay: 0.6 }} />
+                <motion.circle cx="330" cy="32" r="1.5" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.2, repeat: Infinity, delay: 1.1 }} />
+                <motion.circle cx="470" cy="22" r="1.3" animate={{ opacity: [0.2, 0.85, 0.2] }} transition={{ duration: 3.1, repeat: Infinity, delay: 0.4 }} />
+                <motion.circle cx="505" cy="38" r="1.1" animate={{ opacity: [0.3, 0.9, 0.3] }} transition={{ duration: 2.5, repeat: Infinity, delay: 1.5 }} />
+                {/* Subtle Constellation Vector Links */}
+                <line x1="240" y1="25" x2="285" y2="18" stroke="#38BDF8" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.4" />
+                <line x1="285" y1="18" x2="330" y2="32" stroke="#38BDF8" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.4" />
+              </g>
+
+              {/* ═══ 1. CURVING PLANET EARTH ATMOSPHERIC LIMB ═══ */}
+              <path
+                d="M 120 145 C 240 105, 380 92, 520 102 L 520 145 Z"
+                fill="url(#tg-earth-limb)"
+              />
+              {/* Luminous Atmospheric Edge Aura */}
+              <path
+                d="M 120 145 C 240 105, 380 92, 520 102"
+                stroke="#38BDF8"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                opacity="0.85"
+              />
+              <path
+                d="M 120 145 C 240 105, 380 92, 520 102"
+                stroke="#7DD3FC"
+                strokeWidth="5"
+                strokeLinecap="round"
+                opacity="0.3"
+              />
+
+              {/* Terrestrial City Light Nodes along Horizon */}
+              <circle cx="260" cy="115" r="1.8" fill="#FDE047" opacity="0.8" />
+              <circle cx="340" cy="103" r="2.0" fill="#FDE047" opacity="0.9" />
+              <circle cx="410" cy="101" r="2.2" fill="#FDE047" opacity="0.85" />
+              <circle cx="460" cy="106" r="1.8" fill="#FDE047" opacity="0.75" />
+
+              {/* ═══ 2. HILLTOP OBSERVATORY DOME & PARABOLIC DISH ═══ */}
+              {/* Observatory Hill Silhouette */}
+              <path
+                d="M 320 145 C 360 110, 420 105, 480 145 Z"
+                fill="#0F172A"
+                opacity="0.9"
+              />
+
+              {/* Classical Astronomical Observatory Dome at (380, 112) */}
+              <g transform="translate(380, 112)">
+                {/* Cylindrical Base */}
+                <rect x="-14" y="0" width="28" height="16" fill="#1E293B" stroke="#38BDF8" strokeWidth="0.8" />
+                {/* Hemispherical Dome */}
+                <path d="M -14 0 A 14 14 0 0 1 14 0 Z" fill="#0284C7" stroke="#BAE6FD" strokeWidth="0.8" />
+                {/* Telescopic Observation Slit */}
+                <rect x="-3" y="-12" width="6" height="12" fill="#0F172A" />
+                <motion.line
+                  x1="0"
+                  y1="-10"
+                  x2="0"
+                  y2="0"
+                  stroke="#38BDF8"
+                  strokeWidth="1.2"
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 2.5, repeat: Infinity }}
+                />
+              </g>
+
+              {/* Large Deep-Space Parabolic Dish Antenna at (435, 105) */}
+              <g transform="translate(435, 105) rotate(-28)">
+                {/* Pylon Mount Stanchion */}
+                <path d="M -4 25 L 4 25 L 2 5 L -2 5 Z" fill="#334155" />
+                {/* Parabolic Reflector Dish Shell */}
+                <path
+                  d="M -26 0 C -18 16, 18 16, 26 0 C 18 6, -18 6, -26 0 Z"
+                  fill="url(#tg-dish-grad)"
+                  stroke="#0284C7"
+                  strokeWidth="1"
+                />
+                {/* Central Sub-reflector Feed Horn */}
+                <line x1="0" y1="8" x2="0" y2="-12" stroke="#0F172A" strokeWidth="1.5" />
+                <circle cx="0" cy="-12" r="3" fill="#38BDF8" />
+
+                {/* Radiating Microwave Transmission Wavefronts */}
+                <motion.path
+                  d="M -16 -18 C -8 -26, 8 -26, 16 -18"
+                  stroke="#38BDF8"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  fill="none"
+                  animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut' }}
+                />
+                <motion.path
+                  d="M -16 -18 C -8 -26, 8 -26, 16 -18"
+                  stroke="#7DD3FC"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  fill="none"
+                  animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut', delay: 0.7 }}
+                />
+              </g>
+
+              {/* ═══ 3. GLIDING ORBITAL SATELLITE WITH SOLAR PANELS ═══ */}
+              <motion.g
+                animate={{
+                  x: [0, 220],
+                  y: [0, -16],
+                }}
+                transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
+              >
+                <g transform="translate(180, 42) rotate(15)">
+                  {/* Central Satellite Body Bus */}
+                  <rect x="-7" y="-5" width="14" height="10" rx="1.5" fill="#E0F2FE" stroke="#0284C7" strokeWidth="0.8" />
+                  {/* Left Solar Panel Array Wing */}
+                  <rect x="-26" y="-6" width="16" height="12" rx="1" fill="#0369A1" stroke="#38BDF8" strokeWidth="0.7" />
+                  <line x1="-18" y1="-6" x2="-18" y2="6" stroke="#38BDF8" strokeWidth="0.5" />
+                  <line x1="-10" y1="-1" x2="-26" y2="-1" stroke="#38BDF8" strokeWidth="0.5" />
+                  <line x1="-10" y1="2" x2="-26" y2="2" stroke="#38BDF8" strokeWidth="0.5" />
+                  {/* Right Solar Panel Array Wing */}
+                  <rect x="10" y="-6" width="16" height="12" rx="1" fill="#0369A1" stroke="#38BDF8" strokeWidth="0.7" />
+                  <line x1="18" y1="-6" x2="18" y2="6" stroke="#38BDF8" strokeWidth="0.5" />
+                  <line x1="10" y1="-1" x2="26" y2="-1" stroke="#38BDF8" strokeWidth="0.5" />
+                  <line x1="10" y1="2" x2="26" y2="2" stroke="#38BDF8" strokeWidth="0.5" />
+                  {/* Telemetry Sensor Antenna */}
+                  <line x1="0" y1="5" x2="0" y2="12" stroke="#38BDF8" strokeWidth="1" />
+                  <circle cx="0" cy="12" r="1.5" fill="#34D399" />
+                  {/* Pulsing Beacon Light */}
+                  <motion.circle
+                    cx="0"
+                    cy="0"
+                    r="3.5"
+                    fill="#38BDF8"
+                    animate={{ scale: [1, 1.8], opacity: [0.85, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
+                  />
+                </g>
+              </motion.g>
+            </svg>
+          </div>
+        </div>
+
+          {/* Header Content Body */}
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div className="space-y-1.5 max-w-2xl">
+              {/* Insignia + Title Row */}
+              <div className="flex items-center gap-3">
+                <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#0284C7] via-[#0369A1] to-[#006B63] text-white shadow-md shadow-sky-950/15 shrink-0">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+                    className="absolute -inset-[2px] rounded-2xl bg-gradient-to-tr from-sky-400/40 via-teal-300/20 to-sky-500/50 blur-[2px] -z-10"
+                  />
+                  <Send className="h-5 w-5 text-white rotate-[-20deg]" />
+                </div>
+                <div className="space-y-0.5 min-w-0">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-[#0284C7] text-[10px] sm:text-[11px] font-bold font-mono tracking-wide">
+                    <span>COMMUNITY INGESTION ENGINE</span>
+                    <span className="text-sky-300">•</span>
+                    <span className="hidden sm:inline">VERIFIED FMGE CHANNELS</span>
+                  </div>
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold text-slate-900 tracking-tight font-['Outfit'] leading-snug">
+                    Telegram Knowledge Bank
+                  </h1>
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal max-w-xl line-clamp-1 sm:line-clamp-none">
+                Clinical polls, high-yield image spotters, and discussion pearls ingested from verified FMGE channels.
               </p>
-              <div className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase text-[#00685f]">
-                — ONE SHOT FMGE
+
+              {/* Quick Metrics Bar */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                  <span className="text-slate-400">Questions:</span>
+                  <span className="font-bold text-slate-900">{questions.length}</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                  <span className="text-slate-400">Spotters:</span>
+                  <span className="font-bold text-teal-700">{imageQuestions.length}</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                  <span className="text-slate-400">Pearls:</span>
+                  <span className="font-bold text-indigo-700">{pearls.length}</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                  <span className="text-slate-400">Saved:</span>
+                  <span className="font-bold text-emerald-700">{savedItems.length}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Action & Editorial Quote Card */}
+            <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end gap-2 shrink-0">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleManualSyncNow}
+                  disabled={isManualSyncing}
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer active:scale-98 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3 h-3 ${isManualSyncing ? 'animate-spin' : ''}`} />
+                  <span>{isManualSyncing ? 'Syncing...' : 'Sync Feed'}</span>
+                </button>
+
+                {!isConnected && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMethod('qr');
+                      setAuthStep('phone');
+                      setAuthError(null);
+                      setIsConnectModalOpen(true);
+                    }}
+                    className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-white border border-teal-200 text-[#006B63] hover:bg-teal-50 text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                  >
+                    <QrCode className="w-3 h-3" />
+                    <span>Connect MTProto</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="bg-white/85 border border-teal-200/70 rounded-xl px-3 py-1.5 flex items-center gap-2 max-w-sm shadow-2xs">
+                <span className="text-xs font-serif text-[#006B63] font-bold select-none shrink-0">“</span>
+                <p className="text-[11px] text-slate-700 font-medium leading-tight">
+                  Good resources stay with you.
+                </p>
               </div>
             </div>
           </div>
-        </div>
+        </motion.header>
       </div>
 
       {/* ========================================================================= */}
@@ -2385,8 +2692,9 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* ========================================================================= */}
       {/* AUTHENTICATION MODAL: QR CODE (Default) + PHONE NUMBER (Fallback) */}
       {/* ========================================================================= */}
-      {isConnectModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fadeIn">
+      {isConnectModalOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fadeIn">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 border border-slate-200 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
@@ -2599,12 +2907,14 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               </form>
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Manage Connected Telegram Account Modal */}
-      {isManageModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fadeIn">
+      {isManageModalOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fadeIn">
           <div className="w-full max-w-md bg-white rounded-3xl p-6 border border-stone-200 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div className="flex items-center gap-2">
@@ -2673,33 +2983,36 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Zoomed Medical Image Modal */}
-      {zoomedImageUrl && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-xs p-4 animate-fadeIn"
-          onClick={() => setZoomedImageUrl(null)}
-        >
+      {zoomedImageUrl &&
+        createPortal(
           <div
-            className="relative max-w-4xl max-h-[90vh] bg-slate-900 rounded-3xl p-2 border border-slate-700 shadow-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-xs p-4 animate-fadeIn"
+            onClick={() => setZoomedImageUrl(null)}
           >
-            <button
-              onClick={() => setZoomedImageUrl(null)}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/90 cursor-pointer"
+            <div
+              className="relative max-w-4xl max-h-[90vh] bg-slate-900 rounded-3xl p-2 border border-slate-700 shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X className="h-5 w-5" />
-            </button>
-            <img
-              src={zoomedImageUrl}
-              alt="Zoomed Medical Attachment"
-              className="w-full h-auto max-h-[85vh] object-contain rounded-2xl"
-            />
-          </div>
-        </div>
-      )}
+              <button
+                onClick={() => setZoomedImageUrl(null)}
+                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/90 cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <img
+                src={zoomedImageUrl}
+                alt="Zoomed Medical Attachment"
+                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl"
+              />
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

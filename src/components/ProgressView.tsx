@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'motion/react';
 import {
   BarChart3,
   TrendingUp,
@@ -236,78 +237,275 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   const accuracyDelta = overallPerf.recentAccuracy - overallPerf.overallAccuracy;
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 text-[#121E1B] font-sans antialiased">
-      {/* ================= 1. PERFORMANCE HEADER & SECONDARY SWITCHER ================= */}
-      <header className="space-y-4 border-b border-[#EAEFEA] pb-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#00685f]">
-                PERFORMANCE
-              </span>
-              <span className="w-1 h-1 rounded-full bg-[#00685f]/40" />
-              <span className="text-xs text-stone-400 font-mono">DIAGNOSTIC ENGINE</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-['Newsreader'] tracking-tight text-[#121E1B] leading-tight">
-              Know exactly where you stand.
-            </h1>
-            <p className="text-sm sm:text-base text-[#4A5553] leading-relaxed">
-              Diagnose preparation depth, clinical solving accuracy, and high-yield retention to focus on what matters most for FMGE.
-            </p>
-          </div>
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 space-y-5 sm:space-y-6 text-[#121E1B] font-sans antialiased">
+      {/* ================= 1. PERFORMANCE HEADER CARD & SECONDARY SWITCHER ================= */}
+      <header className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#F4F2FB] p-4 sm:px-6 sm:py-3.5 shadow-xs">
+        {/* Dynamic Animated Ambient Data Analytics Background Effects */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
 
-          <div className="flex items-center gap-2 self-start sm:self-end px-3.5 py-1.5 rounded-full bg-stone-50 border border-stone-200/80 text-xs font-mono text-stone-600 shadow-2xs">
-            <Calendar className="w-3.5 h-3.5 text-[#00685f]" />
-            <span>Last updated: {formattedToday}</span>
+          {/* Soft glowing corner radial gradient orbs with breathing motion */}
+          <motion.div
+            animate={{
+              scale: [1, 1.15, 1],
+              opacity: [0.35, 0.55, 0.35],
+              x: [0, 15, 0],
+            }}
+            transition={{
+              duration: 8.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-violet-400/35 via-indigo-200/25 to-transparent blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1.08, 1, 1.08],
+              opacity: [0.22, 0.38, 0.22],
+              y: [0, -10, 0],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-cyan-200/30 via-teal-100/20 to-transparent blur-3xl"
+          />
+          <div className="absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r from-violet-200/20 via-indigo-100/15 to-transparent blur-3xl" />
+
+          {/* High-Tech Diagnostic Data Dot Matrix Backdrop */}
+          <svg
+            className="absolute inset-0 h-full w-full opacity-[0.035] text-violet-950 pointer-events-none select-none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <pattern id="performance-dot-matrix" width="24" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="12" cy="12" r="1.1" fill="currentColor" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#performance-dot-matrix)" />
+          </svg>
+
+          {/* Premium Lighthouse of Insight & Navigational Celestial Compass Artwork */}
+          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[520px] overflow-hidden opacity-45 sm:opacity-60 md:opacity-[0.72] select-none pointer-events-none block">
+            <svg viewBox="0 0 520 145" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
+              <defs>
+                <linearGradient id="progress-cliff-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#312E81" stopOpacity="0.85" />
+                  <stop offset="60%" stopColor="#1E1B4B" stopOpacity="0.95" />
+                  <stop offset="100%" stopColor="#0F172A" stopOpacity="0.95" />
+                </linearGradient>
+                <linearGradient id="progress-tower-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#FFFFFF" />
+                  <stop offset="40%" stopColor="#EDE9FE" />
+                  <stop offset="80%" stopColor="#C4B5FD" />
+                  <stop offset="100%" stopColor="#818CF8" />
+                </linearGradient>
+                <linearGradient id="progress-beam-grad" x1="0%" y1="50%" x2="100%" y2="50%">
+                  <stop offset="0%" stopColor="#FDE047" stopOpacity="0.85" />
+                  <stop offset="35%" stopColor="#FACC15" stopOpacity="0.45" />
+                  <stop offset="70%" stopColor="#818CF8" stopOpacity="0.15" />
+                  <stop offset="100%" stopColor="#818CF8" stopOpacity="0" />
+                </linearGradient>
+                <radialGradient id="progress-lantern-core" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#FFFFFF" />
+                  <stop offset="40%" stopColor="#FEF08A" />
+                  <stop offset="80%" stopColor="#F59E0B" />
+                  <stop offset="100%" stopColor="#4338CA" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              {/* Twinkling Diagnostic Constellation Stars in Indigo Sky */}
+              <g fill="#E0E7FF">
+                <motion.circle cx="180" cy="28" r="1.4" animate={{ opacity: [0.2, 0.9, 0.2] }} transition={{ duration: 2.8, repeat: Infinity }} />
+                <motion.circle cx="230" cy="18" r="1.2" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 3.4, repeat: Infinity, delay: 0.7 }} />
+                <motion.circle cx="270" cy="35" r="1.6" animate={{ opacity: [0.2, 0.85, 0.2] }} transition={{ duration: 2.4, repeat: Infinity, delay: 1.2 }} />
+                <motion.circle cx="315" cy="22" r="1.3" animate={{ opacity: [0.4, 0.95, 0.4] }} transition={{ duration: 3.1, repeat: Infinity, delay: 0.4 }} />
+                <motion.circle cx="490" cy="26" r="1.2" animate={{ opacity: [0.2, 0.8, 0.2] }} transition={{ duration: 2.7, repeat: Infinity, delay: 1.5 }} />
+                {/* Constellation Guide Trajectory Lines */}
+                <line x1="180" y1="28" x2="230" y2="18" stroke="#818CF8" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.4" />
+                <line x1="230" y1="18" x2="270" y2="35" stroke="#818CF8" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.4" />
+                <line x1="270" y1="35" x2="315" y2="22" stroke="#818CF8" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.4" />
+              </g>
+
+              {/* ═══ 1. NAVIGATIONAL SEXTANT / STAR COMPASS OVERLAY ═══ */}
+              <g transform="translate(260, 48) scale(0.65)" opacity="0.65">
+                {/* Graduated Index Arc */}
+                <path d="M -35 30 A 50 50 0 0 1 35 30" stroke="#818CF8" strokeWidth="1.6" fill="none" strokeDasharray="3 2" />
+                {/* Radial Index Arms */}
+                <line x1="0" y1="-10" x2="-35" y2="30" stroke="#818CF8" strokeWidth="1.2" />
+                <line x1="0" y1="-10" x2="35" y2="30" stroke="#818CF8" strokeWidth="1.2" />
+                <line x1="0" y1="-10" x2="0" y2="32" stroke="#C4B5FD" strokeWidth="1.4" />
+                {/* Index Mirror Pivot */}
+                <circle cx="0" cy="-10" r="3.5" fill="#4338CA" stroke="#C4B5FD" strokeWidth="1" />
+              </g>
+
+              {/* ═══ 2. COASTAL BLUFF & OCEAN SURF ═══ */}
+              {/* Rolling Wave Surf */}
+              <path
+                d="M 120 145 C 180 135, 260 138, 340 130 C 400 124, 460 132, 520 128 L 520 145 Z"
+                fill="#1E1B4B"
+                opacity="0.8"
+              />
+              <path
+                d="M 120 142 Q 220 134 320 138 Q 420 130 520 134"
+                stroke="#A5B4FC"
+                strokeWidth="1.4"
+                strokeDasharray="8 6"
+                opacity="0.5"
+              />
+
+              {/* Rocky Coastal Cliff Silhouette */}
+              <path
+                d="M 320 145 L 365 110 L 410 88 L 465 72 L 520 80 L 520 145 Z"
+                fill="url(#progress-cliff-grad)"
+              />
+
+              {/* ═══ 3. ARCHITECTURAL LIGHTHOUSE OF INSIGHT ═══ */}
+              <g transform="translate(460, 24)">
+                {/* Classical Tapered Stone Tower */}
+                <polygon points="-11,54 11,54 8,14 -8,14" fill="url(#progress-tower-grad)" stroke="#4338CA" strokeWidth="0.8" />
+                {/* Tower Horizontal Indigo Stripe Accent */}
+                <polygon points="-10,38 10,38 9,28 -9,28" fill="#4338CA" />
+
+                {/* Gallery Observation Deck & Railing */}
+                <rect x="-14" y="12" width="28" height="3" rx="1" fill="#1E1B4B" stroke="#818CF8" strokeWidth="0.8" />
+                <line x1="-13" y1="9" x2="13" y2="9" stroke="#818CF8" strokeWidth="1" />
+                <line x1="-10" y1="9" x2="-10" y2="12" stroke="#818CF8" strokeWidth="0.8" />
+                <line x1="0" y1="9" x2="0" y2="12" stroke="#818CF8" strokeWidth="0.8" />
+                <line x1="10" y1="9" x2="10" y2="12" stroke="#818CF8" strokeWidth="0.8" />
+
+                {/* Lantern Room Glass Enclosure */}
+                <rect x="-8" y="0" width="16" height="12" fill="#FEF08A" fillOpacity="0.4" stroke="#1E1B4B" strokeWidth="0.8" />
+                <line x1="-4" y1="0" x2="-4" y2="12" stroke="#1E1B4B" strokeWidth="0.8" />
+                <line x1="4" y1="0" x2="4" y2="12" stroke="#1E1B4B" strokeWidth="0.8" />
+
+                {/* Domed Roof Cupola & Lightning Rod */}
+                <path d="M -8 0 A 8 8 0 0 1 8 0 Z" fill="#4338CA" stroke="#818CF8" strokeWidth="0.8" />
+                <line x1="0" y1="-8" x2="0" y2="-1" stroke="#FDE047" strokeWidth="1.2" />
+                <circle cx="0" cy="-8" r="1.5" fill="#FDE047" />
+
+                {/* ═══ 4. RADIANT SWEEPING LIGHTHOUSE BEACON BEAM ═══ */}
+                <motion.g
+                  animate={{ rotate: [-26, 18, -26] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+                  style={{ transformOrigin: '0px 6px' }}
+                >
+                  <polygon
+                    points="0,6 -260,-45 -260,65"
+                    fill="url(#progress-beam-grad)"
+                    opacity="0.85"
+                  />
+                  {/* Secondary Back Light Cone */}
+                  <polygon
+                    points="0,6 70,-8 70,20"
+                    fill="url(#progress-beam-grad)"
+                    opacity="0.4"
+                  />
+                </motion.g>
+
+                {/* Pulsing Central Lantern Core */}
+                <circle cx="0" cy="6" r="4.5" fill="url(#progress-lantern-core)" />
+                <motion.circle
+                  cx="0"
+                  cy="6"
+                  r="8"
+                  stroke="#FEF08A"
+                  strokeWidth="1.4"
+                  fill="none"
+                  animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut' }}
+                />
+              </g>
+            </svg>
           </div>
         </div>
 
-        {/* Secondary Switcher: [ Overview ] [ Error Vault ] [ Score Predictor ] */}
-        <div className="flex items-center justify-between gap-3 pt-2 flex-wrap">
-          <div className="inline-flex p-1 bg-stone-100/90 border border-stone-200/80 rounded-xl shadow-2xs">
-            <button
-              type="button"
-              onClick={() => handleSubTabChange('overview')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                currentSubTab === 'overview'
-                  ? 'bg-white text-stone-900 shadow-xs border border-stone-200/60 font-bold'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-              }`}
-            >
-              <BarChart3 className="w-3.5 h-3.5 text-[#00685f]" />
-              <span>Overview</span>
-            </button>
+        {/* Main Content Layout */}
+        <div className="relative z-10 space-y-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1 max-w-xl">
+              <div className="flex items-center gap-3">
+                <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#4338CA] via-[#0D9488] to-[#00685F] text-white shadow-md shadow-indigo-950/15 shrink-0">
+                  <TrendingUp className="h-5 w-5 text-white" />
+                </div>
+                <div className="space-y-0.5 min-w-0">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-[#4338CA] text-[10px] sm:text-[11px] font-bold font-mono tracking-wide">
+                    <span>PERFORMANCE DIAGNOSTIC ENGINE</span>
+                  </div>
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-bold font-['Newsreader'] tracking-tight text-slate-900 leading-snug">
+                    Know exactly where you stand.
+                  </h1>
+                </div>
+              </div>
 
-            <button
-              type="button"
-              onClick={() => handleSubTabChange('errors')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                currentSubTab === 'errors'
-                  ? 'bg-white text-stone-900 shadow-xs border border-stone-200/60 font-bold'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-              }`}
-            >
-              <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-              <span>Error Vault</span>
-              {(state.errorNotebook?.length || 0) > 0 && (
-                <span className="font-mono text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700">
-                  {state.errorNotebook?.length}
-                </span>
-              )}
-            </button>
+              {/* Description */}
+              <p className="text-xs sm:text-sm text-[#4A5553] leading-normal font-sans line-clamp-1 sm:line-clamp-none pl-0 sm:pl-[52px]">
+                Diagnose preparation depth, clinical solving accuracy, and high-yield retention to focus on what matters most for FMGE.
+              </p>
+            </div>
 
-            <button
-              type="button"
-              onClick={() => handleSubTabChange('predictor')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                currentSubTab === 'predictor'
-                  ? 'bg-white text-stone-900 shadow-xs border border-stone-200/60 font-bold'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5 text-amber-600" />
-              <span>Score Predictor</span>
-            </button>
+            {/* Date Badge */}
+            <div className="flex items-center gap-1.5 self-start sm:self-center px-3 py-1 rounded-full bg-gradient-to-r from-white/95 via-violet-50/40 to-white/95 border border-violet-100/90 text-[11px] font-mono text-stone-600 shadow-2xs backdrop-blur-md shrink-0">
+              <Calendar className="w-3 h-3 text-[#4338CA]" />
+              <span>Updated: {formattedToday}</span>
+            </div>
+          </div>
+
+          {/* Secondary Switcher: [ Overview ] [ Error Vault ] [ Score Predictor ] */}
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-teal-100/70 flex-wrap">
+            <div className="inline-flex p-0.5 bg-white/90 border border-teal-100/90 rounded-xl shadow-2xs backdrop-blur-md">
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => handleSubTabChange('overview')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  currentSubTab === 'overview'
+                    ? 'bg-gradient-to-r from-slate-950 via-slate-900 to-[#006B63] text-white shadow-xs font-bold'
+                    : 'text-stone-600 hover:text-[#006B63] hover:bg-teal-50/70'
+                }`}
+              >
+                <BarChart3 className={`w-3.5 h-3.5 ${currentSubTab === 'overview' ? 'text-teal-200' : 'text-[#00685f]'}`} />
+                <span>Overview</span>
+              </motion.button>
+
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => handleSubTabChange('errors')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  currentSubTab === 'errors'
+                    ? 'bg-gradient-to-r from-slate-950 via-slate-900 to-[#006B63] text-white shadow-xs font-bold'
+                    : 'text-stone-600 hover:text-[#006B63] hover:bg-teal-50/70'
+                }`}
+              >
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                <span>Error Vault</span>
+                {(state.errorNotebook?.length || 0) > 0 && (
+                  <span className={`font-mono text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
+                    currentSubTab === 'errors' ? 'bg-rose-500/30 text-rose-200 border border-rose-400/40' : 'bg-rose-100 text-rose-700'
+                  }`}>
+                    {state.errorNotebook?.length}
+                  </span>
+                )}
+              </motion.button>
+
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => handleSubTabChange('predictor')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  currentSubTab === 'predictor'
+                    ? 'bg-gradient-to-r from-slate-950 via-slate-900 to-[#006B63] text-white shadow-xs font-bold'
+                    : 'text-stone-600 hover:text-[#006B63] hover:bg-teal-50/70'
+                }`}
+              >
+                <TrendingUp className={`w-3.5 h-3.5 ${currentSubTab === 'predictor' ? 'text-amber-300' : 'text-amber-600'}`} />
+                <span>Score Predictor</span>
+              </motion.button>
+            </div>
           </div>
         </div>
       </header>

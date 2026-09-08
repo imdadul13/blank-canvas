@@ -30,6 +30,7 @@ import {
   Compass,
   RotateCw,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { AppState, SubjectPhase, ConfidenceLevel } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { DoctorMountainArt } from './DoctorMountainArt';
@@ -319,80 +320,390 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
 
   return (
     <div
-      className={`page-container space-y-8 font-sans text-stone-900 ${
+      className={`w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-4 sm:space-y-6 font-sans text-stone-900 ${
         currentSubTab === 'revision' ? 'pb-28 sm:pb-20' : 'pb-20'
       }`}
     >
-      {/* ================= SECONDARY SWITCHER: [ Curriculum ] [ Revision Matrix ] ================= */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200/80 pb-4">
-        <div className="flex items-center gap-2.5">
-          <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#00685f]">
-            STUDY
-          </span>
-          <span className="w-1 h-1 rounded-full bg-[#00685f]/40" />
-          <span className="text-xs text-stone-400 font-mono">19 SUBJECTS &amp; SPACED REPETITION</span>
+      {/* ================= 1. STUDY EDITORIAL HEADER CARD ================= */}
+      <motion.header
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#F0FBF7] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+      >
+        {/* Dynamic Animated Ambient Study Background Effects */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+
+          {/* Soft glowing corner radial gradient orbs with breathing motion */}
+          <motion.div
+            animate={{
+              scale: [1, 1.18, 1],
+              opacity: [0.4, 0.65, 0.4],
+              x: [0, 18, 0],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/40 via-emerald-200/30 to-transparent blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.25, 0.45, 0.25],
+              y: [0, -12, 0],
+            }}
+            transition={{
+              duration: 9.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-cyan-200/35 via-teal-100/25 to-transparent blur-3xl"
+          />
+          <div className="absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r from-teal-200/25 via-emerald-100/20 to-transparent blur-3xl" />
+
+          {/* Subtle Curriculum Blueprint Grid */}
+          <svg
+            className="absolute inset-0 h-full w-full opacity-[0.04] text-teal-950 pointer-events-none select-none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <pattern id="study-blueprint-grid" width="28" height="28" patternUnits="userSpaceOnUse">
+                <path d="M 28 0 L 0 0 0 28" fill="none" stroke="currentColor" strokeWidth="0.75" />
+                <circle cx="28" cy="28" r="0.75" fill="currentColor" opacity="0.6" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#study-blueprint-grid)" />
+          </svg>
+
+          {/* Premium Botanical Tree of Knowledge & Architectural Study Codex Artwork */}
+          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[480px] overflow-hidden opacity-40 sm:opacity-55 md:opacity-[0.65] select-none pointer-events-none block">
+            <svg viewBox="0 0 480 140" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
+              <defs>
+                <linearGradient id="codex-desk-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#004D40" stopOpacity="0" />
+                  <stop offset="30%" stopColor="#004D40" stopOpacity="0.25" />
+                  <stop offset="70%" stopColor="#00695C" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#004D40" stopOpacity="0.15" />
+                </linearGradient>
+                <linearGradient id="codex-page-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#E8F5E9" stopOpacity="0.95" />
+                  <stop offset="50%" stopColor="#C8E6C9" stopOpacity="0.85" />
+                  <stop offset="100%" stopColor="#A5D6A7" stopOpacity="0.75" />
+                </linearGradient>
+                <linearGradient id="codex-cover-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#00695C" />
+                  <stop offset="100%" stopColor="#004D40" />
+                </linearGradient>
+                <linearGradient id="botanical-branch-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#004D40" stopOpacity="0.9" />
+                  <stop offset="60%" stopColor="#00796B" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#26A69A" stopOpacity="0.7" />
+                </linearGradient>
+                <linearGradient id="botanical-leaf-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#81C784" />
+                  <stop offset="50%" stopColor="#4CAF50" />
+                  <stop offset="100%" stopColor="#2E7D32" />
+                </linearGradient>
+                <radialGradient id="codex-halo-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#6EE7B7" stopOpacity="0.45" />
+                  <stop offset="60%" stopColor="#10B981" stopOpacity="0.15" />
+                  <stop offset="100%" stopColor="#00685F" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              {/* Ambient Wisdom Halo Aura */}
+              <motion.circle
+                cx="370"
+                cy="68"
+                r="65"
+                fill="url(#codex-halo-glow)"
+                animate={{ scale: [1, 1.15, 1], opacity: [0.35, 0.6, 0.35] }}
+                transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              {/* Study Desk Base Silhouette */}
+              <path
+                d="M 230 135 Q 360 132 480 135 L 480 140 L 230 140 Z"
+                fill="url(#codex-desk-grad)"
+              />
+
+              {/* ═══ 1. OPEN MEDICAL CODEX / LEATHER-BOUND FOLIO ═══ */}
+              <g transform="translate(370, 95)">
+                {/* Book Base / Leather Cover Trim */}
+                <path
+                  d="M -75 22 C -40 28, -10 24, 0 32 C 10 24, 40 28, 75 22 C 73 26, 40 32, 0 36 C -40 32, -73 26, -75 22 Z"
+                  fill="url(#codex-cover-grad)"
+                  opacity="0.85"
+                />
+
+                {/* Left Folio Page Stack */}
+                <path
+                  d="M -72 20 C -42 25, -12 21, 0 29 L 0 6 C -12 -1, -42 3, -72 -2 Z"
+                  fill="url(#codex-page-grad)"
+                  stroke="#81C784"
+                  strokeWidth="0.8"
+                />
+
+                {/* Right Folio Page Stack */}
+                <path
+                  d="M 0 29 C 12 21, 42 25, 72 20 L 72 -2 C 42 3, 12 -1, 0 6 Z"
+                  fill="url(#codex-page-grad)"
+                  stroke="#81C784"
+                  strokeWidth="0.8"
+                />
+
+                {/* Turning Upper Leaf (Gentle Page Sway Animation) */}
+                <motion.path
+                  d="M 0 6 C 14 -3, 44 0, 70 -5 L 70 17 C 44 22, 14 19, 0 27 Z"
+                  fill="#FFFFFF"
+                  fillOpacity="0.7"
+                  stroke="#A5D6A7"
+                  strokeWidth="0.8"
+                  animate={{ y: [0, -2.5, 0], rotate: [0, 1.2, 0] }}
+                  transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
+                />
+
+                {/* Text Line Mockups on Open Folio */}
+                <g stroke="#004D40" strokeOpacity="0.25" strokeWidth="0.9" strokeLinecap="round">
+                  <line x1="-60" y1="5" x2="-14" y2="7" />
+                  <line x1="-60" y1="10" x2="-20" y2="12" />
+                  <line x1="-60" y1="15" x2="-16" y2="17" />
+                  <line x1="-60" y1="20" x2="-26" y2="22" />
+
+                  <line x1="14" y1="7" x2="60" y2="5" />
+                  <line x1="14" y1="12" x2="56" y2="10" />
+                  <line x1="14" y1="17" x2="58" y2="15" />
+                  <line x1="14" y1="22" x2="48" y2="20" />
+                </g>
+
+                {/* Book Spine Center Marker */}
+                <line x1="0" y1="4" x2="0" y2="33" stroke="#004D40" strokeWidth="1.8" strokeLinecap="round" />
+
+                {/* Flowing Silk Bookmark Ribbon */}
+                <motion.path
+                  d="M 0 29 Q 12 45 8 60 Q 6 56 4 58 Q 2 45 0 29"
+                  fill="#00796B"
+                  animate={{ rotate: [-2, 4, -2] }}
+                  transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              </g>
+
+              {/* ═══ 2. BOTANICAL ROD OF ASCLEPIUS & TREE OF KNOWLEDGE ═══ */}
+              <g transform="translate(370, 96)">
+                {/* Main Botanical Trunk Rising from Codex Spine */}
+                <path
+                  d="M 0 5 Q -6 -25 0 -55 Q 5 -75 0 -92"
+                  stroke="url(#botanical-branch-grad)"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+
+                {/* Primary Left Branch */}
+                <path
+                  d="M -2 -32 Q -25 -42 -42 -50"
+                  stroke="url(#botanical-branch-grad)"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+
+                {/* Secondary Left Sub-branch */}
+                <path
+                  d="M -18 -38 Q -32 -55 -40 -68"
+                  stroke="url(#botanical-branch-grad)"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+
+                {/* Primary Right Branch */}
+                <path
+                  d="M 1 -38 Q 24 -46 44 -56"
+                  stroke="url(#botanical-branch-grad)"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+
+                {/* Secondary Right Sub-branch */}
+                <path
+                  d="M 16 -43 Q 32 -60 42 -72"
+                  stroke="url(#botanical-branch-grad)"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+
+                {/* Botanical Laurel Leaves with Gentle Sway */}
+                <motion.g
+                  animate={{ rotate: [-1.5, 1.5, -1.5] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  {/* Left Leaves */}
+                  <path d="M -42 -50 Q -52 -55 -55 -48 Q -48 -42 -42 -50 Z" fill="url(#botanical-leaf-grad)" />
+                  <path d="M -28 -40 Q -36 -46 -39 -39 Q -32 -33 -28 -40 Z" fill="url(#botanical-leaf-grad)" />
+                  <path d="M -40 -68 Q -50 -75 -52 -67 Q -44 -60 -40 -68 Z" fill="url(#botanical-leaf-grad)" />
+                  <path d="M -25 -52 Q -32 -60 -36 -54 Q -29 -47 -25 -52 Z" fill="url(#botanical-leaf-grad)" />
+
+                  {/* Right Leaves */}
+                  <path d="M 44 -56 Q 54 -62 57 -55 Q 50 -48 44 -56 Z" fill="url(#botanical-leaf-grad)" />
+                  <path d="M 30 -44 Q 38 -50 42 -43 Q 34 -37 30 -44 Z" fill="url(#botanical-leaf-grad)" />
+                  <path d="M 42 -72 Q 52 -80 55 -72 Q 47 -65 42 -72 Z" fill="url(#botanical-leaf-grad)" />
+                  <path d="M 26 -56 Q 34 -64 38 -57 Q 31 -50 26 -56 Z" fill="url(#botanical-leaf-grad)" />
+
+                  {/* Crown Sprout Leaves at Top */}
+                  <path d="M 0 -92 Q -6 -104 0 -107 Q 6 -104 0 -92 Z" fill="url(#botanical-leaf-grad)" />
+                  <path d="M 0 -92 Q -12 -98 -10 -90 Q 0 -88 0 -92 Z" fill="url(#botanical-leaf-grad)" />
+                  <path d="M 0 -92 Q 12 -98 10 -90 Q 0 -88 0 -92 Z" fill="url(#botanical-leaf-grad)" />
+                </motion.g>
+
+                {/* Luminous Knowledge Fruit / Blossom Nodes (Representing Subject Milestones) */}
+                <g>
+                  <circle cx="-42" cy="-50" r="2.5" fill="#34D399" />
+                  <circle cx="44" cy="-56" r="2.5" fill="#34D399" />
+                  <circle cx="-40" cy="-68" r="2.5" fill="#34D399" />
+                  <circle cx="42" cy="-72" r="2.5" fill="#34D399" />
+                  <circle cx="0" cy="-92" r="3.2" fill="#6EE7B7" />
+                  <motion.circle
+                    cx="0"
+                    cy="-92"
+                    r="6.5"
+                    stroke="#34D399"
+                    strokeWidth="1.2"
+                    fill="none"
+                    animate={{ scale: [1, 1.8], opacity: [0.8, 0] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut' }}
+                  />
+                </g>
+              </g>
+
+              {/* ═══ 3. FLOATING MEDICINAL LEAF / WISDOM PARTICLES ═══ */}
+              <motion.path
+                d="M 290 40 Q 296 35 300 40 Q 295 46 290 40 Z"
+                fill="url(#botanical-leaf-grad)"
+                opacity="0.75"
+                animate={{
+                  y: [0, 25, 0],
+                  x: [0, -12, 0],
+                  rotate: [0, 22, 0],
+                }}
+                transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <motion.path
+                d="M 435 30 Q 442 24 446 30 Q 440 37 435 30 Z"
+                fill="url(#botanical-leaf-grad)"
+                opacity="0.65"
+                animate={{
+                  y: [0, 30, 0],
+                  x: [0, 10, 0],
+                  rotate: [0, -25, 0],
+                }}
+                transition={{ duration: 8.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+              />
+              <motion.circle
+                cx="320"
+                cy="60"
+                r="1.8"
+                fill="#34D399"
+                animate={{ opacity: [0.2, 0.8, 0.2], y: [0, -10, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <motion.circle
+                cx="420"
+                cy="85"
+                r="1.5"
+                fill="#6EE7B7"
+                animate={{ opacity: [0.1, 0.7, 0.1], y: [0, -8, 0] }}
+                transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
+              />
+            </svg>
+          </div>
         </div>
 
-        <div className="inline-flex p-1 bg-stone-100/90 border border-stone-200/80 rounded-xl shadow-2xs self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => handleSubTabChange('curriculum')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              currentSubTab === 'curriculum'
-                ? 'bg-white text-stone-900 shadow-xs border border-stone-200/60 font-bold'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-            }`}
-          >
-            <BookOpen className="w-3.5 h-3.5 text-[#00685f]" />
-            <span>Curriculum</span>
-          </button>
+        {/* Content Layout with Original Previous Texts */}
+        <div className="relative z-10 space-y-2.5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="space-y-1 max-w-xl">
+              {/* Eyebrows */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-[#00685f] border border-emerald-500/20 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-sm">
+                  STUDY
+                </span>
+                <span className="text-[#00685f]/40 font-mono">·</span>
+                <span className="px-2 py-0.5 rounded-full bg-white/80 text-[#4A5553] border border-emerald-200/60 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-sm">
+                  19 SUBJECTS
+                </span>
+                <span className="text-[#00685f]/40 font-mono">·</span>
+                <span className="text-stone-500 text-[10px] font-mono font-medium tracking-wide">
+                  NBE BLUEPRINT
+                </span>
+              </div>
 
-          <button
-            type="button"
-            onClick={() => handleSubTabChange('revision')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              currentSubTab === 'revision'
-                ? 'bg-white text-stone-900 shadow-xs border border-stone-200/60 font-bold'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-            }`}
-          >
-            <RotateCw className="w-3.5 h-3.5 text-[#00685f]" />
-            <span>Revision Matrix</span>
-          </button>
+              {/* Heading with Element Insignia */}
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] via-[#0D9488] to-[#044E48] text-white shadow-md shadow-teal-900/15 shrink-0">
+                  <BookOpen className="h-5 w-5 text-emerald-50" />
+                </div>
+                <div>
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-bold font-display tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-[#00685f] bg-clip-text text-transparent leading-snug">
+                    Your Study Plan
+                  </h1>
+                  <p className="text-xs sm:text-sm text-stone-600 leading-normal flex items-center gap-1">
+                    <span>Master the 19 subjects. Step by step.</span>
+                    <span className="text-emerald-600" title="Discipline grows doctors">🌱</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Secondary Sub-Tab Switcher Dock */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-teal-900/10">
+            <div className="inline-flex p-0.5 bg-white/85 backdrop-blur-md border border-teal-200/70 rounded-xl shadow-2xs">
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                type="button"
+                onClick={() => handleSubTabChange('curriculum')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  currentSubTab === 'curriculum'
+                    ? 'bg-[#006B63] text-white shadow-xs font-bold'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-teal-50/50'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Curriculum</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                type="button"
+                onClick={() => handleSubTabChange('revision')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  currentSubTab === 'revision'
+                    ? 'bg-[#006B63] text-white shadow-xs font-bold'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-teal-50/50'
+                }`}
+              >
+                <RotateCw className="w-3.5 h-3.5" />
+                <span>Revision Matrix</span>
+              </motion.button>
+            </div>
+
+            <div className="text-xs font-mono text-stone-500 hidden sm:flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>19 Subjects · {overallStats.percentage}% Completed</span>
+            </div>
+          </div>
         </div>
-      </div>
+      </motion.header>
 
       {currentSubTab === 'curriculum' ? (
         <>
-          {/* ================= EDITORIAL HERO HEADER ================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pt-1">
-        {/* Left Column: Heading & Mission */}
-        <div className="lg:col-span-7 flex flex-col justify-center space-y-3.5">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-teal-50/90 border border-teal-200/70 text-[#006B63] text-xs font-semibold tracking-wider uppercase font-mono shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#006B63]" />
-              + STUDY
-            </span>
-            <span className="text-stone-400 text-xs font-mono font-medium tracking-wide">
-              NBE BLUEPRINT 300M
-            </span>
-          </div>
-
-          <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-bold font-display tracking-tight text-stone-900 leading-[1.14]">
-            Your Study Plan
-          </h1>
-
-          <p className="text-sm sm:text-base text-stone-600 max-w-xl leading-relaxed flex items-center gap-2">
-            <span>Master the 19 subjects. One focused step at a time.</span>
-            <span className="text-emerald-600 text-base" title="Discipline grows doctors">🌱</span>
-          </p>
-        </div>
-
-        {/* Right Column: Doctor Mountain Art Banner */}
-        <div className="lg:col-span-5 flex items-stretch">
-          <DoctorMountainArt className="w-full shadow-xs hover:shadow-sm transition-shadow rounded-2xl border border-stone-200/70" />
-        </div>
-      </div>
 
       {/* ================= 4 METRIC CARDS ROW ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -409,14 +720,16 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 stroke="currentColor"
                 fill="transparent"
               />
-              <circle
+              <motion.circle
                 cx="38"
                 cy="38"
                 r={radius}
-                className="text-[#006B63] transition-all duration-700 ease-out"
+                className="text-[#006B63]"
                 strokeWidth="6"
                 strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
+                initial={{ strokeDashoffset: circumference }}
+                animate={{ strokeDashoffset }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                 strokeLinecap="round"
                 stroke="currentColor"
                 fill="transparent"

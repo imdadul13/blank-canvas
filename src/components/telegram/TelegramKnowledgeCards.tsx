@@ -131,7 +131,7 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-4.5">
       {items.map((item) => {
         const isSaved = savedItemIds.has(item.id);
         const isExpanded = !!expandedItems[item.id];
@@ -143,7 +143,7 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
         return (
           <div
             key={item.id}
-            className="rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 shadow-2xs hover:border-stone-300 hover:shadow-xs transition-all flex flex-col justify-between group"
+            className="h-full rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-4.5 shadow-2xs hover:border-stone-300 hover:shadow-xs transition-all flex flex-col justify-between group"
           >
             <div>
               {/* Card Header: Type Badge & Relative Time */}
@@ -190,11 +190,11 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
 
               {/* Main Content Stem / Pearl text */}
               {item.type === "pearl" ? (
-                <div className="p-3 rounded-xl bg-rose-50/50 border border-rose-100/70 mb-2.5 text-xs text-slate-800 leading-relaxed font-serif italic">
+                <div className="p-3 rounded-xl bg-rose-50/50 border border-rose-100/70 mb-2.5 text-xs text-slate-800 leading-relaxed font-serif italic min-h-[52px] flex items-center">
                   “{item.pearlTakeaway || item.stem || item.title}”
                 </div>
               ) : (
-                <div className="text-xs font-semibold text-slate-900 line-clamp-3 leading-snug mb-2.5">
+                <div className="text-xs font-semibold text-slate-900 line-clamp-3 leading-snug mb-2.5 min-h-[44px]">
                   {item.stem || item.title}
                 </div>
               )}

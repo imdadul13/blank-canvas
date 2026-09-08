@@ -3,7 +3,6 @@ import {
   Send,
   Settings,
   ChevronRight,
-  User,
   ArrowLeft,
   GraduationCap,
   Cloud,
@@ -17,7 +16,7 @@ interface MoreViewProps {
   state: AppState;
   stats: AppStats;
   onOpenSettings: () => void;
-  onOpenProfile: () => void;
+  onOpenProfile?: () => void;
   onOpenCloudSync?: () => void;
   onNavigateTab?: (tab: ActiveTab) => void;
   onOpenAiCoach?: (
@@ -91,14 +90,6 @@ export const MoreView: React.FC<MoreViewProps> = ({
       icon: Settings,
       action: () => onOpenSettings(),
     },
-    {
-      id: 'profile',
-      title: 'Doctor Profile & Blueprint',
-      subtitle: 'Aspirant credentials, countdown to exam, and preparation blueprint.',
-      badge: state.settings?.userName || 'Dr. Aspirant',
-      icon: User,
-      action: () => onOpenProfile(),
-    },
   ];
 
   return (
@@ -129,7 +120,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
               Secondary Utilities
             </h1>
             <p className="text-sm sm:text-base text-slate-500 max-w-2xl leading-relaxed">
-              Grand test mock exams, Telegram community question feed, cloud synchronization, app preferences, and doctor profile.
+              Grand test mock exams, Telegram community question feed, cloud synchronization, and app preferences.
             </p>
           </header>
 

@@ -27,8 +27,11 @@ import {
   Flame,
   Compass,
   BarChart3,
+  ChevronDown,
   Zap,
   Sun,
+  Sunset,
+  Moon,
   Award,
   ExternalLink,
   MoreVertical,
@@ -52,7 +55,8 @@ import {
   PersonalizedPlanTask,
   LearningContext,
 } from '../utils/personalizationEngine';
-import { MedicalHeroVisual } from './MedicalHeroVisual';
+import { MedicalHeroVisual, MedicalSubjectCardVisual } from './MedicalHeroVisual';
+import { DoctorMountainArt } from './DoctorMountainArt';
 import { TopicMasteryWorkspace } from './TopicMasteryWorkspace';
 import { NotificationCenterModal } from './NotificationCenterModal';
 import { hasUnreadNotifications } from '../utils/notificationEngine';
@@ -233,6 +237,180 @@ const SUBJECT_ACCENT_COLORS: Record<string, { bar: string; badge: string; text: 
   anesthesia: { bar: 'bg-[#475569]', badge: 'text-slate-700 bg-slate-100 border-slate-200', text: 'text-slate-600' },
 };
 
+export interface SubjectCardTheme {
+  bg: string;
+  border: string;
+  glow: string;
+  badge: string;
+  arrowBg: string;
+  arrowText: string;
+}
+
+/** Subject Card Gradient Themes & Backdrops matching Reference Mockup */
+const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
+  medicine: {
+    bg: 'from-cyan-100/70 via-teal-50/40 to-white/95',
+    border: 'border-cyan-200/80 hover:border-cyan-400/90',
+    glow: 'rgba(6, 182, 212, 0.22)',
+    badge: 'bg-cyan-500/10 text-cyan-800 border-cyan-200/70',
+    arrowBg: 'group-hover:bg-[#006B63] group-hover:text-white',
+    arrowText: 'text-cyan-700',
+  },
+  psychiatry: {
+    bg: 'from-purple-100/70 via-indigo-50/40 to-white/95',
+    border: 'border-purple-200/80 hover:border-purple-400/90',
+    glow: 'rgba(168, 85, 247, 0.20)',
+    badge: 'bg-purple-500/10 text-purple-800 border-purple-200/70',
+    arrowBg: 'group-hover:bg-purple-600 group-hover:text-white',
+    arrowText: 'text-purple-700',
+  },
+  physiology: {
+    bg: 'from-sky-100/70 via-cyan-50/40 to-white/95',
+    border: 'border-sky-200/80 hover:border-sky-400/90',
+    glow: 'rgba(14, 165, 233, 0.20)',
+    badge: 'bg-sky-500/10 text-sky-800 border-sky-200/70',
+    arrowBg: 'group-hover:bg-sky-600 group-hover:text-white',
+    arrowText: 'text-sky-700',
+  },
+  surgery: {
+    bg: 'from-rose-100/70 via-orange-50/40 to-white/95',
+    border: 'border-rose-200/80 hover:border-rose-400/90',
+    glow: 'rgba(244, 63, 94, 0.20)',
+    badge: 'bg-rose-500/10 text-rose-800 border-rose-200/70',
+    arrowBg: 'group-hover:bg-rose-600 group-hover:text-white',
+    arrowText: 'text-rose-700',
+  },
+  pathology: {
+    bg: 'from-blue-100/70 via-indigo-50/40 to-white/95',
+    border: 'border-blue-200/80 hover:border-blue-400/90',
+    glow: 'rgba(59, 130, 246, 0.20)',
+    badge: 'bg-blue-500/10 text-blue-800 border-blue-200/70',
+    arrowBg: 'group-hover:bg-blue-600 group-hover:text-white',
+    arrowText: 'text-blue-700',
+  },
+  biochemistry: {
+    bg: 'from-amber-100/70 via-orange-50/30 to-white/95',
+    border: 'border-amber-200/80 hover:border-amber-400/90',
+    glow: 'rgba(245, 158, 11, 0.20)',
+    badge: 'bg-amber-500/10 text-amber-800 border-amber-200/70',
+    arrowBg: 'group-hover:bg-amber-600 group-hover:text-white',
+    arrowText: 'text-amber-700',
+  },
+  anatomy: {
+    bg: 'from-teal-100/70 via-emerald-50/40 to-white/95',
+    border: 'border-teal-200/80 hover:border-teal-400/90',
+    glow: 'rgba(20, 184, 166, 0.20)',
+    badge: 'bg-teal-500/10 text-teal-800 border-teal-200/70',
+    arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
+    arrowText: 'text-teal-700',
+  },
+  pharmacology: {
+    bg: 'from-emerald-100/70 via-teal-50/40 to-white/95',
+    border: 'border-emerald-200/80 hover:border-emerald-400/90',
+    glow: 'rgba(16, 185, 129, 0.20)',
+    badge: 'bg-emerald-500/10 text-emerald-800 border-emerald-200/70',
+    arrowBg: 'group-hover:bg-emerald-600 group-hover:text-white',
+    arrowText: 'text-emerald-700',
+  },
+  microbiology: {
+    bg: 'from-teal-100/70 via-cyan-50/40 to-white/95',
+    border: 'border-teal-200/80 hover:border-teal-400/90',
+    glow: 'rgba(13, 148, 136, 0.20)',
+    badge: 'bg-teal-500/10 text-teal-800 border-teal-200/70',
+    arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
+    arrowText: 'text-teal-700',
+  },
+  fmt: {
+    bg: 'from-slate-200/70 via-slate-100/50 to-white/95',
+    border: 'border-slate-300/80 hover:border-slate-400',
+    glow: 'rgba(100, 116, 139, 0.18)',
+    badge: 'bg-slate-500/10 text-slate-800 border-slate-300/70',
+    arrowBg: 'group-hover:bg-slate-700 group-hover:text-white',
+    arrowText: 'text-slate-700',
+  },
+  psm: {
+    bg: 'from-cyan-100/70 via-teal-50/40 to-white/95',
+    border: 'border-cyan-200/80 hover:border-cyan-400/90',
+    glow: 'rgba(6, 182, 212, 0.20)',
+    badge: 'bg-cyan-500/10 text-cyan-800 border-cyan-200/70',
+    arrowBg: 'group-hover:bg-cyan-600 group-hover:text-white',
+    arrowText: 'text-cyan-700',
+  },
+  ophthalmology: {
+    bg: 'from-indigo-100/70 via-sky-50/40 to-white/95',
+    border: 'border-indigo-200/80 hover:border-indigo-400/90',
+    glow: 'rgba(99, 102, 241, 0.20)',
+    badge: 'bg-indigo-500/10 text-indigo-800 border-indigo-200/70',
+    arrowBg: 'group-hover:bg-indigo-600 group-hover:text-white',
+    arrowText: 'text-indigo-700',
+  },
+  ent: {
+    bg: 'from-purple-100/70 via-fuchsia-50/30 to-white/95',
+    border: 'border-purple-200/80 hover:border-purple-400/90',
+    glow: 'rgba(168, 85, 247, 0.20)',
+    badge: 'bg-purple-500/10 text-purple-800 border-purple-200/70',
+    arrowBg: 'group-hover:bg-purple-600 group-hover:text-white',
+    arrowText: 'text-purple-700',
+  },
+  obg: {
+    bg: 'from-pink-100/70 via-rose-50/40 to-white/95',
+    border: 'border-pink-200/80 hover:border-pink-400/90',
+    glow: 'rgba(236, 72, 153, 0.20)',
+    badge: 'bg-pink-500/10 text-pink-800 border-pink-200/70',
+    arrowBg: 'group-hover:bg-pink-600 group-hover:text-white',
+    arrowText: 'text-pink-700',
+  },
+  pediatrics: {
+    bg: 'from-cyan-100/70 via-emerald-50/30 to-white/95',
+    border: 'border-cyan-200/80 hover:border-cyan-400/90',
+    glow: 'rgba(6, 182, 212, 0.20)',
+    badge: 'bg-cyan-500/10 text-cyan-800 border-cyan-200/70',
+    arrowBg: 'group-hover:bg-cyan-600 group-hover:text-white',
+    arrowText: 'text-cyan-700',
+  },
+  orthopedics: {
+    bg: 'from-violet-100/60 via-slate-50/40 to-white/95',
+    border: 'border-violet-200/80 hover:border-violet-400/90',
+    glow: 'rgba(139, 92, 246, 0.18)',
+    badge: 'bg-violet-500/10 text-violet-800 border-violet-200/70',
+    arrowBg: 'group-hover:bg-violet-600 group-hover:text-white',
+    arrowText: 'text-violet-700',
+  },
+  dermatology: {
+    bg: 'from-rose-100/70 via-amber-50/30 to-white/95',
+    border: 'border-rose-200/80 hover:border-rose-400/90',
+    glow: 'rgba(244, 63, 94, 0.20)',
+    badge: 'bg-rose-500/10 text-rose-800 border-rose-200/70',
+    arrowBg: 'group-hover:bg-rose-600 group-hover:text-white',
+    arrowText: 'text-rose-700',
+  },
+  radiology: {
+    bg: 'from-slate-200/70 via-cyan-50/30 to-white/95',
+    border: 'border-slate-300/80 hover:border-cyan-400/90',
+    glow: 'rgba(15, 23, 42, 0.18)',
+    badge: 'bg-slate-500/10 text-slate-800 border-slate-300/70',
+    arrowBg: 'group-hover:bg-slate-700 group-hover:text-white',
+    arrowText: 'text-slate-700',
+  },
+  anesthesia: {
+    bg: 'from-teal-100/70 via-slate-50/40 to-white/95',
+    border: 'border-teal-200/80 hover:border-teal-400/90',
+    glow: 'rgba(13, 148, 136, 0.20)',
+    badge: 'bg-teal-500/10 text-teal-800 border-teal-200/70',
+    arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
+    arrowText: 'text-teal-700',
+  },
+};
+
+const DEFAULT_CARD_THEME: SubjectCardTheme = {
+  bg: 'from-teal-50/80 via-slate-50/40 to-white/95',
+  border: 'border-slate-200/80 hover:border-teal-300',
+  glow: 'rgba(13, 148, 136, 0.16)',
+  badge: 'bg-slate-100 text-slate-700 border-slate-200',
+  arrowBg: 'group-hover:bg-[#006B63] group-hover:text-white',
+  arrowText: 'text-slate-600',
+};
+
 const SECTION_ENTER = (delay: number, reduced: boolean | null) =>
   reduced ? {} : { delay, y: 10, opacity: 0 };
 const SECTION_SHOW = { y: 0, opacity: 1 };
@@ -303,13 +481,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Respect prefers-reduced-motion
   const reducedMotion = useReducedMotion();
 
-  // Dynamic greeting based on time of day
+  // Dynamic greeting and solar state based on user chosen bgTheme OR real-time of day
   const hour = new Date().getHours();
-  const greeting = useMemo(() => {
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  }, [hour]);
+  const themeSetting = state.settings?.bgTheme;
+  const { greeting, greetingIcon: GreetingIcon, timeOfDay } = useMemo(() => {
+    let resolvedTime: 'morning' | 'afternoon' | 'evening' | 'night';
+    if (themeSetting === 'morning') resolvedTime = 'morning';
+    else if (themeSetting === 'sunset') resolvedTime = 'evening';
+    else if (themeSetting === 'night') resolvedTime = 'night';
+    else {
+      // auto / circadian
+      if (hour >= 5 && hour < 12) resolvedTime = 'morning';
+      else if (hour >= 12 && hour < 17) resolvedTime = 'afternoon';
+      else if (hour >= 17 && hour < 21) resolvedTime = 'evening';
+      else resolvedTime = 'night';
+    }
+
+    if (resolvedTime === 'morning') {
+      return { greeting: 'Good morning', greetingIcon: Sun, timeOfDay: 'morning' as const };
+    }
+    if (resolvedTime === 'afternoon') {
+      return { greeting: 'Good afternoon', greetingIcon: Sun, timeOfDay: 'afternoon' as const };
+    }
+    if (resolvedTime === 'evening') {
+      return { greeting: 'Good evening', greetingIcon: Sunset, timeOfDay: 'evening' as const };
+    }
+    return { greeting: 'Good evening', greetingIcon: Moon, timeOfDay: 'night' as const };
+  }, [hour, themeSetting]);
 
   const daysRemaining = useMemo(() => getDaysRemainingToExam(state), [state]);
 
@@ -373,6 +571,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     };
   }, [selectedFilterSubjectId, activeFocusSubject, adaptiveRecommendation, state.topicsState]);
 
+  // Subject-specific theme and gradient styling for Today's Focus card
+  const focusTheme = useMemo(
+    () => SUBJECT_CARD_THEMES[activeFocusSubject.id] || DEFAULT_CARD_THEME,
+    [activeFocusSubject.id]
+  );
+
   // Subject progress with FMGE relevance
   const subjectList = useMemo(() => {
     const list = FMGE_SUBJECTS.map((sub) => {
@@ -425,6 +629,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }, [searchQuery]);
 
   const userName = user?.displayName || profile?.displayName || state.settings.userName || 'Doctor';
+  const initials = (userName || 'Doctor')
+    .split(' ')
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   const savedTargetScore = profile?.targetScore || state.settings?.targetScore || 200;
   const focusMinutes = adaptiveRecommendation.allocatedMinutes || nextActionTask?.durationMinutes || 30;
@@ -484,34 +694,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return (
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Navigation header allowing quick return to dashboard */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200/80 pb-4">
+        <div className="flex items-center justify-between border-b border-stone-200/80 pb-3">
           <button
             type="button"
             onClick={() => handleSubTabChange('overview')}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-stone-200/80 text-stone-700 hover:text-stone-900 hover:bg-stone-50 font-semibold text-xs transition-colors shadow-2xs cursor-pointer self-start"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-stone-200/80 text-stone-700 hover:text-stone-900 hover:bg-stone-50 font-semibold text-xs transition-colors shadow-2xs cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-[#00685f]" />
-            <span>← Return to Home Dashboard</span>
+            <span>Return to Home Dashboard</span>
           </button>
-
-          <div className="inline-flex p-1 bg-stone-100/90 border border-stone-200/80 rounded-xl shadow-2xs self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => handleSubTabChange('overview')}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-200/50 cursor-pointer"
-            >
-              <Activity className="w-3.5 h-3.5 text-[#00685f]" />
-              <span>Dashboard</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSubTabChange('planner')}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-stone-900 shadow-xs border border-stone-200/60 cursor-pointer"
-            >
-              <Calendar className="w-3.5 h-3.5 text-[#00685f]" />
-              <span>Daily Planner &amp; Focus</span>
-            </button>
-          </div>
         </div>
 
         <DailyPlannerView
@@ -574,7 +765,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             )}
           </div>
 
-          {/* Right Action Icons: Notification Bell (Desktop only; on mobile the global top header provides bell + avatar) */}
+          {/* Right Action Icons: Notification Bell + Avatar (Desktop only; on mobile the global top header provides them) */}
           <div className="hidden lg:flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               type="button"
@@ -590,6 +781,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500" />
                 </span>
               )}
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenProfile}
+              className="flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white border border-slate-200/90 shadow-xs hover:bg-slate-50 transition-colors cursor-pointer group"
+              title="Doctor Profile & Blueprint"
+            >
+              <div className="h-8 w-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-['Outfit'] font-bold text-xs shrink-0 ring-2 ring-slate-900/10">
+                {initials}
+              </div>
+              <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
             </button>
           </div>
         </div>
@@ -668,14 +871,68 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion)}
-          className="rounded-3xl bg-white/75 backdrop-blur-xs border border-slate-200/70 shadow-[0_4px_24px_-4px_rgba(15,23,42,0.03)] p-4 sm:p-5 lg:p-5.5 relative overflow-hidden"
+          className="rounded-3xl bg-gradient-to-br from-[#F0FDF9] via-[#F8FCFA] via-40% to-[#E6F4F1] border border-teal-200/70 shadow-xs p-4 sm:p-5 lg:p-6 relative overflow-hidden"
         >
+          {/* Subtle Ambient Radial Light Mesh */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_70%_at_18%_15%,rgba(204,251,241,0.45),transparent_65%),radial-gradient(ellipse_70%_60%_at_85%_85%,rgba(209,250,229,0.3),transparent_70%)]"
+          />
+
+          {/* Luminous system theme top border shimmer track */}
+          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-500/25 to-transparent" />
+            <motion.div
+              animate={{ x: ['-100%', '300%'] }}
+              transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.0 }}
+              className="w-48 sm:w-72 h-full bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_14px_#2dd4bf]"
+            />
+          </div>
+
+          {/* Subtle bottom border gradient luster */}
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-teal-500/20 to-transparent" />
+
+          {/* Soft glowing corner radial gradient orbs with breathing motion */}
+          <motion.div
+            animate={{
+              scale: [1, 1.18, 1],
+              opacity: [0.35, 0.6, 0.35],
+              x: [0, 16, 0],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+            className="pointer-events-none absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/35 via-emerald-200/25 to-transparent blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1.1, 1, 1.1],
+              opacity: [0.2, 0.4, 0.2],
+              y: [0, -10, 0],
+            }}
+            transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut' }}
+            className="pointer-events-none absolute -bottom-16 -left-12 h-60 w-60 rounded-full bg-gradient-to-tr from-cyan-300/25 via-teal-100/20 to-transparent blur-3xl"
+          />
+
+          {/* Doctor Mountain Scenery with Animated Birds & Live Solar Tracking */}
+          <DoctorMountainArt
+            variant="backdrop"
+            forceTimeOfDay={timeOfDay}
+            className="opacity-25 sm:opacity-35 md:opacity-[0.52] transition-opacity duration-500"
+          />
+
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
-            {/* Left side: Greeting + Sun Icon + Quote */}
+            {/* Left side: Greeting + Dynamic Sun/Sunset/Moon Icon + Quote */}
             <div className="space-y-1 max-w-xl">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-                  <Sun className="h-3.5 w-3.5" />
+                <div
+                  className={`h-6 w-6 rounded-xl flex items-center justify-center transition-colors ${
+                    timeOfDay === 'evening'
+                      ? 'bg-amber-500/15 text-amber-600'
+                      : timeOfDay === 'night'
+                      ? 'bg-indigo-500/15 text-indigo-600'
+                      : 'bg-teal-500/15 text-[#006B63]'
+                  }`}
+                >
+                  <GreetingIcon className="h-3.5 w-3.5 stroke-[2]" />
                 </div>
                 <span className="text-xs sm:text-sm font-medium text-slate-500">{greeting},</span>
               </div>
@@ -687,27 +944,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </p>
             </div>
 
-            {/* Right side: Subtle Motivational Badge */}
-            <div className="hidden md:flex items-center gap-3 bg-slate-50/80 border border-slate-200/60 rounded-2xl px-3.5 py-2 shrink-0">
+            {/* Right side: Doctor's Mountain Creed Badge with Interactive Spring */}
+            <motion.div
+              whileHover={{ scale: 1.02, y: -2 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+              className="hidden md:flex items-center gap-3 bg-white/80 backdrop-blur-md border border-teal-200/70 rounded-2xl px-3.5 py-2.5 shrink-0 shadow-2xs cursor-pointer hover:shadow-xs"
+            >
               <div className="h-7 w-11 shrink-0 relative">
                 <svg viewBox="0 0 44 24" fill="none" className="w-full h-full">
-                  <path d="M2 24L18 6L26 14L38 24H2Z" fill="#006B63" fillOpacity="0.22" />
-                  <path d="M14 24L28 9L36 19L42 24H14Z" fill="#0284c7" fillOpacity="0.16" />
+                  <path d="M2 24L18 6L26 14L38 24H2Z" fill="#006B63" fillOpacity="0.25" />
+                  <path d="M14 24L28 9L36 19L42 24H14Z" fill="#0284c7" fillOpacity="0.18" />
                   <path d="M18 6L21 3V7L18 6Z" fill="#e11d48" />
                 </svg>
               </div>
-              <div className="text-right">
-                <p className="text-xs font-semibold text-[#006B63] italic">
+              <div className="text-right space-y-0.5">
+                <p className="text-xs font-semibold text-[#006B63] font-['Newsreader'] italic">
                   &ldquo;Discipline today leads to freedom tomorrow.&rdquo;
                 </p>
+                <p className="text-[10px] font-mono text-slate-400 font-medium uppercase tracking-wider">
+                  DOCTOR&apos;S CREED · FMGE READY
+                </p>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* 4 Stat Badges Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 pt-3.5 mt-3.5 border-t border-slate-100">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 pt-3.5 mt-3.5 border-t border-teal-900/10 relative z-10">
             {/* Card 1: Days remaining */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-slate-50/75 hover:bg-slate-50 border border-slate-200/60 rounded-2xl p-2.5 sm:p-3 transition-colors min-w-0 shadow-2xs">
+            <div className="flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md hover:bg-white border border-teal-200/70 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 shadow-2xs">
               <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-xl bg-teal-500/10 text-[#006B63] flex items-center justify-center shrink-0">
                 <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
@@ -722,7 +986,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Card 2: Target Score */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-slate-50/75 hover:bg-slate-50 border border-slate-200/60 rounded-2xl p-2.5 sm:p-3 transition-colors min-w-0 shadow-2xs">
+            <div className="flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md hover:bg-white border border-teal-200/70 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 shadow-2xs">
               <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-xl bg-teal-500/10 text-[#006B63] flex items-center justify-center shrink-0">
                 <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
@@ -737,7 +1001,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Card 3: Subjects count */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-slate-50/75 hover:bg-slate-50 border border-slate-200/60 rounded-2xl p-2.5 sm:p-3 transition-colors min-w-0 shadow-2xs">
+            <div className="flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md hover:bg-white border border-teal-200/70 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 shadow-2xs">
               <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
                 <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
@@ -752,7 +1016,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Card 4: Progress / Streak */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-slate-50/75 hover:bg-slate-50 border border-slate-200/60 rounded-2xl p-2.5 sm:p-3 transition-colors min-w-0 shadow-2xs">
+            <div className="flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md hover:bg-white border border-teal-200/70 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 shadow-2xs">
               <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
                 <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
@@ -827,17 +1091,31 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.08, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-3xl bg-gradient-to-br from-white via-white to-teal-50/25 border border-slate-200/80 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.05)] hover:shadow-md p-4.5 sm:p-5.5 lg:p-6 relative overflow-hidden transition-all duration-200"
+              className={`rounded-3xl bg-gradient-to-br ${focusTheme.bg} ${focusTheme.border} border shadow-[0_16px_40px_-12px_rgba(15,23,42,0.08)] hover:shadow-lg p-5 sm:p-6 lg:p-7 relative overflow-hidden transition-all duration-300`}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-6">
+              {/* Dynamic Subject-Themed Ambient Background Glow Orbs */}
+              <div
+                className="absolute -top-24 -right-24 w-80 h-80 sm:w-96 sm:h-96 rounded-full pointer-events-none filter blur-3xl opacity-60 transition-all duration-500"
+                style={{
+                  background: `radial-gradient(circle, ${focusTheme.glow} 0%, transparent 70%)`,
+                }}
+              />
+              <div
+                className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full pointer-events-none filter blur-3xl opacity-40 transition-all duration-500"
+                style={{
+                  background: `radial-gradient(circle, ${focusTheme.glow} 0%, transparent 70%)`,
+                }}
+              />
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-7 relative z-10">
                 {/* Left side: Focus Text & Actions */}
-                <div className="flex-1 space-y-3 min-w-0">
+                <div className="flex-1 space-y-3.5 min-w-0">
                   {/* Category Header Badges */}
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-teal-50 text-[#006B63] border border-teal-200/70 font-mono">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/90 text-[#006B63] border border-teal-200/70 font-mono shadow-2xs backdrop-blur-xs">
                       + TODAY&apos;S FOCUS
                     </span>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#e11d48] font-mono">
+                    <span className={`text-[11px] font-bold uppercase tracking-wider font-mono px-2.5 py-0.5 rounded-full border shadow-2xs backdrop-blur-xs ${focusTheme.badge}`}>
                       {activeFocusSubject.name.toUpperCase()}
                     </span>
                   </div>
@@ -847,55 +1125,60 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <h2 className="font-['Outfit'] text-xl sm:text-2xl lg:text-[26px] font-black tracking-tight text-slate-900 leading-tight break-words">
                       {activeFocusTopic.name}
                     </h2>
-                    <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 max-w-lg line-clamp-2 sm:line-clamp-none">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-1.5 max-w-lg line-clamp-2 sm:line-clamp-none">
                       {adaptiveRecommendation.actionDescription || activeFocusTopic.reason}
                     </p>
                   </div>
 
                   {/* 4 Meta Badges */}
                   <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-0.5">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-50 text-slate-700 border border-slate-200/70">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/80 text-slate-700 border border-slate-200/80 shadow-2xs backdrop-blur-xs">
                       <Calendar className="h-3 w-3 text-slate-400" />
                       <AnimatedNumber value={focusMarks} /> marks
                     </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-50 text-slate-700 border border-slate-200/70">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/80 text-slate-700 border border-slate-200/80 shadow-2xs backdrop-blur-xs">
                       <Clock className="h-3 w-3 text-slate-400" />
                       <AnimatedNumber value={focusMinutes} /> min
                     </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-50 text-slate-700 border border-slate-200/70">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/80 text-slate-700 border border-slate-200/80 shadow-2xs backdrop-blur-xs">
                       <BookOpen className="h-3 w-3 text-slate-400" /> Clinical MCQ
                     </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-600 border border-rose-100">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50/90 text-rose-600 border border-rose-200/80 shadow-2xs backdrop-blur-xs">
                       <Flame className="h-3 w-3 fill-rose-500 text-rose-500" /> High-yield
                     </span>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 pt-1.5">
+                  {/* Action Buttons (Desktop layout: inside left column) */}
+                  <div className="hidden sm:flex flex-wrap items-center gap-2 sm:gap-2.5 pt-2">
                     <button
                       type="button"
                       onClick={startFocusSession}
-                      className="inline-flex items-center justify-center gap-2 w-full xs:w-auto px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#006B63] hover:bg-[#00524c] text-white shadow-xs active:scale-[0.98] transition-all cursor-pointer min-h-[44px]"
+                      className="inline-flex items-center justify-center gap-2 w-full xs:w-auto px-5 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#006B63] hover:bg-[#00524c] text-white shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer min-h-[44px]"
                     >
                       <Play className="h-3.5 w-3.5 fill-white" /> Start Session
                     </button>
                     <button
                       type="button"
                       onClick={() => onSelectSubject(activeFocusSubject.id)}
-                      className="inline-flex items-center justify-center gap-2 w-full xs:w-auto px-4.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200/90 hover:bg-slate-50 active:scale-[0.98] transition-all cursor-pointer min-h-[44px]"
+                      className="inline-flex items-center justify-center gap-2 w-full xs:w-auto px-4.5 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold text-slate-700 bg-white/90 border border-slate-200/90 hover:bg-white active:scale-[0.98] shadow-2xs transition-all cursor-pointer min-h-[44px]"
                     >
                       Subject Roadmap <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
                     </button>
                   </div>
                 </div>
 
-                {/* Right side: Integrated 3D Anatomical Visual with Radiant Ambient Glow */}
-                <div className="relative w-full sm:w-56 md:w-64 lg:w-60 xl:w-68 shrink-0 flex flex-col items-center justify-center pt-2 sm:pt-0">
-                  {/* Subtle, soft luminous gradient aura directly around the artwork (No boxy borders) */}
-                  <div className="absolute inset-0 -m-4 rounded-full bg-[radial-gradient(circle_at_50%_45%,rgba(13,148,136,0.18)_0%,rgba(16,185,129,0.06)_50%,transparent_75%)] filter blur-xl pointer-events-none" />
+                {/* Right side: Integrated 3D Anatomical Visual with Radiant Ambient Glow — Enlarged & Fully Responsive */}
+                <div className="relative w-full sm:w-68 md:w-76 lg:w-72 xl:w-84 shrink-0 flex flex-col items-center justify-center pt-2 sm:pt-0">
+                  {/* Luminous gradient aura directly around the artwork */}
+                  <div
+                    className="absolute inset-0 -m-6 sm:-m-8 rounded-full filter blur-2xl pointer-events-none opacity-80 transition-all duration-500"
+                    style={{
+                      background: `radial-gradient(circle at 50% 50%, ${focusTheme.glow} 0%, transparent 72%)`,
+                    }}
+                  />
 
-                  {/* Anatomical Model */}
-                  <div className="relative w-full h-36 sm:h-44 flex items-center justify-center z-10">
+                  {/* Anatomical Model Stage — Substantially enlarged, responsive on phone and desktop */}
+                  <div className="relative w-full h-44 xs:h-52 sm:h-54 md:h-64 lg:h-60 xl:h-68 flex items-center justify-center z-10">
                     <MedicalHeroVisual
                       subjectId={activeFocusSubject.id}
                       subjectName={activeFocusSubject.name}
@@ -906,29 +1189,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     />
                   </div>
 
-                  {/* ECG Waveform & Small Contextual Metadata floating naturally underneath */}
-                  <div className="w-full max-w-[240px] mt-1.5 flex items-center justify-between gap-2 px-2.5 py-1 rounded-full bg-slate-50/80 border border-slate-200/60 shadow-2xs backdrop-blur-xs relative z-10">
+                  {/* ECG Waveform & Contextual Live Metadata floating naturally underneath */}
+                  <div className={`w-full max-w-[260px] sm:max-w-[280px] mt-2 flex items-center justify-between gap-2 px-3 py-1.5 rounded-full bg-white/85 ${focusTheme.border} border shadow-2xs backdrop-blur-md relative z-10`}>
                     <div className="flex items-center gap-1.5 min-w-0">
                       <span className="relative flex h-2 w-2 shrink-0">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 motion-reduce:hidden" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                       </span>
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600 truncate">
+                      <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 truncate">
                         {activeFocusSubject.name}
                       </span>
                     </div>
 
                     {/* ECG SVG Waveform */}
                     <div className="w-14 sm:w-16 h-3.5 flex items-center shrink-0">
-                      <svg viewBox="0 0 80 20" className="w-full h-full stroke-[#006B63] fill-none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg viewBox="0 0 80 20" className="w-full h-full stroke-[#006B63] fill-none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M0 10 L25 10 L30 3 L35 17 L40 5 L45 12 L50 10 L80 10" />
                       </svg>
                     </div>
 
-                    <span className="text-[10px] font-semibold text-slate-400 tabular-nums shrink-0">
+                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 tabular-nums shrink-0">
                       Live
                     </span>
                   </div>
+                </div>
+
+                {/* Mobile Action Buttons (Mobile layout: cleanly anchored at bottom of card) */}
+                <div className="flex sm:hidden flex-col xs:flex-row items-center gap-2 pt-1 w-full relative z-10">
+                  <button
+                    type="button"
+                    onClick={startFocusSession}
+                    className="inline-flex items-center justify-center gap-2 w-full px-5 py-2.5 rounded-full text-xs font-bold bg-[#006B63] hover:bg-[#00524c] text-white shadow-sm active:scale-[0.98] transition-all cursor-pointer min-h-[44px]"
+                  >
+                    <Play className="h-3.5 w-3.5 fill-white" /> Start Session
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSelectSubject(activeFocusSubject.id)}
+                    className="inline-flex items-center justify-center gap-2 w-full px-4.5 py-2.5 rounded-full text-xs font-semibold text-slate-700 bg-white/90 border border-slate-200/90 active:scale-[0.98] shadow-2xs transition-all cursor-pointer min-h-[44px]"
+                  >
+                    Subject Roadmap <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
+                  </button>
                 </div>
               </div>
             </motion.section>
@@ -1385,6 +1686,122 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           </div>
         </div>
+
+        {/* ── EXPLORE OTHER HIGH-YIELD SUBJECTS ── */}
+        <motion.section
+          initial={SECTION_ENTER(0.2, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="space-y-4 pt-2"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-xl bg-teal-500/10 flex items-center justify-center text-[#006B63] shrink-0">
+                <Flame className="h-4.5 w-4.5 fill-[#006B63] text-[#006B63]" />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 font-['Outfit'] leading-tight">
+                  Explore Other High-Yield Subjects
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Curated 3D anatomical models and clinical blueprints weighted by NBE exam pattern
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigateTab('syllabus')}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#006B63] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
+            >
+              View all 19 subjects <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          {/* Grid of Subject Cards — Perfectly Scaled, Soft Specialty Gradients & Fully Responsive Across Mobile and Desktop */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3 lg:gap-3.5">
+            {subjectList.map((sub) => {
+              const isCurrent = sub.id === activeFocusSubject.id;
+              const hyCount = sub.topics.filter((t) => t.isHighYield).length;
+              const theme = SUBJECT_CARD_THEMES[sub.id] || DEFAULT_CARD_THEME;
+
+              return (
+                <div
+                  key={sub.id}
+                  onClick={() => {
+                    setSelectedFilterSubjectId(sub.id);
+                    onSelectSubject(sub.id);
+                  }}
+                  className={`group relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col justify-between transition-all duration-200 cursor-pointer border bg-gradient-to-b ${theme.bg} ${
+                    isCurrent
+                      ? 'border-[#006B63] shadow-md ring-2 ring-[#006B63]/25'
+                      : `${theme.border} shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5`
+                  } active:scale-[0.98]`}
+                >
+                  {/* Weightage Badge top right */}
+                  <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20">
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold border shadow-2xs backdrop-blur-xs ${theme.badge}`}>
+                      {sub.weightage}m
+                    </span>
+                  </div>
+
+                  {/* 3D Medical Artwork Stage with soft radial backdrop glow matching theme */}
+                  <div className="relative w-full h-18 sm:h-20 md:h-20 lg:h-20 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1 sm:p-1.5 group-hover:scale-105 transition-transform duration-300 ease-out">
+                    <div
+                      className="absolute inset-0 filter blur-sm pointer-events-none rounded-full"
+                      style={{
+                        background: `radial-gradient(circle at 50% 55%, ${theme.glow} 0%, transparent 72%)`,
+                      }}
+                    />
+                    <div className="relative w-full h-full flex items-center justify-center z-10">
+                      <MedicalSubjectCardVisual subjectId={sub.id} />
+                    </div>
+                  </div>
+
+                  {/* Content & Metadata */}
+                  <div className="mt-1.5 sm:mt-2 pt-0.5 space-y-1">
+                    <div className="flex items-start justify-between gap-1">
+                      <div className="min-w-0 flex-1">
+                        <h4
+                          className="text-[11px] sm:text-xs md:text-[13px] font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate"
+                          title={sub.name}
+                        >
+                          {sub.name}
+                        </h4>
+                        <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">
+                          {hyCount} High-yield
+                        </p>
+                      </div>
+
+                      {/* Reference Mockup Arrow Action Circle */}
+                      <div
+                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5 ${
+                          isCurrent
+                            ? 'bg-[#006B63] text-white shadow-xs'
+                            : `bg-white/80 ${theme.arrowText} border border-slate-200/70 shadow-2xs ${theme.arrowBg}`
+                        }`}
+                      >
+                        <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      </div>
+                    </div>
+
+                    {/* Micro Progress Bar */}
+                    <div className="flex items-center gap-1.5 pt-0.5">
+                      <div className="flex-1 h-1 sm:h-1.5 bg-slate-200/60 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-[#006B63] to-[#10B981] rounded-full transition-all duration-300"
+                          style={{ width: `${Math.max(sub.percentage, 4)}%` }}
+                        />
+                      </div>
+                      <span className="font-mono text-[9px] sm:text-[10px] font-semibold text-slate-600 tabular-nums shrink-0">
+                        {sub.percentage}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.section>
       </div>
 
       {/* Topic Mastery Workspace Modal */}

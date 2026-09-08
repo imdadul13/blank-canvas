@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Plus,
   Trash2,
@@ -26,6 +27,7 @@ import {
   X,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { motion } from 'motion/react';
 import { GrandTest, AppState } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { getLocalDateKey } from '../utils/date';
@@ -276,7 +278,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         </div>
       )}
 
-      {/* 1. Breadcrumb & Navigation */}
+      {/* 1. Top Breadcrumb & Navigation */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider font-mono">
           {onNavigateTab ? (
@@ -291,36 +293,301 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             <span className="text-stone-500">PERFORMANCE</span>
           )}
           <span className="text-stone-400">•</span>
-          <span className="text-[#00685f] font-bold">GRAND TESTS &amp; MOCK EXAMS</span>
+          <span className="text-[#006B63] font-bold">GRAND TESTS &amp; MOCK EXAMS</span>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-teal-50 text-teal-800 border border-teal-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-teal-500 animate-pulse" />
+            NBE Cutoff: 150/300
+          </span>
         </div>
       </div>
 
-      {/* 2. Editorial Header: "Grand Tests & Mock Exams" + Editorial Quote Card */}
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-        <div className="space-y-2 max-w-2xl">
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-semibold text-slate-900 tracking-tight leading-tight">
-            Grand Tests &amp; Mock Exams
-          </h1>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Track full-length 300-mark mock test progression across Marrow, Prepladder, Cerebellum, and DAMS. Calibrated against the NBE 150-mark qualifying cutoff.
-          </p>
+      {/* 2. Hero Header Card with Motion & Visual Animations */}
+      <motion.header
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#F1F5FA] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+      >
+        {/* Dynamic Animated Ambient Effects */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+
+          {/* Soft glowing corner radial gradient orbs with breathing motion */}
+          <motion.div
+            animate={{
+              scale: [1, 1.18, 1],
+              opacity: [0.35, 0.6, 0.35],
+              x: [0, 16, 0],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/35 via-emerald-200/25 to-transparent blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.2, 0.4, 0.2],
+              y: [0, -10, 0],
+            }}
+            transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute -bottom-16 -left-12 h-60 w-60 rounded-full bg-gradient-to-tr from-cyan-300/25 via-teal-100/20 to-transparent blur-3xl"
+          />
+
+          {/* Subtle Coordinate Grid */}
+          <svg
+            className="absolute inset-0 h-full w-full opacity-[0.035] text-teal-950 pointer-events-none select-none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <pattern id="gt-hero-grid" width="28" height="28" patternUnits="userSpaceOnUse">
+                <path d="M 28 0 L 0 0 0 28" fill="none" stroke="currentColor" strokeWidth="0.75" />
+                <circle cx="28" cy="28" r="0.75" fill="currentColor" opacity="0.6" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#gt-hero-grid)" />
+          </svg>
+
+          {/* Premium Alpine Summit of Triumph & Victory Colonnade Artwork */}
+          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[520px] overflow-hidden opacity-45 sm:opacity-60 md:opacity-[0.72] select-none pointer-events-none block">
+            <svg viewBox="0 0 520 145" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
+              <defs>
+                <linearGradient id="gt-sky-dawn" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#FEF3C7" stopOpacity="0.6" />
+                  <stop offset="40%" stopColor="#FDE68A" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#E0F2FE" stopOpacity="0" />
+                </linearGradient>
+                <linearGradient id="gt-mtn-far" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#94A3B8" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#334155" stopOpacity="0.55" />
+                </linearGradient>
+                <linearGradient id="gt-summit-cliff" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1E293B" stopOpacity="0.85" />
+                  <stop offset="50%" stopColor="#0F766E" stopOpacity="0.95" />
+                  <stop offset="100%" stopColor="#044E48" stopOpacity="0.95" />
+                </linearGradient>
+                <linearGradient id="gt-column-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#FFFFFF" />
+                  <stop offset="40%" stopColor="#E2E8F0" />
+                  <stop offset="80%" stopColor="#CBD5E1" />
+                  <stop offset="100%" stopColor="#94A3B8" />
+                </linearGradient>
+                <radialGradient id="gt-dawn-sun" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.75" />
+                  <stop offset="45%" stopColor="#FBBF24" stopOpacity="0.4" />
+                  <stop offset="85%" stopColor="#10B981" stopOpacity="0.15" />
+                  <stop offset="100%" stopColor="#1E293B" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              {/* Golden Dawn Sun Corona behind the Summit */}
+              <motion.circle
+                cx="430"
+                cy="48"
+                r="55"
+                fill="url(#gt-dawn-sun)"
+                animate={{ scale: [1, 1.15, 1], opacity: [0.55, 0.85, 0.55] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              {/* ═══ 1. DISTANT ALPINE RIDGES & ROLLING HORIZON ═══ */}
+              <path
+                d="M 120 145 L 200 95 L 260 120 L 330 75 L 420 110 L 520 85 L 520 145 Z"
+                fill="url(#gt-mtn-far)"
+              />
+
+              {/* Low Valley Mist Drifting horizontally */}
+              <motion.path
+                d="M 100 125 Q 220 112 340 122 Q 440 115 520 122"
+                stroke="#FFFFFF"
+                strokeWidth="5"
+                strokeLinecap="round"
+                opacity="0.35"
+                animate={{ x: [-15, 15, -15] }}
+                transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              {/* ═══ 2. FOREGROUND ASCENDING SUMMIT CLIFF (PAST 150 CUTOFF) ═══ */}
+              <path
+                d="M 180 145 L 270 115 L 340 85 L 400 62 L 470 58 L 520 70 L 520 145 Z"
+                fill="url(#gt-summit-cliff)"
+              />
+
+              {/* 150-Mark Milestone Inscription Plaque on Cliff Face */}
+              <g transform="translate(285, 112) rotate(-18)">
+                <rect x="0" y="0" width="58" height="15" rx="3" fill="#0F172A" opacity="0.6" />
+                <rect x="1" y="1" width="56" height="13" rx="2" stroke="#F59E0B" strokeWidth="0.8" fill="none" />
+                <text x="29" y="10.5" textAnchor="middle" fill="#FDE68A" fontSize="8" fontWeight="800" fontFamily="monospace" letterSpacing="0.8">
+                  ★ 150 CUTOFF
+                </text>
+              </g>
+
+              {/* ═══ 3. TRIUMPHAL VICTORY COLONNADE & LAUREL ARCHWAY ═══ */}
+              <g transform="translate(425, 20)">
+                {/* Archway Pediment / Entablature Top */}
+                <polygon points="0,8 38,0 76,8" fill="url(#gt-column-grad)" />
+                <rect x="2" y="8" width="72" height="5" rx="1" fill="url(#gt-column-grad)" />
+                {/* Golden Inscribed Star of Excellence */}
+                <circle cx="38" cy="4" r="2.5" fill="#F59E0B" />
+
+                {/* Left Classical Column */}
+                <rect x="8" y="13" width="7" height="36" fill="url(#gt-column-grad)" />
+                <rect x="6" y="13" width="11" height="2" fill="url(#gt-column-grad)" />
+                <rect x="6" y="47" width="11" height="2" fill="url(#gt-column-grad)" />
+
+                {/* Right Classical Column */}
+                <rect x="61" y="13" width="7" height="36" fill="url(#gt-column-grad)" />
+                <rect x="59" y="13" width="11" height="2" fill="url(#gt-column-grad)" />
+                <rect x="59" y="47" width="11" height="2" fill="url(#gt-column-grad)" />
+
+                {/* Central Arch Curve */}
+                <path
+                  d="M 15 28 C 15 18, 61 18, 61 28"
+                  stroke="url(#gt-column-grad)"
+                  strokeWidth="2.5"
+                  fill="none"
+                />
+
+                {/* Golden Triumph Beacon Light in Center Arch */}
+                <circle cx="38" cy="27" r="3.5" fill="#F59E0B" />
+                <motion.circle
+                  cx="38"
+                  cy="27"
+                  r="7"
+                  stroke="#F59E0B"
+                  strokeWidth="1.2"
+                  fill="none"
+                  animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut' }}
+                />
+              </g>
+
+              {/* ═══ 4. VICTORIOUS DOCTOR SILHOUETTE ON SUMMIT PRECIPICE ═══ */}
+              <g transform="translate(390, 32) scale(0.65)">
+                {/* Head with Stethoscope around neck */}
+                <ellipse cx="14" cy="8" rx="5.5" ry="6.5" fill="#0F172A" />
+                {/* Body in White Coat */}
+                <path d="M 9 15 L 19 15 L 22 40 L 6 40 Z" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="0.8" />
+                {/* Stethoscope */}
+                <path d="M 11 15 C 11 21, 17 21, 17 15" stroke="#0D9488" strokeWidth="1.5" fill="none" />
+                <circle cx="14" cy="23" r="1.8" fill="#0D9488" />
+                {/* Billowing White Coat Tail in Mountain Breeze */}
+                <motion.path
+                  d="M 6 32 Q -4 34 -8 40 Q -2 36 6 38"
+                  fill="#FFFFFF"
+                  stroke="#CBD5E1"
+                  strokeWidth="0.8"
+                  animate={{ scaleX: [1, 1.15, 1], skewX: [0, -3, 0] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                {/* Legs Standing Firmly on Plateau */}
+                <rect x="9" y="40" width="3.5" height="18" fill="#1E293B" />
+                <rect x="15" y="40" width="3.5" height="18" fill="#1E293B" />
+              </g>
+
+              {/* ═══ 5. SOARING EAGLE / BIRDS OVER DAWN SUMMIT ═══ */}
+              <motion.g
+                animate={{
+                  x: [0, 180],
+                  y: [0, -14],
+                }}
+                transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+              >
+                <g transform="translate(210, 35) scale(0.7)">
+                  <motion.path
+                    d="M 0 0 Q 6 -8 14 -3 Q 22 -8 28 0 Q 18 -2 14 3 Q 10 -2 0 0 Z"
+                    fill="#1E293B"
+                    animate={{ scaleY: [1, 0.4, 1] }}
+                    transition={{ duration: 0.9, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                </g>
+              </motion.g>
+
+              {/* Second High-Altitude Bird */}
+              <motion.g
+                animate={{
+                  x: [0, 150],
+                  y: [0, -8],
+                }}
+                transition={{ duration: 15, repeat: Infinity, ease: 'linear', delay: 3 }}
+              >
+                <g transform="translate(280, 20) scale(0.5)">
+                  <motion.path
+                    d="M 0 0 Q 6 -7 12 -2 Q 18 -7 24 0 Q 15 -2 12 2 Q 9 -2 0 0 Z"
+                    fill="#334155"
+                    animate={{ scaleY: [1, 0.4, 1] }}
+                    transition={{ duration: 0.8, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                </g>
+              </motion.g>
+            </svg>
+          </div>
         </div>
 
-        {/* Editorial Quote Card (matching ONE SHOT FMGE design system) */}
-        <div className="bg-[#ECF7F5] border border-[#CBEBE5] rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 max-w-md shrink-0 self-stretch sm:self-start">
-          <div className="w-8 h-8 rounded-xl bg-[#D4F0EB] text-[#00685f] flex items-center justify-center shrink-0 font-serif text-xl font-bold leading-none select-none">
-            “
+        {/* Header Content Body */}
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="space-y-1 max-w-2xl">
+            {/* Tag / Category Badge */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-800 text-[10px] sm:text-[11px] font-bold font-mono tracking-wide">
+              <GraduationCap className="h-3 w-3" />
+              <span>NBE FULL EXAMINATION ENGINE • 300 QUESTIONS</span>
+            </div>
+
+            {/* Heading with Element Insignia */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#1E293B] via-[#0F766E] to-[#005750] text-white shadow-md shadow-slate-900/15 shrink-0">
+                <Award className="h-5 w-5 text-indigo-100" />
+              </div>
+              <div>
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold text-slate-900 tracking-tight font-['Outfit'] leading-snug">
+                  Grand Tests &amp; Mocks
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-600 leading-normal line-clamp-1 sm:line-clamp-none">
+                  Simulate 300-Q NBE exams &amp; track your trajectory past the 150-mark cutoff.
+                </p>
+              </div>
+            </div>
+
+            {/* Quick Metrics Bar */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                <span className="text-slate-400">Tests:</span>
+                <span className="font-bold text-slate-900">{stats.totalTests}</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                <span className="text-slate-400">Latest:</span>
+                <span className={`font-bold ${stats.latestPassed ? 'text-emerald-700' : stats.latestScore > 0 ? 'text-amber-700' : 'text-slate-900'}`}>
+                  {stats.latestScore > 0 ? `${stats.latestScore}/300` : 'None'}
+                </span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                <span className="text-slate-400">Peak:</span>
+                <span className="font-bold text-teal-700">
+                  {stats.highestScore > 0 ? `${stats.highestScore}/300` : '-'}
+                </span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                <span className="text-slate-400">Pass Rate:</span>
+                <span className="font-bold text-emerald-700">
+                  {stats.clearanceRate}%
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-xs sm:text-sm text-slate-800 font-medium leading-snug">
-              “Grand Tests are not a test of memory, but of stamina, triage, and clinical composure.”
-            </p>
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#00685f] block">
-              — ONE SHOT FMGE
-            </span>
+
+          {/* Right Action Button */}
+          <div className="flex items-center shrink-0">
+            <button
+              type="button"
+              onClick={() => setShowAddGTModal(true)}
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer active:scale-98"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Log Grand Test</span>
+            </button>
           </div>
         </div>
-      </div>
+      </motion.header>
 
       {/* 3. Primary Actions & Benchmark Bar: Clear NBE benchmark card (300 questions / 150 pass mark) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -998,8 +1265,9 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
       )}
 
       {/* 6. REDESIGNED LOG GRAND TEST MODAL */}
-      {showAddGTModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150">
+      {showAddGTModal &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150">
           <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto space-y-6">
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b border-slate-100 pb-4">
@@ -1321,7 +1589,8 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

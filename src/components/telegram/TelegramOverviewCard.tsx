@@ -27,25 +27,25 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
   };
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-2xs">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+    <div className="rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-6 shadow-2xs">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5">
         {/* Left: Branding & Explanation */}
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#ECF7F5] text-[#00685f] flex items-center justify-center border border-[#d2ebe6] shrink-0">
-            <Database className="w-6 h-6" />
+        <div className="flex items-start gap-3.5 sm:gap-4">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#ECF7F5] text-[#00685f] flex items-center justify-center border border-[#d2ebe6] shrink-0">
+            <Database className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
             <h3 className="font-serif text-lg sm:text-xl font-bold text-slate-900 leading-snug">
               Your Cloud Knowledge Bank
             </h3>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1 max-w-xl leading-relaxed">
               High-yield content from trusted Telegram channels, organized for your FMGE preparation.
             </p>
           </div>
         </div>
 
         {/* Right: Metrics Strip (Desktop / Tablet) */}
-        <div className="hidden sm:flex items-center gap-6 lg:gap-8 divide-x divide-stone-100 shrink-0">
+        <div className="hidden sm:flex items-center flex-wrap gap-4 sm:gap-5 lg:gap-7 divide-x divide-stone-100 shrink-0">
           <div className="text-left pl-0">
             <div className="font-mono text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
               {totalItems.toLocaleString()}
@@ -55,7 +55,7 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
             </div>
           </div>
 
-          <div className="text-left pl-6 lg:pl-8">
+          <div className="text-left pl-4 sm:pl-5 lg:pl-7">
             <div className="font-mono text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
               {questionCount.toLocaleString()}
             </div>
@@ -64,7 +64,7 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
             </div>
           </div>
 
-          <div className="text-left pl-6 lg:pl-8">
+          <div className="text-left pl-4 sm:pl-5 lg:pl-7">
             <div className="font-mono text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
               {imageCount.toLocaleString()}
             </div>
@@ -73,7 +73,7 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
             </div>
           </div>
 
-          <div className="text-left pl-6 lg:pl-8">
+          <div className="text-left pl-4 sm:pl-5 lg:pl-7">
             <div className="font-mono text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
               {videoCount.toLocaleString()}
             </div>
@@ -82,7 +82,7 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
             </div>
           </div>
 
-          <div className="text-left pl-6 lg:pl-8">
+          <div className="text-left pl-4 sm:pl-5 lg:pl-7">
             <div className="font-mono text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
               {pearlCount.toLocaleString()}
             </div>

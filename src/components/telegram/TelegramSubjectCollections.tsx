@@ -92,7 +92,7 @@ export const TelegramSubjectCollections: React.FC<TelegramSubjectCollectionsProp
         </button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {displayedSubjects.map((sub) => {
           const count =
             subjectCounts[sub.id.toLowerCase()] ||
@@ -113,7 +113,7 @@ export const TelegramSubjectCollections: React.FC<TelegramSubjectCollectionsProp
                   onSelectSubject(sub.id);
                 }
               }}
-              className={`rounded-2xl border p-3 text-left transition-all cursor-pointer flex items-center justify-between group ${
+              className={`h-full rounded-2xl border p-3 sm:p-3.5 text-left transition-all cursor-pointer flex items-center justify-between group ${
                 isSelected
                   ? "bg-[#ECF7F5] border-[#00685f] shadow-xs ring-1 ring-[#00685f]"
                   : "bg-white border-stone-200/90 hover:border-stone-300 hover:shadow-2xs"

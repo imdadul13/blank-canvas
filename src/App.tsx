@@ -672,17 +672,17 @@ function AppInner() {
         {bgOpacity > 0 && (
           <div
             key={activeBg.id}
-            className="hidden xl:block pointer-events-none fixed top-0 right-0 w-[50vw] max-w-[720px] h-[640px] z-0 transition-all duration-700 ease-in-out"
+            className="hidden sm:block pointer-events-none fixed top-0 right-0 w-[55vw] max-w-[760px] h-[640px] z-0 transition-all duration-700 ease-in-out"
             style={{
-              opacity: Math.min(bgOpacity * 0.04, 0.035),
+              opacity: bgOpacity * 0.22,
               backgroundImage: `url(${activeBg.url})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center top',
-              filter: 'blur(3px) saturate(0.6)',
+              filter: 'blur(2px) saturate(0.85)',
               maskImage:
-                'radial-gradient(ellipse 90% 85% at 90% 10%, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0) 80%)',
+                'radial-gradient(ellipse 90% 85% at 90% 10%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0) 80%)',
               WebkitMaskImage:
-                'radial-gradient(ellipse 90% 85% at 90% 10%, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0) 80%)',
+                'radial-gradient(ellipse 90% 85% at 90% 10%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0) 80%)',
             }}
           />
         )}

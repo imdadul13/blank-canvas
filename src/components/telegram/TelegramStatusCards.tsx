@@ -38,10 +38,10 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
 
   return (
     <>
-      {/* DESKTOP STATUS CARDS: 3 COMPACT CARDS */}
-      <div className="hidden sm:grid sm:grid-cols-3 gap-3.5">
+      {/* DESKTOP STATUS CARDS: 3 COMPACT BALANCED CARDS */}
+      <div className="hidden sm:grid sm:grid-cols-3 gap-3.5 lg:gap-4">
         {/* Card 1: Telegram Account */}
-        <div className="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs flex items-center justify-between gap-3 hover:border-stone-300 transition-colors">
+        <div className="h-full rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-4.5 shadow-2xs flex items-center justify-between gap-3 hover:border-stone-300 transition-colors">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-[#229ED9]/10 text-[#229ED9] flex items-center justify-center shrink-0">
               <Send className="w-5 h-5 -translate-x-0.5 translate-y-0.5" />
@@ -71,13 +71,16 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
                     : "Live ingestion active"
                   : "Tap to connect account"}
               </div>
+              <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                {isConnected ? "Cloud MTProto active" : "Standalone mode"}
+              </div>
             </div>
           </div>
 
           <button
             type="button"
             onClick={isConnected ? onOpenManageModal || onOpenConnectModal : onOpenConnectModal}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer shrink-0 transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer shrink-0 transition-all self-center ${
               isConnected
                 ? "bg-stone-100 hover:bg-stone-200 text-slate-700 border border-stone-200"
                 : "bg-[#00685f] hover:bg-[#005049] text-white shadow-xs"
@@ -88,7 +91,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
         </div>
 
         {/* Card 2: Ingestion Worker */}
-        <div className="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs flex items-center justify-between gap-3 hover:border-stone-300 transition-colors">
+        <div className="h-full rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-4.5 shadow-2xs flex items-center justify-between gap-3 hover:border-stone-300 transition-colors">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#00685f] flex items-center justify-center shrink-0 border border-teal-100/70">
               <Cpu className="w-5 h-5" />
@@ -122,21 +125,29 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
             </div>
           </div>
 
-          {onManualSync && isConnected && (
-            <button
-              type="button"
-              onClick={onManualSync}
-              disabled={isManualSyncing}
-              className="px-2.5 py-1.5 rounded-xl bg-stone-50 hover:bg-stone-100 text-slate-700 border border-stone-200 text-xs font-medium cursor-pointer shrink-0 disabled:opacity-50"
-              title="Trigger immediate sync check"
-            >
-              {isManualSyncing ? "Syncing..." : "Sync"}
-            </button>
-          )}
+          <div className="self-center shrink-0">
+            {onManualSync && isConnected ? (
+              <button
+                type="button"
+                onClick={onManualSync}
+                disabled={isManualSyncing}
+                className="px-2.5 py-1.5 rounded-xl bg-stone-50 hover:bg-stone-100 text-slate-700 border border-stone-200 text-xs font-medium cursor-pointer disabled:opacity-50"
+                title="Trigger immediate sync check"
+              >
+                {isManualSyncing ? "Syncing..." : "Sync"}
+              </button>
+            ) : (
+              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-bold font-mono ${
+                isWorkerRunning ? "bg-teal-50 text-teal-700 border border-teal-200/80" : "bg-amber-50 text-amber-700 border border-amber-200/80"
+              }`}>
+                {isWorkerRunning ? "AUTO" : "IDLE"}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Card 3: Database (PostgreSQL) */}
-        <div className="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs flex items-center justify-between gap-3 hover:border-stone-300 transition-colors">
+        <div className="h-full rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-4.5 shadow-2xs flex items-center justify-between gap-3 hover:border-stone-300 transition-colors">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100/70">
               <Database className="w-5 h-5" />
@@ -166,6 +177,14 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
                 Last synced: {getRelativeTime(workerHealth.lastHeartbeat)}
               </div>
             </div>
+          </div>
+
+          <div className="self-center shrink-0">
+            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-bold font-mono ${
+              isDbHealthy ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80" : "bg-rose-50 text-rose-700 border border-rose-200/80"
+            }`}>
+              {isDbHealthy ? "ONLINE" : "CHECK"}
+            </span>
           </div>
         </div>
       </div>
