@@ -37,6 +37,7 @@ import {
   MoreVertical,
   HelpCircle,
   Stethoscope,
+  ShieldCheck,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -871,97 +872,185 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion)}
-          className="rounded-3xl bg-gradient-to-br from-[#F0FDF9] via-[#F8FCFA] via-40% to-[#E6F4F1] border border-teal-200/70 shadow-xs p-4 sm:p-5 lg:p-6 relative overflow-hidden"
+          className={`rounded-3xl border shadow-sm p-4 sm:p-5 lg:p-6 relative overflow-hidden transition-all duration-700 ${
+            timeOfDay === 'night'
+              ? 'bg-gradient-to-br from-[#0B1519] via-[#0D1F23] via-50% to-[#081518] border-teal-800/40 text-slate-100 shadow-teal-950/20'
+              : timeOfDay === 'evening'
+              ? 'bg-gradient-to-br from-[#FFFBF5] via-[#FCF8F2] via-45% to-[#F5EFE6] border-amber-200/70 text-slate-900 shadow-amber-950/5'
+              : 'bg-gradient-to-br from-[#F4FAF8] via-[#FAFDFB] via-40% to-[#EEF7F4] border-teal-200/80 text-slate-900 shadow-teal-950/5'
+          }`}
         >
-          {/* Subtle Ambient Radial Light Mesh */}
+          {/* Subtle Ambient Radial Aura Mesh */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_70%_at_18%_15%,rgba(204,251,241,0.45),transparent_65%),radial-gradient(ellipse_70%_60%_at_85%_85%,rgba(209,250,229,0.3),transparent_70%)]"
+            className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${
+              timeOfDay === 'night'
+                ? 'bg-[radial-gradient(ellipse_80%_60%_at_15%_20%,rgba(13,148,136,0.18),transparent_65%),radial-gradient(ellipse_70%_50%_at_85%_80%,rgba(2,132,199,0.15),transparent_70%)]'
+                : timeOfDay === 'evening'
+                ? 'bg-[radial-gradient(ellipse_80%_60%_at_15%_20%,rgba(251,191,36,0.22),transparent_65%),radial-gradient(ellipse_70%_50%_at_85%_80%,rgba(244,63,94,0.12),transparent_70%)]'
+                : 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(45,212,191,0.28),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(167,243,208,0.22),transparent_70%)]'
+            }`}
           />
 
-          {/* Luminous system theme top border shimmer track */}
+          {/* Precision Architectural Top Light Line & Shimmer */}
           <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-500/25 to-transparent" />
+            <div
+              className={`absolute inset-0 ${
+                timeOfDay === 'night'
+                  ? 'bg-gradient-to-r from-transparent via-teal-400/40 to-transparent'
+                  : 'bg-gradient-to-r from-transparent via-[#006B63]/30 to-transparent'
+              }`}
+            />
             <motion.div
               animate={{ x: ['-100%', '300%'] }}
-              transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.0 }}
-              className="w-48 sm:w-72 h-full bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_14px_#2dd4bf]"
+              transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
+              className={`w-52 sm:w-80 h-full ${
+                timeOfDay === 'night'
+                  ? 'bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_18px_#38bdf8]'
+                  : 'bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_16px_#2dd4bf]'
+              }`}
             />
           </div>
 
-          {/* Subtle bottom border gradient luster */}
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-teal-500/20 to-transparent" />
+          {/* Subtle bottom border luster */}
+          <div
+            className={`pointer-events-none absolute bottom-0 left-0 right-0 h-[1.5px] ${
+              timeOfDay === 'night'
+                ? 'bg-gradient-to-r from-transparent via-teal-500/25 to-transparent'
+                : 'bg-gradient-to-r from-transparent via-teal-600/15 to-transparent'
+            }`}
+          />
 
-          {/* Soft glowing corner radial gradient orbs with breathing motion */}
+          {/* Deep celestial breathing orbs */}
           <motion.div
             animate={{
-              scale: [1, 1.18, 1],
-              opacity: [0.35, 0.6, 0.35],
-              x: [0, 16, 0],
+              scale: [1, 1.2, 1],
+              opacity: timeOfDay === 'night' ? [0.2, 0.4, 0.2] : [0.35, 0.55, 0.35],
+              x: [0, 14, 0],
             }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-            className="pointer-events-none absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/35 via-emerald-200/25 to-transparent blur-3xl"
+            transition={{ duration: 8.5, repeat: Infinity, ease: 'easeInOut' }}
+            className={`pointer-events-none absolute -top-16 -right-16 h-72 w-72 rounded-full blur-3xl ${
+              timeOfDay === 'night'
+                ? 'bg-gradient-to-br from-cyan-500/20 via-teal-400/15 to-transparent'
+                : timeOfDay === 'evening'
+                ? 'bg-gradient-to-br from-amber-400/25 via-rose-300/20 to-transparent'
+                : 'bg-gradient-to-br from-teal-400/30 via-emerald-300/20 to-transparent'
+            }`}
           />
           <motion.div
             animate={{
-              scale: [1.1, 1, 1.1],
-              opacity: [0.2, 0.4, 0.2],
-              y: [0, -10, 0],
+              scale: [1.12, 1, 1.12],
+              opacity: timeOfDay === 'night' ? [0.15, 0.3, 0.15] : [0.25, 0.42, 0.25],
+              y: [0, -12, 0],
             }}
-            transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="pointer-events-none absolute -bottom-16 -left-12 h-60 w-60 rounded-full bg-gradient-to-tr from-cyan-300/25 via-teal-100/20 to-transparent blur-3xl"
+            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+            className={`pointer-events-none absolute -bottom-16 -left-12 h-64 w-64 rounded-full blur-3xl ${
+              timeOfDay === 'night'
+                ? 'bg-gradient-to-tr from-teal-600/20 via-indigo-900/15 to-transparent'
+                : 'bg-gradient-to-tr from-cyan-200/30 via-teal-100/25 to-transparent'
+            }`}
           />
 
-          {/* Doctor Mountain Scenery with Animated Birds & Live Solar Tracking */}
+          {/* Mountain Scenery with Birds & Real-Time Celestial Solar/Lunar Motion */}
           <DoctorMountainArt
             variant="backdrop"
             forceTimeOfDay={timeOfDay}
-            className="opacity-25 sm:opacity-35 md:opacity-[0.52] transition-opacity duration-500"
+            className={`transition-opacity duration-700 ${
+              timeOfDay === 'night'
+                ? 'opacity-30 sm:opacity-40 md:opacity-[0.58]'
+                : 'opacity-25 sm:opacity-35 md:opacity-[0.52]'
+            }`}
           />
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
-            {/* Left side: Greeting + Dynamic Sun/Sunset/Moon Icon + Quote */}
-            <div className="space-y-1 max-w-xl">
-              <div className="flex items-center gap-2">
+            {/* Left side: Doctor Telemetry + Editorial Name Header + Strategic Subtitle */}
+            <div className="space-y-1.5 max-w-xl">
+              {/* Doctor Circadian Pill */}
+              <div className="flex items-center gap-2 flex-wrap">
                 <div
-                  className={`h-6 w-6 rounded-xl flex items-center justify-center transition-colors ${
-                    timeOfDay === 'evening'
-                      ? 'bg-amber-500/15 text-amber-600'
-                      : timeOfDay === 'night'
-                      ? 'bg-indigo-500/15 text-indigo-600'
-                      : 'bg-teal-500/15 text-[#006B63]'
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide border shadow-2xs transition-colors ${
+                    timeOfDay === 'night'
+                      ? 'bg-indigo-950/60 text-indigo-200 border-indigo-700/40'
+                      : timeOfDay === 'evening'
+                      ? 'bg-amber-100/70 text-amber-800 border-amber-300/60'
+                      : 'bg-teal-50 text-[#00685F] border-teal-200/80'
                   }`}
                 >
-                  <GreetingIcon className="h-3.5 w-3.5 stroke-[2]" />
+                  <GreetingIcon className="h-3.5 w-3.5 stroke-[2.2]" />
+                  <span>{greeting}</span>
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-slate-500">{greeting},</span>
+
+                {/* Clinical Readiness Verified Indicator */}
+                <div
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold border ${
+                    timeOfDay === 'night'
+                      ? 'bg-teal-950/50 text-teal-300 border-teal-700/40'
+                      : 'bg-white/80 text-stone-600 border-stone-200/80 backdrop-blur-xs'
+                  }`}
+                >
+                  <ShieldCheck className="h-3 w-3 text-teal-600" />
+                  <span>FMGE Candidate</span>
+                  <span className="h-1 w-1 rounded-full bg-emerald-500 ml-0.5 animate-pulse" />
+                </div>
               </div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight font-['Outfit']">
-                {userName}
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-500 italic">
-                &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
-              </p>
+
+              {/* Doctor Name with Editorial Serif Distinction */}
+              <div className="pt-0.5">
+                <h1
+                  className={`text-2xl sm:text-3xl lg:text-[34px] lg:leading-tight font-semibold tracking-tight font-['Newsreader',_serif] ${
+                    timeOfDay === 'night' ? 'text-white' : 'text-slate-900'
+                  }`}
+                >
+                  {userName}
+                </h1>
+                <p
+                  className={`text-xs sm:text-[13px] leading-relaxed italic mt-0.5 ${
+                    timeOfDay === 'night' ? 'text-slate-300/85' : 'text-stone-600'
+                  }`}
+                >
+                  &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
+                </p>
+              </div>
             </div>
 
-            {/* Right side: Doctor's Mountain Creed Badge with Interactive Spring */}
+            {/* Right side: Doctor's Mountain Creed Badge with Refined Glass & Spring Interaction */}
             <motion.div
               whileHover={{ scale: 1.02, y: -2 }}
               transition={{ type: 'spring', stiffness: 350, damping: 20 }}
-              className="hidden md:flex items-center gap-3 bg-white/80 backdrop-blur-md border border-teal-200/70 rounded-2xl px-3.5 py-2.5 shrink-0 shadow-2xs cursor-pointer hover:shadow-xs"
+              className={`hidden md:flex items-center gap-3.5 backdrop-blur-md border rounded-2xl px-4 py-3 shrink-0 shadow-xs cursor-pointer transition-all ${
+                timeOfDay === 'night'
+                  ? 'bg-slate-900/70 border-teal-700/40 hover:bg-slate-900/90 hover:border-teal-500/60'
+                  : 'bg-white/85 border-teal-200/80 hover:bg-white hover:border-teal-300'
+              }`}
             >
-              <div className="h-7 w-11 shrink-0 relative">
-                <svg viewBox="0 0 44 24" fill="none" className="w-full h-full">
-                  <path d="M2 24L18 6L26 14L38 24H2Z" fill="#006B63" fillOpacity="0.25" />
-                  <path d="M14 24L28 9L36 19L42 24H14Z" fill="#0284c7" fillOpacity="0.18" />
-                  <path d="M18 6L21 3V7L18 6Z" fill="#e11d48" />
+              <div className="h-8 w-12 shrink-0 relative">
+                <svg viewBox="0 0 44 24" fill="none" className="w-full h-full drop-shadow-2xs">
+                  <path
+                    d="M2 24L18 6L26 14L38 24H2Z"
+                    fill={timeOfDay === 'night' ? '#2DD4BF' : '#006B63'}
+                    fillOpacity={timeOfDay === 'night' ? '0.35' : '0.28'}
+                  />
+                  <path
+                    d="M14 24L28 9L36 19L42 24H14Z"
+                    fill={timeOfDay === 'night' ? '#38BDF8' : '#0284c7'}
+                    fillOpacity={timeOfDay === 'night' ? '0.3' : '0.22'}
+                  />
+                  <path d="M18 6L21 3V7L18 6Z" fill="#F43F5E" />
                 </svg>
               </div>
               <div className="text-right space-y-0.5">
-                <p className="text-xs font-semibold text-[#006B63] font-['Newsreader'] italic">
+                <p
+                  className={`text-xs font-semibold font-['Newsreader',_serif] italic ${
+                    timeOfDay === 'night' ? 'text-teal-200' : 'text-[#00685F]'
+                  }`}
+                >
                   &ldquo;Discipline today leads to freedom tomorrow.&rdquo;
                 </p>
-                <p className="text-[10px] font-mono text-slate-400 font-medium uppercase tracking-wider">
+                <p
+                  className={`text-[9.5px] font-mono font-semibold uppercase tracking-wider ${
+                    timeOfDay === 'night' ? 'text-slate-400' : 'text-stone-400'
+                  }`}
+                >
                   DOCTOR&apos;S CREED · FMGE READY
                 </p>
               </div>
@@ -969,62 +1058,139 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* 4 Stat Badges Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 pt-3.5 mt-3.5 border-t border-teal-900/10 relative z-10">
+          <div
+            className={`grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 pt-3.5 mt-3.5 border-t relative z-10 ${
+              timeOfDay === 'night' ? 'border-teal-800/30' : 'border-teal-900/10'
+            }`}
+          >
             {/* Card 1: Days remaining */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md hover:bg-white border border-teal-200/70 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 shadow-2xs">
-              <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-xl bg-teal-500/10 text-[#006B63] flex items-center justify-center shrink-0">
+            <div
+              className={`flex items-center gap-2.5 sm:gap-3 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 border shadow-2xs backdrop-blur-md ${
+                timeOfDay === 'night'
+                  ? 'bg-slate-900/60 border-teal-800/40 hover:bg-slate-900/80 hover:border-teal-600/50'
+                  : 'bg-white/85 border-teal-200/80 hover:bg-white hover:border-teal-300'
+              }`}
+            >
+              <div
+                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-xl flex items-center justify-center shrink-0 ${
+                  timeOfDay === 'night' ? 'bg-teal-500/20 text-teal-300' : 'bg-teal-500/10 text-[#006B63]'
+                }`}
+              >
                 <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block text-xs sm:text-sm lg:text-base font-extrabold text-slate-900 font-['Outfit'] tabular-nums leading-tight truncate">
+                <span
+                  className={`block text-xs sm:text-sm lg:text-base font-extrabold font-['Outfit'] tabular-nums leading-tight truncate ${
+                    timeOfDay === 'night' ? 'text-white' : 'text-slate-900'
+                  }`}
+                >
                   <AnimatedNumber value={daysRemaining} />
                 </span>
-                <span className="block text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">
+                <span
+                  className={`block text-[10px] sm:text-[11px] font-medium truncate ${
+                    timeOfDay === 'night' ? 'text-slate-400' : 'text-stone-400'
+                  }`}
+                >
                   days to FMGE
                 </span>
               </div>
             </div>
 
             {/* Card 2: Target Score */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md hover:bg-white border border-teal-200/70 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 shadow-2xs">
-              <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-xl bg-teal-500/10 text-[#006B63] flex items-center justify-center shrink-0">
+            <div
+              className={`flex items-center gap-2.5 sm:gap-3 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 border shadow-2xs backdrop-blur-md ${
+                timeOfDay === 'night'
+                  ? 'bg-slate-900/60 border-teal-800/40 hover:bg-slate-900/80 hover:border-teal-600/50'
+                  : 'bg-white/85 border-teal-200/80 hover:bg-white hover:border-teal-300'
+              }`}
+            >
+              <div
+                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-xl flex items-center justify-center shrink-0 ${
+                  timeOfDay === 'night' ? 'bg-teal-500/20 text-teal-300' : 'bg-teal-500/10 text-[#006B63]'
+                }`}
+              >
                 <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block text-xs sm:text-sm lg:text-base font-extrabold text-slate-900 font-['Outfit'] tabular-nums leading-tight truncate">
+                <span
+                  className={`block text-xs sm:text-sm lg:text-base font-extrabold font-['Outfit'] tabular-nums leading-tight truncate ${
+                    timeOfDay === 'night' ? 'text-white' : 'text-slate-900'
+                  }`}
+                >
                   {savedTargetScore ? `${savedTargetScore}+` : '200+'}
                 </span>
-                <span className="block text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">
+                <span
+                  className={`block text-[10px] sm:text-[11px] font-medium truncate ${
+                    timeOfDay === 'night' ? 'text-slate-400' : 'text-stone-400'
+                  }`}
+                >
                   Target Score
                 </span>
               </div>
             </div>
 
             {/* Card 3: Subjects count */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md hover:bg-white border border-teal-200/70 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 shadow-2xs">
-              <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
+            <div
+              className={`flex items-center gap-2.5 sm:gap-3 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 border shadow-2xs backdrop-blur-md ${
+                timeOfDay === 'night'
+                  ? 'bg-slate-900/60 border-teal-800/40 hover:bg-slate-900/80 hover:border-teal-600/50'
+                  : 'bg-white/85 border-teal-200/80 hover:bg-white hover:border-teal-300'
+              }`}
+            >
+              <div
+                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-xl flex items-center justify-center shrink-0 ${
+                  timeOfDay === 'night' ? 'bg-sky-500/20 text-sky-300' : 'bg-sky-500/10 text-sky-600'
+                }`}
+              >
                 <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block text-xs sm:text-sm lg:text-base font-extrabold text-slate-900 font-['Outfit'] tabular-nums leading-tight truncate">
+                <span
+                  className={`block text-xs sm:text-sm lg:text-base font-extrabold font-['Outfit'] tabular-nums leading-tight truncate ${
+                    timeOfDay === 'night' ? 'text-white' : 'text-slate-900'
+                  }`}
+                >
                   19
                 </span>
-                <span className="block text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">
+                <span
+                  className={`block text-[10px] sm:text-[11px] font-medium truncate ${
+                    timeOfDay === 'night' ? 'text-slate-400' : 'text-stone-400'
+                  }`}
+                >
                   Subjects
                 </span>
               </div>
             </div>
 
             {/* Card 4: Progress / Streak */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-md hover:bg-white border border-teal-200/70 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 shadow-2xs">
-              <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+            <div
+              className={`flex items-center gap-2.5 sm:gap-3 rounded-2xl p-2.5 sm:p-3 transition-all min-w-0 border shadow-2xs backdrop-blur-md ${
+                timeOfDay === 'night'
+                  ? 'bg-slate-900/60 border-teal-800/40 hover:bg-slate-900/80 hover:border-teal-600/50'
+                  : 'bg-white/85 border-teal-200/80 hover:bg-white hover:border-teal-300'
+              }`}
+            >
+              <div
+                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-xl flex items-center justify-center shrink-0 ${
+                  timeOfDay === 'night' ? 'bg-amber-500/20 text-amber-300' : 'bg-amber-500/10 text-amber-600'
+                }`}
+              >
                 <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block text-xs sm:text-sm lg:text-base font-extrabold text-slate-900 font-['Outfit'] leading-tight truncate">
+                <span
+                  className={`block text-xs sm:text-sm lg:text-base font-extrabold font-['Outfit'] leading-tight truncate ${
+                    timeOfDay === 'night' ? 'text-white' : 'text-slate-900'
+                  }`}
+                >
                   Keep going
                 </span>
-                <span className="block text-[10px] sm:text-[11px] text-slate-400 font-medium truncate" title="Small steps. Big progress.">
+                <span
+                  className={`block text-[10px] sm:text-[11px] font-medium truncate ${
+                    timeOfDay === 'night' ? 'text-slate-400' : 'text-stone-400'
+                  }`}
+                  title="Small steps. Big progress."
+                >
                   Small steps. Big progress.
                 </span>
               </div>

@@ -130,27 +130,28 @@ export const DoctorMountainArt: React.FC<DoctorMountainArtProps> = ({
 
         {/* Dynamic Sun/Moon Corona Glow */}
         <radialGradient id="sunCoronaGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={solarProps.glowStart} stopOpacity={solarProps.isNight ? '0.5' : '0.65'} />
-          <stop offset="45%" stopColor={solarProps.coronaColor} stopOpacity={solarProps.isNight ? '0.2' : '0.3'} />
+          <stop offset="0%" stopColor={solarProps.glowStart} stopOpacity={solarProps.isNight ? '0.6' : '0.75'} />
+          <stop offset="40%" stopColor={solarProps.coronaColor} stopOpacity={solarProps.isNight ? '0.25' : '0.4'} />
+          <stop offset="75%" stopColor={solarProps.glowEnd} stopOpacity={solarProps.isNight ? '0.08' : '0.15'} />
           <stop offset="100%" stopColor={solarProps.glowEnd} stopOpacity="0" />
         </radialGradient>
 
-        {/* Mountain 1 Far Gradient - Soft Misty Sage / Teal (or Twilight Blue-Slate at Night) */}
+        {/* Mountain 1 Far Gradient - Soft Misty Celestial Ridge */}
         <linearGradient id="mtnFarGrad" x1="160" y1="50" x2="160" y2="180" gradientUnits="userSpaceOnUse">
-          <stop stopColor={solarProps.isNight ? '#0284C7' : '#A7F3D0'} stopOpacity={solarProps.isNight ? '0.22' : '0.25'} />
-          <stop offset="100%" stopColor={solarProps.isNight ? '#0F172A' : '#99F6E4'} stopOpacity={solarProps.isNight ? '0.5' : '0.45'} />
+          <stop stopColor={solarProps.isNight ? '#0369A1' : '#A7F3D0'} stopOpacity={solarProps.isNight ? '0.3' : '0.32'} />
+          <stop offset="100%" stopColor={solarProps.isNight ? '#0F172A' : '#5EEAD4'} stopOpacity={solarProps.isNight ? '0.6' : '0.55'} />
         </linearGradient>
 
-        {/* Mountain 2 Mid Gradient - Soft Clinical Mint / Cyan */}
+        {/* Mountain 2 Mid Gradient - Rich Atmospheric Medical Teal / Deep Marine */}
         <linearGradient id="mtnMidGrad" x1="200" y1="70" x2="200" y2="180" gradientUnits="userSpaceOnUse">
-          <stop stopColor={solarProps.isNight ? '#0369A1' : '#5EEAD4'} stopOpacity={solarProps.isNight ? '0.35' : '0.32'} />
-          <stop offset="100%" stopColor={solarProps.isNight ? '#042F2E' : '#14B8A6'} stopOpacity={solarProps.isNight ? '0.65' : '0.5'} />
+          <stop stopColor={solarProps.isNight ? '#0284C7' : '#2DD4BF'} stopOpacity={solarProps.isNight ? '0.45' : '0.42'} />
+          <stop offset="100%" stopColor={solarProps.isNight ? '#042F2E' : '#0F766E'} stopOpacity={solarProps.isNight ? '0.75' : '0.65'} />
         </linearGradient>
 
-        {/* Mountain 3 Fore Gradient - Signature Clinical Teal */}
+        {/* Mountain 3 Fore Gradient - Signature Deep Medical Teal Crest */}
         <linearGradient id="mtnForeGrad" x1="240" y1="90" x2="240" y2="180" gradientUnits="userSpaceOnUse">
-          <stop stopColor={solarProps.isNight ? '#0284C7' : '#0D9488'} stopOpacity={solarProps.isNight ? '0.42' : '0.45'} />
-          <stop offset="100%" stopColor={solarProps.isNight ? '#064E3B' : '#006B63'} stopOpacity={solarProps.isNight ? '0.85' : '0.75'} />
+          <stop stopColor={solarProps.isNight ? '#0369A1' : '#14B8A6'} stopOpacity={solarProps.isNight ? '0.55' : '0.55'} />
+          <stop offset="100%" stopColor={solarProps.isNight ? '#022C22' : '#004D47'} stopOpacity={solarProps.isNight ? '0.92' : '0.85'} />
         </linearGradient>
       </defs>
 
