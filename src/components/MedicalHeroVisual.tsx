@@ -225,16 +225,22 @@ function HighRes3DHeroVisual({
         src={src}
         alt={alt}
         onError={() => setLoadError(true)}
-        className="w-auto h-full max-h-[225px] xs:max-h-[250px] sm:max-h-[280px] md:max-h-[300px] lg:max-h-[320px] object-contain drop-shadow-[0_18px_36px_rgba(0,107,99,0.22)] select-none pointer-events-none transition-transform duration-300"
+        className="w-auto h-full max-h-[185px] xs:max-h-[205px] sm:max-h-[220px] md:max-h-[235px] lg:max-h-[245px] object-contain select-none pointer-events-none transition-transform duration-300"
         animate={
           reduced
             ? {}
             : {
-                y: [-3, 3, -3],
-                scale: [1, 1.018, 1],
+                y: [-5, 5, -5],
+                rotate: [-1.2, 1.4, -1.2],
+                scale: [1, 1.03, 0.992, 1.03, 1],
+                filter: [
+                  'drop-shadow(0 14px 26px rgba(0,107,99,0.20))',
+                  'drop-shadow(0 22px 40px rgba(0,107,99,0.36))',
+                  'drop-shadow(0 14px 26px rgba(0,107,99,0.20))',
+                ],
               }
         }
-        transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
       />
       {overlay}
     </div>
@@ -271,9 +277,9 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    // Up to 12 degrees 3D rotation
-    const rotX = ((y - centerY) / centerY) * -12;
-    const rotY = ((x - centerX) / centerX) * 12;
+    // Up to 16 degrees 3D rotation for fluid tactile feedback
+    const rotX = ((y - centerY) / centerY) * -16;
+    const rotY = ((x - centerX) / centerX) * 16;
 
     setRotateX(rotX);
     setRotateY(rotY);
@@ -498,8 +504,8 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
             : {
                 rotateX,
                 rotateY,
-                scale: isHovered ? 1.03 : 1,
-                y: isHovered ? -3 : 0,
+                scale: isHovered ? 1.045 : 1,
+                y: isHovered ? -4 : 0,
               }
         }
         transition={{ type: 'spring', stiffness: 280, damping: 22 }}
@@ -512,7 +518,7 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
           style={{ transform: 'translateZ(-40px)' }}
         >
           <div
-            className="w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 rounded-full"
+            className="w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-full"
             style={{
               background: `radial-gradient(circle, ${accent}26 0%, ${accent}0c 45%, transparent 70%)`,
               filter: 'blur(24px)',
@@ -525,7 +531,7 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
           className="absolute inset-0 pointer-events-none opacity-25 flex items-center justify-center"
           style={{ transform: 'translateZ(-20px)' }}
         >
-          <svg viewBox="0 0 200 200" className="w-full h-full max-w-[260px] stroke-teal-500/30" fill="none">
+          <svg viewBox="0 0 200 200" className="w-full h-full max-w-[240px] stroke-teal-500/30" fill="none">
             <circle cx="100" cy="100" r="70" strokeWidth="0.75" strokeDasharray="3 4" />
             <circle cx="100" cy="100" r="45" strokeWidth="0.75" />
             <line x1="20" y1="100" x2="180" y2="100" strokeWidth="0.5" strokeDasharray="2 3" />
@@ -534,7 +540,7 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
         </div>
 
         {/* The Animated 3D Scene Viewport */}
-        <div className="relative z-10 w-full h-full max-w-[450px] sm:max-w-[500px] max-h-[280px] sm:max-h-[320px] md:max-h-[350px] flex items-center justify-center">
+        <div className="relative z-10 w-full h-full max-w-[420px] sm:max-w-[460px] max-h-[205px] sm:max-h-[225px] md:max-h-[245px] flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.div
               key={`${subjectId}-${topicId}`}

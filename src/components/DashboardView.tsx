@@ -1257,13 +1257,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.08, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className={`rounded-[28px] border border-[#BEE4DC] bg-gradient-to-br ${focusTheme.cardGradient || 'from-[#EAF8F5] via-white to-[#E1F3EF]'} shadow-[0_8px_30px_rgba(0,107,99,0.04)] p-6 sm:p-7 relative overflow-hidden transition-all duration-500`}
+              className={`rounded-[28px] border border-[#BEE4DC] bg-gradient-to-br ${focusTheme.cardGradient || 'from-[#EAF8F5] via-white to-[#E1F3EF]'} shadow-[0_8px_30px_rgba(0,107,99,0.04)] p-4 sm:p-5 md:p-5.5 relative overflow-hidden transition-all duration-500`}
             >
               {/* Dynamic Subject-Themed Ambient Background Glow Orbs with Breathing Motion */}
               <motion.div
                 animate={reducedMotion ? undefined : { scale: [1, 1.1, 1], opacity: [0.35, 0.55, 0.35] }}
                 transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -top-24 -right-24 w-80 h-80 rounded-full pointer-events-none filter blur-3xl transition-all duration-500"
+                className="absolute -top-24 -right-24 w-72 h-72 rounded-full pointer-events-none filter blur-3xl transition-all duration-500"
                 style={{
                   background: `radial-gradient(circle, ${focusTheme.glow} 0%, transparent 70%)`,
                 }}
@@ -1271,46 +1271,42 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <motion.div
                 animate={reducedMotion ? undefined : { scale: [1, 1.08, 1], opacity: [0.25, 0.45, 0.25] }}
                 transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full pointer-events-none filter blur-3xl transition-all duration-500"
+                className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full pointer-events-none filter blur-3xl transition-all duration-500"
                 style={{
                   background: `radial-gradient(circle, ${focusTheme.glow} 0%, transparent 70%)`,
                 }}
               />
 
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-5 relative z-10">
                 {/* Left side: Focus Text & Actions */}
-                <div className="flex-1 space-y-3.5 min-w-0 max-w-md">
-                  {/* Category Header Badges */}
-                  <div className="space-y-2">
-                    <div>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10.5px] font-bold uppercase tracking-wider bg-[#E0F5F1] text-[#007F75] border border-[#BDE8DF] font-mono shadow-2xs">
-                        ✦ TODAY&apos;S FOCUS
-                      </span>
-                    </div>
-                    <div>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-[10.5px] font-bold uppercase tracking-wider font-mono bg-[#DCF2F9] text-[#0284A5] shadow-2xs">
-                        {activeFocusSubject.name.toUpperCase()}
-                      </span>
-                    </div>
+                <div className="flex-1 space-y-2.5 min-w-0 max-w-md">
+                  {/* Category Header Badges (Inline on one row to save vertical space) */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider bg-[#E0F5F1] text-[#007F75] border border-[#BDE8DF] font-mono shadow-2xs">
+                      ✦ TODAY&apos;S FOCUS
+                    </span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider font-mono bg-[#DCF2F9] text-[#0284A5] shadow-2xs">
+                      {activeFocusSubject.name.toUpperCase()}
+                    </span>
                   </div>
 
                   {/* Topic Title */}
-                  <div className="pt-1">
-                    <h2 className="font-['Outfit'] text-2xl sm:text-[26px] font-black tracking-tight text-[#0B2A26] leading-tight break-words">
+                  <div className="pt-0.5">
+                    <h2 className="font-['Outfit'] text-xl sm:text-2xl font-black tracking-tight text-[#0B2A26] leading-tight break-words">
                       {activeFocusTopic.name}
                     </h2>
-                    <p className="text-xs sm:text-[13px] text-[#527670] leading-relaxed mt-2 max-w-sm">
+                    <p className="text-xs text-[#527670] leading-snug mt-1 max-w-sm line-clamp-2">
                       {adaptiveRecommendation.actionDescription || activeFocusTopic.reason}
                     </p>
                   </div>
 
-                  {/* 4 Meta Badges in 2 Rows with Interactive Micro-Spring Hover */}
-                  <div className="space-y-1.5 pt-1">
+                  {/* 4 Meta Badges with Interactive Micro-Spring Hover */}
+                  <div className="space-y-1.5 pt-0.5">
                     <div className="flex items-center gap-2 flex-wrap">
                       <motion.span
                         whileHover={reducedMotion ? undefined : { scale: 1.05, y: -1 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs cursor-default"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs cursor-default"
                       >
                         <Calendar className="h-3.5 w-3.5 text-[#3E655F]/70" />
                         <AnimatedNumber value={focusMarks} /> marks
@@ -1318,7 +1314,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <motion.span
                         whileHover={reducedMotion ? undefined : { scale: 1.05, y: -1 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs cursor-default"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs cursor-default"
                       >
                         <Clock className="h-3.5 w-3.5 text-[#3E655F]/70" />
                         <AnimatedNumber value={focusMinutes} /> min
@@ -1328,14 +1324,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <motion.span
                         whileHover={reducedMotion ? undefined : { scale: 1.05, y: -1 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs cursor-default"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs cursor-default"
                       >
                         <BookOpen className="h-3.5 w-3.5 text-[#3E655F]/70" /> Clinical MCQ
                       </motion.span>
                       <motion.span
                         whileHover={reducedMotion ? undefined : { scale: 1.05, y: -1 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#FFF0F0] text-[#D32F2F] border border-[#FED7D7] shadow-2xs cursor-default"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#FFF0F0] text-[#D32F2F] border border-[#FED7D7] shadow-2xs cursor-default"
                       >
                         <Flame className="h-3.5 w-3.5 fill-[#D32F2F] text-[#D32F2F]" /> High-yield
                       </motion.span>
@@ -1343,23 +1339,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
 
                   {/* Action Button: Start Session (Desktop & Mobile) */}
-                  <div className="pt-3">
+                  <div className="pt-2">
                     <motion.button
                       type="button"
                       onClick={startFocusSession}
                       whileHover={{ scale: 1.03, y: -1, boxShadow: '0 10px 24px -4px rgba(0, 107, 99, 0.45)' }}
                       whileTap={{ scale: 0.97 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                      className="inline-flex items-center justify-center gap-2.5 px-8 py-3 rounded-full text-sm font-bold bg-[#006B63] hover:bg-[#00554E] text-white shadow-md transition-colors cursor-pointer min-h-[46px]"
+                      className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#006B63] hover:bg-[#00554E] text-white shadow-md transition-colors cursor-pointer min-h-[40px]"
                     >
-                      <Play className="h-4 w-4 fill-white text-white" />
+                      <Play className="h-3.5 w-3.5 fill-white text-white" />
                       <span>Start Session</span>
                     </motion.button>
                   </div>
                 </div>
 
-                {/* Right side: Integrated 3D Anatomical Visual Stage (Matching Reference Mockup) */}
-                <div className="relative w-full md:w-[350px] lg:w-[390px] h-[290px] sm:h-[320px] md:h-[340px] shrink-0 flex items-center justify-center pt-2 md:pt-0">
+                {/* Right side: Integrated 3D Anatomical Visual Stage (Proportionate, Compact Height & Rich Motion) */}
+                <div className="relative w-full md:w-[330px] lg:w-[360px] h-[230px] sm:h-[250px] md:h-[265px] shrink-0 flex items-center justify-center pt-1 md:pt-0">
                   {/* Floating Telemetry Pill Top with Subtle Gentle Float Animation */}
                   <motion.div
                     key={`${activeFocusSubject.id}-${currentTelemetry.label}`}
@@ -1374,7 +1370,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         ? { duration: 0.35, ease: 'easeOut' }
                         : { y: { repeat: Infinity, duration: 3.6, ease: 'easeInOut' }, duration: 0.35 }
                     }
-                    className="absolute top-2 left-4 sm:left-8 z-30 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-[#E0F2EC] shadow-[0_4px_14px_rgba(0,107,99,0.06)] pointer-events-none"
+                    className="absolute top-0.5 sm:top-1 left-2 sm:left-4 z-30 inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-white/95 backdrop-blur-md border border-[#E0F2EC] shadow-[0_4px_14px_rgba(0,107,99,0.06)] pointer-events-none"
                   >
                     <span className="relative flex h-2 w-2">
                       <span
@@ -1386,85 +1382,123 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         style={{ backgroundColor: currentTelemetry.dotColor }}
                       />
                     </span>
-                    <span className="text-[11px] font-mono font-bold text-slate-800 tracking-tight">
+                    <span className="text-[10.5px] font-mono font-bold text-slate-800 tracking-tight">
                       {currentTelemetry.label}
                     </span>
                   </motion.div>
 
-                  {/* Ambient Telemetry Compass, Cyan ECG Line & Vascular Tree Watermark */}
+                  {/* Ambient Telemetry Compass, Cyan ECG Line, Rotating Rings & Vascular Tree Watermark */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
-                    {/* Subject-Specific Atmospheric Glow Gradient behind the 3D organ */}
+                    {/* Subject-Specific Atmospheric Glow Gradient behind the 3D organ with Dynamic Breathing */}
                     <motion.div
-                      animate={reducedMotion ? {} : { scale: [1, 1.08, 1], opacity: [0.8, 1, 0.8] }}
-                      transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-                      className="absolute w-72 h-72 rounded-full filter blur-2xl pointer-events-none transition-all duration-700"
+                      animate={reducedMotion ? {} : { scale: [0.94, 1.14, 0.94], opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
+                      className="absolute w-60 h-60 rounded-full filter blur-2xl pointer-events-none transition-all duration-700"
                       style={{
                         background: focusTheme.heroGradient || `radial-gradient(circle at 50% 50%, ${focusTheme.glow} 0%, transparent 70%)`,
                       }}
                     />
 
-                    <svg viewBox="0 0 380 320" className="w-full h-full stroke-[#006B63] fill-none overflow-visible">
-                      {/* Faint Concentric Compass/Radar Rings */}
-                      <circle cx="210" cy="165" r="140" strokeDasharray="4 6" strokeWidth="1" strokeOpacity="0.16" />
-                      <circle cx="210" cy="165" r="115" strokeWidth="0.8" strokeOpacity="0.12" />
-                      <circle cx="210" cy="165" r="85" strokeDasharray="2 4" strokeWidth="0.75" strokeOpacity="0.10" />
+                    <svg viewBox="0 0 380 260" className="w-full h-full stroke-[#006B63] fill-none overflow-visible">
+                      {/* Rotating Concentric Compass/Radar Rings */}
+                      <motion.g
+                        animate={reducedMotion ? {} : { rotate: [0, 360] }}
+                        transition={{ duration: 75, repeat: Infinity, ease: 'linear' }}
+                        style={{ transformOrigin: '200px 130px' }}
+                      >
+                        <circle cx="200" cy="130" r="115" strokeDasharray="4 6" strokeWidth="1" strokeOpacity="0.16" />
+                        <circle cx="200" cy="130" r="90" strokeWidth="0.8" strokeOpacity="0.12" />
+                        <circle cx="200" cy="130" r="65" strokeDasharray="2 4" strokeWidth="0.75" strokeOpacity="0.10" />
+                      </motion.g>
 
                       {/* Horizontal Cyan ECG Waveform Line traversing behind the organ */}
                       <path
-                        d="M 10 165 L 120 165 L 132 142 L 140 188 L 148 135 L 158 178 L 168 165 L 370 165"
+                        d="M 10 130 L 115 130 L 127 107 L 135 153 L 143 100 L 153 143 L 163 130 L 370 130"
                         stroke="#0D9488"
                         strokeWidth="1.5"
                         strokeOpacity="0.32"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
+
+                      {/* Traveling electrical conduction impulse dot across ECG line */}
+                      {!reducedMotion && (
+                        <motion.circle
+                          r="3"
+                          fill="#00F0D0"
+                          animate={{
+                            cx: [10, 115, 127, 135, 143, 153, 163, 370],
+                            cy: [130, 130, 107, 153, 100, 143, 130, 130],
+                            opacity: [0, 0.9, 1, 1, 1, 0.9, 0.8, 0],
+                          }}
+                          transition={{
+                            duration: 2.8,
+                            repeat: Infinity,
+                            ease: 'linear',
+                            repeatDelay: 0.8,
+                          }}
+                        />
+                      )}
+
                       {/* Clinical ECG Wave Markers */}
-                      <text x="126" y="136" className="text-[9px] font-mono font-bold fill-[#006B63] opacity-40">R</text>
-                      <text x="144" y="200" className="text-[8.5px] font-mono font-bold fill-[#006B63] opacity-40">QRS</text>
-                      <text x="174" y="156" className="text-[9px] font-mono font-bold fill-[#006B63] opacity-40">T</text>
+                      <text x="121" y="101" className="text-[8.5px] font-mono font-bold fill-[#006B63] opacity-40">R</text>
+                      <text x="139" y="165" className="text-[8px] font-mono font-bold fill-[#006B63] opacity-40">QRS</text>
+                      <text x="169" y="121" className="text-[8.5px] font-mono font-bold fill-[#006B63] opacity-40">T</text>
 
                       {/* Upper-right delicate vascular/bronchial tree branch network */}
                       <g strokeOpacity="0.22" strokeWidth="1.1" strokeLinecap="round">
-                        <path d="M 290 85 C 310 65, 335 50, 365 38" />
-                        <path d="M 320 60 C 335 45, 350 36, 370 28" />
-                        <path d="M 305 75 C 322 86, 345 94, 368 90" />
-                        <path d="M 335 84 C 348 95, 362 102, 375 100" />
-                        <circle cx="365" cy="38" r="1.5" fill="#006B63" fillOpacity="0.35" />
-                        <circle cx="370" cy="28" r="1.5" fill="#006B63" fillOpacity="0.35" />
-                        <circle cx="368" cy="90" r="1.5" fill="#006B63" fillOpacity="0.35" />
-                        <circle cx="375" cy="100" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <path d="M 290 70 C 310 52, 335 40, 365 30" />
+                        <path d="M 320 48 C 335 36, 350 28, 370 22" />
+                        <path d="M 305 62 C 322 72, 345 78, 368 74" />
+                        <path d="M 335 70 C 348 79, 362 85, 375 83" />
+                        <circle cx="365" cy="30" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <circle cx="370" cy="22" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <circle cx="368" cy="74" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <circle cx="375" cy="83" r="1.5" fill="#006B63" fillOpacity="0.35" />
                       </g>
 
                       {/* Upper right vertical editorial text: CLINICAL REASONING BETTER OUTCOMES */}
-                      <text x="368" y="70" className="text-[8px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                      <text x="368" y="54" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
                         CLINICAL
                       </text>
-                      <text x="368" y="83" className="text-[8px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                      <text x="368" y="65" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
                         REASONING
                       </text>
-                      <text x="368" y="100" className="text-[8px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                      <text x="368" y="80" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
                         BETTER
                       </text>
-                      <text x="368" y="113" className="text-[8px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                      <text x="368" y="91" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
                         OUTCOMES
                       </text>
 
-                      {/* Faint molecular constellation in top-right */}
-                      <g opacity="0.45">
-                        <circle cx="340" cy="210" r="2" fill="#006B63" fillOpacity="0.3" />
-                        <circle cx="355" cy="195" r="1.8" fill="#006B63" fillOpacity="0.3" />
-                        <circle cx="365" cy="225" r="2.2" fill="#006B63" fillOpacity="0.3" />
-                        <line x1="340" y1="210" x2="355" y2="195" strokeWidth="0.8" strokeOpacity="0.2" />
-                        <line x1="340" y1="210" x2="365" y2="225" strokeWidth="0.8" strokeOpacity="0.2" />
-                      </g>
+                      {/* Pulsing molecular constellation in top-right */}
+                      <motion.g
+                        animate={reducedMotion ? {} : { opacity: [0.35, 0.75, 0.35] }}
+                        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+                      >
+                        <circle cx="340" cy="170" r="2" fill="#006B63" fillOpacity="0.3" />
+                        <circle cx="355" cy="155" r="1.8" fill="#006B63" fillOpacity="0.3" />
+                        <circle cx="365" cy="185" r="2.2" fill="#006B63" fillOpacity="0.3" />
+                        <line x1="340" y1="170" x2="355" y2="155" strokeWidth="0.8" strokeOpacity="0.2" />
+                        <line x1="340" y1="170" x2="365" y2="185" strokeWidth="0.8" strokeOpacity="0.2" />
+                      </motion.g>
                     </svg>
                   </div>
 
-                  {/* 3D Anatomical Visual — Large, unconstrained, free-breathing with smooth organic float */}
+                  {/* 3D Anatomical Visual — Enhanced Multi-Harmonic Floating & Tactile Hover Spring */}
                   <motion.div
-                    animate={reducedMotion ? undefined : { y: [-3.5, 3.5, -3.5] }}
-                    transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-                    className="relative w-full h-full flex items-center justify-center z-10"
+                    animate={
+                      reducedMotion
+                        ? undefined
+                        : {
+                            y: [-5, 5, -5],
+                            rotate: [-1.2, 1.5, -1.2],
+                            scale: [1, 1.025, 1],
+                          }
+                    }
+                    transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
+                    whileHover={reducedMotion ? undefined : { scale: 1.06, y: -7 }}
+                    className="relative w-full h-full flex items-center justify-center z-10 transition-transform cursor-pointer"
                   >
                     <MedicalHeroVisual
                       subjectId={activeFocusSubject.id}
@@ -1490,23 +1524,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         ? { duration: 0.35, delay: 0.1 }
                         : { y: { repeat: Infinity, duration: 4, ease: 'easeInOut' }, duration: 0.35, delay: 0.1 }
                     }
-                    className="absolute bottom-1 z-20 inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-[#D0ECE4] shadow-[0_4px_14px_rgba(0,107,99,0.06)]"
+                    className="absolute bottom-0 z-20 inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-[#D0ECE4] shadow-[0_4px_14px_rgba(0,107,99,0.06)]"
                   >
                     <div className="flex items-center gap-1.5 min-w-0">
                       <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                      <span className="text-[10.5px] font-mono font-bold uppercase tracking-wider text-slate-800 truncate">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-800 truncate">
                         {activeFocusSubject.name}
                       </span>
                     </div>
 
                     {/* Animated SVG live pulse line */}
-                    <div className="w-14 h-4 flex items-center shrink-0">
+                    <div className="w-12 h-3.5 flex items-center shrink-0">
                       <svg viewBox="0 0 60 18" className="w-full h-full stroke-[#006B63] fill-none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M0 9 L18 9 L22 3 L26 15 L30 5 L34 11 L38 9 L60 9" />
                       </svg>
                     </div>
 
-                    <span className="text-[10.5px] font-semibold text-slate-400 shrink-0">
+                    <span className="text-[10px] font-semibold text-slate-400 shrink-0">
                       Live
                     </span>
                   </motion.div>
