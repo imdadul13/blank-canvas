@@ -70,6 +70,8 @@ export default function OneShotLogo({
   size = 'md',
   showTagline = true,
 }: OneShotLogoProps) {
+  const [imgError, setImgError] = useState(false);
+
   // 1. App-Icon variant (Squircle emblem tile)
   if (variant === 'app-icon') {
     const iconDim =
@@ -84,8 +86,17 @@ export default function OneShotLogo({
         : 'h-10 w-10';
 
     return (
-      <div className={`relative shrink-0 select-none overflow-hidden rounded-xl shadow-xs ${iconDim} ${className}`}>
-        <FallbackSvgEmblem className="h-full w-full" />
+      <div className={`relative shrink-0 select-none overflow-hidden rounded-2xl shadow-sm ${iconDim} ${className}`}>
+        {!imgError ? (
+          <img
+            src="/images/brand/one_shot_app_icon.png"
+            alt="ONE SHOT FMGE Icon"
+            className="h-full w-full object-cover rounded-2xl"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <FallbackSvgEmblem className="h-full w-full" />
+        )}
       </div>
     );
   }
@@ -105,7 +116,16 @@ export default function OneShotLogo({
 
     return (
       <div className={`relative shrink-0 select-none flex items-center justify-center ${className}`}>
-        <FallbackSvgEmblem className={iconDim} />
+        {!imgError ? (
+          <img
+            src="/images/brand/one_shot_emblem.png"
+            alt="ONE SHOT FMGE Emblem"
+            className={`block object-contain rounded-xl ${iconDim}`}
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <FallbackSvgEmblem className={iconDim} />
+        )}
       </div>
     );
   }
@@ -114,8 +134,17 @@ export default function OneShotLogo({
   if (variant === 'compact') {
     return (
       <div className={`flex items-center gap-2 select-none shrink-0 ${className}`}>
-        <div className="relative h-8 w-8 shrink-0 flex items-center justify-center">
-          <FallbackSvgEmblem className="h-8 w-8" />
+        <div className="relative h-8 w-8 shrink-0 flex items-center justify-center overflow-hidden rounded-lg">
+          {!imgError ? (
+            <img
+              src="/images/brand/one_shot_emblem.png"
+              alt="ONE SHOT Emblem"
+              className="h-8 w-8 object-cover rounded-lg"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <FallbackSvgEmblem className="h-8 w-8" />
+          )}
         </div>
         <div className="flex flex-col leading-none">
           <span className={`font-extrabold tracking-tight text-sm font-['Outfit'] ${inverse ? 'text-white' : 'text-slate-900'}`}>
@@ -130,8 +159,17 @@ export default function OneShotLogo({
   if (variant === 'horizontal') {
     return (
       <div className={`flex items-center gap-3 select-none shrink-0 ${className}`}>
-        <div className="relative h-10 w-10 shrink-0 flex items-center justify-center">
-          <FallbackSvgEmblem className="h-10 w-10" />
+        <div className="relative h-10 w-10 shrink-0 flex items-center justify-center overflow-hidden rounded-xl shadow-xs">
+          {!imgError ? (
+            <img
+              src="/images/brand/one_shot_emblem.png"
+              alt="ONE SHOT Emblem"
+              className="h-10 w-10 object-cover rounded-xl"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <FallbackSvgEmblem className="h-10 w-10" />
+          )}
         </div>
         <div className="flex flex-col justify-center leading-tight">
           <div className="flex items-center gap-1.5">
@@ -156,7 +194,18 @@ export default function OneShotLogo({
   return (
     <div className={`flex flex-col items-center text-center select-none ${className}`}>
       <div className="flex flex-col items-center gap-3">
-        <FallbackSvgEmblem className="h-16 w-16" />
+        <div className="relative h-16 w-16 shrink-0 flex items-center justify-center overflow-hidden rounded-2xl shadow-sm">
+          {!imgError ? (
+            <img
+              src="/images/brand/one_shot_emblem.png"
+              alt="ONE SHOT Emblem"
+              className="h-16 w-16 object-cover rounded-2xl"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <FallbackSvgEmblem className="h-16 w-16" />
+          )}
+        </div>
         <div className="flex flex-col items-center">
           <span className="font-black text-2xl font-['Outfit'] text-slate-900">
             ONE SHOT <span className="text-[#006B63]">FMGE</span>
