@@ -156,113 +156,115 @@ export const DoctorMountainArt: React.FC<DoctorMountainArtProps> = ({
       </defs>
 
       {/* ════════════ 1. DYNAMIC CELESTIAL ANIMATION (SUN OR MOON) ════════════ */}
-      {solarProps.isNight ? (
-        <g>
-          {/* Subtle Twinkling Stars in Mountain Night Sky */}
-          <motion.circle cx="70" cy="28" r="1.2" fill="#E2E8F0" animate={{ opacity: [0.2, 0.9, 0.2], scale: [0.8, 1.3, 0.8] }} transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }} />
-          <motion.circle cx="130" cy="20" r="1.4" fill="#BAE6FD" animate={{ opacity: [0.3, 1, 0.3], scale: [0.7, 1.2, 0.7] }} transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }} />
-          <motion.circle cx="175" cy="34" r="1.1" fill="#FFFFFF" animate={{ opacity: [0.15, 0.85, 0.15], scale: [0.9, 1.4, 0.9] }} transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', delay: 1.4 }} />
-          <motion.circle cx="295" cy="24" r="1.3" fill="#E0F2FE" animate={{ opacity: [0.25, 0.9, 0.25], scale: [0.8, 1.3, 0.8] }} transition={{ duration: 3.1, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }} />
-          <motion.circle cx="215" cy="16" r="1" fill="#FFFFFF" animate={{ opacity: [0.2, 0.75, 0.2] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }} />
+      {variant !== 'backdrop' && (
+        solarProps.isNight ? (
+          <g>
+            {/* Subtle Twinkling Stars in Mountain Night Sky */}
+            <motion.circle cx="70" cy="28" r="1.2" fill="#E2E8F0" animate={{ opacity: [0.2, 0.9, 0.2], scale: [0.8, 1.3, 0.8] }} transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }} />
+            <motion.circle cx="130" cy="20" r="1.4" fill="#BAE6FD" animate={{ opacity: [0.3, 1, 0.3], scale: [0.7, 1.2, 0.7] }} transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }} />
+            <motion.circle cx="175" cy="34" r="1.1" fill="#FFFFFF" animate={{ opacity: [0.15, 0.85, 0.15], scale: [0.9, 1.4, 0.9] }} transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', delay: 1.4 }} />
+            <motion.circle cx="295" cy="24" r="1.3" fill="#E0F2FE" animate={{ opacity: [0.25, 0.9, 0.25], scale: [0.8, 1.3, 0.8] }} transition={{ duration: 3.1, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }} />
+            <motion.circle cx="215" cy="16" r="1" fill="#FFFFFF" animate={{ opacity: [0.2, 0.75, 0.2] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }} />
 
-          {/* Breathing Moon Corona Aura */}
-          <motion.circle
-            cx={solarProps.sunX}
-            cy={solarProps.sunY}
-            r="38"
-            fill="url(#sunCoronaGlow)"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.4, 0.7, 0.4],
-            }}
-            transition={{
-              duration: solarProps.pulseDuration,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
+            {/* Breathing Moon Corona Aura */}
+            <motion.circle
+              cx={solarProps.sunX}
+              cy={solarProps.sunY}
+              r="38"
+              fill="url(#sunCoronaGlow)"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.4, 0.7, 0.4],
+              }}
+              transition={{
+                duration: solarProps.pulseDuration,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
 
-          {/* Glowing Crescent Moon */}
-          <motion.path
-            d={`M ${solarProps.sunX - 3} ${solarProps.sunY - 11} A 12 12 0 1 0 ${solarProps.sunX + 9} ${solarProps.sunY + 7} A 9.5 9.5 0 1 1 ${solarProps.sunX - 3} ${solarProps.sunY - 11} Z`}
-            fill="url(#sunCoreGrad)"
-            filter="drop-shadow(0 0 8px rgba(226, 232, 240, 0.8))"
-            animate={{ scale: [1, 1.06, 1] }}
-            transition={{
-              duration: 3.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
-        </g>
-      ) : (
-        <g>
-          {/* Breathing Outer Corona Aura */}
-          <motion.circle
-            cx={solarProps.sunX}
-            cy={solarProps.sunY}
-            r="45"
-            fill="url(#sunCoronaGlow)"
-            animate={{
-              scale: [1, 1.24, 1],
-              opacity: [0.45, 0.75, 0.45],
-            }}
-            transition={{
-              duration: solarProps.pulseDuration,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
+            {/* Glowing Crescent Moon */}
+            <motion.path
+              d={`M ${solarProps.sunX - 3} ${solarProps.sunY - 11} A 12 12 0 1 0 ${solarProps.sunX + 9} ${solarProps.sunY + 7} A 9.5 9.5 0 1 1 ${solarProps.sunX - 3} ${solarProps.sunY - 11} Z`}
+              fill="url(#sunCoreGrad)"
+              filter="drop-shadow(0 0 8px rgba(226, 232, 240, 0.8))"
+              animate={{ scale: [1, 1.06, 1] }}
+              transition={{
+                duration: 3.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
+          </g>
+        ) : (
+          <g>
+            {/* Breathing Outer Corona Aura */}
+            <motion.circle
+              cx={solarProps.sunX}
+              cy={solarProps.sunY}
+              r="45"
+              fill="url(#sunCoronaGlow)"
+              animate={{
+                scale: [1, 1.24, 1],
+                opacity: [0.45, 0.75, 0.45],
+              }}
+              transition={{
+                duration: solarProps.pulseDuration,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
 
-          {/* Expanding Sunbeam Pulse Wave */}
-          <motion.circle
-            cx={solarProps.sunX}
-            cy={solarProps.sunY}
-            r="16"
-            stroke={solarProps.rayColor}
-            strokeWidth="1.4"
-            fill="none"
-            animate={{
-              scale: [1, 2.9],
-              opacity: [0.75, 0],
-            }}
-            transition={{
-              duration: 3.4,
-              repeat: Infinity,
-              ease: 'easeOut',
-            }}
-          />
+            {/* Expanding Sunbeam Pulse Wave */}
+            <motion.circle
+              cx={solarProps.sunX}
+              cy={solarProps.sunY}
+              r="16"
+              stroke={solarProps.rayColor}
+              strokeWidth="1.4"
+              fill="none"
+              animate={{
+                scale: [1, 2.9],
+                opacity: [0.75, 0],
+              }}
+              transition={{
+                duration: 3.4,
+                repeat: Infinity,
+                ease: 'easeOut',
+              }}
+            />
 
-          {/* Rotating Solar Ray Spokes */}
-          <motion.g
-            transform={`translate(${solarProps.sunX}, ${solarProps.sunY})`}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
-          >
-            <line x1="0" y1="-21" x2="0" y2="-27" stroke={solarProps.rayColor} strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
-            <line x1="0" y1="21" x2="0" y2="27" stroke={solarProps.rayColor} strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
-            <line x1="-21" y1="0" x2="-27" y2="0" stroke={solarProps.rayColor} strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
-            <line x1="21" y1="0" x2="27" y2="0" stroke={solarProps.rayColor} strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
-            <line x1="-15" y1="-15" x2="-19" y2="-19" stroke={solarProps.rayColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
-            <line x1="15" y1="15" x2="19" y2="19" stroke={solarProps.rayColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
-            <line x1="-15" y1="15" x2="-19" y2="19" stroke={solarProps.rayColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
-            <line x1="15" y1="-15" x2="19" y2="-19" stroke={solarProps.rayColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
-          </motion.g>
+            {/* Rotating Solar Ray Spokes */}
+            <motion.g
+              transform={`translate(${solarProps.sunX}, ${solarProps.sunY})`}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
+            >
+              <line x1="0" y1="-21" x2="0" y2="-27" stroke={solarProps.rayColor} strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
+              <line x1="0" y1="21" x2="0" y2="27" stroke={solarProps.rayColor} strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
+              <line x1="-21" y1="0" x2="-27" y2="0" stroke={solarProps.rayColor} strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
+              <line x1="21" y1="0" x2="27" y2="0" stroke={solarProps.rayColor} strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
+              <line x1="-15" y1="-15" x2="-19" y2="-19" stroke={solarProps.rayColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+              <line x1="15" y1="15" x2="19" y2="19" stroke={solarProps.rayColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+              <line x1="-15" y1="15" x2="-19" y2="19" stroke={solarProps.rayColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+              <line x1="15" y1="-15" x2="19" y2="-19" stroke={solarProps.rayColor} strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+            </motion.g>
 
-          {/* Solid Sun Core with Gentle Pulsing */}
-          <motion.circle
-            cx={solarProps.sunX}
-            cy={solarProps.sunY}
-            r={solarProps.sunRadius}
-            fill="url(#sunCoreGrad)"
-            animate={{ scale: [1, 1.08, 1] }}
-            transition={{
-              duration: 2.8,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
-        </g>
+            {/* Solid Sun Core with Gentle Pulsing */}
+            <motion.circle
+              cx={solarProps.sunX}
+              cy={solarProps.sunY}
+              r={solarProps.sunRadius}
+              fill="url(#sunCoreGrad)"
+              animate={{ scale: [1, 1.08, 1] }}
+              transition={{
+                duration: 2.8,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
+          </g>
+        )
       )}
 
       {/* ════════════ 2. MOUNTAIN RIDGES ════════════ */}

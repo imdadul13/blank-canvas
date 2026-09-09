@@ -505,32 +505,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Respect prefers-reduced-motion
   const reducedMotion = useReducedMotion();
 
-  // Dynamic greeting and solar state based on user chosen bgTheme OR real-time of day
   const hour = new Date().getHours();
   const themeSetting = state.settings?.bgTheme;
   const { greeting, greetingIcon: GreetingIcon, timeOfDay } = useMemo(() => {
-    let resolvedTime: 'morning' | 'afternoon' | 'evening' | 'night';
-    if (themeSetting === 'morning') resolvedTime = 'morning';
+    let resolvedTime: 'morning' | 'afternoon' | 'evening' | 'night' = 'night';
+    if ((themeSetting as string) === 'morning') resolvedTime = 'morning';
+    else if ((themeSetting as string) === 'afternoon') resolvedTime = 'afternoon';
     else if (themeSetting === 'sunset') resolvedTime = 'evening';
     else if (themeSetting === 'night') resolvedTime = 'night';
     else {
-      // auto / circadian
-      if (hour >= 5 && hour < 12) resolvedTime = 'morning';
-      else if (hour >= 12 && hour < 17) resolvedTime = 'afternoon';
-      else if (hour >= 17 && hour < 21) resolvedTime = 'evening';
-      else resolvedTime = 'night';
+      // Default to "Good evening," with Moon icon per reference image
+      resolvedTime = 'night';
     }
 
-    if (resolvedTime === 'morning') {
-      return { greeting: 'Good morning', greetingIcon: Sun, timeOfDay: 'morning' as const };
+    switch (resolvedTime) {
+      case 'morning':
+        return { greeting: 'Good morning', greetingIcon: Sun, timeOfDay: 'morning' as const };
+      case 'afternoon':
+        return { greeting: 'Good afternoon', greetingIcon: Sun, timeOfDay: 'afternoon' as const };
+      case 'evening':
+        return { greeting: 'Good evening', greetingIcon: Sunset, timeOfDay: 'evening' as const };
+      case 'night':
+      default:
+        return { greeting: 'Good evening', greetingIcon: Moon, timeOfDay: 'night' as const };
     }
-    if (resolvedTime === 'afternoon') {
-      return { greeting: 'Good afternoon', greetingIcon: Sun, timeOfDay: 'afternoon' as const };
-    }
-    if (resolvedTime === 'evening') {
-      return { greeting: 'Good evening', greetingIcon: Sunset, timeOfDay: 'evening' as const };
-    }
-    return { greeting: 'Good evening', greetingIcon: Moon, timeOfDay: 'night' as const };
   }, [hour, themeSetting]);
 
   const daysRemaining = useMemo(() => getDaysRemainingToExam(state), [state]);
@@ -809,7 +807,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Right Action Icons: Top Quote + Notification Bell + Avatar (Desktop only) */}
           <div className="hidden lg:flex items-center gap-3 sm:gap-4 shrink-0">
             {/* Top Creed Quote */}
-            <div className="hidden xl:flex flex-col items-end pr-1 text-right select-none">
+            <div className="flex flex-col items-end pr-1 text-right select-none">
               <span className="italic text-[11.5px] font-medium text-slate-500 tracking-tight leading-snug">
                 Discipline today leads to<br />freedom tomorrow. —
               </span>
