@@ -1,6 +1,15 @@
+@import url('https://fonts.cdnfonts.com/css/sf-pro-display');
 @import "tailwindcss";
 
 @theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "SF Pro Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-outfit: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-jakarta: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-newsreader: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-inter: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
   --color-terracotta: #B57B66;
   --color-terracotta-50: #FAF5F2;
   --color-terracotta-100: #F4E8E3;
@@ -19,6 +28,70 @@
   --interactive-terracotta-hover: #9E634F;
   --interactive-terracotta-subtle: rgba(181, 123, 102, 0.12);
   --interactive-terracotta-glow: rgba(181, 123, 102, 0.28);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   APPLE.COM SF PRO SYSTEM-WIDE TYPOGRAPHY ENGINE
+   ═══════════════════════════════════════════════════════════════════════ */
+
+html {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.011em;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display Headings match Apple.com SF Pro Display signature tracking & optical weight */
+h1, h2, h3, h4, h5, h6 {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.022em;
+  text-rendering: optimizeLegibility;
+}
+
+/* System-wide override to redirect existing font-* classes to Apple SF Pro */
+[class*="font-['Outfit']"],
+[class*="font-['Plus_Jakarta_Sans']"],
+[class*="font-['Inter']"],
+.font-sans,
+.font-display {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  letter-spacing: -0.011em;
+}
+
+/* Headings and editorial display titles use SF Pro Display with Apple's negative letter-spacing */
+[class*="font-['Newsreader']"] {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  letter-spacing: -0.024em;
+}
+
+/* Apple-style Tabular Numbers & Monospace for Clinical Telemetry, Stats & Timers */
+code,
+kbd,
+samp,
+pre,
+.font-mono,
+[class*="font-mono"],
+.tabular-nums {
+  font-family: "SF Mono", "SF Pro Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Apple-style Form Controls Typography */
+button, input, textarea, select {
+  font-family: inherit;
+  letter-spacing: inherit;
 }
 
 .page-container {
