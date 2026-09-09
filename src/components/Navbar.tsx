@@ -555,10 +555,10 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   whileHover={reducedMotion ? undefined : { x: 3 }}
                   whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-                  className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer ${
+                  className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer group ${
                     active
                       ? 'text-[#006B63] font-bold'
-                      : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-slate-50/80'
+                      : 'text-slate-700 font-medium hover:text-[#B57B66] hover:bg-[#FAF5F2]/80'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -566,7 +566,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                       className={`h-[19px] w-[19px] shrink-0 transition-all duration-200 ${
                         active
                           ? 'text-[#006B63] fill-[#006B63]/25 stroke-[#006B63] stroke-[2.2] scale-105'
-                          : 'text-slate-500 stroke-[1.8] group-hover:scale-110'
+                          : 'text-slate-500 stroke-[1.8] group-hover:text-[#B57B66] group-hover:stroke-[#B57B66] group-hover:scale-105'
                       }`}
                     />
                     <span>{label}</span>
@@ -618,10 +618,10 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 aria-expanded={isMoreMenuOpen}
                 aria-haspopup="menu"
                 aria-label="More utilities"
-                className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer ${
+                className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer group ${
                   isSecondaryActive || isMoreMenuOpen
                     ? 'text-[#006B63] font-bold bg-[#D8F2EC]'
-                    : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-slate-50/80'
+                    : 'text-slate-700 font-medium hover:text-[#B57B66] hover:bg-[#FAF5F2]/80'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -629,7 +629,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                     className={`w-7 h-7 rounded-xl flex items-center justify-center transition-colors ${
                       isSecondaryActive || isMoreMenuOpen
                         ? 'bg-[#006B63]/15 text-[#006B63]'
-                        : 'bg-slate-100 text-slate-500'
+                        : 'bg-slate-100 text-slate-500 group-hover:bg-[#B57B66]/15 group-hover:text-[#B57B66]'
                     }`}
                   >
                     <MoreHorizontal className="h-4 w-4 stroke-[2]" />
@@ -688,17 +688,17 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                             }
                             setIsMoreMenuOpen(false);
                           }}
-                          className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer ${
+                          className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
                             active
                               ? 'bg-[#E8F5F3] text-[#006B63]'
-                              : 'hover:bg-slate-50 text-slate-700'
+                              : 'hover:bg-[#FAF5F2] hover:text-[#B57B66] text-slate-700'
                           }`}
                         >
                           <div
                             className={`p-2 rounded-lg shrink-0 transition-colors ${
                               active
                                 ? 'bg-[#006B63] text-white shadow-2xs'
-                                : 'bg-slate-100 text-slate-600'
+                                : 'bg-slate-100 text-slate-600 group-hover:bg-[#B57B66]/15 group-hover:text-[#B57B66]'
                             }`}
                           >
                             <Icon className="h-4 w-4" />
@@ -831,7 +831,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`relative flex items-center justify-center h-9 w-9 rounded-full border shadow-2xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]/40 ${
                 mobileMoreOpen || isSecondaryActive
                   ? 'bg-[#E8F5F3] border-teal-200 text-[#006B63]'
-                  : 'bg-white border-stone-200/90 text-stone-700 hover:text-stone-900'
+                  : 'bg-white border-stone-200/90 text-stone-700 hover:text-[#B57B66] hover:border-[#B57B66]/40'
               }`}
               title="More utilities"
             >
@@ -863,13 +863,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                         setMobileMoreOpen(false);
                       }
                     }}
-                    className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100 mb-1 cursor-pointer hover:bg-slate-50 rounded-xl transition-colors group"
+                    className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100 mb-1 cursor-pointer hover:bg-[#FAF5F2] rounded-xl transition-colors group"
                   >
-                    <div className="flex items-center gap-2 text-slate-700 group-hover:text-[#006B63] font-semibold text-xs">
-                      <MoreHorizontal className="h-3.5 w-3.5 text-[#006B63]" />
+                    <div className="flex items-center gap-2 text-slate-700 group-hover:text-[#B57B66] font-semibold text-xs">
+                      <MoreHorizontal className="h-3.5 w-3.5 text-[#006B63] group-hover:text-[#B57B66]" />
                       <span>More</span>
                     </div>
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#B57B66] group-hover:translate-x-0.5 transition-all" />
                   </div>
                   {moreUtilityItems.map((item) => {
                     const { id, label, icon: Icon, desc } = item;
@@ -889,17 +889,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                           }
                           setMobileMoreOpen(false);
                         }}
-                        className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer ${
+                        className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
                           active
                             ? 'bg-[#E8F5F3] text-[#006B63]'
-                            : 'text-slate-700 hover:bg-slate-50'
+                            : 'text-slate-700 hover:bg-[#FAF5F2] hover:text-[#B57B66]'
                         }`}
                       >
                         <div
-                          className={`p-1.5 rounded-lg shrink-0 ${
+                          className={`p-1.5 rounded-lg shrink-0 transition-colors ${
                             active
                               ? 'bg-[#006B63] text-white'
-                              : 'bg-slate-100 text-slate-600'
+                              : 'bg-slate-100 text-slate-600 group-hover:bg-[#B57B66]/15 group-hover:text-[#B57B66]'
                           }`}
                         >
                           <Icon className="h-4 w-4" />
@@ -954,10 +954,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setMobileMoreOpen(false);
                   }}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative flex flex-col items-center justify-center min-w-[46px] sm:min-w-[50px] py-1 px-1.5 rounded-xl transition-all duration-150 cursor-pointer active:scale-[0.95] ${
+                  className={`relative flex flex-col items-center justify-center min-w-[46px] sm:min-w-[50px] py-1 px-1.5 rounded-xl transition-all duration-150 cursor-pointer active:scale-[0.95] group ${
                     active
                       ? 'text-[#006B63]'
-                      : 'text-slate-600 hover:text-slate-900'
+                      : 'text-slate-600 hover:text-[#B57B66]'
                   }`}
                   title={label}
                 >

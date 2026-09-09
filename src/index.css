@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+@theme {
+  --color-terracotta: #B57B66;
+  --color-terracotta-50: #FAF5F2;
+  --color-terracotta-100: #F4E8E3;
+  --color-terracotta-200: #EAD3CA;
+  --color-terracotta-300: #DCB8AC;
+  --color-terracotta-400: #C99B8B;
+  --color-terracotta-500: #B57B66;
+  --color-terracotta-600: #9E634F;
+  --color-terracotta-700: #83503F;
+  --color-terracotta-800: #6D4336;
+  --color-terracotta-900: #5A392F;
+}
+
+:root {
+  --interactive-terracotta: #B57B66;
+  --interactive-terracotta-hover: #9E634F;
+  --interactive-terracotta-subtle: rgba(181, 123, 102, 0.12);
+  --interactive-terracotta-glow: rgba(181, 123, 102, 0.28);
+}

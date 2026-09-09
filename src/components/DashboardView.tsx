@@ -773,7 +773,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <button
             type="button"
             onClick={() => handleSubTabChange('overview')}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-stone-200/80 text-stone-700 hover:text-stone-900 hover:bg-stone-50 font-semibold text-xs transition-colors shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-stone-200/80 text-stone-700 hover:text-[#B57B66] hover:border-[#B57B66]/40 hover:bg-[#FAF5F2] font-semibold text-xs transition-colors shadow-2xs cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-[#00685f]" />
             <span>Return to Home Dashboard</span>
@@ -870,7 +870,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={() => setIsNotificationCenterOpen(true)}
-              className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white border border-[#D5EAE3] shadow-xs text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors shrink-0"
+              className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white border border-[#D5EAE3] shadow-xs text-slate-600 cursor-pointer hover:bg-[#FAF5F2] hover:text-[#B57B66] hover:border-[#B57B66]/40 transition-colors shrink-0"
               title="View Study Notifications"
               aria-label="View Study Notifications"
             >
@@ -886,13 +886,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={onOpenProfile}
-              className="flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white border border-[#D5EAE3] shadow-xs hover:bg-slate-50 transition-colors cursor-pointer group"
+              className="flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white border border-[#D5EAE3] shadow-xs hover:bg-[#FAF5F2] hover:border-[#B57B66]/40 transition-colors cursor-pointer group"
               title="Doctor Profile & Blueprint"
             >
               <div className="h-8 w-8 rounded-full bg-[#2A2322] text-white flex items-center justify-center font-['Outfit'] font-bold text-xs shrink-0 ring-2 ring-slate-900/10">
                 {initials}
               </div>
-              <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+              <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400 group-hover:text-[#B57B66] transition-colors" />
             </button>
           </div>
         </div>
@@ -944,7 +944,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             topicName: topic.name,
                           });
                         }}
-                        className="px-2.5 py-1 text-[11px] font-bold bg-[#006B63] text-white rounded-lg hover:bg-[#005049] transition-colors cursor-pointer"
+                        className="px-2.5 py-1 text-[11px] font-bold bg-[#006B63] text-white rounded-lg hover:bg-[#B57B66] transition-colors cursor-pointer"
                       >
                         Study
                       </button>
@@ -1130,7 +1130,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`relative snap-start inline-flex items-center px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[34px] ${
                     active
                       ? 'text-white'
-                      : 'text-slate-600 hover:text-slate-900 bg-white border border-slate-200/80 hover:bg-slate-50 shadow-2xs'
+                      : 'text-slate-600 hover:text-[#B57B66] bg-white border border-slate-200/80 hover:border-[#B57B66]/40 hover:bg-[#FAF5F2] shadow-2xs'
                   }`}
                 >
                   {active && (
@@ -1149,7 +1149,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <button
             type="button"
             onClick={scrollPillsRight}
-            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/95 border border-slate-200 shadow-sm text-slate-500 hover:text-slate-800 items-center justify-center cursor-pointer transition-colors"
+            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/95 border border-slate-200 shadow-sm text-slate-500 hover:text-[#B57B66] hover:border-[#B57B66]/40 items-center justify-center cursor-pointer transition-colors"
             title="Scroll subjects right"
           >
             <ChevronRight className="h-4 w-4" />
@@ -1401,7 +1401,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSubTabChange('planner')}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#006B63] bg-teal-50/80 hover:bg-teal-100/70 border border-teal-200/60 transition-colors cursor-pointer min-h-[32px]"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#006B63] hover:text-[#B57B66] bg-teal-50/80 hover:bg-[#FAF5F2] border border-teal-200/60 hover:border-[#B57B66]/40 transition-colors cursor-pointer min-h-[32px]"
                   >
                     <span>Planner</span>
                     <ChevronRight className="h-3.5 w-3.5" />
@@ -1460,14 +1460,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <button
                         type="button"
                         onClick={() => onLaunchPracticeSession?.(task.subjectId, task.topicId, task.topicName)}
-                        className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#006B63] hover:bg-[#005049] shadow-xs active:scale-95 transition-all cursor-pointer min-h-[32px]"
+                        className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#006B63] hover:bg-[#B57B66] shadow-xs active:scale-95 transition-all cursor-pointer min-h-[32px]"
                       >
                         <Play className="h-3 w-3 fill-white" /> Start
                       </button>
                       <button
                         type="button"
                         onClick={() => onOpenAiCoach('concept', task.subjectId, task.topicName)}
-                        className="p-1 sm:p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                        className="p-1 sm:p-1.5 text-slate-400 hover:text-[#B57B66] rounded-lg hover:bg-[#FAF5F2] transition-colors cursor-pointer"
                         title="Options"
                       >
                         <MoreVertical className="h-4 w-4" />
@@ -1480,7 +1480,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleSubTabChange('planner')}
-                className="w-full text-center text-xs font-semibold text-[#006B63] hover:underline py-1 transition-colors cursor-pointer"
+                className="w-full text-center text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline py-1 transition-colors cursor-pointer"
               >
                 Open full plan →
               </button>
@@ -1589,7 +1589,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateTab('progress')}
-                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer flex items-center"
+                  className="text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline cursor-pointer flex items-center"
                 >
                   View details →
                 </button>
@@ -1686,7 +1686,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleSubTabChange('planner')}
-                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer flex items-center"
+                  className="text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline cursor-pointer flex items-center"
                 >
                   View calendar →
                 </button>
@@ -1739,7 +1739,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateTab('syllabus')}
-                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer min-h-[32px] flex items-center"
+                  className="text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline cursor-pointer min-h-[32px] flex items-center"
                 >
                   View curriculum →
                 </button>
@@ -1758,7 +1758,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className="group p-2 sm:p-2.5 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer space-y-1.5"
                     >
                       <div className="flex items-center justify-between text-xs gap-1.5">
-                        <span className="font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
+                        <span className="font-bold text-slate-900 group-hover:text-[#B57B66] transition-colors truncate">
                           {sub.name}
                         </span>
                         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -1801,7 +1801,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateTab('syllabus')}
-                  className="w-full text-center text-xs font-semibold text-[#006B63] hover:underline py-1 transition-colors cursor-pointer flex items-center justify-center gap-1 min-h-[36px]"
+                  className="w-full text-center text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline py-1 transition-colors cursor-pointer flex items-center justify-center gap-1 min-h-[36px]"
                 >
                   View all subjects →
                 </button>
@@ -1860,7 +1860,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={() => onNavigateTab('syllabus')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#006B63] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
             >
               View all 19 subjects <ArrowRight className="h-3.5 w-3.5" />
             </button>
@@ -1883,7 +1883,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col justify-between transition-all duration-200 cursor-pointer border bg-gradient-to-b ${theme.bg} ${
                     isCurrent
                       ? 'border-[#006B63] shadow-md ring-2 ring-[#006B63]/25'
-                      : `${theme.border} shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5`
+                      : `${theme.border} shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 hover:border-[#B57B66]/40`
                   } active:scale-[0.98]`}
                 >
                   {/* Weightage Badge top right */}
@@ -1911,7 +1911,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <div className="flex items-start justify-between gap-1">
                       <div className="min-w-0 flex-1">
                         <h4
-                          className="text-[11px] sm:text-xs md:text-[13px] font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate"
+                          className="text-[11px] sm:text-xs md:text-[13px] font-bold text-slate-900 group-hover:text-[#B57B66] transition-colors truncate"
                           title={sub.name}
                         >
                           {sub.name}
@@ -1925,7 +1925,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5 ${
                           isCurrent
                             ? 'bg-[#006B63] text-white shadow-xs'
-                            : `bg-white/80 ${theme.arrowText} border border-slate-200/70 shadow-2xs ${theme.arrowBg}`
+                            : `bg-white/80 ${theme.arrowText} border border-slate-200/70 shadow-2xs group-hover:border-[#B57B66]/50 group-hover:text-[#B57B66] ${theme.arrowBg}`
                         }`}
                       >
                         <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
