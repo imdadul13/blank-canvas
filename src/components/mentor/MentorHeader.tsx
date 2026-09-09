@@ -1,6 +1,6 @@
 import React from 'react';
-import { motion } from 'motion/react';
-import { Target, History, Plus, Activity, Award, ShieldCheck, Zap, Stethoscope } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
+import { Target, History, Plus, Stethoscope } from 'lucide-react';
 
 interface MentorHeaderProps {
   daysRemaining?: number | null;
@@ -13,36 +13,32 @@ interface MentorHeaderProps {
 export const MentorHeader: React.FC<MentorHeaderProps> = ({
   daysRemaining,
   sessionsCount,
-  activeSessionTitle,
   onOpenHistory,
   onNewSession,
 }) => {
+  const reducedMotion = useReducedMotion();
   const displayDays = daysRemaining !== undefined && daysRemaining !== null ? daysRemaining : 0;
 
   return (
-    <header className="relative overflow-hidden rounded-3xl border border-teal-200/60 bg-gradient-to-br from-[#F2FBF8] via-[#FAFDFB] via-45% to-[#EDF8F5] p-4 sm:p-6 shadow-xs">
-      {/* Dynamic Animated Ambient Medical Background Effects */}
+    <motion.header
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#EEFBF7] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+    >
+      {/* Dynamic Animated Ambient Faculty Background Effects */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        {/* Subtle luminous top border shimmer track */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-500/25 to-transparent" />
-          <motion.div
-            animate={{ x: ['-100%', '300%'] }}
-            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.5 }}
-            className="w-48 sm:w-72 h-full bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_14px_#2dd4bf]"
-          />
-        </div>
-
-        {/* Subtle bottom border gradient luster */}
-        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-teal-500/20 to-transparent" />
-
-        {/* Soft glowing corner radial gradient orbs (strictly tucked away from text) */}
+        {/* Soft glowing corner radial gradient orbs with breathing motion */}
         <motion.div
-          animate={{
-            scale: [1, 1.15, 1],
-            opacity: [0.35, 0.55, 0.35],
-            x: [0, 15, 0],
-          }}
+          animate={
+            reducedMotion
+              ? {}
+              : {
+                  scale: [1, 1.18, 1],
+                  opacity: [0.35, 0.55, 0.35],
+                  x: [0, 16, 0],
+                }
+          }
           transition={{
             duration: 8,
             repeat: Infinity,
@@ -51,236 +47,276 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
           className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/35 via-emerald-200/25 to-transparent blur-3xl"
         />
         <motion.div
-          animate={{
-            scale: [1.08, 1, 1.08],
-            opacity: [0.22, 0.38, 0.22],
-            y: [0, -10, 0],
-          }}
+          animate={
+            reducedMotion
+              ? {}
+              : {
+                  scale: [1.1, 1, 1.1],
+                  opacity: [0.22, 0.42, 0.22],
+                  y: [0, -10, 0],
+                }
+          }
           transition={{
-            duration: 10,
+            duration: 9.5,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
           className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-cyan-200/30 via-teal-100/20 to-transparent blur-3xl"
         />
+        <div className="absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r from-teal-200/20 via-emerald-100/15 to-transparent blur-3xl" />
 
-        {/* Central ambient highlight wash */}
-        <div className="absolute -top-12 left-1/4 h-52 w-96 rounded-full bg-gradient-to-r from-teal-200/20 via-emerald-100/15 to-transparent blur-3xl" />
-
-        {/* Subtle Clinical Telemetry Grid Lines (Scientific diagnostic institute backdrop) */}
+        {/* Subtle Precision Clinical Calibration Dot & Cross Pattern */}
         <svg
           className="absolute inset-0 h-full w-full opacity-[0.035] text-teal-950 pointer-events-none select-none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <pattern id="clinical-telemetry-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" strokeWidth="0.75" />
-              <circle cx="0" cy="0" r="0.75" fill="currentColor" opacity="0.8" />
+            <pattern id="mentor-calibration-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+              <path d="M 15 11 L 15 19 M 11 15 L 19 15" stroke="currentColor" strokeWidth="0.75" />
+              <circle cx="15" cy="15" r="0.8" fill="currentColor" />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#clinical-telemetry-grid)" />
+          <rect width="100%" height="100%" fill="url(#mentor-calibration-grid)" />
         </svg>
 
-        {/* Animated Physiological Cardiac Waveform (Continuous Clinical Sinus Rhythm with gradient stroke) */}
-        <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[500px] overflow-hidden opacity-[0.22] select-none pointer-events-none hidden sm:block">
-          <svg
-            viewBox="0 0 500 120"
-            className="w-full h-full"
-            fill="none"
-            preserveAspectRatio="none"
-          >
+        {/* Bespoke Clinical Faculty Diagnostic & Stethoscope Vector Artwork */}
+        <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[480px] overflow-hidden opacity-40 sm:opacity-55 md:opacity-[0.68] select-none pointer-events-none block">
+          <svg viewBox="0 0 480 140" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
             <defs>
-              <linearGradient id="ecg-gradient-track" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#006B63" stopOpacity="0.08" />
-                <stop offset="35%" stopColor="#006B63" stopOpacity="0.85" />
-                <stop offset="70%" stopColor="#0D9488" stopOpacity="0.95" />
-                <stop offset="100%" stopColor="#14B8A6" stopOpacity="0.35" />
+              <linearGradient id="mentor-chart-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+                <stop offset="60%" stopColor="#E6FFFA" stopOpacity="0.85" />
+                <stop offset="100%" stopColor="#B2F5EA" stopOpacity="0.75" />
               </linearGradient>
+              <linearGradient id="mentor-metal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#E2E8F0" />
+                <stop offset="40%" stopColor="#94A3B8" />
+                <stop offset="70%" stopColor="#CBD5E1" />
+                <stop offset="100%" stopColor="#64748B" />
+              </linearGradient>
+              <linearGradient id="mentor-steth-tube-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#0D9488" />
+                <stop offset="50%" stopColor="#00685F" />
+                <stop offset="100%" stopColor="#044E48" />
+              </linearGradient>
+              <radialGradient id="mentor-halo-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#2DD4BF" stopOpacity="0.45" />
+                <stop offset="60%" stopColor="#0D9488" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="#004D40" stopOpacity="0" />
+              </radialGradient>
             </defs>
-            {/* ECG Sinus Rhythm Path with P-Q-R-S-T morphology */}
+
+            {/* Ambient Wisdom Halo */}
+            <motion.circle
+              cx="375"
+              cy="70"
+              r="62"
+              fill="url(#mentor-halo-glow)"
+              animate={reducedMotion ? {} : { scale: [1, 1.16, 1], opacity: [0.35, 0.65, 0.35] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+            />
+
+            {/* ═══ 1. CLINICAL CONSULTATION DOSSIER / VIGNETTE CHART ═══ */}
+            <g transform="translate(345, 42) rotate(-5)">
+              <rect x="-65" y="-10" width="130" height="92" rx="7" fill="#0F766E" opacity="0.3" />
+              <rect x="-60" y="-6" width="120" height="85" rx="5" fill="url(#mentor-chart-grad)" stroke="#99F6E4" strokeWidth="0.8" />
+              <rect x="-24" y="-12" width="48" height="12" rx="3" fill="url(#mentor-metal-grad)" />
+              <circle cx="0" cy="-6" r="2.5" fill="#334155" />
+
+              {/* Consultation text mock lines */}
+              <g stroke="#0F766E" strokeOpacity="0.25" strokeWidth="1" strokeLinecap="round">
+                <line x1="-50" y1="12" x2="10" y2="12" />
+                <line x1="-50" y1="18" x2="35" y2="18" />
+                <line x1="-50" y1="24" x2="45" y2="24" />
+                <line x1="-50" y1="30" x2="-5" y2="30" />
+              </g>
+
+              {/* Real-time ECG Trace on Sheet */}
+              <path
+                d="M -50 52 L -32 52 L -28 44 L -24 62 L -20 38 L -16 58 L -12 52 L 2 52 L 6 46 L 10 56 L 14 52 L 48 52"
+                stroke="#00685F"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+                opacity="0.85"
+              />
+            </g>
+
+            {/* ═══ 2. CLINICAL STETHOSCOPE ═══ */}
+            <g transform="translate(370, 75)">
+              <path
+                d="M -85 -35 C -75 -65, -35 -70, -10 -60"
+                stroke="url(#mentor-metal-grad)"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M -60 -30 C -52 -55, -20 -62, 5 -55"
+                stroke="url(#mentor-metal-grad)"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                fill="none"
+              />
+              {/* Flexible Tubing */}
+              <path
+                d="M -5 -58 C 15 -52, 22 -35, 12 -15 C 2 5, -15 25, 0 45 C 12 60, 45 45, 65 20"
+                stroke="url(#mentor-steth-tube-grad)"
+                strokeWidth="4.2"
+                strokeLinecap="round"
+                fill="none"
+              />
+
+              {/* Stethoscope Chestpiece */}
+              <g transform="translate(65, 20)">
+                <rect x="-8" y="-3" width="8" height="6" rx="1.5" fill="url(#mentor-metal-grad)" />
+                <circle r="16" fill="url(#mentor-metal-grad)" stroke="#0F766E" strokeWidth="1" />
+                <circle r="12.5" fill="#004D40" />
+                <circle r="10.5" fill="url(#mentor-metal-grad)" opacity="0.4" />
+                <circle r="4" fill="#0D9488" />
+                <circle r="1.5" fill="#FFFFFF" />
+
+                {/* Pulse wave concentric rings */}
+                {!reducedMotion && (
+                  <>
+                    <motion.circle
+                      r="16"
+                      stroke="#2DD4BF"
+                      strokeWidth="1.5"
+                      fill="none"
+                      animate={{ scale: [1, 1.8], opacity: [0.85, 0] }}
+                      transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut' }}
+                    />
+                    <motion.circle
+                      r="16"
+                      stroke="#14B8A6"
+                      strokeWidth="1.2"
+                      fill="none"
+                      animate={{ scale: [1, 2.3], opacity: [0.65, 0] }}
+                      transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut', delay: 0.6 }}
+                    />
+                  </>
+                )}
+              </g>
+            </g>
+
+            {/* ═══ 3. HOLOGRAPHIC DIAGNOSTIC PULSE WAVE ═══ */}
             <motion.path
-              d="M 0 65 L 60 65 Q 70 65 75 58 Q 80 52 85 65 L 100 65 L 105 70 L 112 25 L 120 95 L 127 65 L 138 65 Q 150 48 165 65 L 250 65 Q 260 65 265 58 Q 270 52 275 65 L 290 65 L 295 70 L 302 25 L 310 95 L 317 65 L 328 65 Q 340 48 355 65 L 440 65 Q 450 65 455 58 Q 460 52 465 65 L 500 65"
-              stroke="url(#ecg-gradient-track)"
-              strokeWidth="2.2"
+              d="M 160 115 L 205 115 L 213 100 L 221 130 L 229 92 L 237 125 L 243 115 L 285 115"
+              stroke="#0D9488"
+              strokeWidth="1.8"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeDasharray="6 4"
-              animate={{ strokeDashoffset: [0, -100] }}
-              transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
+              fill="none"
+              opacity="0.8"
+              animate={reducedMotion ? {} : { opacity: [0.4, 0.95, 0.4] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
             />
-            {/* Subtle traveling cardiac pulse nodal glow */}
-            <motion.circle
-              cx="112"
-              cy="25"
-              r="3.5"
-              fill="#006B63"
-              animate={{ scale: [1, 1.7, 1], opacity: [0.4, 0.95, 0.4] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <motion.circle
-              cx="302"
-              cy="25"
-              r="3.5"
-              fill="#0D9488"
-              animate={{ scale: [1, 1.7, 1], opacity: [0.4, 0.95, 0.4] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }}
-            />
+
+            {/* Conduction Runner Dot */}
+            {!reducedMotion && (
+              <motion.circle
+                r="3"
+                fill="#00685F"
+                animate={{
+                  cx: [160, 205, 213, 221, 229, 237, 243, 285],
+                  cy: [115, 115, 100, 130, 92, 125, 115, 115],
+                  opacity: [0, 0.8, 1, 1, 1, 1, 0.8, 0],
+                }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            )}
+
+            {/* Floating Clinical Particle Blips */}
+            <motion.circle cx="310" cy="45" r="2" fill="#2DD4BF" animate={reducedMotion ? {} : { opacity: [0.2, 0.8, 0.2] }} transition={{ duration: 3, repeat: Infinity }} />
+            <motion.circle cx="440" cy="55" r="1.5" fill="#14B8A6" animate={reducedMotion ? {} : { opacity: [0.1, 0.7, 0.1] }} transition={{ duration: 3.8, repeat: Infinity, delay: 0.8 }} />
+            <motion.circle cx="280" cy="85" r="1.8" fill="#0D9488" animate={reducedMotion ? {} : { opacity: [0.2, 0.75, 0.2] }} transition={{ duration: 2.7, repeat: Infinity, delay: 1.4 }} />
           </svg>
         </div>
       </div>
 
-      {/* Main Content Layout */}
-      <div className="relative z-10 space-y-3 sm:space-y-4">
-        {/* Top Eyebrow Row */}
-        <div className="flex items-center justify-between gap-3">
-          <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-teal-500/15 border border-teal-500/25 text-[#006B63] text-[10px] sm:text-[11px] font-bold font-mono tracking-wider backdrop-blur-md shadow-2xs"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B63]" />
-            </span>
-            <span className="uppercase tracking-[0.16em]">AI Clinical Faculty</span>
-            <span className="text-teal-400">·</span>
-            <span className="hidden xs:inline text-teal-800 font-semibold tracking-normal font-sans">FMGE Cognitive Engine</span>
-          </motion.div>
-
-          {/* Top-Right Signature Badge (Desktop) */}
-          <motion.div
-            initial={{ opacity: 0, x: 8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-            className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-white/90 via-teal-50/40 to-white/90 border border-teal-100/90 shadow-2xs backdrop-blur-md"
-          >
-            <Activity className="h-3.5 w-3.5 text-[#006B63] animate-pulse" />
-            <span className="text-xs font-semibold text-slate-700 font-['Outfit']">
-              Always With You
-            </span>
-            <span className="text-slate-300">|</span>
-            <span className="text-[11px] text-slate-500 font-sans">
-              24/7 Clinical Mentorship
-            </span>
-          </motion.div>
-        </div>
-
-        {/* Hero Section: Title & Controls */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
-          <div className="space-y-1.5 min-w-0">
-            <div className="flex items-center gap-3">
-              {/* Animated Faculty Stethoscope Insignia */}
-              <div className="relative flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-br from-[#006B63] via-[#005750] to-[#00423c] text-white shadow-md shadow-teal-900/15 shrink-0">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-                  className="absolute -inset-[2px] rounded-2xl bg-gradient-to-tr from-teal-400/40 via-emerald-300/10 to-teal-500/50 blur-[2px] -z-10"
-                />
-                <Stethoscope className="h-5 w-5 sm:h-6 sm:w-6 text-teal-50" />
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <motion.h1
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.35, ease: 'easeOut' }}
-                    className="text-2xl sm:text-3xl lg:text-[34px] font-extrabold font-['Outfit'] tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent leading-tight"
-                  >
-                    Faculty Mentor
-                  </motion.h1>
-
-                  <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-teal-50 via-emerald-50 to-teal-50 border border-teal-200/80 text-[11px] font-bold text-[#006B63] font-['Outfit'] shadow-2xs">
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                    <span>19 Subjects</span>
-                  </span>
-                </div>
-              </div>
+      {/* Content Layout Matching Editorial Design System */}
+      <div className="relative z-10 space-y-2.5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="space-y-1 max-w-xl">
+            {/* Eyebrows */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-[#00685f] border border-emerald-500/20 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-sm">
+                AI MENTOR
+              </span>
+              <span className="text-[#00685f]/40 font-mono">·</span>
+              <span className="px-2 py-0.5 rounded-full bg-white/80 text-[#4A5553] border border-emerald-200/60 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-sm">
+                19 SUBJECTS
+              </span>
+              <span className="text-[#00685f]/40 font-mono">·</span>
+              <span className="text-stone-500 text-[10px] font-mono font-medium tracking-wide">
+                CLINICAL FACULTY
+              </span>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-600 max-w-xl leading-relaxed font-sans line-clamp-2 sm:line-clamp-none pt-0.5">
-              High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted weak-area remediation.
-            </p>
-
-            {/* Quick capability tags */}
-            <div className="hidden md:flex items-center gap-2 pt-0.5 text-[11px] font-semibold text-slate-500">
-              <span className="flex items-center gap-1 text-slate-600">
-                <Zap className="h-3 w-3 text-amber-500 fill-amber-500" />
-                <span>NBE Traps</span>
-              </span>
-              <span className="text-slate-300">·</span>
-              <span className="flex items-center gap-1 text-slate-600">
-                <Activity className="h-3 w-3 text-teal-600" />
-                <span>Differential Diagnosis</span>
-              </span>
-              <span className="text-slate-300">·</span>
-              <span className="flex items-center gap-1 text-slate-600">
-                <Award className="h-3 w-3 text-indigo-500" />
-                <span>Adaptive Quizzing</span>
-              </span>
+            {/* Heading with Element Insignia */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] via-[#0D9488] to-[#044E48] text-white shadow-md shadow-teal-900/15 shrink-0">
+                <Stethoscope className="h-5 w-5 text-emerald-50" />
+              </div>
+              <div>
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-semibold font-['Newsreader'] tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-[#00685f] bg-clip-text text-transparent leading-snug">
+                  Faculty Mentor
+                </h1>
+                <p className="text-xs sm:text-sm text-[#3d4947] leading-normal line-clamp-1 sm:line-clamp-none">
+                  High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted remediation.
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Controls Column */}
-          <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2.5 shrink-0 pt-1 lg:pt-0 w-full sm:w-auto">
-            {/* Days to Exam Card */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl bg-gradient-to-br from-white/95 via-teal-50/30 to-white/90 border border-teal-100/90 shadow-2xs backdrop-blur-md shrink-0"
-            >
-              <div className="relative flex items-center justify-center h-6 w-6 sm:h-8 sm:w-8 rounded-xl bg-gradient-to-br from-teal-50 via-emerald-50/70 to-teal-100/50 border border-teal-200/60 text-[#006B63] shrink-0">
-                <Target className="h-3 sm:h-4 w-3 sm:w-4" />
-                <span className="animate-ping absolute h-full w-full rounded-xl bg-teal-400 opacity-20" />
+          {/* Right Action Controls: Target Days Badge, History Drawer Trigger, New Chat Action */}
+          <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap pt-1 md:pt-0 shrink-0">
+            {/* Days to FMGE Target Badge */}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/90 border border-stone-200/80 shadow-2xs backdrop-blur-sm shrink-0">
+              <div className="h-7 w-7 rounded-xl bg-teal-500/10 text-[#00685F] flex items-center justify-center shrink-0">
+                <Target className="h-3.5 w-3.5" />
               </div>
               <div className="leading-tight text-left">
-                <p className="text-[11px] sm:text-sm font-extrabold text-slate-900 font-['Outfit'] whitespace-nowrap">
-                  {displayDays}d <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500">to FMGE</span>
-                </p>
-                <p className="text-[10px] text-teal-700 font-medium font-sans hidden sm:block">Stay on track</p>
+                <span className="text-xs sm:text-sm font-extrabold text-stone-900 font-['Outfit'] tabular-nums">
+                  {displayDays}d
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-stone-500 font-medium ml-1">to FMGE</span>
               </div>
-            </motion.div>
+            </div>
 
             {/* Saved History Trigger Button */}
             <motion.button
               type="button"
-              whileHover={{ scale: 1.03, y: -1 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={reducedMotion ? undefined : { scale: 1.02, y: -1 }}
+              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               onClick={onOpenHistory}
-              className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border border-teal-100/90 bg-gradient-to-br from-white/95 via-slate-50/60 to-white/95 hover:from-teal-50/70 hover:via-white hover:to-emerald-50/40 text-[11px] sm:text-sm font-bold text-slate-700 hover:text-[#006B63] shadow-2xs hover:shadow-xs transition-all cursor-pointer backdrop-blur-md group shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border border-stone-200/80 bg-white/90 hover:bg-[#FAF5F2] hover:border-[#B57B66]/40 text-xs sm:text-sm font-semibold text-stone-700 hover:text-[#B57B66] shadow-2xs hover:shadow-xs transition-all cursor-pointer backdrop-blur-sm group shrink-0"
               title="Open saved consultations history"
             >
-              <History className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-[#006B63] transition-transform duration-200 group-hover:rotate-[-20deg]" />
-              <span className="font-['Outfit'] whitespace-nowrap">Saved History</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200/80 text-[#006B63] font-bold font-mono text-[10px] sm:text-[11px]">
-                ({sessionsCount})
+              <History className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-stone-500 group-hover:text-[#B57B66] group-hover:rotate-[-20deg] transition-transform" />
+              <span className="whitespace-nowrap">History</span>
+              <span className="px-1.5 py-0.5 rounded-full bg-teal-50 text-[10px] sm:text-[11px] font-mono font-bold text-[#00685F] border border-teal-200/60">
+                {sessionsCount}
               </span>
             </motion.button>
 
             {/* New Chat Action Button */}
             <motion.button
               type="button"
-              whileHover={{ scale: 1.03, y: -1 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={reducedMotion ? undefined : { scale: 1.02, y: -1 }}
+              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               onClick={onNewSession}
-              className="relative overflow-hidden flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-[#006B63] hover:from-slate-950 hover:to-[#005049] text-white text-[11px] sm:text-sm font-bold font-['Outfit'] shadow-xs hover:shadow-md transition-all cursor-pointer group shrink-0"
-              title="Start a new consultation session and jump to asking bar"
+              className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-[#00685F] hover:bg-[#00554E] hover:shadow-md active:scale-97 text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer group shrink-0"
+              title="Start a new consultation session"
             >
-              {/* Shimmer sweep */}
-              <motion.div
-                animate={{ x: ['-140%', '260%'] }}
-                transition={{ duration: 3.5, repeat: Infinity, repeatDelay: 2 }}
-                className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]"
-              />
-              <Plus className="relative z-10 h-3 sm:h-4 w-3 sm:w-4 transition-transform duration-300 group-hover:rotate-90 text-teal-300" />
-              <span className="relative z-10 font-['Outfit'] whitespace-nowrap">
-                <span className="hidden sm:inline">New Chat</span>
-                <span className="sm:hidden">New</span>
-              </span>
+              <Plus className="h-3.5 sm:h-4 w-3.5 sm:w-4 group-hover:rotate-90 transition-transform duration-200" />
+              <span className="whitespace-nowrap">New Chat</span>
             </motion.button>
           </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 };

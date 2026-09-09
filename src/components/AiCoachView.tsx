@@ -1239,7 +1239,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   ];
 
   return (
-    <div className="page-container space-y-3 sm:space-y-4 font-sans text-slate-900 pb-6 md:pb-8">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-4 sm:space-y-6 font-sans text-slate-900 pb-6 md:pb-8">
       {/* ================= EDITORIAL FACULTY MENTOR HEADER ================= */}
       <MentorHeader
         daysRemaining={state?.settings?.examDate ? daysRemaining : null}
