@@ -23,6 +23,7 @@ import { DataMigrationModal } from './components/DataMigrationModal';
 import { NotificationCenterModal } from './components/NotificationCenterModal';
 import { CloudSyncModal } from './components/CloudSyncModal';
 import { ErrorBoundary } from './components/error-boundary';
+import { AppSplashScreen } from './components/AppSplashScreen';
 import { AuthProvider, useAuth, DEV_AUTH_BYPASS } from './context/AuthContext';
 
 import {
@@ -599,18 +600,10 @@ function AppInner() {
   // Initial Auth Loading State
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F3F6FA] flex flex-col items-center justify-center p-6">
-        <div className="flex flex-col items-center max-w-sm text-center">
-          <span className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-lg mb-4 animate-pulse motion-reduce:animate-none">
-            <span className="font-['Outfit'] text-3xl font-extrabold tracking-tight leading-none text-white">1S</span>
-          </span>
-          <h3 className="text-lg font-bold text-slate-900 font-['Outfit']">ONE SHOT FMGE</h3>
-          <p className="text-xs text-slate-400 mt-1 font-medium font-['Plus_Jakarta_Sans']">Restoring your study plan...</p>
-          <div className="w-48 bg-slate-200 h-1.5 rounded-full mt-4 overflow-hidden">
-            <div className="bg-sky-500 h-full rounded-full animate-pulse motion-reduce:animate-none w-3/4" />
-          </div>
-        </div>
-      </div>
+      <AppSplashScreen
+        statusMessage="Restoring your study plan..."
+        subMessage="Calibrating high-yield clinical recall engine"
+      />
     );
   }
 
@@ -628,18 +621,10 @@ function AppInner() {
   // never hit this branch.
   if (!DEV_AUTH_BYPASS && !isGuest && !profile) {
     return (
-      <div className="min-h-screen bg-[#F3F6FA] flex flex-col items-center justify-center p-6">
-        <div className="flex flex-col items-center max-w-sm text-center">
-          <span className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-lg mb-4 animate-pulse motion-reduce:animate-none">
-            <span className="font-['Outfit'] text-3xl font-extrabold tracking-tight leading-none text-white">1S</span>
-          </span>
-          <h3 className="text-lg font-bold text-slate-900 font-['Outfit']">ONE SHOT FMGE</h3>
-          <p className="text-xs text-slate-400 mt-1 font-medium font-['Plus_Jakarta_Sans']">Preparing your workspace&hellip;</p>
-          <div className="w-48 bg-slate-200 h-1.5 rounded-full mt-4 overflow-hidden">
-            <div className="bg-sky-500 h-full rounded-full animate-pulse motion-reduce:animate-none w-3/4" />
-          </div>
-        </div>
-      </div>
+      <AppSplashScreen
+        statusMessage="Preparing your workspace..."
+        subMessage="Syncing your personalized FMGE daily blueprint"
+      />
     );
   }
 

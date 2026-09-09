@@ -54,9 +54,9 @@ export const OnboardingModal: React.FC = () => {
             {/* Header & Step Indicator */}
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-white font-bold font-['Outfit'] text-xs">
-                  1S
-                </span>
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white border border-[#006B63]/20 shadow-xs overflow-hidden p-0.5 shrink-0">
+                  <img src="/images/brand/one_shot_emblem.png" alt="ONE SHOT FMGE Logo" className="h-full w-full object-cover rounded-lg" />
+                </div>
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 font-['Outfit']">Personalize Your FMGE Plan</h2>
                   <p className="text-[11px] text-slate-500">Welcome, {profile?.displayName || 'Doctor'}</p>
@@ -265,8 +265,8 @@ export const OnboardingModal: React.FC = () => {
         ) : (
           /* COMPLETION SCREEN */
           <div className="p-8 text-center space-y-6">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-900 text-white font-['Outfit'] text-2xl font-bold shadow-md">
-              1S
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-[#006B63]/20 shadow-md overflow-hidden p-1">
+              <img src="/images/brand/one_shot_emblem.png" alt="ONE SHOT FMGE Logo" className="h-full w-full object-cover rounded-xl" />
             </div>
 
             <div className="space-y-2">
