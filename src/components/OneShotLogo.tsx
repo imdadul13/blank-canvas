@@ -32,13 +32,14 @@ function FallbackSvgEmblem({ className = '' }: { className?: string }) {
       focusable="false"
       fill="none"
     >
-      <rect width="48" height="48" rx="12" fill="#006B63" />
+      <circle cx="24" cy="24" r="23" fill="#006B63" stroke="#004D47" strokeWidth="1" />
       {/* Halo Arc */}
       <path
         d="M12 28 C12 16 36 16 36 28"
         stroke="#F59E0B"
-        strokeWidth="2"
+        strokeWidth="1.6"
         strokeDasharray="2 2"
+        opacity="0.8"
       />
       {/* Book base */}
       <path

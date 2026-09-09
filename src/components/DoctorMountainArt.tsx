@@ -295,43 +295,26 @@ export const DoctorMountainArt: React.FC<DoctorMountainArtProps> = ({
         fill="url(#mtnForeGrad)"
       />
 
-      {/* ════════════ 3. STYLIZED DOCTOR SILHOUETTE ════════════ */}
-      <g transform="translate(208, 66) scale(0.62)">
-        {/* Head & Hair */}
-        <ellipse cx="26" cy="16" rx="9" ry="11" fill="#0F172A" />
-        <path
-          d="M17 14C17 8 21 5 28 5C33 5 36 9 35 14C32 12 28 12 24 14C20 16 18 18 17 21Z"
-          fill="#1E293B"
-        />
-        {/* Neck */}
-        <rect x="23" y="24" width="7" height="6" fill="#F8FAFC" />
-        {/* Stethoscope around neck */}
-        <path
-          d="M19 28C19 36 21 44 26 47C31 44 33 36 33 28"
-          stroke="#006B63"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          fill="none"
-        />
-        <circle cx="26" cy="49" r="3.5" fill="#006B63" />
-        {/* White Coat Shoulders & Back */}
-        <path
-          d="M13 32C15 28 20 27 26 27C32 27 37 28 40 32L44 85H8L13 32Z"
-          fill="#FFFFFF"
-          stroke="#CBD5E1"
-          strokeWidth="1.2"
-        />
-        {/* Coat collar lapels */}
-        <path
-          d="M19 28L24 45L26 36L28 45L33 28"
-          stroke="#94A3B8"
-          strokeWidth="1.2"
-          fill="none"
-        />
-        {/* Back seam & arm folds */}
-        <path d="M26 36V75" stroke="#E2E8F0" strokeWidth="1.2" />
-        <path d="M15 42L11 65" stroke="#E2E8F0" strokeWidth="1.2" />
-        <path d="M37 42L41 65" stroke="#E2E8F0" strokeWidth="1.2" />
+      {/* ════════════ 3. PINE TREES ON MOUNTAIN RIDGES ════════════ */}
+      <g fill="#042F2E" opacity="0.45">
+        {/* Pine Tree 1 */}
+        <path d="M 232 108 L 235 98 L 238 108 L 236 108 L 239 116 L 236.5 116 L 240 124 L 231 124 L 234 116 L 231.5 116 L 234 108 Z" />
+        <rect x="235" y="124" width="1.5" height="4" fill="#022C22" />
+
+        {/* Pine Tree 2 (Taller) */}
+        <path d="M 242 102 L 246 88 L 250 102 L 247.5 102 L 251.5 112 L 248.5 112 L 253 122 L 241 122 L 245 112 L 242.5 112 L 246 102 Z" />
+        <rect x="246" y="122" width="1.8" height="5" fill="#022C22" />
+
+        {/* Pine Tree 3 */}
+        <path d="M 252 110 L 255 100 L 258 110 L 256 110 L 259 118 L 256.5 118 L 260 126 L 251 126 L 254 118 L 251.5 118 L 254 110 Z" />
+        <rect x="255" y="126" width="1.5" height="4" fill="#022C22" />
+
+        {/* Pine Tree 4 (Far) */}
+        <path d="M 223 118 L 225.5 110 L 228 118 L 226.5 118 L 229 125 L 227 125 L 230 131 L 222 131 L 224.5 125 L 222.5 125 L 225 118 Z" opacity="0.6" />
+
+        {/* Pine Tree 5 */}
+        <path d="M 264 122 L 267 112 L 270 122 L 268 122 L 271 130 L 268.5 130 L 272 138 L 263 138 L 266 130 L 263.5 130 L 266 122 Z" />
+        <rect x="267" y="138" width="1.6" height="4" fill="#022C22" />
       </g>
 
       {/* ════════════ 4. ANIMATED BIRDS SOARING OVER MOUNTAIN ════════════ */}

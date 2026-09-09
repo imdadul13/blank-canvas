@@ -154,6 +154,29 @@ function CircularCountdown({
           stroke="#F1F5F9"
           strokeWidth={strokeWidth}
         />
+        {/* Tiny Circular Graduation / Precision Marks around ring */}
+        {Array.from({ length: 24 }).map((_, i) => {
+          const angle = (i * 360) / 24;
+          const rad = (angle * Math.PI) / 180;
+          const r1 = radius + strokeWidth / 2 + 3;
+          const r2 = radius + strokeWidth / 2 + (i % 6 === 0 ? 6.5 : 4.5);
+          const x1 = center + r1 * Math.cos(rad);
+          const y1 = center + r1 * Math.sin(rad);
+          const x2 = center + r2 * Math.cos(rad);
+          const y2 = center + r2 * Math.sin(rad);
+          return (
+            <line
+              key={i}
+              x1={x1}
+              y1={y1}
+              x2={x2}
+              y2={y2}
+              stroke="#006B63"
+              strokeWidth={i % 6 === 0 ? 1.2 : 0.8}
+              strokeOpacity={i % 6 === 0 ? 0.3 : 0.14}
+            />
+          );
+        })}
         {/* Animated Gradient Progress Ring */}
         <motion.circle
           cx={center}
@@ -724,20 +747,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     <div className="relative min-h-screen font-['Plus_Jakarta_Sans'] text-slate-900 pb-16 lg:pb-12 pt-4 sm:pt-6 lg:pt-6 bg-[#F4FAF8]">
       {/* Subtle atmospheric medical wash and neural/molecular node connections */}
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(0,107,99,0.06)_0%,rgba(14,165,233,0.03)_50%,transparent_80%)]" />
-      <div className="pointer-events-none fixed top-0 right-0 w-[500px] h-[360px] -z-10 opacity-[0.09] overflow-hidden">
-        <svg viewBox="0 0 500 360" fill="none" className="w-full h-full stroke-[#006B63]">
-          <circle cx="420" cy="60" r="5" fill="#006B63" />
-          <circle cx="340" cy="110" r="4" fill="#006B63" />
-          <circle cx="450" cy="150" r="6" fill="#006B63" />
-          <circle cx="280" cy="170" r="4" fill="#006B63" />
-          <circle cx="360" cy="220" r="5" fill="#006B63" />
-          <circle cx="460" cy="260" r="4" fill="#006B63" />
-          <line x1="420" y1="60" x2="340" y2="110" strokeWidth="1.2" />
-          <line x1="420" y1="60" x2="450" y2="150" strokeWidth="1.2" />
-          <line x1="340" y1="110" x2="280" y2="170" strokeWidth="1.2" />
-          <line x1="340" y1="110" x2="360" y2="220" strokeWidth="1.2" />
-          <line x1="450" y1="150" x2="360" y2="220" strokeWidth="1.2" />
-          <line x1="360" y1="220" x2="460" y2="260" strokeWidth="1.2" />
+      <div className="pointer-events-none fixed top-0 right-0 w-[550px] h-[400px] -z-10 opacity-[0.08] overflow-hidden" aria-hidden="true">
+        <svg viewBox="0 0 550 400" fill="none" className="w-full h-full stroke-[#006B63]">
+          {/* Molecular nodes */}
+          <circle cx="440" cy="60" r="5" fill="#006B63" />
+          <circle cx="360" cy="110" r="4" fill="#006B63" />
+          <circle cx="470" cy="150" r="6" fill="#006B63" />
+          <circle cx="300" cy="170" r="4" fill="#006B63" />
+          <circle cx="380" cy="220" r="5" fill="#006B63" />
+          <circle cx="480" cy="260" r="4" fill="#006B63" />
+          <circle cx="260" cy="240" r="3" fill="#006B63" />
+          <line x1="440" y1="60" x2="360" y2="110" strokeWidth="1.1" />
+          <line x1="440" y1="60" x2="470" y2="150" strokeWidth="1.1" />
+          <line x1="360" y1="110" x2="300" y2="170" strokeWidth="1.1" />
+          <line x1="360" y1="110" x2="380" y2="220" strokeWidth="1.1" />
+          <line x1="470" y1="150" x2="380" y2="220" strokeWidth="1.1" />
+          <line x1="380" y1="220" x2="480" y2="260" strokeWidth="1.1" />
+          <line x1="300" y1="170" x2="260" y2="240" strokeWidth="1.1" />
+          {/* Subtle anatomical contour curve */}
+          <path d="M 220 50 C 320 20, 480 80, 520 220 C 540 300, 460 380, 380 390" strokeWidth="1" strokeDasharray="6 4" opacity="0.6" />
+          {/* Tiny subtle ECG trace */}
+          <path d="M 320 340 L 370 340 L 376 332 L 382 350 L 388 322 L 394 358 L 400 340 L 450 340" strokeWidth="1.2" opacity="0.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
 
@@ -1171,6 +1201,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                   {/* Circular Clinical Reasoning Watermark behind the Heart */}
                   <div className="relative w-full h-52 sm:h-60 flex items-center justify-center">
+                    {/* Soft atmospheric mint/cyan illumination behind the heart */}
+                    <div className="absolute inset-4 rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(45,212,191,0.25)_0%,transparent_70%)] pointer-events-none filter blur-xl" />
+
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
                       <svg viewBox="0 0 280 280" className="w-full h-full stroke-[#006B63] fill-none">
                         <circle cx="140" cy="140" r="130" strokeDasharray="4 4" strokeWidth="1" strokeOpacity="0.25" />
@@ -1189,6 +1222,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             BETTER OUTCOMES
                           </textPath>
                         </text>
+                        {/* Delicate anatomical cardiovascular contour branches in upper-right */}
+                        <g strokeOpacity="0.2" strokeWidth="1">
+                          <path d="M 180 90 C 200 70, 220 55, 248 44" />
+                          <path d="M 215 65 C 228 50, 242 42, 255 35" />
+                          <path d="M 195 80 C 210 90, 230 100, 250 96" />
+                          <circle cx="248" cy="44" r="1.5" fill="#006B63" fillOpacity="0.25" />
+                          <circle cx="255" cy="35" r="1.5" fill="#006B63" fillOpacity="0.25" />
+                          <circle cx="250" cy="96" r="1.5" fill="#006B63" fillOpacity="0.25" />
+                        </g>
                         {/* Faint ECG lines & markers */}
                         <path d="M 15 140 L 70 140 L 82 118 L 94 165 L 106 128 L 118 140 L 265 140" strokeWidth="1.2" strokeOpacity="0.2" />
                         <text x="75" y="112" className="text-[9px] font-mono font-semibold fill-[#006B63] opacity-35">P</text>
@@ -1244,10 +1286,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.1, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-[28px] bg-white border border-[#D5EAE3] shadow-[0_4px_20px_rgba(0,107,99,0.03)] p-5 sm:p-6 space-y-4"
+              className="rounded-[28px] bg-white border border-[#D5EAE3] shadow-[0_4px_20px_rgba(0,107,99,0.03)] p-5 sm:p-6 space-y-4 relative overflow-hidden"
             >
+              {/* Subtle Target / Radar Watermark Graphic in Background */}
+              <div className="absolute -top-3 right-3 w-36 h-36 pointer-events-none select-none opacity-[0.07] overflow-hidden" aria-hidden="true">
+                <svg viewBox="0 0 140 140" fill="none" className="w-full h-full stroke-[#006B63]">
+                  <circle cx="70" cy="70" r="62" strokeWidth="1" />
+                  <circle cx="70" cy="70" r="45" strokeWidth="1" />
+                  <circle cx="70" cy="70" r="28" strokeWidth="1" />
+                  <circle cx="70" cy="70" r="10" strokeWidth="1" />
+                  <line x1="70" y1="4" x2="70" y2="136" strokeWidth="1" strokeDasharray="3 3" />
+                  <line x1="4" y1="70" x2="136" y2="70" strokeWidth="1" strokeDasharray="3 3" />
+                </svg>
+              </div>
+
               {/* Card Header */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-2">
                   <div className="h-7 w-7 rounded-lg bg-[#E3F5F1] flex items-center justify-center text-[#006B63]">
                     <Compass className="h-4 w-4" />
@@ -1264,7 +1318,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               {/* Circular Gauge + Stats Block */}
-              <div className="flex items-center justify-between gap-3 sm:gap-4 pt-1">
+              <div className="flex items-center justify-between gap-3 sm:gap-4 pt-1 relative z-10">
                 {/* Circular Gauge */}
                 <CircularCountdown
                   days={daysRemaining}
@@ -1314,7 +1368,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               {/* Quote Box */}
-              <div className="rounded-2xl bg-[#EFF8F6] border border-[#DEF0EB] p-2.5 px-3 flex items-center gap-2.5 mt-2">
+              <div className="rounded-2xl bg-[#EFF8F6] border border-[#DEF0EB] p-2.5 px-3 flex items-center gap-2.5 mt-2 relative z-10">
                 <div className="h-6 w-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
                   <Sparkles className="h-3.5 w-3.5" />
                 </div>
@@ -1329,10 +1383,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.14, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-[28px] bg-white border border-[#D5EAE3] shadow-[0_4px_20px_rgba(0,107,99,0.03)] p-5 sm:p-6 space-y-4"
+              className="rounded-[28px] bg-white border border-[#D5EAE3] shadow-[0_4px_20px_rgba(0,107,99,0.03)] p-5 sm:p-6 space-y-4 relative overflow-hidden"
             >
+              {/* Faint ECG / Flowing rhythm wave near bottom edge */}
+              <div className="absolute bottom-1 right-2 w-48 h-6 pointer-events-none select-none opacity-[0.08] overflow-hidden" aria-hidden="true">
+                <svg viewBox="0 0 190 24" fill="none" className="w-full h-full stroke-[#006B63]">
+                  <path
+                    d="M0 12 L55 12 L61 6 L67 18 L73 2 L79 22 L85 12 L95 12 L101 8 L107 12 L190 12"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+
               {/* Card Header */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-2">
                   <div className="h-7 w-7 rounded-lg bg-orange-500/10 flex items-center justify-center text-[#E07018]">
                     <Flame className="h-4 w-4 fill-[#E07018]" />
@@ -1349,7 +1415,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               {/* 7 Days Row */}
-              <div className="grid grid-cols-7 gap-1 sm:gap-1.5 text-center">
+              <div className="grid grid-cols-7 gap-1 sm:gap-1.5 text-center relative z-10">
                 {weekDays.map(({ dayName, dateNum, isCompleted, isToday }) => (
                   <div key={dayName} className="flex flex-col items-center gap-1 sm:gap-1.5">
                     <span className="text-[10px] sm:text-[11px] font-medium text-[#719690]">
@@ -1371,7 +1437,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               {/* Footer */}
-              <div className="flex items-center gap-2 pt-1 text-xs text-[#608B85]">
+              <div className="flex items-center gap-2 pt-1 text-xs text-[#608B85] relative z-10">
                 <Calendar className="h-3.5 w-3.5 text-[#5C948B] shrink-0" />
                 <span>Consistency compounds into confidence.</span>
               </div>

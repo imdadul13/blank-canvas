@@ -278,6 +278,18 @@ function AmbientMedicalMotif() {
             <circle cx="108" cy="158" r="1.5" fill="#006B63" fillOpacity="0.25" />
             <circle cx="190" cy="144" r="1.5" fill="#006B63" fillOpacity="0.25" />
             <circle cx="176" cy="178" r="1.5" fill="#006B63" fillOpacity="0.25" />
+
+            {/* Faint Molecular Node Connections & Geometry */}
+            <g opacity="0.8">
+              <circle cx="28" cy="48" r="2" fill="#006B63" fillOpacity="0.3" />
+              <circle cx="46" cy="34" r="1.8" fill="#006B63" fillOpacity="0.3" />
+              <circle cx="58" cy="62" r="2.2" fill="#006B63" fillOpacity="0.3" />
+              <circle cx="78" cy="46" r="1.8" fill="#006B63" fillOpacity="0.3" />
+              <line x1="28" y1="48" x2="46" y2="34" strokeWidth="0.9" strokeOpacity="0.18" />
+              <line x1="46" y1="34" x2="78" y2="46" strokeWidth="0.9" strokeOpacity="0.18" />
+              <line x1="28" y1="48" x2="58" y2="62" strokeWidth="0.9" strokeOpacity="0.18" />
+              <line x1="58" y1="62" x2="78" y2="46" strokeWidth="0.9" strokeOpacity="0.18" />
+            </g>
           </motion.g>
 
           {/* Clinical Waveform Rhythm traversing horizontally */}
@@ -524,16 +536,16 @@ export const SidebarDock: React.FC<NavbarProps> = ({
             const active = isTabActiveLocal(id);
             return (
               <div key={id} className="relative">
-                {/* Shared animated background pill with subtle gradient luster — borderless */}
+                {/* Shared animated background pill with refined pale-mint glass treatment, subtle teal accent, soft inner highlight, and restrained glow */}
                 {active && !reducedMotion && (
                   <motion.div
                     layoutId="sidebar-active-pill"
-                    className="absolute inset-0 rounded-2xl bg-[#D8F1EB]"
+                    className="absolute inset-0 rounded-2xl bg-[#D8F2EC] border border-[#BDE4DA] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.06)]"
                     transition={EASE_SPRING}
                   />
                 )}
                 {active && reducedMotion && (
-                  <div className="absolute inset-0 rounded-2xl bg-[#D8F1EB]" />
+                  <div className="absolute inset-0 rounded-2xl bg-[#D8F2EC] border border-[#BDE4DA] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.06)]" />
                 )}
 
                 <button
@@ -580,12 +592,12 @@ export const SidebarDock: React.FC<NavbarProps> = ({
               {isSecondaryActive && !reducedMotion && (
                 <motion.div
                   layoutId="sidebar-active-pill"
-                  className="absolute inset-0 rounded-2xl bg-[#D8F1EB]"
+                  className="absolute inset-0 rounded-2xl bg-[#D8F2EC] border border-[#BDE4DA]"
                   transition={EASE_SPRING}
                 />
               )}
               {isSecondaryActive && reducedMotion && (
-                <div className="absolute inset-0 rounded-2xl bg-[#D8F1EB]" />
+                <div className="absolute inset-0 rounded-2xl bg-[#D8F2EC] border border-[#BDE4DA]" />
               )}
 
               <button
@@ -596,7 +608,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 aria-label="More utilities"
                 className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-all duration-150 cursor-pointer active:scale-[0.98] ${
                   isSecondaryActive || isMoreMenuOpen
-                    ? 'text-[#006B63] font-bold bg-[#D8F1EB]'
+                    ? 'text-[#006B63] font-bold bg-[#D8F2EC]'
                     : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-slate-50/80'
                 }`}
               >
@@ -610,7 +622,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   >
                     <MoreHorizontal className="h-4 w-4 stroke-[2]" />
                   </div>
-                  <span>... More</span>
+                  <span>More</span>
                 </div>
                 <ChevronRight
                   className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
