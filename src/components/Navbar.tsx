@@ -548,11 +548,14 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   <div className="absolute inset-0 rounded-2xl bg-[#D8F2EC] border border-[#BDE4DA] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.06)]" />
                 )}
 
-                <button
+                <motion.button
                   type="button"
                   onClick={() => setActiveTab(id)}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-all duration-150 cursor-pointer active:scale-[0.98] ${
+                  whileHover={reducedMotion ? undefined : { x: 3 }}
+                  whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 28 }}
+                  className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer ${
                     active
                       ? 'text-[#006B63] font-bold'
                       : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-slate-50/80'
@@ -560,18 +563,24 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 >
                   <div className="flex items-center gap-3">
                     <Icon
-                      className={`h-[19px] w-[19px] shrink-0 transition-colors duration-150 ${
+                      className={`h-[19px] w-[19px] shrink-0 transition-all duration-200 ${
                         active
-                          ? 'text-[#006B63] fill-[#006B63]/25 stroke-[#006B63] stroke-[2.2]'
-                          : 'text-slate-500 stroke-[1.8]'
+                          ? 'text-[#006B63] fill-[#006B63]/25 stroke-[#006B63] stroke-[2.2] scale-105'
+                          : 'text-slate-500 stroke-[1.8] group-hover:scale-110'
                       }`}
                     />
                     <span>{label}</span>
                   </div>
                   {active && (
-                    <ChevronRight className="h-4 w-4 text-[#006B63] stroke-[2.5]" />
+                    <motion.div
+                      initial={{ opacity: 0, x: -4 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <ChevronRight className="h-4 w-4 text-[#006B63] stroke-[2.5]" />
+                    </motion.div>
                   )}
-                </button>
+                </motion.button>
               </div>
             );
           })}
@@ -600,13 +609,16 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 <div className="absolute inset-0 rounded-2xl bg-[#D8F2EC] border border-[#BDE4DA]" />
               )}
 
-              <button
+              <motion.button
                 type="button"
                 onClick={() => setIsMoreMenuOpen((prev) => !prev)}
+                whileHover={reducedMotion ? undefined : { x: 3 }}
+                whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 28 }}
                 aria-expanded={isMoreMenuOpen}
                 aria-haspopup="menu"
                 aria-label="More utilities"
-                className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-all duration-150 cursor-pointer active:scale-[0.98] ${
+                className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer ${
                   isSecondaryActive || isMoreMenuOpen
                     ? 'text-[#006B63] font-bold bg-[#D8F2EC]'
                     : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-slate-50/80'
@@ -629,7 +641,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                     isMoreMenuOpen ? 'rotate-90 text-[#006B63]' : ''
                   }`}
                 />
-              </button>
+              </motion.button>
             </div>
 
             {/* Seamless invisible hover bridge so cursor travels safely between trigger button and card popover */}

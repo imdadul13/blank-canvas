@@ -9,7 +9,97 @@ export interface MedicalHeroVisualProps {
   topicId?: string;
   topicName?: string;
   className?: string;
+  showTelemetryTag?: boolean;
 }
+
+export function getSubjectTelemetry(subjectId: string, topicName: string = '') {
+  const normTopic = (topicName || '').toLowerCase();
+
+  // Cross-specialty / Topic-based detection
+  if (
+    normTopic.includes('cardio') ||
+    normTopic.includes('heart') ||
+    normTopic.includes('ecg') ||
+    normTopic.includes('stemi') ||
+    normTopic.includes('arrhythmia') ||
+    normTopic.includes('wpw') ||
+    normTopic.includes('block')
+  ) {
+    return { label: '72 bpm · Sinus Rhythm', status: 'Conduction Active', dotColor: '#EF4444' };
+  }
+  if (
+    normTopic.includes('respir') ||
+    normTopic.includes('lung') ||
+    normTopic.includes('pulmon') ||
+    normTopic.includes('asthma') ||
+    normTopic.includes('copd')
+  ) {
+    return { label: '16 bpm · SpO₂ 99%', status: 'Tidal Diffusion OK', dotColor: '#0EA5E9' };
+  }
+  if (
+    normTopic.includes('neuro') ||
+    normTopic.includes('brain') ||
+    normTopic.includes('cranial') ||
+    normTopic.includes('stroke') ||
+    normTopic.includes('cns')
+  ) {
+    return { label: 'Alpha Rhythm · 10 Hz', status: 'Synaptic Exocytosis', dotColor: '#8B5CF6' };
+  }
+  if (
+    normTopic.includes('knee') ||
+    normTopic.includes('joint') ||
+    normTopic.includes('fracture') ||
+    normTopic.includes('ligament') ||
+    normTopic.includes('limb') ||
+    normTopic.includes('bone')
+  ) {
+    return { label: '120° Flexion · Intact ACL', status: 'Motor/Sensory Normal', dotColor: '#10B981' };
+  }
+
+  switch (subjectId) {
+    case 'medicine':
+      return { label: '72 bpm · Sinus Rhythm', status: 'Conduction Active', dotColor: '#EF4444' };
+    case 'anatomy':
+      return { label: '120° Flexion · Intact ACL', status: 'Motor/Sensory Normal', dotColor: '#10B981' };
+    case 'physiology':
+      return { label: '16 bpm · SpO₂ 99%', status: 'Tidal Diffusion OK', dotColor: '#0EA5E9' };
+    case 'pathology':
+      return { label: 'Cellular Dysplasia · Low Grade', status: 'Cellular Morphology', dotColor: '#EC4899' };
+    case 'pharmacology':
+      return { label: 'Kd: 1.2 nM · GPCR Agonist', status: 'Orthosteric Lock', dotColor: '#8B5CF6' };
+    case 'microbiology':
+      return { label: 'Capsid Icosahedron · 12 nm', status: 'Viral Spikes Active', dotColor: '#06B6D4' };
+    case 'biochemistry':
+      return { label: 'ΔG°: -30.5 kJ/mol · ATP Rotor', status: 'DNA Double Helix', dotColor: '#F59E0B' };
+    case 'ophthalmology':
+      return { label: 'IOP: 14 mmHg · Fovea 1.0', status: 'Optic Disc 0.3', dotColor: '#14B8A6' };
+    case 'ent':
+      return { label: 'Stapes Reflex · 4 kHz', status: 'Cochlear Response', dotColor: '#6366F1' };
+    case 'surgery':
+      return { label: 'Trocar 10mm · FAST Cleared', status: 'Hemostasis Secured', dotColor: '#EF4444' };
+    case 'obg':
+      return { label: 'FHR: 144 bpm · Reactive NST', status: 'Doppler S/D Ratio 2.2', dotColor: '#F43F5E' };
+    case 'pediatrics':
+      return { label: 'APGAR: 10/10 · 50th Percentile', status: 'Primitive Reflex OK', dotColor: '#F59E0B' };
+    case 'orthopedics':
+      return { label: '120° Flexion · Intact ACL', status: 'Cortical Ring Intact', dotColor: '#10B981' };
+    case 'dermatology':
+      return { label: 'Polarized Light · Nikolsky (-)', status: 'Dermal Papillae', dotColor: '#EC4899' };
+    case 'psychiatry':
+      return { label: 'Alpha Rhythm · 10 Hz', status: 'Synaptic Exocytosis', dotColor: '#8B5CF6' };
+    case 'radiology':
+      return { label: 'Axial CT 1mm · 42 HU', status: 'Contrast Phase Live', dotColor: '#0284C7' };
+    case 'anesthesia':
+      return { label: 'EtCO₂: 38 mmHg · MAC: 1.0', status: 'Airway Secured', dotColor: '#0D9488' };
+    case 'fmt':
+      return { label: '12 Minutiae Match Points', status: 'Biometric Verified', dotColor: '#64748B' };
+    case 'psm':
+      return { label: 'R₀: 0.9 · Cold Chain 4°C', status: 'Herd Threshold > 85%', dotColor: '#006B63' };
+    default:
+      return { label: '72 bpm · Sinus Rhythm', status: 'Clinical Blueprint', dotColor: '#EF4444' };
+  }
+}
+
 
 /**
  * Shared SVG Lighting & Filter Definitions
@@ -163,6 +253,7 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
   topicId = '',
   topicName = '',
   className = '',
+  showTelemetryTag = false,
 }) => {
   const reducedMotion = useReducedMotion();
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -281,35 +372,30 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
 
     // Specific 3D Volumetric Models for all other subjects
     switch (subjectId) {
-      case 'anatomy': {
-        const isKneeTopic =
-          normTopic.includes('knee') ||
-          normTopic.includes('cruciate') ||
-          normTopic.includes('patella') ||
-          normTopic.includes('menisc') ||
-          normTopic.includes('popliteal');
-        if (isKneeTopic) {
-          return (
-            <HighRes3DHeroVisual
-              src="/images/medical/anatomy_joint_3d.png"
-              alt="3D Articulated Knee Joint & Musculoskeletal Anatomy"
-              reduced={Boolean(reducedMotion)}
-              fallback={<Anatomy3DModel accent={accent} topicName={topicName} reduced={Boolean(reducedMotion)} />}
-              overlay={
-                !reducedMotion && (
-                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                    <div className="w-24 h-24 rounded-full bg-teal-500/10 filter blur-xl animate-pulse" />
-                  </div>
-                )
-              }
-            />
-          );
-        }
-        // Topic-specific anatomical models (Upper Limb / Brachial Plexus / Thorax / Neurovascular)
-        return <Anatomy3DModel accent={accent} topicName={topicName} reduced={Boolean(reducedMotion)} />;
+      case 'anatomy':
+      case 'orthopedics': {
+        return (
+          <HighRes3DHeroVisual
+            src="/images/medical/anatomy_joint_3d.png"
+            alt="3D Articulated Joint & Musculoskeletal Anatomy"
+            reduced={Boolean(reducedMotion)}
+            fallback={
+              subjectId === 'orthopedics' ? (
+                <Orthopedics3DModel accent={accent} topicName={topicName} reduced={Boolean(reducedMotion)} />
+              ) : (
+                <Anatomy3DModel accent={accent} topicName={topicName} reduced={Boolean(reducedMotion)} />
+              )
+            }
+            overlay={
+              !reducedMotion && (
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-full bg-teal-500/10 filter blur-xl animate-pulse" />
+                </div>
+              )
+            }
+          />
+        );
       }
-      case 'orthopedics':
-        return <Orthopedics3DModel accent={accent} topicName={topicName} reduced={Boolean(reducedMotion)} />;
       case 'pathology':
         return <Pathology3DModel accent={accent} topicName={topicName} reduced={Boolean(reducedMotion)} />;
       case 'pharmacology':
@@ -465,27 +551,29 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
         </div>
       </motion.div>
 
-      {/* Sleek Top-Left Telemetry Tag — Never collides with bottom container */}
-      <motion.div
-        initial={{ opacity: 0, y: -6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-        className="absolute top-2.5 left-3 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-2xs pointer-events-none z-20"
-      >
-        <span className="relative flex h-1.5 w-1.5">
-          <span
-            className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-            style={{ backgroundColor: accent }}
-          />
-          <span
-            className="relative inline-flex rounded-full h-1.5 w-1.5"
-            style={{ backgroundColor: accent }}
-          />
-        </span>
-        <span className="text-[9.5px] font-mono font-bold text-slate-700 tracking-tight">
-          {telemetry.label}
-        </span>
-      </motion.div>
+      {/* Optional Top-Left Telemetry Tag — Disabled by default to avoid duplicate pills in parent containers */}
+      {showTelemetryTag && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="absolute top-2.5 left-3 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-2xs pointer-events-none z-20"
+        >
+          <span className="relative flex h-1.5 w-1.5">
+            <span
+              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+              style={{ backgroundColor: accent }}
+            />
+            <span
+              className="relative inline-flex rounded-full h-1.5 w-1.5"
+              style={{ backgroundColor: accent }}
+            />
+          </span>
+          <span className="text-[9.5px] font-mono font-bold text-slate-700 tracking-tight">
+            {telemetry.label}
+          </span>
+        </motion.div>
+      )}
     </div>
   );
 };

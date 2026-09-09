@@ -56,7 +56,7 @@ import {
   PersonalizedPlanTask,
   LearningContext,
 } from '../utils/personalizationEngine';
-import { MedicalHeroVisual, MedicalSubjectCardVisual } from './MedicalHeroVisual';
+import { MedicalHeroVisual, MedicalSubjectCardVisual, getSubjectTelemetry } from './MedicalHeroVisual';
 import { DoctorMountainArt } from './DoctorMountainArt';
 import { TopicMasteryWorkspace } from './TopicMasteryWorkspace';
 import { NotificationCenterModal } from './NotificationCenterModal';
@@ -648,6 +648,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     [activeFocusSubject.id]
   );
 
+  // Dynamic clinical telemetry metadata tailored to the active subject & topic
+  const currentTelemetry = useMemo(
+    () => getSubjectTelemetry(activeFocusSubject.id, activeFocusTopic.name),
+    [activeFocusSubject.id, activeFocusTopic.name]
+  );
+
   // Subject progress with FMGE relevance
   const subjectList = useMemo(() => {
     const list = FMGE_SUBJECTS.map((sub) => {
@@ -1114,10 +1120,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {[{ id: 'all', name: 'All Subjects (19)' }, ...FMGE_SUBJECTS.map((s) => ({ id: s.id, name: s.name }))].map((f) => {
               const active = selectedFilterSubjectId === f.id;
               return (
-                <button
+                <motion.button
                   key={f.id}
                   type="button"
                   onClick={() => setSelectedFilterSubjectId(f.id)}
+                  whileHover={reducedMotion ? undefined : { scale: 1.03 }}
+                  whileTap={reducedMotion ? undefined : { scale: 0.96 }}
                   aria-pressed={active}
                   className={`relative snap-start inline-flex items-center px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[34px] ${
                     active
@@ -1133,7 +1141,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     />
                   )}
                   <span className="relative z-10">{f.name}</span>
-                </button>
+                </motion.button>
               );
             })}
           </div>
@@ -1226,89 +1234,136 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                   {/* Action Button: Start Session (Desktop & Mobile) */}
                   <div className="pt-3">
-                    <button
+                    <motion.button
                       type="button"
                       onClick={startFocusSession}
-                      className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full text-sm font-bold bg-[#006B63] hover:bg-[#00554E] text-white shadow-md hover:shadow-lg active:scale-[0.98] transition-all cursor-pointer min-h-[46px]"
+                      whileHover={{ scale: 1.03, y: -1, boxShadow: '0 10px 24px -4px rgba(0, 107, 99, 0.45)' }}
+                      whileTap={{ scale: 0.97 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                      className="inline-flex items-center justify-center gap-2.5 px-8 py-3 rounded-full text-sm font-bold bg-[#006B63] hover:bg-[#00554E] text-white shadow-md transition-colors cursor-pointer min-h-[46px]"
                     >
-                      <Play className="h-4 w-4 fill-white" /> Start Session
-                    </button>
+                      <Play className="h-4 w-4 fill-white text-white" />
+                      <span>Start Session</span>
+                    </motion.button>
                   </div>
                 </div>
 
-                {/* Right side: Integrated 3D Anatomical Visual Stage */}
-                <div className="relative w-full sm:w-72 md:w-80 shrink-0 flex flex-col items-center justify-center pt-2 md:pt-0">
-                  {/* Floating Telemetry Pill Top */}
-                  <div className="mb-2 z-20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-[#BEE4DC] shadow-xs">
-                    <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-                    <span className="text-[11px] font-mono font-bold text-slate-700">72 bpm · Sinus Rhythm</span>
-                  </div>
-
-                  {/* Circular Clinical Reasoning Watermark behind the Heart */}
-                  <div className="relative w-full h-52 sm:h-60 flex items-center justify-center">
-                    {/* Soft atmospheric mint/cyan illumination behind the heart */}
-                    <div className="absolute inset-4 rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(45,212,191,0.25)_0%,transparent_70%)] pointer-events-none filter blur-xl" />
-
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                      <svg viewBox="0 0 280 280" className="w-full h-full stroke-[#006B63] fill-none">
-                        <circle cx="140" cy="140" r="130" strokeDasharray="4 4" strokeWidth="1" strokeOpacity="0.25" />
-                        <circle cx="140" cy="140" r="105" strokeWidth="0.8" strokeOpacity="0.18" />
-                        {/* Upper arc text */}
-                        <path id="upper-reasoning-arc" d="M 35 140 A 105 105 0 0 1 245 140" fill="none" />
-                        <text className="text-[8px] font-mono font-bold tracking-[0.25em] fill-[#006B63] opacity-50">
-                          <textPath href="#upper-reasoning-arc" startOffset="50%" textAnchor="middle">
-                            CLINICAL REASONING
-                          </textPath>
-                        </text>
-                        {/* Lower arc text */}
-                        <path id="lower-reasoning-arc" d="M 245 140 A 105 105 0 0 1 35 140" fill="none" />
-                        <text className="text-[8px] font-mono font-bold tracking-[0.25em] fill-[#006B63] opacity-50">
-                          <textPath href="#lower-reasoning-arc" startOffset="50%" textAnchor="middle">
-                            BETTER OUTCOMES
-                          </textPath>
-                        </text>
-                        {/* Delicate anatomical cardiovascular contour branches in upper-right */}
-                        <g strokeOpacity="0.2" strokeWidth="1">
-                          <path d="M 180 90 C 200 70, 220 55, 248 44" />
-                          <path d="M 215 65 C 228 50, 242 42, 255 35" />
-                          <path d="M 195 80 C 210 90, 230 100, 250 96" />
-                          <circle cx="248" cy="44" r="1.5" fill="#006B63" fillOpacity="0.25" />
-                          <circle cx="255" cy="35" r="1.5" fill="#006B63" fillOpacity="0.25" />
-                          <circle cx="250" cy="96" r="1.5" fill="#006B63" fillOpacity="0.25" />
-                        </g>
-                        {/* Faint ECG lines & markers */}
-                        <path d="M 15 140 L 70 140 L 82 118 L 94 165 L 106 128 L 118 140 L 265 140" strokeWidth="1.2" strokeOpacity="0.2" />
-                        <text x="75" y="112" className="text-[9px] font-mono font-semibold fill-[#006B63] opacity-35">P</text>
-                        <text x="88" y="108" className="text-[9px] font-mono font-bold fill-[#006B63] opacity-45">R</text>
-                        <text x="96" y="176" className="text-[9px] font-mono font-semibold fill-[#006B63] opacity-35">QRS</text>
-                        <text x="122" y="132" className="text-[9px] font-mono font-semibold fill-[#006B63] opacity-35">T</text>
-                      </svg>
-                    </div>
-
-                    {/* 3D Anatomical Visual */}
-                    <div className="relative w-full h-full flex items-center justify-center z-10">
-                      <MedicalHeroVisual
-                        subjectId={activeFocusSubject.id}
-                        subjectName={activeFocusSubject.name}
-                        subjectColor={activeFocusSubject.color}
-                        topicId={activeFocusTopic.id}
-                        topicName={activeFocusTopic.name}
-                        className="w-full h-full"
+                {/* Right side: Integrated 3D Anatomical Visual Stage (Matching Reference Mockup) */}
+                <div className="relative w-full md:w-[350px] lg:w-[390px] h-[290px] sm:h-[320px] md:h-[340px] shrink-0 flex items-center justify-center pt-2 md:pt-0">
+                  {/* Floating Telemetry Pill Top — exactly ONE pill, cleanly positioned above the organ */}
+                  <motion.div
+                    key={`${activeFocusSubject.id}-${currentTelemetry.label}`}
+                    initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                    className="absolute top-2 left-4 sm:left-8 z-30 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-[#E0F2EC] shadow-[0_4px_14px_rgba(0,107,99,0.06)] pointer-events-none"
+                  >
+                    <span className="relative flex h-2 w-2">
+                      <span
+                        className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                        style={{ backgroundColor: currentTelemetry.dotColor }}
                       />
-                    </div>
+                      <span
+                        className="relative inline-flex rounded-full h-2 w-2"
+                        style={{ backgroundColor: currentTelemetry.dotColor }}
+                      />
+                    </span>
+                    <span className="text-[11px] font-mono font-bold text-slate-800 tracking-tight">
+                      {currentTelemetry.label}
+                    </span>
+                  </motion.div>
+
+                  {/* Ambient Telemetry Compass, Cyan ECG Line & Vascular Tree Watermark */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+                    {/* Soft cyan/mint atmospheric glow behind the 3D organ */}
+                    <div className="absolute w-72 h-72 rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(45,212,191,0.22)_0%,transparent_70%)] filter blur-2xl pointer-events-none" />
+
+                    <svg viewBox="0 0 380 320" className="w-full h-full stroke-[#006B63] fill-none overflow-visible">
+                      {/* Faint Concentric Compass/Radar Rings */}
+                      <circle cx="210" cy="165" r="140" strokeDasharray="4 6" strokeWidth="1" strokeOpacity="0.16" />
+                      <circle cx="210" cy="165" r="115" strokeWidth="0.8" strokeOpacity="0.12" />
+                      <circle cx="210" cy="165" r="85" strokeDasharray="2 4" strokeWidth="0.75" strokeOpacity="0.10" />
+
+                      {/* Horizontal Cyan ECG Waveform Line traversing behind the organ */}
+                      <path
+                        d="M 10 165 L 120 165 L 132 142 L 140 188 L 148 135 L 158 178 L 168 165 L 370 165"
+                        stroke="#0D9488"
+                        strokeWidth="1.5"
+                        strokeOpacity="0.32"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      {/* Clinical ECG Wave Markers */}
+                      <text x="126" y="136" className="text-[9px] font-mono font-bold fill-[#006B63] opacity-40">R</text>
+                      <text x="144" y="200" className="text-[8.5px] font-mono font-bold fill-[#006B63] opacity-40">QRS</text>
+                      <text x="174" y="156" className="text-[9px] font-mono font-bold fill-[#006B63] opacity-40">T</text>
+
+                      {/* Upper-right delicate vascular/bronchial tree branch network */}
+                      <g strokeOpacity="0.22" strokeWidth="1.1" strokeLinecap="round">
+                        <path d="M 290 85 C 310 65, 335 50, 365 38" />
+                        <path d="M 320 60 C 335 45, 350 36, 370 28" />
+                        <path d="M 305 75 C 322 86, 345 94, 368 90" />
+                        <path d="M 335 84 C 348 95, 362 102, 375 100" />
+                        <circle cx="365" cy="38" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <circle cx="370" cy="28" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <circle cx="368" cy="90" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <circle cx="375" cy="100" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                      </g>
+
+                      {/* Upper right vertical editorial text: CLINICAL REASONING BETTER OUTCOMES */}
+                      <text x="368" y="70" className="text-[8px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                        CLINICAL
+                      </text>
+                      <text x="368" y="83" className="text-[8px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                        REASONING
+                      </text>
+                      <text x="368" y="100" className="text-[8px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                        BETTER
+                      </text>
+                      <text x="368" y="113" className="text-[8px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                        OUTCOMES
+                      </text>
+
+                      {/* Faint molecular constellation in top-right */}
+                      <g opacity="0.45">
+                        <circle cx="340" cy="210" r="2" fill="#006B63" fillOpacity="0.3" />
+                        <circle cx="355" cy="195" r="1.8" fill="#006B63" fillOpacity="0.3" />
+                        <circle cx="365" cy="225" r="2.2" fill="#006B63" fillOpacity="0.3" />
+                        <line x1="340" y1="210" x2="355" y2="195" strokeWidth="0.8" strokeOpacity="0.2" />
+                        <line x1="340" y1="210" x2="365" y2="225" strokeWidth="0.8" strokeOpacity="0.2" />
+                      </g>
+                    </svg>
                   </div>
 
-                  {/* ECG Waveform & Contextual Live Metadata underneath */}
-                  <div className="w-full max-w-[240px] mt-2 flex items-center justify-between gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-[#BEE4DC] shadow-xs relative z-10">
+                  {/* 3D Anatomical Visual — Large, unconstrained, free-breathing */}
+                  <div className="relative w-full h-full flex items-center justify-center z-10">
+                    <MedicalHeroVisual
+                      subjectId={activeFocusSubject.id}
+                      subjectName={activeFocusSubject.name}
+                      subjectColor={activeFocusSubject.color}
+                      topicId={activeFocusTopic.id}
+                      topicName={activeFocusTopic.name}
+                      className="w-full h-full"
+                    />
+                  </div>
+
+                  {/* Floating Bottom Capsule Pill: [🟢 GENERAL MEDICINE  ~/\~  Live] */}
+                  <motion.div
+                    key={`bottom-pill-${activeFocusSubject.id}`}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.1 }}
+                    className="absolute bottom-1 z-20 inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-[#D0ECE4] shadow-[0_4px_14px_rgba(0,107,99,0.06)]"
+                  >
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
-                      <span className="text-[10.5px] font-mono font-bold uppercase tracking-wider text-slate-700 truncate">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                      <span className="text-[10.5px] font-mono font-bold uppercase tracking-wider text-slate-800 truncate">
                         {activeFocusSubject.name}
                       </span>
                     </div>
 
-                    {/* ECG SVG Waveform */}
-                    <div className="w-12 h-3.5 flex items-center shrink-0">
+                    {/* Animated SVG live pulse line */}
+                    <div className="w-14 h-4 flex items-center shrink-0">
                       <svg viewBox="0 0 60 18" className="w-full h-full stroke-[#006B63] fill-none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M0 9 L18 9 L22 3 L26 15 L30 5 L34 11 L38 9 L60 9" />
                       </svg>
@@ -1317,7 +1372,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <span className="text-[10.5px] font-semibold text-slate-400 shrink-0">
                       Live
                     </span>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
             </motion.section>
