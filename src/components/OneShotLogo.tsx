@@ -70,9 +70,7 @@ export default function OneShotLogo({
   size = 'md',
   showTagline = true,
 }: OneShotLogoProps) {
-  const [imgError, setImgError] = useState(false);
-
-  // 1. App-Icon variant (Squircle from Reference 2)
+  // 1. App-Icon variant (Squircle emblem tile)
   if (variant === 'app-icon') {
     const iconDim =
       size === 'xs'
@@ -87,14 +85,7 @@ export default function OneShotLogo({
 
     return (
       <div className={`relative shrink-0 select-none overflow-hidden rounded-xl shadow-xs ${iconDim} ${className}`}>
-        <img
-          src="/images/brand/one_shot_app_icon.png"
-          alt="ONE SHOT FMGE Icon"
-          className="h-full w-full object-cover"
-          loading="eager"
-          onError={() => setImgError(true)}
-        />
-        {imgError && <FallbackSvgEmblem className="h-full w-full" />}
+        <FallbackSvgEmblem className="h-full w-full" />
       </div>
     );
   }
@@ -114,17 +105,7 @@ export default function OneShotLogo({
 
     return (
       <div className={`relative shrink-0 select-none flex items-center justify-center ${className}`}>
-        {!imgError ? (
-          <img
-            src="/images/brand/one_shot_emblem.png"
-            alt="ONE SHOT FMGE Emblem"
-            className={`block object-contain ${iconDim}`}
-            loading="eager"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <FallbackSvgEmblem className={iconDim} />
-        )}
+        <FallbackSvgEmblem className={iconDim} />
       </div>
     );
   }
@@ -134,16 +115,7 @@ export default function OneShotLogo({
     return (
       <div className={`flex items-center gap-2 select-none shrink-0 ${className}`}>
         <div className="relative h-8 w-8 shrink-0 flex items-center justify-center">
-          {!imgError ? (
-            <img
-              src="/images/brand/one_shot_emblem.png"
-              alt="Emblem"
-              className="h-full w-auto object-contain"
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <FallbackSvgEmblem className="h-8 w-8" />
-          )}
+          <FallbackSvgEmblem className="h-8 w-8" />
         </div>
         <div className="flex flex-col leading-none">
           <span className={`font-extrabold tracking-tight text-sm font-['Outfit'] ${inverse ? 'text-white' : 'text-slate-900'}`}>
@@ -159,16 +131,7 @@ export default function OneShotLogo({
     return (
       <div className={`flex items-center gap-3 select-none shrink-0 ${className}`}>
         <div className="relative h-10 w-10 shrink-0 flex items-center justify-center">
-          {!imgError ? (
-            <img
-              src="/images/brand/one_shot_emblem.png"
-              alt="ONE SHOT Emblem"
-              className="h-full w-auto object-contain"
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <FallbackSvgEmblem className="h-10 w-10" />
-          )}
+          <FallbackSvgEmblem className="h-10 w-10" />
         </div>
         <div className="flex flex-col justify-center leading-tight">
           <div className="flex items-center gap-1.5">
@@ -192,27 +155,17 @@ export default function OneShotLogo({
   // 5. Full variant: Stacked emblem + title + subtitle + tagline (Auth hero, onboarding, landing)
   return (
     <div className={`flex flex-col items-center text-center select-none ${className}`}>
-      {!imgError ? (
-        <img
-          src="/images/brand/one_shot_logo_full.png"
-          alt="ONE SHOT FMGE — A Brighter Doctor Tomorrow"
-          className="w-full max-w-[280px] sm:max-w-[320px] h-auto object-contain mx-auto"
-          loading="eager"
-          onError={() => setImgError(true)}
-        />
-      ) : (
-        <div className="flex flex-col items-center gap-3">
-          <FallbackSvgEmblem className="h-16 w-16" />
-          <div className="flex flex-col items-center">
-            <span className="font-black text-2xl font-['Outfit'] text-slate-900">
-              ONE SHOT <span className="text-[#006B63]">FMGE</span>
-            </span>
-            <span className="text-xs text-slate-500 font-medium tracking-wide uppercase mt-1">
-              A Brighter Doctor Tomorrow
-            </span>
-          </div>
+      <div className="flex flex-col items-center gap-3">
+        <FallbackSvgEmblem className="h-16 w-16" />
+        <div className="flex flex-col items-center">
+          <span className="font-black text-2xl font-['Outfit'] text-slate-900">
+            ONE SHOT <span className="text-[#006B63]">FMGE</span>
+          </span>
+          <span className="text-xs text-slate-500 font-medium tracking-wide uppercase mt-1">
+            A Brighter Doctor Tomorrow
+          </span>
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -639,6 +639,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     };
   }, [selectedFilterSubjectId, activeFocusSubject, adaptiveRecommendation, state.topicsState]);
 
+  const hasRevisionDue = dailyPlan.revisionDueCount > 0;
+  const errorsToReview = dailyPlan.errorRemediationCount > 0;
+
   // Subject-specific theme and gradient styling for Today's Focus card
   const focusTheme = useMemo(
     () => SUBJECT_CARD_THEMES[activeFocusSubject.id] || DEFAULT_CARD_THEME,
@@ -707,8 +710,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const savedTargetScore = profile?.targetScore || state.settings?.targetScore || 200;
   const focusMinutes = adaptiveRecommendation.allocatedMinutes || nextActionTask?.durationMinutes || 30;
   const focusMarks = adaptiveRecommendation.weightage || activeFocusSubject.weightage;
-  const hasRevisionDue = dailyPlan.revisionDueCount > 0;
-  const errorsToReview = dailyPlan.errorRemediationCount > 0;
 
   // Real consecutive study streak from study logs
   const currentStreak = useMemo(
@@ -1320,6 +1321,184 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
               </div>
             </motion.section>
+
+            {/* ── TODAY'S PLAN ── */}
+            <motion.section
+              initial={SECTION_ENTER(0.12, reducedMotion)}
+              animate={SECTION_SHOW}
+              transition={SECTION_TRANSITION(reducedMotion)}
+              className="space-y-3"
+            >
+              <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 sm:gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#006B63] shrink-0">
+                    <Calendar className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-bold text-slate-900">Today&apos;s Plan</h3>
+                    <p className="text-[11px] text-slate-500 truncate">
+                      {dailyPlan.tasks.length} targeted task{dailyPlan.tasks.length !== 1 ? 's' : ''} based on your study profile
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0 self-start xs:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => handleSubTabChange('planner')}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#006B63] bg-teal-50/80 hover:bg-teal-100/70 border border-teal-200/60 transition-colors cursor-pointer min-h-[32px]"
+                  >
+                    <span>Planner</span>
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Task Cards List */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] divide-y divide-slate-100 overflow-hidden">
+                {dailyPlan.tasks.slice(0, 3).map((task, index) => (
+                  <div
+                    key={task.id}
+                    className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 transition-colors group"
+                  >
+                    <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                      {/* Status Check / Play Icon */}
+                      <div
+                        className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
+                          index === 0
+                            ? 'bg-rose-50/90 border border-rose-100 text-rose-500'
+                            : 'bg-slate-50 border border-slate-100 text-slate-400'
+                        }`}
+                      >
+                        <BookOpen className="h-4 w-4" />
+                      </div>
+
+                      {/* Task Info with extra mobile breathing room and 2-line wrapping */}
+                      <div className="space-y-0.5 min-w-0 flex-1 pr-1 sm:pr-2">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                          <span
+                            className={`text-[10px] font-bold uppercase tracking-wider font-mono ${
+                              index === 0 ? 'text-rose-600' : 'text-slate-600'
+                            }`}
+                          >
+                            {task.subjectName.toUpperCase()}
+                          </span>
+                          <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-teal-50 text-[#006B63] border border-teal-100">
+                            MCQ drill
+                          </span>
+                        </div>
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 leading-snug break-words">
+                          {task.topicName}
+                        </h4>
+                        <p className="text-[10px] sm:text-[11px] text-slate-500 truncate max-w-md">
+                          {task.reason}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Right side: Duration + Start Button + Menu */}
+                    <div className="flex items-center gap-1 sm:gap-2 shrink-0 self-center sm:self-auto">
+                      <div className="hidden sm:flex items-center gap-1 text-xs font-semibold text-slate-400 tabular-nums">
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>{task.durationMinutes} min</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => onLaunchPracticeSession?.(task.subjectId, task.topicId, task.topicName)}
+                        className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#006B63] hover:bg-[#005049] shadow-xs active:scale-95 transition-all cursor-pointer min-h-[32px]"
+                      >
+                        <Play className="h-3 w-3 fill-white" /> Start
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onOpenAiCoach('concept', task.subjectId, task.topicName)}
+                        className="p-1 sm:p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                        title="Options"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleSubTabChange('planner')}
+                className="w-full text-center text-xs font-semibold text-[#006B63] hover:underline py-1 transition-colors cursor-pointer"
+              >
+                Open full plan →
+              </button>
+            </motion.section>
+
+            {/* ── UP NEXT (Revision & Error Remediation) ── */}
+            <motion.section
+              initial={SECTION_ENTER(0.16, reducedMotion)}
+              animate={SECTION_SHOW}
+              transition={SECTION_TRANSITION(reducedMotion)}
+              className="space-y-3"
+            >
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#006B63]">
+                  <Compass className="h-4 w-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-900">Up Next</h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                {/* Card 1: Revision (Mint/Green Visual Identity) */}
+                <div
+                  onClick={() => onNavigateTab('revision')}
+                  className="rounded-3xl bg-gradient-to-br from-white via-white to-emerald-50/30 border border-emerald-100/90 shadow-2xs p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:border-emerald-300 hover:shadow-xs active:scale-[0.99] transition-all duration-200 cursor-pointer group min-h-[64px]"
+                >
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <CheckCircle2 className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                        Revision
+                      </span>
+                      <span className="block text-[11px] sm:text-xs font-semibold text-emerald-800 mt-0.5">
+                        {hasRevisionDue ? `${dailyPlan.revisionDueCount} items due` : "You're all caught up!"}
+                      </span>
+                      <span className="block text-[10px] text-slate-400 mt-0.5 truncate">
+                        Review when new revision items appear.
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <BookOpen className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                  </div>
+                </div>
+
+                {/* Card 2: Error Remediation (Amber/Orange Visual Identity) */}
+                <div
+                  onClick={() => onNavigateTab('errors')}
+                  className="rounded-3xl bg-gradient-to-br from-white via-white to-amber-50/30 border border-amber-100/90 shadow-2xs p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:border-amber-300 hover:shadow-xs active:scale-[0.99] transition-all duration-200 cursor-pointer group min-h-[64px]"
+                >
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Zap className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
+                        Error Remediation
+                      </span>
+                      <span className="block text-[11px] sm:text-xs font-semibold text-amber-800 mt-0.5">
+                        {errorsToReview ? `${dailyPlan.errorRemediationCount} errors to review` : "You're all caught up!"}
+                      </span>
+                      <span className="block text-[10px] text-slate-400 mt-0.5 truncate">
+                        Review when new errors appear.
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                    <FileText className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                  </div>
+                </div>
+              </div>
+            </motion.section>
           </div>
 
           {/* ══════════════ RIGHT COLUMN (lg:col-span-5) ══════════════ */}
@@ -1487,8 +1666,235 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </motion.section>
 
+            {/* ── YOUR PROGRESS (Dynamic Subject Bars with Contextual Accents) ── */}
+            <motion.section
+              initial={SECTION_ENTER(0.18, reducedMotion)}
+              animate={SECTION_SHOW}
+              transition={SECTION_TRANSITION(reducedMotion)}
+              className="rounded-3xl bg-white border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-md p-5 sm:p-6 space-y-4 transition-all duration-200"
+            >
+              {/* Card Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#006B63]">
+                    <BarChart3 className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-sm font-bold text-slate-900">Your Progress</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('syllabus')}
+                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer min-h-[32px] flex items-center"
+                >
+                  View curriculum →
+                </button>
+              </div>
+
+              {/* Subject Rows */}
+              <div className="space-y-2.5 sm:space-y-3">
+                {subjectList.slice(0, 5).map((sub, idx) => {
+                  const visual = getContextualProgressStyle(sub.percentage, sub.statusText);
+                  const studyTimeApprox = sub.weightage ? `~${Math.max(1, Math.round(sub.weightage * 1.5))}h` : '~2h';
+
+                  return (
+                    <div
+                      key={sub.id}
+                      onClick={() => onSelectSubject(sub.id)}
+                      className="group p-2 sm:p-2.5 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between text-xs gap-1.5">
+                        <span className="font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
+                          {sub.name}
+                        </span>
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                          <span className="font-mono font-extrabold text-slate-900 tabular-nums">
+                            <AnimatedNumber value={sub.percentage} />%
+                          </span>
+                          <span className="font-mono text-[10px] text-slate-400">
+                            {studyTimeApprox} • {sub.weightage}m
+                          </span>
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${visual.badge}`}
+                          >
+                            <span className={`h-1.5 w-1.5 rounded-full ${visual.dot}`} />
+                            {visual.statusText}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Smooth Animated Progress Bar */}
+                      <div className={`w-full h-2 sm:h-2.5 ${visual.track || 'bg-slate-100'} rounded-full overflow-hidden`}>
+                        <motion.div
+                          className={`h-full rounded-full ${visual.bar}`}
+                          initial={reducedMotion ? false : { width: 0 }}
+                          whileInView={{ width: `${Math.max(sub.percentage, 4)}%` }}
+                          viewport={{ once: true }}
+                          transition={
+                            reducedMotion
+                              ? { duration: 0 }
+                              : { duration: 0.75, delay: idx * 0.04, ease: [0.16, 1, 0.3, 1] }
+                          }
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* View all subjects action */}
+              <div className="pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('syllabus')}
+                  className="w-full text-center text-xs font-semibold text-[#006B63] hover:underline py-1 transition-colors cursor-pointer flex items-center justify-center gap-1 min-h-[36px]"
+                >
+                  View all subjects →
+                </button>
+              </div>
+            </motion.section>
+
+            {/* ── MOTIVATIONAL QUOTE CARD ── */}
+            <div className="rounded-3xl bg-gradient-to-br from-sky-50 via-teal-50/60 to-emerald-50 border border-teal-100/70 p-5 relative overflow-hidden">
+              <div className="relative z-10 space-y-1">
+                <span className="text-3xl font-serif text-[#006B63]/40 leading-none block select-none">
+                  &ldquo;
+                </span>
+                <p className="text-sm font-extrabold text-slate-900 leading-tight">
+                  Better preparation.
+                </p>
+                <p className="text-sm font-extrabold text-[#006B63] leading-tight">
+                  A brighter tomorrow.
+                </p>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono block pt-1">
+                  ONE SHOT FMGE
+                </span>
+              </div>
+              {/* Subtle mountain graphic on bottom right */}
+              <div className="absolute right-2 bottom-0 pointer-events-none opacity-30">
+                <svg width="100" height="55" viewBox="0 0 100 55" fill="none">
+                  <path d="M10 55L45 15L60 30L90 55H10Z" fill="#0d9488" />
+                  <path d="M40 55L70 20L95 50L100 55H40Z" fill="#0284c7" />
+                </svg>
+              </div>
+            </div>
+
           </div>
         </div>
+
+        {/* ── EXPLORE OTHER HIGH-YIELD SUBJECTS ── */}
+        <motion.section
+          initial={SECTION_ENTER(0.2, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="space-y-4 pt-2"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-xl bg-teal-500/10 flex items-center justify-center text-[#006B63] shrink-0">
+                <Flame className="h-4.5 w-4.5 fill-[#006B63] text-[#006B63]" />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 font-['Outfit'] leading-tight">
+                  Explore Other High-Yield Subjects
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Curated 3D anatomical models and clinical blueprints weighted by NBE exam pattern
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigateTab('syllabus')}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#006B63] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
+            >
+              View all 19 subjects <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          {/* Grid of Subject Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3 lg:gap-3.5">
+            {subjectList.map((sub) => {
+              const isCurrent = sub.id === activeFocusSubject.id;
+              const hyCount = sub.topics.filter((t) => t.isHighYield).length;
+              const theme = SUBJECT_CARD_THEMES[sub.id] || DEFAULT_CARD_THEME;
+
+              return (
+                <div
+                  key={sub.id}
+                  onClick={() => {
+                    setSelectedFilterSubjectId(sub.id);
+                    onSelectSubject(sub.id);
+                  }}
+                  className={`group relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col justify-between transition-all duration-200 cursor-pointer border bg-gradient-to-b ${theme.bg} ${
+                    isCurrent
+                      ? 'border-[#006B63] shadow-md ring-2 ring-[#006B63]/25'
+                      : `${theme.border} shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5`
+                  } active:scale-[0.98]`}
+                >
+                  {/* Weightage Badge top right */}
+                  <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20">
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold border shadow-2xs backdrop-blur-xs ${theme.badge}`}>
+                      {sub.weightage}m
+                    </span>
+                  </div>
+
+                  {/* 3D Medical Artwork Stage */}
+                  <div className="relative w-full h-18 sm:h-20 md:h-20 lg:h-20 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1 sm:p-1.5 group-hover:scale-105 transition-transform duration-300 ease-out">
+                    <div
+                      className="absolute inset-0 filter blur-sm pointer-events-none rounded-full"
+                      style={{
+                        background: `radial-gradient(circle at 50% 55%, ${theme.glow} 0%, transparent 72%)`,
+                      }}
+                    />
+                    <div className="relative w-full h-full flex items-center justify-center z-10">
+                      <MedicalSubjectCardVisual subjectId={sub.id} />
+                    </div>
+                  </div>
+
+                  {/* Content & Metadata */}
+                  <div className="mt-1.5 sm:mt-2 pt-0.5 space-y-1">
+                    <div className="flex items-start justify-between gap-1">
+                      <div className="min-w-0 flex-1">
+                        <h4
+                          className="text-[11px] sm:text-xs md:text-[13px] font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate"
+                          title={sub.name}
+                        >
+                          {sub.name}
+                        </h4>
+                        <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">
+                          {hyCount} High-yield
+                        </p>
+                      </div>
+
+                      <div
+                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5 ${
+                          isCurrent
+                            ? 'bg-[#006B63] text-white shadow-xs'
+                            : `bg-white/80 ${theme.arrowText} border border-slate-200/70 shadow-2xs ${theme.arrowBg}`
+                        }`}
+                      >
+                        <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      </div>
+                    </div>
+
+                    {/* Micro Progress Bar */}
+                    <div className="flex items-center gap-1.5 pt-0.5">
+                      <div className="flex-1 h-1 sm:h-1.5 bg-slate-200/60 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-[#006B63] to-[#10B981] rounded-full transition-all duration-300"
+                          style={{ width: `${Math.max(sub.percentage, 4)}%` }}
+                        />
+                      </div>
+                      <span className="font-mono text-[9px] sm:text-[10px] font-semibold text-slate-600 tabular-nums shrink-0">
+                        {sub.percentage}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.section>
       </div>
 
       {/* Topic Mastery Workspace Modal */}
