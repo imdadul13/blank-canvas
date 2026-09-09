@@ -18,21 +18,24 @@ import {
   PlayCircle,
   Sparkles,
   BookOpen,
+  Activity,
+  Award,
+  Stethoscope,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { resolveAuthError } from '../utils/authErrors';
 import OneShotLogo from './OneShotLogo';
 
-/* ─── ONE SHOT brand mark ─── */
+/* ─── ONE SHOT brand mark (Minimal & Aesthetic) ─── */
 const OneShotMark: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {
   const dims =
     size === 'sm'
       ? 'h-8 w-8'
       : size === 'lg'
-      ? 'h-16 w-16'
-      : 'h-11 w-11';
+      ? 'h-13 w-13'
+      : 'h-10 w-10';
   return (
-    <div className={`relative flex items-center justify-center rounded-2xl bg-white border border-[#006B63]/20 shadow-xs overflow-hidden p-1.5 ${dims}`}>
+    <div className={`relative flex items-center justify-center rounded-2xl bg-white border border-stone-200/90 shadow-[0_2px_8px_rgba(0,0,0,0.04)] p-1.5 ${dims}`}>
       <img
         src="/images/brand/one_shot_emblem.png"
         alt="ONE SHOT FMGE"
@@ -54,95 +57,245 @@ const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'h-5 w-5' })
 
 /* ─── Shared input style ─── */
 const inputCls =
-  'rounded-xl border border-stone-200 bg-stone-50/70 px-4 py-3 text-sm focus:border-[#006B63] focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:outline-none w-full text-slate-800 placeholder:text-stone-400 transition-all';
+  'rounded-xl border border-stone-200 bg-stone-50/60 px-4 py-3 text-sm focus:border-[#006B63] focus:bg-white focus:ring-1 focus:ring-[#006B63] focus:outline-none w-full text-stone-900 placeholder:text-stone-400 transition-all';
 
-/* ─── Decorative right-panel study dashboard illustration (Elevated System Theme) ─── */
+/* ─── Aesthetic Clinical & Anatomical Background Artwork ─── */
+const BackgroundArt: React.FC = () => (
+  <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none">
+    {/* Dynamic Ethereal Multi-Hue Aurora Orbs */}
+    <motion.div
+      animate={{
+        scale: [1, 1.15, 1],
+        opacity: [0.35, 0.5, 0.35],
+        x: [0, 20, 0],
+      }}
+      transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+      className="absolute -top-32 right-1/4 h-[550px] w-[700px] rounded-full bg-gradient-to-br from-[#006B63]/20 via-teal-400/15 to-transparent blur-[130px]"
+    />
+    <motion.div
+      animate={{
+        scale: [1, 1.2, 1],
+        opacity: [0.25, 0.45, 0.25],
+        y: [0, -30, 0],
+      }}
+      transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+      className="absolute top-1/3 -left-32 h-[520px] w-[640px] rounded-full bg-gradient-to-tr from-[#B57B66]/20 via-amber-400/15 to-transparent blur-[140px]"
+    />
+    <motion.div
+      animate={{
+        scale: [1, 1.1, 1],
+        opacity: [0.2, 0.35, 0.2],
+        x: [0, -25, 0],
+      }}
+      transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+      className="absolute -bottom-32 right-10 h-[500px] w-[620px] rounded-full bg-gradient-to-tl from-emerald-500/20 via-cyan-400/15 to-transparent blur-[140px]"
+    />
+    <div className="absolute top-1/2 right-1/3 h-[400px] w-[450px] rounded-full bg-indigo-500/[0.08] blur-[150px]" />
+
+    {/* Subtle Tactile Dot Grid */}
+    <div className="absolute inset-0 bg-[radial-gradient(#006B63_1px,transparent_1px)] opacity-[0.05] [background-size:24px_24px]" />
+
+    {/* Elegant Fine-line Medical & Topological Vector Artwork */}
+    <svg
+      className="absolute inset-0 h-full w-full opacity-[0.09] stroke-[#006B63] fill-none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <pattern id="art-grid" width="160" height="160" patternUnits="userSpaceOnUse">
+          <circle cx="80" cy="80" r="1.5" fill="#006B63" fillOpacity="0.6" />
+          <path d="M 0 80 L 160 80 M 80 0 L 80 160" strokeWidth="0.6" strokeDasharray="4 8" />
+        </pattern>
+      </defs>
+
+      <rect width="100%" height="100%" fill="url(#art-grid)" opacity="0.8" />
+
+      {/* Anatomical Thoracic & Cardiac Arc Topography */}
+      <g strokeWidth="1" strokeDasharray="6 6">
+        <circle cx="85%" cy="18%" r="180" />
+        <circle cx="85%" cy="18%" r="300" strokeWidth="0.8" />
+        <circle cx="85%" cy="18%" r="420" strokeWidth="0.6" strokeDasharray="4 8" />
+      </g>
+
+      {/* Flowing Clinical Cardiac Vector Contours */}
+      <path
+        d="M -100 450 C 150 400, 300 580, 550 490 C 800 410, 1050 620, 1400 510 C 1650 430, 1900 560, 2200 470"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M -100 490 C 180 440, 330 620, 580 530 C 830 450, 1080 660, 1430 550 C 1680 470, 1930 600, 2200 510"
+        strokeWidth="0.9"
+        strokeDasharray="4 6"
+      />
+
+      {/* Medical Crosshairs & Datum Points */}
+      <g strokeWidth="1">
+        <path d="M 120 120 L 140 120 M 130 110 L 130 130" />
+        <path d="M 90% 65% L calc(90% + 20px) 65% M calc(90% + 10px) calc(65% - 10px) L calc(90% + 10px) calc(65% + 10px)" />
+        <path d="M 20% 85% L calc(20% + 20px) 85% M calc(20% + 10px) calc(85% - 10px) L calc(20% + 10px) calc(85% + 10px)" />
+      </g>
+    </svg>
+  </div>
+);
+
+/* ─── Premium Clinical Prescription Card (High-Craft Luxury) ─── */
 const StudyDashIllustration: React.FC = () => (
-  <motion.div
-    animate={{ y: [0, -5, 0] }}
-    transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-    className="flex flex-col gap-3.5 w-full max-w-sm mx-auto select-none"
-  >
-    <div className="flex items-center justify-between mb-1">
-      <div>
-        <p className="text-[10px] font-mono font-bold text-[#006B63] uppercase tracking-wider">
-          Today's Clinical Target
-        </p>
-        <p className="text-base font-bold font-['Outfit'] text-slate-800">Cardiology &amp; Trauma · Day 42</p>
-      </div>
-      <div className="h-8 w-8 rounded-full bg-teal-50 border border-teal-200/70 flex items-center justify-center text-[#006B63] font-bold text-xs shadow-2xs">
-        Dr
-      </div>
+  <div className="w-full max-w-sm mx-auto select-none space-y-4 relative">
+    {/* Micro crosshair badge in corner */}
+    <div className="absolute -top-1.5 -right-1.5 flex items-center gap-1 text-[9px] font-mono font-semibold text-teal-700/60 pointer-events-none">
+      <span className="text-teal-600">+</span>
+      <span>NBE-VERIFIED BLUEPRINT</span>
     </div>
-    {[
-      {
-        subject: 'General Medicine',
-        topic: 'ECGs & Arrhythmias',
-        time: '20 min',
-        weight: '35M',
-        bg: 'bg-teal-50/50 border-teal-200/60',
-        dot: 'bg-[#006B63]',
-        badge: 'bg-teal-100/70 text-[#004D47]',
-        pulse: true,
-      },
-      {
-        subject: 'General Surgery',
-        topic: 'Trauma & ATLS Protocol',
-        time: '25 min',
-        weight: '35M',
-        bg: 'bg-amber-50/50 border-amber-200/60',
-        dot: 'bg-[#B57B66]',
-        badge: 'bg-amber-100/70 text-[#B57B66]',
-        pulse: false,
-      },
-      {
-        subject: 'Obstetrics & Gyn',
-        topic: 'Preeclampsia & MgSO4',
-        time: '15 min',
-        weight: '30M',
-        bg: 'bg-rose-50/40 border-rose-200/50',
-        dot: 'bg-rose-500',
-        badge: 'bg-rose-100/60 text-rose-700',
-        pulse: false,
-      },
-    ].map((item) => (
-      <div
-        key={item.topic}
-        className={`flex items-center gap-3 rounded-2xl border ${item.bg} p-3.5 shadow-2xs transition-all duration-200 hover:scale-[1.01]`}
-      >
-        <div className="relative shrink-0 flex items-center justify-center">
-          {item.pulse && (
-            <span className="absolute h-4 w-4 rounded-full bg-teal-400/40 animate-ping" />
-          )}
-          <div className={`h-2.5 w-2.5 rounded-full ${item.dot}`} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-slate-900 truncate">{item.subject}</p>
-          <p className="text-[11px] text-stone-500 truncate">{item.topic} · {item.time}</p>
-        </div>
-        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shrink-0 ${item.badge}`}>
-          {item.weight}
-        </span>
-      </div>
-    ))}
 
-    <div className="rounded-2xl bg-white border border-stone-200/90 p-4 shadow-xs space-y-2">
-      <div className="flex justify-between items-center">
-        <span className="text-xs font-bold text-stone-600">Readiness Score</span>
-        <span className="text-sm font-black font-['Outfit'] text-[#006B63]">182 / 300</span>
+    {/* Header: Prescription Ribbon */}
+    <div className="pb-3 border-b border-stone-200/80 flex items-start justify-between gap-2">
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B63]" />
+          </span>
+          <p className="text-[10px] font-mono font-bold text-[#006B63] uppercase tracking-wider">
+            Daily Clinical Plan · Day 42
+          </p>
+        </div>
+        <h3 className="text-lg font-semibold font-['Newsreader',_serif] text-stone-900 tracking-tight leading-snug">
+          Cardiology &amp; Acute Trauma
+        </h3>
       </div>
-      <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden p-0.5">
-        <div className="h-full w-[68%] bg-gradient-to-r from-[#006B63] to-[#00897B] rounded-full shadow-xs" />
+      <div className="shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200/80 text-[11px] font-bold text-teal-900 shadow-2xs">
+        <Stethoscope className="h-3.5 w-3.5 text-[#006B63]" />
+        <span>Dr. Practice</span>
       </div>
-      <div className="flex justify-between items-center text-[10px] pt-0.5">
-        <span className="text-stone-400">19 FMGE Subjects Active</span>
+    </div>
+
+    {/* Telemetry Vitals Bar */}
+    <div className="rounded-xl border border-teal-600/20 bg-gradient-to-r from-teal-950/[0.05] via-teal-900/[0.02] to-emerald-500/[0.04] p-2.5 px-3 flex items-center justify-between shadow-2xs">
+      <div className="flex items-center gap-2">
+        <Activity className="h-3.5 w-3.5 text-[#006B63] animate-pulse" />
+        <span className="text-[11px] font-mono text-stone-700 font-semibold">Telemetry: Lead II Normal · 72 BPM</span>
+      </div>
+      <svg viewBox="0 0 80 18" className="h-4 w-20 stroke-[#006B63] fill-none stroke-[1.8] opacity-85">
+        <path d="M 0 9 L 20 9 L 24 3 L 28 15 L 32 5 L 36 9 L 80 9" />
+      </svg>
+    </div>
+
+    {/* 3 Tactile Clinical Priority Subjects */}
+    <div className="space-y-2.5">
+      {[
+        {
+          subject: 'General Medicine',
+          subtag: 'Core Cardiology',
+          topic: 'Arrhythmias, Heart Blocks & MI',
+          time: '20 min',
+          weight: '35M High-Yield',
+          accent: 'bg-[#006B63]',
+          stripe: 'from-[#006B63] to-teal-400',
+          pill: 'bg-teal-500/10 text-[#004D47] border-teal-300',
+        },
+        {
+          subject: 'General Surgery',
+          subtag: 'Trauma & ATLS',
+          topic: 'Primary Survey, FAST & Burns',
+          time: '25 min',
+          weight: '35M High-Yield',
+          accent: 'bg-[#B57B66]',
+          stripe: 'from-[#B57B66] to-amber-400',
+          pill: 'bg-amber-500/10 text-[#8C533F] border-amber-300',
+        },
+        {
+          subject: 'Obstetrics & Gyn',
+          subtag: 'Emergency Pearl',
+          topic: 'Preeclampsia & MgSO4 Regimen',
+          time: '15 min',
+          weight: '30M High-Yield',
+          accent: 'bg-[#9D4B66]',
+          stripe: 'from-[#9D4B66] to-rose-400',
+          pill: 'bg-rose-500/10 text-[#7A2C44] border-rose-300',
+        },
+      ].map((item) => (
+        <motion.div
+          key={item.topic}
+          whileHover={{ x: 4, scale: 1.01 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="group relative rounded-2xl border border-stone-200/90 bg-white/95 p-3.5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all duration-200 hover:border-stone-300 hover:shadow-[0_8px_20px_rgba(0,107,99,0.06)] overflow-hidden cursor-default"
+        >
+          {/* Subtle vibrant accent line on left */}
+          <div className={`absolute top-0 bottom-0 left-0 w-1 bg-gradient-to-b ${item.stripe}`} />
+
+          <div className="flex items-start justify-between gap-2 pl-1.5">
+            <div className="flex items-start gap-2.5 min-w-0">
+              <span className={`h-2 w-2 rounded-full ${item.accent} mt-1.5 shrink-0 ring-2 ring-stone-100`} />
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-stone-900 truncate">{item.subject}</span>
+                  <span className="text-[10px] font-mono text-stone-400">·</span>
+                  <span className="text-[10px] font-mono text-stone-500 font-medium truncate">{item.subtag}</span>
+                </div>
+                <p className="text-[11.5px] text-stone-600 mt-0.5 truncate font-normal">{item.topic}</p>
+              </div>
+            </div>
+            <div className="shrink-0 text-right">
+              <span className={`inline-block text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border ${item.pill}`}>
+                {item.weight}
+              </span>
+              <p className="text-[10px] text-stone-400 font-mono mt-0.5">{item.time}</p>
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+
+    {/* Executive Readiness Score Module */}
+    <div className="rounded-2xl border border-stone-200/90 bg-gradient-to-br from-white via-stone-50/90 to-teal-50/20 p-4 space-y-2.5 shadow-2xs relative overflow-hidden">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <div className="p-1 rounded-lg bg-teal-50 border border-teal-200/60">
+            <Award className="h-3.5 w-3.5 text-[#006B63]" />
+          </div>
+          <span className="text-xs font-bold text-stone-800">FMGE Readiness Index</span>
+        </div>
+        <div className="flex items-baseline gap-1 font-mono">
+          <span className="text-base font-extrabold text-[#006B63]">182</span>
+          <span className="text-xs text-stone-400 font-medium">/ 300</span>
+        </div>
+      </div>
+
+      {/* Precision Calibrated Meter */}
+      <div className="space-y-1.5">
+        <div className="h-2.5 w-full bg-stone-200/90 rounded-full overflow-hidden relative p-[1px]">
+          {/* Passing 150 mark notch */}
+          <div
+            className="absolute top-0 bottom-0 w-0.5 bg-rose-500 z-10"
+            style={{ left: '50%' }}
+            title="Pass Threshold: 150"
+          />
+          <motion.div
+            initial={{ width: '0%' }}
+            animate={{ width: '68%' }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+            className="h-full bg-gradient-to-r from-[#006B63] via-[#0D9488] to-[#10B981] rounded-full shadow-xs"
+          />
+        </div>
+        <div className="flex justify-between items-center text-[10px] text-stone-400 font-mono pt-0.5">
+          <span>0 Baseline</span>
+          <span className="text-rose-700 font-bold bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200/60">
+            150 Pass Line
+          </span>
+          <span className="text-[#006B63] font-bold bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200/60">
+            +32 Safety Buffer
+          </span>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center text-[11px] pt-1.5 border-t border-stone-200/60 font-mono">
+        <span className="text-stone-500 font-medium">19 Subjects Synthesized</span>
         <span className="font-bold text-emerald-700 flex items-center gap-1">
-          <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-          Passing Track (+32 buffer)
+          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+          Passing Pace (Day 42)
         </span>
       </div>
     </div>
-  </motion.div>
+  </div>
 );
 
 type AuthMode = 'welcome' | 'signin' | 'signup' | 'forgot';
@@ -259,150 +412,189 @@ export const AuthScreen: React.FC = () => {
   };
 
   /* ─────────────────────────────────────────────────────────────
-     1. WELCOME SCREEN (Elevated Circadian System Theme)
+     1. WELCOME SCREEN (Minimal & Aesthetic Editorial Theme)
   ───────────────────────────────────────────────────────────── */
   if (mode === 'welcome') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#F4FAF8] via-[#FAF9F6] to-[#EBF6F3] flex flex-col justify-between p-4 sm:p-6 lg:p-10 relative overflow-hidden font-['Plus_Jakarta_Sans']">
-        {/* Breathing Circadian Auroras & ECG Telemetry Rhythm */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-          <motion.div
-            animate={{
-              scale: [1, 1.15, 1],
-              opacity: [0.3, 0.5, 0.3],
-              x: [0, 20, 0],
-              y: [0, -15, 0],
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute -top-32 -right-32 w-[540px] h-[540px] rounded-full bg-gradient-to-br from-teal-300/35 via-emerald-200/25 to-transparent blur-3xl"
-          />
-          <motion.div
-            animate={{
-              scale: [1.1, 0.95, 1.1],
-              opacity: [0.25, 0.4, 0.25],
-              x: [0, -15, 0],
-              y: [0, 20, 0],
-            }}
-            transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute -bottom-36 -left-36 w-[540px] h-[540px] rounded-full bg-gradient-to-tr from-amber-200/30 via-teal-100/20 to-transparent blur-3xl"
-          />
-          <div className="absolute inset-0 flex items-center justify-center opacity-[0.04]">
-            <svg viewBox="0 0 800 140" className="w-full max-w-4xl stroke-[#006B63] fill-none stroke-[2]">
-              <path d="M 0 70 L 240 70 L 260 45 L 280 100 L 300 20 L 320 120 L 340 60 L 360 80 L 380 70 L 800 70" />
-            </svg>
-          </div>
-        </div>
+      <div className="min-h-screen bg-[#FAFBFB] flex flex-col justify-between p-4 sm:p-6 lg:p-10 relative overflow-hidden font-['Plus_Jakarta_Sans'] text-stone-900">
+        {/* Dynamic Ethereal Background Artwork */}
+        <BackgroundArt />
 
         {/* Top Header Brand */}
-        <header className="relative w-full max-w-6xl mx-auto flex items-center justify-between py-2 z-10">
+        <header className="relative w-full max-w-6xl mx-auto flex items-center justify-between py-3 z-10">
           <div className="flex items-center gap-3">
-            <OneShotMark size="md" />
+            <OneShotMark size="sm" />
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-lg tracking-tight text-slate-900 font-['Outfit']">
+              <span className="font-bold text-base tracking-tight text-stone-900 font-['Outfit']">
                 ONE SHOT <span className="text-[#006B63]">FMGE</span>
               </span>
-              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-teal-500/10 text-[#006B63] border border-teal-500/20 text-[10px] font-bold">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200/70 text-[10px] font-medium">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#006B63]" />
                 300 Marks Blueprint
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-stone-600 font-semibold px-3 py-1.5 rounded-full bg-white/80 border border-stone-200/80 shadow-2xs backdrop-blur-sm">
-            <ShieldCheck className="h-4 w-4 text-[#006B63]" />
-            <span className="hidden sm:inline">Encrypted Offline &amp; Cloud Sync</span>
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 font-medium px-3 py-1.5 rounded-full border border-stone-200/70 bg-white/70 backdrop-blur-sm shadow-2xs">
+            <ShieldCheck className="h-3.5 w-3.5 text-[#006B63]" />
+            <span className="hidden sm:inline">Offline &amp; Cloud Sync</span>
           </div>
         </header>
 
         {/* Main Hero Container */}
-        <main className="relative w-full max-w-6xl mx-auto my-auto py-6 sm:py-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center z-10">
-          {/* Left Column: Brand & Actions */}
-          <div className="lg:col-span-7 space-y-6">
+        <main className="relative w-full max-w-6xl mx-auto my-auto py-8 sm:py-14 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center z-10">
+          {/* Left Column */}
+          <div className="lg:col-span-7 space-y-6 sm:space-y-7">
             <div className="space-y-3.5">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/10 text-[#006B63] border border-teal-500/20 text-xs font-semibold">
-                <Sparkles className="h-3.5 w-3.5 text-[#006B63]" />
-                <span>Your FMGE. One focused plan.</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100/90 border border-stone-200/80 text-xs font-medium text-stone-600">
+                <Sparkles className="h-3 w-3 text-[#006B63]" />
+                <span>Deterministic FMGE Preparation</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-['Newsreader',_serif] font-semibold text-slate-900 tracking-tight leading-[1.12]">
-                Master high-yield topics in one shot.
+
+              <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-['Newsreader',_serif] font-normal text-stone-900 tracking-[-0.025em] leading-[1.12]">
+                Master high-yield topics in{' '}
+                <span className="bg-gradient-to-r from-[#006B63] via-[#0D9488] to-[#0284C7] bg-clip-text text-transparent font-semibold">one shot</span>.
               </h1>
-              <p className="text-base sm:text-[17px] text-stone-600 max-w-xl leading-relaxed">
-                Know what to study. Practice what matters. Fix what you get wrong. A deterministic, closed-loop system designed for first-attempt FMGE success.
+
+              <p className="text-base sm:text-[16px] text-stone-500 max-w-xl font-normal leading-relaxed">
+                Know what to study. Practice what matters. Fix what you get wrong. A clean, closed-loop clinical intelligence platform designed for first-attempt FMGE success.
               </p>
             </div>
 
-            {/* 3 Value Propositions */}
+            {/* 3 Value Propositions with Dynamic Accents & Motion */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-              <div className="rounded-2xl border border-stone-200/90 bg-white/90 p-4 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-xs">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                  <CheckCircle2 className="h-4 w-4 text-[#006B63]" />
-                  <span>19 Subjects</span>
+              <motion.div
+                whileHover={{ y: -6, scale: 1.025 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="relative rounded-2xl border border-stone-200/90 bg-white/90 p-4 shadow-[0_4px_16px_rgba(0,0,0,0.03)] overflow-hidden group cursor-default transition-all duration-200 hover:border-teal-300 hover:shadow-[0_12px_28px_rgba(0,107,99,0.08)]"
+              >
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 to-emerald-400" />
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-xl bg-teal-50 border border-teal-200/80 text-teal-700 shadow-2xs group-hover:scale-110 transition-transform">
+                    <CheckCircle2 className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-bold text-stone-900 tracking-tight">19 Subjects</span>
                 </div>
-                <p className="text-[11.5px] text-stone-500 mt-1 leading-snug">NBE weighted blueprint</p>
-              </div>
+                <p className="text-xs text-stone-500 mt-2 leading-snug">NBE weighted blueprint &amp; high-yield clinical pearls</p>
+              </motion.div>
 
-              <div className="rounded-2xl border border-stone-200/90 bg-white/90 p-4 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-xs">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                  <Target className="h-4 w-4 text-[#B57B66]" />
-                  <span>Adaptive Priority</span>
+              <motion.div
+                whileHover={{ y: -6, scale: 1.025 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="relative rounded-2xl border border-stone-200/90 bg-white/90 p-4 shadow-[0_4px_16px_rgba(0,0,0,0.03)] overflow-hidden group cursor-default transition-all duration-200 hover:border-amber-300 hover:shadow-[0_12px_28px_rgba(181,123,102,0.08)]"
+              >
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-orange-400" />
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-700 shadow-2xs group-hover:scale-110 transition-transform">
+                    <Target className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-bold text-stone-900 tracking-tight">Adaptive Priority</span>
                 </div>
-                <p className="text-[11.5px] text-stone-500 mt-1 leading-snug">Topic priority 0–100</p>
-              </div>
+                <p className="text-xs text-stone-500 mt-2 leading-snug">Dynamic 0–100 mastery tracking &amp; calibrated index</p>
+              </motion.div>
 
-              <div className="rounded-2xl border border-stone-200/90 bg-white/90 p-4 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-xs">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                  <Zap className="h-4 w-4 text-[#00897B]" />
-                  <span>Closed-Loop</span>
+              <motion.div
+                whileHover={{ y: -6, scale: 1.025 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="relative rounded-2xl border border-stone-200/90 bg-white/90 p-4 shadow-[0_4px_16px_rgba(0,0,0,0.03)] overflow-hidden group cursor-default transition-all duration-200 hover:border-indigo-300 hover:shadow-[0_12px_28px_rgba(99,102,241,0.08)]"
+              >
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-400 to-purple-400" />
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-xl bg-indigo-50 border border-indigo-200/80 text-indigo-700 shadow-2xs group-hover:scale-110 transition-transform">
+                    <Zap className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-bold text-stone-900 tracking-tight">Closed-Loop</span>
                 </div>
-                <p className="text-[11.5px] text-stone-500 mt-1 leading-snug">Error Vault remediation</p>
-              </div>
+                <p className="text-xs text-stone-500 mt-2 leading-snug">Error Vault remediation &amp; spaced repetition recall</p>
+              </motion.div>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  clearMessages();
-                  setMode('signup');
-                }}
-                className="group flex-1 rounded-full bg-[#006B63] hover:bg-[#00544E] active:scale-[0.98] text-white px-7 py-4 text-sm sm:text-base font-semibold shadow-lg shadow-teal-950/20 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]"
-              >
-                <span>Get Started</span>
-                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-              </button>
+            {/* Vibrant Dynamic CTAs */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 rounded-full blur-md opacity-40 group-hover:opacity-75 transition-opacity duration-300" />
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    clearMessages();
+                    setMode('signup');
+                  }}
+                  className="relative rounded-full bg-gradient-to-r from-[#006B63] via-[#0D9488] to-[#059669] text-white px-8 py-3.5 text-sm font-bold tracking-tight shadow-[0_8px_20px_rgba(0,107,99,0.3)] transition-all flex items-center justify-center gap-2.5 cursor-pointer focus:outline-none overflow-hidden"
+                >
+                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
+                  <span>Get Started</span>
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                </motion.button>
+              </div>
 
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   clearMessages();
                   setMode('signin');
                 }}
-                className="rounded-full border border-stone-200/90 bg-white hover:bg-stone-50 active:scale-[0.98] text-slate-800 px-7 py-4 text-sm sm:text-base font-semibold transition-all duration-200 flex items-center justify-center cursor-pointer shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]"
+                className="rounded-full border border-stone-200/90 bg-white/90 hover:bg-white hover:border-stone-300 text-stone-800 px-7 py-3.5 text-sm font-semibold tracking-tight transition-all flex items-center justify-center cursor-pointer shadow-xs focus:outline-none"
               >
                 Sign In
-              </button>
+              </motion.button>
             </div>
 
-            {/* Local Practice Mode Option Pill */}
-            <div className="pt-2">
-              <button
+            {/* Guest Practice Mode */}
+            <div className="pt-1">
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.015 }}
+                whileTap={{ scale: 0.985 }}
                 onClick={handleGuestEntry}
-                className="group inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-teal-600/20 bg-teal-50/70 hover:bg-teal-50 hover:border-teal-400 text-xs font-semibold text-[#006B63] shadow-2xs transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                className="group inline-flex items-center gap-2.5 px-4.5 py-2.5 rounded-full border border-stone-200/90 bg-white/80 hover:bg-white text-xs font-semibold text-stone-700 hover:text-stone-900 transition-all cursor-pointer shadow-xs"
               >
-                <PlayCircle className="h-3.5 w-3.5 text-[#006B63]" />
-                <span>Continue directly in Local Practice Mode (No sign-in required)</span>
-                <ArrowRight className="h-3 w-3 text-teal-600/70 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all" />
-              </button>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
+                </span>
+                <PlayCircle className="h-4 w-4 text-[#006B63]" />
+                <span>Continue in Local Practice Mode (Instant Access · No Sign-in)</span>
+                <ArrowRight className="h-3.5 w-3.5 text-stone-400 group-hover:text-stone-800 group-hover:translate-x-1 transition-all" />
+              </motion.button>
             </div>
           </div>
 
-          {/* Right Column: Visual Study Preview Card (Desktop) */}
-          <div className="hidden lg:block lg:col-span-5">
-            <div className="rounded-3xl border border-stone-200/90 bg-white/95 p-6 shadow-xl shadow-teal-950/5 backdrop-blur-md">
+          {/* Right Column: Dynamic Luxury Telemetry Card */}
+          <div className="hidden lg:block lg:col-span-5 relative">
+            {/* Ambient card backlight glow */}
+            <div className="absolute -inset-2 bg-gradient-to-tr from-teal-500/15 via-emerald-500/10 to-amber-500/15 rounded-[36px] blur-2xl opacity-70 pointer-events-none" />
+
+            {/* Floating High-Yield Marks Badge (Top-Right) */}
+            <motion.div
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -top-4 -right-4 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/95 border border-teal-200 shadow-[0_8px_24px_rgba(0,107,99,0.12)] text-[11px] font-bold text-teal-900 backdrop-blur-md z-20"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-teal-600" />
+              <span>+38 Marks Predicted</span>
+            </motion.div>
+
+            {/* Floating Retention Badge (Bottom-Left) */}
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+              className="absolute -bottom-3 -left-3 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/95 border border-emerald-200 shadow-[0_8px_24px_rgba(16,185,129,0.12)] text-[11px] font-bold text-emerald-900 backdrop-blur-md z-20"
+            >
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+              <span>99.2% Retention Track</span>
+            </motion.div>
+
+            <motion.div
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+              className="rounded-3xl border border-stone-200/90 bg-white/95 p-6 sm:p-7 shadow-[0_20px_50px_rgba(0,107,99,0.06)] backdrop-blur-xl relative z-10"
+            >
               <StudyDashIllustration />
-            </div>
+            </motion.div>
           </div>
         </main>
 
@@ -418,13 +610,9 @@ export const AuthScreen: React.FC = () => {
      2. AUTH MODES (Sign In / Sign Up / Forgot Password)
   ───────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F4FAF8] via-[#FAF9F6] to-[#EBF6F3] text-stone-900 flex flex-col justify-center items-center p-4 sm:p-6 relative overflow-hidden">
-      {/* Background ambient auroras */}
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute -top-32 right-[-10%] h-[460px] w-[460px] rounded-full bg-teal-300/30 blur-[90px] animate-pulse" style={{ animationDuration: '9s' }} />
-        <div className="absolute -bottom-32 left-[-10%] h-[460px] w-[460px] rounded-full bg-amber-200/25 blur-[100px] animate-pulse" style={{ animationDuration: '12s' }} />
-        <div className="absolute inset-0 bg-[radial-gradient(#006B63_0.5px,transparent_0.5px)] opacity-[0.035] [background-size:24px_24px]" />
-      </div>
+    <div className="min-h-screen bg-[#FAFBFB] text-stone-900 flex flex-col justify-center items-center p-4 sm:p-6 relative overflow-hidden font-['Plus_Jakarta_Sans']">
+      {/* Dynamic Background Artwork */}
+      <BackgroundArt />
 
       <div className="w-full max-w-md relative z-10">
         {/* Back to welcome */}
@@ -435,7 +623,7 @@ export const AuthScreen: React.FC = () => {
               clearMessages();
               setMode('welcome');
             }}
-            className="flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-[#006B63] transition-colors cursor-pointer group"
+            className="flex items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-900 transition-colors cursor-pointer group"
           >
             <span className="group-hover:-translate-x-0.5 transition-transform">←</span>
             <span>Back to Welcome</span>
@@ -444,16 +632,16 @@ export const AuthScreen: React.FC = () => {
         </div>
 
         {/* Main Auth Card */}
-        <div className="rounded-3xl border border-stone-200/90 bg-white/95 p-6 sm:p-8 shadow-xl shadow-teal-950/5 backdrop-blur-xl">
+        <div className="rounded-3xl border border-stone-200/80 bg-white p-7 sm:p-9 shadow-[0_12px_36px_rgba(0,0,0,0.03)]">
           {/* Card Header */}
           <div className="text-center mb-6">
             <div className="inline-flex mb-3">
               <OneShotMark size="md" />
             </div>
-            <h1 className="text-2xl font-bold font-['Newsreader',Georgia,serif] tracking-tight text-stone-900">
-              {mode === 'signin' && 'Sign In to ONE SHOT'}
-              {mode === 'signup' && 'Create Your Account'}
-              {mode === 'forgot' && 'Reset Password'}
+            <h1 className="text-2xl font-normal font-['Newsreader',_serif] tracking-tight text-stone-900">
+              {mode === 'signin' && 'Sign in to ONE SHOT'}
+              {mode === 'signup' && 'Create your account'}
+              {mode === 'forgot' && 'Reset password'}
             </h1>
             <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
               {mode === 'signin' && 'Welcome back, Doctor. Pick up your high-yield FMGE plan.'}
@@ -464,7 +652,7 @@ export const AuthScreen: React.FC = () => {
 
           {/* Alerts */}
           {errorMsg && (
-            <div className="mb-5 flex flex-col gap-2 rounded-2xl border border-red-200 bg-red-50/90 p-3.5 text-xs text-red-800">
+            <div className="mb-5 flex flex-col gap-2 rounded-2xl border border-red-200 bg-red-50/80 p-3.5 text-xs text-red-800">
               <div className="flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
                 <div className="flex-1 font-medium leading-relaxed">{errorMsg}</div>
@@ -485,7 +673,7 @@ export const AuthScreen: React.FC = () => {
           )}
 
           {successMsg && (
-            <div className="mb-5 flex items-center gap-2 rounded-2xl border border-teal-200 bg-teal-50/90 p-3.5 text-xs text-teal-800">
+            <div className="mb-5 flex items-center gap-2 rounded-2xl border border-teal-200 bg-teal-50/80 p-3.5 text-xs text-teal-800">
               <CheckCircle2 className="h-4 w-4 text-[#006B63] shrink-0" />
               <span>{successMsg}</span>
             </div>
@@ -498,7 +686,7 @@ export const AuthScreen: React.FC = () => {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-3 rounded-full border border-stone-200/90 bg-white hover:bg-stone-50/80 px-4 py-3 text-xs font-semibold text-stone-700 transition-all shadow-2xs cursor-pointer disabled:opacity-50 active:scale-[0.99]"
+                className="w-full flex items-center justify-center gap-3 rounded-full border border-stone-200/90 bg-white hover:bg-stone-50 active:scale-[0.985] px-4 py-3 text-xs font-semibold text-stone-700 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
               >
                 <GoogleIcon className="h-4 w-4" />
                 <span>Continue with Google</span>
@@ -506,7 +694,7 @@ export const AuthScreen: React.FC = () => {
 
               <div className="relative flex items-center justify-center">
                 <div className="w-full border-t border-stone-100" />
-                <span className="absolute bg-white px-3 text-[11px] font-semibold text-stone-400 uppercase tracking-wider">
+                <span className="absolute bg-white px-3 text-[11px] font-medium text-stone-400 uppercase tracking-wider">
                   or with email
                 </span>
               </div>
@@ -517,7 +705,7 @@ export const AuthScreen: React.FC = () => {
           {mode === 'signin' && (
             <form onSubmit={handleEmailSignIn} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5">Email Address</label>
+                <label className="block text-xs font-medium text-stone-700 mb-1.5">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-stone-400" />
                   <input
@@ -533,7 +721,7 @@ export const AuthScreen: React.FC = () => {
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-stone-700">Password</label>
+                  <label className="text-xs font-medium text-stone-700">Password</label>
                   <button
                     type="button"
                     onClick={() => {
@@ -568,7 +756,7 @@ export const AuthScreen: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-full bg-[#006B63] hover:bg-[#00544E] text-white font-bold py-3.5 text-sm transition-all shadow-md shadow-teal-950/20 active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                className="w-full rounded-full bg-[#006B63] hover:bg-[#005750] active:scale-[0.985] text-white font-semibold py-3.5 text-sm transition-all shadow-[0_4px_14px_rgba(0,107,99,0.2)] cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </button>
@@ -581,7 +769,7 @@ export const AuthScreen: React.FC = () => {
                     clearMessages();
                     setMode('signup');
                   }}
-                  className="text-xs font-bold text-[#006B63] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer"
                 >
                   Create account
                 </button>
@@ -593,7 +781,7 @@ export const AuthScreen: React.FC = () => {
           {mode === 'signup' && (
             <form onSubmit={handleEmailSignUp} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5">Doctor / Full Name</label>
+                <label className="block text-xs font-medium text-stone-700 mb-1.5">Doctor / Full Name</label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-3.5 h-4 w-4 text-stone-400" />
                   <input
@@ -608,7 +796,7 @@ export const AuthScreen: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5">Email Address</label>
+                <label className="block text-xs font-medium text-stone-700 mb-1.5">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-stone-400" />
                   <input
@@ -623,7 +811,7 @@ export const AuthScreen: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5">Create Password</label>
+                <label className="block text-xs font-medium text-stone-700 mb-1.5">Create Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-stone-400" />
                   <input
@@ -647,7 +835,7 @@ export const AuthScreen: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-full bg-[#006B63] hover:bg-[#00544E] text-white font-bold py-3.5 text-sm transition-all shadow-md shadow-teal-950/20 active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                className="w-full rounded-full bg-[#006B63] hover:bg-[#005750] active:scale-[0.985] text-white font-semibold py-3.5 text-sm transition-all shadow-[0_4px_14px_rgba(0,107,99,0.2)] cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? 'Creating account...' : 'Create Account'}
               </button>
@@ -660,7 +848,7 @@ export const AuthScreen: React.FC = () => {
                     clearMessages();
                     setMode('signin');
                   }}
-                  className="text-xs font-bold text-[#006B63] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer"
                 >
                   Sign in
                 </button>
@@ -672,7 +860,7 @@ export const AuthScreen: React.FC = () => {
           {mode === 'forgot' && (
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5">Your Registered Email</label>
+                <label className="block text-xs font-medium text-stone-700 mb-1.5">Your Registered Email</label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-stone-400" />
                   <input
@@ -689,7 +877,7 @@ export const AuthScreen: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-full bg-[#006B63] hover:bg-[#00544E] text-white font-bold py-3.5 text-sm transition-all shadow-md shadow-teal-950/20 active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                className="w-full rounded-full bg-[#006B63] hover:bg-[#005750] active:scale-[0.985] text-white font-semibold py-3.5 text-sm transition-all shadow-[0_4px_14px_rgba(0,107,99,0.2)] cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? 'Sending Link...' : 'Send Password Reset Link'}
               </button>
@@ -701,7 +889,7 @@ export const AuthScreen: React.FC = () => {
                     clearMessages();
                     setMode('signin');
                   }}
-                  className="text-xs font-bold text-[#006B63] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer"
                 >
                   Return to Sign In
                 </button>
@@ -715,7 +903,7 @@ export const AuthScreen: React.FC = () => {
           <button
             type="button"
             onClick={handleGuestEntry}
-            className="text-xs text-teal-700 hover:text-[#00544E] font-medium underline underline-offset-2 cursor-pointer"
+            className="text-xs text-stone-500 hover:text-stone-900 font-medium underline underline-offset-4 transition-colors cursor-pointer"
           >
             Start instantly in Local Practice Mode
           </button>
