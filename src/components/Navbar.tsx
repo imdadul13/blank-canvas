@@ -16,6 +16,7 @@ import {
   Bell,
   ChevronRight,
   ChevronDown,
+  Compass,
 } from 'lucide-react';
 import OneShotLogo from './OneShotLogo';
 import { AppStats } from '../utils/storage';
@@ -47,6 +48,7 @@ export interface NavbarProps {
   onOpenNotifications?: () => void;
   unreadNotificationCount?: number;
   onOpenCloudSync?: () => void;
+  onOpenOnboarding?: () => void;
   userName: string;
   userEmail?: string;
   photoURL?: string | null;
@@ -73,7 +75,7 @@ export interface MoreUtilityItem {
   icon: typeof GraduationCap;
   desc: string;
   tab?: ActiveTab;
-  action?: 'cloudsync' | 'settings';
+  action?: 'cloudsync' | 'settings' | 'onboarding';
 }
 
 export const moreUtilityItems: MoreUtilityItem[] = [
@@ -90,6 +92,13 @@ export const moreUtilityItems: MoreUtilityItem[] = [
     icon: Send,
     desc: 'Curated question feeds',
     tab: 'telegram',
+  },
+  {
+    id: 'onboarding',
+    label: 'Calibrate Blueprint',
+    icon: Compass,
+    desc: 'Personalized FMGE roadmap',
+    action: 'onboarding',
   },
   {
     id: 'cloudsync',
@@ -454,6 +463,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   onOpenProfile,
   onOpenAiCoach,
   onOpenCloudSync,
+  onOpenOnboarding,
   userName,
   photoURL,
 }) => {
@@ -683,6 +693,8 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                               setActiveTab(item.tab);
                             } else if (item.action === 'cloudsync') {
                               onOpenCloudSync?.();
+                            } else if (item.action === 'onboarding') {
+                              onOpenOnboarding?.();
                             } else if (item.action === 'settings') {
                               onOpenSettings();
                             }
@@ -734,6 +746,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenNotifications,
   unreadNotificationCount,
   onOpenCloudSync,
+  onOpenOnboarding,
   userName,
   photoURL,
 }) => {
@@ -884,6 +897,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                             setActiveTab(item.tab);
                           } else if (item.action === 'cloudsync') {
                             onOpenCloudSync?.();
+                          } else if (item.action === 'onboarding') {
+                            onOpenOnboarding?.();
                           } else if (item.action === 'settings') {
                             onOpenSettings();
                           }

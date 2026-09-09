@@ -65,6 +65,7 @@ function AppInner() {
     updateAppState: setState,
     recordQuestionAttempt,
     showOnboarding,
+    setShowOnboarding,
     showMigrationPrompt,
   } = useAuth();
 
@@ -142,18 +143,25 @@ function AppInner() {
   // Onboarding gate: authenticated profile present and onboarding incomplete.
   // The `!profile` guard above already blocks rendering until the profile is
   // resolved, so we intentionally do NOT wait for `isRestoringData` here.
-  // Otherwise the main app would flash for the async window between "profile
-  // resolved" and "showOnboarding set" (the ~1s bounce observers saw).
+  // Check URL query parameters for explicit onboarding trigger or testing
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const forceOnboarding = urlParams?.get('onboarding') === 'true' || urlParams?.get('calibrate') === 'true';
+
+  // Onboarding gate: profile present and onboarding incomplete, or explicit
+  // recalibration requested via settings / More menu / URL parameter.
   const onboardingRequired = !!profile && !profile.onboardingCompleted;
   const onboardingGate =
-    (onboardingRequired || showOnboarding) &&
-    !isGuest &&
-    !!profile;
+    forceOnboarding ||
+    showOnboarding ||
+    (onboardingRequired && !!profile);
   // Latch once the gate first passes so the flow (including its building/ready
   // screens) stays mounted until the user acknowledges it, even after the
   // profile flips to onboardingCompleted.
   useEffect(() => {
-    if (onboardingGate) setObSessionActive(true);
+    if (onboardingGate) {
+      setObAcknowledged(false);
+      setObSessionActive(true);
+    }
   }, [onboardingGate]);
 
   // Compute live application statistics
@@ -628,11 +636,31 @@ function AppInner() {
     );
   }
 
-  // Authenticated but onboarding incomplete -> block the app and run onboarding.
+  // Onboarding incomplete or explicit recalibration requested -> render onboarding.
   const shouldRenderOnboarding = (onboardingGate || obSessionActive) && !obAcknowledged;
   if (shouldRenderOnboarding) {
-    return <OnboardingFlow onComplete={() => setObAcknowledged(true)} />;
+    return (
+      <OnboardingFlow
+        onComplete={() => {
+          setObAcknowledged(true);
+          setShowOnboarding(false);
+          setObSessionActive(false);
+          if (forceOnboarding) {
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('onboarding');
+            cleanUrl.searchParams.delete('calibrate');
+            window.history.replaceState({}, '', cleanUrl.pathname + cleanUrl.search);
+          }
+        }}
+      />
+    );
   }
+
+  const handleOpenOnboarding = () => {
+    setObAcknowledged(false);
+    setObSessionActive(true);
+    setShowOnboarding(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F3F8F8] to-[#EFF5F9] text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white">
@@ -645,6 +673,7 @@ function AppInner() {
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenProfile={() => setIsProfileOpen(true)}
         onOpenCloudSync={() => setIsCloudSyncOpen(true)}
+        onOpenOnboarding={handleOpenOnboarding}
         userName={profile?.displayName || state.settings.userName}
         userEmail={user?.email || profile?.email || ''}
         photoURL={profile?.photoURL || user?.photoURL || undefined}
@@ -682,6 +711,7 @@ function AppInner() {
           onOpenProfile={() => setIsProfileOpen(true)}
           onOpenNotifications={() => setIsNotificationCenterOpen(true)}
           onOpenCloudSync={() => setIsCloudSyncOpen(true)}
+          onOpenOnboarding={handleOpenOnboarding}
           userName={profile?.displayName || state.settings.userName}
           userEmail={user?.email || profile?.email || ''}
           photoURL={profile?.photoURL || user?.photoURL || undefined}
@@ -996,6 +1026,7 @@ function AppInner() {
         state={state}
         onUpdateSettings={handleUpdateSettings}
         onResetState={handleResetState}
+        onOpenOnboarding={handleOpenOnboarding}
       />
 
       {/* Legacy Local Data Migration Modal */}

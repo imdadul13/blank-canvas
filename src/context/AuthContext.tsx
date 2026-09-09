@@ -93,6 +93,7 @@ interface AuthContextType {
   syncStatus: SyncStatus;
   appState: AppState;
   showOnboarding: boolean;
+  setShowOnboarding: (show: boolean) => void;
   showMigrationPrompt: boolean;
   continueAsGuest: (guestName?: string) => void;
   signInWithGoogle: () => Promise<void>;
@@ -469,6 +470,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsGuest(true);
       setUser(null);
       const name = guestName || 'Dr. Aspirant';
+      const hasOnboarded = localStorage.getItem('fmge_guest_onboarded') === 'true';
       const guestProfile: UserProfile = {
         uid: 'guest_local_user',
         email: 'local@device',
@@ -478,9 +480,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         examDate: '2026-10-15',
         targetScore: 185,
         dailyHoursTarget: 6,
-        onboardingCompleted: true,
+        onboardingCompleted: hasOnboarded,
       };
       setProfile(guestProfile);
+      if (!hasOnboarded) {
+        setShowOnboarding(true);
+      }
       
       const localRaw = localStorage.getItem('fmge_study_tracker_v2');
       if (localRaw) {
@@ -816,8 +821,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       },
     };
 
-    if (DEV_AUTH_BYPASS) {
-      await updateProfileData(profileUpdates);
+    if (isGuest || DEV_AUTH_BYPASS) {
+      try {
+        localStorage.setItem('fmge_guest_onboarded', 'true');
+        localStorage.setItem('fmge_guest_profile', JSON.stringify(profileUpdates));
+      } catch {}
+      setProfile((prev) => (prev ? { ...prev, ...profileUpdates } : (profileUpdates as UserProfile)));
       setShowOnboarding(false);
       return;
     }
@@ -834,13 +843,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Persist partial onboarding progress so closing the app midway can resume later.
   const saveOnboardingProgress = async (partial: Partial<UserProfile>) => {
-    if (DEV_AUTH_BYPASS) {
+    if (isGuest || DEV_AUTH_BYPASS) {
       setProfile((prev) => {
         const updated = prev
           ? { ...prev, ...partial, profileUpdatedAt: new Date().toISOString() }
           : ({ ...DEV_PROFILE, ...partial } as UserProfile);
         try {
-          localStorage.setItem('fmge_dev_profile', JSON.stringify(updated));
+          localStorage.setItem('fmge_guest_profile', JSON.stringify(updated));
         } catch {}
         return updated;
       });
@@ -902,6 +911,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         syncStatus,
         appState,
         showOnboarding,
+        setShowOnboarding,
         showMigrationPrompt,
         continueAsGuest,
         signInWithGoogle,

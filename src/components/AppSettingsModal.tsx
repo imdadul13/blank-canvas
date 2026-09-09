@@ -37,6 +37,7 @@ interface AppSettingsModalProps {
   state: AppState;
   onUpdateSettings: (settings: AppSettings) => void;
   onResetState: (freshState: AppState) => void;
+  onOpenOnboarding?: () => void;
 }
 
 export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
@@ -45,6 +46,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
   state,
   onUpdateSettings,
   onResetState,
+  onOpenOnboarding,
 }) => {
   const [activeTab, setActiveTab] = useState<'theme' | 'mcq' | 'wellness' | 'storage'>('theme');
   const [settings, setSettings] = useState<AppSettings>(state.settings);
@@ -406,6 +408,29 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                   }`}
                 >
                   {(settings.autoSaveHighYield ?? true) ? 'Active' : 'Disabled'}
+                </button>
+              </div>
+
+              {/* FMGE Clinical Strategy Blueprint */}
+              <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200/70 flex items-center justify-between">
+                <div className="space-y-0.5 pr-4">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
+                    <Compass className="h-4 w-4 text-[#006B63]" />
+                    <span>FMGE Clinical Strategy Blueprint</span>
+                  </div>
+                  <p className="text-xs text-stone-500">
+                    Recalibrate your exam countdown, target score safety margin, and daily study pacing with the animated onboarding blueprint.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenOnboarding?.();
+                  }}
+                  className="px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#00544E] text-white text-xs font-bold shadow-xs transition-all cursor-pointer shrink-0"
+                >
+                  Recalibrate
                 </button>
               </div>
             </div>
