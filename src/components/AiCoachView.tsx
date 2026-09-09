@@ -1250,7 +1250,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       />
 
       {/* ================= MAIN CLINICAL CONSULTATION WORKSPACE ================= */}
-      <main className="w-full max-w-4xl mx-auto space-y-3 sm:space-y-4 min-w-0">
+      <main className="w-full max-w-5xl xl:max-w-6xl mx-auto space-y-3 sm:space-y-4 min-w-0">
       {/* 2. Interactive Multi-Question Clinical Challenge Runner */}
       {quizSession && (
         <MentorQuizRunner
@@ -1302,7 +1302,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               </div>
 
               {/* 4 Categorized Quick Starters with Staggered Motion */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl text-left pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl sm:max-w-3xl text-left pt-1">
                 {[
                   {
                     category: 'EXPLAIN A CONCEPT',
@@ -1382,7 +1382,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
           >
             {/* User Bubble */}
             {msg.role === 'user' ? (
-              <div className="flex items-start gap-2.5 sm:gap-3 max-w-2xl justify-start">
+              <div className="flex items-start gap-2.5 sm:gap-3 max-w-2xl sm:max-w-3xl justify-start">
                 <div className="h-8 w-8 rounded-full bg-slate-800 text-white text-xs font-bold font-['Outfit'] flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
                   {userInitials}
                 </div>
@@ -1504,7 +1504,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                         disabled={isLoading}
                         className="px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-slate-300 rounded-full text-xs text-slate-700 font-medium transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer disabled:opacity-50 flex items-center gap-1.5 max-w-full text-left"
                       >
-                        <span className="truncate max-w-[260px] sm:max-w-md">{followUp}</span>
+                        <span className="truncate max-w-[260px] sm:max-w-lg">{followUp}</span>
                         <span className="text-slate-400 text-xs shrink-0">→</span>
                       </button>
                     ))}
