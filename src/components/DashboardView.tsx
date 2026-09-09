@@ -508,28 +508,74 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const hour = new Date().getHours();
   const themeSetting = state.settings?.bgTheme;
   const { greeting, greetingIcon: GreetingIcon, timeOfDay } = useMemo(() => {
-    let resolvedTime: 'morning' | 'afternoon' | 'evening' | 'night' = 'night';
+    let resolvedTime: 'morning' | 'afternoon' | 'evening' | 'night' = 'morning';
     if ((themeSetting as string) === 'morning') resolvedTime = 'morning';
     else if ((themeSetting as string) === 'afternoon') resolvedTime = 'afternoon';
     else if (themeSetting === 'sunset') resolvedTime = 'evening';
     else if (themeSetting === 'night') resolvedTime = 'night';
     else {
-      // Default to "Good evening," with Moon icon per reference image
-      resolvedTime = 'night';
+      // auto / circadian based on real-time hour
+      if (hour >= 5 && hour < 12) resolvedTime = 'morning';
+      else if (hour >= 12 && hour < 17) resolvedTime = 'afternoon';
+      else if (hour >= 17 && hour < 21) resolvedTime = 'evening';
+      else resolvedTime = 'night';
     }
 
     switch (resolvedTime) {
       case 'morning':
-        return { greeting: 'Good morning', greetingIcon: Sun, timeOfDay: 'morning' as const };
+        return { greeting: 'Good morning,', greetingIcon: Sun, timeOfDay: 'morning' as const };
       case 'afternoon':
-        return { greeting: 'Good afternoon', greetingIcon: Sun, timeOfDay: 'afternoon' as const };
+        return { greeting: 'Good afternoon,', greetingIcon: Sun, timeOfDay: 'afternoon' as const };
       case 'evening':
-        return { greeting: 'Good evening', greetingIcon: Sunset, timeOfDay: 'evening' as const };
+        return { greeting: 'Good evening,', greetingIcon: Sunset, timeOfDay: 'evening' as const };
       case 'night':
       default:
-        return { greeting: 'Good evening', greetingIcon: Moon, timeOfDay: 'night' as const };
+        return { greeting: 'Good evening,', greetingIcon: Moon, timeOfDay: 'night' as const };
     }
   }, [hour, themeSetting]);
+
+  // Dynamic header theme styling that adapts with time of day and user theme setting
+  const heroTheme = useMemo(() => {
+    switch (timeOfDay) {
+      case 'morning':
+        return {
+          bannerBg: 'bg-gradient-to-br from-[#EEF9F6] via-[#F6FCFA] to-[#E5F5F0] border-[#BEE4DC]',
+          auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(45,212,191,0.22),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(253,230,138,0.20),transparent_70%)]',
+          topLight: 'from-transparent via-amber-300/40 to-transparent',
+          nameColor: 'text-[#0B2A26]',
+          subtitleColor: 'text-[#4E7670]',
+          greetingIconColor: 'text-amber-500',
+        };
+      case 'afternoon':
+        return {
+          bannerBg: 'bg-gradient-to-br from-[#EAF7F4] via-[#F3FAF8] to-[#E0F2EC] border-[#B6E1D7]',
+          auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(14,165,233,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(45,212,191,0.20),transparent_70%)]',
+          topLight: 'from-transparent via-teal-400/40 to-transparent',
+          nameColor: 'text-[#0B2A26]',
+          subtitleColor: 'text-[#44726A]',
+          greetingIconColor: 'text-teal-500',
+        };
+      case 'evening':
+        return {
+          bannerBg: 'bg-gradient-to-br from-[#FFF8EE] via-[#FAF9F6] to-[#E5F3EE] border-[#E8D7C2]',
+          auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(249,115,22,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(244,63,94,0.15),transparent_70%)]',
+          topLight: 'from-transparent via-orange-400/40 to-transparent',
+          nameColor: 'text-[#2D1B11]',
+          subtitleColor: 'text-[#7C5E4E]',
+          greetingIconColor: 'text-orange-500',
+        };
+      case 'night':
+      default:
+        return {
+          bannerBg: 'bg-gradient-to-br from-[#0C2420] via-[#10302B] to-[#071916] border-[#18443D]',
+          auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(56,189,248,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(45,212,191,0.16),transparent_70%)]',
+          topLight: 'from-transparent via-cyan-400/30 to-transparent',
+          nameColor: 'text-[#E8F8F5]',
+          subtitleColor: 'text-[#87BDB5]',
+          greetingIconColor: 'text-cyan-400',
+        };
+    }
+  }, [timeOfDay]);
 
   const daysRemaining = useMemo(() => getDaysRemainingToExam(state), [state]);
 
@@ -918,17 +964,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion)}
-          className="rounded-3xl border border-[#BEE4DC] shadow-[0_4px_20px_rgba(0,107,99,0.04)] p-4 sm:p-5 lg:p-6 relative overflow-hidden bg-gradient-to-br from-[#EEF9F6] via-[#F6FCFA] to-[#E5F5F0] text-slate-900"
+          className={`rounded-3xl border shadow-[0_4px_20px_rgba(0,107,99,0.04)] p-4 sm:p-5 lg:p-6 relative overflow-hidden transition-colors duration-700 ${heroTheme.bannerBg}`}
         >
           {/* Subtle Ambient Radial Aura Mesh */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(45,212,191,0.22),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(167,243,208,0.18),transparent_70%)]"
+            className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${heroTheme.auraGrad}`}
           />
 
           {/* Precision Architectural Top Light Line */}
           <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#006B63]/25 to-transparent" />
+            <div className={`absolute inset-0 bg-gradient-to-r ${heroTheme.topLight}`} />
             <motion.div
               animate={{ x: ['-100%', '300%'] }}
               transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
@@ -936,10 +982,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             />
           </div>
 
-          {/* Mountain Scenery with Birds & Soft Turquoise Atmosphere */}
+          {/* Mountain Scenery with Birds & Celestial Sun/Moon Atmosphere */}
           <DoctorMountainArt
             variant="backdrop"
-            forceTimeOfDay="morning"
+            forceTimeOfDay={timeOfDay}
             className="transition-opacity duration-700 opacity-40 sm:opacity-50 md:opacity-[0.62]"
           />
 
@@ -948,18 +994,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="space-y-1.5 max-w-xl">
               {/* Doctor Circadian Pill */}
               <div className="flex items-center gap-2">
-                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">
-                  <GreetingIcon className="h-3.5 w-3.5 text-slate-400 stroke-[2.2]" />
+                <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/80' : 'text-slate-500'}`}>
+                  <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.2] ${heroTheme.greetingIconColor}`} />
                   <span>{greeting}</span>
                 </div>
               </div>
 
               {/* Doctor Name */}
               <div className="pt-0.5">
-                <h1 className="text-3xl sm:text-4xl lg:text-[38px] font-extrabold tracking-tight text-[#0B2A26] font-['Plus_Jakarta_Sans'] leading-tight">
+                <h1 className={`text-3xl sm:text-4xl lg:text-[38px] font-extrabold tracking-tight font-['Plus_Jakarta_Sans'] leading-tight ${heroTheme.nameColor}`}>
                   {userName}
                 </h1>
-                <p className="text-xs sm:text-sm leading-relaxed italic mt-1 text-[#4E7670]">
+                <p className={`text-xs sm:text-sm leading-relaxed italic mt-1 ${heroTheme.subtitleColor}`}>
                   &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
                 </p>
               </div>

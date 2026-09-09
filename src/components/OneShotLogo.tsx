@@ -32,14 +32,15 @@ function FallbackSvgEmblem({ className = '' }: { className?: string }) {
       focusable="false"
       fill="none"
     >
-      <circle cx="24" cy="24" r="23" fill="#006B63" stroke="#004D47" strokeWidth="1" />
+      <rect width="48" height="48" rx="12" fill="#006B63" />
+      {/* Subtle squircle inner border */}
+      <rect x="0.5" y="0.5" width="47" height="47" rx="11.5" stroke="#2DD4BF" strokeOpacity="0.25" />
       {/* Halo Arc */}
       <path
         d="M12 28 C12 16 36 16 36 28"
         stroke="#F59E0B"
-        strokeWidth="1.6"
+        strokeWidth="2"
         strokeDasharray="2 2"
-        opacity="0.8"
       />
       {/* Book base */}
       <path
@@ -171,15 +172,15 @@ export default function OneShotLogo({
         </div>
         <div className="flex flex-col justify-center leading-tight">
           <div className="flex items-center gap-1.5">
-            <span className={`font-black font-['Outfit'] text-[15px] tracking-tight ${inverse ? 'text-white' : 'text-slate-900'}`}>
+            <span className={`font-extrabold font-['Outfit'] text-[16px] tracking-tight ${inverse ? 'text-white' : 'text-slate-900'}`}>
               ONE SHOT
             </span>
-            <span className="font-extrabold font-['Outfit'] text-[13px] tracking-wider text-[#006B63]">
+            <span className="font-extrabold font-['Outfit'] text-[14px] tracking-wider text-[#006B63]">
               FMGE
             </span>
           </div>
           {showTagline && (
-            <span className={`text-[10px] font-medium tracking-tight mt-0.5 ${inverse ? 'text-slate-300' : 'text-slate-400'}`}>
+            <span className={`text-[10.5px] font-semibold tracking-tight mt-0.5 font-['Plus_Jakarta_Sans'] ${inverse ? 'text-teal-200/80' : 'text-[#5B8881]'}`}>
               A Brighter Doctor Tomorrow
             </span>
           )}
