@@ -118,3 +118,14 @@ button, input, textarea, select {
     padding-right: 2rem;
   }
 }
+
+/* Responsive mobile workspace padding to account for floating dock + iOS safe areas */
+.workspace-main {
+  padding-bottom: max(6.5rem, calc(5rem + env(safe-area-inset-bottom, 0px)));
+}
+
+@media (min-width: 1024px) {
+  .workspace-main {
+    padding-bottom: 0;
+  }
+}

@@ -202,7 +202,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
   return createPortal(
     <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] animate-in fade-in duration-150">
-      <div className="relative bg-[#FAF9F6] rounded-3xl max-w-xl w-full shadow-2xl border border-stone-200/90 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150">
+      <div className="relative bg-[#FAF9F6] rounded-3xl max-w-xl w-full shadow-2xl border border-stone-200/90 overflow-hidden flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
         
         {/* ── 1. Premium Doctor Identity Banner ── */}
         <div className="p-5 sm:p-6 border-b border-stone-200/80 bg-gradient-to-b from-white via-[#FAF9F5] to-[#FAF9F5] relative z-10">

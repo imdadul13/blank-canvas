@@ -218,7 +218,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto font-['Plus_Jakarta_Sans']">
-      <div className="bg-[#F8FAFC] border border-slate-200/90 rounded-3xl w-full max-w-5xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900 animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-[#F8FAFC] border border-slate-200/90 rounded-3xl w-full max-w-5xl shadow-2xl flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[92vh] overflow-hidden text-slate-900 animate-in fade-in zoom-in-95 duration-200">
         {/* MODAL HEADER */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white">
           <div className="flex items-center gap-3">

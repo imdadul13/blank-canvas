@@ -47,8 +47,8 @@ export const OnboardingModal: React.FC = () => {
   );
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm font-['Plus_Jakarta_Sans'] animate-in fade-in duration-150">
-      <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-3 sm:p-4 backdrop-blur-sm font-['Plus_Jakarta_Sans'] animate-in fade-in duration-150">
+      <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] flex flex-col">
         {!isReadyScreen ? (
           <>
             {/* Header & Step Indicator */}
@@ -76,7 +76,7 @@ export const OnboardingModal: React.FC = () => {
             </div>
 
             {/* Step Content */}
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 overflow-y-auto flex-1">
               {/* STEP 1: Exam Date */}
               {step === 1 && (
                 <div className="space-y-4">

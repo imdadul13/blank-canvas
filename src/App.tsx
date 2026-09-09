@@ -704,7 +704,7 @@ function AppInner() {
         />
 
         {/* Main Content Area */}
-        <main className="workspace-main relative z-10 flex-1 w-full mx-auto pb-24 lg:pb-0">
+        <main className="workspace-main relative z-10 flex-1 w-full mx-auto">
           <ErrorBoundary resetKey={activeTab}>
             <AnimatePresence mode="wait">
               <motion.div
