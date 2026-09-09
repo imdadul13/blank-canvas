@@ -864,7 +864,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </svg>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 space-y-5 sm:space-y-6">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-4.5">
 
         {/* ═══ 1. TOP BAR (Search, Notifications, Profile) ═══ */}
         <div className="flex items-center justify-between gap-2 sm:gap-4">
@@ -1013,7 +1013,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion)}
-          className={`rounded-3xl border shadow-[0_4px_20px_rgba(0,107,99,0.04)] p-4 sm:p-5 lg:p-6 relative overflow-hidden transition-colors duration-700 ${heroTheme.bannerBg}`}
+          className={`rounded-3xl border shadow-[0_4px_20px_rgba(0,107,99,0.04)] p-4 sm:p-4.5 lg:p-5 relative overflow-hidden transition-colors duration-700 ${heroTheme.bannerBg}`}
         >
           {/* Subtle Ambient Radial Aura Mesh */}
           <div
@@ -1085,7 +1085,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* 4 Stat Cards Row with Staggered Motion and Micro-Interactions */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-4 mt-4 border-t border-[#D0EBE5] relative z-10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 pt-3 mt-3 border-t border-[#D0EBE5] relative z-10">
             {/* Card 1: Days remaining */}
             <motion.div
               whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
@@ -1247,17 +1247,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </motion.div>
 
         {/* ═══ 4. TWO-COLUMN DESKTOP LAYOUT (LEFT & RIGHT) ═══ */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
 
           {/* ══════════════ LEFT COLUMN (lg:col-span-7) ══════════════ */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-5">
 
             {/* ── TODAY'S FOCUS CARD ── */}
             <motion.section
               initial={SECTION_ENTER(0.08, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className={`rounded-[28px] border border-[#BEE4DC] bg-gradient-to-br ${focusTheme.cardGradient || 'from-[#EAF8F5] via-white to-[#E1F3EF]'} shadow-[0_8px_30px_rgba(0,107,99,0.04)] p-4 sm:p-5 md:p-5.5 relative overflow-hidden transition-all duration-500`}
+              className={`rounded-[28px] border border-[#BEE4DC] bg-gradient-to-br ${focusTheme.cardGradient || 'from-[#EAF8F5] via-white to-[#E1F3EF]'} shadow-[0_8px_30px_rgba(0,107,99,0.04)] p-4.5 sm:p-5 md:p-5.5 relative overflow-hidden transition-all duration-500`}
             >
               {/* Dynamic Subject-Themed Ambient Background Glow Orbs with Breathing Motion */}
               <motion.div
@@ -1354,8 +1354,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
                 </div>
 
-                {/* Right side: Integrated 3D Anatomical Visual Stage (Proportionate, Compact Height & Rich Motion) */}
-                <div className="relative w-full md:w-[330px] lg:w-[360px] h-[230px] sm:h-[250px] md:h-[265px] shrink-0 flex items-center justify-center pt-1 md:pt-0">
+                {/* Right side: Integrated 3D Anatomical Visual Stage (Increased Size & Rich Motion) */}
+                <div className="relative w-full md:w-[350px] lg:w-[385px] h-[260px] sm:h-[280px] md:h-[295px] shrink-0 flex items-center justify-center pt-1 md:pt-0">
                   {/* Floating Telemetry Pill Top with Subtle Gentle Float Animation */}
                   <motion.div
                     key={`${activeFocusSubject.id}-${currentTelemetry.label}`}
@@ -1370,7 +1370,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         ? { duration: 0.35, ease: 'easeOut' }
                         : { y: { repeat: Infinity, duration: 3.6, ease: 'easeInOut' }, duration: 0.35 }
                     }
-                    className="absolute top-0.5 sm:top-1 left-2 sm:left-4 z-30 inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-white/95 backdrop-blur-md border border-[#E0F2EC] shadow-[0_4px_14px_rgba(0,107,99,0.06)] pointer-events-none"
+                    className="absolute top-1 sm:top-1.5 left-3 sm:left-5 z-30 inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-white/95 backdrop-blur-md border border-[#E0F2EC] shadow-[0_4px_14px_rgba(0,107,99,0.06)] pointer-events-none"
                   >
                     <span className="relative flex h-2 w-2">
                       <span
@@ -1393,27 +1393,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <motion.div
                       animate={reducedMotion ? {} : { scale: [0.94, 1.14, 0.94], opacity: [0.7, 1, 0.7] }}
                       transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-                      className="absolute w-60 h-60 rounded-full filter blur-2xl pointer-events-none transition-all duration-700"
+                      className="absolute w-68 h-68 rounded-full filter blur-2xl pointer-events-none transition-all duration-700"
                       style={{
                         background: focusTheme.heroGradient || `radial-gradient(circle at 50% 50%, ${focusTheme.glow} 0%, transparent 70%)`,
                       }}
                     />
 
-                    <svg viewBox="0 0 380 260" className="w-full h-full stroke-[#006B63] fill-none overflow-visible">
+                    <svg viewBox="0 0 380 290" className="w-full h-full stroke-[#006B63] fill-none overflow-visible">
                       {/* Rotating Concentric Compass/Radar Rings */}
                       <motion.g
                         animate={reducedMotion ? {} : { rotate: [0, 360] }}
                         transition={{ duration: 75, repeat: Infinity, ease: 'linear' }}
-                        style={{ transformOrigin: '200px 130px' }}
+                        style={{ transformOrigin: '200px 145px' }}
                       >
-                        <circle cx="200" cy="130" r="115" strokeDasharray="4 6" strokeWidth="1" strokeOpacity="0.16" />
-                        <circle cx="200" cy="130" r="90" strokeWidth="0.8" strokeOpacity="0.12" />
-                        <circle cx="200" cy="130" r="65" strokeDasharray="2 4" strokeWidth="0.75" strokeOpacity="0.10" />
+                        <circle cx="200" cy="145" r="128" strokeDasharray="4 6" strokeWidth="1" strokeOpacity="0.16" />
+                        <circle cx="200" cy="145" r="102" strokeWidth="0.8" strokeOpacity="0.12" />
+                        <circle cx="200" cy="145" r="72" strokeDasharray="2 4" strokeWidth="0.75" strokeOpacity="0.10" />
                       </motion.g>
 
                       {/* Horizontal Cyan ECG Waveform Line traversing behind the organ */}
                       <path
-                        d="M 10 130 L 115 130 L 127 107 L 135 153 L 143 100 L 153 143 L 163 130 L 370 130"
+                        d="M 10 145 L 115 145 L 127 122 L 135 168 L 143 115 L 153 158 L 163 145 L 370 145"
                         stroke="#0D9488"
                         strokeWidth="1.5"
                         strokeOpacity="0.32"
@@ -1428,7 +1428,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           fill="#00F0D0"
                           animate={{
                             cx: [10, 115, 127, 135, 143, 153, 163, 370],
-                            cy: [130, 130, 107, 153, 100, 143, 130, 130],
+                            cy: [145, 145, 122, 168, 115, 158, 145, 145],
                             opacity: [0, 0.9, 1, 1, 1, 0.9, 0.8, 0],
                           }}
                           transition={{
@@ -1441,33 +1441,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       )}
 
                       {/* Clinical ECG Wave Markers */}
-                      <text x="121" y="101" className="text-[8.5px] font-mono font-bold fill-[#006B63] opacity-40">R</text>
-                      <text x="139" y="165" className="text-[8px] font-mono font-bold fill-[#006B63] opacity-40">QRS</text>
-                      <text x="169" y="121" className="text-[8.5px] font-mono font-bold fill-[#006B63] opacity-40">T</text>
+                      <text x="121" y="116" className="text-[8.5px] font-mono font-bold fill-[#006B63] opacity-40">R</text>
+                      <text x="139" y="180" className="text-[8px] font-mono font-bold fill-[#006B63] opacity-40">QRS</text>
+                      <text x="169" y="136" className="text-[8.5px] font-mono font-bold fill-[#006B63] opacity-40">T</text>
 
                       {/* Upper-right delicate vascular/bronchial tree branch network */}
                       <g strokeOpacity="0.22" strokeWidth="1.1" strokeLinecap="round">
-                        <path d="M 290 70 C 310 52, 335 40, 365 30" />
-                        <path d="M 320 48 C 335 36, 350 28, 370 22" />
-                        <path d="M 305 62 C 322 72, 345 78, 368 74" />
-                        <path d="M 335 70 C 348 79, 362 85, 375 83" />
-                        <circle cx="365" cy="30" r="1.5" fill="#006B63" fillOpacity="0.35" />
-                        <circle cx="370" cy="22" r="1.5" fill="#006B63" fillOpacity="0.35" />
-                        <circle cx="368" cy="74" r="1.5" fill="#006B63" fillOpacity="0.35" />
-                        <circle cx="375" cy="83" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <path d="M 290 78 C 310 60, 335 48, 365 38" />
+                        <path d="M 320 56 C 335 44, 350 36, 370 30" />
+                        <path d="M 305 70 C 322 80, 345 86, 368 82" />
+                        <path d="M 335 78 C 348 87, 362 93, 375 91" />
+                        <circle cx="365" cy="38" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <circle cx="370" cy="30" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <circle cx="368" cy="82" r="1.5" fill="#006B63" fillOpacity="0.35" />
+                        <circle cx="375" cy="91" r="1.5" fill="#006B63" fillOpacity="0.35" />
                       </g>
 
                       {/* Upper right vertical editorial text: CLINICAL REASONING BETTER OUTCOMES */}
-                      <text x="368" y="54" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                      <text x="368" y="62" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
                         CLINICAL
                       </text>
-                      <text x="368" y="65" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                      <text x="368" y="73" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
                         REASONING
                       </text>
-                      <text x="368" y="80" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                      <text x="368" y="88" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
                         BETTER
                       </text>
-                      <text x="368" y="91" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
+                      <text x="368" y="99" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
                         OUTCOMES
                       </text>
 
@@ -1476,11 +1476,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         animate={reducedMotion ? {} : { opacity: [0.35, 0.75, 0.35] }}
                         transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
                       >
-                        <circle cx="340" cy="170" r="2" fill="#006B63" fillOpacity="0.3" />
-                        <circle cx="355" cy="155" r="1.8" fill="#006B63" fillOpacity="0.3" />
-                        <circle cx="365" cy="185" r="2.2" fill="#006B63" fillOpacity="0.3" />
-                        <line x1="340" y1="170" x2="355" y2="155" strokeWidth="0.8" strokeOpacity="0.2" />
-                        <line x1="340" y1="170" x2="365" y2="185" strokeWidth="0.8" strokeOpacity="0.2" />
+                        <circle cx="340" cy="185" r="2" fill="#006B63" fillOpacity="0.3" />
+                        <circle cx="355" cy="170" r="1.8" fill="#006B63" fillOpacity="0.3" />
+                        <circle cx="365" cy="200" r="2.2" fill="#006B63" fillOpacity="0.3" />
+                        <line x1="340" y1="185" x2="355" y2="170" strokeWidth="0.8" strokeOpacity="0.2" />
+                        <line x1="340" y1="185" x2="365" y2="200" strokeWidth="0.8" strokeOpacity="0.2" />
                       </motion.g>
                     </svg>
                   </div>
@@ -1497,7 +1497,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           }
                     }
                     transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-                    whileHover={reducedMotion ? undefined : { scale: 1.06, y: -7 }}
+                    whileHover={reducedMotion ? undefined : { scale: 1.05, y: -6 }}
                     className="relative w-full h-full flex items-center justify-center z-10 transition-transform cursor-pointer"
                   >
                     <MedicalHeroVisual
@@ -1524,7 +1524,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         ? { duration: 0.35, delay: 0.1 }
                         : { y: { repeat: Infinity, duration: 4, ease: 'easeInOut' }, duration: 0.35, delay: 0.1 }
                     }
-                    className="absolute bottom-0 z-20 inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-[#D0ECE4] shadow-[0_4px_14px_rgba(0,107,99,0.06)]"
+                    className="absolute bottom-1 sm:bottom-1.5 z-20 inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-[#D0ECE4] shadow-[0_4px_14px_rgba(0,107,99,0.06)]"
                   >
                     <div className="flex items-center gap-1.5 min-w-0">
                       <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
@@ -1587,7 +1587,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     key={task.id}
                     whileHover={reducedMotion ? undefined : { y: -2, scale: 1.006 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#FAF5F2]/60 transition-colors group cursor-pointer"
+                    className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 hover:bg-[#FAF5F2]/60 transition-colors group cursor-pointer"
                   >
                     <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
                       {/* Status Check / Play Icon with Micro-Bounce on Hover */}
@@ -1676,14 +1676,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <h3 className="text-sm font-bold text-slate-900">Up Next</h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 {/* Card 1: Revision (Mint/Green Visual Identity with Spring Hover) */}
                 <motion.div
                   whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
                   whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   onClick={() => onNavigateTab('revision')}
-                  className="rounded-3xl bg-gradient-to-br from-white via-white to-emerald-50/30 border border-emerald-100/90 shadow-2xs p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:border-emerald-300 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[64px]"
+                  className="rounded-3xl bg-gradient-to-br from-white via-white to-emerald-50/30 border border-emerald-100/90 shadow-2xs p-3 sm:p-3.5 flex items-center justify-between gap-2.5 hover:border-emerald-300 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[60px]"
                 >
                   <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                     <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform">
@@ -1712,7 +1712,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   onClick={() => onNavigateTab('errors')}
-                  className="rounded-3xl bg-gradient-to-br from-white via-white to-amber-50/30 border border-amber-100/90 shadow-2xs p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:border-amber-300 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[64px]"
+                  className="rounded-3xl bg-gradient-to-br from-white via-white to-amber-50/30 border border-amber-100/90 shadow-2xs p-3 sm:p-3.5 flex items-center justify-between gap-2.5 hover:border-amber-300 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[60px]"
                 >
                   <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                     <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[6deg] transition-transform">
@@ -1739,14 +1739,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* ══════════════ RIGHT COLUMN (lg:col-span-5) ══════════════ */}
-          <div className="lg:col-span-5 space-y-5">
+          <div className="lg:col-span-5 space-y-4">
 
             {/* ── YOUR EXAM JOURNEY (Teal/Mint Identity) ── */}
             <motion.section
               initial={SECTION_ENTER(0.1, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-[28px] bg-white border border-[#D5EAE3] shadow-[0_4px_20px_rgba(0,107,99,0.03)] p-5 sm:p-6 space-y-4 relative overflow-hidden"
+              className="rounded-[28px] bg-white border border-[#D5EAE3] shadow-[0_4px_20px_rgba(0,107,99,0.03)] p-4 sm:p-5 space-y-3.5 relative overflow-hidden"
             >
               {/* Subtle Target / Radar Watermark Graphic in Background */}
               <div className="absolute -top-3 right-3 w-36 h-36 pointer-events-none select-none opacity-[0.07] overflow-hidden" aria-hidden="true">
@@ -1855,7 +1855,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.14, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-[28px] bg-white border border-[#D5EAE3] shadow-[0_4px_20px_rgba(0,107,99,0.03)] p-5 sm:p-6 space-y-4 relative overflow-hidden"
+              className="rounded-[28px] bg-white border border-[#D5EAE3] shadow-[0_4px_20px_rgba(0,107,99,0.03)] p-4 sm:p-5 space-y-3.5 relative overflow-hidden"
             >
               {/* Faint ECG / Flowing rhythm wave near bottom edge */}
               <div className="absolute bottom-1 right-2 w-48 h-6 pointer-events-none select-none opacity-[0.08] overflow-hidden" aria-hidden="true">
@@ -1935,7 +1935,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.18, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-3xl bg-white border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-md p-5 sm:p-6 space-y-4 transition-all duration-200"
+              className="rounded-3xl bg-white border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-md p-4 sm:p-5 space-y-3.5 transition-all duration-200"
             >
               {/* Card Header */}
               <div className="flex items-center justify-between">
@@ -2031,7 +2031,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <motion.div
               whileHover={reducedMotion ? {} : { y: -2, scale: 1.01 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className="rounded-3xl bg-gradient-to-br from-sky-50 via-teal-50/60 to-emerald-50 border border-teal-100/70 p-5 relative overflow-hidden group hover:border-[#B57B66]/40 transition-colors shadow-2xs"
+              className="rounded-3xl bg-gradient-to-br from-sky-50 via-teal-50/60 to-emerald-50 border border-teal-100/70 p-4 sm:p-4.5 relative overflow-hidden group hover:border-[#B57B66]/40 transition-colors shadow-2xs"
             >
               <div className="relative z-10 space-y-1">
                 <span className="text-3xl font-serif text-[#006B63]/40 leading-none block select-none">
@@ -2064,7 +2064,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0.2, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion)}
-          className="space-y-4 pt-2"
+          className="space-y-3 pt-1"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
@@ -2090,7 +2090,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* Grid of Subject Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3 lg:gap-3.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5 lg:gap-3">
             {subjectList.map((sub, idx) => {
               const isCurrent = sub.id === activeFocusSubject.id;
               const hyCount = sub.topics.filter((t) => t.isHighYield).length;

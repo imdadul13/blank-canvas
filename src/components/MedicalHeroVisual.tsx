@@ -225,7 +225,7 @@ function HighRes3DHeroVisual({
         src={src}
         alt={alt}
         onError={() => setLoadError(true)}
-        className="w-auto h-full max-h-[185px] xs:max-h-[205px] sm:max-h-[220px] md:max-h-[235px] lg:max-h-[245px] object-contain select-none pointer-events-none transition-transform duration-300"
+        className="w-auto h-full max-h-[210px] xs:max-h-[235px] sm:max-h-[255px] md:max-h-[270px] lg:max-h-[285px] object-contain select-none pointer-events-none transition-transform duration-300"
         animate={
           reduced
             ? {}
@@ -518,7 +518,7 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
           style={{ transform: 'translateZ(-40px)' }}
         >
           <div
-            className="w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-full"
+            className="w-60 h-60 sm:w-72 sm:h-72 md:w-80 md:h-80 rounded-full"
             style={{
               background: `radial-gradient(circle, ${accent}26 0%, ${accent}0c 45%, transparent 70%)`,
               filter: 'blur(24px)',
@@ -531,7 +531,7 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
           className="absolute inset-0 pointer-events-none opacity-25 flex items-center justify-center"
           style={{ transform: 'translateZ(-20px)' }}
         >
-          <svg viewBox="0 0 200 200" className="w-full h-full max-w-[240px] stroke-teal-500/30" fill="none">
+          <svg viewBox="0 0 200 200" className="w-full h-full max-w-[250px] stroke-teal-500/30" fill="none">
             <circle cx="100" cy="100" r="70" strokeWidth="0.75" strokeDasharray="3 4" />
             <circle cx="100" cy="100" r="45" strokeWidth="0.75" />
             <line x1="20" y1="100" x2="180" y2="100" strokeWidth="0.5" strokeDasharray="2 3" />
@@ -540,7 +540,7 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
         </div>
 
         {/* The Animated 3D Scene Viewport */}
-        <div className="relative z-10 w-full h-full max-w-[420px] sm:max-w-[460px] max-h-[205px] sm:max-h-[225px] md:max-h-[245px] flex items-center justify-center">
+        <div className="relative z-10 w-full h-full max-w-[440px] sm:max-w-[490px] max-h-[230px] sm:max-h-[255px] md:max-h-[275px] flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.div
               key={`${subjectId}-${topicId}`}
