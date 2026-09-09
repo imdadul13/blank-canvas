@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   Stethoscope,
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import OneShotLogo from './OneShotLogo';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -285,6 +286,16 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
     }
   };
 
+  useEffect(() => {
+    if (step === 'ready') {
+      confetti({
+        particleCount: 85,
+        spread: 75,
+        origin: { y: 0.55 },
+      });
+    }
+  }, [step]);
+
   const finish = async () => {
     onComplete?.();
   };
@@ -294,20 +305,48 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
   const targetScoreBuffer = Math.max(0, (Number(targetScore) || 200) - 150);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#FAF9F6] text-slate-800 selection:bg-teal-500/20 selection:text-[#004D47] font-['Plus_Jakarta_Sans']">
-      {/* Ambient warm clinical background glow & grid */}
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#006B63_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.035]"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -top-40 -right-40 w-96 h-96 rounded-full bg-teal-500/5 blur-3xl"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-emerald-500/5 blur-3xl"
-        aria-hidden="true"
-      />
+    <div className="fixed inset-0 z-50 flex flex-col bg-gradient-to-b from-[#F4FAF8] via-[#FAF9F6] to-[#EBF6F3] text-slate-800 selection:bg-teal-500/20 selection:text-[#004D47] font-['Plus_Jakarta_Sans'] overflow-hidden">
+      {/* ── Dynamic Ambient Circadian Auroras & ECG Telemetry ── */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        {/* Breathing Teal/Emerald Aurora */}
+        <motion.div
+          animate={
+            reduceMotion
+              ? undefined
+              : {
+                  scale: [1, 1.25, 1],
+                  opacity: [0.35, 0.55, 0.35],
+                  x: [0, 20, 0],
+                  y: [0, -15, 0],
+                }
+          }
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-gradient-to-br from-teal-300/35 via-emerald-200/25 to-transparent blur-3xl"
+        />
+
+        {/* Breathing Warm Amber/Terracotta Aurora */}
+        <motion.div
+          animate={
+            reduceMotion
+              ? undefined
+              : {
+                  scale: [1.1, 0.95, 1.1],
+                  opacity: [0.25, 0.45, 0.25],
+                  x: [0, -15, 0],
+                  y: [0, 20, 0],
+                }
+          }
+          transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -bottom-36 -left-36 w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-amber-200/30 via-teal-100/20 to-transparent blur-3xl"
+        />
+
+        {/* Faint subtle medical ECG wave in background */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.05]">
+          <svg viewBox="0 0 800 140" className="w-full max-w-2xl stroke-[#006B63] fill-none stroke-[2]">
+            <path d="M 0 70 L 240 70 L 260 45 L 280 100 L 300 20 L 320 120 L 340 60 L 360 80 L 380 70 L 800 70" />
+          </svg>
+        </div>
+      </div>
 
       {/* ── Fixed Clinical Top Bar ── */}
       <header className="relative shrink-0 w-full max-w-4xl mx-auto px-5 sm:px-8 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 flex items-center justify-between z-10">
@@ -365,12 +404,54 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                  ══════════════════════════════════════════════════════════ */}
               {step === 'welcome' && (
                 <div className="pt-4 sm:pt-8 pb-4 text-center space-y-8">
-                  {/* Stethoscope Caduceus Aura Tile */}
-                  <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
-                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#006B63] to-[#004D47] rotate-3 opacity-20 blur-md" />
-                    <div className="relative w-full h-full rounded-3xl bg-gradient-to-br from-[#006B63] to-[#004D47] text-white shadow-xl shadow-teal-950/20 flex items-center justify-center border border-teal-600/30">
-                      <GraduationCap className="h-10 w-10 sm:h-12 sm:w-12 text-teal-100" />
-                    </div>
+                  {/* Floating Brand Emblem with Concentric Breathing Halo Rings */}
+                  <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+                    {/* Outer radiant ring */}
+                    <motion.div
+                      animate={
+                        reduceMotion
+                          ? undefined
+                          : {
+                              scale: [1, 1.25, 1],
+                              opacity: [0.15, 0.35, 0.15],
+                            }
+                      }
+                      transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+                      className="absolute inset-0 rounded-[28px] bg-gradient-to-tr from-[#006B63] via-[#00897B] to-amber-300 blur-xl"
+                    />
+
+                    {/* Concentric secondary halo ring */}
+                    <motion.div
+                      animate={
+                        reduceMotion
+                          ? undefined
+                          : {
+                              scale: [1.1, 1.35, 1.1],
+                              opacity: [0.1, 0.25, 0.1],
+                            }
+                      }
+                      transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                      className="absolute -inset-2 rounded-[32px] border border-[#006B63]/25 bg-teal-500/5"
+                    />
+
+                    {/* Floating emblem container */}
+                    <motion.div
+                      animate={
+                        reduceMotion
+                          ? undefined
+                          : {
+                              y: [0, -4, 0],
+                            }
+                      }
+                      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                      className="relative w-full h-full rounded-[26px] bg-white p-2.5 shadow-xl shadow-teal-950/15 border border-[#006B63]/20 flex items-center justify-center overflow-hidden"
+                    >
+                      <img
+                        src="/images/brand/one_shot_emblem.png"
+                        alt="ONE SHOT FMGE Master Emblem"
+                        className="w-full h-full object-contain rounded-2xl drop-shadow-xs"
+                      />
+                    </motion.div>
                   </div>
 
                   <div className="space-y-3 max-w-lg mx-auto">
@@ -388,7 +469,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
 
                   {/* 3 Value Pillars */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left max-w-xl mx-auto pt-2">
-                    <div className="p-4 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-1.5">
+                    <div className="p-4 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-1.5 transition-all duration-200 hover:border-teal-300 hover:shadow-xs hover:-translate-y-0.5">
                       <div className="h-7 w-7 rounded-lg bg-teal-50 text-[#006B63] flex items-center justify-center">
                         <Target className="h-4 w-4" />
                       </div>
@@ -398,8 +479,8 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-1.5">
-                      <div className="h-7 w-7 rounded-lg bg-teal-50 text-[#006B63] flex items-center justify-center">
+                    <div className="p-4 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-1.5 transition-all duration-200 hover:border-teal-300 hover:shadow-xs hover:-translate-y-0.5">
+                      <div className="h-7 w-7 rounded-lg bg-amber-50 text-[#B57B66] flex items-center justify-center">
                         <Activity className="h-4 w-4" />
                       </div>
                       <p className="text-xs font-bold text-slate-900">19 Subjects Pace</p>
@@ -408,7 +489,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-1.5">
+                    <div className="p-4 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-1.5 transition-all duration-200 hover:border-teal-300 hover:shadow-xs hover:-translate-y-0.5">
                       <div className="h-7 w-7 rounded-lg bg-teal-50 text-[#006B63] flex items-center justify-center">
                         <BookOpen className="h-4 w-4" />
                       </div>
@@ -424,10 +505,10 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                     <button
                       type="button"
                       onClick={() => setStep('examDate')}
-                      className="group inline-flex items-center gap-2.5 rounded-full bg-[#006B63] hover:bg-[#00544E] active:scale-[0.98] px-8 py-4 text-sm font-semibold text-white shadow-md shadow-teal-950/20 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] focus-visible:ring-offset-2"
+                      className="group inline-flex items-center gap-2.5 rounded-full bg-[#006B63] hover:bg-[#00544E] active:scale-[0.98] px-8 py-4 text-sm font-semibold text-white shadow-md shadow-teal-950/20 transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] focus-visible:ring-offset-2"
                     >
-                      Begin Blueprint Setup
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      <span>Begin Blueprint Setup</span>
+                      <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                     </button>
                   </div>
                 </div>
@@ -1038,10 +1119,20 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                  ══════════════════════════════════════════════════════════ */}
               {step === 'building' && (
                 <div className="py-12 sm:py-16 text-center space-y-6">
-                  <div className="relative mx-auto w-20 h-20 flex items-center justify-center">
-                    <div className="absolute inset-0 rounded-full bg-teal-500/20 animate-ping" />
-                    <div className="relative h-16 w-16 rounded-2xl bg-gradient-to-br from-[#006B63] to-[#004D47] text-white flex items-center justify-center shadow-lg shadow-teal-950/20">
-                      <Stethoscope className="h-8 w-8 text-teal-100 animate-pulse" />
+                  {/* Concentric Pulsing Emblem */}
+                  <div className="relative mx-auto w-24 h-24 flex items-center justify-center">
+                    <motion.div
+                      animate={{ scale: [1, 1.35, 1], opacity: [0.15, 0.45, 0.15] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                      className="absolute inset-0 rounded-full bg-teal-400 blur-lg"
+                    />
+                    <div className="absolute -inset-2 rounded-full border border-teal-500/30 animate-spin [animation-duration:8s]" />
+                    <div className="relative h-18 w-18 rounded-2xl bg-white border border-teal-600/30 p-2 shadow-xl shadow-teal-950/20 flex items-center justify-center overflow-hidden">
+                      <img
+                        src="/images/brand/one_shot_emblem.png"
+                        alt="ONE SHOT FMGE Emblem"
+                        className="h-full w-full object-contain rounded-xl animate-pulse"
+                      />
                     </div>
                   </div>
 
@@ -1055,31 +1146,51 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                   </div>
 
                   {/* Sequential verification checks */}
-                  <div className="max-w-xs mx-auto text-left space-y-2 pt-2">
-                    <div className="flex items-center gap-2.5 text-xs text-stone-600">
+                  <div className="max-w-xs mx-auto text-left space-y-2.5 pt-2">
+                    <motion.div
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex items-center gap-2.5 text-xs text-stone-600"
+                    >
                       <CheckCircle2
                         className={`h-4 w-4 transition-colors ${
                           buildingStepIdx >= 0 ? 'text-[#006B63]' : 'text-stone-300'
                         }`}
                       />
-                      <span>Calibrating 19 subject weights</span>
-                    </div>
-                    <div className="flex items-center gap-2.5 text-xs text-stone-600">
+                      <span className={buildingStepIdx >= 0 ? 'font-semibold text-slate-900' : ''}>
+                        Calibrating 19 subject weights
+                      </span>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="flex items-center gap-2.5 text-xs text-stone-600"
+                    >
                       <CheckCircle2
                         className={`h-4 w-4 transition-colors ${
                           buildingStepIdx >= 1 ? 'text-[#006B63]' : 'text-stone-300'
                         }`}
                       />
-                      <span>Structuring Error Vault remediation</span>
-                    </div>
-                    <div className="flex items-center gap-2.5 text-xs text-stone-600">
+                      <span className={buildingStepIdx >= 1 ? 'font-semibold text-slate-900' : ''}>
+                        Structuring Error Vault remediation
+                      </span>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="flex items-center gap-2.5 text-xs text-stone-600"
+                    >
                       <CheckCircle2
                         className={`h-4 w-4 transition-colors ${
                           buildingStepIdx >= 2 ? 'text-[#006B63]' : 'text-stone-300'
                         }`}
                       />
-                      <span>Personalizing daily study missions</span>
-                    </div>
+                      <span className={buildingStepIdx >= 2 ? 'font-semibold text-slate-900' : ''}>
+                        Personalizing daily study missions
+                      </span>
+                    </motion.div>
                   </div>
                 </div>
               )}
@@ -1092,7 +1203,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                   <div className="text-center space-y-2">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
                       <Check className="h-3.5 w-3.5" />
-                      Blueprint Calibrated & Verified
+                      Blueprint Calibrated &amp; Verified
                     </div>
                     <h2 className="font-['Newsreader',_serif] text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
                       Your FMGE Blueprint is Ready, Doctor.
@@ -1103,18 +1214,24 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                   </div>
 
                   {/* Clinical Specimen Certificate Card */}
-                  <div className="rounded-3xl border border-stone-200/90 bg-white p-6 shadow-sm space-y-5">
+                  <div className="rounded-3xl border border-stone-200/90 bg-white p-6 shadow-sm space-y-5 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-teal-100/40 via-amber-100/20 to-transparent rounded-bl-full pointer-events-none" />
+
                     <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-9 w-9 rounded-xl bg-[#006B63] text-white flex items-center justify-center font-['Outfit'] font-bold">
-                          <GraduationCap className="h-5 w-5" />
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-white border border-[#006B63]/20 shadow-xs overflow-hidden p-1 shrink-0 flex items-center justify-center">
+                          <img
+                            src="/images/brand/one_shot_emblem.png"
+                            alt="ONE SHOT FMGE Emblem"
+                            className="h-full w-full object-contain rounded-lg"
+                          />
                         </div>
                         <div>
-                          <p className="font-bold text-sm text-slate-900">FMGE 2026 Strategy</p>
-                          <p className="text-[11px] text-stone-500">ONE SHOT FMGE Intelligence</p>
+                          <p className="font-bold text-sm text-slate-900">FMGE Strategy Blueprint</p>
+                          <p className="text-[11px] text-stone-500">ONE SHOT FMGE Clinical Intelligence</p>
                         </div>
                       </div>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-teal-500/10 text-[#00685F] border border-teal-500/20">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-teal-500/10 text-[#006B63] border border-teal-500/20">
                         <ShieldCheck className="h-3.5 w-3.5" />
                         Verified
                       </span>
@@ -1137,8 +1254,8 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
 
                       <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/60">
                         <p className="text-[10px] font-mono uppercase text-stone-400">Target Score</p>
-                        <p className="font-['Outfit'] font-bold text-sm text-slate-900 mt-1">
-                          {targetScore}+ <span className="text-[10px] text-stone-400">/300</span>
+                        <p className="font-['Outfit'] font-bold text-sm text-[#B57B66] mt-1">
+                          {targetScore}+ <span className="text-[10px] text-stone-400 font-normal">/300</span>
                         </p>
                       </div>
 
@@ -1165,10 +1282,10 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                     <button
                       type="button"
                       onClick={finish}
-                      className="group w-full rounded-full bg-[#006B63] hover:bg-[#00544E] active:scale-[0.99] py-4 text-sm font-semibold text-white shadow-md shadow-teal-950/20 transition-all cursor-pointer flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] focus-visible:ring-offset-2"
+                      className="group w-full rounded-full bg-[#006B63] hover:bg-[#00544E] active:scale-[0.98] py-4 text-sm font-semibold text-white shadow-md shadow-teal-950/20 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] focus-visible:ring-offset-2"
                     >
                       <span>Launch My FMGE Workspace</span>
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                     </button>
                   </div>
                 </div>

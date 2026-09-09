@@ -61,7 +61,7 @@ async function startServer() {
       express.static(distPath, {
         maxAge: "1d",
         setHeaders: (res, filePath) => {
-          if (filePath.endsWith(".html")) {
+          if (filePath.endsWith(".html") || filePath.includes("favicon") || filePath.endsWith(".webmanifest")) {
             res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
             res.setHeader("Pragma", "no-cache");
             res.setHeader("Expires", "0");
