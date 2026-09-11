@@ -528,21 +528,23 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
       {/* ================= 2. HERO HEADER & EDITORIAL QUOTE ================= */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-rose-50 border border-rose-200/80 text-rose-600 flex items-center justify-center shrink-0">
-              <Target className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-rose-600 via-rose-700 to-slate-900 text-white shadow-[0_8px_20px_rgba(225,29,72,0.22)] border border-white/80 ring-1 ring-black/5 shrink-0">
+              <Target className="h-5 w-5 text-white stroke-[1.8]" />
             </div>
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-rose-600">
-              ERROR VAULT
-            </span>
+            <div>
+              <span className="px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-700 text-[10px] sm:text-[11px] font-bold font-mono tracking-wider">
+                ERROR VAULT · CLINICAL REMEDIATION
+              </span>
+            </div>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-semibold font-display tracking-tight text-slate-900 leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-semibold font-display tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent leading-tight">
             Turn Mistakes into Mastery.
           </h1>
 
           <p className="text-sm sm:text-base text-slate-500 leading-relaxed">
-            Review, understand, and overcome your weak areas with a structured error analysis system.
+            Review, understand, and overcome your weak areas with structured distractor and error analysis.
           </p>
 
           <div className="pt-1 flex items-center gap-3">

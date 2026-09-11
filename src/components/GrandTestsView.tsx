@@ -529,13 +529,13 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             {/* Tag / Category Badge */}
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-800 text-[10px] sm:text-[11px] font-bold font-mono tracking-wide">
               <GraduationCap className="h-3 w-3" />
-              <span>NBE FULL EXAMINATION ENGINE • 300 QUESTIONS</span>
+              <span>NBE SIMULATION · 300 QUESTIONS</span>
             </div>
 
-            {/* Heading with Element Insignia */}
+            {/* Heading with Apple HIG Squircle Insignia */}
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#1E293B] via-[#0F766E] to-[#005750] text-white shadow-md shadow-slate-900/15 shrink-0">
-                <Award className="h-5 w-5 text-indigo-100" />
+              <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#1E293B] via-[#0F766E] to-[#005750] text-white shadow-[0_8px_20px_rgba(15,118,110,0.2)] border border-white/80 ring-1 ring-black/5 shrink-0">
+                <Award className="h-5 w-5 text-white stroke-[1.8]" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent tracking-tight font-['Outfit'] leading-snug">

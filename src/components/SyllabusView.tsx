@@ -473,33 +473,24 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         <div className="relative z-10 space-y-2.5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="space-y-1 max-w-xl">
-              {/* Eyebrows */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-[#00685f] border border-emerald-500/20 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-sm">
-                  STUDY
-                </span>
-                <span className="text-[#00685f]/40 font-mono">·</span>
-                <span className="px-2 py-0.5 rounded-full bg-white/80 text-[#4A5553] border border-emerald-200/60 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-sm">
-                  19 SUBJECTS
-                </span>
-                <span className="text-[#00685f]/40 font-mono">·</span>
-                <span className="text-stone-500 text-[10px] font-mono font-medium tracking-wide">
-                  NBE BLUEPRINT
+              {/* Clean Executive Eyebrow */}
+              <div className="flex items-center gap-1.5">
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-[#00685f] border border-emerald-500/20 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-sm">
+                  19 SUBJECTS · NBE BLUEPRINT
                 </span>
               </div>
 
-              {/* Heading with Element Insignia */}
+              {/* Heading with Apple HIG Squircle Insignia */}
               <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] via-[#0D9488] to-[#044E48] text-white shadow-md shadow-teal-900/15 shrink-0">
-                  <BookOpen className="h-5 w-5 text-emerald-50" />
+                <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] via-[#0D9488] to-[#044E48] text-white shadow-[0_8px_20px_rgba(0,107,99,0.18)] border border-white/80 ring-1 ring-black/5 shrink-0">
+                  <BookOpen className="h-5 w-5 text-white stroke-[1.8]" />
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-bold font-display tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-[#00685f] bg-clip-text text-transparent leading-snug">
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-bold font-display tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent leading-snug">
                     Your Study Plan
                   </h1>
-                  <p className="text-xs sm:text-sm text-stone-600 leading-normal flex items-center gap-1">
-                    <span>Master the 19 subjects. Step by step.</span>
-                    <span className="text-emerald-600" title="Discipline grows doctors">🌱</span>
+                  <p className="text-xs sm:text-sm text-stone-600 leading-normal">
+                    Master the 19 subjects. Step by step.
                   </p>
                 </div>
               </div>

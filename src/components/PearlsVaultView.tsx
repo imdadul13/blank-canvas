@@ -717,7 +717,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         {/* Header Main Content */}
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#B45309] via-[#D97706] to-[#00685F] text-white shadow-md shadow-amber-950/15 shrink-0">
+            <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#B45309] via-[#D97706] to-[#00685F] text-white shadow-[0_8px_20px_rgba(217,119,6,0.22)] border border-white/80 ring-1 ring-black/5 shrink-0">
               <Brain className="h-5 w-5 sm:h-5.5 sm:w-5.5 text-white stroke-[1.8]" />
             </div>
             <div className="min-w-0 flex-1">

@@ -310,24 +310,20 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         {/* Content Layout with Original Previous Texts */}
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="space-y-1 max-w-xl">
-            {/* Eyebrows */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-800 border border-cyan-500/20 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-sm">
-                PRACTICE
-              </span>
-              <span className="text-cyan-600/40 font-mono">·</span>
-              <span className="px-2 py-0.5 rounded-full bg-white/80 text-[#4A5553] border border-cyan-200/60 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-sm">
-                CLINICAL VIGNETTES
+            {/* Clean Executive Eyebrow */}
+            <div className="flex items-center gap-1.5">
+              <span className="px-2.5 py-0.5 rounded-full bg-teal-500/10 text-[#00685F] border border-teal-500/20 text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-sm">
+                CLINICAL VIGNETTES &amp; DRILLS
               </span>
             </div>
 
-            {/* Heading with Element Insignia */}
+            {/* Heading with Apple HIG Squircle Insignia */}
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#0284C7] via-[#0D9488] to-[#00685F] text-white shadow-md shadow-cyan-900/15 shrink-0">
-                <Stethoscope className="h-5 w-5 text-cyan-50" />
+              <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] via-[#0284C7] to-[#0D9488] text-white shadow-[0_8px_20px_rgba(0,107,99,0.18)] border border-white/80 ring-1 ring-black/5 shrink-0">
+                <Stethoscope className="h-5 w-5 text-white stroke-[1.8]" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-semibold font-['Newsreader'] tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-[#00685f] bg-clip-text text-transparent leading-snug">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-semibold font-['Newsreader'] tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent leading-snug">
                   Clinical Vignettes &amp; Drills
                 </h1>
                 <p className="text-xs sm:text-sm text-[#3d4947] leading-normal line-clamp-1 sm:line-clamp-none">

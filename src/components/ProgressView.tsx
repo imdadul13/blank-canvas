@@ -424,12 +424,12 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1 max-w-xl">
               <div className="flex items-center gap-3">
-                <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#4338CA] via-[#0D9488] to-[#00685F] text-white shadow-md shadow-indigo-950/15 shrink-0">
-                  <TrendingUp className="h-5 w-5 text-white" />
+                <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#4338CA] via-[#0D9488] to-[#00685F] text-white shadow-[0_8px_20px_rgba(67,56,202,0.18)] border border-white/80 ring-1 ring-black/5 shrink-0">
+                  <TrendingUp className="h-5 w-5 text-white stroke-[1.8]" />
                 </div>
                 <div className="space-y-0.5 min-w-0">
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-[#4338CA] text-[10px] sm:text-[11px] font-bold font-mono tracking-wide">
-                    <span>PERFORMANCE DIAGNOSTIC ENGINE</span>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-[#4338CA] text-[10px] sm:text-[11px] font-bold font-mono tracking-wide">
+                    <span>PERFORMANCE &amp; DIAGNOSTICS</span>
                   </div>
                   <h1 className="text-xl sm:text-2xl lg:text-[26px] font-bold font-['Newsreader'] tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent leading-snug">
                     Know exactly where you stand.
@@ -439,7 +439,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
               {/* Description */}
               <p className="text-xs sm:text-sm text-[#4A5553] leading-normal font-sans line-clamp-1 sm:line-clamp-none pl-0 sm:pl-[52px]">
-                Diagnose preparation depth, clinical solving accuracy, and high-yield retention to focus on what matters most for FMGE.
+                Diagnose preparation depth, clinical solving accuracy, and high-yield retention.
               </p>
             </div>
 

@@ -667,8 +667,8 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
           {/* Main Title & Subtitle */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] to-[#0F766E] text-white shadow-md shadow-teal-950/15 shrink-0">
-              <Calendar className="h-5 w-5 text-white stroke-[1.75]" />
+            <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] to-[#0F766E] text-white shadow-[0_8px_20px_rgba(0,107,99,0.18)] border border-white/80 ring-1 ring-black/5 shrink-0">
+              <Calendar className="h-5 w-5 text-white stroke-[1.8]" />
             </div>
             <div className="min-w-0">
               <h1 className="font-serif text-xl sm:text-2xl lg:text-[25px] font-semibold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent tracking-tight leading-snug">

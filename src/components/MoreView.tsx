@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   GraduationCap,
   Cloud,
+  LayoutGrid,
 } from 'lucide-react';
 import { AppState, ErrorNotebookItem, DailyTask, DailyStudyLog, MedicalPearl } from '../types';
 import { AppStats } from '../utils/storage';
@@ -112,15 +113,23 @@ export const MoreView: React.FC<MoreViewProps> = ({
       {activeSection === 'hub' && (
         <div className="space-y-8">
           {/* Header */}
-          <header className="space-y-2 border-b border-slate-200/80 pb-6">
-            <span className="font-mono text-xs font-semibold uppercase tracking-wider text-slate-400 block">
-              SECONDARY UTILITIES
-            </span>
-            <h1 className="text-3xl sm:text-4xl font-semibold font-display tracking-tight text-slate-900">
-              Secondary Utilities
+          <header className="space-y-3 border-b border-slate-200/80 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] via-[#0D9488] to-[#044E48] text-white shadow-[0_8px_20px_rgba(0,107,99,0.18)] border border-white/80 ring-1 ring-black/5 shrink-0">
+                <LayoutGrid className="h-5 w-5 text-white stroke-[1.8]" />
+              </div>
+              <div>
+                <span className="px-2.5 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-[#00685F] text-[10px] sm:text-[11px] font-bold font-mono tracking-wider">
+                  CLINICAL SUITE · UTILITIES
+                </span>
+              </div>
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl font-semibold font-display tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent">
+              Clinical Utilities &amp; Services
             </h1>
             <p className="text-sm sm:text-base text-slate-500 max-w-2xl leading-relaxed">
-              Grand test mock exams, Telegram community question feed, cloud synchronization, and app preferences.
+              Grand test mock exams, Telegram clinical feed, cloud telemetry synchronization, and application preferences.
             </p>
           </header>
 
