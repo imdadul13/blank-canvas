@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import {
   Send,
   Settings,
@@ -113,21 +114,31 @@ export const MoreView: React.FC<MoreViewProps> = ({
       {activeSection === 'hub' && (
         <div className="space-y-8">
           {/* Header */}
-          <header className="space-y-3 border-b border-slate-200/80 pb-6">
-            <div className="flex items-center gap-3">
-              <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-slate-100/90 border border-slate-200/80 text-slate-700 shadow-2xs shrink-0">
-                <LayoutGrid className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-slate-700 stroke-[2]" />
-              </div>
-              <div>
-                <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500 font-mono block">
-                  Clinical Utilities &amp; Services
-                </span>
-              </div>
+          <header className="space-y-2 border-b border-slate-200/80 pb-6">
+            {/* Title Top Text with Aesthetic Gradient Background */}
+            <div className="flex items-center">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-slate-500/12 via-stone-500/8 to-slate-500/8 border border-slate-200/90 text-slate-700 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse" />
+                Clinical Utilities &amp; Services
+              </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-semibold font-display tracking-tight bg-gradient-to-r from-slate-950 via-stone-900 to-slate-700 bg-clip-text text-transparent">
-              Clinical Utilities &amp; Services
-            </h1>
+            {/* Heading with Minimal Animated Insignia */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <motion.div
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.94 }}
+                animate={{ rotate: [0, 3, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-slate-100/90 border border-slate-200/80 text-slate-700 shadow-2xs shrink-0 cursor-default"
+              >
+                <LayoutGrid className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-slate-700 stroke-[2]" />
+              </motion.div>
+              <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-semibold font-display tracking-tight bg-gradient-to-r from-slate-950 via-stone-900 to-slate-700 bg-clip-text text-transparent">
+                Clinical Utilities &amp; Services
+              </h1>
+            </div>
+
             <p className="text-sm sm:text-base text-slate-500 max-w-2xl leading-relaxed">
               Grand test mock exams, Telegram clinical feed, cloud telemetry synchronization, and application preferences.
             </p>

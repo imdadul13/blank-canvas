@@ -525,26 +525,34 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
         {/* Header Content Body */}
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div className="space-y-1 max-w-2xl">
-            {/* Clean Unboxed Eyebrow */}
-            <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-indigo-700 font-mono block">
-              NBE Simulation · 300 Questions
-            </span>
-
-            {/* Heading with Minimal Insignia */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-indigo-50/90 border border-indigo-100/90 text-indigo-700 shadow-2xs shrink-0">
-                <Award className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-indigo-700 stroke-[2]" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-900 bg-clip-text text-transparent tracking-tight font-['Outfit'] leading-snug">
-                  Grand Tests &amp; Mocks
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-600 leading-normal line-clamp-1 sm:line-clamp-none">
-                  Simulate 300-Q NBE exams &amp; track your trajectory past the 150-mark cutoff.
-                </p>
-              </div>
+          <div className="space-y-1.5 max-w-2xl">
+            {/* Title Top Text with Aesthetic Gradient Background */}
+            <div className="flex items-center">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-indigo-500/15 via-blue-500/10 to-slate-500/10 border border-indigo-200/80 text-indigo-900 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                NBE Simulation · 300 Questions
+              </span>
             </div>
+
+            {/* Heading with Minimal Animated Insignia */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <motion.div
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.94 }}
+                animate={{ rotate: [-2, 2, -2] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-indigo-50/90 border border-indigo-100/90 text-indigo-700 shadow-2xs shrink-0 cursor-default"
+              >
+                <Award className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-indigo-700 stroke-[2]" />
+              </motion.div>
+              <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-900 bg-clip-text text-transparent tracking-tight font-['Outfit'] leading-snug">
+                Grand Tests &amp; Mocks
+              </h1>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-600 leading-normal line-clamp-1 sm:line-clamp-none">
+              Simulate 300-Q NBE exams &amp; track your trajectory past the 150-mark cutoff.
+            </p>
 
             {/* Quick Metrics Bar */}
             <div className="flex flex-wrap items-center gap-1.5 pt-0.5">

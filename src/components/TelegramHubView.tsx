@@ -1176,19 +1176,28 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           {/* Header Content Body */}
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="space-y-1.5 max-w-2xl">
+              {/* Title Top Text with Aesthetic Gradient Background */}
+              <div className="flex items-center">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-sky-500/15 via-cyan-500/10 to-teal-500/10 border border-sky-200/80 text-sky-800 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+                  Community Feeds · Verified Channels
+                </span>
+              </div>
+
               {/* Insignia + Title Row */}
-              <div className="flex items-center gap-3">
-                <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-sky-50/90 border border-sky-100/90 text-sky-600 shadow-2xs shrink-0">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <motion.div
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.94 }}
+                  animate={{ x: [0, 2, 0], y: [0, -2, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                  className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-sky-50/90 border border-sky-100/90 text-sky-600 shadow-2xs shrink-0 cursor-default"
+                >
                   <Send className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-sky-600 rotate-[-20deg] stroke-[2]" />
-                </div>
-                <div className="space-y-0.5 min-w-0">
-                  <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-sky-600 font-mono block">
-                    Community Feeds · Verified Channels
-                  </span>
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-snug bg-gradient-to-r from-slate-950 via-sky-950 to-cyan-800 bg-clip-text text-transparent">
-                    Telegram Knowledge Bank
-                  </h1>
-                </div>
+                </motion.div>
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-snug bg-gradient-to-r from-slate-950 via-sky-950 to-cyan-800 bg-clip-text text-transparent">
+                  Telegram Knowledge Bank
+                </h1>
               </div>
 
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal max-w-xl line-clamp-1 sm:line-clamp-none">

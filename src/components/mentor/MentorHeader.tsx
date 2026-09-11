@@ -239,26 +239,34 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
       {/* Content Layout Matching Editorial Design System */}
       <div className="relative z-10 space-y-2.5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="space-y-1 max-w-xl">
-            {/* Clean Unboxed Eyebrow */}
-            <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-[#00685f] font-mono block">
-              Clinical AI Faculty Mentor
-            </span>
-
-            {/* Heading with Minimal Insignia */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0">
-                <Stethoscope className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-semibold font-['Newsreader'] tracking-tight bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-900 bg-clip-text text-transparent leading-snug">
-                  Faculty Mentor
-                </h1>
-                <p className="text-xs sm:text-sm text-[#3d4947] leading-normal line-clamp-1 sm:line-clamp-none">
-                  High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted remediation.
-                </p>
-              </div>
+          <div className="space-y-1.5 max-w-xl">
+            {/* Title Top Text with Aesthetic Gradient Background */}
+            <div className="flex items-center">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-teal-500/10 border border-teal-200/80 text-teal-800 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                Clinical AI Faculty Mentor
+              </span>
             </div>
+
+            {/* Heading with Minimal Animated Insignia */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <motion.div
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.94 }}
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0 cursor-default"
+              >
+                <Stethoscope className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
+              </motion.div>
+              <h1 className="text-xl sm:text-2xl lg:text-[26px] font-semibold font-['Newsreader'] tracking-tight bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-900 bg-clip-text text-transparent leading-snug">
+                Faculty Mentor
+              </h1>
+            </div>
+
+            <p className="text-xs sm:text-sm text-[#3d4947] leading-normal line-clamp-1 sm:line-clamp-none">
+              High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted remediation.
+            </p>
           </div>
 
           {/* Right Action Controls: Target Days Badge, History Drawer Trigger, New Chat Action */}

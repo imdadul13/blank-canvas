@@ -665,19 +665,34 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             </div>
           </div>
 
-          {/* Main Title & Subtitle */}
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0">
-              <Calendar className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
+          <div className="space-y-1.5 max-w-xl">
+            {/* Title Top Text with Aesthetic Gradient Background */}
+            <div className="flex items-center">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-stone-500/10 to-emerald-500/10 border border-teal-200/80 text-teal-800 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                Daily Planner · Clinical Schedule
+              </span>
             </div>
-            <div className="min-w-0">
+
+            {/* Main Title & Subtitle */}
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <motion.div
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.94 }}
+                animate={{ scale: [1, 1.04, 1] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0 cursor-default"
+              >
+                <Calendar className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
+              </motion.div>
               <h1 className="font-serif text-xl sm:text-2xl lg:text-[25px] font-semibold bg-gradient-to-r from-stone-950 via-stone-800 to-teal-800 bg-clip-text text-transparent tracking-tight leading-snug">
                 Today’s Plan &amp; Focus
               </h1>
-              <p className="text-xs sm:text-sm text-stone-500 leading-normal line-clamp-1 sm:line-clamp-none">
-                Focus on high-yield mastery. One intentional milestone at a time.
-              </p>
             </div>
+
+            <p className="text-xs sm:text-sm text-stone-500 leading-normal line-clamp-1 sm:line-clamp-none">
+              Focus on high-yield mastery. One intentional milestone at a time.
+            </p>
           </div>
 
           {/* Minimal Integrated Telemetry Strip */}

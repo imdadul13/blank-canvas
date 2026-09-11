@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'motion/react';
 import {
   TrendingUp,
   AlertTriangle,
@@ -401,20 +402,29 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       {/* 2. Editorial Header: "Your FMGE Score, Clarity Today." */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
-          <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0">
-              <BarChart3 className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
-            </div>
-            <div>
-              <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700 font-mono block">
-                Probability Engine · AI Forecast
-              </span>
-            </div>
+          {/* Title Top Text with Aesthetic Gradient Background */}
+          <div className="flex items-center">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-cyan-500/10 border border-teal-200/80 text-teal-800 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+              Probability Engine · AI Forecast
+            </span>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-semibold tracking-tight leading-tight bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-900 bg-clip-text text-transparent">
-            Your FMGE Score, Clarity Today.
-          </h1>
+          {/* Heading with Minimal Animated Insignia */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <motion.div
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.94 }}
+              animate={{ y: [0, -2, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0 cursor-default"
+            >
+              <BarChart3 className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
+            </motion.div>
+            <h1 className="font-serif text-2xl sm:text-3xl lg:text-[34px] font-semibold tracking-tight leading-tight bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-900 bg-clip-text text-transparent">
+              Your FMGE Score, Clarity Today.
+            </h1>
+          </div>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
             AI-powered prediction based on your practice, performance, and revision activity. Focus smarter. Improve faster. Be exam-ready.
           </p>

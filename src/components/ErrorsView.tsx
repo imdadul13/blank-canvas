@@ -528,20 +528,29 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
       {/* ================= 2. HERO HEADER & EDITORIAL QUOTE ================= */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
-          <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-rose-50/90 border border-rose-100/90 text-rose-600 shadow-2xs shrink-0">
-              <Target className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-rose-600 stroke-[2]" />
-            </div>
-            <div>
-              <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-rose-600 font-mono block">
-                Error Vault · Clinical Remediation
-              </span>
-            </div>
+          {/* Title Top Text with Aesthetic Gradient Background */}
+          <div className="flex items-center">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-rose-500/15 via-red-500/10 to-amber-500/10 border border-rose-200/80 text-rose-800 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+              Error Vault · Clinical Remediation
+            </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-semibold font-display tracking-tight bg-gradient-to-r from-slate-950 via-rose-950 to-red-800 bg-clip-text text-transparent leading-tight">
-            Turn Mistakes into Mastery.
-          </h1>
+          {/* Heading with Minimal Animated Insignia */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <motion.div
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.94 }}
+              animate={{ scale: [1, 1.06, 1] }}
+              transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+              className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-rose-50/90 border border-rose-100/90 text-rose-600 shadow-2xs shrink-0 cursor-default"
+            >
+              <Target className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-rose-600 stroke-[2]" />
+            </motion.div>
+            <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-semibold font-display tracking-tight bg-gradient-to-r from-slate-950 via-rose-950 to-red-800 bg-clip-text text-transparent leading-tight">
+              Turn Mistakes into Mastery.
+            </h1>
+          </div>
 
           <p className="text-sm sm:text-base text-slate-500 leading-relaxed">
             Review, understand, and overcome your weak areas with structured distractor and error analysis.
