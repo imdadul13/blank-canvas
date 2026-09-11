@@ -26,6 +26,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { resolveAuthError } from '../utils/authErrors';
 import OneShotLogo from './OneShotLogo';
+import { MedicalHeroVisual } from './MedicalHeroVisual';
 
 /* ─── Google colour SVG ─── */
 const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'h-5 w-5' }) => (
@@ -41,65 +42,112 @@ const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'h-5 w-5' })
 const inputCls =
   'rounded-xl border border-stone-200 bg-stone-50/60 px-4 py-3 text-sm focus:border-[#006B63] focus:bg-white focus:ring-1 focus:ring-[#006B63] focus:outline-none w-full text-stone-900 placeholder:text-stone-400 transition-all';
 
-/* ─── Aesthetic Clinical & Anatomical Background Artwork (Apple-Grade) ─── */
+/* ─── Aesthetic Clinical & Anatomical Background Artwork (Full Animated Theme) ─── */
 const BackgroundArt: React.FC = () => (
   <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none">
-    {/* Soft Ethereal Multi-Hue Aurora Mesh */}
+    {/* 1. Fluid Multi-Hue Aurora Spheres (Dynamic Living Ambient Theme) */}
     <motion.div
       animate={{
-        scale: [1, 1.12, 1],
-        opacity: [0.4, 0.55, 0.4],
+        scale: [1, 1.22, 1],
+        x: [0, 35, 0],
+        y: [0, -25, 0],
+        opacity: [0.38, 0.6, 0.38],
       }}
-      transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-      className="absolute -top-32 right-1/4 h-[550px] w-[700px] rounded-full bg-gradient-to-br from-[#006B63]/18 via-teal-400/12 to-transparent blur-[140px]"
+      transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+      className="absolute -top-36 right-1/4 h-[600px] w-[750px] rounded-full bg-gradient-to-br from-[#006B63]/24 via-[#0D9488]/18 to-transparent blur-[130px]"
     />
+
+    <motion.div
+      animate={{
+        scale: [1, 1.25, 1],
+        x: [0, -30, 0],
+        y: [0, 40, 0],
+        opacity: [0.28, 0.48, 0.28],
+      }}
+      transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+      className="absolute top-1/4 -left-32 h-[540px] w-[660px] rounded-full bg-gradient-to-tr from-[#B57B66]/22 via-[#F59E0B]/16 to-transparent blur-[140px]"
+    />
+
+    <motion.div
+      animate={{
+        scale: [1, 1.2, 1],
+        x: [0, 25, 0],
+        y: [0, -30, 0],
+        opacity: [0.25, 0.45, 0.25],
+      }}
+      transition={{ duration: 17, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+      className="absolute -bottom-36 right-10 h-[540px] w-[660px] rounded-full bg-gradient-to-tl from-emerald-500/22 via-cyan-400/16 to-transparent blur-[140px]"
+    />
+
     <motion.div
       animate={{
         scale: [1, 1.15, 1],
-        opacity: [0.25, 0.4, 0.25],
+        opacity: [0.15, 0.3, 0.15],
       }}
-      transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-      className="absolute top-1/3 -left-32 h-[500px] w-[600px] rounded-full bg-gradient-to-tr from-[#B57B66]/18 via-amber-400/12 to-transparent blur-[140px]"
-    />
-    <motion.div
-      animate={{
-        scale: [1, 1.1, 1],
-        opacity: [0.2, 0.35, 0.2],
-      }}
-      transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-      className="absolute -bottom-32 right-10 h-[500px] w-[600px] rounded-full bg-gradient-to-tl from-emerald-500/18 via-cyan-400/10 to-transparent blur-[150px]"
+      transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+      className="absolute top-1/2 left-1/3 h-[450px] w-[500px] rounded-full bg-indigo-500/14 blur-[160px]"
     />
 
-    {/* Subtle Tactile Dot Grid */}
-    <div className="absolute inset-0 bg-[radial-gradient(#006B63_1px,transparent_1px)] opacity-[0.035] [background-size:24px_24px]" />
+    {/* 2. Floating Luminous Motes / Bio-particles (Gently Shimmering) */}
+    {[
+      { x: '12%', y: '22%', size: 4, delay: 0, duration: 6 },
+      { x: '22%', y: '68%', size: 3, delay: 1.5, duration: 7 },
+      { x: '42%', y: '16%', size: 5, delay: 0.8, duration: 8 },
+      { x: '65%', y: '78%', size: 3.5, delay: 2, duration: 6.5 },
+      { x: '82%', y: '28%', size: 4, delay: 1, duration: 7.5 },
+      { x: '88%', y: '65%', size: 3, delay: 2.5, duration: 6.8 },
+      { x: '50%', y: '85%', size: 4.5, delay: 1.8, duration: 7.2 },
+    ].map((p, i) => (
+      <motion.div
+        key={i}
+        style={{ left: p.x, top: p.y, width: p.size, height: p.size }}
+        animate={{
+          y: [0, -35, 0],
+          opacity: [0.2, 0.75, 0.2],
+          scale: [1, 1.35, 1],
+        }}
+        transition={{
+          duration: p.duration,
+          repeat: Infinity,
+          ease: 'easeInOut',
+          delay: p.delay,
+        }}
+        className="absolute rounded-full bg-teal-400/60 shadow-[0_0_10px_rgba(45,212,191,0.7)] pointer-events-none"
+      />
+    ))}
 
-    {/* Concentric Medical Radar & Telemetry Rings (Anchored behind the right preview card) */}
-    <svg
+    {/* 3. Subtle Tactile Dot Grid */}
+    <div className="absolute inset-0 bg-[radial-gradient(#006B63_1px,transparent_1px)] opacity-[0.04] [background-size:24px_24px]" />
+
+    {/* 4. Slow Rotating Celestial Telemetry Compass Rings */}
+    <motion.svg
+      animate={{ rotate: 360 }}
+      transition={{ duration: 120, repeat: Infinity, ease: 'linear' }}
       className="absolute right-0 top-1/2 -translate-y-1/2 h-[750px] w-[750px] opacity-[0.05] stroke-[#006B63] fill-none pointer-events-none hidden lg:block"
       viewBox="0 0 600 600"
     >
-      <circle cx="300" cy="300" r="120" strokeWidth="1" />
-      <circle cx="300" cy="300" r="200" strokeWidth="1" strokeDasharray="6 6" />
+      <circle cx="300" cy="300" r="130" strokeWidth="1" />
+      <circle cx="300" cy="300" r="210" strokeWidth="1" strokeDasharray="6 6" />
       <circle cx="300" cy="300" r="280" strokeWidth="0.75" strokeDasharray="3 6" />
-      <line x1="300" y1="20" x2="300" y2="580" strokeWidth="0.5" strokeDasharray="4 6" />
-      <line x1="20" y1="300" x2="580" y2="300" strokeWidth="0.5" strokeDasharray="4 6" />
-    </svg>
+      <line x1="300" y1="10" x2="300" y2="590" strokeWidth="0.5" strokeDasharray="4 6" />
+      <line x1="10" y1="300" x2="590" y2="300" strokeWidth="0.5" strokeDasharray="4 6" />
+    </motion.svg>
 
-    {/* Continuous Horizontal ECG Rhythm Line across lower screen */}
-    <div className="absolute bottom-12 left-0 right-0 h-10 opacity-[0.06] overflow-hidden pointer-events-none">
-      <svg viewBox="0 0 1200 40" className="w-full h-full stroke-[#006B63] fill-none stroke-[1.5]" preserveAspectRatio="none">
+    {/* 5. Continuous Horizontal ECG Rhythm Line across lower screen */}
+    <div className="absolute bottom-10 left-0 right-0 h-10 opacity-[0.07] overflow-hidden pointer-events-none">
+      <svg viewBox="0 0 1200 40" className="w-full h-full stroke-[#006B63] fill-none stroke-[1.8]" preserveAspectRatio="none">
         <path d="M 0 20 L 200 20 L 210 10 L 218 35 L 226 5 L 234 25 L 242 20 L 600 20 L 610 10 L 618 35 L 626 5 L 634 25 L 642 20 L 1000 20 L 1010 10 L 1018 35 L 1026 5 L 1034 25 L 1042 20 L 1200 20" />
       </svg>
     </div>
   </div>
 );
 
-/* ─── Today's Clinical Plan Preview Card (Ultra-Crisp, Zero-Overlap) ─── */
+/* ─── Today's Clinical Plan Preview Card (Spacious, Iconic & Uncluttered) ─── */
 const StudyDashIllustration: React.FC = () => (
   <div className="w-full max-w-sm mx-auto select-none space-y-4">
-    {/* Header: Focus Pill & Day Status */}
-    <div className="flex items-center justify-between pb-3.5 border-b border-stone-200/80">
-      <div className="flex items-center gap-2 flex-wrap">
+    {/* Clean Top Header */}
+    <div className="flex items-center justify-between pb-3 border-b border-stone-200/80">
+      <div className="flex items-center gap-2">
         <span className="px-2.5 py-1 rounded-full bg-teal-50 border border-teal-200/80 text-[10.5px] font-extrabold text-teal-900 flex items-center gap-1.5 shadow-2xs">
           <span className="h-1.5 w-1.5 rounded-full bg-teal-600 animate-pulse" />
           TODAY'S FOCUS
@@ -108,150 +156,102 @@ const StudyDashIllustration: React.FC = () => (
           GENERAL MEDICINE
         </span>
       </div>
-      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100/90 border border-stone-200/80 text-[11px] font-semibold text-stone-700 shadow-2xs">
-        <Stethoscope className="h-3.5 w-3.5 text-[#006B63]" />
-        <span>Day 42 Plan</span>
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-bold text-emerald-800 shadow-2xs">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
+        </span>
+        <span>72 bpm</span>
       </div>
     </div>
 
-    {/* Primary Clinical Topic */}
+    {/* Hero Clinical Specialty & Topic */}
     <div className="space-y-1">
-      <h3 className="text-xl font-extrabold tracking-[-0.025em] text-stone-900 leading-tight">
-        Cardiology — Arrhythmias, Heart Blocks &amp; MI
+      <h3 className="text-xl font-extrabold tracking-[-0.03em] text-stone-900 leading-snug">
+        Cardiology — Acute MI &amp; Arrhythmias
       </h3>
-      <p className="text-xs text-stone-500 leading-relaxed font-normal">
-        Work through clinical slides, high-yield flashcards, and 10 targeted NBE MCQs.
+      <p className="text-xs text-stone-500 font-normal leading-relaxed">
+        Work through clinical slides, high-yield flashcards, and 10 targeted MCQs.
       </p>
     </div>
 
-    {/* 4 Clinical Metric Badges */}
-    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-50 border border-stone-200/80 text-[11px] font-semibold text-stone-700 shadow-2xs">
-        <Calendar className="h-3 w-3 text-stone-500" />
+    {/* 3D Anatomical Visual Centerpiece (Matches Reference Card) */}
+    <div className="relative w-full h-[180px] sm:h-[195px] rounded-2xl bg-gradient-to-b from-teal-50/40 via-white to-stone-50/50 border border-stone-200/80 overflow-hidden flex items-center justify-center shadow-inner">
+      {/* Background ECG Wave traversing behind 3D organ */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-[0.15] pointer-events-none">
+        <svg viewBox="0 0 320 60" className="w-full h-12 stroke-[#006B63] fill-none stroke-[1.8]">
+          <path d="M 0 30 L 70 30 L 78 12 L 86 48 L 94 8 L 102 38 L 110 30 L 210 30 L 218 12 L 226 48 L 234 8 L 242 38 L 250 30 L 320 30" />
+        </svg>
+      </div>
+
+      {/* 3D Organ with harmonic breathing float */}
+      <motion.div
+        animate={{ y: [-4, 4, -4], scale: [1, 1.02, 1] }}
+        transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+        className="relative z-10 w-full h-full flex items-center justify-center"
+      >
+        <MedicalHeroVisual
+          subjectId="medicine"
+          subjectName="General Medicine"
+          subjectColor="#006B63"
+          topicName="Cardiology - ECGs"
+          className="w-full h-full"
+          showTelemetryTag={false}
+        />
+      </motion.div>
+
+      {/* Floating Bottom Capsule Pill */}
+      <div className="absolute bottom-2.5 z-20 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-teal-200/80 shadow-[0_4px_12px_rgba(0,107,99,0.08)]">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider text-stone-800">
+          Sinus Rhythm · Conduction Active
+        </span>
+      </div>
+    </div>
+
+    {/* Metric Chips Row */}
+    <div className="flex flex-wrap items-center gap-2 pt-0.5">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200/80 text-xs font-semibold text-stone-700 shadow-2xs">
+        <Calendar className="h-3.5 w-3.5 text-stone-500" />
         35 marks
       </span>
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-50 border border-stone-200/80 text-[11px] font-semibold text-stone-700 shadow-2xs">
-        <Clock className="h-3 w-3 text-stone-500" />
+      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200/80 text-xs font-semibold text-stone-700 shadow-2xs">
+        <Clock className="h-3.5 w-3.5 text-stone-500" />
         30 min
       </span>
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-50 border border-teal-200/80 text-[11px] font-bold text-teal-800 shadow-2xs">
-        <BookOpen className="h-3 w-3 text-teal-600" />
-        Clinical MCQ
-      </span>
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200/80 text-[11px] font-bold text-rose-700 shadow-2xs">
-        <Zap className="h-3 w-3 text-rose-500" />
-        High-yield
+      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200/80 text-xs font-bold text-rose-700 shadow-2xs">
+        <Zap className="h-3.5 w-3.5 text-rose-500" />
+        High-yield Core
       </span>
     </div>
 
-    {/* Telemetry Vitals Bar */}
-    <div className="rounded-xl border border-teal-600/20 bg-gradient-to-r from-teal-950/[0.04] via-teal-900/[0.02] to-emerald-500/[0.04] p-3 flex items-center justify-between shadow-2xs">
-      <div className="flex items-center gap-2">
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B63]" />
-        </span>
-        <span className="text-xs font-semibold text-stone-800 font-mono">Telemetry: Lead II Normal · 72 BPM</span>
-      </div>
-      <svg viewBox="0 0 80 18" className="h-4 w-20 stroke-[#006B63] fill-none stroke-[1.8] opacity-85">
-        <path d="M 0 9 L 20 9 L 24 3 L 28 15 L 32 5 L 36 9 L 80 9" />
-      </svg>
-    </div>
-
-    {/* Up Next Priority Subjects */}
-    <div className="space-y-2">
-      <div className="flex items-center justify-between text-[10.5px] font-bold text-stone-400 uppercase tracking-wider">
-        <span>Up Next In Priority</span>
-        <span>Weight</span>
-      </div>
-      {[
-        {
-          subject: 'General Surgery',
-          topic: 'Primary Survey, FAST & Burns',
-          weight: '35M High-Yield',
-          accent: 'bg-[#B57B66]',
-          pill: 'bg-amber-50 text-amber-800 border-amber-200/90',
-        },
-        {
-          subject: 'Obstetrics & Gyn',
-          topic: 'Preeclampsia & MgSO4 Regimen',
-          weight: '30M High-Yield',
-          accent: 'bg-[#9D4B66]',
-          pill: 'bg-rose-50 text-rose-800 border-rose-200/90',
-        },
-      ].map((item) => (
-        <div
-          key={item.subject}
-          className="flex items-center justify-between p-2.5 rounded-xl border border-stone-200/80 bg-white/95 shadow-2xs hover:border-stone-300 transition-colors"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className={`h-2 w-2 rounded-full ${item.accent} shrink-0 ring-2 ring-stone-100`} />
-            <div className="min-w-0">
-              <span className="text-xs font-bold text-stone-900 truncate block">{item.subject}</span>
-              <span className="text-[11px] text-stone-500 truncate block font-normal">{item.topic}</span>
-            </div>
-          </div>
-          <span className={`shrink-0 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border ${item.pill}`}>
-            {item.weight}
-          </span>
+    {/* Compact Executive Readiness Meter Footer */}
+    <div className="rounded-2xl border border-stone-200/80 bg-gradient-to-r from-stone-50/90 to-teal-50/30 p-3.5 space-y-2 shadow-2xs">
+      <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center gap-1.5 font-bold text-stone-800">
+          <Award className="h-4 w-4 text-[#006B63]" />
+          <span>FMGE Readiness Index</span>
         </div>
-      ))}
-    </div>
-
-    {/* Executive Readiness Score Module */}
-    <div className="rounded-2xl border border-stone-200/90 bg-gradient-to-br from-white via-stone-50/90 to-teal-50/20 p-4 space-y-2.5 shadow-2xs">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <div className="p-1 rounded-lg bg-teal-50 border border-teal-200/60">
-            <Award className="h-3.5 w-3.5 text-[#006B63]" />
-          </div>
-          <span className="text-xs font-bold text-stone-800">FMGE Readiness Index</span>
-        </div>
-        <div className="flex items-baseline gap-1 font-mono">
-          <span className="text-base font-extrabold text-[#006B63]">182</span>
-          <span className="text-xs text-stone-400 font-medium">/ 300</span>
+        <div className="flex items-baseline gap-1 font-mono font-bold">
+          <span className="text-[#006B63] text-sm">182</span>
+          <span className="text-stone-400 text-[11px]">/ 300</span>
         </div>
       </div>
-
-      {/* Precision Calibrated Meter */}
-      <div className="space-y-1.5">
-        <div className="h-2.5 w-full bg-stone-200/90 rounded-full overflow-hidden relative p-[1px]">
-          <div
-            className="absolute top-0 bottom-0 w-0.5 bg-rose-500 z-10"
-            style={{ left: '50%' }}
-            title="Pass Threshold: 150"
-          />
-          <motion.div
-            initial={{ width: '0%' }}
-            animate={{ width: '68%' }}
-            transition={{ duration: 1.2, ease: 'easeOut' }}
-            className="h-full bg-gradient-to-r from-[#006B63] via-[#0D9488] to-[#10B981] rounded-full shadow-xs"
-          />
-        </div>
-        <div className="flex justify-between items-center text-[10px] text-stone-400 font-mono pt-0.5">
-          <span>0 Baseline</span>
-          <span className="text-rose-700 font-bold bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200/60">
-            150 Pass Line
-          </span>
-          <span className="text-[#006B63] font-bold bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200/60">
-            +32 Safety Buffer
-          </span>
-        </div>
+      <div className="h-2 w-full bg-stone-200/80 rounded-full overflow-hidden relative">
+        <div className="absolute top-0 bottom-0 w-0.5 bg-rose-500 z-10" style={{ left: '50%' }} title="Pass Threshold: 150" />
+        <motion.div
+          initial={{ width: '0%' }}
+          animate={{ width: '68%' }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+          className="h-full bg-gradient-to-r from-[#006B63] to-[#10B981] rounded-full"
+        />
       </div>
-
-      {/* Integrated Status Chips inside Card Footer (Zero Collision) */}
-      <div className="flex items-center justify-between pt-2 border-t border-stone-200/70 text-[11px]">
-        <span className="font-bold text-emerald-700 flex items-center gap-1">
-          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-          99.2% Retention
+      <div className="flex items-center justify-between text-[10.5px] text-stone-500 font-medium pt-0.5">
+        <span className="text-emerald-700 font-bold flex items-center gap-1">
+          <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+          Passing Pace (+32 Buffer)
         </span>
-        <span className="font-bold text-teal-700 flex items-center gap-1">
-          <Sparkles className="h-3.5 w-3.5 text-teal-600" />
-          +38 Marks Projected
-        </span>
-        <span className="text-stone-500 font-medium hidden sm:inline">
-          Day 42 Pace
-        </span>
+        <span className="font-mono text-stone-400">150 Pass Line</span>
       </div>
     </div>
   </div>
