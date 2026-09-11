@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Sparkles,
   Calendar,
   Target,
   Clock,
@@ -58,7 +57,9 @@ export const OnboardingModal: React.FC = () => {
                   <img src="/images/brand/one_shot_emblem.png" alt="ONE SHOT FMGE Logo" className="h-full w-full object-cover rounded-lg" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 font-['Outfit']">Personalize Your FMGE Plan</h2>
+                  <h2 className="text-sm font-bold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent font-['Outfit']">
+                    Personalize Your FMGE Plan
+                  </h2>
                   <p className="text-[11px] text-slate-500">Welcome, {profile?.displayName || 'Doctor'}</p>
                 </div>
               </div>
@@ -257,7 +258,7 @@ export const OnboardingModal: React.FC = () => {
                   className="flex items-center gap-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 transition-all shadow-xs cursor-pointer"
                 >
                   <span>Build My Plan</span>
-                  <Sparkles className="h-3.5 w-3.5 text-sky-300" />
+                  <Award className="h-3.5 w-3.5 text-teal-300" />
                 </button>
               )}
             </div>

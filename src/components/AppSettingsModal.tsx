@@ -19,7 +19,7 @@ import {
   Sun,
   Sunset,
   Moon,
-  Zap,
+  Timer,
   Target,
   BookOpen,
   Activity,
@@ -137,7 +137,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-['Newsreader',_serif] text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                <h3 className="font-['Newsreader',_serif] text-xl sm:text-2xl font-semibold tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent">
                   System Settings
                 </h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-teal-500/10 text-[#00685F] border border-teal-500/20">
@@ -223,7 +223,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                       id: 'auto',
                       label: 'Automatic Circadian',
                       desc: `Syncs with solar cycle (${previewTimePeriod})`,
-                      icon: Zap,
+                      icon: Activity,
                       gradient: 'from-amber-400 via-teal-500 to-indigo-950',
                       textColor: 'text-amber-500',
                     },
@@ -453,7 +453,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
-                    { label: '60s NBE Real Exam', val: 60, desc: 'Real exam countdown drill', icon: Zap },
+                    { label: '60s NBE Real Exam', val: 60, desc: 'Real exam countdown drill', icon: Timer },
                     { label: '120s Deep Learning', val: 120, desc: 'Detailed case analysis', icon: Hourglass },
                     { label: 'Untimed Flow', val: 0, desc: 'Zero pressure study', icon: Compass },
                   ].map((preset) => {

@@ -4,7 +4,6 @@ import {
   X,
   Target,
   BookOpen,
-  Sparkles,
   TrendingUp,
   RotateCcw,
   Brain,
@@ -14,7 +13,6 @@ import {
   AlertCircle,
   HelpCircle,
   ArrowRight,
-  Zap,
 } from 'lucide-react';
 import { ReadinessBreakdown, ReadinessComponentDetail } from '../types';
 
@@ -203,7 +201,7 @@ export const ReadinessBreakdownModal: React.FC<ReadinessBreakdownModalProps> = (
               <span className="w-1 h-1 rounded-full bg-[#00685f]/40" />
               <span className="text-xs text-stone-400 font-mono">8-PILLAR ARCHITECTURE</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-['Newsreader'] tracking-tight text-[#121E1B]">
+            <h2 className="text-2xl sm:text-3xl font-bold font-['Newsreader'] tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-[#00685f] bg-clip-text text-transparent">
               Exam Readiness Breakdown
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 max-w-2xl leading-relaxed">

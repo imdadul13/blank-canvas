@@ -9,9 +9,9 @@ import {
   Flame,
   GraduationCap,
   RotateCcw,
-  Sparkles,
+  Award,
   Trophy,
-  Zap,
+  Timer,
 } from 'lucide-react';
 import { AppState } from '../types';
 import { getLocalDateKey } from '../utils/date';
@@ -460,7 +460,7 @@ export function buildNotifications(
           actions.onClose();
           actions.onNavigateTab('practice');
         },
-        icon: Zap,
+        icon: Timer,
         iconColor: 'text-amber-600 bg-amber-50 border-amber-200/80',
       });
     }
@@ -781,7 +781,7 @@ export function buildNotifications(
       onAction: () => {
         actions.onClose();
       },
-      icon: Sparkles,
+      icon: Award,
       iconColor: 'text-amber-500 bg-amber-50 border-amber-200/80',
     });
   }

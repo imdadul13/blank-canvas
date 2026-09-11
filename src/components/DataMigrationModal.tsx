@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Database, Download, RefreshCw, Sparkles, Check, X } from 'lucide-react';
+import { Database, Download, RefreshCw, ShieldCheck, Check, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const DataMigrationModal: React.FC = () => {
@@ -34,7 +34,9 @@ export const DataMigrationModal: React.FC = () => {
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md mb-2 shadow-inner">
             <Database className="h-6 w-6 text-[#f5d58b]" />
           </div>
-          <h2 className="text-xl font-bold tracking-tight">Existing local FMGE progress found</h2>
+          <h2 className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-teal-100 bg-clip-text text-transparent">
+            Existing local FMGE progress found
+          </h2>
           <p className="text-xs text-[#b8ded9] mt-1">
             We detected previously saved study progress stored in this browser.
           </p>
@@ -50,15 +52,15 @@ export const DataMigrationModal: React.FC = () => {
 
           <div className="rounded-2xl border border-[#cfe2df] bg-[#f7faf9] p-4 text-left space-y-2 text-xs text-[#527776]">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-[#0d6866] shrink-0" />
+              <ShieldCheck className="h-4 w-4 text-[#0d6866] shrink-0" />
               <span>Includes completed syllabus topics &amp; revisions</span>
             </div>
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-[#0d6866] shrink-0" />
+              <ShieldCheck className="h-4 w-4 text-[#0d6866] shrink-0" />
               <span>Includes logged Grand Tests &amp; Error Notebook items</span>
             </div>
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-[#0d6866] shrink-0" />
+              <ShieldCheck className="h-4 w-4 text-[#0d6866] shrink-0" />
               <span>Includes custom Daily Planner tasks &amp; Medical Pearls</span>
             </div>
           </div>

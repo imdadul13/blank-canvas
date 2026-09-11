@@ -7,7 +7,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Calendar,
-  Sparkles,
+  Brain,
   BarChart3,
   Flame,
   ArrowRight,
@@ -51,7 +51,9 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
                 </span>
                 <span className="text-xs text-slate-300">Target: {state.settings.targetScore || 185}/300</span>
               </div>
-              <h2 className="text-xl font-black tracking-tight mt-0.5">FMGE Weekly Command Report</h2>
+              <h2 className="text-xl font-black tracking-tight mt-0.5 bg-gradient-to-r from-white via-slate-100 to-teal-200 bg-clip-text text-transparent">
+                FMGE Weekly Command Report
+              </h2>
             </div>
           </div>
 
@@ -206,7 +208,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
             }}
             className="px-4 py-2 bg-white hover:bg-slate-100 text-indigo-600 border border-indigo-200 rounded-xl text-xs font-bold transition-colors flex items-center space-x-1.5"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Brain className="w-3.5 h-3.5 text-[#006B63]" />
             <span>Ask AI Coach About This Report</span>
           </button>
 

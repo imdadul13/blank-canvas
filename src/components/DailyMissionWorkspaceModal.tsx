@@ -177,7 +177,7 @@ export const DailyMissionWorkspaceModal: React.FC<DailyMissionWorkspaceModalProp
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-xl font-bold font-['Outfit'] text-slate-900 tracking-tight">
+                <h2 className="text-base sm:text-xl font-bold font-['Outfit'] bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent tracking-tight">
                   Start My Day · Daily Study Mission
                 </h2>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold font-['Outfit']">
@@ -290,8 +290,8 @@ export const DailyMissionWorkspaceModal: React.FC<DailyMissionWorkspaceModalProp
                 </div>
                 <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-2xs">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block font-['Outfit']">Study Streak</span>
-                  <span className="text-base font-bold text-amber-600 block mt-0.5 font-['Outfit']">
-                    🔥 {streakDays} Days
+                  <span className="text-base font-bold text-amber-600 flex items-center gap-1 mt-0.5 font-['Outfit']">
+                    <Flame className="h-4 w-4 fill-amber-500 text-amber-500" /> {streakDays} Days
                   </span>
                 </div>
                 <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-2xs">

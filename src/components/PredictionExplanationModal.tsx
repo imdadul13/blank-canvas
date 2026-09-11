@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   X,
-  Zap,
+  Award,
+  ShieldCheck,
+  Brain,
   Flame,
   CheckCircle2,
   AlertCircle,
@@ -125,7 +127,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
   const signalsList = [
     { key: 'priorityScore', data: signals.priorityScore || { raw: 75, weight: 20, weighted: 15, label: 'Topic Priority Base' }, icon: Flame, color: 'text-amber-600' },
     { key: 'subjectWeight', data: signals.subjectWeight || { raw: 70, weight: 15, weighted: 10.5, label: `Subject Weight (${topic.subjectWeightage || 20}m)` }, icon: TrendingUp, color: 'text-indigo-600' },
-    { key: 'highYieldSignal', data: signals.highYieldSignal || { raw: 80, weight: 15, weighted: 12, label: 'Historical / High-Yield Signal' }, icon: Zap, color: 'text-amber-600' },
+    { key: 'highYieldSignal', data: signals.highYieldSignal || { raw: 80, weight: 15, weighted: 12, label: 'Historical / High-Yield Signal' }, icon: Award, color: 'text-amber-600' },
     { key: 'clinicalVignettePotential', data: signals.clinicalVignettePotential || { raw: 70, weight: 10, weighted: 7, label: 'Clinical Vignette Potential' }, icon: Stethoscope, color: 'text-sky-600' },
     { key: 'imageBasedPotential', data: signals.imageBasedPotential || { raw: 65, weight: 5, weighted: 3.25, label: 'Image-Based Question (IBQ) Potential' }, icon: Eye, color: 'text-blue-600' },
     { key: 'docPotential', data: signals.docPotential || { raw: 75, weight: 10, weighted: 7.5, label: 'Management / Drug-of-Choice (DOC)' }, icon: Pill, color: 'text-purple-600' },
@@ -202,7 +204,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
               <span className="text-xs font-mono text-sky-700 font-bold uppercase tracking-wider">
                 Rank #{topic.rank || 1} Predicted Topic
               </span>
-              <h2 className="text-xl sm:text-2xl font-bold font-['Outfit'] text-slate-900 mt-1">
+              <h2 className="text-xl sm:text-2xl font-bold font-['Outfit'] bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent mt-1">
                 {topic.topicName}
               </h2>
             </div>
@@ -390,7 +392,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
           {topic.highYieldPearl && (
             <div className="p-4 bg-sky-50/80 border border-sky-200 rounded-2xl space-y-1.5">
               <div className="flex items-center gap-2 text-xs font-bold text-sky-900 font-['Outfit']">
-                <Zap className="w-4 h-4 text-amber-500" />
+                <Award className="w-4 h-4 text-amber-500" />
                 <span>HIGH-YIELD RECALL PEARL</span>
               </div>
               <p className="text-xs text-sky-950 font-medium leading-relaxed pl-6">
@@ -403,7 +405,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
           <div className="border border-slate-200/80 bg-white p-5 rounded-2xl space-y-3 shadow-2xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-sky-600" />
+                <ShieldCheck className="w-4 h-4 text-[#006B63]" />
                 <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide font-['Outfit']">
                   Clinical Strategy &amp; Vignette Traps
                 </h4>
@@ -422,7 +424,7 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
                     </>
                   ) : (
                     <>
-                      <Zap className="w-3.5 h-3.5 text-sky-300" />
+                      <Brain className="w-3.5 h-3.5 text-teal-300" />
                       Clinical Strategy
                     </>
                   )}

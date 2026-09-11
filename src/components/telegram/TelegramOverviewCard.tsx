@@ -1,5 +1,5 @@
 import React from "react";
-import { Database, HelpCircle, Image, Video, Sparkles, Layers } from "lucide-react";
+import { Database, HelpCircle, Image, Video, Layers } from "lucide-react";
 
 interface TelegramOverviewCardProps {
   totalItems: number;

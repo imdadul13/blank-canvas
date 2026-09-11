@@ -12,7 +12,8 @@ import {
   Pill,
   ShieldAlert,
   Flame,
-  Zap,
+  Scale,
+  Award,
   Activity,
   Layers,
   HelpCircle,
@@ -65,7 +66,7 @@ const getPearlVisualTheme = (pearl: MedicalPearl) => {
       keyBoxClass: 'bg-sky-50/50 border-sky-200/70 text-sky-950',
       keyLabelClass: 'text-sky-800',
       tagBadgeClass: 'bg-sky-50/50 text-sky-700 border-sky-200/50',
-      icon: Zap,
+      icon: Scale,
     };
   }
 
@@ -721,7 +722,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="font-['Newsreader',_Georgia,_serif] text-lg sm:text-xl lg:text-2xl font-semibold tracking-tight text-slate-900">
+                <h1 className="font-['Newsreader',_Georgia,_serif] text-lg sm:text-xl lg:text-2xl font-semibold tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent">
                   High-Yield Knowledge &amp; Pearls
                 </h1>
                 <span className="rounded-full bg-amber-500/10 text-[#B45309] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-amber-500/20 font-mono backdrop-blur-sm shrink-0">
@@ -764,10 +765,10 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
       <div className="bg-gradient-to-b from-white via-white to-stone-50/40 rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 border border-stone-200/90 shadow-xs space-y-5">
         <div className="max-w-2xl space-y-1.5">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100/90 border border-stone-200 text-stone-700 text-[11px] font-medium">
-            <Zap className="h-3 w-3 text-amber-500 fill-amber-500" />
+            <Award className="h-3 w-3 text-amber-500" />
             <span className="font-mono text-[10px] uppercase tracking-wider font-semibold text-stone-600">NBE Clinical Synthesis</span>
           </div>
-          <h1 className="font-['Newsreader',_Georgia,_serif] text-2xl sm:text-3xl md:text-4xl text-stone-900 font-medium tracking-tight leading-[1.18]">
+          <h1 className="font-['Newsreader',_Georgia,_serif] text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight leading-[1.18] bg-gradient-to-r from-stone-950 via-stone-800 to-[#006B63] bg-clip-text text-transparent">
             Understand it. Remember it.
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl">
@@ -815,7 +816,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               </>
             ) : (
               <>
-                <Zap className="h-3.5 w-3.5 text-amber-300 fill-amber-300" />
+                <Brain className="h-3.5 w-3.5 text-teal-200" />
                 <span>Synthesize</span>
               </>
             )}
@@ -975,7 +976,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                 </span>
               </div>
 
-              <h2 className="font-['Newsreader',_Georgia,_serif] text-2xl sm:text-3xl md:text-4xl font-semibold text-stone-900 tracking-tight leading-tight break-words">
+              <h2 className="font-['Newsreader',_Georgia,_serif] text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight leading-tight break-words bg-gradient-to-r from-stone-950 via-stone-800 to-[#006B63] bg-clip-text text-transparent">
                 {generatedTopic.topicName || generatedTopic.mnemonic?.title}
               </h2>
 

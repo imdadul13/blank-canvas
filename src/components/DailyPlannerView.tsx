@@ -25,7 +25,6 @@ import {
   ChevronDown,
   ChevronRight,
   X,
-  Sparkles,
   HelpCircle,
   TrendingUp,
 } from 'lucide-react';
@@ -672,7 +671,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <Calendar className="h-5 w-5 text-white stroke-[1.75]" />
             </div>
             <div className="min-w-0">
-              <h1 className="font-serif text-xl sm:text-2xl lg:text-[25px] font-semibold text-slate-900 tracking-tight leading-snug">
+              <h1 className="font-serif text-xl sm:text-2xl lg:text-[25px] font-semibold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent tracking-tight leading-snug">
                 Today’s Plan &amp; Focus
               </h1>
               <p className="text-xs sm:text-sm text-stone-500 leading-normal line-clamp-1 sm:line-clamp-none">

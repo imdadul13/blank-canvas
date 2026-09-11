@@ -3,18 +3,20 @@ import { createPortal } from 'react-dom';
 import {
   X,
   Check,
-  Zap,
   Plus,
   ChevronRight,
   BookOpen,
   CheckCircle2,
-  Sparkles,
   FileText,
   Layers,
   Activity,
   ArrowLeft,
   Search,
+  Brain,
+  RotateCcw,
+  Award,
 } from 'lucide-react';
+import { SubjectAppleIcon } from './SubjectAppleIcon';
 import {
   FMGESubject,
   TopicItem,
@@ -166,13 +168,16 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
               {/* Subject Title & Clinical Scope */}
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div className="space-y-1.5 flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-stone-900">
-                      {subject.name}
-                    </h2>
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#006B63] text-white text-[10px] font-mono font-medium shadow-2xs">
-                      {completionPct}% COMPLETE
-                    </span>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <SubjectAppleIcon subjectId={subject.id} size="md" className="shrink-0" />
+                    <div className="flex items-center gap-2 flex-wrap min-w-0">
+                      <h2 className="text-2xl sm:text-3xl font-bold font-display tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-[#006B63] bg-clip-text text-transparent">
+                        {subject.name}
+                      </h2>
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#006B63] text-white text-[10px] font-mono font-medium shadow-2xs">
+                        {completionPct}% COMPLETE
+                      </span>
+                    </div>
                   </div>
                   <p className="text-xs sm:text-sm text-stone-600 max-w-2xl leading-relaxed">
                     {subject.highYieldTips || subject.description}
@@ -195,7 +200,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                     title="Comprehensive Gemini-powered study pack"
                   >
                     <div className="w-5 h-5 rounded-md bg-indigo-50/80 text-indigo-700 flex items-center justify-center shrink-0 group-hover:bg-indigo-100 transition-colors">
-                      <Sparkles className="h-3 w-3" />
+                      <Brain className="h-3 w-3" />
                     </div>
                     <div className="text-left">
                       <div className="text-[9px] font-mono font-semibold uppercase tracking-wider text-indigo-700 leading-none">
@@ -241,7 +246,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                       <span>QBank: <strong>{qBankCount}/{allTopics.length}</strong></span>
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <Zap className="h-3.5 w-3.5 text-amber-500 fill-current" />
+                      <Award className="h-3.5 w-3.5 text-amber-500" />
                       <span>High-Yield: <strong>{highYieldTopics.length}</strong></span>
                     </span>
                   </div>
@@ -325,7 +330,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                         className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display shadow-2xs cursor-pointer active:scale-[0.98] transition-all min-h-[38px]"
                         title="Rapid Revision (Fast · Board-tested)"
                       >
-                        <Zap className="h-3.5 w-3.5 text-amber-400 fill-current shrink-0" />
+                        <RotateCcw className="h-3.5 w-3.5 text-amber-400 shrink-0" />
                         <span>Rapid Revision</span>
                         <span className="text-[10px] font-mono text-stone-400 pl-1 border-l border-stone-700 hidden sm:inline">FAST</span>
                       </button>
@@ -341,12 +346,12 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                             autoDeepen: true,
                           })
                         }
-                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-indigo-50/50 text-stone-900 border border-indigo-200/90 text-xs font-semibold font-display shadow-2xs cursor-pointer active:scale-[0.98] transition-all min-h-[38px] group"
+                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-teal-50/50 text-stone-900 border border-teal-200/90 text-xs font-semibold font-display shadow-2xs cursor-pointer active:scale-[0.98] transition-all min-h-[38px] group"
                         title="Comprehensive Gemini-powered study pack"
                       >
-                        <Sparkles className="h-3.5 w-3.5 text-indigo-600 shrink-0 group-hover:scale-110 transition-transform" />
+                        <Brain className="h-3.5 w-3.5 text-[#006B63] shrink-0 group-hover:scale-110 transition-transform" />
                         <span>Deepen High-Yield</span>
-                        <span className="text-[10px] font-mono font-semibold text-indigo-700 pl-1 border-l border-indigo-100 hidden sm:inline">DEEP</span>
+                        <span className="text-[10px] font-mono font-semibold text-[#006B63] pl-1 border-l border-teal-100 hidden sm:inline">DEEP</span>
                       </button>
 
                       {/* 10-MCQs Drill */}
@@ -559,7 +564,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                               className="flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-2xs h-[34px] active:scale-[0.98]"
                               title="Rapid Revision (Fast · Board-tested)"
                             >
-                              <Zap className="h-3 w-3 text-amber-400 fill-current shrink-0" />
+                              <RotateCcw className="h-3 w-3 text-amber-400 shrink-0" />
                               <span>Rapid Revision</span>
                             </button>
 
@@ -574,10 +579,10 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                                   autoDeepen: true,
                                 })
                               }
-                              className="flex-1 sm:flex-none px-2.5 py-1.5 rounded-xl bg-white hover:bg-indigo-50/60 text-stone-900 border border-indigo-200/80 text-xs font-semibold font-display transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 h-[34px] active:scale-[0.98] group"
+                              className="flex-1 sm:flex-none px-2.5 py-1.5 rounded-xl bg-white hover:bg-teal-50/60 text-stone-900 border border-teal-200/80 text-xs font-semibold font-display transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 h-[34px] active:scale-[0.98] group"
                               title="Deepen High-Yield (Comprehensive Gemini study pack)"
                             >
-                              <Sparkles className="h-3 w-3 text-indigo-600 shrink-0 group-hover:scale-110 transition-transform" />
+                              <Brain className="h-3 w-3 text-[#006B63] shrink-0 group-hover:scale-110 transition-transform" />
                               <span>Deepen</span>
                             </button>
 

@@ -245,7 +245,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                   {topicCandidate.priorityLabel}
                 </span>
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 font-['Outfit'] line-clamp-1">
+              <h2 className="text-base sm:text-lg font-bold font-['Outfit'] line-clamp-1 bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent">
                 {topicIntel.canonicalName}
               </h2>
             </div>
@@ -626,7 +626,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                       </div>
                       <p className="text-sm text-slate-700 leading-relaxed">{currentCase.clinicalExplanation}</p>
                       <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium">
-                        <strong className="text-amber-800">⚡ Clinical Pearl: </strong>
+                        <strong className="text-amber-800">Clinical Pearl: </strong>
                         {currentCase.examPearl}
                       </div>
                     </div>
@@ -831,7 +831,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                       </p>
                       {currentCard.clinicalPearl && (
                         <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium">
-                          <span className="font-bold text-amber-800">⚡ High-Yield Pearl: </span>
+                          <span className="font-bold text-amber-800">High-Yield Pearl: </span>
                           {currentCard.clinicalPearl}
                         </div>
                       )}

@@ -15,12 +15,10 @@ import {
   RefreshCw,
   Flame,
   Award,
-  Zap,
   Save,
   Activity,
   ShieldCheck,
   GraduationCap,
-  Sparkles,
   ChevronRight,
   Check,
   Compass,
@@ -232,7 +230,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-['Newsreader',_serif] text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight truncate">
+                  <h3 className="font-['Newsreader',_serif] text-xl sm:text-2xl font-semibold tracking-tight truncate bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent">
                     {formData.userName || 'Dr. Aspirant'}
                   </h3>
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-teal-500/10 text-[#00685F] border border-teal-500/20 shrink-0">
@@ -658,7 +656,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
               {/* Study Consistency Advice */}
               <div className="p-4 rounded-2xl bg-[#E8F5F3] border border-teal-200/70 flex items-start gap-3">
-                <Sparkles className="h-5 w-5 text-[#006B63] shrink-0 mt-0.5" />
+                <ShieldCheck className="h-5 w-5 text-[#006B63] shrink-0 mt-0.5" />
                 <div className="space-y-0.5 text-xs text-stone-700">
                   <span className="font-bold text-[#006B63] block">Clinical Consistency Principle</span>
                   <p className="leading-relaxed">

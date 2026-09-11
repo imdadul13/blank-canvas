@@ -583,7 +583,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           bannerBg: 'bg-gradient-to-br from-[#EEF9F6] via-[#F6FCFA] to-[#E5F5F0] border-[#BEE4DC]',
           auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(45,212,191,0.22),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(253,230,138,0.20),transparent_70%)]',
           topLight: 'from-transparent via-amber-300/40 to-transparent',
-          nameColor: 'text-[#0B2A26]',
+          nameColor: 'bg-gradient-to-r from-[#0B2A26] via-slate-900 to-[#006B63] bg-clip-text text-transparent',
           subtitleColor: 'text-[#4E7670]',
           greetingIconColor: 'text-amber-500',
         };
@@ -592,7 +592,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           bannerBg: 'bg-gradient-to-br from-[#EAF7F4] via-[#F3FAF8] to-[#E0F2EC] border-[#B6E1D7]',
           auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(14,165,233,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(45,212,191,0.20),transparent_70%)]',
           topLight: 'from-transparent via-teal-400/40 to-transparent',
-          nameColor: 'text-[#0B2A26]',
+          nameColor: 'bg-gradient-to-r from-[#0B2A26] via-slate-900 to-[#006B63] bg-clip-text text-transparent',
           subtitleColor: 'text-[#44726A]',
           greetingIconColor: 'text-teal-500',
         };
@@ -601,7 +601,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           bannerBg: 'bg-gradient-to-br from-[#FFF8EE] via-[#FAF9F6] to-[#E5F3EE] border-[#E8D7C2]',
           auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(249,115,22,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(244,63,94,0.15),transparent_70%)]',
           topLight: 'from-transparent via-orange-400/40 to-transparent',
-          nameColor: 'text-[#2D1B11]',
+          nameColor: 'bg-gradient-to-r from-[#2D1B11] via-stone-900 to-[#B57B66] bg-clip-text text-transparent',
           subtitleColor: 'text-[#7C5E4E]',
           greetingIconColor: 'text-orange-500',
         };
@@ -611,7 +611,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           bannerBg: 'bg-gradient-to-br from-[#0C2420] via-[#10302B] to-[#071916] border-[#18443D]',
           auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(56,189,248,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(45,212,191,0.16),transparent_70%)]',
           topLight: 'from-transparent via-cyan-400/30 to-transparent',
-          nameColor: 'text-[#E8F8F5]',
+          nameColor: 'bg-gradient-to-r from-white via-slate-100 to-teal-200 bg-clip-text text-transparent',
           subtitleColor: 'text-[#87BDB5]',
           greetingIconColor: 'text-cyan-400',
         };
@@ -1291,7 +1291,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                   {/* Topic Title */}
                   <div className="pt-0.5">
-                    <h2 className="font-['Outfit'] text-xl sm:text-2xl font-black tracking-tight text-[#0B2A26] leading-tight break-words">
+                    <h2 className="font-['Outfit'] text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-[#0B2A26] via-slate-900 to-[#006B63] bg-clip-text text-transparent leading-tight break-words">
                       {activeFocusTopic.name}
                     </h2>
                     <p className="text-xs text-[#527670] leading-snug mt-1 max-w-sm line-clamp-2">
@@ -2071,7 +2071,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <Flame className="h-4.5 w-4.5 fill-[#006B63] text-[#006B63]" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 font-['Outfit'] leading-tight">
+                <h3 className="text-base sm:text-lg font-bold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent font-['Outfit'] leading-tight">
                   Explore Other High-Yield Subjects
                 </h3>
                 <p className="text-xs text-slate-500">

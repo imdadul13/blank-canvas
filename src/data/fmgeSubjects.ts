@@ -380,7 +380,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     phase: 'clinical',
     weightage: 5,
     color: '#eab308', // Amber-warm (now in cool clinical palette)
-    iconName: 'Sparkles',
+    iconName: 'Fingerprint',
     description: 'Papulosquamous disorders, vesiculobullous diseases, sexually transmitted infections, Hansen disease, and drug reactions.',
     highYieldTips: 'High focus on Psoriasis (Auspitz sign), Pemphigus Vulgaris vs Bullous Pemphigoid (Nikolsky sign), Hansen disease classification, and STI syndromes.',
     topics: [

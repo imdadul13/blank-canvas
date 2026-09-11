@@ -5,7 +5,6 @@ import {
   Bell,
   CheckCircle2,
   ArrowRight,
-  Sparkles,
   Brain,
   Flame,
   Target,
@@ -16,7 +15,6 @@ import {
   GraduationCap,
   ChevronRight,
   ShieldCheck,
-  Zap,
 } from 'lucide-react';
 import { AppState } from '../types';
 import {
@@ -161,7 +159,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-['Newsreader',_serif] text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
+                  <h3 className="font-['Newsreader',_serif] text-xl sm:text-2xl font-semibold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent tracking-tight">
                     Study Intelligence
                   </h3>
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-teal-500/10 text-[#00685F] border border-teal-500/20">

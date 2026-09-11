@@ -6,7 +6,6 @@ import {
   Clock,
   Target,
   X,
-  Sparkles,
   ArrowRight,
   Bone,
   Heart,
@@ -33,6 +32,7 @@ import {
 import { motion } from 'motion/react';
 import { AppState, SubjectPhase, ConfidenceLevel } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
+import { SubjectAppleIcon, getSubjectVisualTheme } from './SubjectAppleIcon';
 import { DoctorMountainArt } from './DoctorMountainArt';
 import { RevisionMatrixView } from './RevisionMatrixView';
 import { AppStats, calculateAppStats } from '../utils/storage';
@@ -55,168 +55,14 @@ interface SyllabusViewProps {
 
 // Subject Icon & Accent Palette Map aligned with clinical editorial aesthetics
 function getSubjectVisual(subjectId: string, fallbackColor?: string) {
-  switch (subjectId) {
-    case 'anatomy':
-      return {
-        icon: Bone,
-        color: '#E11D48',
-        bg: 'bg-rose-50/80 text-rose-700 border-rose-200/70',
-        badge: 'High-yield',
-        badgeType: 'high' as const,
-      };
-    case 'physiology':
-      return {
-        icon: Heart,
-        color: '#F43F5E',
-        bg: 'bg-pink-50/80 text-pink-700 border-pink-200/70',
-        badge: 'High-yield',
-        badgeType: 'high' as const,
-      };
-    case 'biochemistry':
-      return {
-        icon: FlaskConical,
-        color: '#0284C7',
-        bg: 'bg-sky-50/80 text-sky-700 border-sky-200/70',
-        badge: 'High-yield',
-        badgeType: 'high' as const,
-      };
-    case 'pathology':
-      return {
-        icon: Microscope,
-        color: '#E11D48',
-        bg: 'bg-rose-50/80 text-rose-700 border-rose-200/70',
-        badge: 'High-yield',
-        badgeType: 'high' as const,
-      };
-    case 'pharmacology':
-      return {
-        icon: Pill,
-        color: '#0284C7',
-        bg: 'bg-blue-50/80 text-blue-700 border-blue-200/70',
-        badge: 'Important',
-        badgeType: 'important' as const,
-      };
-    case 'microbiology':
-      return {
-        icon: ShieldCheck,
-        color: '#0D9488',
-        bg: 'bg-teal-50/80 text-teal-700 border-teal-200/70',
-        badge: 'Important',
-        badgeType: 'important' as const,
-      };
-    case 'forensic-medicine':
-      return {
-        icon: Scale,
-        color: '#D97706',
-        bg: 'bg-amber-50/80 text-amber-700 border-amber-200/70',
-        badge: 'Core',
-        badgeType: 'core' as const,
-      };
-    case 'community-medicine':
-      return {
-        icon: Users,
-        color: '#059669',
-        bg: 'bg-emerald-50/80 text-emerald-700 border-emerald-200/70',
-        badge: 'High-yield',
-        badgeType: 'high' as const,
-      };
-    case 'ophthalmology':
-      return {
-        icon: Eye,
-        color: '#6366F1',
-        bg: 'bg-indigo-50/80 text-indigo-700 border-indigo-200/70',
-        badge: 'High-yield',
-        badgeType: 'high' as const,
-      };
-    case 'ent':
-      return {
-        icon: Headphones,
-        color: '#8B5CF6',
-        bg: 'bg-violet-50/80 text-violet-700 border-violet-200/70',
-        badge: 'Important',
-        badgeType: 'important' as const,
-      };
-    case 'general-medicine':
-      return {
-        icon: Stethoscope,
-        color: '#006B63',
-        bg: 'bg-teal-50/90 text-teal-800 border-teal-200/80',
-        badge: 'High-yield',
-        badgeType: 'high' as const,
-      };
-    case 'general-surgery':
-      return {
-        icon: Scissors,
-        color: '#DC2626',
-        bg: 'bg-red-50/80 text-red-700 border-red-200/70',
-        badge: 'High-yield',
-        badgeType: 'high' as const,
-      };
-    case 'obgyn':
-      return {
-        icon: Baby,
-        color: '#EC4899',
-        bg: 'bg-pink-50/80 text-pink-700 border-pink-200/70',
-        badge: 'High-yield',
-        badgeType: 'high' as const,
-      };
-    case 'pediatrics':
-      return {
-        icon: Smile,
-        color: '#F59E0B',
-        bg: 'bg-amber-50/80 text-amber-700 border-amber-200/70',
-        badge: 'Important',
-        badgeType: 'important' as const,
-      };
-    case 'orthopedics':
-      return {
-        icon: Activity,
-        color: '#0284C7',
-        bg: 'bg-sky-50/80 text-sky-700 border-sky-200/70',
-        badge: 'Core',
-        badgeType: 'core' as const,
-      };
-    case 'dermatology':
-      return {
-        icon: Sparkles,
-        color: '#EA580C',
-        bg: 'bg-orange-50/80 text-orange-700 border-orange-200/70',
-        badge: 'Core',
-        badgeType: 'core' as const,
-      };
-    case 'psychiatry':
-      return {
-        icon: Brain,
-        color: '#7C3AED',
-        bg: 'bg-purple-50/80 text-purple-700 border-purple-200/70',
-        badge: 'Core',
-        badgeType: 'core' as const,
-      };
-    case 'radiology':
-      return {
-        icon: ScanLine,
-        color: '#0F766E',
-        bg: 'bg-teal-50/80 text-teal-700 border-teal-200/70',
-        badge: 'Core',
-        badgeType: 'core' as const,
-      };
-    case 'anesthesia':
-      return {
-        icon: Syringe,
-        color: '#475569',
-        bg: 'bg-stone-100 text-stone-700 border-stone-200',
-        badge: 'Core',
-        badgeType: 'core' as const,
-      };
-    default:
-      return {
-        icon: BookOpen,
-        color: fallbackColor || '#006B63',
-        bg: 'bg-stone-50 text-stone-700 border-stone-200',
-        badge: 'Core',
-        badgeType: 'core' as const,
-      };
-  }
+  const theme = getSubjectVisualTheme(subjectId);
+  return {
+    icon: theme.icon,
+    color: theme.color || fallbackColor || '#006B63',
+    bg: `${theme.bgGradient} ${theme.border} ${theme.text}`,
+    badge: theme.badgeType === 'high' ? 'High-yield' : theme.badgeType === 'important' ? 'Important' : 'Core',
+    badgeType: theme.badgeType,
+  };
 }
 
 export const SyllabusView: React.FC<SyllabusViewProps> = ({
@@ -936,11 +782,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 >
                   {/* Left: Icon & Subject Metadata */}
                   <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
-                    <div
-                      className={`p-3 rounded-2xl ${visual.bg} border shrink-0 group-hover:scale-105 transition-transform`}
-                    >
-                      <IconComponent className="h-5 w-5" />
-                    </div>
+                    <SubjectAppleIcon subjectId={sub.id} size="lg" className="shrink-0" />
 
                     <div className="min-w-0 space-y-1 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">

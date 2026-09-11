@@ -11,8 +11,7 @@ import {
   ShieldCheck,
   Server,
   Activity,
-  Zap,
-  Clock
+  Clock,
 } from 'lucide-react';
 import { AppState, SyncStatus } from '../types';
 import { downloadBackupFile, normalizeAppState } from '../utils/storage';
@@ -97,7 +96,7 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
               <Cloud className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-['Outfit'] text-base font-bold text-slate-900 flex items-center gap-2">
+              <h3 className="font-['Outfit'] text-base font-bold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent flex items-center gap-2">
                 Cloud Sync & Telemetry
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               </h3>
@@ -189,7 +188,7 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
               <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 space-y-1">
                 <div className="flex items-center justify-between text-slate-400">
                   <span className="text-[11px] font-mono">Cloud Latency</span>
-                  <Zap className="h-3.5 w-3.5 text-amber-500" />
+                  <Activity className="h-3.5 w-3.5 text-teal-600" />
                 </div>
                 <div className="text-sm font-bold text-emerald-600">~24 ms</div>
                 <p className="text-[10px] text-slate-400">Direct cloud pipeline</p>

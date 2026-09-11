@@ -4,7 +4,6 @@ import {
   Brain,
   Stethoscope,
   Pill,
-  Sparkles,
   Activity,
   Compass,
   AlertTriangle,
@@ -36,7 +35,7 @@ const ClinicalIcon: React.FC<{ title: string }> = ({ title }) => {
     return <Compass className="h-3.5 w-3.5" />;
   }
   if (/pearl|trap|high-yield|mnemonic|remember|nbe|nbems|exam|yield|tip|gold|takeaway|association/.test(lower)) {
-    return <Sparkles className="h-3.5 w-3.5" />;
+    return <Award className="h-3.5 w-3.5" />;
   }
   return <Activity className="h-3.5 w-3.5" />;
 };

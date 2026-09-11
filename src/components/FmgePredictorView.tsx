@@ -401,7 +401,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       {/* 2. Editorial Header: "Your FMGE Score, Clarity Today." */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-semibold text-slate-900 tracking-tight leading-tight">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-semibold tracking-tight leading-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent">
             Your FMGE Score, Clarity Today.
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
@@ -941,9 +941,9 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
             {/* Tier Filters */}
             {[
               { id: 'all', label: 'All Ranked' },
-              { id: 'top', label: '🔥 Top 90+' },
-              { id: 'high', label: '⚡ High 80–89' },
-              { id: 'risk', label: '⚠️ High Risk' },
+              { id: 'top', label: 'Top Tier 90+' },
+              { id: 'high', label: 'High Yield 80–89' },
+              { id: 'risk', label: 'High Risk <70' },
             ].map((tier) => (
               <button
                 key={tier.id}

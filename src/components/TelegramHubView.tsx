@@ -43,8 +43,7 @@ import {
   Trash2,
   Edit3,
   Filter,
-  Zap,
-  Sparkles,
+  Award,
   Send,
   ArrowRight,
 } from "lucide-react";
@@ -315,7 +314,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         const data = await res.json();
         if (data.success) {
           setSyncBannerNotice(
-            `⚡ Auto-Sync Complete! Monitored ${data.monitoredSourcesCount} channels. Ingested ${data.newMessagesCount} new messages (${data.newQuestionsCount} new clinical MCQs).`
+            `Auto-Sync Complete! Monitored ${data.monitoredSourcesCount} channels. Ingested ${data.newMessagesCount} new messages (${data.newQuestionsCount} new clinical MCQs).`
           );
           await fetchFeed();
           await fetchStatus();
@@ -1193,7 +1192,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     <span className="text-sky-300">•</span>
                     <span className="hidden sm:inline">VERIFIED FMGE CHANNELS</span>
                   </div>
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold text-slate-900 tracking-tight font-['Outfit'] leading-snug">
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-snug bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent">
                     Telegram Knowledge Bank
                   </h1>
                 </div>
@@ -1288,7 +1287,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {syncBannerNotice && (
         <div className="p-3 rounded-2xl bg-sky-50 border border-sky-200 text-sky-950 text-xs flex items-center justify-between gap-2 animate-fadeIn shadow-2xs font-medium">
           <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-sky-600 shrink-0" />
+            <Activity className="h-4 w-4 text-sky-600 shrink-0" />
             <span>{syncBannerNotice}</span>
           </div>
           <button
@@ -1368,14 +1367,14 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 px-0.5 scrollbar-none scroll-smooth w-full min-w-0"
           >
             {[
-              { id: "all", label: "All", count: questions.length + pearls.length + tips.length + notices.length, icon: Sparkles },
+              { id: "all", label: "All", count: questions.length + pearls.length + tips.length + notices.length, icon: Layers },
               { id: "questions", label: "Questions", count: questions.length, icon: FileText },
               { id: "saved", label: "Vault", count: savedItems.length, icon: Star, highlight: true },
               { id: "images", label: "Images", count: imageQuestions.length, icon: ImageIcon },
               { id: "videos", label: "Videos", count: videoQuestions.length, icon: Video },
               { id: "tips", label: "Tips", count: tips.length, icon: Lightbulb },
               { id: "notices", label: "Notices", count: notices.length, icon: Bell },
-              { id: "pearls", label: "Exam Pearls", count: pearls.length, icon: Zap },
+              { id: "pearls", label: "Exam Pearls", count: pearls.length, icon: Award },
               { id: "cross_checks", label: "AI Cross-Check", count: crossChecks.length, icon: ShieldCheck },
               { id: "sources", label: "Sources", count: workerHealth.activeSourcesCount, icon: Layers },
               { id: "debugger", label: "Raw Stream", count: messages.length, icon: Terminal },
@@ -1470,7 +1469,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   <option value="all">All Channels ({sources.length})</option>
                   {sources.map((src) => (
                     <option key={src.id} value={src.id}>
-                      {src.title} {src.isMonitored ? "⚡" : ""}
+                      {src.title} {src.isMonitored ? " (Live)" : ""}
                     </option>
                   ))}
                 </select>
@@ -1744,8 +1743,8 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                         {enrichment.highYieldPearl && (
                           <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200/90 text-xs space-y-1 text-amber-950 shadow-2xs">
                             <div className="flex items-center gap-1.5 font-bold font-['Outfit'] text-amber-900">
-                              <Zap className="h-4 w-4 text-amber-600 shrink-0" />
-                              <span>💡 FMGE High-Yield Takeaway</span>
+                              <Award className="h-4 w-4 text-amber-600 shrink-0" />
+                              <span>FMGE High-Yield Takeaway</span>
                             </div>
                             <p className="text-[11px] leading-relaxed text-amber-900/90 font-medium">
                               {enrichment.highYieldPearl}
@@ -2349,13 +2348,13 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         <div className={`space-y-4 ${activeTab !== "pearls" ? "sm:hidden" : ""}`}>
           <div className="sm:hidden flex items-center justify-between pt-4 pb-1 border-b border-stone-200">
             <h3 className="font-serif text-base font-bold text-slate-900 flex items-center gap-2">
-              <Zap className="w-4 h-4 text-amber-600" />
+              <Award className="w-4 h-4 text-amber-600" />
               Exam Pearls ({filteredPearls.length})
             </h3>
           </div>
           {filteredPearls.length === 0 ? (
             <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
-              <Zap className="h-8 w-8 text-amber-500 mx-auto" />
+              <Award className="h-8 w-8 text-amber-500 mx-auto" />
               <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
                 {pearls.length === 0 ? "No Exam Pearls Yet" : "No Exam Pearls Match Your Filter"}
               </h3>
@@ -2954,7 +2953,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   className="w-full py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-[#00685f] border border-teal-200 font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <RefreshCw className={`w-4 h-4 ${isManualSyncing ? "animate-spin" : ""}`} />
-                  {isManualSyncing ? "Syncing MTProto..." : "⚡ Auto-Sync Channels Now"}
+                  {isManualSyncing ? "Syncing MTProto..." : "Auto-Sync Channels Now"}
                 </button>
 
                 <button
@@ -2966,8 +2965,8 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   disabled={isReEnriching}
                   className="w-full py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Zap className={`w-4 h-4 ${isReEnriching ? "animate-spin" : ""}`} />
-                  {isReEnriching ? "Verifying..." : "⚡ Clinical Cross-Check (Gemini)"}
+                  <ShieldCheck className={`w-4 h-4 ${isReEnriching ? "animate-spin" : ""}`} />
+                  {isReEnriching ? "Verifying..." : "Clinical Cross-Check (Gemini)"}
                 </button>
 
                 <button

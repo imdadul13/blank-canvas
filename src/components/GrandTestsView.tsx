@@ -15,7 +15,6 @@ import {
   Filter,
   Info,
   Layers,
-  Sparkles,
   ArrowUpRight,
   ShieldAlert,
   ShieldCheck,
@@ -539,7 +538,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 <Award className="h-5 w-5 text-indigo-100" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold text-slate-900 tracking-tight font-['Outfit'] leading-snug">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent tracking-tight font-['Outfit'] leading-snug">
                   Grand Tests &amp; Mocks
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 leading-normal line-clamp-1 sm:line-clamp-none">

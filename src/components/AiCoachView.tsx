@@ -7,7 +7,7 @@ import {
   Check,
   CheckCheck,
   GraduationCap,
-  Zap,
+  Activity,
   BookOpen,
   TrendingUp,
   AlertTriangle,
@@ -1327,7 +1327,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                   },
                   {
                     category: 'QUIZ MY WEAK AREAS',
-                    icon: Zap,
+                    icon: Activity,
                     title: 'Targeted Subject Quiz',
                     description: '5 high-yield clinical questions tailored to weak subjects.',
                     query: 'Quiz me on 5 high-yield clinical MCQs from my weakest subjects with faculty distractor analysis.',

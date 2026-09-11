@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Stethoscope, ShieldCheck, HeartPulse } from 'lucide-react';
+import { Stethoscope, ShieldCheck, HeartPulse } from 'lucide-react';
 
 interface AppSplashScreenProps {
   statusMessage?: string;

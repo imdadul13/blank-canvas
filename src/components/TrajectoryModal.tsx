@@ -13,7 +13,7 @@ import {
   TrendingUp,
   Activity,
   Layers,
-  Sparkles
+  Brain,
 } from 'lucide-react';
 import { BackwardPlanAnalysis, AppState } from '../types';
 
@@ -82,7 +82,9 @@ export const TrajectoryModal: React.FC<TrajectoryModalProps> = ({
                 </span>
                 <span className="text-xs text-slate-300">Phase: {analysis.phaseBadge}</span>
               </div>
-              <h2 className="text-xl font-black tracking-tight mt-1">FMGE Backward Plan & Trajectory</h2>
+              <h2 className="text-xl font-black tracking-tight mt-1 bg-gradient-to-r from-white via-slate-100 to-teal-200 bg-clip-text text-transparent">
+                FMGE Backward Plan & Trajectory
+              </h2>
             </div>
           </div>
 
@@ -217,7 +219,7 @@ export const TrajectoryModal: React.FC<TrajectoryModalProps> = ({
             }}
             className="px-4 py-2 bg-white hover:bg-slate-100 text-indigo-600 border border-indigo-200 rounded-xl text-xs font-bold transition-colors flex items-center space-x-1.5"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Brain className="w-3.5 h-3.5 text-[#006B63]" />
             <span>Ask Coach About Trajectory</span>
           </button>
 

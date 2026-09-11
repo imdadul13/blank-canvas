@@ -14,7 +14,7 @@ import {
   RotateCcw,
   ShieldCheck,
   Award,
-  Sparkles,
+  Compass,
   BookOpen,
   Search,
   HelpCircle,
@@ -25,7 +25,6 @@ import {
   Eye,
   Calendar,
   Target,
-  Zap,
 } from 'lucide-react';
 import { AppState, DailyTask, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -432,7 +431,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-[#4338CA] text-[10px] sm:text-[11px] font-bold font-mono tracking-wide">
                     <span>PERFORMANCE DIAGNOSTIC ENGINE</span>
                   </div>
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-bold font-['Newsreader'] tracking-tight text-slate-900 leading-snug">
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-bold font-['Newsreader'] tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent leading-snug">
                     Know exactly where you stand.
                   </h1>
                 </div>
@@ -808,9 +807,9 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                       ) : isRevision ? (
                         <RotateCcw className="w-4 h-4" />
                       ) : isStarter ? (
-                        <Sparkles className="w-4 h-4" />
+                        <Compass className="w-4 h-4" />
                       ) : (
-                        <Zap className="w-4 h-4" />
+                        <Activity className="w-4 h-4" />
                       )}
                     </div>
 

@@ -6,7 +6,7 @@ import {
   RefreshCw,
   X,
   MoreHorizontal,
-  Zap,
+  Activity,
   Brain,
   Stethoscope,
   Award,
@@ -75,7 +75,7 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
     if (l.includes('concept') || idx === 0) return Brain;
     if (l.includes('compare') || l.includes('differ') || idx === 1) return Stethoscope;
     if (l.includes('mcq') || l.includes('vignette') || idx === 2) return Award;
-    return Zap;
+    return Activity;
   };
 
   const hasContent = Boolean(inputQuery.trim() || attachedImage);
