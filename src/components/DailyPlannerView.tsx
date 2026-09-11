@@ -665,17 +665,9 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             </div>
           </div>
 
-          <div className="space-y-1.5 max-w-xl">
-            {/* Title Top Text with Aesthetic Gradient Background */}
-            <div className="flex items-center">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-stone-500/10 to-emerald-500/10 border border-teal-200/80 text-teal-800 shadow-2xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                Daily Planner · Clinical Schedule
-              </span>
-            </div>
-
-            {/* Main Title & Subtitle */}
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className="space-y-1.5 max-w-2xl">
+            {/* Main Title & Subtitle + Sidely Aligned Top Words */}
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 min-w-0">
               <motion.div
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.94 }}
@@ -685,9 +677,13 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               >
                 <Calendar className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
               </motion.div>
-              <h1 className="font-serif text-xl sm:text-2xl lg:text-[25px] font-semibold bg-gradient-to-r from-stone-950 via-stone-800 to-teal-800 bg-clip-text text-transparent tracking-tight leading-snug">
+              <h1 className="font-serif text-xl sm:text-2xl lg:text-[24px] font-bold uppercase tracking-tight bg-gradient-to-r from-stone-950 via-stone-800 to-teal-800 bg-clip-text text-transparent leading-snug">
                 Today’s Plan &amp; Focus
               </h1>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-stone-500/10 to-emerald-500/10 border border-teal-200/80 text-teal-800 shadow-2xs shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                Daily Planner · Clinical Schedule
+              </span>
             </div>
 
             <p className="text-xs sm:text-sm text-stone-500 leading-normal line-clamp-1 sm:line-clamp-none">

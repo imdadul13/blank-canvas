@@ -472,17 +472,9 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         {/* Content Layout with Original Previous Texts */}
         <div className="relative z-10 space-y-2.5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div className="space-y-1.5 max-w-xl">
-              {/* Title Top Text with Aesthetic Gradient Background */}
-              <div className="flex items-center">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-teal-500/10 border border-emerald-200/80 text-emerald-800 shadow-2xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Curriculum · 19 Subjects
-                </span>
-              </div>
-
-              {/* Heading with Minimal Animated Insignia */}
-              <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="space-y-1.5 max-w-2xl">
+              {/* Heading with Minimal Animated Insignia + Uppercase Title + Sidely Aligned Top Words */}
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
                 <motion.div
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.94 }}
@@ -492,9 +484,13 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 >
                   <BookOpen className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-emerald-700 stroke-[2]" />
                 </motion.div>
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-bold font-display tracking-tight bg-gradient-to-r from-stone-950 via-emerald-950 to-teal-800 bg-clip-text text-transparent leading-snug">
+                <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold font-display uppercase tracking-tight bg-gradient-to-r from-stone-950 via-emerald-950 to-teal-800 bg-clip-text text-transparent leading-snug">
                   Your Study Plan
                 </h1>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-teal-500/10 border border-emerald-200/80 text-emerald-800 shadow-2xs shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Curriculum · 19 Subjects
+                </span>
               </div>
 
               <p className="text-xs sm:text-sm text-stone-600 leading-normal">

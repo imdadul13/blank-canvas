@@ -115,16 +115,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
         <div className="space-y-8">
           {/* Header */}
           <header className="space-y-2 border-b border-slate-200/80 pb-6">
-            {/* Title Top Text with Aesthetic Gradient Background */}
-            <div className="flex items-center">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-slate-500/12 via-stone-500/8 to-slate-500/8 border border-slate-200/90 text-slate-700 shadow-2xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse" />
-                Clinical Utilities &amp; Services
-              </span>
-            </div>
-
-            {/* Heading with Minimal Animated Insignia */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Heading with Minimal Animated Insignia + Uppercase Title + Sidely Aligned Top Words */}
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               <motion.div
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.94 }}
@@ -134,9 +126,13 @@ export const MoreView: React.FC<MoreViewProps> = ({
               >
                 <LayoutGrid className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-slate-700 stroke-[2]" />
               </motion.div>
-              <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-semibold font-display tracking-tight bg-gradient-to-r from-slate-950 via-stone-900 to-slate-700 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-extrabold uppercase font-display tracking-tight bg-gradient-to-r from-slate-950 via-stone-900 to-slate-700 bg-clip-text text-transparent">
                 Clinical Utilities &amp; Services
               </h1>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-slate-500/12 via-stone-500/8 to-slate-500/8 border border-slate-200/90 text-slate-700 shadow-2xs shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse" />
+                System Directory
+              </span>
             </div>
 
             <p className="text-sm sm:text-base text-slate-500 max-w-2xl leading-relaxed">
