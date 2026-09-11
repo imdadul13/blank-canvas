@@ -175,7 +175,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#F0FBF7] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+        className="relative overflow-hidden rounded-3xl border border-blue-200/60 bg-gradient-to-br from-[#F8FAFC] via-[#FAFBFD] via-45% to-[#EFF6FF] p-4 sm:px-6 sm:py-3.5 shadow-xs"
       >
         {/* Dynamic Animated Ambient Study Background Effects */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -184,7 +184,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
           <motion.div
             animate={{
               scale: [1, 1.18, 1],
-              opacity: [0.4, 0.65, 0.4],
+              opacity: [0.35, 0.55, 0.35],
               x: [0, 18, 0],
             }}
             transition={{
@@ -192,12 +192,12 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
               repeat: Infinity,
               ease: 'easeInOut',
             }}
-            className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/40 via-emerald-200/30 to-transparent blur-3xl"
+            className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-blue-400/30 via-sky-200/20 to-transparent blur-3xl"
           />
           <motion.div
             animate={{
               scale: [1, 1.1, 1],
-              opacity: [0.25, 0.45, 0.25],
+              opacity: [0.2, 0.35, 0.2],
               y: [0, -12, 0],
             }}
             transition={{
@@ -205,9 +205,9 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
               repeat: Infinity,
               ease: 'easeInOut',
             }}
-            className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-cyan-200/35 via-teal-100/25 to-transparent blur-3xl"
+            className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-indigo-300/25 via-blue-100/20 to-transparent blur-3xl"
           />
-          <div className="absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r from-teal-200/25 via-emerald-100/20 to-transparent blur-3xl" />
+          <div className="absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r from-sky-200/20 via-blue-100/15 to-transparent blur-3xl" />
 
           {/* Subtle Curriculum Blueprint Grid */}
           <svg
@@ -478,18 +478,18 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 whileTap={{ scale: 0.94 }}
                 animate={{ y: [0, -2, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-emerald-50/90 border border-emerald-100/90 text-emerald-700 shadow-2xs shrink-0 mt-0.5 cursor-default"
+                className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-blue-50/90 border border-blue-100/90 text-blue-700 shadow-2xs shrink-0 mt-0.5 cursor-default"
               >
-                <BookOpen className="h-5 w-5 text-emerald-700 stroke-[2]" />
+                <BookOpen className="h-5 w-5 text-blue-700 stroke-[2]" />
               </motion.div>
 
               <div className="space-y-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                  <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold font-display uppercase tracking-tight bg-gradient-to-r from-stone-950 via-emerald-950 to-teal-800 bg-clip-text text-transparent leading-snug">
-                    Your Study Plan
+                  <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold font-display uppercase tracking-tight bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-700 bg-clip-text text-transparent leading-snug">
+                    YOUR STUDY PLAN
                   </h1>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-teal-500/10 border border-emerald-200/80 text-emerald-800 shadow-2xs shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-blue-500/15 via-sky-500/10 to-indigo-500/10 border border-blue-200/80 text-blue-800 shadow-2xs shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                     Curriculum · 19 Subjects
                   </span>
                 </div>
