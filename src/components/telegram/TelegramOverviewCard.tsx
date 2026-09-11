@@ -27,18 +27,23 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
   };
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-6 shadow-2xs">
+    <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5">
         {/* Left: Branding & Explanation */}
-        <div className="flex items-start gap-3.5 sm:gap-4">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#ECF7F5] text-[#00685f] flex items-center justify-center border border-[#d2ebe6] shrink-0">
-            <Database className="w-5 h-5 sm:w-6 sm:h-6" />
+        <div className="flex items-center gap-3 sm:gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100/90 shadow-2xs shrink-0">
+            <Database className="w-4.5 h-4.5 stroke-[2]" />
           </div>
           <div>
-            <h3 className="font-serif text-lg sm:text-xl font-bold text-slate-900 leading-snug">
-              Your Cloud Knowledge Bank
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1 max-w-xl leading-relaxed">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-tight bg-gradient-to-r from-slate-900 to-sky-900 bg-clip-text text-transparent font-['Outfit']">
+                CLOUD INGESTION REPOSITORY
+              </h3>
+              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[9.5px] font-bold font-mono tracking-widest uppercase bg-sky-50 text-sky-700 border border-sky-200/80">
+                LIVE METRICS
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5 max-w-xl leading-relaxed">
               High-yield content from trusted Telegram channels, organized for your FMGE preparation.
             </p>
           </div>

@@ -921,25 +921,9 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6 sm:space-y-8 animate-fadeIn pb-56 sm:pb-40 lg:pb-16 font-['Plus_Jakarta_Sans'] min-w-0 max-w-full overflow-x-clip">
       {/* ========================================================================= */}
-      {/* 1. TOP BREADCRUMB & EDITORIAL HERO HEADER */}
+      {/* 1. EDITORIAL HERO HEADER */}
       {/* ========================================================================= */}
       <div className="space-y-3">
-        {/* Breadcrumb Navigation */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider font-mono">
-            <span className="text-stone-500">UTILITIES</span>
-            <span className="text-stone-400">•</span>
-            <span className="text-[#006B63] font-bold">COMMUNITY KNOWLEDGE HUB</span>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-teal-50 text-teal-800 border border-teal-200">
-              <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-teal-500'}`} />
-              {isConnected ? 'MTProto Live Synced' : 'Community Feed Active'}
-            </span>
-          </div>
-        </div>
-
         {/* Hero Header Card with Motion & Visual Animations */}
         <motion.header
           initial={{ opacity: 0, y: -12 }}
@@ -1189,7 +1173,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               <div className="space-y-1.5 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
                   <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-gradient-to-r from-slate-950 via-sky-950 to-cyan-800 bg-clip-text text-transparent">
-                    TELEGRAM KNOWLEDGE BANK
+                    TELEGRAM HUB &amp; KNOWLEDGE BANK
                   </h1>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-sky-500/15 via-cyan-500/10 to-teal-500/10 border border-sky-200/80 text-sky-800 shadow-2xs shrink-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
@@ -1226,6 +1210,11 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             {/* Right Action & Editorial Quote Card */}
             <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end gap-2 shrink-0">
               <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold font-mono bg-teal-50 text-teal-800 border border-teal-200 shadow-2xs">
+                  <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-teal-500'}`} />
+                  {isConnected ? 'MTProto Synced' : 'Feed Active'}
+                </span>
+
                 <button
                   type="button"
                   onClick={handleManualSyncNow}

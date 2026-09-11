@@ -729,12 +729,12 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
             <div className="space-y-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                <h1 className="font-['Newsreader',_Georgia,_serif] text-lg sm:text-xl lg:text-2xl font-bold uppercase tracking-tight bg-gradient-to-r from-stone-950 via-amber-950 to-amber-800 bg-clip-text text-transparent">
-                  High-Yield Knowledge &amp; Pearls
+                <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase font-['Outfit'] tracking-tight bg-gradient-to-r from-stone-950 via-amber-950 to-amber-800 bg-clip-text text-transparent leading-snug">
+                  HIGH-YIELD KNOWLEDGE &amp; PEARLS
                 </h1>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-200/80 text-amber-800 shadow-2xs shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  Clinical Pearls · AI Synthesizer
+                  KNOWLEDGE VAULT · AI SYNTHESIZER
                 </span>
               </div>
 
