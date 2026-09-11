@@ -1171,13 +1171,13 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               </motion.div>
 
               <div className="space-y-1.5 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                  <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-gradient-to-r from-slate-950 via-sky-950 to-cyan-800 bg-clip-text text-transparent">
-                    TELEGRAM HUB &amp; KNOWLEDGE BANK
+                <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+                  <h1 className="text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-gradient-to-r from-slate-950 via-sky-950 to-cyan-800 bg-clip-text text-transparent shrink-0">
+                    TELEGRAM HUB
                   </h1>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-sky-500/15 via-cyan-500/10 to-teal-500/10 border border-sky-200/80 text-sky-800 shadow-2xs shrink-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-                    Community Feeds · Verified Channels
+                    Community Feeds
                   </span>
                 </div>
 
