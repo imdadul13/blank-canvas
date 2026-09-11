@@ -57,6 +57,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
   const {
     user,
     profile,
+    isGuest,
     updateProfileData,
     signOutUser,
   } = useAuth();
@@ -737,9 +738,11 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 </div>
               </div>
 
-              {/* Sign Out Action */}
+              {/* Sign Out / Exit Practice Mode Action */}
               <div className="pt-3 flex justify-between items-center border-t border-stone-200/60">
-                <span className="text-xs text-stone-500">Current Doctor Credentials</span>
+                <span className="text-xs text-stone-500">
+                  {isGuest ? 'Local Session (Offline)' : 'Current Doctor Credentials'}
+                </span>
                 <button
                   type="button"
                   onClick={() => {
@@ -749,7 +752,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
                 >
                   <LogOut className="h-3.5 w-3.5" />
-                  <span>Sign Out</span>
+                  <span>{isGuest ? 'Exit Local Practice Mode' : 'Sign Out'}</span>
                 </button>
               </div>
             </div>

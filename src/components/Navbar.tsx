@@ -17,6 +17,8 @@ import {
   ChevronRight,
   ChevronDown,
   Compass,
+  ArrowLeft,
+  LogOut,
 } from 'lucide-react';
 import OneShotLogo from './OneShotLogo';
 import { AppStats } from '../utils/storage';
@@ -53,6 +55,8 @@ export interface NavbarProps {
   userEmail?: string;
   photoURL?: string | null;
   syncStatus?: SyncStatus;
+  isGuest?: boolean;
+  onExitGuest?: () => void;
 }
 
 export const primaryNavItems = [
@@ -466,6 +470,8 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   onOpenOnboarding,
   userName,
   photoURL,
+  isGuest,
+  onExitGuest,
 }) => {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
@@ -730,6 +736,37 @@ export const SidebarDock: React.FC<NavbarProps> = ({
         </nav>
       </div>
 
+      {/* Local Practice Mode Active Card with Quick Exit */}
+      {isGuest && (
+        <div className="px-3 pb-2.5">
+          <div className="rounded-2xl p-3 bg-gradient-to-br from-teal-50/90 via-white to-amber-50/50 border border-teal-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="font-extrabold text-[#006B63] flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                Local Mode
+              </span>
+              <span className="text-[10px] font-mono text-stone-400 font-semibold">Offline</span>
+            </div>
+            <p className="text-[11px] text-stone-600 leading-snug">
+              Progress saved on this device. Sign in anytime to sync.
+            </p>
+            {onExitGuest && (
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 24 }}
+                onClick={onExitGuest}
+                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-gradient-to-r from-[#006B63] to-[#0D9488] hover:from-[#005750] hover:to-[#08776C] text-white text-xs font-bold shadow-xs cursor-pointer transition-all"
+              >
+                <ArrowLeft className="h-3.5 w-3.5 stroke-[2.5]" />
+                <span>Exit to Sign In</span>
+              </motion.button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Bottom: Ambient Medical Signature ──────────────── */}
       <AmbientMedicalMotif />
     </aside>
@@ -749,6 +786,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenOnboarding,
   userName,
   photoURL,
+  isGuest,
+  onExitGuest,
 }) => {
   const initials = (userName || 'Dr')
     .split(' ')
@@ -805,6 +844,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <OneShotLogo variant="compact" />
           </div>
+
+          {isGuest && onExitGuest && (
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.94 }}
+              onClick={onExitGuest}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-300/80 text-[11px] font-extrabold text-[#006B63] shadow-2xs cursor-pointer"
+              title="Exit Local Practice Mode"
+            >
+              <ArrowLeft className="h-3 w-3 stroke-[2.5]" />
+              <span>Exit</span>
+            </motion.button>
+          )}
         </div>
 
         {/* Right Action Icons: Bell + More Utilities + Avatar */}
@@ -928,7 +981,29 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </button>
                     );
                   })}
-                </motion.div>
+
+                    {isGuest && onExitGuest && (
+                      <div className="pt-1.5 mt-1 border-t border-slate-100">
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setMobileMoreOpen(false);
+                            onExitGuest();
+                          }}
+                          className="w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer bg-rose-50/60 hover:bg-rose-100/70 text-rose-800"
+                        >
+                          <div className="p-1.5 rounded-lg shrink-0 bg-rose-100 text-rose-700">
+                            <LogOut className="h-4 w-4" />
+                          </div>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-xs font-bold leading-tight">Exit Local Mode</span>
+                            <span className="block text-[10px] text-rose-500 truncate">Return to Sign In & Cloud Sync</span>
+                          </span>
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
               )}
             </AnimatePresence>
           </div>

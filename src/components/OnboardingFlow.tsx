@@ -102,8 +102,29 @@ function buildYearWindow(currentYear: number, startYear: number): number[] {
 }
 
 export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComplete }) => {
-  const { profile, completeOnboarding, saveOnboardingProgress } = useAuth();
+  const { profile, isGuest, signOutUser, completeOnboarding, saveOnboardingProgress, setShowOnboarding } = useAuth();
   const reduceMotion = useReducedMotion();
+
+  const handleExitToWelcome = async () => {
+    if (isGuest) {
+      await signOutUser();
+    } else {
+      setShowOnboarding(false);
+    }
+  };
+
+  const handleSkipToWorkspace = async () => {
+    try {
+      await completeOnboarding('2026-10-15', 185, 6, {
+        source: 'Marrow',
+        studyPreferences: ['mcqs', 'rapid_revision'],
+      });
+      onComplete?.();
+    } catch (e) {
+      console.warn('Skip onboarding notice:', e);
+      onComplete?.();
+    }
+  };
 
   const [step, setStep] = useState<StepId>('welcome');
 
@@ -358,8 +379,21 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
           </span>
         </div>
 
-        {/* Step telemetry badge */}
-        <div className="flex items-center gap-2">
+        {/* Actions: Exit / Return to Sign In + Step telemetry badge */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <motion.button
+            type="button"
+            whileHover={reduceMotion ? undefined : { scale: 1.05 }}
+            whileTap={reduceMotion ? undefined : { scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 26 }}
+            onClick={handleExitToWelcome}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/95 border border-stone-200/90 hover:border-teal-400 text-stone-700 hover:text-stone-950 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+            title="Return to Welcome / Sign In"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 text-[#006B63]" />
+            <span>{isGuest ? 'Back to Sign In' : 'Exit Setup'}</span>
+          </motion.button>
+
           {answerProgress !== null && (
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-stone-200/90 shadow-2xs">
               <span className="text-[11px] font-mono font-bold text-[#006B63] tabular-nums">
@@ -459,7 +493,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                       <ShieldCheck className="h-3.5 w-3.5" />
                       Doctor Preparation System
                     </div>
-                    <h1 className="font-['Newsreader',_serif] text-3xl sm:text-4xl sm:leading-tight font-semibold text-slate-900 tracking-tight">
+                    <h1 className="text-3xl sm:text-4xl sm:leading-tight font-extrabold tracking-[-0.035em] text-slate-900">
                       Architect your path to clearing the FMGE.
                     </h1>
                     <p className="text-sm sm:text-[15px] text-stone-600 leading-relaxed max-w-md mx-auto">
@@ -500,16 +534,43 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                     </div>
                   </div>
 
-                  {/* Start Blueprint Setup Button */}
-                  <div className="pt-2">
-                    <button
+                  {/* Start Blueprint Setup Button & Back Actions */}
+                  <div className="pt-3 flex flex-col items-center gap-3">
+                    <motion.button
                       type="button"
+                      whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
+                      whileTap={reduceMotion ? undefined : { scale: 0.96 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 26 }}
                       onClick={() => setStep('examDate')}
-                      className="group inline-flex items-center gap-2.5 rounded-full bg-[#006B63] hover:bg-[#00544E] active:scale-[0.98] px-8 py-4 text-sm font-semibold text-white shadow-md shadow-teal-950/20 transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] focus-visible:ring-offset-2"
+                      className="group inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#006B63] via-[#0D9488] to-[#10B981] px-8 py-4 text-sm font-bold text-white shadow-lg shadow-teal-950/20 transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] focus-visible:ring-offset-2"
                     >
                       <span>Begin Blueprint Setup</span>
                       <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-                    </button>
+                    </motion.button>
+
+                    <div className="flex items-center gap-3 pt-1">
+                      <motion.button
+                        type="button"
+                        whileHover={reduceMotion ? undefined : { scale: 1.04 }}
+                        whileTap={reduceMotion ? undefined : { scale: 0.95 }}
+                        transition={{ type: 'spring', stiffness: 450, damping: 26 }}
+                        onClick={handleExitToWelcome}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-stone-300/90 bg-white/90 hover:bg-white text-xs font-semibold text-stone-700 hover:text-stone-900 shadow-2xs transition-all cursor-pointer"
+                      >
+                        <ArrowLeft className="h-3.5 w-3.5 text-[#006B63]" />
+                        <span>{isGuest ? 'Back to Sign In & Welcome' : 'Return to Home'}</span>
+                      </motion.button>
+
+                      {isGuest && (
+                        <button
+                          type="button"
+                          onClick={handleSkipToWorkspace}
+                          className="text-xs text-stone-500 hover:text-[#006B63] font-medium underline underline-offset-4 cursor-pointer transition-colors"
+                        >
+                          Skip directly to Practice →
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -526,7 +587,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                         Exam Calibration
                       </span>
                     </div>
-                    <h2 className="font-['Newsreader',_serif] text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-[-0.03em] text-slate-900">
                       When is your target FMGE?
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-500">
@@ -717,7 +778,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                         Score Safety Margin
                       </span>
                     </div>
-                    <h2 className="font-['Newsreader',_serif] text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-[-0.03em] text-slate-900">
                       What score are you aiming for?
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-500">
@@ -825,7 +886,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                         Preparation Phase
                       </span>
                     </div>
-                    <h2 className="font-['Newsreader',_serif] text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-[-0.03em] text-slate-900">
                       Where are you right now?
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-500">
@@ -837,22 +898,25 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                     {PREPARATION_STAGE_OPTIONS.map((option) => {
                       const active = preparationStage === option.id;
                       return (
-                        <button
+                        <motion.button
                           key={option.id}
                           type="button"
+                          whileHover={reduceMotion ? undefined : { scale: 1.012, y: -2 }}
+                          whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                          transition={{ type: 'spring', stiffness: 450, damping: 26 }}
                           onClick={() => setPreparationStage(option.id)}
                           aria-pressed={active}
                           className={`p-4 rounded-2xl border text-left transition-all flex items-center justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] ${
                             active
-                              ? 'border-[#006B63] bg-teal-50/40 ring-1 ring-[#006B63] shadow-xs'
-                              : 'border-stone-200 bg-white hover:bg-stone-50/80'
+                              ? 'border-[#006B63] bg-gradient-to-r from-teal-50/90 via-emerald-50/60 to-white ring-2 ring-[#006B63]/30 shadow-md shadow-teal-950/5'
+                              : 'border-stone-200 bg-white hover:bg-stone-50/80 hover:border-stone-300'
                           }`}
                         >
                           <div className="space-y-1">
                             <p className="text-sm font-bold text-slate-900 flex items-center gap-2">
                               {option.label}
                               {active && (
-                                <span className="inline-flex items-center px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#006B63] text-white">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#006B63] text-white shadow-2xs">
                                   Selected
                                 </span>
                               )}
@@ -862,13 +926,13 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                           <div
                             className={`h-6 w-6 rounded-full border flex items-center justify-center shrink-0 ml-3 transition-colors ${
                               active
-                                ? 'bg-[#006B63] border-[#006B63] text-white'
+                                ? 'bg-[#006B63] border-[#006B63] text-white shadow-xs'
                                 : 'border-stone-300 bg-stone-50'
                             }`}
                           >
-                            {active && <Check className="h-3.5 w-3.5" />}
+                            {active && <Check className="h-3.5 w-3.5 stroke-[2.5]" />}
                           </div>
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
@@ -887,7 +951,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                         Daily Commitment
                       </span>
                     </div>
-                    <h2 className="font-['Newsreader',_serif] text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-[-0.03em] text-slate-900">
                       How much time can you commit daily?
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-500">
@@ -959,7 +1023,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                         Learning Formats
                       </span>
                     </div>
-                    <h2 className="font-['Newsreader',_serif] text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-[-0.03em] text-slate-900">
                       How do you learn best?
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-500">
@@ -971,26 +1035,29 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                     {STUDY_PREFERENCES_OPTIONS.map((pref) => {
                       const active = studyPreferences.includes(pref.id);
                       return (
-                        <button
+                        <motion.button
                           key={pref.id}
                           type="button"
+                          whileHover={reduceMotion ? undefined : { scale: 1.02, y: -2 }}
+                          whileTap={reduceMotion ? undefined : { scale: 0.97 }}
+                          transition={{ type: 'spring', stiffness: 450, damping: 26 }}
                           onClick={() => togglePreference(pref.id)}
                           aria-pressed={active}
                           className={`p-4 rounded-2xl border text-sm font-semibold transition-all flex items-center justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] ${
                             active
-                              ? 'border-[#006B63] bg-teal-50/40 text-slate-900 ring-1 ring-[#006B63] shadow-xs'
-                              : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
+                              ? 'border-[#006B63] bg-gradient-to-r from-teal-50/90 to-emerald-50/40 text-slate-900 ring-2 ring-[#006B63]/25 shadow-xs'
+                              : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 hover:border-stone-300'
                           }`}
                         >
                           <span className="text-sm font-bold text-slate-800">{pref.label}</span>
                           <span
                             className={`h-5 w-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                              active ? 'bg-[#006B63] border-[#006B63] text-white' : 'border-stone-300'
+                              active ? 'bg-[#006B63] border-[#006B63] text-white shadow-2xs' : 'border-stone-300'
                             }`}
                           >
-                            {active && <Check className="h-3.5 w-3.5" />}
+                            {active && <Check className="h-3.5 w-3.5 stroke-[2.5]" />}
                           </span>
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
@@ -1009,7 +1076,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                         Diagnostic Assessment
                       </span>
                     </div>
-                    <h2 className="font-['Newsreader',_serif] text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-[-0.03em] text-slate-900">
                       Have you taken a recent Grand Test?
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-500">
@@ -1137,7 +1204,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                   </div>
 
                   <div className="space-y-2 max-w-sm mx-auto">
-                    <h2 className="font-['Newsreader',_serif] text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-[-0.03em] text-slate-900">
                       Synthesizing Your Clinical Blueprint
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-500">
@@ -1205,7 +1272,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                       <Check className="h-3.5 w-3.5" />
                       Blueprint Calibrated &amp; Verified
                     </div>
-                    <h2 className="font-['Newsreader',_serif] text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-[-0.03em] text-slate-900">
                       Your FMGE Blueprint is Ready, Doctor.
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-500 max-w-md mx-auto">
@@ -1306,28 +1373,43 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
             )}
             <div className="flex items-center justify-between gap-3">
               {stepIndex > 0 ? (
-                <button
+                <motion.button
                   type="button"
+                  whileHover={reduceMotion ? undefined : { x: -2 }}
+                  whileTap={reduceMotion ? undefined : { scale: 0.96 }}
                   onClick={goBack}
                   disabled={isSaving}
-                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-stone-600 hover:text-slate-900 transition-colors cursor-pointer disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] rounded px-2 py-1"
+                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-stone-600 hover:text-slate-900 transition-colors cursor-pointer disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] rounded-full px-3 py-1.5"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Back
-                </button>
+                </motion.button>
               ) : (
-                <div />
+                <motion.button
+                  type="button"
+                  whileHover={reduceMotion ? undefined : { scale: 1.04 }}
+                  whileTap={reduceMotion ? undefined : { scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 26 }}
+                  onClick={handleExitToWelcome}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 hover:text-stone-900 transition-colors cursor-pointer rounded-full px-3.5 py-1.5 border border-stone-200/80 bg-white/90 hover:bg-white shadow-2xs"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5 text-[#006B63]" />
+                  <span>{isGuest ? 'Back to Sign In' : 'Exit'}</span>
+                </motion.button>
               )}
 
-              <button
+              <motion.button
                 type="button"
+                whileHover={reduceMotion ? undefined : { scale: 1.03 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 26 }}
                 onClick={goNext}
                 disabled={
                   isSaving ||
                   (step === 'examDate' && !canContinueExamDate) ||
                   (step === 'targetScore' && !canContinueTargetScore)
                 }
-                className="group inline-flex items-center gap-2 rounded-full bg-[#006B63] hover:bg-[#00544E] active:scale-[0.98] px-7 py-3 text-xs sm:text-sm font-semibold text-white shadow-sm shadow-teal-950/15 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] focus-visible:ring-offset-2"
+                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#006B63] via-[#0D9488] to-[#059669] px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-md shadow-teal-950/15 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63] focus-visible:ring-offset-2"
               >
                 {isSaving ? (
                   <>
@@ -1345,7 +1427,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </>
                 )}
-              </button>
+              </motion.button>
             </div>
           </div>
         </footer>

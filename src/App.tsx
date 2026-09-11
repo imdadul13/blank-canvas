@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { Navbar, SidebarDock, ActiveTab } from './components/Navbar';
 import { motion, AnimatePresence } from 'motion/react';
 import { DashboardView } from './components/DashboardView';
@@ -59,6 +60,7 @@ function AppInner() {
     profile,
     isLoading,
     isGuest,
+    signOutUser,
     isRestoringData,
     syncStatus,
     appState: state,
@@ -678,6 +680,8 @@ function AppInner() {
         userEmail={user?.email || profile?.email || ''}
         photoURL={profile?.photoURL || user?.photoURL || undefined}
         syncStatus={syncStatus}
+        isGuest={isGuest}
+        onExitGuest={signOutUser}
       />
 
       {/* Main Workspace Column */}
@@ -701,6 +705,48 @@ function AppInner() {
           />
         )}
 
+        {/* SwiftUI Floating Dynamic Island: Local Practice Mode Banner with Quick Exit */}
+        {isGuest && (
+          <div className="sticky top-2 sm:top-3 z-30 px-3 sm:px-6 pt-1 pointer-events-none">
+            <motion.div
+              initial={{ y: -30, opacity: 0, scale: 0.96 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+              className="pointer-events-auto mx-auto w-full max-w-4xl px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white/92 backdrop-blur-2xl border border-teal-500/30 shadow-[0_12px_36px_rgba(0,107,99,0.12)] flex items-center justify-between gap-3 text-slate-800 select-none"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#006B63]" />
+                </span>
+                <div className="flex items-center gap-2 min-w-0 flex-wrap">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-teal-50 to-emerald-50 text-[#006B63] border border-teal-200/80 shrink-0">
+                    Local Practice Mode
+                  </span>
+                  <span className="text-xs text-stone-500 hidden md:inline truncate font-medium">
+                    Offline access · All attempts saved locally
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.05, y: -1 }}
+                  whileTap={{ scale: 0.94 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 24 }}
+                  onClick={() => signOutUser()}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold text-white bg-gradient-to-r from-[#006B63] via-[#0D9488] to-[#10B981] hover:from-[#005750] hover:to-[#059669] shadow-sm shadow-teal-950/20 hover:shadow-md hover:shadow-teal-900/25 cursor-pointer transition-all"
+                  title="Return to Welcome & Sign In"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5 stroke-[2.5]" />
+                  <span>Exit to Sign In</span>
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
         {/* Mobile Top Navbar & Bottom Bar */}
         <Navbar
           activeTab={activeTab}
@@ -716,6 +762,8 @@ function AppInner() {
           userEmail={user?.email || profile?.email || ''}
           photoURL={profile?.photoURL || user?.photoURL || undefined}
           syncStatus={syncStatus}
+          isGuest={isGuest}
+          onExitGuest={signOutUser}
         />
 
         {/* Main Content Area */}

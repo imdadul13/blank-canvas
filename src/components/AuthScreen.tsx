@@ -485,19 +485,30 @@ export const AuthScreen: React.FC = () => {
               </motion.button>
             </div>
 
-            {/* Guest Practice Mode */}
-            <div className="pt-1">
+            {/* Guest Practice Mode — SwiftUI Styled Floating Interactive Capsule */}
+            <div className="pt-2">
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.015 }}
-                whileTap={{ scale: 0.985 }}
+                whileHover={{ scale: 1.03, y: -1 }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 24 }}
                 onClick={handleGuestEntry}
-                className="group inline-flex items-center gap-2 px-4.5 py-2.5 rounded-full border border-stone-200/90 bg-white/80 hover:bg-white text-xs font-semibold text-stone-600 hover:text-stone-900 transition-all cursor-pointer shadow-2xs"
+                className="group relative inline-flex items-center gap-2.5 px-5 py-3 rounded-full border border-teal-300/80 hover:border-teal-400 bg-gradient-to-r from-teal-50/90 via-white to-emerald-50/80 hover:from-teal-100/90 hover:to-emerald-100/90 text-xs font-bold text-stone-800 transition-all cursor-pointer shadow-[0_4px_16px_rgba(0,107,99,0.08)] hover:shadow-[0_8px_24px_rgba(0,107,99,0.14)]"
               >
-                <PlayCircle className="h-4 w-4 text-[#006B63]" />
-                <span>Continue in Local Practice Mode (Instant Access · No Sign-in)</span>
-                <ArrowRight className="h-3.5 w-3.5 text-stone-400 group-hover:text-stone-800 group-hover:translate-x-1 transition-all" />
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#006B63]" />
+                </span>
+                <PlayCircle className="h-4 w-4 text-[#006B63] group-hover:scale-110 transition-transform duration-200" />
+                <span className="font-extrabold text-stone-900">Start in Local Practice Mode</span>
+                <span className="px-2 py-0.5 rounded-full text-[10.5px] font-extrabold bg-[#006B63]/10 text-[#006B63] border border-[#006B63]/15">
+                  Instant Access
+                </span>
+                <ArrowRight className="h-3.5 w-3.5 text-stone-400 group-hover:text-stone-900 group-hover:translate-x-1 transition-all" />
               </motion.button>
+              <p className="text-[11px] text-stone-400 font-medium mt-1.5 pl-2">
+                ⚡ No account needed · Offline progress saved · Exit back anytime
+              </p>
             </div>
           </div>
 
