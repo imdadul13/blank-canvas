@@ -1175,48 +1175,50 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
           {/* Header Content Body */}
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div className="space-y-1.5 max-w-2xl">
-              {/* Insignia + Uppercase Title Row + Sidely Aligned Top Words */}
-              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-                <motion.div
-                  whileHover={{ scale: 1.08 }}
-                  whileTap={{ scale: 0.94 }}
-                  animate={{ x: [0, 2, 0], y: [0, -2, 0] }}
-                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                  className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-sky-50/90 border border-sky-100/90 text-sky-600 shadow-2xs shrink-0 cursor-default"
-                >
-                  <Send className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-sky-600 rotate-[-20deg] stroke-[2]" />
-                </motion.div>
-                <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-gradient-to-r from-slate-950 via-sky-950 to-cyan-800 bg-clip-text text-transparent">
-                  Telegram Knowledge Bank
-                </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-sky-500/15 via-cyan-500/10 to-teal-500/10 border border-sky-200/80 text-sky-800 shadow-2xs shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-                  Community Feeds · Verified Channels
-                </span>
-              </div>
+            <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
+              <motion.div
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.94 }}
+                animate={{ x: [0, 2, 0], y: [0, -2, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-sky-50/90 border border-sky-100/90 text-sky-600 shadow-2xs shrink-0 mt-0.5 cursor-default"
+              >
+                <Send className="h-5 w-5 text-sky-600 rotate-[-20deg] stroke-[2]" />
+              </motion.div>
 
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal max-w-xl line-clamp-1 sm:line-clamp-none">
-                Clinical polls, high-yield image spotters, and discussion pearls ingested from verified FMGE channels.
-              </p>
+              <div className="space-y-1.5 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                  <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-gradient-to-r from-slate-950 via-sky-950 to-cyan-800 bg-clip-text text-transparent">
+                    TELEGRAM KNOWLEDGE BANK
+                  </h1>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-sky-500/15 via-cyan-500/10 to-teal-500/10 border border-sky-200/80 text-sky-800 shadow-2xs shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+                    Community Feeds · Verified Channels
+                  </span>
+                </div>
 
-              {/* Quick Metrics Bar */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
-                  <span className="text-slate-400">Questions:</span>
-                  <span className="font-bold text-slate-900">{questions.length}</span>
-                </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
-                  <span className="text-slate-400">Spotters:</span>
-                  <span className="font-bold text-teal-700">{imageQuestions.length}</span>
-                </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
-                  <span className="text-slate-400">Pearls:</span>
-                  <span className="font-bold text-indigo-700">{pearls.length}</span>
-                </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
-                  <span className="text-slate-400">Saved:</span>
-                  <span className="font-bold text-emerald-700">{savedItems.length}</span>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal max-w-xl line-clamp-1 sm:line-clamp-none">
+                  Clinical polls, high-yield image spotters, and discussion pearls ingested from verified FMGE channels.
+                </p>
+
+                {/* Quick Metrics Bar */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                    <span className="text-slate-400">Questions:</span>
+                    <span className="font-bold text-slate-900">{questions.length}</span>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                    <span className="text-slate-400">Spotters:</span>
+                    <span className="font-bold text-teal-700">{imageQuestions.length}</span>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                    <span className="text-slate-400">Pearls:</span>
+                    <span className="font-bold text-indigo-700">{pearls.length}</span>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
+                    <span className="text-slate-400">Saved:</span>
+                    <span className="font-bold text-emerald-700">{savedItems.length}</span>
+                  </div>
                 </div>
               </div>
             </div>

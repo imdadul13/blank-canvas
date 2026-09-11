@@ -401,29 +401,31 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
 
       {/* 2. Editorial Header: "Your FMGE Score, Clarity Today." */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-        <div className="space-y-2 max-w-2xl">
-          {/* Heading with Minimal Animated Insignia + Uppercase Title + Sidely Aligned Top Words */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            <motion.div
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.94 }}
-              animate={{ y: [0, -2, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0 cursor-default"
-            >
-              <BarChart3 className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
-            </motion.div>
-            <h1 className="font-serif text-2xl sm:text-3xl lg:text-[32px] font-bold uppercase tracking-tight leading-tight bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-900 bg-clip-text text-transparent">
-              Your FMGE Score, Clarity Today.
-            </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-cyan-500/10 border border-teal-200/80 text-teal-800 shadow-2xs shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-              Probability Engine · AI Forecast
-            </span>
+        <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
+          <motion.div
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
+            animate={{ y: [0, -2, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0 mt-0.5 cursor-default"
+          >
+            <BarChart3 className="h-5 w-5 text-[#00685F] stroke-[2]" />
+          </motion.div>
+
+          <div className="space-y-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+              <h1 className="font-serif text-2xl sm:text-3xl lg:text-[32px] font-bold uppercase tracking-tight leading-tight bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-900 bg-clip-text text-transparent">
+                Your FMGE Score, Clarity Today.
+              </h1>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-cyan-500/10 border border-teal-200/80 text-teal-800 shadow-2xs shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                Probability Engine · AI Forecast
+              </span>
+            </div>
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+              AI-powered prediction based on your practice, performance, and revision activity. Focus smarter. Improve faster. Be exam-ready.
+            </p>
           </div>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            AI-powered prediction based on your practice, performance, and revision activity. Focus smarter. Improve faster. Be exam-ready.
-          </p>
         </div>
 
         {/* Editorial Quote Card (matching Stage 4C reference) */}

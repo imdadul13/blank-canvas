@@ -527,45 +527,47 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
 
       {/* ================= 2. HERO HEADER & EDITORIAL QUOTE ================= */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div className="space-y-2 max-w-2xl">
-          {/* Heading with Minimal Animated Insignia + Uppercase Title + Sidely Aligned Top Words */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            <motion.div
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.94 }}
-              animate={{ scale: [1, 1.06, 1] }}
-              transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-rose-50/90 border border-rose-100/90 text-rose-600 shadow-2xs shrink-0 cursor-default"
-            >
-              <Target className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-rose-600 stroke-[2]" />
-            </motion.div>
-            <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-extrabold font-display uppercase tracking-tight bg-gradient-to-r from-slate-950 via-rose-950 to-red-800 bg-clip-text text-transparent leading-tight">
-              Turn Mistakes into Mastery.
-            </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-rose-500/15 via-red-500/10 to-amber-500/10 border border-rose-200/80 text-rose-800 shadow-2xs shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-              Error Vault · Clinical Remediation
-            </span>
-          </div>
+        <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
+          <motion.div
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
+            animate={{ scale: [1, 1.06, 1] }}
+            transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+            className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-rose-50/90 border border-rose-100/90 text-rose-600 shadow-2xs shrink-0 mt-0.5 cursor-default"
+          >
+            <Target className="h-5 w-5 text-rose-600 stroke-[2]" />
+          </motion.div>
 
-          <p className="text-sm sm:text-base text-slate-500 leading-relaxed">
-            Review, understand, and overcome your weak areas with structured distractor and error analysis.
-          </p>
-
-          <div className="pt-1 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setShowAddErrorModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer shadow-xs"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Log Mistake</span>
-            </button>
-            {metrics.total > 0 && (
-              <span className="text-xs text-slate-500 font-mono">
-                {metrics.unreviewed} pending review
+          <div className="space-y-1.5 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+              <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-extrabold font-display uppercase tracking-tight bg-gradient-to-r from-slate-950 via-rose-950 to-red-800 bg-clip-text text-transparent leading-tight">
+                TURN MISTAKES INTO MASTERY.
+              </h1>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-rose-500/15 via-red-500/10 to-amber-500/10 border border-rose-200/80 text-rose-800 shadow-2xs shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                Error Vault · Clinical Remediation
               </span>
-            )}
+            </div>
+
+            <p className="text-sm sm:text-base text-slate-500 leading-relaxed">
+              Review, understand, and overcome your weak areas with structured distractor and error analysis.
+            </p>
+
+            <div className="pt-1 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowAddErrorModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer shadow-xs"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Log Mistake</span>
+              </button>
+              {metrics.total > 0 && (
+                <span className="text-xs text-slate-500 font-mono">
+                  {metrics.unreviewed} pending review
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

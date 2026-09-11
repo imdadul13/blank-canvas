@@ -309,30 +309,32 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
 
         {/* Content Layout with Original Previous Texts */}
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div className="space-y-1.5 max-w-2xl">
-            {/* Heading with Minimal Animated Insignia + Uppercase Title + Sidely Aligned Top Words */}
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-              <motion.div
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.94 }}
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-sky-50/90 border border-sky-100/90 text-sky-600 shadow-2xs shrink-0 cursor-default"
-              >
-                <Stethoscope className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-sky-600 stroke-[2]" />
-              </motion.div>
-              <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase tracking-tight bg-gradient-to-r from-slate-950 via-sky-950 to-blue-800 bg-clip-text text-transparent leading-snug">
-                Clinical Vignettes &amp; Drills
-              </h1>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-sky-500/15 via-teal-500/10 to-blue-500/10 border border-sky-200/80 text-sky-800 shadow-2xs shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-                Practice Engine · 10 MCQs
-              </span>
-            </div>
+          <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
+            <motion.div
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.94 }}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-sky-50/90 border border-sky-100/90 text-sky-600 shadow-2xs shrink-0 mt-0.5 cursor-default"
+            >
+              <Stethoscope className="h-5 w-5 text-sky-600 stroke-[2]" />
+            </motion.div>
 
-            <p className="text-xs sm:text-sm text-[#3d4947] leading-normal line-clamp-1 sm:line-clamp-none">
-              10-MCQ clinical drills with instant distractor breakdowns &amp; recall testing.
-            </p>
+            <div className="space-y-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase tracking-tight bg-gradient-to-r from-slate-950 via-sky-950 to-blue-800 bg-clip-text text-transparent leading-snug">
+                  Clinical Vignettes &amp; Drills
+                </h1>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-sky-500/15 via-teal-500/10 to-blue-500/10 border border-sky-200/80 text-sky-800 shadow-2xs shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+                  Practice Engine · 10 MCQs
+                </span>
+              </div>
+
+              <p className="text-xs sm:text-sm text-[#3d4947] leading-normal line-clamp-1 sm:line-clamp-none">
+                10-MCQ clinical drills with instant distractor breakdowns &amp; recall testing.
+              </p>
+            </div>
           </div>
         </div>
       </motion.header>

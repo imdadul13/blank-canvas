@@ -665,30 +665,33 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             </div>
           </div>
 
-          <div className="space-y-1.5 max-w-2xl">
+          <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
             {/* Main Title & Subtitle + Sidely Aligned Top Words */}
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 min-w-0">
-              <motion.div
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.94 }}
-                animate={{ scale: [1, 1.04, 1] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0 cursor-default"
-              >
-                <Calendar className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
-              </motion.div>
-              <h1 className="font-serif text-xl sm:text-2xl lg:text-[24px] font-bold uppercase tracking-tight bg-gradient-to-r from-stone-950 via-stone-800 to-teal-800 bg-clip-text text-transparent leading-snug">
-                Today’s Plan &amp; Focus
-              </h1>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-stone-500/10 to-emerald-500/10 border border-teal-200/80 text-teal-800 shadow-2xs shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                Daily Planner · Clinical Schedule
-              </span>
-            </div>
+            <motion.div
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.94 }}
+              animate={{ scale: [1, 1.04, 1] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0 mt-0.5 cursor-default"
+            >
+              <Calendar className="h-5 w-5 text-[#00685F] stroke-[2]" />
+            </motion.div>
 
-            <p className="text-xs sm:text-sm text-stone-500 leading-normal line-clamp-1 sm:line-clamp-none">
-              Focus on high-yield mastery. One intentional milestone at a time.
-            </p>
+            <div className="space-y-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                <h1 className="font-serif text-xl sm:text-2xl lg:text-[24px] font-extrabold uppercase tracking-tight bg-gradient-to-r from-stone-950 via-stone-800 to-teal-800 bg-clip-text text-transparent leading-snug">
+                  TODAY’S PLAN &amp; FOCUS
+                </h1>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-stone-500/10 to-emerald-500/10 border border-teal-200/80 text-teal-800 shadow-2xs shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                  Daily Planner · Clinical Schedule
+                </span>
+              </div>
+
+              <p className="text-xs sm:text-sm text-stone-500 leading-normal line-clamp-1 sm:line-clamp-none">
+                Focus on high-yield mastery. One intentional milestone at a time.
+              </p>
+            </div>
           </div>
 
           {/* Minimal Integrated Telemetry Strip */}
