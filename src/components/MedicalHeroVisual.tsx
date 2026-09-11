@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
-import { Activity, Sparkles, Zap, ShieldCheck, Compass, Orbit } from 'lucide-react';
+import { Activity, ShieldCheck, Compass, Orbit } from 'lucide-react';
 
 export interface MedicalHeroVisualProps {
   subjectId: string;

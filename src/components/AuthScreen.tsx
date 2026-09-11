@@ -12,16 +12,15 @@ import {
   EyeOff,
   Clock,
   Target,
-  Zap,
   Copy,
   Check,
   PlayCircle,
-  Sparkles,
   BookOpen,
   Activity,
   Award,
   Stethoscope,
   Calendar,
+  RotateCcw,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { resolveAuthError } from '../utils/authErrors';
@@ -220,7 +219,7 @@ const StudyDashIllustration: React.FC = () => (
         30 min
       </span>
       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200/80 text-xs font-bold text-rose-700 shadow-2xs">
-        <Zap className="h-3.5 w-3.5 text-rose-500" />
+        <Activity className="h-3.5 w-3.5 text-rose-600 animate-pulse" />
         High-yield Core
       </span>
     </div>
@@ -395,8 +394,12 @@ export const AuthScreen: React.FC = () => {
           {/* Left Column */}
           <div className="lg:col-span-7 space-y-6 sm:space-y-7">
             <div className="space-y-3.5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100/90 border border-stone-200/80 text-xs font-semibold text-stone-700">
-                <Sparkles className="h-3.5 w-3.5 text-[#006B63]" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-xs font-bold text-[#006B63]">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B63]" />
+                </span>
+                <ShieldCheck className="h-3.5 w-3.5 text-[#006B63]" />
                 <span>Deterministic FMGE Preparation</span>
               </div>
 
@@ -443,11 +446,11 @@ export const AuthScreen: React.FC = () => {
               <motion.div
                 whileHover={{ y: -4, scale: 1.02 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className="relative rounded-2xl border border-stone-200/80 bg-white/85 backdrop-blur-md p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-indigo-300 hover:shadow-[0_8px_24px_rgba(99,102,241,0.08)] transition-all cursor-default"
+                className="relative rounded-2xl border border-stone-200/80 bg-white/85 backdrop-blur-md p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-indigo-300 hover:shadow-[0_8px_24px_rgba(99,102,241,0.08)] transition-all cursor-default group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-indigo-50 border border-indigo-200/60 text-[#6366F1] shadow-2xs">
-                    <Zap className="h-4 w-4" />
+                  <div className="p-2 rounded-xl bg-indigo-50 border border-indigo-200/60 text-[#6366F1] shadow-2xs group-hover:rotate-[-15deg] transition-transform duration-300">
+                    <RotateCcw className="h-4 w-4" />
                   </div>
                   <span className="text-xs font-bold text-stone-900 tracking-tight">Closed-Loop</span>
                 </div>
@@ -507,7 +510,7 @@ export const AuthScreen: React.FC = () => {
                 <ArrowRight className="h-3.5 w-3.5 text-stone-400 group-hover:text-stone-900 group-hover:translate-x-1 transition-all" />
               </motion.button>
               <p className="text-[11px] text-stone-400 font-medium mt-1.5 pl-2">
-                ⚡ No account needed · Offline progress saved · Exit back anytime
+                Instant offline access · Saved locally on this browser · Return anytime
               </p>
             </div>
           </div>

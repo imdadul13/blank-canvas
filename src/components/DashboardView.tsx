@@ -23,12 +23,11 @@ import {
   Target,
   Timer,
   TrendingUp,
-  Sparkles,
   Flame,
   Compass,
   BarChart3,
   ChevronDown,
-  Zap,
+  Quote,
   Sun,
   Sunset,
   Moon,
@@ -1176,16 +1175,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onClick={() => onNavigateTab('progress')}
               className="group flex items-center gap-3 rounded-2xl p-3 bg-white/95 backdrop-blur-xs border border-white/90 hover:border-[#B57B66]/40 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#FEF1E6] text-[#E07018] group-hover:bg-[#FAF5F2] group-hover:text-[#B57B66] transition-all group-hover:scale-110">
-                <Zap className="h-4.5 w-4.5 transition-transform" />
+              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#EFF8F6] text-[#006B63] group-hover:bg-[#FAF5F2] group-hover:text-[#B57B66] transition-all group-hover:scale-110">
+                <Activity className="h-4.5 w-4.5 transition-transform animate-pulse" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="block text-sm sm:text-base font-extrabold font-['Outfit'] leading-tight text-slate-900 group-hover:text-[#E07018] transition-colors truncate">
+                  <span className="block text-sm sm:text-base font-extrabold font-['Outfit'] leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
                     Keep going
                   </span>
-                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100/80">
-                    <Flame className="h-2.5 w-2.5 fill-amber-500 text-amber-500" /> Active
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
                   </span>
                 </div>
                 <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#B57B66] transition-colors truncate" title="Small steps. Big progress.">
@@ -1715,8 +1714,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className="rounded-3xl bg-gradient-to-br from-white via-white to-amber-50/30 border border-amber-100/90 shadow-2xs p-3 sm:p-3.5 flex items-center justify-between gap-2.5 hover:border-amber-300 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[60px]"
                 >
                   <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[6deg] transition-transform">
-                      <Zap className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <RotateCcw className="h-4.5 w-4.5 sm:h-5 sm:w-5 group-hover:rotate-[-45deg] transition-transform duration-300" />
                     </div>
                     <div className="min-w-0">
                       <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
@@ -1842,7 +1841,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 className="rounded-2xl bg-[#EFF8F6] border border-[#DEF0EB] p-2.5 px-3 flex items-center gap-2.5 mt-2 relative z-10 hover:border-[#B57B66]/40 transition-colors shadow-2xs cursor-default"
               >
                 <div className="h-6 w-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
-                  <Sparkles className="h-3.5 w-3.5" />
+                  <Quote className="h-3.5 w-3.5 text-emerald-700" />
                 </div>
                 <p className="text-xs font-medium text-[#245C54] italic leading-tight">
                   &ldquo;A little progress each day adds up to big results.&rdquo;

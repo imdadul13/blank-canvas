@@ -12,12 +12,10 @@ import {
   Clock,
   Layers,
   TrendingUp,
-  Sparkles,
   ShieldCheck,
   GraduationCap,
   Activity,
   Award,
-  Zap,
   BookOpen,
   CheckCircle2,
   Stethoscope,
@@ -548,29 +546,17 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                       <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                     </motion.button>
 
-                    <div className="flex items-center gap-3 pt-1">
-                      <motion.button
-                        type="button"
-                        whileHover={reduceMotion ? undefined : { scale: 1.04 }}
-                        whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-                        transition={{ type: 'spring', stiffness: 450, damping: 26 }}
-                        onClick={handleExitToWelcome}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-stone-300/90 bg-white/90 hover:bg-white text-xs font-semibold text-stone-700 hover:text-stone-900 shadow-2xs transition-all cursor-pointer"
-                      >
-                        <ArrowLeft className="h-3.5 w-3.5 text-[#006B63]" />
-                        <span>{isGuest ? 'Back to Sign In & Welcome' : 'Return to Home'}</span>
-                      </motion.button>
-
-                      {isGuest && (
+                    {isGuest && (
+                      <div className="pt-1">
                         <button
                           type="button"
                           onClick={handleSkipToWorkspace}
                           className="text-xs text-stone-500 hover:text-[#006B63] font-medium underline underline-offset-4 cursor-pointer transition-colors"
                         >
-                          Skip directly to Practice →
+                          Skip calibration &amp; start practicing right away →
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -1003,7 +989,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                   </div>
 
                   <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200/60 text-xs text-[#004D47] flex items-start gap-2.5">
-                    <Sparkles className="h-4 w-4 text-[#006B63] shrink-0 mt-0.5" />
+                    <Award className="h-4 w-4 text-[#006B63] shrink-0 mt-0.5" />
                     <p className="leading-relaxed">
                       <strong>FMGE Success Benchmark:</strong> Candidates allocating 6 to 8 focused hours daily with high-yield revision loops achieve a &gt;85% pass probability.
                     </p>
