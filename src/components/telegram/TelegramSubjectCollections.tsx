@@ -10,7 +10,7 @@ import {
   Bone,
   Eye,
   Brain,
-  Sparkles,
+  Dna,
   ChevronRight,
   Activity,
   Layers
@@ -51,7 +51,7 @@ const getSubjectIcon = (subjectId: string) => {
     case "anatomy":
       return <Bone className="w-4 h-4 text-blue-600" />;
     case "biochemistry":
-      return <Sparkles className="w-4 h-4 text-amber-600" />;
+      return <Dna className="w-4 h-4 text-amber-600" />;
     case "ophthalmology":
       return <Eye className="w-4 h-4 text-cyan-600" />;
     case "ent":

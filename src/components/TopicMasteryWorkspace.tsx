@@ -18,12 +18,11 @@ import {
   AlertCircle,
   Layers,
   Table,
-  Zap,
   RefreshCw,
   Eye,
-  Sparkles,
   Award,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import {
   AppState,
@@ -299,7 +298,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
       }
       if (result.success && result.data) {
         setAiMasteryData(result.data);
-        setAiStatus('✨ Live Gemini AI rapid revision master pack loaded!');
+        setAiStatus('Live Gemini AI rapid revision master pack loaded!');
         confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
       } else {
         const detail = result.error ? `Notice: ${result.error}. ` : '';
@@ -400,18 +399,24 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
   const activeKeyTakeaways = aiMasteryData?.keyTakeaways || activeCoreConcepts?.slice(0, 4);
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-xs overflow-y-auto font-sans text-slate-900 animate-in fade-in duration-200">
-      <div className="flex min-h-full items-center justify-center p-2 sm:p-4 md:p-6">
-        <div className="bg-white rounded-3xl max-w-5xl w-full my-auto max-h-[94vh] flex flex-col shadow-2xl border border-stone-200/90 overflow-hidden">
+    <div className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-md overflow-y-auto font-sans text-slate-900">
+      <div className="flex min-h-full items-center justify-center p-0 sm:p-4 md:p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, y: 16 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 16 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+          className="bg-white sm:rounded-3xl max-w-5xl w-full my-auto h-[100dvh] sm:h-auto sm:max-h-[94vh] flex flex-col shadow-2xl border-0 sm:border border-stone-200/90 overflow-hidden"
+        >
           {/* ================= EDITORIAL TEXTBOOK HEADER ================= */}
-          <header className="p-5 sm:p-7 border-b border-stone-200/80 flex flex-col sm:flex-row sm:items-start justify-between gap-4 bg-stone-50/70">
+          <header className="p-4 sm:p-7 border-b border-stone-200/80 flex flex-col sm:flex-row sm:items-start justify-between gap-4 bg-stone-50/70 shrink-0">
             <div className="space-y-1.5 min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-mono text-xs font-semibold uppercase tracking-wider text-stone-400">
                   {subjectId.toUpperCase()} · NBE BLUEPRINT
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-stone-900 text-white text-[10px] font-mono font-medium flex items-center gap-1 shadow-2xs">
-                  <Zap className="h-3 w-3 text-amber-400 fill-current" />
+                <span className="px-2.5 py-0.5 rounded-full bg-stone-900 text-white text-[10px] font-mono font-medium flex items-center gap-1.5 shadow-2xs">
+                  <Activity className="h-3 w-3 text-amber-400 animate-pulse" />
                   RAPID REVISION HUB
                 </span>
                 {aiMasteryData && (
@@ -421,21 +426,24 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   </span>
                 )}
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-stone-900 truncate">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold font-display tracking-tight text-stone-900 truncate">
                 {topicName}
               </h2>
-              <p className="text-xs sm:text-sm text-stone-500 max-w-2xl">
+              <p className="text-xs sm:text-sm text-stone-500 max-w-2xl hidden sm:block">
                 High-yield FMGE board core synthesis, active flashcard recall, clinical vignette reasoning, and rapid revision grids.
               </p>
             </div>
 
             <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-start">
               {/* Live Deepening Button */}
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={fetchGeminiMastery}
                 disabled={isAiLoading}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-stone-50 text-stone-900 border border-stone-200/90 hover:border-indigo-200 text-xs font-semibold font-display transition-all cursor-pointer shadow-2xs active:scale-[0.98] disabled:opacity-60 min-h-[38px] group"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-stone-50 text-stone-900 border border-stone-200/90 hover:border-indigo-200 text-xs font-semibold font-display transition-all cursor-pointer shadow-2xs disabled:opacity-60 min-h-[38px] group"
                 title="Comprehensive Gemini-powered study pack"
               >
                 {isAiLoading ? (
@@ -446,21 +454,24 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 ) : (
                   <>
                     <div className="w-4 h-4 rounded bg-indigo-50/80 text-indigo-600 flex items-center justify-center shrink-0 group-hover:bg-indigo-100 transition-colors">
-                      <Sparkles className="h-2.5 w-2.5" />
+                      <Brain className="h-2.5 w-2.5" />
                     </div>
                     <span>{aiMasteryData ? 'Update High-Yield Pack' : 'Deepen High-Yield'}</span>
                   </>
                 )}
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={onClose}
                 className="p-2 text-stone-400 hover:text-stone-900 rounded-full hover:bg-stone-100 transition-colors cursor-pointer"
                 aria-label="Close modal"
               >
                 <X className="h-5 w-5" />
-              </button>
+              </motion.button>
             </div>
           </header>
 
@@ -471,7 +482,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 {isAiLoading ? (
                   <RefreshCw className="h-3.5 w-3.5 animate-spin text-indigo-600 shrink-0" />
                 ) : (
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                  <Brain className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
                 )}
                 <span className="font-mono text-xs truncate">{aiStatus}</span>
               </span>
@@ -493,12 +504,15 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 const isPast = STEPS.findIndex((s) => s.id === activeStep) > idx;
 
                 return (
-                  <button
+                  <motion.button
                     key={step.id}
                     type="button"
                     data-step={step.id}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.96 }}
+                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                     onClick={() => setActiveStep(step.id)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold font-display transition-all cursor-pointer min-h-[34px] active:scale-[0.98] ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold font-display transition-all cursor-pointer min-h-[34px] ${
                       isActive
                         ? 'bg-stone-900 text-white shadow-2xs'
                         : isPast
@@ -509,7 +523,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                     <span className="font-mono text-[10px] opacity-75">{step.num}</span>
                     <span>{step.label}</span>
                     {isPast && <Check className="h-3 w-3 text-emerald-600" />}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -525,7 +539,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                     <div className="flex items-center gap-2">
                       <span className="p-1.5 rounded-lg bg-stone-900 text-white shadow-2xs">
-                        <Zap className="h-4 w-4 text-amber-400 fill-current" />
+                        <Award className="h-4 w-4 text-amber-400" />
                       </span>
                       <div>
                         <h3 className="text-base font-bold font-display text-stone-900">
@@ -619,7 +633,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-5 transition-all">
                     <div className="flex items-start gap-3.5 min-w-0 flex-1">
                       <div className="p-2.5 rounded-xl bg-indigo-50/90 text-indigo-700 border border-indigo-200/60 shadow-2xs shrink-0 mt-0.5">
-                        <Sparkles className="h-5 w-5" />
+                        <Brain className="h-5 w-5" />
                       </div>
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -639,11 +653,14 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                       </div>
                     </div>
 
-                    <button
+                    <motion.button
                       type="button"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                       onClick={fetchGeminiMastery}
                       disabled={isAiLoading}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-semibold font-display transition-all shadow-2xs cursor-pointer shrink-0 disabled:opacity-60 min-h-[42px] active:scale-[0.98]"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-semibold font-display transition-all shadow-2xs cursor-pointer shrink-0 disabled:opacity-60 min-h-[42px]"
                     >
                       {isAiLoading ? (
                         <>
@@ -652,11 +669,11 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                         </>
                       ) : (
                         <>
-                          <Sparkles className="h-4 w-4 text-amber-300" />
+                          <Brain className="h-4 w-4 text-indigo-300" />
                           <span>Deepen High-Yield Pack</span>
                         </>
                       )}
-                    </button>
+                    </motion.button>
                   </div>
                 )}
 
@@ -665,7 +682,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   <div className="p-6 sm:p-7 rounded-2xl bg-white border border-indigo-200/90 shadow-2xs space-y-5 animate-in fade-in duration-300">
                     <div className="space-y-3">
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-semibold font-mono uppercase tracking-wider">
-                        <Sparkles className="h-3 w-3 text-indigo-600" />
+                        <Brain className="h-3 w-3 text-indigo-600" />
                         Comprehensive Study Pack
                       </div>
                       <h3 className="text-xl sm:text-2xl font-bold font-display text-stone-900">
@@ -681,9 +698,12 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                           { id: 'diagnosis', label: 'Diagnosis' },
                           { id: 'management', label: 'Management' },
                         ].map((tab) => (
-                          <button
+                          <motion.button
                             key={tab.id}
                             type="button"
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.95 }}
+                            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                             onClick={() => setActivePackTab(tab.id as any)}
                             className={`px-3 py-1.5 rounded-lg text-xs font-semibold font-display whitespace-nowrap transition-all cursor-pointer min-h-[32px] ${
                               activePackTab === tab.id
@@ -692,7 +712,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                             }`}
                           >
                             {tab.label}
-                          </button>
+                          </motion.button>
                         ))}
                       </div>
                     </div>
@@ -701,7 +721,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                     {activeKeyTakeaways && activeKeyTakeaways.length > 0 && (
                       <div className="p-4 sm:p-5 rounded-xl bg-indigo-50/50 border border-indigo-100 space-y-2">
                         <div className="flex items-center gap-2 text-xs font-bold font-display text-indigo-950">
-                          <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
+                          <Award className="h-3.5 w-3.5 text-indigo-600" />
                           <span>Key Takeaways</span>
                         </div>
                         <ul className="space-y-1.5 text-xs text-indigo-950 font-medium">
@@ -1382,7 +1402,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Image Zoom Modal */}

@@ -11,8 +11,8 @@ import {
   RotateCcw,
   BookOpen,
   ArrowRight,
-  Sparkles,
-  Zap,
+  Stethoscope,
+  ShieldCheck,
   Calendar,
   Layers,
 } from 'lucide-react';
@@ -337,7 +337,7 @@ export const SubjectDiagnosticDetailModal: React.FC<SubjectDiagnosticDetailModal
           {/* Clinical Diagnostic Prescription Banner */}
           <div className="p-4 sm:p-5 rounded-2xl bg-teal-50/70 border border-teal-200/80 space-y-2">
             <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#00685f]" />
+              <Stethoscope className="w-4 h-4 text-[#00685f]" />
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#00685f]">
                 CLINICAL DIAGNOSIS & ACTION PLAN
               </span>
@@ -554,7 +554,7 @@ export const SubjectDiagnosticDetailModal: React.FC<SubjectDiagnosticDetailModal
                 ))
               ) : (
                 <div className="py-8 text-center space-y-2 bg-stone-50/60 rounded-2xl border border-dashed border-stone-200 p-4">
-                  <Sparkles className="w-8 h-8 text-stone-300 mx-auto" />
+                  <ShieldCheck className="w-8 h-8 text-stone-300 mx-auto" />
                   <h4 className="text-xs font-bold text-stone-700">Solidifying Command</h4>
                   <p className="text-xs text-stone-400 max-w-md mx-auto">
                     Solve $\ge 5$ questions per topic with $\ge 70\%$ accuracy to establish confirmed mastery in {subject.name}.

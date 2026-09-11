@@ -8,7 +8,7 @@ import {
   CalendarPlus,
   BookOpen,
   ChevronRight,
-  Zap,
+  Activity,
   Target,
   Stethoscope,
   BarChart3,
@@ -20,7 +20,6 @@ import {
   User,
   ArrowRight,
   Filter,
-  Sparkles,
   SlidersHorizontal,
 } from 'lucide-react';
 import {
@@ -708,7 +707,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
           {/* Header */}
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
-              <Zap className="w-5 h-5" />
+              <Activity className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900">

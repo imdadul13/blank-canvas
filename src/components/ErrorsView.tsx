@@ -26,14 +26,13 @@ import {
   Quote,
   Heart,
   Wind,
-  Zap,
   Droplets,
   Layers,
   Brain,
-  Sparkles,
   X,
   LayoutDashboard,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { AppState, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { ConceptRemediationModal } from './ConceptRemediationModal';
@@ -208,7 +207,7 @@ const getSpecialtyIcon = (subjectId: string, topic: string) => {
     return { icon: Wind, badgeColor: 'bg-sky-50 text-sky-500 border-sky-100' };
   }
   if (text.includes('endocrin') || text.includes('thyroid') || text.includes('diabet') || text.includes('hormone')) {
-    return { icon: Zap, badgeColor: 'bg-purple-50 text-purple-500 border-purple-100' };
+    return { icon: Activity, badgeColor: 'bg-purple-50 text-purple-600 border-purple-100' };
   }
   if (text.includes('nephro') || text.includes('kidney') || text.includes('renal') || text.includes('electrolyte')) {
     return { icon: Droplets, badgeColor: 'bg-emerald-50 text-emerald-500 border-emerald-100' };
@@ -1238,7 +1237,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
           <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 flex items-center justify-center shrink-0">
-                <Zap className="w-4 h-4" />
+                <RotateCcw className="w-4 h-4" />
               </div>
               <div>
                 <h2 className="text-sm font-semibold font-display text-slate-900">
@@ -1251,10 +1250,13 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
             {/* 2x2 Action Grid */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               {/* Action 1: Review Now */}
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ y: -2, scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={handleQuickReviewNow}
-                className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-teal-50/50 hover:border-teal-200 transition-all text-left space-y-2 cursor-pointer group"
+                className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-teal-50/50 hover:border-teal-200 transition-colors text-left space-y-2 cursor-pointer group"
               >
                 <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
                   <Play className="w-3.5 h-3.5 fill-current" />
@@ -1267,16 +1269,19 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                     Start with 10 questions
                   </p>
                 </div>
-              </button>
+              </motion.button>
 
               {/* Action 2: By Subject */}
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ y: -2, scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={() => {
                   setMainFilterTab('subject');
                   window.scrollTo({ top: 300, behavior: 'smooth' });
                 }}
-                className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-sky-50/50 hover:border-sky-200 transition-all text-left space-y-2 cursor-pointer group"
+                className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-sky-50/50 hover:border-sky-200 transition-colors text-left space-y-2 cursor-pointer group"
               >
                 <div className="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
                   <BookOpen className="w-3.5 h-3.5" />
@@ -1289,16 +1294,19 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                     Focus on a subject
                   </p>
                 </div>
-              </button>
+              </motion.button>
 
               {/* Action 3: By Mistake Type */}
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ y: -2, scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={() => {
                   setMainFilterTab('type');
                   window.scrollTo({ top: 300, behavior: 'smooth' });
                 }}
-                className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-purple-50/50 hover:border-purple-200 transition-all text-left space-y-2 cursor-pointer group"
+                className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-purple-50/50 hover:border-purple-200 transition-colors text-left space-y-2 cursor-pointer group"
               >
                 <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
                   <Filter className="w-3.5 h-3.5" />
@@ -1311,13 +1319,16 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                     Target specific areas
                   </p>
                 </div>
-              </button>
+              </motion.button>
 
               {/* Action 4: Export List */}
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ y: -2, scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={handleExportErrors}
-                className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-emerald-50/50 hover:border-emerald-200 transition-all text-left space-y-2 cursor-pointer group"
+                className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-emerald-50/50 hover:border-emerald-200 transition-colors text-left space-y-2 cursor-pointer group"
               >
                 <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
                   <Download className="w-3.5 h-3.5" />
@@ -1330,7 +1341,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                     Save for offline review
                   </p>
                 </div>
-              </button>
+              </motion.button>
             </div>
           </div>
 

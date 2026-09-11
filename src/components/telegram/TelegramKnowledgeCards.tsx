@@ -3,7 +3,8 @@ import {
   HelpCircle,
   Image as ImageIcon,
   Video as VideoIcon,
-  Sparkles,
+  Award,
+  Lightbulb,
   Bookmark,
   Check,
   ChevronDown,
@@ -100,14 +101,14 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
       case "pearl":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200/80">
-            <Sparkles className="w-3 h-3" />
+            <Award className="w-3 h-3" />
             Exam Pearl
           </span>
         );
       case "tip":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/80">
-            <Sparkles className="w-3 h-3" />
+            <Lightbulb className="w-3 h-3" />
             Clinical Tip
           </span>
         );

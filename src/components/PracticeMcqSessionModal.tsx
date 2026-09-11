@@ -7,7 +7,6 @@ import {
   Clock,
   ArrowRight,
   RotateCcw,
-  Zap,
   BookOpen,
   Award,
   ChevronRight,
@@ -369,11 +368,11 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
     <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md overflow-y-auto font-['Inter'] text-[#121E1B]">
       <div className="flex min-h-full items-center justify-center p-0 sm:p-4 md:p-6">
       <motion.div
-        initial={{ opacity: 0, scale: 0.98, y: 8 }}
+        initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.98, y: 8 }}
-        transition={{ duration: 0.2 }}
-        className="bg-[#FBFDFB] sm:rounded-3xl max-w-5xl w-full h-full sm:h-auto sm:max-h-[92vh] overflow-hidden shadow-2xl flex flex-col border-0 sm:border border-[#DCE4E1]"
+        exit={{ opacity: 0, scale: 0.96, y: 16 }}
+        transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+        className="bg-[#FBFDFB] sm:rounded-3xl max-w-5xl w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] overflow-hidden shadow-2xl flex flex-col border-0 sm:border border-[#DCE4E1]"
       >
         {/* MODAL HEADER */}
         <div className="px-3.5 sm:px-6 py-3 sm:py-4 border-b border-[#F0F3F2] flex items-center justify-between bg-white shrink-0">
@@ -410,14 +409,17 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
             </div>
           </div>
 
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.92 }}
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
             onClick={onClose}
             className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#F5F7F8] hover:bg-[#EAEFEA] text-[#66716F] hover:text-[#121E1B] flex items-center justify-center transition-colors cursor-pointer shrink-0 border border-[#DCE4E1]"
             title="Close practice session"
           >
             <X className="w-4 h-4" />
-          </button>
+          </motion.button>
         </div>
 
         {/* PROGRESS BAR */}
@@ -803,7 +805,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
                           {q.highYieldPearl && (
                             <div className="mt-2.5 pt-2.5 border-t border-[#F0F3F2] flex items-start gap-2 text-amber-900 bg-[#FFFDF5] p-2.5 rounded-lg border border-[#F6E0B5]">
-                              <Zap className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                              <Award className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                               <div>
                                 <strong className="font-mono text-[10px] uppercase tracking-wider text-[#78350F] block">
                                   FMGE Takeaway
@@ -972,11 +974,14 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                       }
 
                       return (
-                        <button
+                        <motion.button
                           key={opt.key}
                           type="button"
+                          whileHover={{ scale: 1.008, y: -1 }}
+                          whileTap={{ scale: 0.985 }}
+                          transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                           onClick={() => handleSelectOption(opt.key)}
-                          className={`w-full min-h-[52px] sm:min-h-[56px] p-3.5 sm:p-4 rounded-2xl border text-left text-xs sm:text-sm transition-all flex items-center justify-between cursor-pointer ${cardStyle}`}
+                          className={`w-full min-h-[52px] sm:min-h-[56px] p-3.5 sm:p-4 rounded-2xl border text-left text-xs sm:text-sm transition-colors flex items-center justify-between cursor-pointer ${cardStyle}`}
                         >
                           <div className="flex items-center gap-3.5 sm:gap-4 min-w-0 pr-2">
                             <span
@@ -990,7 +995,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                           {isSelected && (
                             <CheckCircle2 className="w-5 h-5 text-[#006B63] shrink-0" />
                           )}
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
@@ -1170,7 +1175,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-lg bg-[#FEF3C7] text-amber-700 flex items-center justify-center shrink-0 border border-amber-300/40">
-                              <Zap className="w-3.5 h-3.5 fill-amber-600 text-amber-600" />
+                              <Award className="w-3.5 h-3.5 text-amber-600" />
                             </div>
                             <span className="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#78350F]">
                               FMGE Key Takeaway
@@ -1296,23 +1301,28 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                 <div className="flex items-center justify-between pt-3 border-t border-[#F0F3F2] sticky sm:static bottom-0 bg-[#FBFDFB]/95 backdrop-blur-md py-3 px-3.5 sm:px-0 sm:py-0 sm:bg-transparent z-10">
                   {!isAnswerSubmitted ? (
                     <>
-                      <button
+                      <motion.button
                         type="button"
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                         onClick={handleSkipQuestion}
                         className="text-xs sm:text-sm font-semibold text-[#66716F] hover:text-[#121E1B] px-3.5 py-2.5 rounded-xl hover:bg-[#F1F5F4] transition-colors cursor-pointer"
                       >
                         Skip Question
-                      </button>
+                      </motion.button>
 
-                      <button
+                      <motion.button
                         type="button"
+                        whileHover={{ scale: selectedOption ? 1.02 : 1 }}
+                        whileTap={{ scale: selectedOption ? 0.96 : 1 }}
+                        transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                         onClick={handleSubmitAnswer}
                         disabled={!selectedOption}
-                        className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl bg-[#1A2E2B] hover:bg-[#122421] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-xs disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-display"
+                        className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl bg-[#1A2E2B] hover:bg-[#122421] text-white text-xs sm:text-sm font-semibold shadow-xs disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-display"
                       >
                         <span>Submit Answer</span>
                         <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                      </button>
+                      </motion.button>
                     </>
                   ) : (
                     <div className="flex items-center justify-between w-full">
@@ -1330,10 +1340,13 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         </span>
                       </div>
 
-                      <button
+                      <motion.button
                         type="button"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.96 }}
+                        transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                         onClick={handleNextQuestion}
-                        className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-[#006B63] hover:bg-[#005049] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer font-display ml-auto"
+                        className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-[#006B63] hover:bg-[#005049] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer font-display ml-auto"
                       >
                         <span>
                           {currentIdx + 1 < targetCount
@@ -1341,7 +1354,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                             : 'View Session Summary'}
                         </span>
                         <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                      </button>
+                      </motion.button>
                     </div>
                   )}
                 </div>

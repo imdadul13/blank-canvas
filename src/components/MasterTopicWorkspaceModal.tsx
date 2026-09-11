@@ -12,12 +12,14 @@ import {
   ChevronRight,
   ExternalLink,
   Award,
-  Sparkles,
+  Stethoscope,
+  Activity,
   Calendar,
   HelpCircle,
   BarChart3,
   Lightbulb,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   CandidateTopicRecommendation,
   ClinicalCaseItem,
@@ -217,10 +219,16 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
   const currentCase = casesDeck.cases[currentCaseIndex];
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto font-['Plus_Jakarta_Sans']">
-      <div className="bg-[#F8FAFC] border border-slate-200/90 rounded-3xl w-full max-w-5xl shadow-2xl flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[92vh] overflow-hidden text-slate-900 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-900/40 backdrop-blur-md overflow-y-auto font-['Plus_Jakarta_Sans']">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 16 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+        className="bg-[#F8FAFC] border border-slate-200/90 sm:rounded-3xl w-full max-w-5xl shadow-2xl flex flex-col h-[100dvh] sm:h-auto sm:max-h-[92vh] overflow-hidden text-slate-900"
+      >
         {/* MODAL HEADER */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 bg-white shrink-0">
           <div className="flex items-center gap-3">
             <div
               className="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shadow-xs text-xs font-['Outfit']"
@@ -237,7 +245,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                   {topicCandidate.priorityLabel}
                 </span>
               </div>
-              <h2 className="text-lg font-bold text-slate-900 font-['Outfit'] line-clamp-1">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 font-['Outfit'] line-clamp-1">
                 {topicIntel.canonicalName}
               </h2>
             </div>
@@ -253,19 +261,27 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
               </div>
             </div>
 
-            <button
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.92 }}
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
               onClick={onClose}
               className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
               title="Close Workspace"
             >
               <X className="w-5 h-5" />
-            </button>
+            </motion.button>
           </div>
         </div>
 
         {/* WORKSPACE NAVIGATION TABS: LEARN -> PRACTICE -> REVIEW -> MASTER */}
-        <div className="flex items-center border-b border-slate-200 bg-white px-6 gap-2 overflow-x-auto py-2.5">
-          <button
+        <div className="flex items-center border-b border-slate-200 bg-white px-4 sm:px-6 gap-2 overflow-x-auto py-2.5 shrink-0 scrollbar-none">
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
             onClick={() => setActiveTab('slides')}
             className={`flex items-center gap-1.5 py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'slides'
@@ -275,9 +291,13 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
           >
             <BarChart3 className="w-3.5 h-3.5" />
             <span>1. LEARN · Slides ({slideDeck.slides.length})</span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
             onClick={() => setActiveTab('cases')}
             className={`flex items-center gap-1.5 py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'cases'
@@ -285,9 +305,9 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                 : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+            <Stethoscope className="w-3.5 h-3.5 text-sky-500" />
             <span>2. PRACTICE · Cases ({casesDeck.cases.length})</span>
-          </button>
+          </motion.button>
 
           <button
             onClick={() => setActiveTab('flashcards')}
@@ -325,13 +345,17 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
             <span>Video {videos.length > 0 ? `(${videos.length})` : ''}</span>
           </button>
 
-          <button
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
             onClick={handleLaunchSession}
-            className="ml-auto flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 cursor-pointer whitespace-nowrap"
+            className="ml-auto flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors cursor-pointer whitespace-nowrap"
           >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-200" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200" />
             <span>Practice 10 MCQs</span>
-          </button>
+          </motion.button>
         </div>
 
         {/* WORKSPACE CONTENT BODY */}
@@ -439,27 +463,39 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                   <BarChart3 className="w-4 h-4" />
                   1. High-Yield Slides ({slideDeck.slides.length})
                 </button>
-                <button
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                   onClick={() => setActiveTab('cases')}
-                  className="flex items-center gap-2 px-5 py-3 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-3 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Stethoscope className="w-4 h-4" />
                   2. Clinical Cases ({casesDeck.cases.length})
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                   onClick={() => setActiveTab('flashcards')}
-                  className="flex items-center gap-2 px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors cursor-pointer"
                 >
                   <Layers className="w-4 h-4" />
                   3. Flashcards ({flashcardDeck.cards.length})
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                   onClick={handleLaunchSession}
-                  className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition ml-auto cursor-pointer"
+                  className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors ml-auto cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Activity className="w-4 h-4" />
                   4. Practice 10 MCQs
-                </button>
+                </motion.button>
               </div>
             </div>
           )}
@@ -496,7 +532,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
 
                 <div className="pt-2">
                   <h4 className="text-sm sm:text-base font-bold text-slate-900 font-['Outfit'] flex items-center gap-2 mb-4">
-                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <Lightbulb className="w-4 h-4 text-amber-500" />
                     {currentCase.diagnosticQuestion}
                   </h4>
 
@@ -635,13 +671,17 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   ) : (
-                    <button
+                    <motion.button
+                      type="button"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                       onClick={handleLaunchSession}
                       className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white transition shadow-sm cursor-pointer"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
+                      <CheckCircle2 className="w-3.5 h-3.5" />
                       Proceed to 10 MCQs
-                    </button>
+                    </motion.button>
                   )}
                 </div>
               </div>
@@ -946,13 +986,17 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   ) : (
-                    <button
+                    <motion.button
+                      type="button"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                       onClick={handleLaunchSession}
                       className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white transition shadow-sm cursor-pointer"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
+                      <CheckCircle2 className="w-3.5 h-3.5" />
                       Proceed to 10 MCQs
-                    </button>
+                    </motion.button>
                   )}
                 </div>
               </div>
@@ -961,7 +1005,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
         </div>
 
         {/* WORKSPACE FOOTER */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-white flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
             <span>Subject: {topicCandidate.subjectName}</span>
             <span>•</span>
@@ -969,22 +1013,30 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
           </div>
 
           <div className="flex items-center gap-3">
-            <button
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
               onClick={onClose}
               className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition cursor-pointer"
             >
               Close Workspace
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
               onClick={handleLaunchSession}
               className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-xs font-bold text-white transition shadow-sm rounded-xl cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+              <Activity className="w-3.5 h-3.5 text-sky-400" />
               Start 10 MCQs Practice
-            </button>
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>,
     document.body
   );

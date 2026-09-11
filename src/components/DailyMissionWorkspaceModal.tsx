@@ -6,7 +6,7 @@ import {
   CheckCircle2,
   Clock,
   Flame,
-  Sparkles,
+  Activity,
   BookOpen,
   Layers,
   RotateCw,
@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Check,
+  ShieldCheck,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -160,22 +161,23 @@ export const DailyMissionWorkspaceModal: React.FC<DailyMissionWorkspaceModalProp
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 md:p-6 bg-black/40 backdrop-blur-md overflow-y-auto">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 15 }}
+        initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        className="bg-white border border-slate-200/80 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl text-slate-900 flex flex-col max-h-[90vh]"
+        exit={{ opacity: 0, scale: 0.96, y: 16 }}
+        transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+        className="bg-white border border-slate-200/80 sm:rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl text-slate-900 flex flex-col h-[100dvh] sm:h-auto sm:max-h-[90vh]"
       >
         {/* ================= MODAL HEADER ================= */}
-        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+        <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-sky-50 border border-sky-200 text-sky-700 flex items-center justify-center font-bold">
-              <Sparkles className="h-5 w-5" />
+            <div className="h-10 w-10 rounded-2xl bg-teal-50 border border-teal-200 text-[#006B63] flex items-center justify-center font-bold shrink-0">
+              <Activity className="h-5 w-5 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg sm:text-xl font-bold font-['Outfit'] text-slate-900 tracking-tight">
+                <h2 className="text-base sm:text-xl font-bold font-['Outfit'] text-slate-900 tracking-tight">
                   Start My Day · Daily Study Mission
                 </h2>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold font-['Outfit']">
@@ -189,16 +191,20 @@ export const DailyMissionWorkspaceModal: React.FC<DailyMissionWorkspaceModalProp
             </div>
           </div>
 
-          <button
+          <motion.button
+            type="button"
+            whileTap={{ scale: 0.92 }}
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
             onClick={onClose}
             className="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="h-4 w-4" />
-          </button>
+          </motion.button>
         </div>
 
         {/* ================= TIME BUDGET SELECTOR ================= */}
-        <div className="px-5 sm:px-6 py-3 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div className="px-4 sm:px-6 py-3 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-1.5 text-xs text-slate-600">
             <Clock className="h-3.5 w-3.5 text-sky-600" />
             <span className="font-semibold text-slate-900 font-['Outfit']">Study Budget:</span>
@@ -206,17 +212,21 @@ export const DailyMissionWorkspaceModal: React.FC<DailyMissionWorkspaceModalProp
 
           <div className="flex items-center gap-1.5 flex-wrap">
             {TIME_BUDGET_OPTIONS.map((opt) => (
-              <button
+              <motion.button
                 key={opt.value}
+                type="button"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={() => setSelectedDuration(opt.value)}
-                className={`px-3 py-1 rounded-full text-xs font-bold font-['Outfit'] transition-all cursor-pointer ${
+                className={`px-3 py-1 rounded-full text-xs font-bold font-['Outfit'] transition-colors cursor-pointer ${
                   selectedDuration === opt.value
                     ? 'bg-slate-900 text-white shadow-xs'
                     : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 {opt.label}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -373,9 +383,13 @@ export const DailyMissionWorkspaceModal: React.FC<DailyMissionWorkspaceModalProp
 
                   {/* Right Action Button */}
                   <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                    <button
+                    <motion.button
+                      type="button"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                       onClick={() => handleExecuteTask(task)}
-                      className={`px-4 py-2.5 rounded-xl text-xs font-bold font-['Outfit'] flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
+                      className={`px-4 py-2.5 rounded-xl text-xs font-bold font-['Outfit'] flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm ${
                         task.isCompleted
                           ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           : 'bg-slate-900 hover:bg-slate-800 text-white'
@@ -383,7 +397,7 @@ export const DailyMissionWorkspaceModal: React.FC<DailyMissionWorkspaceModalProp
                     >
                       <Play className="h-3.5 w-3.5 fill-current" />
                       <span>{task.actionLabel}</span>
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
               );
@@ -394,16 +408,20 @@ export const DailyMissionWorkspaceModal: React.FC<DailyMissionWorkspaceModalProp
         {/* ================= MODAL FOOTER ================= */}
         <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-3 shrink-0">
           <div className="text-xs text-slate-500 flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-sky-500" />
+            <ShieldCheck className="h-3.5 w-3.5 text-[#006B63] shrink-0" />
             <span>Tasks are ordered adaptively by FMGE weight, weakness, and spaced revision intervals.</span>
           </div>
 
-          <button
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
             onClick={onClose}
             className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
           >
             Close
-          </button>
+          </motion.button>
         </div>
       </motion.div>
     </div>,

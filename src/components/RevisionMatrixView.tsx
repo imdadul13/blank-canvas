@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import {
   BookOpen,
-  Zap,
+  Activity,
   Target,
   BarChart3,
   TrendingUp,
@@ -22,6 +22,7 @@ import {
   RotateCcw,
   Check,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { AppState, FMGESubject } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { AppStats } from '../utils/storage';
@@ -305,7 +306,7 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
         <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs flex items-center justify-between gap-3 hover:border-slate-300 transition-colors">
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center shrink-0">
-              <Zap className="h-5 w-5" />
+              <RotateCcw className="h-5 w-5" />
             </div>
             <div className="min-w-0 space-y-0.5">
               <h3 className="font-display font-bold text-slate-900 text-base leading-tight truncate">
@@ -688,7 +689,7 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
             {/* Header */}
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center shrink-0">
-                <Zap className="h-4 w-4" />
+                <Activity className="h-4 w-4 animate-pulse" />
               </div>
               <div>
                 <h2 className="font-display font-bold text-slate-900 text-base leading-tight">
@@ -703,8 +704,11 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
             {/* 2x2 Grid of Actions */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Action 1: Continue Revision */}
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ y: -2, scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={handleContinueRevision}
                 className="p-3 rounded-xl bg-slate-50/80 hover:bg-slate-100 border border-slate-200/70 flex items-center gap-3 text-left transition-colors cursor-pointer group"
               >
@@ -719,11 +723,14 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
                     Pick up where you left off
                   </div>
                 </div>
-              </button>
+              </motion.button>
 
               {/* Action 2: Weak Topics */}
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ y: -2, scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={handleFocusWeakTopics}
                 className="p-3 rounded-xl bg-slate-50/80 hover:bg-slate-100 border border-slate-200/70 flex items-center gap-3 text-left transition-colors cursor-pointer group"
               >
@@ -738,11 +745,14 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
                     Focus on low scores
                   </div>
                 </div>
-              </button>
+              </motion.button>
 
               {/* Action 3: Custom Revision */}
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ y: -2, scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={onBackToCurriculum}
                 className="p-3 rounded-xl bg-slate-50/80 hover:bg-slate-100 border border-slate-200/70 flex items-center gap-3 text-left transition-colors cursor-pointer group"
               >
@@ -757,11 +767,14 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
                     Create your own plan
                   </div>
                 </div>
-              </button>
+              </motion.button>
 
               {/* Action 4: Revision Calendar */}
-              <button
+              <motion.button
                 type="button"
+                whileHover={{ y: -2, scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={() => setIsCalendarModalOpen(true)}
                 className="p-3 rounded-xl bg-slate-50/80 hover:bg-slate-100 border border-slate-200/70 flex items-center gap-3 text-left transition-colors cursor-pointer group"
               >
@@ -776,7 +789,7 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
                     Plan your revision
                   </div>
                 </div>
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>

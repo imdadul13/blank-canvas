@@ -1,5 +1,5 @@
 import React from "react";
-import { Send, Sparkles, BookOpen, ShieldCheck, CheckCircle2, ArrowRight } from "lucide-react";
+import { Send, Activity, BookOpen, ShieldCheck, CheckCircle2, ArrowRight } from "lucide-react";
 
 interface TelegramEmptyStateProps {
   onConnect: () => void;
@@ -47,7 +47,7 @@ export const TelegramEmptyState: React.FC<TelegramEmptyStateProps> = ({ onConnec
 
         <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-100/80 space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
-            <Sparkles className="w-4 h-4 text-purple-600" />
+            <Activity className="w-4 h-4 text-purple-600 animate-pulse" />
             Gemini AI Cross-Check
           </div>
           <p className="text-[11px] text-slate-500 leading-relaxed">
