@@ -402,17 +402,17 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
           <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] via-[#0D9488] to-[#044E48] text-white shadow-[0_8px_20px_rgba(0,107,99,0.18)] border border-white/80 ring-1 ring-black/5 shrink-0">
-              <BarChart3 className="h-5 w-5 text-white stroke-[1.8]" />
+            <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0">
+              <BarChart3 className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
             </div>
             <div>
-              <span className="px-2.5 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-[#00685F] text-[10px] sm:text-[11px] font-bold font-mono tracking-wider">
-                AI SCORE PREDICTOR · PROBABILITY ENGINE
+              <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700 font-mono block">
+                Probability Engine · AI Forecast
               </span>
             </div>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-semibold tracking-tight leading-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-[42px] font-semibold tracking-tight leading-tight bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-900 bg-clip-text text-transparent">
             Your FMGE Score, Clarity Today.
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">

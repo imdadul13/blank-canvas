@@ -667,11 +667,11 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
           {/* Main Title & Subtitle */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] to-[#0F766E] text-white shadow-[0_8px_20px_rgba(0,107,99,0.18)] border border-white/80 ring-1 ring-black/5 shrink-0">
-              <Calendar className="h-5 w-5 text-white stroke-[1.8]" />
+            <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0">
+              <Calendar className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-[#00685F] stroke-[2]" />
             </div>
             <div className="min-w-0">
-              <h1 className="font-serif text-xl sm:text-2xl lg:text-[25px] font-semibold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent tracking-tight leading-snug">
+              <h1 className="font-serif text-xl sm:text-2xl lg:text-[25px] font-semibold bg-gradient-to-r from-stone-950 via-stone-800 to-teal-800 bg-clip-text text-transparent tracking-tight leading-snug">
                 Today’s Plan &amp; Focus
               </h1>
               <p className="text-xs sm:text-sm text-stone-500 leading-normal line-clamp-1 sm:line-clamp-none">

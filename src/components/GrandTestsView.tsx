@@ -526,19 +526,18 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         {/* Header Content Body */}
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="space-y-1 max-w-2xl">
-            {/* Tag / Category Badge */}
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-800 text-[10px] sm:text-[11px] font-bold font-mono tracking-wide">
-              <GraduationCap className="h-3 w-3" />
-              <span>NBE SIMULATION · 300 QUESTIONS</span>
-            </div>
+            {/* Clean Unboxed Eyebrow */}
+            <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-indigo-700 font-mono block">
+              NBE Simulation · 300 Questions
+            </span>
 
-            {/* Heading with Apple HIG Squircle Insignia */}
+            {/* Heading with Minimal Insignia */}
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#1E293B] via-[#0F766E] to-[#005750] text-white shadow-[0_8px_20px_rgba(15,118,110,0.2)] border border-white/80 ring-1 ring-black/5 shrink-0">
-                <Award className="h-5 w-5 text-white stroke-[1.8]" />
+              <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-indigo-50/90 border border-indigo-100/90 text-indigo-700 shadow-2xs shrink-0">
+                <Award className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-indigo-700 stroke-[2]" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent tracking-tight font-['Outfit'] leading-snug">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-900 bg-clip-text text-transparent tracking-tight font-['Outfit'] leading-snug">
                   Grand Tests &amp; Mocks
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 leading-normal line-clamp-1 sm:line-clamp-none">

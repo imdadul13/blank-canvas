@@ -424,14 +424,14 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1 max-w-xl">
               <div className="flex items-center gap-3">
-                <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#4338CA] via-[#0D9488] to-[#00685F] text-white shadow-[0_8px_20px_rgba(67,56,202,0.18)] border border-white/80 ring-1 ring-black/5 shrink-0">
-                  <TrendingUp className="h-5 w-5 text-white stroke-[1.8]" />
+                <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-indigo-50/90 border border-indigo-100/90 text-indigo-600 shadow-2xs shrink-0">
+                  <TrendingUp className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-indigo-600 stroke-[2]" />
                 </div>
                 <div className="space-y-0.5 min-w-0">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-[#4338CA] text-[10px] sm:text-[11px] font-bold font-mono tracking-wide">
-                    <span>PERFORMANCE &amp; DIAGNOSTICS</span>
-                  </div>
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-bold font-['Newsreader'] tracking-tight bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent leading-snug">
+                  <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-indigo-600 font-mono block">
+                    Performance &amp; Diagnostics
+                  </span>
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-bold font-['Newsreader'] tracking-tight bg-gradient-to-r from-slate-950 via-indigo-950 to-indigo-800 bg-clip-text text-transparent leading-snug">
                     Know exactly where you stand.
                   </h1>
                 </div>

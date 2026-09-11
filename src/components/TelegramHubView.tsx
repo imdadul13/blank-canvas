@@ -1178,14 +1178,14 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             <div className="space-y-1.5 max-w-2xl">
               {/* Insignia + Title Row */}
               <div className="flex items-center gap-3">
-                <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#0284C7] via-[#0369A1] to-[#006B63] text-white shadow-[0_8px_20px_rgba(2,132,199,0.22)] border border-white/80 ring-1 ring-black/5 shrink-0">
-                  <Send className="h-5 w-5 text-white rotate-[-20deg]" />
+                <div className="relative flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-sky-50/90 border border-sky-100/90 text-sky-600 shadow-2xs shrink-0">
+                  <Send className="h-4.5 w-4.5 sm:h-5 sm:w-5 text-sky-600 rotate-[-20deg] stroke-[2]" />
                 </div>
                 <div className="space-y-0.5 min-w-0">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-[#0284C7] text-[10px] sm:text-[11px] font-bold font-mono tracking-wide">
-                    <span>VERIFIED TELEGRAM CHANNELS · INGESTION</span>
-                  </div>
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-snug bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent">
+                  <span className="text-[10.5px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-sky-600 font-mono block">
+                    Community Feeds · Verified Channels
+                  </span>
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-snug bg-gradient-to-r from-slate-950 via-sky-950 to-cyan-800 bg-clip-text text-transparent">
                     Telegram Knowledge Bank
                   </h1>
                 </div>
