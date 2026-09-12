@@ -1287,6 +1287,72 @@ RESPONSE FORMAT: Output only a single markdown string (no JSON, no code block wr
 function generateOfflineFallbackExplanation(subject: string, topic: string, query: string): string {
   const combined = `${subject} ${topic} ${query}`.toLowerCase();
 
+  // 0A. Short Factual Inquiry: Gold standard for Crohn's Disease
+  if ((combined.includes('crohn') || combined.includes("crohn's")) && (combined.includes('gold standard') || combined.includes('investigation of choice') || combined.includes('ioc'))) {
+    return `### 🩺 Direct Answer: Gold Standard for Crohn's Disease
+
+**Colonoscopy with ileoscopy and targeted mucosal biopsy** is the diagnostic gold standard for Crohn's disease.
+
+- **Clinical Rationale**: Direct endoscopic visualization identifies classic **skip lesions, aphthous ulcers, and cobblestoning**. Histopathology of biopsy specimens confirms transmural inflammation and **non-caseating epithelioid granulomas** (seen in ~50–60% of patients), definitively distinguishing it from Ulcerative Colitis.
+- **FMGE Pearl**: Histopathology gold standard = **non-caseating epithelioid granulomas**. Radiological fluoroscopy sign = **String sign of Kantor** (severely narrowed terminal ileum).`;
+  }
+
+  // 0B. Rapid Revision of Crohn's Disease
+  if ((combined.includes('rapid revision') || combined.includes('quick revision')) && (combined.includes('crohn') || combined.includes("crohn's"))) {
+    return `### ⚡ Rapid Revision: **Crohn's Disease**
+
+- **DEFINITION** → Transmural, granulomatous IBD with skip lesions affecting any part of GI tract (mouth to anus; terminal ileum ~75% most common).
+- **CAUSES** → Mucosal immune dysregulation, NOD2/CARD15 genetic mutations, smoking exacerbates disease severity.
+- **FEATURES** → Chronic diarrhea, RLQ colicky pain, weight loss, perianal fistulae/abscesses, erythema nodosum, calcium oxalate nephrolithiasis.
+- **DIAGNOSIS** → Colonoscopy + biopsy = **non-caseating epithelioid granulomas**; Barium fluoroscopy = **String sign of Kantor**; Serology = **ASCA (+)**.
+- **TREATMENT** → Budesonide (mild ileal) → Prednisolone (acute moderate/severe) → Azathioprine (maintenance) → **Infliximab / Adalimumab** (fistulizing/refractory).
+- **FMGE PEARLS** → Surgery is **not curative** (disease recurs at anastomosis). Fistulae occur because inflammation is **transmural**. ASCA = Crohn's; p-ANCA = UC.`;
+  }
+
+  // 0C. Teaching Masterclass: "Teach me Crohn disease"
+  if ((combined.includes('teach me') || combined.includes('explain in depth') || combined.includes('master')) && (combined.includes('crohn') || combined.includes("crohn's"))) {
+    return `### 🩺 Clinical Faculty Masterclass: **Crohn's Disease**
+
+#### 01 — Core Concept & Pathophysiology
+Transmural, granulomatous inflammatory bowel disease affecting any portion of the gastrointestinal tract from mouth to anus, with a predilection for the **terminal ileum** (~75%) and right colon. Characterized by **skip lesions** and asymmetric, discontinuous involvement.
+
+#### 02 — Clinical Presentation & Cardinal Signs
+- Recurrent non-bloody diarrhea or chronic diarrhea with colicky right lower quadrant (RLQ) abdominal pain.
+- Low-grade fever, weight loss, anorexia, and palpable tender inflammatory abdominal mass.
+- Perianal complications: complex fistulae (enterocutaneous, enterovesical), recurrent abscesses, skin tags, or indolent anal fissures.
+- Extraintestinal manifestations: erythema nodosum, peripheral arthritis, uveitis, nephrolithiasis (calcium oxalate stones due to hyperoxaluria).
+
+#### 03 — Diagnostic Criteria & Gold Standards
+- **Diagnostic Gold Standard**: **Colonoscopy with ileoscopy and biopsy** revealing segmental aphthoid or linear "bear-claw" ulcers, cobblestoning, and **non-caseating epithelioid granulomas**.
+- **Radiological Sign**: **String sign of Kantor** on barium meal follow-through (stenosed, rigid terminal ileum).
+- **Serology**: **ASCA (+)** (Anti-Saccharomyces cerevisiae antibody positive in 60-70%; p-ANCA is negative).
+- **Stool Biomarker**: Fecal calprotectin (>250 μg/g correlates with active mucosal ulceration).
+
+#### 04 — Treatment Protocol & First-Line Drugs
+- **Mild-to-Moderate Ileocecal Disease**: Oral controlled-release **Budesonide** (9 mg/day) or oral 5-ASA (Mesalamine).
+- **Moderate-to-Severe Flare**: Oral Prednisolone (40–60 mg/day) or IV Hydrocortisone.
+- **Steroid-Sparing / Maintenance**: **Azathioprine** (2–2.5 mg/kg/day) or 6-Mercaptopurine.
+- **Refractory / Fistulizing Disease (Biologics)**: Anti-TNF-α therapy with **Infliximab** or **Adalimumab** (screen for latent TB with IGRA/Mantoux first).
+- **Perianal Fistulae**: Metronidazole + Ciprofloxacin combined with anti-TNF induction.
+
+#### 05 — Classic Exam Traps & Distractors
+- **Trap 1**: Fistulae, sinus tracts, and bowel perforation occur because inflammation is **transmural** (all bowel layers). In Ulcerative Colitis, inflammation is strictly mucosal/submucosal; fistulae do NOT occur.
+- **Trap 2**: Resection is **never curative** in Crohn's disease and frequently recurs at the neo-terminal ileum anastomosis. Total proctocolectomy is curative only for Ulcerative Colitis.
+- **Trap 3**: ASCA is positive in Crohn's; p-ANCA is positive in Ulcerative Colitis. Memory hook: **"ASCA = Crohn's, p-ANCA = UC"**.
+
+#### 06 — High-Yield Discriminators
+| Feature | Crohn's Disease | Ulcerative Colitis |
+| :--- | :--- | :--- |
+| Depth | Transmural (all layers) | Mucosa & submucosa only |
+| Rectum | Often spared (terminal ileum affected) | Rectum ALWAYS involved |
+| Granulomas | Non-caseating granulomas present | Absent (crypt abscesses instead) |
+| Smoking | **Smoking worsens disease** | Smoking has protective effect |
+
+#### 07 — FMGE Pearls & Mnemonics
+- **Mnemonic for Crohn's**: **"CHRISTMAS"** — **C**obblestone, **H**igh temp, **R**educe lumen (string sign), **I**ntestinal fistulae, **S**kip lesions, **T**ransmural, **M**alabsorption, **A**bdominal pain, **S**ubmucosal fat creeping.
+- **Exam Pearl**: Calcium oxalate kidney stones occur due to increased free oxalate absorption caused by unabsorbed fatty acids binding calcium in the ileum.`;
+  }
+
   // Crohn's Disease vs Ulcerative Colitis
   if ((combined.includes('crohn') || combined.includes("crohn's")) && (combined.includes('colitis') || combined.includes('ibd') || combined.includes('vs') || combined.includes('ulcerative'))) {
     return `### 🩺 High-Yield IBD Comparison: **Crohn's Disease vs Ulcerative Colitis**
@@ -2211,7 +2277,30 @@ CRITICAL REASONING & TOPIC INTEGRITY DIRECTIVES:
    - ABSOLUTE BAN ON PLACEHOLDER TEXT: Never output generic phrases such as "Master the primary pathological mechanism", "Definitive imaging, biopsy, or laboratory assay protocol in General Medicine", or "Evidence-based guideline first-line regimen". Always provide the actual medical facts.
    - FORMATTING RULES: Never use LaTeX math delimiters or syntax (such as $\\ge$, $\\le$, $\\rightarrow$, $\\times$, $\\pm$, $m^2$). Use standard readable text and Unicode symbols directly (≥, ≤, →, ±, ×, m², °, ↑, ↓, μg).
 
-4. Output Format:
+4. RESPONSE HIERARCHY & LENGTH SCALING (CRITICAL):
+   - SHORT FACTUAL QUESTIONS (e.g., "What is the gold standard for...", "What is the drug of choice for...", "Which artery..."):
+     DO NOT dump long textbook essays. Provide a CONCISE, DIRECT response:
+     * Direct clinical answer in sentence 1.
+     * 1-2 sentences explaining the rationale and diagnostic/therapeutic mechanism.
+     * **FMGE Pearl**: 1 high-yield exam takeaway.
+   - TEACHING REQUESTS (e.g., "Teach me [topic]", "Explain [topic] in depth", "Master [topic]"):
+     Provide a structured, numbered breakdown with clear headings:
+     * 01 — Core Concept & Pathophysiology
+     * 02 — Clinical Presentation & Cardinal Signs
+     * 03 — Diagnostic Criteria & Gold Standards
+     * 04 — Treatment Protocol & First-Line Drugs
+     * 05 — Classic Exam Traps & Distractors
+     * 06 — High-Yield Discriminators
+     * 07 — FMGE Pearls & Mnemonics
+   - RAPID REVISION (e.g., "Rapid revision of [topic]"):
+     Provide a rapid clinical flow:
+     DEFINITION → CAUSES → FEATURES → DIAGNOSIS → TREATMENT → FMGE PEARLS
+   - COMPARATIVE QUESTIONS (e.g., "[A] vs [B]"):
+     Use a clear 2-column comparative table followed by key exam discriminators.
+   - DYNAMIC SUGGESTED FOLLOW-UPS:
+     In "suggestedFollowUps", return 3 to 5 high-yield, specific next-step prompts tailored strictly to "${detectedTopic}" (e.g., "Why is [drug] contraindicated in this condition?", "How to differentiate from [mimic]?", "Test me on an exam vignette for [topic]").
+
+5. Output Format:
 Output strictly valid JSON matching this schema:
 {
   "reply": "Conversational markdown text...",

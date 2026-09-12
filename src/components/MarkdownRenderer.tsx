@@ -325,11 +325,37 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
       }
 
       if (match[1] && match[2]) {
-        tokens.push(
-          <strong key={`b-${keyIdx++}`} className="font-bold text-slate-950">
-            {match[2]}
-          </strong>
-        );
+        const innerText = match[2];
+        const lowerInner = innerText.toLowerCase().trim();
+        const isAnchor =
+          lowerInner.startsWith('gold standard') ||
+          lowerInner.startsWith('first-line') ||
+          lowerInner.startsWith('most common') ||
+          lowerInner.startsWith('most sensitive') ||
+          lowerInner.startsWith('most specific') ||
+          lowerInner.startsWith('contraindicated') ||
+          lowerInner.startsWith('classic presentation') ||
+          lowerInner.startsWith('key investigation') ||
+          lowerInner.startsWith('important complication') ||
+          lowerInner.startsWith('fmge pearl');
+
+        if (isAnchor) {
+          tokens.push(
+            <span
+              key={`b-${keyIdx++}`}
+              className="inline-flex items-center gap-1 font-bold text-slate-900 bg-teal-50/80 px-1.5 py-0.5 rounded border border-teal-200/70 shadow-2xs font-['Outfit']"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#006B63] shrink-0" />
+              {innerText}
+            </span>
+          );
+        } else {
+          tokens.push(
+            <strong key={`b-${keyIdx++}`} className="font-bold text-slate-950">
+              {innerText}
+            </strong>
+          );
+        }
       } else if (match[3] && match[4]) {
         tokens.push(
           <em key={`i-${keyIdx++}`} className="italic text-slate-800">

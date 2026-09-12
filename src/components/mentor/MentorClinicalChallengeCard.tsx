@@ -27,6 +27,8 @@ export interface MentorClinicalChallengeCardProps {
     whatToLookFor?: string;
   }) => void;
   onFollowUpClick?: (text: string) => void;
+  questionNumber?: number;
+  totalQuestions?: number;
 }
 
 export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardProps> = ({
@@ -35,6 +37,8 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
   onAnswer,
   onOpenImageModal,
   onFollowUpClick,
+  questionNumber,
+  totalQuestions,
 }) => {
   const [stagedKey, setStagedKey] = useState<string | null>(null);
 
@@ -59,6 +63,10 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
     quiz.distractorBreakdown || quiz.distractorExplanations || {}
   );
 
+  const counterText = questionNumber && totalQuestions
+    ? `QUESTION ${questionNumber} OF ${totalQuestions}`
+    : 'Clinical Challenge';
+
   return (
     <div className="w-full my-4 rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-2xs space-y-5 text-slate-800 break-words font-sans">
       {/* 1. Header: Classification Badge & Question Status */}
@@ -66,7 +74,7 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
         <div className="flex items-center gap-2.5 flex-wrap">
           <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-[#006B63] uppercase font-['Outfit']">
             <Stethoscope className="w-3.5 h-3.5" />
-            <span>Clinical Challenge</span>
+            <span>{counterText}</span>
           </div>
           <span className="text-slate-300">·</span>
           <span className="px-2.5 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-bold font-['Outfit'] uppercase tracking-wider">
@@ -81,8 +89,8 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
           <span
             className={`text-xs font-bold px-3 py-1 rounded-full font-['Outfit'] flex items-center gap-1.5 ${
               isUserCorrect
-                ? 'bg-emerald-50 text-emerald-800 border border-emerald-300/80'
-                : 'bg-rose-50 text-rose-800 border border-rose-300/80'
+                ? 'bg-emerald-50/90 text-emerald-800 border border-emerald-200'
+                : 'bg-amber-50/90 text-amber-900 border border-amber-200'
             }`}
           >
             {isUserCorrect ? (
@@ -92,8 +100,8 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
               </>
             ) : (
               <>
-                <X className="w-3.5 h-3.5 text-rose-600 stroke-[2.5]" />
-                <span>Incorrect · Ans: Option {correctKey}</span>
+                <X className="w-3.5 h-3.5 text-amber-600 stroke-[2.5]" />
+                <span>Option {correctKey} is correct</span>
               </>
             )}
           </span>
@@ -272,37 +280,37 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
         </div>
       )}
 
-      {/* 6. Post-Answer Revealed Rationale, Distractor Analysis & Takeaways */}
+      {/* 6. Post-Answer Revealed Structured Remediation */}
       {isRevealed && (
-        <div className="space-y-3.5 pt-4 border-t border-slate-100 animate-in fade-in-50">
-          {/* Answer Status Banner */}
+        <div className="space-y-4 pt-4 border-t border-slate-100 animate-in fade-in-50">
+          {/* Gentle Answer Status Banner */}
           {isUserCorrect ? (
-            <div className="p-4 rounded-2xl bg-[#f0fdf4] border border-emerald-200 text-emerald-950 space-y-1">
+            <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200/80 text-teal-950 space-y-1">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                <div className="h-6 w-6 rounded-full bg-[#006B63] text-white flex items-center justify-center shrink-0">
                   <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                 </div>
-                <span className="font-['Outfit'] font-bold text-emerald-950 text-sm sm:text-base">
-                  Correct! Well reasoned.
+                <span className="font-['Outfit'] font-bold text-teal-950 text-sm sm:text-base">
+                  Correct clinical judgment
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-emerald-900/90 pl-8">
-                Option {correctKey} {correctOpt ? `(${correctOpt.text})` : ''} is the correct clinical answer.
+              <p className="text-xs sm:text-sm text-teal-900/90 pl-8">
+                Option {correctKey} {correctOpt ? `(${correctOpt.text})` : ''} is the standard of care in this presentation.
               </p>
             </div>
           ) : (
-            <div className="p-4 rounded-2xl bg-[#fff1f2] border border-rose-200 text-rose-950 space-y-1">
+            <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-slate-800 space-y-1">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0">
+                <div className="h-6 w-6 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0">
                   <X className="w-3.5 h-3.5 stroke-[2.5]" />
                 </div>
-                <span className="font-['Outfit'] font-bold text-rose-950 text-sm sm:text-base">
-                  Incorrect Answer
+                <span className="font-['Outfit'] font-bold text-slate-900 text-sm sm:text-base">
+                  Clinical revision needed
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-rose-900/90 pl-8">
-                You selected Option {userAnswer}. Correct diagnosis is{' '}
-                <strong className="text-rose-950">
+              <p className="text-xs sm:text-sm text-slate-700 pl-8">
+                You selected Option {userAnswer}. The correct answer is{' '}
+                <strong className="text-slate-900">
                   Option {correctKey} {correctOpt ? `(${correctOpt.text})` : ''}
                 </strong>
                 .
@@ -310,14 +318,33 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
             </div>
           )}
 
-          {/* Clinical Rationale Card */}
+          {/* Section 1: WHY YOU MISSED IT (Only shown if incorrect) */}
+          {!isUserCorrect && (
+            <div className="p-4 sm:p-5 rounded-2xl bg-rose-50/50 border border-rose-200/70 space-y-2">
+              <div className="flex items-center gap-2 pb-1.5 border-b border-rose-100">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 font-['Outfit']">
+                  Why you missed it
+                </span>
+                <span className="text-xs font-semibold text-rose-900 font-['Outfit']">
+                  Distractor Trap Analysis
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
+                {quiz.trap ||
+                  (userAnswer && (quiz.distractorBreakdown?.[userAnswer] || quiz.distractorExplanations?.[userAnswer])) ||
+                  `Option ${userAnswer} is a common FMGE trap choice that focuses on single features while missing key diagnostic criteria for Option ${correctKey}.`}
+              </p>
+            </div>
+          )}
+
+          {/* Section 2: WHY OPTION [X] IS CORRECT */}
           <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 space-y-2.5 shadow-2xs">
             <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-              <div className="h-6 w-6 rounded-full bg-sky-100 text-sky-800 flex items-center justify-center shrink-0">
+              <div className="h-6 w-6 rounded-full bg-teal-50 text-[#006B63] flex items-center justify-center shrink-0">
                 <Stethoscope className="w-3.5 h-3.5" />
               </div>
               <h4 className="font-['Outfit'] font-bold text-slate-900 text-sm sm:text-base">
-                Clinical Rationale
+                Clinical Rationale · Why Option {correctKey} is correct
               </h4>
             </div>
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
@@ -325,7 +352,7 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
             </p>
           </div>
 
-          {/* Visual Finding Breakdown for Image Questions */}
+          {/* Visual Finding Breakdown for Image Questions (if present) */}
           {(quiz.whatToLookFor || quiz.imageAsset?.whatToLookFor) && (
             <div className="p-4 rounded-2xl bg-sky-50/80 border border-sky-200/80 text-sky-950 text-xs sm:text-sm leading-relaxed space-y-2.5">
               <div className="space-y-1">
@@ -338,7 +365,6 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
                 </p>
               </div>
 
-              {/* Button to open Annotated Lightbox */}
               {quiz.imageUrl && (
                 <div className="pt-2 border-t border-sky-100 flex justify-end">
                   <button
@@ -363,7 +389,7 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
             </div>
           )}
 
-          {/* Why Other Options Are Wrong (Distractor Analysis) */}
+          {/* Section 3: WHY THE OTHERS ARE WRONG */}
           {distractorEntries.length > 0 && (
             <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2.5 shadow-2xs">
               <div className="pb-1.5 border-b border-slate-200/60">
@@ -386,26 +412,26 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
             </div>
           )}
 
-          {/* FMGE Key Takeaway */}
-          {quiz.fmgeTakeaway && (
-            <div className="p-4 rounded-2xl bg-[#fffbeb] border border-amber-200/90 text-amber-950 text-xs sm:text-sm space-y-1.5 shadow-2xs">
+          {/* Section 4: FMGE PEARL */}
+          {(quiz.fmgeTakeaway || quiz.trap) && (
+            <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/90 text-amber-950 text-xs sm:text-sm space-y-1.5 shadow-2xs">
               <div className="flex items-center gap-1.5">
                 <div className="h-4 w-4 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
                   <Lightbulb className="w-2.5 h-2.5" />
                 </div>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300/80 font-['Outfit']">
-                  FMGE Key Takeaway
+                  FMGE Key Takeaway · Pearl
                 </span>
               </div>
               <p className="text-amber-950/90 leading-relaxed font-sans pl-0.5">
-                {quiz.fmgeTakeaway}
+                {quiz.fmgeTakeaway || quiz.trap}
               </p>
             </div>
           )}
 
-          {/* Memory Hook / Mnemonic */}
+          {/* Memory Hook / Mnemonic (if present) */}
           {(quiz.memoryHook || quiz.mnemonic) && (
-            <div className="p-4 rounded-2xl bg-purple-50/80 border border-purple-200/80 text-purple-950 text-xs sm:text-sm space-y-1.5 shadow-2xs">
+            <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200/70 text-purple-950 text-xs sm:text-sm space-y-1.5 shadow-2xs">
               <div className="flex items-center gap-1.5">
                 <div className="h-4 w-4 rounded-full bg-purple-100 text-purple-900 flex items-center justify-center shrink-0">
                   <Brain className="w-2.5 h-2.5" />

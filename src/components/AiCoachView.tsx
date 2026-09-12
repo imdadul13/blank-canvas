@@ -35,6 +35,7 @@ import {
   Search,
   Brain,
   Award,
+  AlertCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
@@ -95,6 +96,8 @@ export interface ChatMessage {
     url: string;
     fileName?: string;
   };
+  isError?: boolean;
+  retryQuery?: string;
 }
 
 export interface ActiveQuizSession {
@@ -118,6 +121,30 @@ export interface CoachSession {
 }
 
 const COACH_STORAGE_KEY = 'fmge_ai_coach_sessions_v1';
+
+export function cleanTextForClipboard(rawText: string): string {
+  if (!rawText) return '';
+  let text = rawText;
+  // Strip markdown headers
+  text = text.replace(/^#{1,6}\s+/gm, '');
+  // Strip bold/italic formatting
+  text = text.replace(/\*\*(.*?)\*\*/g, '$1');
+  text = text.replace(/\*(.*?)\*/g, '$1');
+  text = text.replace(/__(.*?)__/g, '$1');
+  text = text.replace(/_(.*?)_/g, '$1');
+  // Strip blockquotes
+  text = text.replace(/^>\s?/gm, '');
+  // Strip code blocks and inline code
+  text = text.replace(/```[\s\S]*?```/g, (m) => m.replace(/```[a-z]*\n?/gi, '').replace(/```/g, ''));
+  text = text.replace(/`([^`]+)`/g, '$1');
+  // Strip markdown links [text](url) -> text
+  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  // Strip leftover XML/HTML tags
+  text = text.replace(/<[^>]+>/g, '');
+  // Normalize extra consecutive newlines
+  text = text.replace(/\n{3,}/g, '\n\n');
+  return text.trim();
+}
 
 export function createDefaultGreetingMessage(): ChatMessage {
   return {
@@ -590,8 +617,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
           next = [updatedSession, ...prev];
         }
 
-        // Strictly persist sessions with actual student questions
-        const validNext = next.filter((s) => s.messages && s.messages.some((m) => m.role === 'user'));
+        // Strictly persist sessions with actual student questions or active quiz sessions
+        const validNext = next.filter((s) => (s.messages && s.messages.some((m) => m.role === 'user')) || Boolean(s.quizSession));
         try {
           localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(validNext));
         } catch (_) {}
@@ -800,9 +827,16 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   }, [messages, isLoading, quizSession]);
 
   const handleCopyMessage = (id: string, text: string) => {
-    navigator.clipboard.writeText(text);
+    const cleaned = cleanTextForClipboard(text);
+    navigator.clipboard.writeText(cleaned);
     setCopiedMessageId(id);
     setTimeout(() => setCopiedMessageId(null), 2000);
+  };
+
+  const handleRetry = (query?: string) => {
+    if (!query) return;
+    setMessages((prev) => prev.filter((m) => !m.isError));
+    handleSendMessage(query, true);
   };
 
   // Start Multi-Question Quiz Mode
@@ -1233,13 +1267,10 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         role: 'assistant',
         content: err?.message?.includes('AI Service Notice')
           ? err.message
-          : '⚠️ **AI response failed**. Please check your connection or GEMINI_API_KEY and try again.',
+          : 'Unable to reach Faculty Mentor right now. Please check your connection or try again.',
         timestamp: new Date(),
-        suggestedFollowUps: [
-          'Retry request',
-          'What is nephrotic syndrome?',
-          'Give me an FMGE MCQ on heart blocks'
-        ]
+        isError: true,
+        retryQuery: text,
       };
       setMessages([...newMessages, assistantMessage]);
     } finally {
@@ -1408,7 +1439,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     try {
       localStorage.setItem(
         COACH_STORAGE_KEY,
-        JSON.stringify(filtered.filter((s) => s.messages && s.messages.some((m) => m.role === 'user')))
+        JSON.stringify(filtered.filter((s) => (s.messages && s.messages.some((m) => m.role === 'user')) || Boolean(s.quizSession)))
       );
     } catch (_) {}
 
@@ -1765,7 +1796,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                       <span className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit']">Faculty Mentor</span>
                       {isLoading && !msg.content ? (
                         <div className="flex items-center gap-1.5 text-xs text-[#006080] font-medium pt-0.5">
-                          <span>Thinking...</span>
+                          <span>Faculty Mentor: Reviewing the clinical reasoning…</span>
                           <span className="inline-flex gap-1 items-center">
                             <span className="h-1.5 w-1.5 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: '0ms' }} />
                             <span className="h-1.5 w-1.5 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -1807,8 +1838,30 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                     )}
                   </div>
 
-                  {/* Proper Markdown Output via MarkdownRenderer or Streaming Indicator */}
-                  {msg.content ? (
+                  {/* Proper Markdown Output via MarkdownRenderer, Error Notice with Retry, or Streaming Indicator */}
+                  {msg.isError ? (
+                    <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-slate-800 space-y-2.5">
+                      <div className="flex items-center gap-2 text-amber-900 font-bold font-['Outfit'] text-xs sm:text-sm">
+                        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>Faculty Mentor Notice</span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
+                        {msg.content}
+                      </p>
+                      {msg.retryQuery && (
+                        <div className="pt-1">
+                          <button
+                            type="button"
+                            onClick={() => handleRetry(msg.retryQuery)}
+                            className="px-4 py-1.5 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold font-['Outfit'] transition-all shadow-2xs hover:shadow-xs cursor-pointer active:scale-95 flex items-center gap-1.5"
+                          >
+                            <RotateCw className="w-3 h-3" />
+                            <span>Try Again</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : msg.content ? (
                     <div className="transition-opacity duration-200">
                       <MarkdownRenderer content={msg.content} />
                     </div>

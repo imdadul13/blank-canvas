@@ -604,39 +604,73 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
       {/* 6. Post-Answer Comprehensive Rationale & Faculty Coaching */}
       {isCurrentAnswered && (
         <div className="space-y-4 pt-4 border-t border-slate-200 animate-in fade-in-50">
-          {/* Result Header Banner */}
+          {/* Gentle Result Header Banner */}
           <div
-            className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 flex-wrap ${
+            className={`p-4 rounded-2xl border flex items-center justify-between gap-3 flex-wrap ${
               isCurrentCorrect
-                ? 'bg-emerald-50/90 border-emerald-200 text-emerald-950'
-                : 'bg-rose-50/90 border-rose-200 text-rose-950'
+                ? 'bg-teal-50/70 border-teal-200/80 text-teal-950'
+                : 'bg-amber-50/70 border-amber-200/80 text-slate-800'
             }`}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               {isCurrentCorrect ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div className="h-6 w-6 rounded-full bg-[#006B63] text-white flex items-center justify-center shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                </div>
               ) : (
-                <X className="w-5 h-5 text-rose-600 shrink-0" />
+                <div className="h-6 w-6 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0">
+                  <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                </div>
               )}
-              <span className="text-xs sm:text-sm font-bold font-['Outfit']">
-                {isCurrentCorrect
-                  ? 'Correct! Well reasoned.'
-                  : `Incorrect Answer · Correct is Option ${correctKey}`}
-              </span>
+              <div>
+                <span className="text-xs sm:text-sm font-bold font-['Outfit'] block">
+                  {isCurrentCorrect
+                    ? 'Correct clinical judgment'
+                    : `Option ${correctKey} is correct`}
+                </span>
+                <span className="text-[11px] text-slate-500 font-normal">
+                  {isCurrentCorrect
+                    ? `You correctly selected Option ${correctKey}.`
+                    : `You selected Option ${selectedKey}. Review discriminator below.`}
+                </span>
+              </div>
             </div>
 
-            <span className="text-[11px] font-semibold text-slate-500 font-['Outfit']">
+            <span className="text-[11px] font-semibold text-slate-500 font-['Outfit'] bg-white/70 px-2.5 py-1 rounded-full border border-slate-200/60">
               Question {currentIndex + 1} of {totalQuestions}
             </span>
           </div>
 
-          {/* Rationale Body */}
-          <div className="bg-slate-50/70 p-5 rounded-2xl border border-slate-200/80 space-y-4 text-xs sm:text-sm">
-            {/* Faculty Explanation */}
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#006B63] uppercase tracking-wider font-['Outfit']">
-                <Stethoscope className="w-3.5 h-3.5" />
-                <span>Clinical Reasoning Checkpoint</span>
+          {/* Structured Remediation Body */}
+          <div className="space-y-3.5 text-xs sm:text-sm">
+            {/* 1. WHY YOU MISSED IT (Only if incorrect) */}
+            {!isCurrentCorrect && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-rose-50/50 border border-rose-200/70 space-y-2">
+                <div className="flex items-center gap-2 pb-1.5 border-b border-rose-100">
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 font-['Outfit']">
+                    Why you missed it
+                  </span>
+                  <span className="text-xs font-semibold text-rose-900 font-['Outfit']">
+                    Distractor Trap Analysis
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
+                  {currentQ.trap ||
+                    (selectedKey && (currentQ.distractorBreakdown?.[selectedKey] || currentQ.distractorExplanations?.[selectedKey])) ||
+                    `Option ${selectedKey} is a common FMGE trap choice that mimics features of the presentation without meeting the definitive diagnosis criteria.`}
+                </p>
+              </div>
+            )}
+
+            {/* 2. WHY OPTION [correctKey] IS CORRECT */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 space-y-2.5 shadow-2xs">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <div className="h-6 w-6 rounded-full bg-teal-50 text-[#006B63] flex items-center justify-center shrink-0">
+                  <Stethoscope className="w-3.5 h-3.5" />
+                </div>
+                <h4 className="font-['Outfit'] font-bold text-slate-900 text-sm sm:text-base">
+                  Clinical Reasoning Checkpoint · Why Option {correctKey} is correct
+                </h4>
               </div>
               <p className="text-slate-800 leading-relaxed font-normal">
                 {currentQ.explanation}
@@ -645,10 +679,10 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
 
             {/* Visual Finding Breakdown if image is attached */}
             {(currentQ.whatToLookFor || currentQ.imageAsset?.whatToLookFor) && (
-              <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-950 text-xs leading-relaxed space-y-2">
+              <div className="p-4 rounded-2xl bg-sky-50/80 border border-sky-200/80 text-sky-950 text-xs sm:text-sm leading-relaxed space-y-2.5">
                 <div className="space-y-1">
                   <p className="font-bold flex items-center gap-1.5 text-sky-900 font-['Outfit']">
-                    <Eye className="w-4 h-4 text-sky-600" />
+                    <Eye className="w-4 h-4 text-sky-700" />
                     Key Radiological / Diagnostic Finding:
                   </p>
                   <p className="font-medium pl-5 text-slate-700">
@@ -658,13 +692,15 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
               </div>
             )}
 
-            {/* Distractor Breakdown: Why other options are wrong */}
+            {/* 3. WHY THE OTHERS ARE WRONG */}
             {distractorEntries.length > 0 && (
-              <div className="pt-3 border-t border-slate-200/70 space-y-2">
-                <p className="text-xs font-bold text-slate-900 font-['Outfit'] uppercase tracking-wide">
-                  Why other options are less appropriate:
-                </p>
-                <div className="space-y-1.5">
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2.5 shadow-2xs">
+                <div className="pb-1.5 border-b border-slate-200/60">
+                  <h4 className="font-['Outfit'] font-bold text-slate-800 text-xs sm:text-sm uppercase tracking-wider">
+                    Why other options are less appropriate:
+                  </h4>
+                </div>
+                <div className="space-y-1.5 pt-1">
                   {distractorEntries.map(([k, exp]) => (
                     <div key={k} className="text-xs text-slate-600 pl-2 leading-relaxed flex items-start gap-1.5">
                       <span className="font-bold text-slate-800 shrink-0 font-['Outfit']">Option {k}:</span>
@@ -675,25 +711,37 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
               </div>
             )}
 
-            {/* High-Yield FMGE Takeaway / Exam Trap */}
-            {(currentQ.trap || currentQ.fmgeTakeaway) && (
-              <div className="mt-2.5 p-3.5 rounded-xl bg-amber-50/90 border border-amber-200/90 text-amber-950 text-xs font-medium leading-relaxed flex items-start gap-2.5">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="font-bold font-['Outfit'] text-amber-900">Watch for this FMGE Trap: </strong>
-                  <span>{currentQ.trap || currentQ.fmgeTakeaway}</span>
+            {/* 4. FMGE PEARL */}
+            {(currentQ.fmgeTakeaway || currentQ.trap) && (
+              <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/90 text-amber-950 text-xs sm:text-sm space-y-1.5 shadow-2xs">
+                <div className="flex items-center gap-1.5">
+                  <div className="h-4 w-4 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
+                    <Lightbulb className="w-2.5 h-2.5" />
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300/80 font-['Outfit']">
+                    Watch for this FMGE Trap: FMGE Pearl
+                  </span>
                 </div>
+                <p className="text-amber-950/90 leading-relaxed font-sans pl-0.5">
+                  {currentQ.fmgeTakeaway || currentQ.trap}
+                </p>
               </div>
             )}
 
             {/* Memory Hook / Mnemonic */}
             {(currentQ.mnemonic || currentQ.memoryHook) && (
-              <div className="mt-2 p-3 rounded-xl bg-purple-50/90 border border-purple-200/90 text-purple-950 text-xs font-medium leading-relaxed flex items-start gap-2.5">
-                <Brain className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="font-bold font-['Outfit'] text-purple-900">Reasoning Shortcut: </strong>
-                  <span>{currentQ.mnemonic || currentQ.memoryHook}</span>
+              <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200/70 text-purple-950 text-xs sm:text-sm space-y-1.5 shadow-2xs">
+                <div className="flex items-center gap-1.5">
+                  <div className="h-4 w-4 rounded-full bg-purple-100 text-purple-900 flex items-center justify-center shrink-0">
+                    <Brain className="w-2.5 h-2.5" />
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-900 border border-purple-300/80 font-['Outfit']">
+                    Memory Hook
+                  </span>
                 </div>
+                <p className="text-purple-950/90 leading-relaxed font-sans pl-0.5">
+                  {currentQ.mnemonic || currentQ.memoryHook}
+                </p>
               </div>
             )}
           </div>
