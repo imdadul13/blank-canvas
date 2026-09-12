@@ -46,6 +46,7 @@ import {
   Award,
   Send,
   ArrowRight,
+  Flame,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { motion } from "motion/react";
@@ -55,6 +56,10 @@ import {
   DailyTask,
   MedicalPearl,
   ErrorNotebookItem,
+  CanonicalKnowledgeItem,
+  KnowledgeBankCounts,
+  KnowledgeBankDiagnostics,
+  FormattedRawTelegramMessage,
 } from "../types";
 import { NewMcqAttemptInput } from "../utils/performanceEngine";
 import { FMGE_SUBJECTS } from "../data/fmgeSubjects";
@@ -117,7 +122,24 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     totalPearls: 0,
   });
 
-  // 2. Data Feed State
+  // 2. Data Feed State — Phase 2 Canonical Hub State
+  const [curatedItems, setCuratedItems] = useState<CanonicalKnowledgeItem[]>([]);
+  const [rawMessages, setRawMessages] = useState<FormattedRawTelegramMessage[]>([]);
+  const [curatedCounts, setCuratedCounts] = useState<KnowledgeBankCounts>({
+    totalCurated: 0,
+    examPearls: 0,
+    questions: 0,
+    imageSpotters: 0,
+    videos: 0,
+    clinicalTips: 0,
+    notices: 0,
+  });
+  const [pipelineDiagnostics, setPipelineDiagnostics] = useState<KnowledgeBankDiagnostics | null>(null);
+  const [isLoadingFeed, setIsLoadingFeed] = useState<boolean>(true);
+  const [feedPage, setFeedPage] = useState<number>(1);
+  const [hasMorePages, setHasMorePages] = useState<boolean>(false);
+
+  // Legacy compatibility arrays
   const [questions, setQuestions] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [media, setMedia] = useState<any[]>([]);
@@ -127,6 +149,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   const [crossChecks, setCrossChecks] = useState<any[]>([]);
   const [sources, setSources] = useState<any[]>([]);
   const [savedItems, setSavedItems] = useState<any[]>([]);
+  const [canonicalItems, setCanonicalItems] = useState<any[]>([]);
 
   // 3. UI Navigation Tabs (including "all" and Dedicated Saved Vault)
   const [activeTab, setActiveTab] = useState<
@@ -144,6 +167,10 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   const [savedFilterSubject, setSavedFilterSubject] = useState("all");
   const [savedFilterType, setSavedFilterType] = useState("all");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "high_yield">("newest");
+  const [highYieldOnly, setHighYieldOnly] = useState<boolean>(false);
+  const [rawStateFilter, setRawStateFilter] = useState<
+    "ALL" | "CURATED" | "PROMOTIONAL" | "DUPLICATE" | "LOW_YIELD" | "FAILED"
+  >("ALL");
 
   // 5. Auth Modal & Flow State (Default: QR Code login)
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
@@ -214,32 +241,82 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     } catch (_) {}
   };
 
-  const fetchFeed = async () => {
+  const fetchFeed = async (pageToFetch = 1) => {
     try {
-      const res = await fetch("/api/telegram/cloud/feed");
+      setIsLoadingFeed(true);
+      const res = await fetch(`/api/telegram/cloud/feed?page=${pageToFetch}&limit=50`);
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
+          // Curated canonical knowledge items
+          const incomingCurated: CanonicalKnowledgeItem[] = Array.isArray(data.curatedItems)
+            ? data.curatedItems
+            : Array.isArray(data.canonicalItems)
+            ? data.canonicalItems
+            : [];
+          setCuratedItems((prev) => (pageToFetch === 1 ? incomingCurated : [...prev, ...incomingCurated]));
+
+          // Raw Telegram ingestion stream
+          const incomingRaw: FormattedRawTelegramMessage[] = Array.isArray(data.rawMessages)
+            ? data.rawMessages
+            : Array.isArray(data.messages)
+            ? data.messages
+            : [];
+          setRawMessages(incomingRaw);
+
+          // Real counts
+          if (data.counts) {
+            setCuratedCounts(data.counts);
+          } else if (incomingCurated.length > 0) {
+            setCuratedCounts({
+              totalCurated: incomingCurated.length,
+              examPearls: incomingCurated.filter((i) => i.type === "pearl").length,
+              questions: incomingCurated.filter((i) => i.type === "question").length,
+              imageSpotters: incomingCurated.filter((i) => i.type === "image").length,
+              videos: incomingCurated.filter((i) => i.type === "video").length,
+              clinicalTips: incomingCurated.filter((i) => i.type === "tip").length,
+              notices: incomingCurated.filter((i) => i.type === "notice").length,
+            });
+          }
+
+          // Real diagnostics
+          if (data.diagnostics) {
+            setPipelineDiagnostics(data.diagnostics);
+          }
+
+          // Pagination
+          if (data.pagination) {
+            setHasMorePages(Boolean(data.pagination.hasMore));
+            setFeedPage(data.pagination.page || pageToFetch);
+          }
+
+          // Legacy compatibility
           setQuestions(data.questions || []);
-          setMessages(data.messages || []);
+          setMessages(data.messages || incomingRaw);
           setMedia(data.media || []);
           setTips(data.tips || []);
           setNotices(data.notices || []);
           setPearls(data.pearls || []);
           setCrossChecks(data.crossChecks || []);
           setSources(data.sources || []);
+          setCanonicalItems(incomingCurated);
 
           if (Array.isArray(data.savedItems)) {
             setSavedItems(data.savedItems);
             const bookmarkMap: Record<string, boolean> = {};
             data.savedItems.forEach((si: any) => {
-              bookmarkMap[si.itemId] = true;
+              if (si.itemId) bookmarkMap[si.itemId] = true;
+              if (si.originalId) bookmarkMap[si.originalId] = true;
+              if (si.id) bookmarkMap[si.id] = true;
             });
             setSavedBookmarkIds(bookmarkMap);
           }
         }
       }
-    } catch (_) {}
+    } catch (_) {
+    } finally {
+      setIsLoadingFeed(false);
+    }
   };
 
   const handleToggleSaveItem = async (item: {
@@ -310,7 +387,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
   const handleManualSyncNow = async () => {
     setIsManualSyncing(true);
-    setSyncBannerNotice("Connecting to Telegram MTProto channels...");
+    setSyncBannerNotice("Syncing Telegram… Scanning new messages… Curating educational content…");
     try {
       const res = await fetch("/api/telegram/cloud/sync-now", {
         method: "POST",
@@ -318,12 +395,18 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
+          const d = data.diagnostics || {};
+          const scanned = d.scanned ?? d.totalScanned ?? data.newMessagesCount ?? 0;
+          const newMsg = d.newMessages ?? data.newMessagesCount ?? 0;
+          const promo = d.promotionalFiltered ?? data.promotionalFilteredCount ?? 0;
+          const dupes = d.duplicatesMerged ?? data.duplicatesMergedCount ?? 0;
+          const curated = d.curatedItems ?? data.curatedCount ?? data.newQuestionsCount ?? 0;
           setSyncBannerNotice(
-            `Auto-Sync Complete! Monitored ${data.monitoredSourcesCount} channels. Ingested ${data.newMessagesCount} new messages (${data.newQuestionsCount} new clinical MCQs).`
+            `✓ Sync complete — ${scanned} messages scanned • ${newMsg} new • ${promo} filtered • ${dupes} duplicates merged • ${curated} high-yield items added`
           );
-          await fetchFeed();
+          await fetchFeed(1);
           await fetchStatus();
-          confetti({ particleCount: 40, spread: 60, origin: { y: 0.25 } });
+          confetti({ particleCount: 45, spread: 65, origin: { y: 0.25 } });
         } else {
           setSyncBannerNotice(data.error || "Sync completed with no new updates.");
         }
@@ -334,7 +417,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       setSyncBannerNotice("Sync failed: " + err.message);
     } finally {
       setIsManualSyncing(false);
-      setTimeout(() => setSyncBannerNotice(null), 7000);
+      setTimeout(() => setSyncBannerNotice(null), 8000);
     }
   };
 
@@ -651,7 +734,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     });
   };
 
-  // Filtered Questions with Subject, Tab, and Channel Selection
+  // Filtered Questions with Subject, Tab, and Channel Selection (Legacy fallback)
   const filteredQuestions = useMemo(() => {
     return questions
       .filter((q) => {
@@ -753,7 +836,46 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   const latestKnowledgeItems = useMemo<UnifiedKnowledgeItem[]>(() => {
     const list: UnifiedKnowledgeItem[] = [];
 
-    // Questions & media questions
+    // Prioritize high-yield curated canonical items
+    if (canonicalItems && canonicalItems.length > 0) {
+      canonicalItems.forEach((c) => {
+        list.push({
+          id: c.id,
+          type: c.type,
+          title: c.title || "Clinical High-Yield Takeaway",
+          stem: c.content || c.title,
+          content: c.content,
+          pearlTakeaway: c.whatToRemember || (c.type === "pearl" ? c.content : undefined),
+          whatToRemember: c.whatToRemember,
+          subject: c.subject || "General Medicine",
+          tags: [
+            c.isHighYield ? "High-Yield" : "Curated",
+            ...(c.sources && c.sources.length > 1
+              ? [`${c.sources.length} Channels Verified`]
+              : c.sources?.[0]?.sourceTitle
+              ? [c.sources[0].sourceTitle]
+              : ["FMGE Recall"]),
+          ],
+          createdAt: c.createdAt || new Date().toISOString(),
+          imageUrl: c.mediaUrl && c.mediaType === "IMAGE" ? c.mediaUrl : undefined,
+          videoUrl: c.mediaUrl && c.mediaType === "VIDEO" ? c.mediaUrl : undefined,
+          mediaUrl: c.mediaUrl,
+          mediaType: c.mediaType,
+          options: c.options,
+          correctAnswer: c.correctAnswer,
+          explanation: c.explanation,
+          distractorAnalysis: c.distractorAnalysis,
+          sources: c.sources,
+          fmgeRelevanceScore: c.fmgeRelevanceScore,
+          isHighYield: c.isHighYield,
+          originalData: c,
+          isSaved: savedItemIdsSet.has(c.id),
+        });
+      });
+      return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    // Fallback: Questions & media questions
     questions.slice(0, 8).forEach((q) => {
       let type: UnifiedKnowledgeItem["type"] = "question";
       if (q.imageUrl || q.imageAssetId) type = "image";
@@ -769,6 +891,9 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         createdAt: q.createdAt || new Date().toISOString(),
         imageUrl: q.imageUrl,
         videoUrl: q.videoUrl,
+        options: q.options,
+        correctAnswer: q.correctAnswer,
+        explanation: q.explanation,
         originalData: q,
         isSaved: savedItemIdsSet.has(q.id),
       });
@@ -790,27 +915,127 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       });
     });
 
-    // Tips
-    tips.slice(0, 4).forEach((t) => {
-      list.push({
-        id: t.id,
-        type: "tip",
-        title: t.title || "Clinical Tip",
-        stem: t.cleanedText || t.originalText,
-        subject: t.subject || "Review Tip",
-        tags: ["Tip"],
-        createdAt: t.createdAt || new Date().toISOString(),
-        originalData: t,
-        isSaved: savedItemIdsSet.has(t.id),
-      });
-    });
-
     return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [questions, pearls, tips, savedItemIdsSet]);
+  }, [canonicalItems, questions, pearls, savedItemIdsSet]);
 
-  // Dynamic real subject counts from actual questions, pearls, and tips
+  // Primary ONE SHOT CURATED filter memo
+  const filteredCuratedItems = useMemo<CanonicalKnowledgeItem[]>(() => {
+    let pool = curatedItems;
+    if (pool.length === 0 && canonicalItems.length > 0) {
+      pool = canonicalItems;
+    }
+    if (pool.length === 0 && latestKnowledgeItems.length > 0) {
+      pool = latestKnowledgeItems as any;
+    }
+
+    return pool
+      .filter((item) => {
+        // Tab type filter
+        if (activeTab === "pearls" && item.type !== "pearl") return false;
+        if (activeTab === "questions" && item.type !== "question") return false;
+        if (activeTab === "images" && item.type !== "image") return false;
+        if (activeTab === "videos" && item.type !== "video") return false;
+        if (activeTab === "tips" && item.type !== "tip") return false;
+        if (activeTab === "notices" && item.type !== "notice") return false;
+
+        // Subject filter
+        if (selectedSubject !== "all" && item.subject?.toLowerCase() !== selectedSubject.toLowerCase()) {
+          return false;
+        }
+
+        // Channel filter
+        if (selectedChannelId !== "all") {
+          const channelObj = sources.find((s) => s.id === selectedChannelId);
+          if (channelObj) {
+            const hasMatch =
+              item.sources?.some(
+                (src: any) => src.sourceTitle === channelObj.title || src.sourceId === channelObj.id
+              ) || (item as any).sourceChannel === channelObj.title;
+            if (!hasMatch) return false;
+          }
+        }
+
+        // High-Yield Toggle
+        if (highYieldOnly && !item.isHighYield && (item.fmgeRelevanceScore ?? 0) < 75) {
+          return false;
+        }
+
+        // Search Query
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase();
+          const itemTags = (item as any).tags || [];
+          const searchable = [
+            item.title,
+            item.content,
+            (item as any).stem,
+            item.whatToRemember,
+            item.subject,
+            item.topic,
+            ...itemTags,
+            ...(item.sources?.map((s: any) => s.sourceTitle) || []),
+            (item as any).sourceChannel,
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+          if (!searchable.includes(q)) return false;
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === "high_yield") {
+          const scoreA = (a.isHighYield ? 100 : 0) + (a.fmgeRelevanceScore || 0);
+          const scoreB = (b.isHighYield ? 100 : 0) + (b.fmgeRelevanceScore || 0);
+          return scoreB - scoreA;
+        }
+        if (sortBy === "oldest") {
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        }
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+  }, [curatedItems, canonicalItems, latestKnowledgeItems, activeTab, selectedSubject, selectedChannelId, highYieldOnly, searchQuery, sortBy, sources]);
+
+  // Secondary Source Library raw messages filter memo
+  const filteredRawMessages = useMemo(() => {
+    return rawMessages.filter((m) => {
+      const msgStatus = (m as any).processingState || m.status;
+      if (rawStateFilter !== "ALL") {
+        if (rawStateFilter === "CURATED") {
+          if (msgStatus !== "CURATED" && msgStatus !== "PROCESSED") return false;
+        } else if (msgStatus !== rawStateFilter) {
+          return false;
+        }
+      }
+
+      if (selectedChannelId !== "all") {
+        const channelObj = sources.find((s) => s.id === selectedChannelId);
+        if (channelObj && m.sourceId !== channelObj.id && m.sourceTitle !== channelObj.title) {
+          return false;
+        }
+      }
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const text = `${m.rawText || ""} ${m.sourceTitle || ""} ${m.sourceId || ""}`.toLowerCase();
+        if (!text.includes(q)) return false;
+      }
+
+      return true;
+    });
+  }, [rawMessages, rawStateFilter, selectedChannelId, searchQuery, sources]);
+
+  // Dynamic real subject counts from curated canonical items (with fallback)
   const subjectCounts = useMemo<Record<string, number>>(() => {
     const counts: Record<string, number> = {};
+    const pool = curatedItems.length > 0 ? curatedItems : canonicalItems;
+    if (pool.length > 0) {
+      pool.forEach((c) => {
+        const s = (c.subject || "medicine").toLowerCase().trim();
+        counts[s] = (counts[s] || 0) + 1;
+      });
+      return counts;
+    }
     questions.forEach((q) => {
       const s = (q.subject || "medicine").toLowerCase().trim();
       counts[s] = (counts[s] || 0) + 1;
@@ -824,50 +1049,77 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       counts[s] = (counts[s] || 0) + 1;
     });
     return counts;
-  }, [questions, pearls, tips]);
+  }, [curatedItems, canonicalItems, questions, pearls, tips]);
 
-  // Mapping of selected MCQ answers for card solving
-  const selectedMcqAnswers = useMemo(() => {
-    const map: Record<string, number> = {};
-    questions.forEach((q) => {
-      const key = userSelections[q.id];
-      if (key && q.options) {
-        const idx = q.options.findIndex((o: any) => o.key.toUpperCase() === key.toUpperCase());
-        if (idx !== -1) map[q.id] = idx;
-      }
-    });
-    return map;
-  }, [questions, userSelections]);
+  // Card MCQ selection handler for interactive solve drawer
+  const handleSelectMCQOptionFromCard = (questionId: string, optionKey: string, isCorrect: boolean) => {
+    if (revealedQuestions[questionId]) return;
 
-  const handleSelectMCQOption = (questionId: string, optionIndex: number) => {
-    const q = questions.find((item) => item.id === questionId);
-    if (!q) return;
-    const optKey = q.options?.[optionIndex]?.key || String.fromCharCode(65 + optionIndex);
-    handleSelectOption(q, optKey);
+    setUserSelections((prev) => ({ ...prev, [questionId]: optionKey }));
+    setRevealedQuestions((prev) => ({ ...prev, [questionId]: true }));
+
+    const item =
+      curatedItems.find((ci) => ci.id === questionId) ||
+      canonicalItems.find((ci) => ci.id === questionId) ||
+      questions.find((q) => q.id === questionId);
+
+    if (isCorrect) {
+      confetti({ particleCount: 35, spread: 55, origin: { y: 0.8 } });
+    } else if (item) {
+      onAddToErrorNotebook?.({
+        subjectId: (item.subject || "medicine").toLowerCase().replace(/[^a-z]/g, ""),
+        topic: item.topic || "Telegram Question",
+        topicId: item.topic || "Telegram Question",
+        questionGist: item.content || item.title || (item as any).questionText || "",
+        myMistake: `Selected option (${optionKey})`,
+        correctConcept: `${item.explanation || ""} — Correct Key: ${item.correctAnswer || ""}`,
+        isReviewed: false,
+      });
+    }
+
+    if (item) {
+      onRecordAttempt?.({
+        questionId,
+        subjectId: (item.subject || "medicine").toLowerCase().replace(/[^a-z]/g, ""),
+        topicId: item.topic || "Telegram Practice",
+        topicName: item.topic || "Telegram Practice",
+        isCorrect,
+        selectedAnswer: optionKey,
+        selectedOptionId: optionKey,
+        correctAnswer: item.correctAnswer || "",
+        correctOptionId: item.correctAnswer || "",
+        timeTakenSeconds: 15,
+        source: "telegram",
+      });
+    }
   };
 
-  const handleToggleUnifiedItem = (item: UnifiedKnowledgeItem) => {
+  // Toggle Save handler for Canonical and Unified cards
+  const handleToggleSaveCanonicalItem = (item: any) => {
     let itemType: "question" | "notice" | "tip" | "pearl" | "media" = "question";
     if (item.type === "pearl") itemType = "pearl";
     else if (item.type === "tip") itemType = "tip";
     else if (item.type === "notice") itemType = "notice";
     else if (item.type === "image" || item.type === "video") itemType = "media";
 
-    const q = item.originalData;
     handleToggleSaveItem({
       itemId: item.id,
       itemType,
       subject: item.subject || "General Medicine",
-      title: item.title,
-      content: item.stem || item.title,
-      mediaUrl: item.imageUrl || item.videoUrl,
-      mediaType: item.imageUrl ? "IMAGE" : item.videoUrl ? "VIDEO" : "NONE",
-      options: q?.options,
-      correctAnswer: q?.correctAnswer,
-      explanation: q?.explanation,
+      title: item.title || "Clinical Takeaway",
+      content: item.content || item.stem || item.title || "",
+      mediaUrl: item.mediaUrl || item.imageUrl || item.videoUrl,
+      mediaType: item.mediaType || (item.imageUrl || item.type === "image" ? "IMAGE" : item.videoUrl || item.type === "video" ? "VIDEO" : "NONE"),
+      options: item.options,
+      correctAnswer: item.correctAnswer,
+      explanation: item.explanation,
       tags: item.tags,
-      sourceChannel: q?.sourceChannel,
+      sourceChannel: item.sources?.[0]?.sourceTitle || item.sourceChannel,
     });
+  };
+
+  const handleToggleUnifiedItem = (item: UnifiedKnowledgeItem) => {
+    handleToggleSaveCanonicalItem(item);
   };
 
   const handleSearchFocus = () => {
@@ -1171,31 +1423,35 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
                   <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${circadian.isNight ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200' : circadian.titleGrad}`}>
-                    TELEGRAM HUB
+                    TELEGRAM KNOWLEDGE BANK
                   </h1>
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border shadow-2xs shrink-0 ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-                    Community Feeds
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                    ONE SHOT CURATED
                   </span>
                 </div>
 
                 <p className={`text-xs sm:text-sm leading-relaxed font-normal max-w-xl line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
-                  Clinical polls, high-yield image spotters, and discussion pearls ingested from verified FMGE channels.
+                  High-yield FMGE content, intelligently curated from your verified sources.
                 </p>
 
                 {/* Quick Metrics Bar */}
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                   <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
-                    <span className="text-slate-400">Questions:</span>
-                    <span className={`font-bold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{questions.length}</span>
-                  </div>
-                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
-                    <span className="text-slate-400">Spotters:</span>
-                    <span className={`font-bold ${circadian.isNight ? 'text-teal-300' : 'text-teal-700'}`}>{imageQuestions.length}</span>
+                    <span className="text-slate-400">Curated:</span>
+                    <span className={`font-bold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{curatedCounts.totalCurated || curatedItems.length}</span>
                   </div>
                   <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
                     <span className="text-slate-400">Pearls:</span>
-                    <span className={`font-bold ${circadian.isNight ? 'text-indigo-300' : 'text-indigo-700'}`}>{pearls.length}</span>
+                    <span className={`font-bold ${circadian.isNight ? 'text-amber-300' : 'text-amber-700'}`}>{curatedCounts.examPearls}</span>
+                  </div>
+                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
+                    <span className="text-slate-400">Questions:</span>
+                    <span className={`font-bold ${circadian.isNight ? 'text-sky-300' : 'text-sky-700'}`}>{curatedCounts.questions}</span>
+                  </div>
+                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
+                    <span className="text-slate-400">Spotters:</span>
+                    <span className={`font-bold ${circadian.isNight ? 'text-teal-300' : 'text-teal-700'}`}>{curatedCounts.imageSpotters}</span>
                   </div>
                   <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
                     <span className="text-slate-400">Saved:</span>
@@ -1293,13 +1549,34 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* 3. YOUR CLOUD KNOWLEDGE BANK OVERVIEW BANNER */}
       {/* ========================================================================= */}
       <TelegramOverviewCard
-        totalItems={questions.length + pearls.length + tips.length + notices.length}
-        questionCount={questions.length}
-        imageCount={imageQuestions.length}
-        videoCount={videoQuestions.length}
-        pearlCount={pearls.length}
+        counts={curatedCounts}
         channelCount={workerHealth.activeSourcesCount}
       />
+
+      {pipelineDiagnostics && (
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 text-xs">
+          <div className="flex items-center gap-2 text-emerald-950 font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-bold uppercase tracking-wider text-[11px] text-[#00685f]">
+              Educational Guardrails Active
+            </span>
+            <span className="hidden sm:inline text-emerald-700">
+              — Real-time promotional filtering, cross-channel deduplication &amp; FMGE relevance scoring (threshold &ge; 75).
+            </span>
+          </div>
+          <div className="flex items-center gap-3 sm:gap-4 text-[11px] font-mono font-semibold text-emerald-900">
+            <span>
+              <strong>{pipelineDiagnostics.promotionalFiltered}</strong> Ads Filtered
+            </span>
+            <span>
+              <strong>{pipelineDiagnostics.duplicatesMerged}</strong> Duplicates Merged
+            </span>
+            <span>
+              <strong>{curatedCounts.totalCurated || curatedItems.length}</strong> Curated Items
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* 4. MOBILE SEGMENTED CONTROL ([ Overview ] [ Browse ] [ Saved ]) */}
@@ -1356,17 +1633,16 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 px-0.5 scrollbar-none scroll-smooth w-full min-w-0"
           >
             {[
-              { id: "all", label: "All", count: questions.length + pearls.length + tips.length + notices.length, icon: Layers },
-              { id: "questions", label: "Questions", count: questions.length, icon: FileText },
+              { id: "all", label: "Curated Feed", count: curatedCounts.totalCurated, icon: Layers },
+              { id: "pearls", label: "Exam Pearls", count: curatedCounts.examPearls, icon: Award },
+              { id: "questions", label: "Questions", count: curatedCounts.questions, icon: FileText },
+              { id: "images", label: "Spotters", count: curatedCounts.imageSpotters, icon: ImageIcon },
+              { id: "videos", label: "Videos", count: curatedCounts.videos, icon: Video },
+              { id: "tips", label: "Rapid Tips", count: curatedCounts.clinicalTips, icon: Lightbulb },
               { id: "saved", label: "Vault", count: savedItems.length, icon: Star, highlight: true },
-              { id: "images", label: "Images", count: imageQuestions.length, icon: ImageIcon },
-              { id: "videos", label: "Videos", count: videoQuestions.length, icon: Video },
-              { id: "tips", label: "Tips", count: tips.length, icon: Lightbulb },
-              { id: "notices", label: "Notices", count: notices.length, icon: Bell },
-              { id: "pearls", label: "Exam Pearls", count: pearls.length, icon: Award },
               { id: "cross_checks", label: "AI Cross-Check", count: crossChecks.length, icon: ShieldCheck },
-              { id: "sources", label: "Sources", count: workerHealth.activeSourcesCount, icon: Layers },
-              { id: "debugger", label: "Raw Stream", count: messages.length, icon: Terminal },
+              { id: "sources", label: "Channels", count: workerHealth.activeSourcesCount, icon: Layers },
+              { id: "debugger", label: "Source Library (Raw)", count: rawMessages.length, icon: Terminal },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -1463,6 +1739,21 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   ))}
                 </select>
 
+                {/* High-Yield Filter Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setHighYieldOnly(!highYieldOnly)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    highYieldOnly
+                      ? "bg-amber-500 text-white shadow-xs"
+                      : "bg-stone-50 hover:bg-stone-100 text-slate-700 border border-stone-200"
+                  }`}
+                  title="Filter high-yield items with relevance score >= 75"
+                >
+                  <Flame className={`w-3.5 h-3.5 ${highYieldOnly ? "text-white" : "text-amber-500"}`} />
+                  <span>High-Yield</span>
+                </button>
+
                 {/* Sort Selector */}
                 <select
                   value={sortBy}
@@ -1471,6 +1762,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 >
                   <option value="newest">Latest First</option>
                   <option value="oldest">Oldest First</option>
+                  <option value="high_yield">High-Yield First</option>
                 </select>
               </div>
             </div>
@@ -1481,67 +1773,190 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* ========================================================================= */}
       {/* 6. OVERVIEW / HOME VIEW (activeTab === "all" on desktop OR mobileSegment === "overview") */}
       {/* ========================================================================= */}
-      {(activeTab === "all" || (mobileSegment === "overview" && activeTab !== "saved" && activeTab !== "sources" && activeTab !== "debugger")) && (
-        <div className="space-y-8 animate-fadeIn">
-          {/* Empty State when no questions ingested and not connected */}
-          {!isConnected && questions.length === 0 ? (
-            <TelegramEmptyState
-              onConnect={() => {
-                setAuthMethod("qr");
-                setAuthStep("phone");
-                setAuthError(null);
-                setIsConnectModalOpen(true);
-              }}
-            />
-          ) : (
-            <>
-              {/* SECTION: LATEST FROM YOUR KNOWLEDGE BANK */}
-              <div className="space-y-3.5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-serif text-lg sm:text-xl font-bold text-slate-900">
-                      Latest from Your Knowledge Bank
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      High-yield content, ready for your revision.
-                    </p>
+      {/* 6. PRIMARY VIEW: ONE SHOT CURATED KNOWLEDGE BANK */}
+      {/* ========================================================================= */}
+      {(activeTab === "all" ||
+        activeTab === "pearls" ||
+        activeTab === "questions" ||
+        activeTab === "images" ||
+        activeTab === "videos" ||
+        activeTab === "tips" ||
+        activeTab === "notices" ||
+        (mobileSegment !== "saved" && activeTab !== "saved" && activeTab !== "sources" && activeTab !== "debugger" && activeTab !== "cross_checks")) && (
+        <div className="space-y-6 animate-fadeIn">
+          {/* Section Sub-Header with Category & High-Yield Indicators */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-stone-200/80">
+            <div>
+              <h3 className="font-serif text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                <span>
+                  {activeTab === "pearls"
+                    ? "Exam Pearls"
+                    : activeTab === "questions"
+                    ? "Clinical Questions"
+                    : activeTab === "images"
+                    ? "Image Spotters"
+                    : activeTab === "videos"
+                    ? "Clinical Videos"
+                    : activeTab === "tips"
+                    ? "Rapid Clinical Tips"
+                    : activeTab === "notices"
+                    ? "Official Bulletins"
+                    : "ONE SHOT Curated Knowledge Bank"}
+                </span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-[#00685f]/10 text-[#00685f] border border-[#00685f]/20">
+                  {highYieldOnly ? "🔥 HIGH YIELD ONLY" : "HIGH YIELD ≥ 75"}
+                </span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-slate-600 font-mono font-bold">
+                  {filteredCuratedItems.length} {filteredCuratedItems.length === 1 ? "Item" : "Items"}
+                </span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {activeTab === "pearls"
+                  ? "High-yield clinical takeaways, gold standards, and diagnostic criteria filtered for rapid recall."
+                  : activeTab === "questions"
+                  ? "PYQs and clinical scenario questions with verified answers and distractor analysis."
+                  : activeTab === "images"
+                  ? "High-yield image-based spotters, histopathology slides, and radiological findings."
+                  : activeTab === "videos"
+                  ? "Clinical examination clips, procedural animations, and sign demonstrations."
+                  : activeTab === "tips"
+                  ? "Rapid clinical mnemonics, formula reminders, and exam day traps."
+                  : activeTab === "notices"
+                  ? "Official NBEMS guidelines, exam dates, and informational announcements."
+                  : "Noise-filtered clinical pearls, PYQs, and image spotters verified across your subscribed channels."}
+              </p>
+            </div>
+
+            {/* Quick reset if filters active */}
+            {(searchQuery || selectedSubject !== "all" || selectedChannelId !== "all" || highYieldOnly) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedSubject("all");
+                  setSelectedChannelId("all");
+                  setHighYieldOnly(false);
+                  setSortBy("newest");
+                }}
+                className="text-xs font-semibold text-[#00685f] hover:underline cursor-pointer flex items-center gap-1 self-start sm:self-auto"
+              >
+                Reset Filters
+              </button>
+            )}
+          </div>
+
+          {/* Loading Skeleton */}
+          {isLoadingFeed && curatedItems.length === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div
+                  key={n}
+                  className="rounded-2xl sm:rounded-3xl border border-stone-200/80 bg-white p-4 sm:p-5 shadow-2xs animate-pulse space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="h-5 w-24 bg-stone-200 rounded-full" />
+                    <div className="h-4 w-16 bg-stone-100 rounded" />
                   </div>
+                  <div className="h-4 w-3/4 bg-stone-200 rounded" />
+                  <div className="h-16 w-full bg-stone-100 rounded-xl" />
+                  <div className="flex items-center justify-between pt-2 border-t border-stone-100">
+                    <div className="h-3 w-28 bg-stone-100 rounded" />
+                    <div className="h-7 w-16 bg-stone-200 rounded-xl" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredCuratedItems.length === 0 ? (
+            /* Empty State */
+            !isConnected && curatedCounts.totalCurated === 0 ? (
+              <TelegramEmptyState
+                onConnect={() => {
+                  setAuthMethod("qr");
+                  setAuthStep("phone");
+                  setAuthError(null);
+                  setIsConnectModalOpen(true);
+                }}
+              />
+            ) : (
+              <div className="rounded-3xl border border-stone-200/80 bg-white p-12 text-center space-y-3 shadow-2xs">
+                <div className="mx-auto w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center border border-teal-200 text-[#00685f]">
+                  <Layers className="h-6 w-6" />
+                </div>
+                <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
+                  Your Knowledge Bank is clean.
+                </h3>
+                <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                  {searchQuery || selectedSubject !== "all" || selectedChannelId !== "all" || highYieldOnly
+                    ? "No curated items match your active search or subject filters."
+                    : "No items have been curated into this category yet. Click 'Sync Feed' to scan your monitored channels and curate high-yield educational material."}
+                </p>
+                {(searchQuery || selectedSubject !== "all" || selectedChannelId !== "all" || highYieldOnly) && (
                   <button
                     type="button"
                     onClick={() => {
-                      setActiveTab("questions");
-                      setMobileSegment("browse");
+                      setSearchQuery("");
+                      setSelectedSubject("all");
+                      setSelectedChannelId("all");
+                      setHighYieldOnly(false);
                     }}
-                    className="text-xs font-semibold text-[#00685f] hover:text-[#005049] flex items-center gap-1 cursor-pointer transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-teal-50 text-[#00685f] hover:bg-teal-100 text-xs font-bold transition-all cursor-pointer"
                   >
-                    View All →
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            )
+          ) : (
+            /* Canonical Knowledge Cards Grid */
+            <>
+              <TelegramKnowledgeCards
+                items={filteredCuratedItems}
+                savedItemIds={savedItemIdsSet}
+                onToggleSave={handleToggleSaveCanonicalItem}
+                onOpenImageZoom={(url) => setZoomedImageUrl(url)}
+                selectedAnswers={userSelections}
+                onSelectOption={handleSelectMCQOptionFromCard}
+                onAddToErrorNotebook={onAddToErrorNotebook}
+                onSaveAsPearl={onSaveAsPearl}
+              />
+
+              {/* Server-side Pagination / Load More */}
+              {hasMorePages && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextPage = feedPage + 1;
+                      fetchFeed(nextPage);
+                    }}
+                    disabled={isLoadingFeed}
+                    className="px-5 py-2.5 rounded-2xl bg-white border border-teal-200 hover:bg-teal-50 text-[#00685f] text-xs font-bold font-['Outfit'] shadow-2xs transition-all cursor-pointer flex items-center gap-2"
+                  >
+                    {isLoadingFeed ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    )}
+                    <span>Load More Curated Content</span>
                   </button>
                 </div>
+              )}
+            </>
+          )}
 
-                <TelegramKnowledgeCards
-                  items={latestKnowledgeItems}
-                  savedItemIds={savedItemIdsSet}
-                  onToggleSave={handleToggleUnifiedItem}
-                  onOpenImageZoom={(url) => setZoomedImageUrl(url)}
-                  selectedAnswers={selectedMcqAnswers}
-                  onSelectOption={handleSelectMCQOption}
-                  onAddToErrorNotebook={onAddToErrorNotebook}
-                  onSaveAsPearl={onSaveAsPearl}
-                />
-              </div>
-
-              {/* SECTION: RECENTLY ADDED SUBJECTS */}
+          {/* Recently Added Subjects & Quick Actions (Curated Feed "all" tab) */}
+          {activeTab === "all" && (
+            <div className="space-y-8 pt-4">
               <TelegramSubjectCollections
                 subjectCounts={subjectCounts}
                 selectedSubject={selectedSubject}
                 onSelectSubject={(subjectId) => {
                   setSelectedSubject(subjectId);
-                  setActiveTab("questions");
+                  setActiveTab("all");
                   setMobileSegment("browse");
                 }}
               />
 
-              {/* SECTION: QUICK ACTIONS */}
               <TelegramQuickActions
                 onSearchFocus={handleSearchFocus}
                 onGoToSaved={() => {
@@ -1558,329 +1973,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   fetchSources();
                 }}
               />
-            </>
-          )}
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* VIEW A: QUESTIONS / IMAGES / VIDEOS */}
-      {/* ========================================================================= */}
-      {(activeTab === "questions" || activeTab === "images" || activeTab === "videos" || mobileSegment === "browse") && (
-        <div className={`space-y-4 ${!(activeTab === "questions" || activeTab === "images" || activeTab === "videos") ? "sm:hidden" : ""}`}>
-          {/* Mobile section header in browse mode */}
-          <div className="sm:hidden flex items-center justify-between pb-1 border-b border-stone-200">
-            <h3 className="font-serif text-base font-bold text-slate-900 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[#00685f]" />
-              Clinical Questions ({filteredQuestions.length})
-            </h3>
-          </div>
-          {filteredQuestions.length === 0 ? (
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
-              <div className="mx-auto w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-200 text-slate-400">
-                <FileText className="h-6 w-6" />
-              </div>
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
-                No Telegram questions ingested yet.
-              </h3>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Connect your personal Telegram account and select channels to monitor in the <strong>Sources</strong> tab. The Cloud Worker will automatically stream incoming messages.
-              </p>
             </div>
-          ) : (
-            filteredQuestions.map((q) => {
-              const isRevealed = revealedQuestions[q.id];
-              const selectedKey = userSelections[q.id];
-              const isWhyWrongOpen = expandedWhyWrong[q.id];
-              const crossCheck = crossChecks.find((c) => c.questionId === q.id);
-
-              return (
-                <div
-                  key={q.id}
-                  className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-4 hover:border-slate-300 transition-colors"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold font-['Outfit'] bg-slate-100 text-slate-700 uppercase">
-                        {q.subject || "MEDICINE"}
-                      </span>
-                      <span className="text-xs font-medium text-slate-600 truncate max-w-xs min-w-0">
-                        {q.topic || "Clinical Recall"}
-                      </span>
-                      {q.imageAssetId && (
-                        <span className="flex items-center gap-1 text-[10px] font-bold font-['Outfit'] px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
-                          <ImageIcon className="h-3 w-3" /> IBQ
-                        </span>
-                      )}
-                      {q.videoAssetId && (
-                        <span className="flex items-center gap-1 text-[10px] font-bold font-['Outfit'] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                          <Video className="h-3 w-3" /> Video Clip
-                        </span>
-                      )}
-                      {q.isDuplicate && (
-                        <span className="flex items-center gap-1 text-[10px] font-bold font-['Outfit'] px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200">
-                          <AlertTriangle className="h-3 w-3" /> Possible Duplicate
-                        </span>
-                      )}
-                      {crossCheck && crossCheck.agreementStatus === "DISAGREED" ? (
-                        <span className="flex items-center gap-1 text-[10px] font-bold font-['Outfit'] px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300">
-                          <AlertTriangle className="h-3 w-3 text-amber-600" /> ⚠️ ANSWER CONFLICT
-                        </span>
-                      ) : crossCheck ? (
-                        <span className="flex items-center gap-1 text-[10px] font-bold font-['Outfit'] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          <ShieldCheck className="h-3 w-3" /> AI Verified
-                        </span>
-                      ) : null}
-                      <span className="flex items-center gap-1 text-[10px] font-bold font-['Outfit'] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                        <CheckCheck className="h-3 w-3 text-emerald-600" /> Auto-Saved
-                      </span>
-                    </div>
-
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      Source: {q.sourceChannel}
-                    </span>
-                  </div>
-
-                  {/* Question Stem */}
-                  <p className="text-sm font-semibold text-slate-900 leading-relaxed break-words">
-                    {q.questionText}
-                  </p>
-
-                  {/* Image / Video Attachment for Question */}
-                  {q.imageUrl && (
-                    <div
-                      className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 relative group max-h-72 cursor-pointer shadow-sm"
-                      onClick={() => setZoomedImageUrl(q.imageUrl)}
-                    >
-                      <img
-                        src={q.imageUrl}
-                        alt={q.questionText}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="px-3 py-1.5 rounded-xl bg-slate-900/90 text-white text-xs font-bold font-['Outfit'] flex items-center gap-1.5 shadow-md">
-                          <ZoomIn className="h-3.5 w-3.5" /> Tap to Zoom Image
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {q.videoUrl && (
-                    <div className="rounded-2xl overflow-hidden border border-slate-200 bg-black max-h-72 shadow-sm">
-                      <video src={q.videoUrl} controls className="w-full h-full object-cover" />
-                    </div>
-                  )}
-
-                  {/* MCQ Options */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                    {q.options.map((opt: any) => {
-                      const optKey = opt.key;
-                      const isSelected = selectedKey === optKey;
-                      const isCorrectKey = optKey.toUpperCase() === q.correctAnswer.toUpperCase();
-
-                      let buttonStyle = "border-slate-200/80 bg-white hover:border-slate-300 text-slate-800";
-
-                      if (isRevealed) {
-                        if (isCorrectKey) {
-                          buttonStyle = "border-emerald-500 bg-emerald-50/80 text-emerald-900 font-semibold";
-                        } else if (isSelected && !isCorrectKey) {
-                          buttonStyle = "border-rose-400 bg-rose-50/80 text-rose-900 font-semibold";
-                        } else {
-                          buttonStyle = "border-slate-100 bg-slate-50/40 text-slate-400 opacity-60";
-                        }
-                      }
-
-                      return (
-                        <button
-                          key={opt.key}
-                          disabled={isRevealed}
-                          onClick={() => handleSelectOption(q, optKey)}
-                          className={`p-3.5 rounded-2xl border text-left text-xs transition-all flex items-start justify-between gap-2 cursor-pointer disabled:cursor-default ${buttonStyle}`}
-                        >
-                          <div className="flex items-start gap-2.5">
-                            <span className="font-bold font-mono text-slate-500">{opt.key})</span>
-                            <span>{opt.text}</span>
-                          </div>
-                          {isRevealed && isCorrectKey && <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />}
-                          {isRevealed && isSelected && !isCorrectKey && <XCircle className="h-4 w-4 text-rose-500 shrink-0" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Explanation, Pearl, Mnemonic & Distractor Drawer */}
-                  {isRevealed && (() => {
-                    const enrichment = enrichClinicalQuestion(q);
-                    const distractors = enrichment.whyOtherOptionsAreWrong;
-
-                    return (
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-3.5 animate-fadeIn">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                            <span className="text-xs font-bold font-['Outfit'] text-slate-900">
-                              Telegram Answer: Option {q.correctAnswer}
-                            </span>
-                          </div>
-                        </div>
-
-                        <p className="text-xs text-slate-700 leading-relaxed font-normal">
-                          {q.explanation}
-                        </p>
-
-                        {/* High-Yield FMGE Pearl */}
-                        {enrichment.highYieldPearl && (
-                          <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200/90 text-xs space-y-1 text-amber-950 shadow-2xs">
-                            <div className="flex items-center gap-1.5 font-bold font-['Outfit'] text-amber-900">
-                              <Award className="h-4 w-4 text-amber-600 shrink-0" />
-                              <span>FMGE High-Yield Takeaway</span>
-                            </div>
-                            <p className="text-[11px] leading-relaxed text-amber-900/90 font-medium">
-                              {enrichment.highYieldPearl}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Clinical Mnemonic & Memory Hook */}
-                        {enrichment.mnemonic && (
-                          <div className="p-3 rounded-xl bg-purple-50/90 border border-purple-200/90 text-xs space-y-1 text-purple-950 shadow-2xs">
-                            <div className="flex items-center gap-1.5 font-bold font-['Outfit'] text-purple-900">
-                              <Brain className="h-4 w-4 text-purple-600 shrink-0" />
-                              <span>🧠 Clinical Memory Hook & Mnemonic</span>
-                            </div>
-                            <p className="text-[11px] leading-relaxed text-purple-900/90 font-medium">
-                              {enrichment.mnemonic}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* AI Cross-Check Analysis */}
-                        {crossCheck && (
-                          <div className={`p-3 rounded-xl border text-xs space-y-1.5 ${
-                            crossCheck.agreementStatus === "DISAGREED" || crossCheck.agreementStatus === "DISPUTED_TRAP"
-                              ? "bg-amber-50 border-amber-300 text-amber-950 shadow-2xs"
-                              : "bg-emerald-50 border-emerald-200 text-emerald-900"
-                          }`}>
-                            <div className="flex items-center gap-1.5 font-bold font-['Outfit']">
-                              {crossCheck.agreementStatus === "DISAGREED" || crossCheck.agreementStatus === "DISPUTED_TRAP" ? (
-                                <>
-                                  <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-                                  <span>⚠️ AI ANSWER CONFLICT: Telegram Answer ({crossCheck.originalAnswer}) vs Gemini AI ({crossCheck.aiAnswer})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-                                  <span>AI Cross-Check Verified ({crossCheck.aiAnswer})</span>
-                                </>
-                              )}
-                            </div>
-                            <p className="text-[11px] leading-relaxed opacity-90">{crossCheck.reason}</p>
-                          </div>
-                        )}
-
-                        {distractors && distractors.length > 0 && (
-                          <div className="pt-2 border-t border-slate-200/60">
-                            <button
-                              onClick={() => setExpandedWhyWrong((prev) => ({ ...prev, [q.id]: !isWhyWrongOpen }))}
-                              className="flex items-center gap-1 text-[11px] font-bold font-['Outfit'] text-slate-700 hover:text-slate-950 cursor-pointer"
-                            >
-                              {isWhyWrongOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                              Why Other Options Are Wrong ({distractors.length})
-                            </button>
-
-                            {isWhyWrongOpen && (
-                              <div className="mt-2.5 space-y-2 animate-fadeIn">
-                                {distractors.map((dist: any) => (
-                                  <div key={dist.key} className="p-2.5 rounded-xl bg-white border border-slate-200 text-[11px] shadow-2xs leading-relaxed">
-                                    <strong className="text-slate-900 font-bold font-['Outfit']">Option {dist.key}:</strong>{" "}
-                                    <span className="text-slate-700">{dist.reason}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  {/* Action Bar: Save to High-Yield Vault, Error Vault, Pearls */}
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100 flex-wrap gap-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <button
-                        onClick={() =>
-                          handleToggleSaveItem({
-                            itemId: q.id,
-                            itemType: "question",
-                            subject: q.subject || "General Medicine",
-                            title: q.topic || "Clinical MCQ",
-                            content: q.questionText,
-                            mediaUrl: q.imageUrl || q.videoUrl,
-                            mediaType: q.imageUrl ? "IMAGE" : q.videoUrl ? "VIDEO" : "POLL",
-                            options: q.options,
-                            correctAnswer: q.correctAnswer,
-                            explanation: q.explanation,
-                            sourceChannel: q.sourceChannel,
-                            tags: ["MCQ", q.subject || "Medicine"],
-                          })
-                        }
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
-                          savedBookmarkIds[q.id]
-                            ? "bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs"
-                            : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
-                        }`}
-                      >
-                        <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[q.id] ? "fill-amber-500 text-amber-500" : ""}`} />
-                        {savedBookmarkIds[q.id] ? "Saved in Vault" : "Save to Vault"}
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          onAddToErrorNotebook?.({
-                            subjectId: (q.subject || "medicine").toLowerCase().replace(/[^a-z]/g, ""),
-                            topicId: "telegram-recall",
-                            topic: q.topic || "Telegram Ingestion",
-                            questionGist: q.questionText,
-                            myMistake: "Telegram practice error review",
-                            correctConcept: `${q.explanation} (Answer: Option ${q.correctAnswer})`,
-                            isReviewed: false,
-                          });
-                          confetti({ particleCount: 20, spread: 45 });
-                        }}
-                        className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer"
-                        title="Send to Error Notebook"
-                      >
-                        <AlertTriangle className="h-3.5 w-3.5 text-rose-500" />
-                        To Error Vault
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          onSaveAsPearl?.({
-                            title: q.topic || "Telegram Clinical Concept",
-                            takeaway: q.examPearl || q.explanation,
-                            subject: q.subject || "medicine",
-                            topic: q.topic || "Clinical Recall",
-                            isBookmarked: true,
-                            tags: ["Telegram", q.subject || "Medicine"],
-                          } as any);
-                          confetti({ particleCount: 25, spread: 50 });
-                        }}
-                        className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-700 border border-slate-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer"
-                        title="Send to Medical Pearls Vault"
-                      >
-                        <Bookmark className="h-3.5 w-3.5 text-purple-600" />
-                        To Pearls
-                      </button>
-                    </div>
-
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      #{q.id.slice(-6)}
-                    </span>
-                  </div>
-                </div>
-              );
-            })
           )}
         </div>
       )}
@@ -2136,304 +2229,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* VIEW N: OFFICIAL NOTICES */}
-      {/* ========================================================================= */}
-      {(activeTab === "notices" || (mobileSegment === "browse" && filteredNotices.length > 0)) && (
-        <div className={`space-y-4 ${activeTab !== "notices" ? "sm:hidden" : ""}`}>
-          <div className="sm:hidden flex items-center justify-between pt-4 pb-1 border-b border-stone-200">
-            <h3 className="font-serif text-base font-bold text-slate-900 flex items-center gap-2">
-              <Bell className="w-4 h-4 text-sky-600" />
-              Official Notices ({filteredNotices.length})
-            </h3>
-          </div>
-          {filteredNotices.length === 0 ? (
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
-              <Bell className="h-8 w-8 text-sky-500 mx-auto" />
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
-                {notices.length === 0 ? "No Official Exam Notices Ingested Yet" : "No Notices Match Your Search"}
-              </h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Official NBEMS notices, admit card announcements, and exam date bulletins posted in monitored channels will automatically appear here.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredNotices.map((n) => {
-                const noticeContent = n.cleanedText || n.originalText || n.content || "Official NBEMS Bulletin";
-                return (
-                  <div key={n.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] uppercase ${
-                          n.importance === "critical"
-                            ? "bg-rose-50 text-rose-700 border border-rose-200"
-                            : "bg-sky-50 text-sky-700 border border-sky-200"
-                        }`}>
-                          {n.importance === "critical" ? "⚠️ CRITICAL NOTICE" : "OFFICIAL NOTICE"}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          {n.noticeDate ? new Date(n.noticeDate).toLocaleDateString() : "Recent"}
-                        </span>
-                      </div>
 
-                      {n.imageUrl && (
-                        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(n.imageUrl)}>
-                          <img src={n.imageUrl} alt="Notice document" className="w-full h-full object-cover" />
-                        </div>
-                      )}
-
-                      <p className="text-xs text-slate-800 leading-relaxed font-medium whitespace-pre-line break-words min-w-0">
-                        {noticeContent}
-                      </p>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 min-w-0">
-                      <span className="text-[11px] text-slate-400 font-mono truncate max-w-[180px] min-w-0">
-                        Source: {n.sourceChannel || "Official Channel"}
-                      </span>
-                      <button
-                        onClick={() => handleToggleSaveItem({
-                          itemId: n.id,
-                          itemType: "notice",
-                          subject: "Official Bulletin",
-                          title: `NBE Notice - ${n.sourceChannel || "Exam"}`,
-                          content: noticeContent,
-                          mediaUrl: n.imageUrl,
-                          mediaType: n.imageUrl ? "IMAGE" : "NONE",
-                          sourceChannel: n.sourceChannel,
-                          tags: ["NBE Notice", "Official"],
-                        })}
-                        className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
-                          savedBookmarkIds[n.id]
-                            ? "bg-amber-100 text-amber-900 border border-amber-300"
-                            : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
-                        }`}
-                      >
-                        <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[n.id] ? "fill-amber-500 text-amber-500" : ""}`} />
-                        {savedBookmarkIds[n.id] ? "Saved" : "Save Notice"}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* VIEW T: HIGH-YIELD TIPS & BULLETINS */}
-      {/* ========================================================================= */}
-      {(activeTab === "tips" || (mobileSegment === "browse" && filteredTips.length > 0)) && (
-        <div className={`space-y-4 ${activeTab !== "tips" ? "sm:hidden" : ""}`}>
-          <div className="sm:hidden flex items-center justify-between pt-4 pb-1 border-b border-stone-200">
-            <h3 className="font-serif text-base font-bold text-slate-900 flex items-center gap-2">
-              <Lightbulb className="w-4 h-4 text-amber-500" />
-              High-Yield Tips ({filteredTips.length})
-            </h3>
-          </div>
-          {filteredTips.length === 0 ? (
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
-              <Lightbulb className="h-8 w-8 text-amber-500 mx-auto" />
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
-                {tips.length === 0 ? "No High-Yield Tips Ingested Yet" : "No High-Yield Tips Match Your Filter"}
-              </h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                {tips.length === 0
-                  ? "Rapid review formulas, clinical mnemonics, and high-yield tips posted in monitored channels will stream here automatically."
-                  : "Try clearing search or subject filter to view all ingested clinical tips."}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredTips.map((t) => {
-                const displayText = t.cleanedText || t.originalText || t.content || t.title || "High-Yield Clinical Rapid Review Note";
-                return (
-                  <div key={t.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] uppercase bg-amber-50 text-amber-800 border border-amber-200">
-                          {t.subject || "HIGH-YIELD TIP"}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-mono">Tip</span>
-                      </div>
-
-                      {t.imageUrl && (
-                        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(t.imageUrl)}>
-                          <img src={t.imageUrl} alt="Tip diagram" className="w-full h-full object-cover" />
-                        </div>
-                      )}
-
-                      {t.videoUrl && (
-                        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-black max-h-60">
-                          <video src={t.videoUrl} controls className="w-full h-full object-cover" />
-                        </div>
-                      )}
-
-                      <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 leading-relaxed font-medium whitespace-pre-line break-words">
-                        {displayText}
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
-                      <span className="text-[11px] text-slate-400 font-mono truncate max-w-[160px] min-w-0">
-                        Source: {t.sourceChannel || "Monitored Channel"}
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => handleToggleSaveItem({
-                            itemId: t.id,
-                            itemType: "tip",
-                            subject: t.subject || "General Medicine",
-                            title: `High-Yield Tip - ${t.subject || "Clinical"}`,
-                            content: displayText,
-                            mediaUrl: t.imageUrl || t.videoUrl,
-                            mediaType: t.imageUrl ? "IMAGE" : t.videoUrl ? "VIDEO" : "NONE",
-                            sourceChannel: t.sourceChannel,
-                            tags: ["Tip", t.subject || "Medicine"],
-                          })}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
-                            savedBookmarkIds[t.id]
-                              ? "bg-amber-100 text-amber-900 border border-amber-300"
-                              : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
-                          }`}
-                        >
-                          <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[t.id] ? "fill-amber-500 text-amber-500" : ""}`} />
-                          {savedBookmarkIds[t.id] ? "Saved" : "Save to Vault"}
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            onSaveAsPearl?.({
-                              title: `Tip: ${t.subject || "Clinical"}`,
-                              takeaway: displayText,
-                              subject: (t.subject || "medicine").toLowerCase(),
-                              topic: "Telegram Tip",
-                              isBookmarked: true,
-                              tags: ["Tip", t.subject || "Medicine"],
-                            } as any);
-                            confetti({ particleCount: 20, spread: 45 });
-                          }}
-                          className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-600 hover:text-purple-700 border border-slate-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
-                          title="Add to Pearls Vault"
-                        >
-                          <Bookmark className="h-3.5 w-3.5 text-purple-600" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* VIEW B: EXAM PEARLS */}
-      {/* ========================================================================= */}
-      {(activeTab === "pearls" || (mobileSegment === "browse" && filteredPearls.length > 0)) && (
-        <div className={`space-y-4 ${activeTab !== "pearls" ? "sm:hidden" : ""}`}>
-          <div className="sm:hidden flex items-center justify-between pt-4 pb-1 border-b border-stone-200">
-            <h3 className="font-serif text-base font-bold text-slate-900 flex items-center gap-2">
-              <Award className="w-4 h-4 text-amber-600" />
-              Exam Pearls ({filteredPearls.length})
-            </h3>
-          </div>
-          {filteredPearls.length === 0 ? (
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
-              <Award className="h-8 w-8 text-amber-500 mx-auto" />
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
-                {pearls.length === 0 ? "No Exam Pearls Yet" : "No Exam Pearls Match Your Filter"}
-              </h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                {pearls.length === 0
-                  ? "High-yield clinical takeaways, gold standards, and mnemonics extracted by the system will stream here automatically."
-                  : "Try adjusting your search query or subject filter."}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredPearls.map((p) => {
-                const takeawayText = p.takeaway || p.content || p.title || "High-Yield Clinical Takeaway";
-                return (
-                  <div key={p.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3 flex flex-col justify-between">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] bg-amber-50 text-amber-700 border border-amber-200 uppercase">
-                          {p.subject || "MEDICINE"}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-mono">Exam Pearl • Auto-Saved</span>
-                      </div>
-
-                      {p.imageUrl && (
-                        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 max-h-60 cursor-pointer" onClick={() => setZoomedImageUrl(p.imageUrl)}>
-                          <img src={p.imageUrl} alt="Pearl visual" className="w-full h-full object-cover" />
-                        </div>
-                      )}
-
-                      <h4 className="font-bold text-xs text-slate-900">{p.title}</h4>
-                      <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 leading-relaxed font-medium">
-                        <div className="font-bold font-['Outfit'] text-[11px] uppercase tracking-wider text-amber-800 mb-1">
-                          💡 What to Remember:
-                        </div>
-                        {takeawayText}
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        #{p.id.slice(-6)}
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => handleToggleSaveItem({
-                            itemId: p.id,
-                            itemType: "pearl",
-                            subject: p.subject || "General Medicine",
-                            title: p.title,
-                            content: takeawayText,
-                            mediaUrl: p.imageUrl,
-                            mediaType: p.imageUrl ? "IMAGE" : "NONE",
-                            tags: ["Pearl", p.subject || "Medicine"],
-                          })}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
-                            savedBookmarkIds[p.id]
-                              ? "bg-amber-100 text-amber-900 border border-amber-300"
-                              : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200"
-                          }`}
-                        >
-                          <Star className={`h-3.5 w-3.5 ${savedBookmarkIds[p.id] ? "fill-amber-500 text-amber-500" : ""}`} />
-                          {savedBookmarkIds[p.id] ? "Saved" : "Save to Vault"}
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            onSaveAsPearl?.({
-                              title: p.title,
-                              takeaway: takeawayText,
-                              subject: (p.subject || "medicine").toLowerCase(),
-                              topic: "Exam Pearl",
-                              isBookmarked: true,
-                              tags: ["Pearl", p.subject || "Medicine"],
-                            } as any);
-                            confetti({ particleCount: 20, spread: 45 });
-                          }}
-                          className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
-                          title="Add to Medical Pearls Vault"
-                        >
-                          <Bookmark className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* ========================================================================= */}
       {/* VIEW C: SOURCE SELECTOR (Channels & Groups Discovery) */}
@@ -2627,50 +2423,219 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* VIEW E: DEBUGGER & RAW STREAM */}
+      {/* VIEW E: SOURCE LIBRARY & RAW INGESTION AUDIT TRAIL */}
       {/* ========================================================================= */}
       {activeTab === "debugger" && (
-        <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
-              Raw Ingested Message Stream ({messages.length} messages in PostgreSQL)
-            </h3>
+        <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="font-bold font-['Outfit'] text-base text-slate-900 flex items-center gap-2">
+                <span>Source Channel Library &amp; Ingestion Audit Trail</span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono font-bold">
+                  {rawMessages.length || messages.length} Archived Posts
+                </span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Every Telegram post from your monitored sources is immutably archived. The ONE SHOT FMGE AI filter purges noise, commercial promotions, and duplicates before material enters the Curated Bank.
+              </p>
+            </div>
+
+            {/* State Filter Chips */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {[
+                { key: "ALL", label: "All Posts", count: rawMessages.length || messages.length },
+                {
+                  key: "CURATED",
+                  label: "Curated",
+                  count: (rawMessages.length > 0 ? rawMessages : messages).filter(
+                    (m: any) => m.processingState === "CURATED" || m.status === "PROCESSED" || m.status === "CURATED"
+                  ).length,
+                  activeColor: "bg-emerald-700 text-white",
+                },
+                {
+                  key: "PROMOTIONAL",
+                  label: "Promotional",
+                  count: (rawMessages.length > 0 ? rawMessages : messages).filter(
+                    (m: any) => m.processingState === "PROMOTIONAL" || m.status === "PROMOTIONAL"
+                  ).length,
+                  activeColor: "bg-rose-700 text-white",
+                },
+                {
+                  key: "DUPLICATE",
+                  label: "Duplicates",
+                  count: (rawMessages.length > 0 ? rawMessages : messages).filter(
+                    (m: any) => m.processingState === "DUPLICATE" || m.status === "DUPLICATE"
+                  ).length,
+                  activeColor: "bg-purple-700 text-white",
+                },
+                {
+                  key: "LOW_YIELD",
+                  label: "Low Yield",
+                  count: (rawMessages.length > 0 ? rawMessages : messages).filter(
+                    (m: any) => m.processingState === "LOW_YIELD" || m.status === "LOW_YIELD"
+                  ).length,
+                  activeColor: "bg-amber-700 text-white",
+                },
+                {
+                  key: "FAILED",
+                  label: "Failed",
+                  count: (rawMessages.length > 0 ? rawMessages : messages).filter(
+                    (m: any) => m.processingState === "FAILED" || m.status === "FAILED"
+                  ).length,
+                  activeColor: "bg-slate-700 text-white",
+                },
+              ].map((chip) => {
+                const isSelected = rawStateFilter === chip.key;
+                return (
+                  <button
+                    key={chip.key}
+                    onClick={() => setRawStateFilter(chip.key as any)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
+                      isSelected
+                        ? chip.activeColor || "bg-slate-900 text-white shadow-xs"
+                        : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                    }`}
+                  >
+                    <span>{chip.label}</span>
+                    <span
+                      className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                        isSelected ? "bg-white/20 text-white" : "bg-white text-slate-600"
+                      }`}
+                    >
+                      {chip.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 text-slate-400 font-['Outfit'] uppercase text-[10px]">
-                  <th className="py-2.5 px-3">Message ID</th>
-                  <th className="py-2.5 px-3">Source ID</th>
-                  <th className="py-2.5 px-3">Timestamp</th>
-                  <th className="py-2.5 px-3">Content</th>
-                  <th className="py-2.5 px-3">Media</th>
-                  <th className="py-2.5 px-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
-                {messages.map((m) => (
-                  <tr key={m.id}>
-                    <td className="py-2 px-3 font-bold text-slate-900">#{m.telegramMessageId}</td>
-                    <td className="py-2 px-3 text-slate-600 font-['Outfit']">{m.sourceId}</td>
-                    <td className="py-2 px-3 text-slate-400 text-[10px]">
-                      {new Date(m.messageDate).toLocaleTimeString()}
-                    </td>
-                    <td className="py-2 px-3 text-slate-700 max-w-xs truncate font-['Plus_Jakarta_Sans']">
-                      {m.rawText || "[Media]"}
-                    </td>
-                    <td className="py-2 px-3 font-bold text-[10px]">{m.mediaType}</td>
-                    <td className="py-2 px-3">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                        {m.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Audit Metrics Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Scanned</div>
+              <div className="font-mono text-xl font-bold text-slate-900 mt-1">
+                {rawMessages.length || messages.length}
+              </div>
+              <div className="text-[10px] text-slate-500 mt-0.5">Direct telegram posts</div>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200/80">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-rose-700">Promotional Filtered</div>
+              <div className="font-mono text-xl font-bold text-rose-900 mt-1">
+                {(rawMessages.length > 0 ? rawMessages : messages).filter(
+                  (m: any) => m.processingState === "PROMOTIONAL" || m.status === "PROMOTIONAL"
+                ).length}
+              </div>
+              <div className="text-[10px] text-rose-600/80 mt-0.5">Spam / course ads removed</div>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-purple-50/70 border border-purple-200/80">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-purple-700">Duplicates Merged</div>
+              <div className="font-mono text-xl font-bold text-purple-900 mt-1">
+                {(rawMessages.length > 0 ? rawMessages : messages).filter(
+                  (m: any) => m.processingState === "DUPLICATE" || m.status === "DUPLICATE"
+                ).length}
+              </div>
+              <div className="text-[10px] text-purple-600/80 mt-0.5">Cross-channel reposts</div>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#00685f]">Curated Bank Active</div>
+              <div className="font-mono text-xl font-bold text-emerald-950 mt-1">
+                {curatedCounts.totalCurated || curatedItems.length || canonicalItems.length}
+              </div>
+              <div className="text-[10px] text-emerald-700/80 mt-0.5">FMGE high-yield items</div>
+            </div>
           </div>
+
+          {/* Raw Messages Table */}
+          {filteredRawMessages.length === 0 ? (
+            <div className="p-10 text-center rounded-2xl border border-slate-200 bg-slate-50/60 space-y-2">
+              <div className="text-sm font-bold font-['Outfit'] text-slate-700">No Raw Messages Match Filter</div>
+              <p className="text-xs text-slate-400">
+                Try switching the status chip filter to &quot;All Posts&quot; or clearing your search term.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-500 font-['Outfit'] uppercase text-[10px] tracking-wider">
+                    <th className="py-3 px-3.5 font-bold">Msg ID</th>
+                    <th className="py-3 px-3.5 font-bold">Source Channel</th>
+                    <th className="py-3 px-3.5 font-bold">Time</th>
+                    <th className="py-3 px-3.5 font-bold">Content Snippet</th>
+                    <th className="py-3 px-3.5 font-bold">Media</th>
+                    <th className="py-3 px-3.5 font-bold">Pipeline Classification</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-mono text-[11px] bg-white">
+                  {filteredRawMessages.map((m: any) => {
+                    const status = m.processingState || m.status;
+                    let badgeClass = "bg-slate-100 text-slate-700 border-slate-200";
+                    let label = status;
+                    let reason = m.reason || m.errorMessage || (m.filterReason ? `Filtered: ${m.filterReason}` : null);
+
+                    if (status === "CURATED" || status === "PROCESSED") {
+                      badgeClass = "bg-emerald-50 text-[#00685f] border-emerald-200";
+                      label = "Curated High-Yield";
+                    } else if (status === "PROMOTIONAL") {
+                      badgeClass = "bg-rose-50 text-rose-700 border-rose-200";
+                      label = "Promotional Filtered";
+                      if (!reason) reason = "Promotional offer / commercial spam";
+                    } else if (status === "DUPLICATE") {
+                      badgeClass = "bg-purple-50 text-purple-700 border-purple-200";
+                      label = "Duplicate Merged";
+                      if (!reason) reason = "Merged into canonical item";
+                    } else if (status === "LOW_YIELD") {
+                      badgeClass = "bg-amber-50 text-amber-800 border-amber-200";
+                      label = "Low Yield (<60)";
+                      if (!reason) reason = "Quality score below exam threshold";
+                    } else if (status === "FAILED") {
+                      badgeClass = "bg-red-50 text-red-700 border-red-200";
+                      label = "Extraction Failed";
+                    }
+
+                    const channelTitle = m.sourceTitle || m.sourceId;
+
+                    return (
+                      <tr key={m.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="py-2.5 px-3.5 font-bold text-slate-900 whitespace-nowrap">
+                          #{m.telegramMessageId}
+                        </td>
+                        <td className="py-2.5 px-3.5 text-slate-600 font-['Outfit'] max-w-[160px] truncate">
+                          <span title={channelTitle}>{channelTitle}</span>
+                        </td>
+                        <td className="py-2.5 px-3.5 text-slate-400 text-[10px] whitespace-nowrap">
+                          {m.messageDate ? new Date(m.messageDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
+                        </td>
+                        <td className="py-2.5 px-3.5 text-slate-700 max-w-sm font-['Plus_Jakarta_Sans'] text-xs">
+                          <div className="line-clamp-2 leading-relaxed">
+                            {m.rawText || (m.mediaUrls?.length > 0 ? "[Media Attachment]" : "[Non-text telegram entity]")}
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-3.5 font-bold text-[10px] whitespace-nowrap">
+                          <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+                            {m.mediaType || "NONE"}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3.5 space-y-0.5">
+                          <div>
+                            <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border font-['Outfit'] ${badgeClass}`}>
+                              {label}
+                            </span>
+                          </div>
+                          {reason && (
+                            <div className="text-[10px] text-slate-500 font-['Plus_Jakarta_Sans'] line-clamp-1 max-w-[200px]" title={reason}>
+                              {reason}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 

@@ -28,6 +28,14 @@ import { generateQrDataUrl } from "./qr-code-generator";
 import { enrichClinicalQuestionServer } from "./clinical-distractor-engine";
 import { analyzeTelegramMessageWithGemini } from "./telegram-gemini-analyzer";
 import { getCloudDatabase, saveCloudDatabase } from "./db/postgres";
+import {
+  cleanTelegramContent,
+  evaluatePromotionalNoise,
+  scoreFmgeRelevance,
+  computeContentFingerprint,
+  calculateBigramSimilarity,
+  mapToFmgeSubject,
+} from "./telegram-pipeline-server";
 
 const MEDIA_STORAGE_DIR = path.join(process.cwd(), "public", "uploads", "telegram", "media");
 if (!fs.existsSync(MEDIA_STORAGE_DIR)) {
@@ -714,23 +722,20 @@ export async function extractTelegramMessageMediaAndPoll(
         };
       });
 
-      let correctKey = "A";
+      let correctKey: string | undefined = undefined;
       const results = media?.results?.results || [];
       const correctIdx = results.findIndex((r: any) => r?.correct);
       if (correctIdx >= 0 && correctIdx < options.length) {
         correctKey = options[correctIdx].key;
       }
 
-      pollData = {
-        question: questionText,
-        options: options.length >= 2 ? options : [
-          { key: "A", text: "Loss of patellar reflexes" },
-          { key: "B", text: "Respiratory depression" },
-          { key: "C", text: "Cardiac arrest" },
-          { key: "D", text: "Oliguria" },
-        ],
-        correctKey,
-      };
+      if (options.length >= 2) {
+        pollData = {
+          question: questionText,
+          options,
+          correctKey: correctKey || "",
+        };
+      }
     }
 
     // 2. High-Yield Photo Extraction (ECGs, X-Rays, Histology, Dermatology, Notices)
@@ -820,7 +825,7 @@ export async function ingestNewTelegramMessage(input: {
 }): Promise<{
   success: boolean;
   messageId: string;
-  status: "RECEIVED" | "DUPLICATE" | "FAILED";
+  status: "RECEIVED" | "DUPLICATE" | "FAILED" | "FILTERED" | "LOW_YIELD";
   category?: string;
 }> {
   // STEP 1: IMMEDIATELY SAVE RAW TELEGRAM MESSAGE (Level 1 Deduplication)
@@ -894,20 +899,91 @@ export async function ingestNewTelegramMessage(input: {
   // STEP 3: UPDATE SOURCE CHECKPOINT
   CloudDb.updateSourceCheckpoint(input.sourceId, input.telegramMessageId);
 
-  // STEP 4: AI CLASSIFICATION & PROCESSING POWERED BY GEMINI
+  // STEP 4: 8-STAGE EDUCATIONAL PIPELINE (FILTERING, CLASSIFICATION, DEDUPLICATION)
   try {
-    const fullText = (input.text || input.pollData?.question || "").trim();
+    const rawText = (input.text || input.pollData?.question || "").trim();
+    const cleaned = cleanTelegramContent(rawText);
     const hasPhoto = Boolean(savedImageUrl || input.photoUrl);
     const hasVideo = Boolean(savedVideoUrl || input.videoUrl);
 
+    // Rule-Based Promotional & Chatter Filter (fast reject without burning AI tokens)
+    const promo = evaluatePromotionalNoise(cleaned.cleanedText || rawText);
+    if (promo.shouldFilterOut && !input.pollData && !hasPhoto && !hasVideo) {
+      CloudDb.updateMessageStatus(
+        rawRes.message.id,
+        promo.isPromotional ? "PROMOTIONAL" : "LOW_YIELD",
+        `Filtered non-clinical content (${promo.matchedTriggers.join(", ")})`
+      );
+      return {
+        success: true,
+        messageId: rawRes.message.id,
+        status: "FILTERED",
+        category: promo.isPromotional ? "PROMOTIONAL" : "CHATTER",
+      };
+    }
+
+    // AI Medical Analysis & Structured Extraction
     const clinicalItem = await analyzeTelegramMessageWithGemini({
-      text: fullText,
+      text: cleaned.cleanedText || rawText,
       channelTitle: input.sourceTitle,
       hasPhoto,
       hasVideo,
       pollData: input.pollData,
     });
 
+    // Check if AI determined this is promotional or general chatter
+    if (
+      clinicalItem.category === "PROMOTIONAL" ||
+      clinicalItem.category === "GENERAL_CHATTER" ||
+      clinicalItem.category === "LOW_RELEVANCE"
+    ) {
+      CloudDb.updateMessageStatus(
+        rawRes.message.id,
+        clinicalItem.category === "PROMOTIONAL" ? "PROMOTIONAL" : "LOW_YIELD",
+        `AI Curator filtered as ${clinicalItem.category}`
+      );
+      return {
+        success: true,
+        messageId: rawRes.message.id,
+        status: "FILTERED",
+        category: clinicalItem.category,
+      };
+    }
+
+    // Relevance Scoring (0 - 100)
+    const relevance = clinicalItem.fmgeRelevanceScore ?? scoreFmgeRelevance({
+      text: cleaned.cleanedText || rawText,
+      category: clinicalItem.category,
+      hasPhoto,
+      hasVideo,
+      hasOptions: Boolean(input.pollData || (clinicalItem.options && clinicalItem.options.length >= 2)),
+    }).score;
+
+    if (relevance < 60) {
+      CloudDb.updateMessageStatus(rawRes.message.id, "LOW_YIELD", "Relevance score below threshold (<60)");
+      return {
+        success: true,
+        messageId: rawRes.message.id,
+        status: "LOW_YIELD",
+        category: "LOW_RELEVANCE",
+      };
+    }
+
+    // Subject Mapping & Canonical Fingerprinting
+    const subjectInfo = mapToFmgeSubject(clinicalItem.subject || input.sourceTitle || rawText);
+    const finalSubject = subjectInfo.subject;
+    const finalTopic = clinicalItem.topic || subjectInfo.topic;
+    const finalMediaUrl = savedImageUrl || input.photoUrl || savedVideoUrl || input.videoUrl;
+    const finalMediaType: "IMAGE" | "VIDEO" | "POLL" | "NONE" = (savedImageUrl || input.photoUrl)
+      ? "IMAGE"
+      : (savedVideoUrl || input.videoUrl)
+      ? "VIDEO"
+      : input.pollData
+      ? "POLL"
+      : "NONE";
+    const fingerprint = computeContentFingerprint(clinicalItem.stem || rawText, clinicalItem.options);
+
+    // 1. MCQ, IMAGE-BASED QUESTION, OR CLINICAL VIDEO
     if (
       clinicalItem.category === "MCQ" ||
       clinicalItem.category === "IMAGE_BASED_QUESTION" ||
@@ -917,8 +993,8 @@ export async function ingestNewTelegramMessage(input: {
         id: "q-cloud-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         sourceId: input.sourceId,
         sourceMessageId: rawRes.message.id,
-        subject: (clinicalItem.subject || "medicine").toLowerCase(),
-        topic: clinicalItem.topic || "Clinical High-Yield Recall",
+        subject: finalSubject,
+        topic: finalTopic,
         questionText: clinicalItem.stem,
         options: clinicalItem.options,
         correctAnswer: clinicalItem.correctAnswer,
@@ -931,25 +1007,62 @@ export async function ingestNewTelegramMessage(input: {
         imageUrl: savedImageUrl || input.photoUrl,
         videoUrl: savedVideoUrl || input.videoUrl,
         difficulty: "high-yield",
+        contentFingerprint: fingerprint,
         createdAt: new Date().toISOString(),
       });
 
-      // Insert real Exam Pearl (The high-yield takeaway, NOT the question stem!)
-      CloudDb.insertPearl({
-        id: "prl-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
-        sourceMessageId: rawRes.message.id,
-        questionId: qRes.question.id,
-        title: `${clinicalItem.topic} — High-Yield Pearl`,
-        takeaway: clinicalItem.whatToRemember,
-        subject: (clinicalItem.subject || "medicine").toLowerCase(),
-        topic: clinicalItem.topic || "Clinical Pearl",
-        isSaved: true,
-        imageUrl: savedImageUrl || input.photoUrl,
-        videoUrl: savedVideoUrl || input.videoUrl,
+      if (qRes.action === "DUPLICATE") {
+        CloudDb.updateMessageStatus(rawRes.message.id, "DUPLICATE");
+      } else {
+        CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
+      }
+
+      // Upsert into Canonical Knowledge Store (linking sources across channels)
+      CloudDb.upsertCanonicalItem({
+        id: "canon-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        type: clinicalItem.category === "IMAGE_BASED_QUESTION" ? "image" : clinicalItem.category === "VIDEO_DEMONSTRATION" ? "video" : "question",
+        subject: finalSubject,
+        topic: finalTopic,
+        title: (clinicalItem.stem || "Clinical Case").slice(0, 100),
+        content: clinicalItem.stem,
+        options: clinicalItem.options,
+        correctAnswer: clinicalItem.correctAnswer,
+        explanation: clinicalItem.explanation,
+        whatToRemember: clinicalItem.whatToRemember,
+        distractorAnalysis: clinicalItem.distractorAnalysis,
+        fmgeRelevanceScore: relevance,
+        sources: [{
+          sourceId: input.sourceId,
+          sourceTitle: input.sourceTitle,
+          messageId: rawRes.message.id,
+          date: input.messageDate || new Date().toISOString(),
+        }],
+        mediaUrl: finalMediaUrl,
+        mediaType: finalMediaType,
+        isHighYield: relevance >= 75,
+        contentFingerprint: fingerprint,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
 
-      // Insert real AI Cross Check
+      // Insert high-yield Exam Pearl takeaway
+      if (clinicalItem.whatToRemember && clinicalItem.whatToRemember.length > 15) {
+        CloudDb.insertPearl({
+          id: "prl-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+          sourceMessageId: rawRes.message.id,
+          questionId: qRes.question.id,
+          title: `${finalTopic} — High-Yield Pearl`,
+          takeaway: clinicalItem.whatToRemember,
+          subject: finalSubject,
+          topic: finalTopic,
+          isSaved: true,
+          imageUrl: savedImageUrl || input.photoUrl,
+          videoUrl: savedVideoUrl || input.videoUrl,
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      // Insert AI Cross Check
       CloudDb.insertCrossCheck({
         id: "cc-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         questionId: qRes.question.id,
@@ -961,8 +1074,12 @@ export async function ingestNewTelegramMessage(input: {
         verifiedAt: new Date().toISOString(),
       });
 
-      CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
-      return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "MCQ" };
+      return {
+        success: true,
+        messageId: rawRes.message.id,
+        status: qRes.action === "DUPLICATE" ? "DUPLICATE" : "RECEIVED",
+        category: "MCQ",
+      };
     }
 
     // 2. OFFICIAL NBE NOTICES & ANNOUNCEMENTS
@@ -970,8 +1087,8 @@ export async function ingestNewTelegramMessage(input: {
       CloudDb.insertNotice({
         id: "not-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         sourceMessageId: rawRes.message.id,
-        originalText: fullText,
-        cleanedText: clinicalItem.stem || fullText,
+        originalText: rawText,
+        cleanedText: clinicalItem.stem || rawText,
         importance: (clinicalItem.importance === "normal" ? "general" : clinicalItem.importance) || "general",
         noticeDate: input.messageDate || new Date().toISOString(),
         sourceChannel: input.sourceTitle,
@@ -979,47 +1096,123 @@ export async function ingestNewTelegramMessage(input: {
         videoUrl: savedVideoUrl || input.videoUrl,
         createdAt: new Date().toISOString(),
       });
+
+      CloudDb.upsertCanonicalItem({
+        id: "canon-not-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        type: "notice",
+        subject: "Administration",
+        topic: "Official Notice",
+        title: "NBEMS / NBE Official Notice",
+        content: clinicalItem.stem || rawText,
+        fmgeRelevanceScore: relevance,
+        sources: [{
+          sourceId: input.sourceId,
+          sourceTitle: input.sourceTitle,
+          messageId: rawRes.message.id,
+          date: input.messageDate || new Date().toISOString(),
+        }],
+        mediaUrl: finalMediaUrl,
+        mediaType: finalMediaType,
+        isHighYield: true,
+        contentFingerprint: fingerprint,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+
       CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
       return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "NOTICE" };
     }
 
     // 3. DIRECT EXAM PEARL
-    if ((clinicalItem.category as any) === "PEARL") {
+    if (clinicalItem.category === "EXAM_PEARL" || (clinicalItem.category as any) === "PEARL") {
       CloudDb.insertPearl({
         id: "prl-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         sourceMessageId: rawRes.message.id,
-        title: `${clinicalItem.topic || "Exam"} — High-Yield Pearl`,
-        takeaway: clinicalItem.whatToRemember || fullText,
-        subject: (clinicalItem.subject || "medicine").toLowerCase(),
-        topic: clinicalItem.topic || "Clinical Pearl",
+        title: `${finalTopic} — High-Yield Pearl`,
+        takeaway: clinicalItem.whatToRemember || clinicalItem.stem || rawText,
+        subject: finalSubject,
+        topic: finalTopic,
         isSaved: true,
         imageUrl: savedImageUrl || input.photoUrl,
         videoUrl: savedVideoUrl || input.videoUrl,
         createdAt: new Date().toISOString(),
       });
+
+      CloudDb.upsertCanonicalItem({
+        id: "canon-prl-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        type: "pearl",
+        subject: finalSubject,
+        topic: finalTopic,
+        title: `${finalTopic} — High-Yield Pearl`,
+        content: clinicalItem.whatToRemember || clinicalItem.stem || rawText,
+        whatToRemember: clinicalItem.whatToRemember,
+        fmgeRelevanceScore: Math.max(80, relevance),
+        sources: [{
+          sourceId: input.sourceId,
+          sourceTitle: input.sourceTitle,
+          messageId: rawRes.message.id,
+          date: input.messageDate || new Date().toISOString(),
+        }],
+        mediaUrl: finalMediaUrl,
+        mediaType: finalMediaType,
+        isHighYield: true,
+        contentFingerprint: fingerprint,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+
       CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
       return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "PEARL" };
     }
 
-    // 4. HIGH-YIELD TIP / BULLETIN
-    CloudDb.insertTip({
-      id: "tip-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
-      sourceMessageId: rawRes.message.id,
-      originalText: fullText,
-      cleanedText: clinicalItem.whatToRemember || clinicalItem.stem || fullText,
-      subject: (clinicalItem.subject || "medicine").toLowerCase(),
-      topic: clinicalItem.topic || "High-Yield Bulletin",
-      sourceChannel: input.sourceTitle,
-      imageUrl: savedImageUrl || input.photoUrl,
-      videoUrl: savedVideoUrl || input.videoUrl,
-      createdAt: new Date().toISOString(),
-    });
+    // 4. CLINICAL TIP / RAPID REVISION (Only admitted if relevance >= 70)
+    if (relevance >= 70 && (clinicalItem.category === "CLINICAL_TIP" || clinicalItem.category === "HIGH_YIELD_TIP")) {
+      CloudDb.insertTip({
+        id: "tip-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        sourceMessageId: rawRes.message.id,
+        originalText: rawText,
+        cleanedText: clinicalItem.whatToRemember || clinicalItem.stem || rawText,
+        subject: finalSubject,
+        topic: finalTopic,
+        sourceChannel: input.sourceTitle,
+        imageUrl: savedImageUrl || input.photoUrl,
+        videoUrl: savedVideoUrl || input.videoUrl,
+        createdAt: new Date().toISOString(),
+      });
 
-    CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
-    return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "TIP" };
+      CloudDb.upsertCanonicalItem({
+        id: "canon-tip-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+        type: "tip",
+        subject: finalSubject,
+        topic: finalTopic,
+        title: `${finalTopic} — Rapid Review Tip`,
+        content: clinicalItem.whatToRemember || clinicalItem.stem || rawText,
+        whatToRemember: clinicalItem.whatToRemember,
+        fmgeRelevanceScore: relevance,
+        sources: [{
+          sourceId: input.sourceId,
+          sourceTitle: input.sourceTitle,
+          messageId: rawRes.message.id,
+          date: input.messageDate || new Date().toISOString(),
+        }],
+        mediaUrl: finalMediaUrl,
+        mediaType: finalMediaType,
+        isHighYield: relevance >= 75,
+        contentFingerprint: fingerprint,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+
+      CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
+      return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "TIP" };
+    }
+
+    // Message did not meet educational threshold to enter Knowledge Bank, keep in Raw Library
+    CloudDb.updateMessageStatus(rawRes.message.id, "LOW_YIELD", "Relegated to raw source stream");
+    return { success: true, messageId: rawRes.message.id, status: "LOW_YIELD", category: "TIP" };
   } catch (err: any) {
-    console.error("[CloudWorker] AI extraction error:", err);
-    CloudDb.updateMessageStatus(rawRes.message.id, "FAILED");
+    console.error("[CloudWorker] Pipeline ingestion error:", err);
+    CloudDb.updateMessageStatus(rawRes.message.id, "FAILED", err?.message);
     return { success: true, messageId: rawRes.message.id, status: "FAILED" };
   }
 }
@@ -1086,9 +1279,22 @@ export async function syncActiveMonitoredSources() {
 
 export async function syncAllMonitoredSourcesNow(): Promise<{
   success: boolean;
+  diagnostics: {
+    scanned: number;
+    newMessages: number;
+    promotionalFiltered: number;
+    duplicatesMerged: number;
+    lowYieldFiltered: number;
+    curatedItems: number;
+    failed: number;
+  };
   monitoredSourcesCount: number;
   newMessagesCount: number;
   newQuestionsCount: number;
+  newPearlsCount: number;
+  promotionalFilteredCount: number;
+  duplicatesMergedCount: number;
+  curatedKnowledgeCount: number;
   error?: string;
 }> {
   if (!activeClient) {
@@ -1097,51 +1303,104 @@ export async function syncAllMonitoredSourcesNow(): Promise<{
   if (!activeClient) {
     return {
       success: false,
+      diagnostics: {
+        scanned: 0,
+        newMessages: 0,
+        promotionalFiltered: 0,
+        duplicatesMerged: 0,
+        lowYieldFiltered: 0,
+        curatedItems: 0,
+        failed: 0,
+      },
       monitoredSourcesCount: 0,
       newMessagesCount: 0,
       newQuestionsCount: 0,
+      newPearlsCount: 0,
+      promotionalFilteredCount: 0,
+      duplicatesMergedCount: 0,
+      curatedKnowledgeCount: 0,
       error: "Telegram client not connected or authorized.",
     };
   }
 
   const monitoredSources = CloudDb.getSources(true);
+  let totalScanned = 0;
   let totalNewMsgs = 0;
   let totalNewQs = 0;
+  let totalNewPearls = 0;
+  let totalPromoFiltered = 0;
+  let totalDuplicates = 0;
+  let totalLowYield = 0;
+  let totalFailed = 0;
 
   for (const src of monitoredSources) {
     try {
       const messages = await activeClient.getMessages(src.telegramChannelId, { limit: 25 });
+      totalScanned += (messages || []).length;
       for (const m of messages) {
         if (!m || m.id <= (src.lastProcessedMessageId || 0)) continue;
 
-        const mediaResult = await extractTelegramMessageMediaAndPoll(activeClient, m, src.id);
-        const res = await ingestNewTelegramMessage({
-          sourceId: src.id,
-          sourceTitle: src.title,
-          telegramMessageId: m.id,
-          messageDate: m.date ? new Date(m.date * 1000).toISOString() : new Date().toISOString(),
-          text: m.text || (m as any).message || "",
-          mediaType: mediaResult.mediaType,
-          photoUrl: mediaResult.photoUrl,
-          videoUrl: mediaResult.videoUrl,
-          pollData: mediaResult.pollData,
-        });
+        try {
+          const mediaResult = await extractTelegramMessageMediaAndPoll(activeClient, m, src.id);
+          const res = await ingestNewTelegramMessage({
+            sourceId: src.id,
+            sourceTitle: src.title,
+            telegramMessageId: m.id,
+            messageDate: m.date ? new Date(m.date * 1000).toISOString() : new Date().toISOString(),
+            text: m.text || (m as any).message || "",
+            mediaType: mediaResult.mediaType,
+            photoUrl: mediaResult.photoUrl,
+            videoUrl: mediaResult.videoUrl,
+            pollData: mediaResult.pollData,
+          });
 
-        if (res && res.status !== "DUPLICATE") {
-          totalNewMsgs++;
-          if (res.category === "MCQ") totalNewQs++;
+          if (res) {
+            totalNewMsgs++;
+            if (res.status === "FILTERED") totalPromoFiltered++;
+            else if (res.status === "DUPLICATE") totalDuplicates++;
+            else if (res.status === "LOW_YIELD") totalLowYield++;
+            else if (res.category === "MCQ") totalNewQs++;
+            else if (res.category === "PEARL") totalNewPearls++;
+          }
+        } catch (innerErr: any) {
+          totalFailed++;
+          console.warn(`[ManualSync] Message ingest error in ${src.title} (msg #${m.id}):`, innerErr?.message);
         }
       }
     } catch (err: any) {
+      totalFailed++;
       console.warn(`[ManualSync] Error syncing ${src.title}:`, err?.message);
     }
   }
 
+  const syncTimestamp = new Date().toISOString();
+  CloudDb.recordHeartbeat({
+    workerStatus: "ONLINE",
+    lastSuccessfulTelegramUpdate: syncTimestamp,
+    activeSourcesCount: monitoredSources.length,
+  });
+
+  const curatedItems = CloudDb.getCuratedFeed();
+  const curatedCount = (CloudDb.getCanonicalItems ? CloudDb.getCanonicalItems() : []).filter((c) => c.isHighYield).length;
+
   return {
     success: true,
+    diagnostics: {
+      scanned: totalScanned,
+      newMessages: totalNewMsgs,
+      promotionalFiltered: totalPromoFiltered,
+      duplicatesMerged: totalDuplicates,
+      lowYieldFiltered: totalLowYield,
+      curatedItems: curatedCount,
+      failed: totalFailed,
+    },
     monitoredSourcesCount: monitoredSources.length,
     newMessagesCount: totalNewMsgs,
     newQuestionsCount: totalNewQs,
+    newPearlsCount: totalNewPearls,
+    promotionalFilteredCount: totalPromoFiltered,
+    duplicatesMergedCount: totalDuplicates,
+    curatedKnowledgeCount: curatedItems.length,
   };
 }
 

@@ -174,7 +174,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
                 {isDbHealthy ? "All systems operational" : "Check database connection"}
               </div>
               <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                Last synced: {getRelativeTime(workerHealth.lastHeartbeat)}
+                {workerHealth.lastSync ? `Last synced: ${getRelativeTime(workerHealth.lastSync)}` : "Awaiting first sync"}
               </div>
             </div>
           </div>

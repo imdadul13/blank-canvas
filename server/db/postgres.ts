@@ -161,6 +161,9 @@ export type MessageProcessingState =
   | "MEDIA_PROCESSING"
   | "AI_CHECK"
   | "PROCESSED"
+  | "PROMOTIONAL"
+  | "LOW_YIELD"
+  | "DUPLICATE"
   | "FAILED";
 
 export interface TelegramAccountRow {
@@ -327,7 +330,7 @@ export interface IngestionJobRow {
 export interface SavedTelegramItemRow {
   id: string;
   itemId: string;
-  itemType: "question" | "notice" | "tip" | "pearl" | "media";
+  itemType: "question" | "notice" | "tip" | "pearl" | "media" | "image" | "video";
   subject: string;
   title: string;
   content: string;
@@ -340,6 +343,87 @@ export interface SavedTelegramItemRow {
   studentNotes?: string;
   sourceChannel: string;
   savedAt: string;
+}
+
+export interface CanonicalKnowledgeRow {
+  id: string;
+  type: "question" | "pearl" | "image" | "video" | "tip" | "notice";
+  subject: string;
+  topic: string;
+  title: string;
+  content: string;
+  options?: { key: string; text: string }[];
+  correctAnswer?: string;
+  explanation?: string;
+  whatToRemember?: string;
+  distractorAnalysis?: { key: string; reason: string }[];
+  fmgeRelevanceScore: number;
+  sources: { sourceId: string; sourceTitle: string; messageId: string; date: string }[];
+  mediaUrl?: string;
+  mediaType?: "IMAGE" | "VIDEO" | "POLL" | "NONE";
+  isHighYield: boolean;
+  contentFingerprint: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CuratedFeedQueryParams {
+  type?: "question" | "pearl" | "image" | "video" | "tip" | "notice" | "all";
+  subject?: string;
+  topic?: string;
+  channel?: string;
+  highYield?: boolean | string;
+  minRelevance?: number | string;
+  search?: string;
+  page?: number | string;
+  limit?: number | string;
+}
+
+export interface RawMessagesQueryParams {
+  processingState?: MessageProcessingState | "ALL" | string;
+  sourceId?: string;
+  search?: string;
+  page?: number | string;
+  limit?: number | string;
+}
+
+export interface FormattedRawTelegramMessage {
+  id: string;
+  telegramMessageId: number;
+  sourceId: string;
+  sourceTitle: string;
+  messageDate: string;
+  rawText: string;
+  mediaType: "NONE" | "IMAGE" | "VIDEO" | "DOCUMENT" | "AUDIO" | "POLL";
+  status: MessageProcessingState;
+  reason?: string;
+  receivedAt: string;
+  mediaUrls: string[];
+}
+
+export interface KnowledgeBankDiagnostics {
+  scanned: number;
+  newMessages: number;
+  promotionalFiltered: number;
+  duplicatesMerged: number;
+  lowYieldFiltered: number;
+  curatedItems: number;
+  failed: number;
+  lastSyncAt: string | null;
+  totalScanned?: number;
+  curatedCount?: number;
+  highYieldPearls?: number;
+  highYieldQuestions?: number;
+}
+
+export interface KnowledgeBankCounts {
+  totalCurated: number;
+  examPearls: number;
+  questions: number;
+  imageSpotters: number;
+  videos: number;
+  clinicalTips: number;
+  notices: number;
 }
 
 export interface CloudDatabaseSchema {
@@ -355,6 +439,7 @@ export interface CloudDatabaseSchema {
   heartbeats: WorkerHeartbeatRow[];
   jobs: IngestionJobRow[];
   savedItems: SavedTelegramItemRow[];
+  canonicalItems: CanonicalKnowledgeRow[];
 }
 
 const DEFAULT_CLOUD_STATE: CloudDatabaseSchema = {
@@ -370,6 +455,7 @@ const DEFAULT_CLOUD_STATE: CloudDatabaseSchema = {
   heartbeats: [],
   jobs: [],
   savedItems: [],
+  canonicalItems: [],
 };
 
 const DB_FILE_PATH = path.join(process.cwd(), "server", "data", "cloud_telegram_db.json");
@@ -391,6 +477,65 @@ export function getCloudDatabase(): CloudDatabaseSchema {
     try {
       const raw = fs.readFileSync(DB_FILE_PATH, "utf8");
       inMemoryCloudDb = JSON.parse(raw);
+      if (inMemoryCloudDb && !inMemoryCloudDb.canonicalItems) {
+        inMemoryCloudDb.canonicalItems = [];
+      }
+      if (inMemoryCloudDb && inMemoryCloudDb.canonicalItems.length === 0 && ((inMemoryCloudDb.questions && inMemoryCloudDb.questions.length > 0) || (inMemoryCloudDb.pearls && inMemoryCloudDb.pearls.length > 0))) {
+        for (const q of (inMemoryCloudDb.questions || [])) {
+          if (q.isDuplicate) continue;
+          inMemoryCloudDb.canonicalItems.push({
+            id: "canon-" + q.id,
+            type: q.imageUrl ? "image" : q.videoUrl ? "video" : "question",
+            subject: q.subject,
+            topic: q.topic,
+            title: q.questionText.slice(0, 100),
+            content: q.questionText,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            explanation: q.explanation,
+            whatToRemember: q.examPearl,
+            distractorAnalysis: q.whyOtherOptionsAreWrong,
+            fmgeRelevanceScore: 88,
+            sources: [{
+              sourceId: q.sourceId || "src-1001",
+              sourceTitle: q.sourceChannel || "Target FMGE High Yield",
+              messageId: q.sourceMessageId || q.id,
+              date: q.createdAt,
+            }],
+            mediaUrl: q.imageUrl || q.videoUrl,
+            mediaType: q.imageUrl ? "IMAGE" : q.videoUrl ? "VIDEO" : "NONE",
+            isHighYield: true,
+            contentFingerprint: q.contentFingerprint || computeFingerprint(q.questionText, q.options),
+            createdAt: q.createdAt,
+            updatedAt: q.createdAt,
+          });
+        }
+        for (const p of (inMemoryCloudDb.pearls || [])) {
+          inMemoryCloudDb.canonicalItems.push({
+            id: "canon-" + p.id,
+            type: "pearl",
+            subject: p.subject,
+            topic: p.topic,
+            title: p.title,
+            content: p.takeaway,
+            whatToRemember: p.takeaway,
+            fmgeRelevanceScore: 92,
+            sources: [{
+              sourceId: "src-1001",
+              sourceTitle: "Target FMGE High Yield",
+              messageId: p.sourceMessageId || p.id,
+              date: p.createdAt,
+            }],
+            mediaUrl: p.imageUrl || p.videoUrl,
+            mediaType: p.imageUrl ? "IMAGE" : p.videoUrl ? "VIDEO" : "NONE",
+            isHighYield: true,
+            contentFingerprint: computeFingerprint(p.title + "::" + p.takeaway),
+            createdAt: p.createdAt,
+            updatedAt: p.createdAt,
+          });
+        }
+        saveCloudDatabase();
+      }
       return inMemoryCloudDb!;
     } catch (e) {
       console.error("[Database] Error reading cloud db file:", e);
@@ -435,6 +580,10 @@ export const CloudDb = {
     saveCloudDatabase();
   },
 
+  upsertAccount(account: TelegramAccountRow): void {
+    this.saveAccount(account);
+  },
+
   deleteAccount(id: string): void {
     const db = getCloudDatabase();
     db.accounts = db.accounts.filter((a) => a.id !== id);
@@ -473,6 +622,10 @@ export const CloudDb = {
 
   saveSources(sources: TelegramSourceRow[]): void {
     this.upsertSources(sources);
+  },
+
+  insertSource(source: TelegramSourceRow): void {
+    this.upsertSources([source]);
   },
 
   setSourceMonitored(sourceId: string, isMonitored: boolean): TelegramSourceRow | undefined {
@@ -804,6 +957,267 @@ export const CloudDb = {
     return db.savedItems.length < len;
   },
 
+  // Canonical Knowledge Bank Store
+  getCanonicalItems(): CanonicalKnowledgeRow[] {
+    const db = getCloudDatabase();
+    if (!db.canonicalItems) db.canonicalItems = [];
+    return db.canonicalItems;
+  },
+
+  upsertCanonicalItem(item: CanonicalKnowledgeRow): { action: "CREATED" | "MERGED"; item: CanonicalKnowledgeRow } {
+    const db = getCloudDatabase();
+    if (!db.canonicalItems) db.canonicalItems = [];
+
+    // Find existing match by contentFingerprint or exact title/stem
+    const existing = db.canonicalItems.find(
+      (c) =>
+        c.contentFingerprint === item.contentFingerprint ||
+        (c.type === item.type && c.title.toLowerCase() === item.title.toLowerCase() && c.content.toLowerCase() === item.content.toLowerCase())
+    );
+
+    if (existing) {
+      // Append unique sources
+      for (const src of item.sources) {
+        const alreadyHas = existing.sources.some((s) => s.sourceId === src.sourceId && s.messageId === src.messageId);
+        if (!alreadyHas) {
+          existing.sources.push(src);
+        }
+      }
+      // Upgrade relevance score if the incoming item has higher score
+      if (item.fmgeRelevanceScore > existing.fmgeRelevanceScore) {
+        existing.fmgeRelevanceScore = item.fmgeRelevanceScore;
+      }
+      if (item.mediaUrl && !existing.mediaUrl) {
+        existing.mediaUrl = item.mediaUrl;
+        existing.mediaType = item.mediaType;
+      }
+      existing.updatedAt = new Date().toISOString();
+      saveCloudDatabase();
+      return { action: "MERGED", item: existing };
+    }
+
+    db.canonicalItems.unshift(item);
+    saveCloudDatabase();
+    return { action: "CREATED", item };
+  },
+
+  getCuratedFeed(limit = 60): CanonicalKnowledgeRow[] {
+    const db = getCloudDatabase();
+    if (!db.canonicalItems) db.canonicalItems = [];
+    return db.canonicalItems
+      .filter((i) => i.isHighYield && i.fmgeRelevanceScore >= 75)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, limit);
+  },
+
+  queryCuratedCanonicalItems(params: CuratedFeedQueryParams = {}): {
+    items: CanonicalKnowledgeRow[];
+    total: number;
+    page: number;
+    limit: number;
+    hasMore: boolean;
+  } {
+    const db = getCloudDatabase();
+    let list = db.canonicalItems ? [...db.canonicalItems] : [];
+
+    // Filter: type
+    if (params.type && params.type !== "all") {
+      list = list.filter((i) => i.type === params.type);
+    }
+
+    // Filter: subject
+    if (params.subject && params.subject !== "all") {
+      const subQuery = params.subject.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+      list = list.filter((i) => {
+        const s = (i.subject || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        return s.includes(subQuery) || subQuery.includes(s);
+      });
+    }
+
+    // Filter: topic
+    if (params.topic && params.topic !== "all") {
+      const topicQuery = params.topic.trim().toLowerCase();
+      list = list.filter((i) => (i.topic || "").toLowerCase().includes(topicQuery));
+    }
+
+    // Filter: channel (sourceId or sourceTitle)
+    if (params.channel && params.channel !== "all") {
+      const chanQuery = params.channel.trim().toLowerCase();
+      list = list.filter((i) =>
+        (i.sources || []).some(
+          (s) => (s.sourceId || "").toLowerCase().includes(chanQuery) || (s.sourceTitle || "").toLowerCase().includes(chanQuery)
+        )
+      );
+    }
+
+    // Filter: highYield
+    if (params.highYield !== undefined && params.highYield !== "" && params.highYield !== "all") {
+      const isHighYield = params.highYield === true || params.highYield === "true";
+      list = list.filter((i) => Boolean(i.isHighYield) === isHighYield);
+    }
+
+    // Filter: minRelevance
+    if (params.minRelevance !== undefined && params.minRelevance !== "") {
+      const minRel = Number(params.minRelevance);
+      if (!isNaN(minRel)) {
+        list = list.filter((i) => (i.fmgeRelevanceScore ?? 0) >= minRel);
+      }
+    }
+
+    // Filter: search keyword across title, content, explanation, whatToRemember, options
+    if (params.search && params.search.trim()) {
+      const q = params.search.trim().toLowerCase();
+      list = list.filter((i) => {
+        if ((i.title || "").toLowerCase().includes(q)) return true;
+        if ((i.content || "").toLowerCase().includes(q)) return true;
+        if ((i.explanation || "").toLowerCase().includes(q)) return true;
+        if ((i.whatToRemember || "").toLowerCase().includes(q)) return true;
+        if ((i.topic || "").toLowerCase().includes(q)) return true;
+        if ((i.subject || "").toLowerCase().includes(q)) return true;
+        if (i.options && i.options.some((opt) => (opt.text || "").toLowerCase().includes(q))) return true;
+        return false;
+      });
+    }
+
+    // Sort newest first
+    list.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+    const total = list.length;
+    const page = Math.max(1, Number(params.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(params.limit) || 20));
+    const offset = (page - 1) * limit;
+    const pagedItems = list.slice(offset, offset + limit);
+    const hasMore = offset + limit < total;
+
+    return {
+      items: pagedItems,
+      total,
+      page,
+      limit,
+      hasMore,
+    };
+  },
+
+  queryRawMessages(params: RawMessagesQueryParams = {}): {
+    items: FormattedRawTelegramMessage[];
+    total: number;
+    page: number;
+    limit: number;
+    hasMore: boolean;
+  } {
+    const db = getCloudDatabase();
+    const sourceMap = new Map<string, string>();
+    (db.sources || []).forEach((s) => sourceMap.set(s.id, s.title));
+
+    const mediaByMsgId = new Map<string, string[]>();
+    (db.media || []).forEach((m) => {
+      const arr = mediaByMsgId.get(m.messageId) || [];
+      if (m.storageUrl) arr.push(m.storageUrl);
+      mediaByMsgId.set(m.messageId, arr);
+    });
+
+    let list: FormattedRawTelegramMessage[] = (db.messages || []).map((m) => {
+      const sourceTitle = sourceMap.get(m.sourceId) || "Telegram Channel";
+      const mediaUrls = mediaByMsgId.get(m.id) || [];
+      return {
+        id: m.id,
+        telegramMessageId: m.telegramMessageId,
+        sourceId: m.sourceId,
+        sourceTitle,
+        messageDate: m.messageDate,
+        rawText: m.rawText,
+        mediaType: m.mediaType,
+        status: m.status,
+        reason: m.errorMessage,
+        receivedAt: m.receivedAt,
+        mediaUrls,
+      };
+    });
+
+    // Filter: processingState
+    if (params.processingState && params.processingState !== "ALL" && params.processingState !== "all") {
+      const targetState = params.processingState.trim().toUpperCase();
+      list = list.filter((m) => m.status.toUpperCase() === targetState);
+    }
+
+    // Filter: sourceId
+    if (params.sourceId && params.sourceId !== "all") {
+      list = list.filter((m) => m.sourceId === params.sourceId);
+    }
+
+    // Filter: search keyword
+    if (params.search && params.search.trim()) {
+      const q = params.search.trim().toLowerCase();
+      list = list.filter((m) => (m.rawText || "").toLowerCase().includes(q) || (m.sourceTitle || "").toLowerCase().includes(q));
+    }
+
+    // Sort newest first
+    list.sort((a, b) => new Date(b.messageDate || b.receivedAt || 0).getTime() - new Date(a.messageDate || a.receivedAt || 0).getTime());
+
+    const total = list.length;
+    const page = Math.max(1, Number(params.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(params.limit) || 20));
+    const offset = (page - 1) * limit;
+    const pagedItems = list.slice(offset, offset + limit);
+    const hasMore = offset + limit < total;
+
+    return {
+      items: pagedItems,
+      total,
+      page,
+      limit,
+      hasMore,
+    };
+  },
+
+  getCuratedCounts(): KnowledgeBankCounts {
+    const db = getCloudDatabase();
+    const canonical = db.canonicalItems || [];
+    return {
+      totalCurated: canonical.length,
+      examPearls: canonical.filter((c) => c.type === "pearl").length,
+      questions: canonical.filter((c) => c.type === "question").length,
+      imageSpotters: canonical.filter((c) => c.type === "image" || (c.mediaType === "IMAGE" && Boolean(c.mediaUrl))).length,
+      videos: canonical.filter((c) => c.type === "video" || (c.mediaType === "VIDEO" && Boolean(c.mediaUrl))).length,
+      clinicalTips: canonical.filter((c) => c.type === "tip").length,
+      notices: canonical.filter((c) => c.type === "notice").length,
+    };
+  },
+
+  getPipelineDiagnostics(): KnowledgeBankDiagnostics {
+    const db = getCloudDatabase();
+    const messages = db.messages || [];
+    const canonical = db.canonicalItems || [];
+    const questions = db.questions || [];
+    const heartbeats = db.heartbeats || [];
+
+    const promotionalCount = messages.filter((m) => m.status === "PROMOTIONAL").length;
+    const lowYieldCount = messages.filter((m) => m.status === "LOW_YIELD").length;
+    const duplicateCount = messages.filter((m) => m.status === "DUPLICATE").length + questions.filter((q) => q.isDuplicate).length;
+    const curatedCount = canonical.filter((c) => c.isHighYield).length;
+    const failedCount = messages.filter((m) => m.status === "FAILED").length;
+    const lastSyncAt = heartbeats[0]?.lastSuccessfulTelegramUpdate || null;
+
+    return {
+      scanned: messages.length,
+      newMessages: messages.length,
+      totalScanned: messages.length,
+      promotionalFiltered: promotionalCount,
+      lowYieldFiltered: lowYieldCount,
+      duplicatesMerged: duplicateCount,
+      curatedItems: curatedCount,
+      curatedCount,
+      failed: failedCount,
+      lastSyncAt,
+      highYieldPearls: canonical.filter((c) => c.type === "pearl").length,
+      highYieldQuestions: canonical.filter((c) => c.type === "question" || c.type === "image").length,
+    };
+  },
+
+  getAccurateDiagnostics(): KnowledgeBankDiagnostics {
+    return this.getPipelineDiagnostics();
+  },
+
   // Developer Reset Telegram Tables only (Never deletes non-Telegram FMGE question banks)
   resetTelegramNamespace() {
     inMemoryCloudDb = {
@@ -819,6 +1233,7 @@ export const CloudDb = {
       crossChecks: [],
       jobs: [],
       savedItems: [],
+      canonicalItems: [],
     };
     saveCloudDatabase();
   },

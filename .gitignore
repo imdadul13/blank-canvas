@@ -11,3 +11,4 @@ public/uploads/telegram/media/photo_*
 public/uploads/telegram/media/vid_*
 public/uploads/telegram/media/tg_*
 fmge-study-tracker/
+server/data/cloud_telegram_db.json

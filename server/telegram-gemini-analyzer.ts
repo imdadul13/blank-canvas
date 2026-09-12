@@ -1,4 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
+import {
+  cleanTelegramContent,
+  evaluatePromotionalNoise,
+  scoreFmgeRelevance,
+  mapToFmgeSubject,
+} from "./telegram-pipeline-server";
 
 function getAI(): GoogleGenAI {
   let apiKey = process.env.GEMINI_API_KEY;
@@ -16,7 +22,17 @@ function getAI(): GoogleGenAI {
 }
 
 export interface TelegramExtractedClinicalItem {
-  category: "MCQ" | "IMAGE_BASED_QUESTION" | "VIDEO_DEMONSTRATION" | "HIGH_YIELD_TIP" | "OFFICIAL_NOTICE";
+  category:
+    | "MCQ"
+    | "IMAGE_BASED_QUESTION"
+    | "VIDEO_DEMONSTRATION"
+    | "HIGH_YIELD_TIP"
+    | "CLINICAL_TIP"
+    | "EXAM_PEARL"
+    | "OFFICIAL_NOTICE"
+    | "PROMOTIONAL"
+    | "GENERAL_CHATTER"
+    | "LOW_RELEVANCE";
   subject: string;
   topic: string;
   stem: string;
@@ -30,6 +46,8 @@ export interface TelegramExtractedClinicalItem {
   whatToRemember: string;
   memoryHook?: string;
   importance?: "critical" | "important" | "normal";
+  fmgeRelevanceScore?: number;
+  isHighYield?: boolean;
 }
 
 export async function analyzeTelegramMessageWithGemini(input: {
@@ -43,17 +61,41 @@ export async function analyzeTelegramMessageWithGemini(input: {
     correctKey?: string;
   };
 }): Promise<TelegramExtractedClinicalItem> {
-  const ai = getAI();
   const rawText = (input.text || input.pollData?.question || "").trim();
+  const cleaned = cleanTelegramContent(rawText);
+  const promoEval = evaluatePromotionalNoise(cleaned.cleanedText || rawText);
 
-  const prompt = `You are the Chief FMGE / NExT Medical Examination Director.
+  // Fast-path: If strongly promotional or short chatter without poll data or media, classify immediately
+  if (promoEval.shouldFilterOut && !input.pollData && !input.hasPhoto && !input.hasVideo) {
+    return {
+      category: promoEval.isPromotional ? "PROMOTIONAL" : "GENERAL_CHATTER",
+      subject: "Administration",
+      topic: promoEval.isPromotional ? "Promotional Advertisement" : "Channel Chatter",
+      stem: cleaned.cleanedText || rawText,
+      options: [],
+      correctAnswer: "A",
+      aiAgreementVerdict: "AGREED",
+      aiCrossCheckReason: `Filtered non-clinical post (${promoEval.matchedTriggers.join(", ")}).`,
+      explanation: cleaned.cleanedText || rawText,
+      distractorAnalysis: [],
+      whatToRemember: "",
+      importance: "normal",
+      fmgeRelevanceScore: 0,
+      isHighYield: false,
+    };
+  }
+
+  const ai = getAI();
+  const textToAnalyze = cleaned.cleanedText || rawText;
+
+  const prompt = `You are the Chief FMGE / NExT Medical Examination Director and Knowledge Curator.
 Analyze this medical Telegram message and extract a complete, medically authoritative clinical item.
 
 Source Channel: "${input.channelTitle || "Medical Channel"}"
 Has Photo / Image: ${Boolean(input.hasPhoto)}
 Has Video Attached: ${Boolean(input.hasVideo)}
-Message Text / Caption:
-"""${rawText}"""
+Cleaned Text / Caption:
+"""${textToAnalyze}"""
 
 ${
   input.pollData
@@ -68,20 +110,24 @@ TASK:
    - "IMAGE_BASED_QUESTION" if there is an attached photo, #IBQ, #PYQ visual, or asks to identify an image/ECG/X-Ray/Histology.
    - "VIDEO_DEMONSTRATION" if there is a video attached or demonstrates a clinical maneuver/sign.
    - "MCQ" if it is a clinical vignette or case question with options (or a poll).
+   - "EXAM_PEARL" if it is a high-yield clinical fact, gold standard investigation, first-line drug of choice, or diagnostic triad without question options.
+   - "CLINICAL_TIP" if it is a formula, mnemonic, or rapid revision bullet.
    - "OFFICIAL_NOTICE" if it is an NBEMS/NBE/NExT announcement, exam date, admit card, eligibility, or official notice.
-   - "HIGH_YIELD_TIP" if it is a formula, mnemonic, drug of choice table, or revision bullet.
+   - "PROMOTIONAL" if it is an advertisement for a course, batch, test series subscription, discount code, or fee enquiry.
+   - "GENERAL_CHATTER" if it is casual discussion, student query, or greetings.
+   - "LOW_RELEVANCE" if it has negligible medical value for FMGE preparation.
 
 2. Determine the exact Subject (one of the 19 standard FMGE subjects: Medicine, Surgery, Obstetrics & Gynecology, Preventive & Social Medicine, Pathology, Pharmacology, Anatomy, Physiology, Biochemistry, Microbiology, Forensic Medicine & Toxicology, ENT, Ophthalmology, Pediatrics, Dermatology, Orthopedics, Psychiatry, Radiology, Anesthesia).
 
-3. Clean and format the clinical stem. If the original text is an incomplete question, expand it into an authentic, complete clinical scenario.
+3. Clean and format the clinical stem. If the original text is an incomplete question, expand it into an authentic, complete clinical scenario. Strip all channel promotional handles or footer links.
 
-4. Formulate 4 clear options (A, B, C, D). If only 2 or 3 options were provided, generate authentic clinical distractors.
+4. Formulate 4 clear options (A, B, C, D) if this is an MCQ or Image Question. If only 2 or 3 options were provided, generate authentic clinical distractors.
 
 5. SOLVE THE QUESTION AUTHORITATIVELY:
    - Do NOT default to "A"! Determine the real, evidence-based medical answer (A, B, C, or D).
    - If Telegram indicated an answer key, compare it to the true medical fact.
    - If Telegram is correct, set aiAgreementVerdict: "AGREED".
-   - If Telegram indicated the wrong option (e.g. option A when the true answer is B or C), set aiAgreementVerdict: "DISPUTED_TRAP" and explain why in aiCrossCheckReason.
+   - If Telegram indicated the wrong option, set aiAgreementVerdict: "DISPUTED_TRAP" and explain why in aiCrossCheckReason.
 
 6. Generate distractor analysis:
    - For EVERY wrong option, explain SPECIFICALLY why it is incorrect for this presentation. NEVER use generic boilerplate text.
@@ -89,12 +135,15 @@ TASK:
 7. Generate "whatToRemember":
    - The high-yield takeaway pearl: Investigation of choice, Gold standard, First-line drug of choice, or diagnostic triad.
 
-8. Generate "memoryHook":
-   - A memorable mnemonic or buzzword for instant recall.
+8. Assign "fmgeRelevanceScore" (integer 0 to 100):
+   - 90-100: Critical FMGE high-yield exam pearl, repeat PYQ, or classic IBQ spotter.
+   - 75-89: Very useful clinical scenario or revision mnemonic.
+   - 60-74: General medical information, lower yield for the FMGE licensing exam.
+   - Below 60: Low relevance, promotional, or administrative chatter.
 
 Output STRICTLY valid JSON conforming to this schema:
 {
-  "category": "MCQ" | "IMAGE_BASED_QUESTION" | "VIDEO_DEMONSTRATION" | "HIGH_YIELD_TIP" | "OFFICIAL_NOTICE",
+  "category": "MCQ" | "IMAGE_BASED_QUESTION" | "VIDEO_DEMONSTRATION" | "EXAM_PEARL" | "CLINICAL_TIP" | "OFFICIAL_NOTICE" | "PROMOTIONAL" | "GENERAL_CHATTER" | "LOW_RELEVANCE",
   "subject": "Forensic Medicine & Toxicology",
   "topic": "Specific Clinical Topic Name",
   "stem": "Full clinical vignette...",
@@ -114,7 +163,8 @@ Output STRICTLY valid JSON conforming to this schema:
   ],
   "whatToRemember": "High-Yield FMGE Exam Pearl: Gold standard / First line / Drug of choice",
   "memoryHook": "Mnemonic or clinical buzzword",
-  "importance": "critical" | "important" | "normal"
+  "importance": "critical" | "important" | "normal",
+  "fmgeRelevanceScore": 88
 }`;
 
   const models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-flash-latest"];
@@ -127,7 +177,7 @@ Output STRICTLY valid JSON conforming to this schema:
         config: {
           responseMimeType: "application/json",
           systemInstruction:
-            "You are the Chief FMGE/NExT Medical Board Examiner. Accurately solve clinical questions, never default to Option A, provide authentic distractor reasoning, and output strictly valid JSON.",
+            "You are the Chief FMGE/NExT Medical Board Examiner. Accurately solve clinical questions, never default to Option A, provide authentic distractor reasoning, detect promotional content, and output strictly valid JSON.",
         },
       });
 
@@ -135,19 +185,30 @@ Output STRICTLY valid JSON conforming to this schema:
       const parsed = JSON.parse(text);
 
       if (parsed && (parsed.stem || parsed.whatToRemember || parsed.category)) {
+        const cat = parsed.category || (input.hasPhoto ? "IMAGE_BASED_QUESTION" : input.hasVideo ? "VIDEO_DEMONSTRATION" : "MCQ");
+        const relScore = typeof parsed.fmgeRelevanceScore === "number" ? parsed.fmgeRelevanceScore : scoreFmgeRelevance({
+          text: textToAnalyze,
+          category: cat,
+          hasPhoto: input.hasPhoto,
+          hasVideo: input.hasVideo,
+          hasOptions: Boolean(input.pollData || (parsed.options && parsed.options.length >= 2)),
+        }).score;
+
         return {
-          category: parsed.category || (input.hasPhoto ? "IMAGE_BASED_QUESTION" : input.hasVideo ? "VIDEO_DEMONSTRATION" : "MCQ"),
-          subject: parsed.subject || "General Medicine",
+          category: cat,
+          subject: parsed.subject || mapToFmgeSubject(textToAnalyze).topic,
           topic: parsed.topic || "Clinical High-Yield Recall",
-          stem: parsed.stem || rawText || "Clinical Case Evaluation",
+          stem: parsed.stem || textToAnalyze || "Clinical Case Evaluation",
           options: Array.isArray(parsed.options) && parsed.options.length >= 2
             ? parsed.options
-            : [
-                { key: "A", text: "First clinical option" },
-                { key: "B", text: "Second clinical option" },
-                { key: "C", text: "Third clinical option" },
-                { key: "D", text: "Fourth clinical option" },
-              ],
+            : (cat === "MCQ" || cat === "IMAGE_BASED_QUESTION")
+              ? [
+                  { key: "A", text: "First clinical option" },
+                  { key: "B", text: "Second clinical option" },
+                  { key: "C", text: "Third clinical option" },
+                  { key: "D", text: "Fourth clinical option" },
+                ]
+              : [],
           correctAnswer: parsed.correctAnswer || "A",
           telegramAnswer: parsed.telegramAnswer || input.pollData?.correctKey,
           aiAgreementVerdict: parsed.aiAgreementVerdict || (parsed.telegramAnswer && parsed.telegramAnswer !== parsed.correctAnswer ? "DISPUTED_TRAP" : "AGREED"),
@@ -157,6 +218,8 @@ Output STRICTLY valid JSON conforming to this schema:
           whatToRemember: parsed.whatToRemember || "Master the primary clinical discriminator for this topic.",
           memoryHook: parsed.memoryHook || "",
           importance: parsed.importance || "normal",
+          fmgeRelevanceScore: relScore,
+          isHighYield: relScore >= 75,
         };
       }
     } catch (err: any) {
@@ -172,62 +235,101 @@ function generateResilientOfflineAnalysis(
   rawText: string,
   input: { hasPhoto?: boolean; hasVideo?: boolean; pollData?: any; channelTitle?: string }
 ): TelegramExtractedClinicalItem {
-  const isNotice = /nbems|natboard|nbe|admit card|exam schedule|postponed|official notice|application|result/i.test(rawText);
-  const isPearl = /pearl|remember this|high[- ]yield pearl/i.test(rawText) && !rawText.includes("?");
-  const isTip = /formula|rule of|mnemonic|drug of choice|high[- ]yield tip/i.test(rawText) && !rawText.includes("?");
+  const cleaned = cleanTelegramContent(rawText);
+  const textToAnalyze = cleaned.cleanedText || rawText;
+  const promoEval = evaluatePromotionalNoise(textToAnalyze);
+
+  if (promoEval.shouldFilterOut && !input.pollData && !input.hasPhoto) {
+    return {
+      category: promoEval.isPromotional ? "PROMOTIONAL" : "GENERAL_CHATTER",
+      subject: "Administration",
+      topic: promoEval.isPromotional ? "Promotional Advertisement" : "Channel Chatter",
+      stem: textToAnalyze,
+      options: [],
+      correctAnswer: "A",
+      aiAgreementVerdict: "AGREED",
+      aiCrossCheckReason: "Identified as promotional or conversational chatter.",
+      explanation: textToAnalyze,
+      distractorAnalysis: [],
+      whatToRemember: "",
+      importance: "normal",
+      fmgeRelevanceScore: 0,
+      isHighYield: false,
+    };
+  }
+
+  const isNotice = /nbems|natboard|nbe|admit card|exam schedule|postponed|official notice|application|result/i.test(textToAnalyze);
+  const isPearl = /pearl|remember this|high[- ]yield pearl|gold standard|drug of choice/i.test(textToAnalyze) && !textToAnalyze.includes("?");
+  const isTip = /formula|rule of|mnemonic|rapid revision/i.test(textToAnalyze) && !textToAnalyze.includes("?");
+
+  const relevance = scoreFmgeRelevance({
+    text: textToAnalyze,
+    category: isNotice ? "OFFICIAL_NOTICE" : isPearl ? "EXAM_PEARL" : isTip ? "CLINICAL_TIP" : "MCQ",
+    hasPhoto: input.hasPhoto,
+    hasVideo: input.hasVideo,
+    hasOptions: Boolean(input.pollData),
+  });
+
+  const subjectMapping = mapToFmgeSubject(textToAnalyze);
 
   if (isNotice) {
     return {
       category: "OFFICIAL_NOTICE",
       subject: "Exam Administration",
       topic: "NBEMS Official Notice",
-      stem: rawText || "Official NBEMS Announcement",
+      stem: textToAnalyze || "Official NBEMS Announcement",
       options: [],
       correctAnswer: "A",
       aiAgreementVerdict: "AGREED",
       aiCrossCheckReason: "Official regulatory notice verified from monitored channel.",
-      explanation: rawText,
+      explanation: textToAnalyze,
       distractorAnalysis: [],
       whatToRemember: "Check official NBEMS portal for schedule deadlines.",
-      importance: /postponed|critical|urgent/i.test(rawText) ? "critical" : "important",
+      importance: /postponed|critical|urgent/i.test(textToAnalyze) ? "critical" : "important",
+      fmgeRelevanceScore: relevance.score,
+      isHighYield: relevance.isHighYield,
     };
   }
 
   if (isPearl) {
     return {
-      category: "PEARL" as any,
-      subject: "Clinical Medicine",
+      category: "EXAM_PEARL",
+      subject: subjectMapping.topic,
       topic: "High-Yield Medical Pearl",
-      stem: rawText,
+      stem: textToAnalyze,
       options: [],
       correctAnswer: "A",
       aiAgreementVerdict: "AGREED",
       aiCrossCheckReason: "Verified high-yield clinical pearl.",
-      explanation: rawText,
+      explanation: textToAnalyze,
       distractorAnalysis: [],
-      whatToRemember: rawText,
+      whatToRemember: textToAnalyze,
       importance: "normal",
+      fmgeRelevanceScore: Math.max(75, relevance.score),
+      isHighYield: true,
     };
   }
 
   if (isTip) {
     return {
-      category: "HIGH_YIELD_TIP",
-      subject: "Clinical Medicine",
-      topic: "High-Yield Medical Pearl",
-      stem: rawText,
+      category: "CLINICAL_TIP",
+      subject: subjectMapping.topic,
+      topic: "High-Yield Clinical Tip",
+      stem: textToAnalyze,
       options: [],
       correctAnswer: "A",
       aiAgreementVerdict: "AGREED",
       aiCrossCheckReason: "Verified rapid-review clinical tip.",
-      explanation: rawText,
+      explanation: textToAnalyze,
       distractorAnalysis: [],
-      whatToRemember: rawText,
+      whatToRemember: textToAnalyze,
       importance: "normal",
+      fmgeRelevanceScore: relevance.score,
+      isHighYield: relevance.isHighYield,
     };
   }
 
-  const lines = rawText.split("\n").map((l) => l.trim()).filter(Boolean);
+  const lines = textToAnalyze.split("\n").map((l) => l.trim()).filter(Boolean);
   const parsedOptions: { key: string; text: string }[] = [];
   let parsedCorrect = "A";
   let extractedStem = lines[0] || "Clinical Case Question";
@@ -252,7 +354,7 @@ function generateResilientOfflineAnalysis(
 
   return {
     category,
-    subject: "General Medicine",
+    subject: subjectMapping.topic,
     topic: "Clinical High-Yield Practice",
     stem: input.pollData?.question || extractedStem || "Clinical vignette question",
     options,
@@ -270,5 +372,7 @@ function generateResilientOfflineAnalysis(
     whatToRemember: "Identify the primary clinical discriminator to rule out distractor options.",
     memoryHook: "Focus on first-line vs gold standard investigation criteria.",
     importance: "normal",
+    fmgeRelevanceScore: Math.max(70, relevance.score),
+    isHighYield: relevance.score >= 75,
   };
 }

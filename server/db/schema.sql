@@ -153,3 +153,25 @@ CREATE TABLE IF NOT EXISTS worker_heartbeats (
     last_error TEXT,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS canonical_items (
+    id VARCHAR(64) PRIMARY KEY,
+    type VARCHAR(32) NOT NULL,
+    subject VARCHAR(64) NOT NULL DEFAULT 'medicine',
+    topic VARCHAR(128) NOT NULL DEFAULT 'Clinical High-Yield',
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    options JSONB DEFAULT '[]'::jsonb,
+    correct_answer VARCHAR(8),
+    explanation TEXT,
+    what_to_remember TEXT,
+    distractor_analysis JSONB DEFAULT '[]'::jsonb,
+    fmge_relevance_score INTEGER DEFAULT 80,
+    sources JSONB DEFAULT '[]'::jsonb,
+    media_url TEXT,
+    media_type VARCHAR(32) DEFAULT 'NONE',
+    is_high_yield BOOLEAN DEFAULT TRUE,
+    content_fingerprint VARCHAR(64),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

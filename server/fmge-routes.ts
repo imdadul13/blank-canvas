@@ -3049,12 +3049,44 @@ app.get(["/api/telegram/health", "/api/telegram/cloud/status"], (req, res) => {
   const account = CloudDb.getAccount();
   const heartbeat = CloudDb.getHeartbeat();
   const monitoredSources = CloudDb.getSources(true);
+  const db = getCloudDatabase();
+
+  const isConnected = Boolean(account && account.isAuthenticated);
+  const totalCurated = (db.canonicalItems || []).filter((c) => c.isHighYield).length;
+  const totalRaw = (db.messages || []).length;
+  const totalSaved = (db.savedItems || []).length;
 
   res.json({
     success: true,
-    telegramConnected: Boolean(account && account.isAuthenticated),
-    authenticated: Boolean(account && account.isAuthenticated),
-    isConnected: Boolean(account && account.isAuthenticated),
+    isConnected,
+    telegramConnected: isConnected,
+    authenticated: isConnected,
+    telegram: {
+      connected: isConnected,
+      account: account?.phoneNumber || account?.username || account?.firstName || null,
+      lastConnectedAt: account?.connectedAt || null,
+    },
+    worker: {
+      running: heartbeat?.workerStatus === "ONLINE",
+      status: heartbeat?.workerStatus || "ONLINE",
+      lastHeartbeat: heartbeat?.lastHeartbeat || new Date().toISOString(),
+      lastSyncAt: heartbeat?.lastSuccessfulTelegramUpdate || null,
+      lastSync: heartbeat?.lastSuccessfulTelegramUpdate || null,
+      activeSourcesCount: monitoredSources.length,
+      lastError: heartbeat?.lastError || null,
+    },
+    database: {
+      healthy: true,
+      status: "CONNECTED",
+      totalCurated,
+      totalRaw,
+      totalSaved,
+      totalMessages: db.messages.length,
+      totalQuestions: db.questions.length,
+      totalPearls: db.pearls.length,
+      totalNotices: db.notices.length,
+      totalTips: db.tips.length,
+    },
     userProfile: account
       ? {
           id: account.userId,
@@ -3064,20 +3096,6 @@ app.get(["/api/telegram/health", "/api/telegram/cloud/status"], (req, res) => {
           connectedAt: account.connectedAt,
         }
       : null,
-    worker: {
-      status: heartbeat?.workerStatus || "ONLINE",
-      lastHeartbeat: heartbeat?.lastHeartbeat || new Date().toISOString(),
-      activeSourcesCount: monitoredSources.length,
-      lastSync: heartbeat?.lastSuccessfulTelegramUpdate,
-    },
-    database: {
-      status: "CONNECTED",
-      totalMessages: getCloudDatabase().messages.length,
-      totalQuestions: getCloudDatabase().questions.length,
-      totalPearls: getCloudDatabase().pearls.length,
-      totalNotices: getCloudDatabase().notices.length,
-      totalTips: getCloudDatabase().tips.length,
-    },
   });
 });
 
@@ -3125,7 +3143,18 @@ app.post(["/api/telegram/sync-now", "/api/telegram/cloud/sync-now"], async (req,
     setTimeout(() => {
       reEnrichExistingKnowledgeBank().catch((e) => console.warn("[ReEnrichment] Async error:", e?.message));
     }, 500);
-    res.json(result);
+    res.json({
+      success: result.success,
+      diagnostics: result.diagnostics,
+      monitoredSourcesCount: result.monitoredSourcesCount,
+      newMessagesCount: result.newMessagesCount,
+      newQuestionsCount: result.newQuestionsCount,
+      newPearlsCount: result.newPearlsCount,
+      promotionalFilteredCount: result.promotionalFilteredCount,
+      duplicatesMergedCount: result.duplicatesMergedCount,
+      curatedKnowledgeCount: result.curatedKnowledgeCount,
+      error: result.error,
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message || "Manual sync failed." });
   }
@@ -3143,9 +3172,60 @@ app.post(["/api/telegram/re-enrich", "/api/telegram/cloud/re-enrich"], async (re
 
 // 13. Knowledge Bank Feed
 app.get(["/api/telegram/feed", "/api/telegram/cloud/feed"], (req, res) => {
+  const {
+    type,
+    subject,
+    topic,
+    channel,
+    highYield,
+    minRelevance,
+    processingState,
+    search,
+    page,
+    limit,
+  } = req.query;
+
   const db = getCloudDatabase();
+
+  const curatedQueryResult = CloudDb.queryCuratedCanonicalItems({
+    type: typeof type === "string" ? (type as any) : undefined,
+    subject: typeof subject === "string" ? subject : undefined,
+    topic: typeof topic === "string" ? topic : undefined,
+    channel: typeof channel === "string" ? channel : undefined,
+    highYield: typeof highYield === "string" || typeof highYield === "boolean" ? highYield : undefined,
+    minRelevance: typeof minRelevance === "string" || typeof minRelevance === "number" ? minRelevance : undefined,
+    search: typeof search === "string" ? search : undefined,
+    page: typeof page === "string" || typeof page === "number" ? page : undefined,
+    limit: typeof limit === "string" || typeof limit === "number" ? limit : undefined,
+  });
+
+  const rawMessagesQueryResult = CloudDb.queryRawMessages({
+    processingState: typeof processingState === "string" ? processingState : undefined,
+    sourceId: typeof channel === "string" ? channel : undefined,
+    search: typeof search === "string" ? search : undefined,
+    page: typeof page === "string" || typeof page === "number" ? page : undefined,
+    limit: typeof limit === "string" || typeof limit === "number" ? limit : undefined,
+  });
+
+  const diagnostics = CloudDb.getPipelineDiagnostics();
+  const counts = CloudDb.getCuratedCounts();
+  const canonicalItems = CloudDb.getCanonicalItems();
+
   res.json({
     success: true,
+    curatedItems: curatedQueryResult.items,
+    rawMessages: rawMessagesQueryResult.items,
+    diagnostics,
+    counts,
+    pagination: {
+      page: curatedQueryResult.page,
+      limit: curatedQueryResult.limit,
+      total: curatedQueryResult.total,
+      hasMore: curatedQueryResult.hasMore,
+    },
+    // Backward compatibility fields:
+    canonicalItems,
+    curatedFeed: curatedQueryResult.items,
     questions: db.questions,
     messages: db.messages,
     media: db.media,

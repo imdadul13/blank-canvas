@@ -1,135 +1,137 @@
 import React from "react";
-import { Database, HelpCircle, Image, Video, Layers } from "lucide-react";
+import { Sparkles, Award, FileText, Image as ImageIcon, Video as VideoIcon, Lightbulb, Bell, CheckCircle } from "lucide-react";
+import { KnowledgeBankCounts } from "../../types";
 
 interface TelegramOverviewCardProps {
-  totalItems: number;
-  questionCount: number;
-  imageCount: number;
-  videoCount: number;
-  pearlCount: number;
+  counts?: KnowledgeBankCounts;
+  totalItems?: number;
   channelCount?: number;
 }
 
 export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
-  totalItems,
-  questionCount,
-  imageCount,
-  videoCount,
-  pearlCount,
-  channelCount,
+  counts,
+  channelCount = 0,
 }) => {
-  // Mobile short compact format (e.g. 12.8K or exact)
-  const formatCompact = (n: number) => {
-    if (n >= 1000) {
-      return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K";
-    }
-    return n.toString();
-  };
+  const total = counts?.totalCurated ?? 0;
+  const pearls = counts?.examPearls ?? 0;
+  const questions = counts?.questions ?? 0;
+  const images = counts?.imageSpotters ?? 0;
+  const videos = counts?.videos ?? 0;
+  const tips = counts?.clinicalTips ?? 0;
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-5">
-        {/* Left: Branding & Explanation */}
-        <div className="flex items-center gap-3 sm:gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100/90 shadow-2xs shrink-0">
-            <Database className="w-4.5 h-4.5 stroke-[2]" />
+    <div className="rounded-2xl sm:rounded-3xl border border-teal-100/90 bg-gradient-to-br from-white via-white to-teal-50/30 p-4 sm:p-5 shadow-2xs">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-5">
+        {/* Left: ONE SHOT CURATED Branding */}
+        <div className="flex items-start sm:items-center gap-3 sm:gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-[#00685f]/10 text-[#00685f] flex items-center justify-center border border-[#00685f]/20 shadow-2xs shrink-0 mt-0.5 sm:mt-0">
+            <Sparkles className="w-5 h-5 stroke-[2.2]" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm sm:text-base font-extrabold uppercase tracking-tight bg-gradient-to-r from-slate-900 to-sky-900 bg-clip-text text-transparent font-['Outfit']">
-                CLOUD INGESTION REPOSITORY
-              </h3>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[9.5px] font-bold font-mono tracking-widest uppercase bg-sky-50 text-sky-700 border border-sky-200/80">
-                LIVE METRICS
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-bold font-mono uppercase tracking-widest text-[#00685f]">
+                ONE SHOT CURATED
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <CheckCircle className="w-3 h-3 text-emerald-600" />
+                {total > 0 ? "Noise Filtered" : "Ready to Sync"}
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5 max-w-xl leading-relaxed">
-              High-yield content from trusted Telegram channels, organized for your FMGE preparation.
+            <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 font-['Outfit'] mt-0.5">
+              {total > 0 ? (
+                <span>
+                  <strong className="text-[#00685f]">{total}</strong> worth reviewing
+                </span>
+              ) : (
+                <span className="text-slate-600 font-medium text-sm sm:text-base">Nothing new worth reviewing yet.</span>
+              )}
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+              {total > 0
+                ? `High-yield FMGE pearls and clinical recall questions curated from ${channelCount || "verified"} subscribed sources.`
+                : "Sync your subscribed channels to ingest and filter incoming clinical materials."}
             </p>
           </div>
         </div>
 
-        {/* Right: Metrics Strip (Desktop / Tablet) */}
-        <div className="hidden sm:flex items-center flex-wrap gap-4 sm:gap-5 lg:gap-7 divide-x divide-stone-100 shrink-0">
-          <div className="text-left pl-0">
-            <div className="font-mono text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
-              {totalItems.toLocaleString()}
-            </div>
-            <div className="text-[11px] font-medium text-slate-500 mt-0.5">
-              Total Items
-            </div>
-          </div>
+        {/* Right: Real Educational Metrics Strip (Desktop / Tablet) */}
+        {total > 0 ? (
+          <div className="hidden sm:flex items-center flex-wrap gap-3 sm:gap-4 lg:gap-6 divide-x divide-stone-100 shrink-0">
+            {pearls > 0 && (
+              <div className="text-left pl-0">
+                <div className="flex items-center gap-1.5 font-mono text-lg lg:text-xl font-bold text-rose-700 tracking-tight">
+                  <Award className="w-4 h-4 text-rose-600" />
+                  <span>{pearls}</span>
+                </div>
+                <div className="text-[11px] font-medium text-slate-500">Exam Pearls</div>
+              </div>
+            )}
 
-          <div className="text-left pl-4 sm:pl-5 lg:pl-7">
-            <div className="font-mono text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
-              {questionCount.toLocaleString()}
-            </div>
-            <div className="text-[11px] font-medium text-slate-500 mt-0.5">
-              Questions
-            </div>
-          </div>
+            {questions > 0 && (
+              <div className={`text-left ${pearls > 0 ? "pl-3 sm:pl-4 lg:pl-6" : "pl-0"}`}>
+                <div className="flex items-center gap-1.5 font-mono text-lg lg:text-xl font-bold text-[#00685f] tracking-tight">
+                  <FileText className="w-4 h-4 text-[#00685f]" />
+                  <span>{questions}</span>
+                </div>
+                <div className="text-[11px] font-medium text-slate-500">Clinical Questions</div>
+              </div>
+            )}
 
-          <div className="text-left pl-4 sm:pl-5 lg:pl-7">
-            <div className="font-mono text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
-              {imageCount.toLocaleString()}
-            </div>
-            <div className="text-[11px] font-medium text-slate-500 mt-0.5">
-              Images
-            </div>
-          </div>
+            {images > 0 && (
+              <div className="text-left pl-3 sm:pl-4 lg:pl-6">
+                <div className="flex items-center gap-1.5 font-mono text-lg lg:text-xl font-bold text-teal-700 tracking-tight">
+                  <ImageIcon className="w-4 h-4 text-teal-600" />
+                  <span>{images}</span>
+                </div>
+                <div className="text-[11px] font-medium text-slate-500">Image Spotters</div>
+              </div>
+            )}
 
-          <div className="text-left pl-4 sm:pl-5 lg:pl-7">
-            <div className="font-mono text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
-              {videoCount.toLocaleString()}
-            </div>
-            <div className="text-[11px] font-medium text-slate-500 mt-0.5">
-              Videos
-            </div>
-          </div>
+            {videos > 0 && (
+              <div className="text-left pl-3 sm:pl-4 lg:pl-6">
+                <div className="flex items-center gap-1.5 font-mono text-lg lg:text-xl font-bold text-purple-700 tracking-tight">
+                  <VideoIcon className="w-4 h-4 text-purple-600" />
+                  <span>{videos}</span>
+                </div>
+                <div className="text-[11px] font-medium text-slate-500">Clinical Videos</div>
+              </div>
+            )}
 
-          <div className="text-left pl-4 sm:pl-5 lg:pl-7">
-            <div className="font-mono text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
-              {pearlCount.toLocaleString()}
-            </div>
-            <div className="text-[11px] font-medium text-slate-500 mt-0.5">
-              Exam Pearls
-            </div>
+            {tips > 0 && (
+              <div className="text-left pl-3 sm:pl-4 lg:pl-6">
+                <div className="flex items-center gap-1.5 font-mono text-lg lg:text-xl font-bold text-amber-700 tracking-tight">
+                  <Lightbulb className="w-4 h-4 text-amber-600" />
+                  <span>{tips}</span>
+                </div>
+                <div className="text-[11px] font-medium text-slate-500">Rapid Tips</div>
+              </div>
+            )}
           </div>
-        </div>
+        ) : null}
 
-        {/* Mobile Metrics Grid */}
-        <div className="sm:hidden grid grid-cols-3 gap-2.5 pt-2 border-t border-stone-100">
-          <div className="bg-stone-50 rounded-xl p-2.5 text-center">
-            <div className="font-mono text-base font-bold text-slate-900">
-              {formatCompact(totalItems)}
-            </div>
-            <div className="text-[10px] text-slate-500 font-medium">Items</div>
+        {/* Mobile Metrics Strip */}
+        {total > 0 && (
+          <div className="sm:hidden grid grid-cols-3 gap-2 pt-2 border-t border-teal-100/80">
+            {pearls > 0 && (
+              <div className="bg-rose-50/60 rounded-xl p-2 text-center border border-rose-100">
+                <div className="font-mono text-sm font-bold text-rose-800">{pearls}</div>
+                <div className="text-[10px] text-rose-600 font-medium">Pearls</div>
+              </div>
+            )}
+            {questions > 0 && (
+              <div className="bg-teal-50/60 rounded-xl p-2 text-center border border-teal-100">
+                <div className="font-mono text-sm font-bold text-teal-800">{questions}</div>
+                <div className="text-[10px] text-teal-600 font-medium">Questions</div>
+              </div>
+            )}
+            {images > 0 && (
+              <div className="bg-sky-50/60 rounded-xl p-2 text-center border border-sky-100">
+                <div className="font-mono text-sm font-bold text-sky-800">{images}</div>
+                <div className="text-[10px] text-sky-600 font-medium">Spotters</div>
+              </div>
+            )}
           </div>
-          <div className="bg-stone-50 rounded-xl p-2.5 text-center">
-            <div className="font-mono text-base font-bold text-slate-900">
-              {formatCompact(questionCount)}
-            </div>
-            <div className="text-[10px] text-slate-500 font-medium">Questions</div>
-          </div>
-          <div className="bg-stone-50 rounded-xl p-2.5 text-center">
-            <div className="font-mono text-base font-bold text-slate-900">
-              {formatCompact(imageCount)}
-            </div>
-            <div className="text-[10px] text-slate-500 font-medium">Images</div>
-          </div>
-          <div className="bg-stone-50 rounded-xl p-2.5 text-center">
-            <div className="font-mono text-base font-bold text-slate-900">
-              {formatCompact(videoCount)}
-            </div>
-            <div className="text-[10px] text-slate-500 font-medium">Videos</div>
-          </div>
-          <div className="bg-stone-50 rounded-xl p-2.5 text-center col-span-2">
-            <div className="font-mono text-base font-bold text-slate-900">
-              {formatCompact(pearlCount)}
-            </div>
-            <div className="text-[10px] text-slate-500 font-medium">Exam Pearls</div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

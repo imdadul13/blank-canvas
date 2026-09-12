@@ -279,6 +279,63 @@ export interface TelegramSyncDiagnostics {
   status: 'idle' | 'syncing' | 'live' | 'paused' | 'error';
 }
 
+export interface CanonicalKnowledgeItem {
+  id: string;
+  type: "question" | "pearl" | "image" | "video" | "tip" | "notice";
+  subject: string;
+  topic: string;
+  title: string;
+  content: string;
+  options?: { key: string; text: string }[];
+  correctAnswer?: string;
+  explanation?: string;
+  whatToRemember?: string;
+  distractorAnalysis?: { key: string; reason: string }[];
+  fmgeRelevanceScore: number;
+  sources: { sourceId: string; sourceTitle: string; messageId: string; date: string }[];
+  mediaUrl?: string;
+  mediaType?: "IMAGE" | "VIDEO" | "POLL" | "NONE";
+  isHighYield: boolean;
+  contentFingerprint: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface KnowledgeBankCounts {
+  totalCurated: number;
+  examPearls: number;
+  questions: number;
+  imageSpotters: number;
+  videos: number;
+  clinicalTips: number;
+  notices: number;
+}
+
+export interface KnowledgeBankDiagnostics {
+  scanned: number;
+  newMessages: number;
+  promotionalFiltered: number;
+  duplicatesMerged: number;
+  lowYieldFiltered: number;
+  curatedItems: number;
+  failed: number;
+  lastSyncAt: string | null;
+}
+
+export interface FormattedRawTelegramMessage {
+  id: string;
+  telegramMessageId: number;
+  sourceId: string;
+  sourceTitle: string;
+  messageDate: string;
+  rawText: string;
+  mediaType: "NONE" | "IMAGE" | "VIDEO" | "DOCUMENT" | "AUDIO" | "POLL";
+  status: "RECEIVED" | "CLASSIFYING" | "EXTRACTING" | "MEDIA_PROCESSING" | "AI_CHECK" | "PROCESSED" | "PROMOTIONAL" | "LOW_YIELD" | "DUPLICATE" | "FAILED";
+  reason?: string;
+  receivedAt: string;
+  mediaUrls: string[];
+}
+
 export interface AiCrossCheckResult {
   status: 'verified' | 'needs_review' | 'inconsistent';
   notes: string;
