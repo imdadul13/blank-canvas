@@ -1280,41 +1280,45 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
   // Single Question Answer Handler
   const handleSingleQuizAnswer = (msgId: string, selectedKey: string) => {
-    setMessages(prev =>
-      prev.map(msg => {
-        if (msg.id === msgId && msg.singleQuiz) {
-          const isCorrect = selectedKey === msg.singleQuiz.correctKey;
-          const resolved = resolveMedicalTopic(msg.singleQuiz.topic) || resolveMedicalTopic(msg.singleQuiz.subject);
-          const resolvedSubId = resolved?.subjectId || msg.singleQuiz.subject.toLowerCase().replace(/[^a-z]/g, '') || 'medicine';
-          const resolvedTopicName = resolved?.canonicalTopic || msg.singleQuiz.topic || 'Clinical Vignette';
-          const resolvedTopicId = resolvedTopicName.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 40);
+    const targetMsg = messages.find((m) => m.id === msgId && m.singleQuiz);
+    if (targetMsg && targetMsg.singleQuiz) {
+      const isCorrect = selectedKey === targetMsg.singleQuiz.correctKey;
+      const resolved = resolveMedicalTopic(targetMsg.singleQuiz.topic) || resolveMedicalTopic(targetMsg.singleQuiz.subject);
+      const resolvedSubId = resolved?.subjectId || targetMsg.singleQuiz.subject.toLowerCase().replace(/[^a-z]/g, '') || 'medicine';
+      const resolvedTopicName = resolved?.canonicalTopic || targetMsg.singleQuiz.topic || 'Clinical Vignette';
+      const resolvedTopicId = resolvedTopicName.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 40);
 
-          if (onRecordAttempt) {
-            onRecordAttempt({
-              questionId: msg.singleQuiz.id,
-              subjectId: resolvedSubId,
-              topicId: resolvedTopicId,
-              topicName: resolvedTopicName,
-              subtopic: msg.singleQuiz.topic,
-              isCorrect,
-              selectedAnswer: selectedKey,
-              correctAnswer: msg.singleQuiz.correctKey,
-              timeTakenSeconds: 45,
-              difficulty: 'high-yield',
-              source: 'mentor' as any,
-              notes: msg.singleQuiz.stem || msg.singleQuiz.question,
-              isImageBased: Boolean(msg.singleQuiz.imageUrl),
-              imageCategory: msg.singleQuiz.imageAsset?.imageCategory,
-              imageUrl: msg.singleQuiz.imageUrl,
-              imageAssetId: msg.singleQuiz.imageAsset?.assetId,
-            });
-          }
+      if (onRecordAttempt) {
+        onRecordAttempt({
+          questionId: targetMsg.singleQuiz.id,
+          subjectId: resolvedSubId,
+          topicId: resolvedTopicId,
+          topicName: resolvedTopicName,
+          subtopic: targetMsg.singleQuiz.topic,
+          isCorrect,
+          selectedAnswer: selectedKey,
+          correctAnswer: targetMsg.singleQuiz.correctKey,
+          timeTakenSeconds: 45,
+          difficulty: 'high-yield',
+          source: 'mentor' as any,
+          notes: targetMsg.singleQuiz.stem || targetMsg.singleQuiz.question,
+          isImageBased: Boolean(targetMsg.singleQuiz.imageUrl),
+          imageCategory: targetMsg.singleQuiz.imageAsset?.imageCategory,
+          imageUrl: targetMsg.singleQuiz.imageUrl,
+          imageAssetId: targetMsg.singleQuiz.imageAsset?.assetId,
+        });
+      }
+    }
+
+    setMessages((prev) =>
+      prev.map((msg) => {
+        if (msg.id === msgId && msg.singleQuiz) {
           return {
             ...msg,
             singleQuiz: {
               ...msg.singleQuiz,
               userAnswer: selectedKey,
-            }
+            },
           };
         }
         return msg;

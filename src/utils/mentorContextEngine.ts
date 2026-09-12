@@ -267,6 +267,9 @@ export const MEDICAL_TOPIC_ALIASES: Record<string, ResolvedMedicalTopic> = {
   // Nephrology
   psgn: { canonicalTopic: 'Post-Streptococcal Glomerulonephritis', canonicalSubject: 'General Medicine', subjectId: 'medicine', aliasMatched: 'PSGN', discriminatorConcept: 'Nephritic syndrome, group A strep pyoderma/pharyngitis, low C3, subepithelial lumpy-bumpy humps' },
   mcd: { canonicalTopic: 'Minimal Change Disease', canonicalSubject: 'General Medicine', subjectId: 'medicine', aliasMatched: 'MCD', discriminatorConcept: 'Nephrotic syndrome in pediatrics, normal light microscopy, podocyte effacement on EM, steroid responsive' },
+  'minimal change disease': { canonicalTopic: 'Minimal Change Disease', canonicalSubject: 'General Medicine', subjectId: 'medicine', aliasMatched: 'Minimal Change Disease', discriminatorConcept: 'Nephrotic syndrome in pediatrics, normal light microscopy, podocyte effacement on EM, steroid responsive' },
+  'nephrotic syndrome': { canonicalTopic: 'Nephrotic Syndrome', canonicalSubject: 'General Medicine', subjectId: 'medicine', aliasMatched: 'Nephrotic Syndrome' },
+  'nephritic syndrome': { canonicalTopic: 'Nephritic Syndrome', canonicalSubject: 'General Medicine', subjectId: 'medicine', aliasMatched: 'Nephritic Syndrome' },
   fsgs: { canonicalTopic: 'Focal Segmental Glomerulosclerosis', canonicalSubject: 'General Medicine', subjectId: 'medicine', aliasMatched: 'FSGS' },
   mn: { canonicalTopic: 'Membranous Nephropathy', canonicalSubject: 'General Medicine', subjectId: 'medicine', aliasMatched: 'MN', discriminatorConcept: 'Spike and dome on silver stain, subepithelial IgG/C3, PLA2R antibodies' },
 

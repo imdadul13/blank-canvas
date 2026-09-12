@@ -1525,19 +1525,35 @@ export function getTopicClinicalMCQBatch(
     pool = AI_COACH_QUESTION_BANK['physiology'] || [];
   }
 
-  // If pool has enough, return sliced copy
-  if (pool.length >= count) {
-    return pool.slice(0, count).map((q) => ({
+  // Deduplicate against conversation history to avoid repeating questions in successive batches
+  const historyText = history.map((h) => h.content || '').join(' ').toLowerCase();
+  const filteredPool = pool.filter((q) => {
+    if (!historyText) return true;
+    const stemSnippet = (q.stem || '').slice(0, 35).toLowerCase();
+    const qSnippet = (q.question || '').slice(0, 35).toLowerCase();
+    if (stemSnippet && historyText.includes(stemSnippet)) return false;
+    if (qSnippet && historyText.includes(qSnippet)) return false;
+    return true;
+  });
+
+  // If filtered pool has enough fresh questions, return them
+  if (filteredPool.length >= count) {
+    return filteredPool.slice(0, count).map((q) => ({
       ...q,
       provenance: q.provenance || 'Mentor Practice',
     }));
   }
 
-  // If pool has some, return all from pool plus generated items
-  const results = pool.map((q) => ({ ...q, provenance: q.provenance || 'Mentor Practice' }));
-  while (results.length < count) {
+  // If filtered pool has some, return them plus generated fresh items
+  const results = filteredPool.map((q) => ({ ...q, provenance: q.provenance || 'Mentor Practice' }));
+  let iteration = 0;
+  while (results.length < count && iteration < count * 3) {
+    iteration++;
     const nextQ = generateStructuredClinicalMCQ(`${topic} question ${results.length + 1}`, null, history);
-    results.push({ ...nextQ, provenance: 'Mentor Practice' });
+    const nextSnippet = (nextQ.stem || nextQ.question || '').slice(0, 35).toLowerCase();
+    if (!historyText.includes(nextSnippet) || iteration > count) {
+      results.push({ ...nextQ, provenance: 'Mentor Practice' });
+    }
   }
   return results.slice(0, count);
 }
