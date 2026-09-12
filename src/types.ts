@@ -568,10 +568,61 @@ export type McqAttemptSource =
   | 'grand_test'
   | 'error_vault'
   | 'ai_coach'
+  | 'mentor'
   | 'telegram'
   | 'recommended_video_practice'
   | 'custom'
   | 'other';
+
+export type MentorMode =
+  | 'EXPLAIN'
+  | 'COMPARE'
+  | 'MCQ'
+  | 'QUIZ'
+  | 'REMEDIATION'
+  | 'REVISION'
+  | 'WEAK_AREA'
+  | 'FREE_CHAT';
+
+export interface NormalizedMentorContext {
+  examDate?: string;
+  daysToExam: number;
+  targetScore: number;
+  weakSubjects: string[];
+  weakTopics: string[];
+  recentSubjects: string[];
+  recentTopics: string[];
+  recentQuestionAttempts: Array<{
+    id?: string;
+    topic: string;
+    subject: string;
+    isCorrect: boolean;
+    timestamp: string;
+    source?: McqAttemptSource;
+  }>;
+  recentMistakes: Array<{
+    id?: string;
+    topic: string;
+    subject: string;
+    concept?: string;
+    mistake?: string;
+    correctConcept?: string;
+    timestamp?: string;
+  }>;
+  subjectAccuracy: Record<string, number>;
+  topicAccuracy: Record<string, number>;
+  studyStreak: number;
+  studyTime: number; // in minutes
+  completedTopics: number;
+  currentConversation?: {
+    id: string;
+    title?: string;
+    messageCount: number;
+  };
+  currentTopic?: string;
+  currentSubject?: string;
+  currentMode: MentorMode;
+}
 
 export interface NormalizedTopicIntelligence {
   subjectId: string;

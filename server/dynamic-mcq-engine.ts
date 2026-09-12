@@ -38,6 +38,48 @@ export interface StructuredMCQ {
   annotatedImageUrl?: string;
   imageAsset?: MedicalImageAsset;
   whatToLookFor?: string;
+  provenance?: 'AI Practice' | 'Mentor Practice' | 'Verified PYQ';
+}
+
+export function isPyqRequest(rawQuery: string): boolean {
+  if (!rawQuery) return false;
+  return /\b(?:pyq|past\s*years?|previous\s*years?|exam\s*recalls?|neet\s*pg\s*pyqs?|fmge\s*pyqs?|ini\s*cet\s*pyqs?)\b/i.test(rawQuery);
+}
+
+export function lookupVerifiedPyq(subject: string, topic: string): StructuredMCQ | null {
+  // Check verified knowledge bank if questions exist with PYQ tags for this subject/topic
+  try {
+    const rawData = fs.readFileSync(path.join(process.cwd(), 'data/telegram-knowledge-bank.json'), 'utf-8');
+    const parsed = JSON.parse(rawData);
+    const questions = parsed?.items || parsed?.questions || [];
+    const lowerTopic = (topic || '').toLowerCase();
+    const lowerSubject = (subject || '').toLowerCase();
+
+    for (const q of questions) {
+      const tags = (q.tags || []).map((t: string) => t.toLowerCase());
+      const hasPyqTag = tags.some((t: string) => t.includes('pyq') || t.includes('recall'));
+      if (hasPyqTag && q.options && q.options.length >= 4 && q.correctKey) {
+        const text = (q.text || q.question || '').toLowerCase();
+        if (text.includes(lowerTopic) || (lowerTopic.length > 4 && text.includes(lowerTopic.slice(0, 5)))) {
+          return {
+            subject: q.subject || subject,
+            topic: q.topic || topic,
+            questionType: 'clinical_vignette',
+            stem: q.stem || q.text || q.question,
+            question: q.question || 'What is the correct diagnosis or intervention?',
+            options: q.options,
+            correctAnswer: q.correctKey,
+            explanation: q.explanation || 'Verified historical examination recall question.',
+            distractorBreakdown: {},
+            fmgeTakeaway: 'Verified past year exam concept.',
+            memoryHook: 'High-yield repeat concept.',
+            provenance: 'Verified PYQ',
+          };
+        }
+      }
+    }
+  } catch {}
+  return null;
 }
 
 export function detectImageQuestionRequest(rawQuery: string): {
@@ -291,6 +333,20 @@ export function classifyTopicAndSubject(
   }
 
   const clean = cleanQueryString(rawQuery);
+
+  // High-Yield Acronym & Clinical Entity Resolutions
+  if (/\b(?:mi|acute\s*mi|acs\s*stemi|stemi|nstemi|myocardial\s*infarction)\b/i.test(rawQuery)) {
+    return { subject: 'General Medicine', topic: 'Cardiology · Arrhythmias, MI & Heart Blocks' };
+  }
+  if (/\b(?:uc|ulcerative\s*colitis)\b/i.test(rawQuery)) {
+    return { subject: 'General Medicine', topic: 'Gastroenterology · Inflammatory Bowel Disease' };
+  }
+  if (/\b(?:psgn|post\s*streptococcal\s*glomerulonephritis)\b/i.test(rawQuery)) {
+    return { subject: 'General Medicine', topic: 'Nephrology · AKI, CKD & Glomerular Diseases' };
+  }
+  if (/\b(?:dka|diabetic\s*ketoacidosis|hhs|hyperosmolar\s*hyperglycemic)\b/i.test(rawQuery)) {
+    return { subject: 'General Medicine', topic: 'Endocrinology · Diabetic Ketoacidosis & Hyperglycemic Crises' };
+  }
 
   // 1. Pulmonology / Respiratory Medicine
   if (lower.includes('asthma') || lower.includes('copd') || lower.includes('gina') || /\bgold\s+guidelines?\b/i.test(rawQuery) || /\bgold\s+stage\b/i.test(rawQuery) || lower.includes('spirometr') || lower.includes('fev1') || lower.includes('bronchodilat') || lower.includes('pulmonolog') || lower.includes('emphysema') || lower.includes('chronic bronchitis')) {
@@ -1429,6 +1485,7 @@ export function generateStructuredClinicalMCQ(
     annotatedImageUrl: attachedImageAsset?.annotatedImageUrl,
     imageAsset: attachedImageAsset || undefined,
     whatToLookFor: attachedImageAsset?.whatToLookFor,
+    provenance: 'Mentor Practice',
   };
 }
 
@@ -1470,14 +1527,17 @@ export function getTopicClinicalMCQBatch(
 
   // If pool has enough, return sliced copy
   if (pool.length >= count) {
-    return pool.slice(0, count);
+    return pool.slice(0, count).map((q) => ({
+      ...q,
+      provenance: q.provenance || 'Mentor Practice',
+    }));
   }
 
   // If pool has some, return all from pool plus generated items
-  const results = [...pool];
+  const results = pool.map((q) => ({ ...q, provenance: q.provenance || 'Mentor Practice' }));
   while (results.length < count) {
     const nextQ = generateStructuredClinicalMCQ(`${topic} question ${results.length + 1}`, null, history);
-    results.push(nextQ);
+    results.push({ ...nextQ, provenance: 'Mentor Practice' });
   }
   return results.slice(0, count);
 }

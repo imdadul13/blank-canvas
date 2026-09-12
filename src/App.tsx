@@ -1012,6 +1012,11 @@ function AppInner() {
                       setAiCoachInitialSubject(undefined);
                     }}
                     onRecordAttempt={recordQuestionAttempt}
+                    onNavigateToStudy={(subjectId) => {
+                      handleSelectSubject(subjectId);
+                      handleSetActiveTab('syllabus');
+                    }}
+                    onLaunchPracticeSession={handleLaunchPracticeSession}
                   />
                 )}
               </motion.div>

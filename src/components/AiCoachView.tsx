@@ -45,6 +45,7 @@ import {
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { GrandTest, AppState, MedicalImageAsset } from '../types';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
+import { buildMentorContext, resolveMedicalTopic, detectMentorMode } from '../utils/mentorContextEngine';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { MedicalImageViewerModal } from './MedicalImageViewerModal';
 import { MentorHeader } from './mentor/MentorHeader';
@@ -97,6 +98,9 @@ export interface ChatMessage {
 }
 
 export interface ActiveQuizSession {
+  title?: string;
+  subject?: string;
+  topic?: string;
   questions: QuizQuestionItem[];
   currentIndex: number;
   score: number;
@@ -247,6 +251,44 @@ export function parseMcqFromMarkdown(
   };
 }
 
+export function generateMentorSessionTitle(messages: ChatMessage[], quizSession?: ActiveQuizSession | null): string {
+  const firstUser = messages.find((m) => m.role === 'user');
+  if (!firstUser || !firstUser.content) return 'Clinical Consultation';
+  const query = firstUser.content;
+  const lower = query.toLowerCase();
+
+  // 1. Comparison check
+  if (lower.includes(' vs ') || lower.includes(' versus ') || lower.includes('compare ')) {
+    if (lower.includes('crohn') && lower.includes('uc')) return "Crohn's vs Ulcerative Colitis";
+    if (lower.includes('nephrotic') && lower.includes('nephritic')) return 'Nephrotic vs Nephritic';
+    if (lower.includes('dka') && lower.includes('hhs')) return 'DKA vs HHS';
+    if (lower.includes('asthma') && lower.includes('copd')) return 'Asthma vs COPD';
+  }
+
+  // 2. Count check
+  const countMatch = query.match(/\b(\d+)\s*(?:harder\s+)?(?:mcqs?|questions?|vignettes?)\b/i) ||
+    query.match(/\b(?:gimme|give me)\s+(\d+)\b/i);
+  const count = countMatch ? countMatch[1] : (quizSession?.questions?.length || null);
+
+  const resolved = resolveMedicalTopic(query);
+  const baseTopic = resolved?.canonicalTopic || (quizSession?.topic) || null;
+
+  if (baseTopic) {
+    const cleanTopic = baseTopic.split('·').pop()?.trim() || baseTopic;
+    if (count) return `${cleanTopic} — ${count} MCQs`;
+    if (lower.includes('rapid review') || lower.includes('explain') || lower.includes('review')) {
+      return `${cleanTopic} — Rapid Review`;
+    }
+    if (lower.includes('mcq') || lower.includes('question') || lower.includes('practice')) {
+      return `${cleanTopic} — Clinical Practice`;
+    }
+    return cleanTopic;
+  }
+
+  const clean = query.replace(/^(gimme|give me|explain|what is|tell me about|quiz me on)\s+/i, '').trim();
+  return clean.slice(0, 36) + (clean.length > 36 ? '...' : '');
+}
+
 interface AiCoachViewProps {
   state?: AppState;
   latestGT?: GrandTest | null;
@@ -256,6 +298,8 @@ interface AiCoachViewProps {
   initialTopic?: string;
   initialTab?: 'vignette' | 'concept' | 'diagnosis' | 'strategy';
   onRecordAttempt?: (input: NewMcqAttemptInput) => void;
+  onNavigateToStudy?: (subjectId: string, topicId?: string) => void;
+  onLaunchPracticeSession?: (subjectId: string, topicId: string, topicName: string, subtopic?: string) => void;
   onClose?: () => void;
   onClearInitialTrigger?: () => void;
 }
@@ -269,6 +313,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   initialTopic,
   initialTab,
   onRecordAttempt,
+  onNavigateToStudy,
+  onLaunchPracticeSession,
   onClose,
   onClearInitialTrigger,
 }) => {
@@ -491,6 +537,11 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       gtCadence: profileCtx?.gtCadenceDays ?? null,
       gtFrequencyLabel: profileCtx?.gtFrequencyLabel ?? '',
       daysToExam: profileCtx?.daysRemaining ?? null,
+      mentorContext: state
+        ? buildMentorContext(state, {
+            activeSession: { id: activeSessionId, messageCount: messages.length },
+          })
+        : null,
       todayPlan: todayPlan?.tasks.slice(0, 5).map((t) => ({
         activity: t.activity,
         subjectName: t.subjectName,
@@ -517,12 +568,9 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     saveTimeoutRef.current = setTimeout(() => {
       setSessions((prev) => {
         const idx = prev.findIndex((s) => s.id === activeSessionId);
-        let title = prev[idx]?.title || 'Clinical Consultation';
-        if (!title || title === 'New Consultation' || title === 'Clinical Consultation') {
-          const firstUser = messages.find((m) => m.role === 'user');
-          if (firstUser && firstUser.content) {
-            title = firstUser.content.slice(0, 42).trim() + (firstUser.content.length > 42 ? '...' : '');
-          }
+        let title = prev[idx]?.title;
+        if (!title || title === 'New Consultation' || title === 'Clinical Consultation' || title.endsWith('...')) {
+          title = generateMentorSessionTitle(messages, quizSession);
         }
 
         const updatedSession: CoachSession = {
@@ -821,6 +869,30 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
     // Check if user is asking a direct follow-up about the active/previous MCQ
     const lowerText = text.toLowerCase();
+
+    // Phase 7: Connect directly to existing Study & Practice engines
+    if (lowerText.includes('review topic in study') || lowerText.includes('review in study') || lowerText.includes('practice this topic in study')) {
+      if (onNavigateToStudy) {
+        const resolved = resolveMedicalTopic(text);
+        const subId = resolved?.subjectId || 'medicine';
+        onNavigateToStudy(subId, resolved?.canonicalTopic);
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    if (lowerText.includes('give me 20 questions') || lowerText.includes('practice in qbank') || lowerText.includes('launch practice session')) {
+      if (onLaunchPracticeSession) {
+        const resolved = resolveMedicalTopic(text);
+        const subId = resolved?.subjectId || 'medicine';
+        const topName = resolved?.canonicalTopic || 'Clinical Medicine';
+        const topId = topName.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 40);
+        onLaunchPracticeSession(subId, topId, topName);
+        setIsLoading(false);
+        return;
+      }
+    }
+
     const lastQuestionMsg = [...newMessages].reverse().find(m => m.singleQuiz);
     const lastQ = lastQuestionMsg?.singleQuiz;
 
@@ -1181,17 +1253,25 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       prev.map(msg => {
         if (msg.id === msgId && msg.singleQuiz) {
           const isCorrect = selectedKey === msg.singleQuiz.correctKey;
+          const resolved = resolveMedicalTopic(msg.singleQuiz.topic) || resolveMedicalTopic(msg.singleQuiz.subject);
+          const resolvedSubId = resolved?.subjectId || msg.singleQuiz.subject.toLowerCase().replace(/[^a-z]/g, '') || 'medicine';
+          const resolvedTopicName = resolved?.canonicalTopic || msg.singleQuiz.topic || 'Clinical Vignette';
+          const resolvedTopicId = resolvedTopicName.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 40);
+
           if (onRecordAttempt) {
             onRecordAttempt({
               questionId: msg.singleQuiz.id,
-              subjectId: msg.singleQuiz.subject.toLowerCase().replace(/[^a-z]/g, '') || 'medicine',
-              topicId: 'ai-coach-vignette',
+              subjectId: resolvedSubId,
+              topicId: resolvedTopicId,
+              topicName: resolvedTopicName,
               subtopic: msg.singleQuiz.topic,
               isCorrect,
               selectedAnswer: selectedKey,
               correctAnswer: msg.singleQuiz.correctKey,
               timeTakenSeconds: 45,
-              source: 'custom',
+              difficulty: 'high-yield',
+              source: 'mentor' as any,
+              notes: msg.singleQuiz.stem || msg.singleQuiz.question,
               isImageBased: Boolean(msg.singleQuiz.imageUrl),
               imageCategory: msg.singleQuiz.imageAsset?.imageCategory,
               imageUrl: msg.singleQuiz.imageUrl,
@@ -1217,18 +1297,25 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
     const currentQ = quizSession.questions[quizSession.currentIndex];
     const isCorrect = selectedKey === currentQ.correctKey;
+    const resolvedQ = resolveMedicalTopic(currentQ.topic) || resolveMedicalTopic(currentQ.subject);
+    const resolvedSubId = resolvedQ?.subjectId || currentQ.subject.toLowerCase().replace(/[^a-z]/g, '') || 'medicine';
+    const resolvedTopicName = resolvedQ?.canonicalTopic || currentQ.topic || 'Clinical Topic';
+    const resolvedTopicId = resolvedTopicName.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 40);
 
     if (onRecordAttempt) {
       onRecordAttempt({
         questionId: currentQ.id,
-        subjectId: currentQ.subject.toLowerCase().replace(/[^a-z]/g, '') || 'medicine',
-        topicId: 'ai-quiz-mode',
+        subjectId: resolvedSubId,
+        topicId: resolvedTopicId,
+        topicName: resolvedTopicName,
         subtopic: currentQ.topic,
         isCorrect,
         selectedAnswer: selectedKey,
         correctAnswer: currentQ.correctKey,
         timeTakenSeconds: 35,
-        source: 'custom',
+        difficulty: 'high-yield',
+        source: 'mentor' as any,
+        notes: currentQ.stem || currentQ.question,
       });
     }
 

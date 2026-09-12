@@ -4,6 +4,8 @@ import {
   getTopicClinicalMCQBatch,
   detectImageQuestionRequest,
   generateMedicalImageSearchQuery,
+  isPyqRequest,
+  lookupVerifiedPyq,
 } from "./dynamic-mcq-engine";
 import { validateTopicContentConsistency } from "../src/utils/contentValidator";
 import {
@@ -1310,6 +1312,56 @@ function generateOfflineFallbackExplanation(subject: string, topic: string, quer
 - **Trap 4**: Surgical colectomy is curative in UC but NOT in Crohn's.`;
   }
 
+  // Nephrotic vs Nephritic Syndrome
+  if ((combined.includes('nephrotic') || combined.includes('nephritic')) && (combined.includes('vs') || combined.includes('difference') || combined.includes('compare') || (combined.includes('nephrotic') && combined.includes('nephritic')))) {
+    return `### 🩺 High-Yield Nephrology Comparison: **Nephrotic Syndrome vs Nephritic Syndrome**
+
+Your errors suggest the distinction is the issue. Let's lock down the difference first:
+
+| Clinical Feature | Nephrotic Syndrome | Nephritic Syndrome |
+| :--- | :--- | :--- |
+| **Primary Pathology** | **Podocyte / Epithelial injury** with disrupted filtration charge barrier | **Glomerular inflammation & endocapillary proliferation** with GBM breaks |
+| **Urinary Protein** | **Massive proteinuria (> 3.5 g/24h)** ("Frothy urine") | Mild to moderate proteinuria (< 3.5 g/24h, typically 1–2 g/day) |
+| **Urinary Sediment** | **Fatty casts, oval fat bodies**, Maltese-cross sign (lipiduria) | **Dysmorphic RBCs, RBC casts**, acanthocytes ("Smoky / Coca-cola urine") |
+| **Serum Albumin** | **Severe Hypoalbuminemia (< 3.0 g/dL)** | Normal or mildly decreased |
+| **Edema** | **Marked, generalized anasarca**, periorbital edema | Mild to moderate periorbital edema |
+| **Lipid Profile** | **Hyperlipidemia & lipiduria** (↑ cholesterol, ↑ triglycerides) | Normal |
+| **Blood Pressure** | Usually normal (except in advanced FSGS/Membranous) | **Hypertension** (salt and water retention) |
+| **Renal Function** | GFR initially preserved | **Oliguria & reduced GFR**, azotemia (↑ BUN, ↑ Creatinine) |
+| **Classic Etiologies** | Minimal Change Disease (MCD), FSGS, Membranous Nephropathy, Diabetic Nephropathy | Post-Streptococcal GN (PSGN), IgA Nephropathy, Crescentic (RPGN), Lupus Nephritis Class IV |
+
+#### ⚠️ Classic FMGE Traps
+- **Trap 1**: **RBC casts and dysmorphic RBCs** are pathognomonic for **Nephritic Syndrome**, indicating active glomerular capillaritis.
+- **Trap 2**: **Maltese cross under polarized light** = oval fat bodies in **Nephrotic Syndrome**.
+- **Trap 3**: Minimal Change Disease is the most common cause of Nephrotic syndrome in children (effacement of foot processes on EM, normal light microscopy, DOC: Oral Prednisolone).
+- **Trap 4**: PSGN presents with low C3 complement, elevated ASO/Anti-DNase B, and subepithelial "lumpy-bumpy" humps on electron microscopy.`;
+  }
+
+  // DKA vs HHS (Hyperglycemic Crises)
+  if ((combined.includes('dka') || combined.includes('diabetic ketoacidosis')) && (combined.includes('hhs') || combined.includes('honk') || combined.includes('hyperosmolar') || combined.includes('vs') || combined.includes('compare'))) {
+    return `### 🩺 High-Yield Endocrinology Comparison: **Diabetic Ketoacidosis (DKA) vs Hyperosmolar Hyperglycemic State (HHS)**
+
+| Parameter | Diabetic Ketoacidosis (DKA) | Hyperosmolar Hyperglycemic State (HHS) |
+| :--- | :--- | :--- |
+| **Typical Patient** | **Type 1 Diabetes Mellitus** (younger patients, absolute insulin deficiency) | **Type 2 Diabetes Mellitus** (elderly patients with concurrent infection/stroke) |
+| **Onset** | **Rapid (< 24 hours)** | **Insidious (days to weeks)** |
+| **Plasma Glucose** | Usually **250 – 500 mg/dL** | **Markedly elevated (> 600 mg/dL)**, often > 1000 mg/dL |
+| **Arterial pH** | **< 7.30 (Metabolic Acidosis)** | **> 7.30 (Normal or near-normal pH)** |
+| **Serum Bicarbonate** | **< 18 mEq/L** (often < 10 in severe DKA) | **> 18 mEq/L** |
+| **Anion Gap** | **High Anion Gap (> 12 mEq/L)**: Na - (Cl + HCO3) | **Normal (< 12 mEq/L)** |
+| **Serum Ketones** | **Strongly positive** (predominantly β-hydroxybutyrate) | **Negative or trace** (trace insulin prevents lipolysis) |
+| **Effective Osmolality** | Variable, typically < 320 mOsm/kg | **> 320 mOsm/kg** (severe hyperosmolality) |
+| **Clinical Presentation** | Kussmaul breathing, acetone fruity breath, abdominal pain, vomiting | Profound dehydration, neurological signs (stupor, coma, focal deficits, seizures) |
+| **Fluid Deficit** | ~5 – 7 Liters (~100 mL/kg) | **~8 – 10 Liters (~100–200 mL/kg)** (massive dehydration) |
+| **Mortality** | 1 – 5% | **15 – 20% (significantly higher due to underlying comorbidities)** |
+
+#### ⚠️ Classic FMGE Traps
+- **Trap 1**: In DKA, **check potassium (K⁺) before starting insulin**! If K⁺ < 3.3 mEq/L, hold insulin and give IV KCl first to avoid fatal arrhythmia.
+- **Trap 2**: In HHS, aggressive fluid resuscitation (Normal Saline 0.9%) is the single most critical initial step.
+- **Trap 3**: Ketone measurement: **β-hydroxybutyrate** is the predominant ketone, but dipstick only measures acetoacetate.
+- **Trap 4**: When glucose falls below 200 mg/dL (DKA) or 250–300 mg/dL (HHS), switch IV fluids to 5% Dextrose in 0.45% Saline to prevent hypoglycemia while continuing insulin infusion until acidosis closes.`;
+  }
+
   // Crohn's Disease (Single entity explanation)
   if (combined.includes('crohn') || combined.includes("crohn's")) {
     return `### 🩺 High-Yield Gastroenterology Breakdown: **Crohn's Disease (Regional Enteritis)**
@@ -1637,6 +1689,82 @@ app.post("/api/ai/chat/stream", async (req, res) => {
     : "None logged recently";
 
   const { subject: detectedSubject, topic: detectedTopic } = classifyTopicAndSubject(message, history);
+  const lowerMsg = message.toLowerCase().trim();
+
+  // Phase 7: PYQ Integrity Check in Stream
+  if (isPyqRequest(message)) {
+    const verifiedPyq = lookupVerifiedPyq(detectedSubject, detectedTopic);
+    if (!verifiedPyq) {
+      const reply = "I don't have a verified PYQ for that topic in the current question bank. Would you like FMGE-style practice questions instead?";
+      res.write(`data: ${JSON.stringify({ text: reply })}\n\n`);
+      res.write(`data: ${JSON.stringify({ done: true, fullText: reply })}\n\n`);
+      res.end();
+      return;
+    }
+  }
+
+  // Phase 7: Weak Area Drill in Stream
+  if (
+    lowerMsg.includes('quiz my weak') ||
+    lowerMsg.includes('test my weak') ||
+    lowerMsg.includes('weak areas') ||
+    lowerMsg.includes('weak subjects') ||
+    lowerMsg.includes('focus on my weakness')
+  ) {
+    const mentorCtx = studentContext.mentorContext || {};
+    const actualWeakSubject = mentorCtx.weakSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]) || 'Pharmacology';
+    const actualWeakTopic = mentorCtx.weakTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]) || 'Autonomic Pharmacology';
+    const subjectAcc = mentorCtx.subjectAccuracy?.[actualWeakSubject.toLowerCase()] || 48;
+
+    const reply = `Let's focus on **${actualWeakSubject}** first (${subjectAcc}% accuracy in your performance data). Here is your targeted clinical challenge:\n\n### Clinical Drill: **${actualWeakSubject}** (${actualWeakTopic})\n\n*(Switching into interactive clinical quiz mode...)*`;
+    res.write(`data: ${JSON.stringify({ text: reply })}\n\n`);
+    res.write(`data: ${JSON.stringify({ done: true, fullText: reply })}\n\n`);
+    res.end();
+    return;
+  }
+
+  // Phase 7: Mistakes Review in Stream
+  if (
+    lowerMsg.includes('review my mistakes') ||
+    lowerMsg.includes('why did i get that question wrong') ||
+    lowerMsg.includes('why did i get that wrong') ||
+    lowerMsg.includes('why do i keep getting') ||
+    lowerMsg.includes('why do i keep missing')
+  ) {
+    const mentorCtx = studentContext.mentorContext || {};
+    const recentMistake = mentorCtx.recentMistakes?.[0] || (Array.isArray(recentErrors) && recentErrors[0]);
+    const mistakeTopic = recentMistake?.topic || 'Crohn disease';
+    const mistakeConcept = recentMistake?.concept || recentMistake?.mistake || 'fistulizing disease complication';
+
+    const explanation = generateOfflineFallbackExplanation('General Medicine', mistakeTopic, message);
+    const reply = `You missed a ${mistakeTopic} question (${mistakeConcept}) earlier. Want to retry it?\n\n${explanation}`;
+    res.write(`data: ${JSON.stringify({ text: reply })}\n\n`);
+    res.write(`data: ${JSON.stringify({ done: true, fullText: reply })}\n\n`);
+    res.end();
+    return;
+  }
+
+  // Phase 7: Study Today in Stream
+  if (
+    lowerMsg.includes('what should i study today') ||
+    lowerMsg.includes('continue where i left off') ||
+    lowerMsg.includes('where i left off')
+  ) {
+    const mentorCtx = studentContext.mentorContext || {};
+    const recentTopic = mentorCtx.recentTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]) || 'Cardiology · Arrhythmias & AV Blocks';
+    const recentSubject = mentorCtx.recentSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]) || 'General Medicine';
+
+    let studyAdvice = `Based on your recent study session on **${recentSubject} (${recentTopic})**, continue your clinical revision on this chapter and test yourself with 10 practice questions.`;
+    if (daysRemaining <= 1) {
+      studyAdvice = `Since your exam is tomorrow, prioritize rapid revision of high-yield pearls, drug of choice formulas, and common exam traps in **${recentSubject} (${recentTopic})**. Avoid starting completely new textbooks.`;
+    }
+
+    const reply = `### 🎯 Today's Recommended Focus\n\n${studyAdvice}\n\n- **Target Topic**: ${recentTopic}\n- **Core Action**: Review high-yield notes & solve 10 targeted MCQs`;
+    res.write(`data: ${JSON.stringify({ text: reply })}\n\n`);
+    res.write(`data: ${JSON.stringify({ done: true, fullText: reply })}\n\n`);
+    res.end();
+    return;
+  }
 
   const prepSig = preparationStage ? String(preparationStage).replace(/_/g, " ") : "not specified";
   const prefsSig = Array.isArray(studyPreferences) && studyPreferences.length > 0
@@ -1835,6 +1963,164 @@ app.post("/api/ai/chat", async (req, res) => {
 
   // Classify active medical subject and topic authoritatively for this turn
   const { subject: detectedSubject, topic: detectedTopic } = classifyTopicAndSubject(message, history);
+  const lowerMsg = message.toLowerCase().trim();
+
+  // Phase 7: PYQ Integrity Check (Strict provenance guard)
+  if (isPyqRequest(message)) {
+    const verifiedPyq = lookupVerifiedPyq(detectedSubject, detectedTopic);
+    if (!verifiedPyq) {
+      res.json({
+        success: true,
+        reply: "I don't have a verified PYQ for that topic in the current question bank. Would you like FMGE-style practice questions instead?",
+        intent: "chat",
+        topic: detectedTopic,
+        subject: detectedSubject,
+        singleMcq: null,
+        quizSession: null,
+        suggestedFollowUps: [
+          `Give me AI-style ${detectedSubject} questions`,
+          `Explain ${detectedTopic}`,
+          "Quiz my weak areas",
+        ],
+        userAttachedImage: null,
+      });
+      return;
+    } else {
+      res.json({
+        success: true,
+        reply: `Here is an official verified examination question on **${detectedSubject}** (${detectedTopic}):`,
+        intent: "mcq",
+        topic: verifiedPyq.topic,
+        subject: verifiedPyq.subject,
+        singleMcq: verifiedPyq,
+        quizSession: null,
+        suggestedFollowUps: ["Why is this answer correct?", "Give me another question"],
+        userAttachedImage: null,
+      });
+      return;
+    }
+  }
+
+  // Phase 7: Real Weak Area Quiz Integration
+  if (
+    lowerMsg.includes('quiz my weak') ||
+    lowerMsg.includes('test my weak') ||
+    lowerMsg.includes('weak areas') ||
+    lowerMsg.includes('weak subjects') ||
+    lowerMsg.includes('focus on my weakness')
+  ) {
+    const mentorCtx = studentContext.mentorContext || {};
+    const actualWeakSubject = mentorCtx.weakSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]) || 'Pharmacology';
+    const actualWeakTopic = mentorCtx.weakTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]) || 'Autonomic Pharmacology';
+    const subjectAcc = mentorCtx.subjectAccuracy?.[actualWeakSubject.toLowerCase()] || 48;
+
+    const rawBatch = getTopicClinicalMCQBatch(actualWeakSubject, actualWeakTopic, 5, history);
+    const quizQuestions = rawBatch.map((q: any, i: number) => ({
+      id: `quiz-weak-${Date.now()}-${i + 1}`,
+      questionNumber: i + 1,
+      totalQuestions: rawBatch.length,
+      subject: q.subject || actualWeakSubject,
+      topic: q.topic || actualWeakTopic,
+      stem: q.stem || q.question,
+      question: q.question || "What is the definitive diagnosis or management?",
+      options: q.options,
+      correctKey: q.correctAnswer || q.correctKey || 'A',
+      explanation: q.explanation || "Evidence-based management.",
+      distractorBreakdown: q.distractorBreakdown || {},
+      fmgeTakeaway: q.fmgeTakeaway || "Key clinical takeaway.",
+      memoryHook: q.memoryHook || "Spot the clinical discriminator.",
+      provenance: 'Mentor Practice',
+    }));
+
+    res.json({
+      success: true,
+      reply: `Let's focus on **${actualWeakSubject}** first (${subjectAcc}% accuracy in your performance data). Here is your targeted clinical challenge:`,
+      intent: "quiz",
+      topic: actualWeakTopic,
+      subject: actualWeakSubject,
+      singleMcq: null,
+      quizSession: {
+        title: `${actualWeakSubject} Weak Area Drill`,
+        subject: actualWeakSubject,
+        topic: actualWeakTopic,
+        questions: quizQuestions,
+      },
+      suggestedFollowUps: [
+        "Review my mistakes",
+        `Explain ${actualWeakTopic}`,
+        "Practice this topic in Study",
+      ],
+      userAttachedImage: null,
+    });
+    return;
+  }
+
+  // Phase 7: Mistakes Review & Remediation
+  if (
+    lowerMsg.includes('review my mistakes') ||
+    lowerMsg.includes('why did i get that question wrong') ||
+    lowerMsg.includes('why did i get that wrong') ||
+    lowerMsg.includes('why do i keep getting') ||
+    lowerMsg.includes('why do i keep missing') ||
+    lowerMsg.includes('explain my mistake')
+  ) {
+    const mentorCtx = studentContext.mentorContext || {};
+    const recentMistake = mentorCtx.recentMistakes?.[0] || (Array.isArray(recentErrors) && recentErrors[0]);
+    const mistakeTopic = recentMistake?.topic || 'Crohn disease';
+    const mistakeConcept = recentMistake?.concept || recentMistake?.mistake || 'fistulizing disease complication';
+
+    const explanation = generateOfflineFallbackExplanation('General Medicine', mistakeTopic, message);
+
+    res.json({
+      success: true,
+      reply: `You missed a ${mistakeTopic} question (${mistakeConcept}) earlier. Want to retry it?\n\n${explanation}`,
+      intent: "remediation",
+      topic: mistakeTopic,
+      subject: "General Medicine",
+      singleMcq: null,
+      quizSession: null,
+      suggestedFollowUps: [
+        `Give me an MCQ on ${mistakeTopic}`,
+        "Review Topic in Study",
+        "Test me again on this concept",
+      ],
+      userAttachedImage: null,
+    });
+    return;
+  }
+
+  // Phase 7: "What should I study today?" / "Continue where I left off"
+  if (
+    lowerMsg.includes('what should i study today') ||
+    lowerMsg.includes('continue where i left off') ||
+    lowerMsg.includes('where i left off')
+  ) {
+    const mentorCtx = studentContext.mentorContext || {};
+    const recentTopic = mentorCtx.recentTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]) || 'Cardiology · Arrhythmias & AV Blocks';
+    const recentSubject = mentorCtx.recentSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]) || 'General Medicine';
+
+    let studyAdvice = `Based on your recent study session on **${recentSubject} (${recentTopic})**, continue your clinical revision on this chapter and test yourself with 10 practice questions.`;
+    if (daysRemaining <= 1) {
+      studyAdvice = `Since your exam is tomorrow, prioritize rapid revision of high-yield pearls, drug of choice formulas, and common exam traps in **${recentSubject} (${recentTopic})**. Avoid starting completely new textbooks.`;
+    }
+
+    res.json({
+      success: true,
+      reply: `### 🎯 Today's Recommended Focus\n\n${studyAdvice}\n\n- **Target Topic**: ${recentTopic}\n- **Core Action**: Review high-yield notes & solve 10 targeted MCQs`,
+      intent: "recommendation",
+      topic: recentTopic,
+      subject: recentSubject,
+      singleMcq: null,
+      quizSession: null,
+      suggestedFollowUps: [
+        `Give me 5 MCQs on ${recentTopic}`,
+        `Explain ${recentTopic}`,
+        "Quiz my weak areas",
+      ],
+      userAttachedImage: null,
+    });
+    return;
+  }
 
   // Check if user requested an image-based question
   const imageDetection = detectImageQuestionRequest(message);
