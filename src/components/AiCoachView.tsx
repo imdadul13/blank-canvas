@@ -163,6 +163,90 @@ function formatMessageTime(date: Date | string): string {
   }
 }
 
+/**
+ * Parses raw markdown responses that contain an exam MCQ into an interactive
+ * QuizQuestionItem so answers are NEVER revealed immediately to the user.
+ */
+export function parseMcqFromMarkdown(
+  text: string,
+  fallbackSubject = 'General Medicine',
+  fallbackTopic = 'Clinical Practice'
+): { cleanedText: string; quiz: QuizQuestionItem } | null {
+  if (!text || text.length < 30) return null;
+
+  // Check if text has distinct options A, B, C, D
+  const hasA = /(?:^|\n)\s*(?:[○●\(\[]?\s*A[.\):\]]|\(A\))\s+([^\n]+)/i.test(text);
+  const hasB = /(?:^|\n)\s*(?:[○●\(\[]?\s*B[.\):\]]|\(B\))\s+([^\n]+)/i.test(text);
+  const hasC = /(?:^|\n)\s*(?:[○●\(\[]?\s*C[.\):\]]|\(C\))\s+([^\n]+)/i.test(text);
+  const hasD = /(?:^|\n)\s*(?:[○●\(\[]?\s*D[.\):\]]|\(D\))\s+([^\n]+)/i.test(text);
+
+  if (!hasA || !hasB || !hasC || !hasD) return null;
+
+  // Extract Option text
+  const optRegex = /(?:^|\n)\s*(?:[○●\(\[]?\s*([A-D])[.\):\]]|\(([A-D])\))\s+([^\n]+)/gi;
+  const options: { key: string; text: string }[] = [];
+  let match;
+  while ((match = optRegex.exec(text)) !== null) {
+    const key = (match[1] || match[2]).toUpperCase();
+    if (!options.some((o) => o.key === key)) {
+      options.push({ key, text: match[3].trim() });
+    }
+  }
+
+  if (options.length < 4) return null;
+
+  // Find correct key
+  const ansMatch = text.match(/(?:Correct\s+Answer|Ans(?:wer)?|Key|Correct\s+Option)\s*[:\-]?\s*(?:Option\s*)?([A-D])/i);
+  const correctKey = ansMatch ? ansMatch[1].toUpperCase() : 'A';
+
+  // Extract stem: everything preceding the first option
+  const firstOptMatch = text.search(/(?:^|\n)\s*(?:[○●\(\[]?\s*[A-Da-d][.\):\]]|\([A-Da-d]\))/);
+  let stem = firstOptMatch > 0 ? text.substring(0, firstOptMatch).trim() : '';
+
+  // Extract explanation
+  let explanation = '';
+  const expMatch = text.match(/(?:Explanation|Rationale|Clinical\s+Reasoning)\s*[:\-]?\s*([\s\S]+?)(?=\n\n(?:###|Takeaway|Pearl|Mnemonic|Trap)|$)/i);
+  if (expMatch) {
+    explanation = expMatch[1].trim();
+  } else {
+    explanation = 'Review the patient presentation, diagnostic discriminators, and treatment guidelines.';
+  }
+
+  // Extract takeaway / pearl
+  let fmgeTakeaway = '';
+  const pearlMatch = text.match(/(?:FMGE\s+Takeaway|Clinical\s+Pearl|High-Yield\s+Takeaway)\s*[:\-]?\s*([^\n]+)/i);
+  if (pearlMatch) {
+    fmgeTakeaway = pearlMatch[1].trim();
+  }
+
+  // Extract exam trap
+  let trap = '';
+  const trapMatch = text.match(/(?:Exam\s+Trap|Common\s+Trap|NBE\s+Trap)\s*[:\-]?\s*([^\n]+)/i);
+  if (trapMatch) {
+    trap = trapMatch[1].trim();
+  }
+
+  // Clean the text displayed above the interactive MCQ card so the answer is hidden
+  const cleanedText = stem || 'Here is your targeted clinical examination challenge:';
+
+  return {
+    cleanedText,
+    quiz: {
+      id: `extracted-${Date.now()}`,
+      subject: fallbackSubject,
+      topic: fallbackTopic,
+      stem: '',
+      question: stem.split('\n').filter(Boolean).pop() || 'What is the most likely diagnosis or next best step?',
+      options,
+      correctKey,
+      correctAnswer: correctKey,
+      explanation,
+      fmgeTakeaway,
+      trap,
+    },
+  };
+}
+
 interface AiCoachViewProps {
   state?: AppState;
   latestGT?: GrandTest | null;
@@ -201,6 +285,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [confirmClearHistory, setConfirmClearHistory] = useState(false);
+  const [isGoldenHourActive, setIsGoldenHourActive] = useState(false);
 
   // Persistent Consultation Session History & Memory State
   // Filter out any empty dummy sessions from prior runs
@@ -817,8 +902,14 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     const isExplicitMcqOrQuiz =
       lower.includes('give me an mcq') ||
       lower.includes('give me a question') ||
+      lower.includes('give me mcq') ||
+      lower.includes('mcq') ||
+      lower.includes('vignette') ||
       lower.includes('quiz') ||
-      lower.includes('batch');
+      lower.includes('batch') ||
+      lower.includes('test me') ||
+      lower.includes('drill me') ||
+      lower.includes('challenge');
 
     // 1. For clinical explanations and medical queries, use real-time SSE streaming (<300ms time-to-first-token)
     if (!isExplicitMcqOrQuiz && !imageToSend) {
@@ -848,9 +939,12 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
           headers: { 'Content-Type': 'application/json' },
           signal: streamController.signal,
           body: JSON.stringify({
-            message: text,
+            message: isGoldenHourActive ? `[Golden Hour High-Yield Mode]: ${text}` : text,
             history: newMessages.slice(-6).map((m) => ({ role: m.role, content: m.content })),
-            studentContext: computedStudentContext,
+            studentContext: {
+              ...computedStudentContext,
+              goldenHourActive: isGoldenHourActive,
+            },
           }),
         });
 
@@ -902,11 +996,27 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
           // If streaming delivered a solid response (>20 chars), finalize it
           if (accumulated.trim().length > 20) {
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === streamingMsgId ? { ...msg, content: accumulated } : msg
-              )
-            );
+            // Guard: if response contains an MCQ vignette, intercept it into an interactive card so answers stay hidden
+            const parsed = parseMcqFromMarkdown(accumulated);
+            if (parsed) {
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === streamingMsgId
+                    ? {
+                        ...msg,
+                        content: parsed.cleanedText,
+                        singleQuiz: parsed.quiz,
+                      }
+                    : msg
+                )
+              );
+            } else {
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === streamingMsgId ? { ...msg, content: accumulated } : msg
+                )
+              );
+            }
             isStreamingRef.current = false;
             return;
           }
@@ -994,11 +1104,20 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         questionType: rawMcq.questionType,
       } : null;
 
-      const replyText =
+      let replyText =
         data?.reply ||
         (singleQuizPayload
           ? `Here is an authentic clinical MCQ on **${singleQuizPayload.subject}** (${singleQuizPayload.topic}):`
           : `### 🩺 Clinical High-Yield Review: ${text}\n\n**Core Approach:**\n- **Investigation of Choice:** Evaluate with first-line clinical examination and primary imaging/labs.\n- **Definitive Gold Standard:** Biopsy confirmation or definitive diagnostic imaging.\n- **Drug of Choice / Protocol:** Standard evidence-based guidelines for FMGE.\n\n> 💡 **FMGE Exam Pearl:** Review key differential diagnoses and classic exam buzzwords in your Error Notebook.`);
+
+      let finalQuiz = singleQuizPayload;
+      if (!finalQuiz && replyText) {
+        const parsed = parseMcqFromMarkdown(replyText, 'General Medicine', 'Clinical Medicine');
+        if (parsed) {
+          replyText = parsed.cleanedText;
+          finalQuiz = parsed.quiz;
+        }
+      }
 
       const followUps = Array.isArray(data?.suggestedFollowUps) && data.suggestedFollowUps.length > 0
         ? data.suggestedFollowUps
@@ -1013,7 +1132,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         role: 'assistant',
         content: replyText,
         timestamp: new Date(),
-        singleQuiz: singleQuizPayload || undefined,
+        singleQuiz: finalQuiz || undefined,
         suggestedFollowUps: followUps,
       };
 
@@ -1231,12 +1350,137 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     );
   }, [sessions, historySearch]);
 
-  const quickActions = [
-    { label: 'Quiz me on my weak areas', query: 'Quiz me on high-yield questions from my weakest subjects' },
-    { label: 'Explain Nephrotic Syndrome', query: 'Explain nephrotic syndrome with high-yield points, biopsy findings, and classic exam traps.' },
-    { label: 'Crohn\'s vs Ulcerative Colitis', query: 'What is the difference between Crohn\'s disease and ulcerative colitis?' },
-    { label: 'MCQ on Heart Blocks', query: 'Give me an FMGE MCQ on heart blocks' },
-  ];
+  // Dynamic contextual quick prompt chips based on current consultation topic
+  const quickActions = useMemo(() => {
+    if (messages.length > 0) {
+      const recentText = messages.slice(-3).map((m) => m.content).join(' ').toLowerCase();
+
+      if (recentText.includes('sjögren') || recentText.includes('sjogren')) {
+        return [
+          { label: 'Sjögren vs SLE', query: 'Compare Sjögren syndrome vs Systemic Lupus Erythematosus: clinical discriminators, autoantibodies, and biopsy findings.' },
+          { label: 'Give me 5 harder MCQs', query: 'Give me 5 harder clinical MCQs on Sjögren syndrome with distractor analysis.' },
+          { label: 'Autoimmune Rapid Revision', query: 'Provide a high-yield rapid revision of rheumatological and autoimmune diseases for FMGE.' },
+          { label: 'Biopsy Criteria', query: 'Explain the salivary gland biopsy scoring criteria (Chisholm-Mason) for Sjögren syndrome.' },
+        ];
+      }
+
+      if (recentText.includes('crohn') || recentText.includes('colitis') || recentText.includes('ibd')) {
+        return [
+          { label: 'Crohn’s vs UC', query: 'What is the difference between Crohn\'s disease and ulcerative colitis?' },
+          { label: 'Give me harder IBD MCQs', query: 'Give me 5 harder clinical MCQs on inflammatory bowel disease with distractor analysis.' },
+          { label: 'Test me on IBD complications', query: 'Test me on classic complications of Crohn\'s vs Ulcerative Colitis (strictures, fistulas, toxic megacolon, cancer risk).' },
+          { label: 'Step-up Drug Therapy', query: 'What are the first-line and biologic drugs of choice for Crohn\'s disease vs Ulcerative Colitis?' },
+        ];
+      }
+
+      if (recentText.includes('heart block') || recentText.includes('arrhythmia') || recentText.includes('ecg')) {
+        return [
+          { label: 'Mobitz I vs Mobitz II', query: 'Explain Mobitz type I vs type II second-degree AV block ECG discriminators, atropine response, and prognosis.' },
+          { label: 'DOC in Complete Heart Block', query: 'What is the acute and definitive management for Complete Heart Block?' },
+          { label: '5 ECG Spotters', query: 'Give me 5 clinical vignette MCQs testing high-yield FMGE ECG patterns with distractor analysis.' },
+          { label: 'WPW Syndrome Clues', query: 'Explain Wolff-Parkinson-White syndrome triad on ECG and contraindicated drugs.' },
+        ];
+      }
+
+      if (recentText.includes('nephrotic') || recentText.includes('nephritic') || recentText.includes('glomerul')) {
+        return [
+          { label: 'MCD vs FSGS', query: 'Compare Minimal Change Disease vs Focal Segmental Glomerulosclerosis on biopsy and steroid response.' },
+          { label: '5 Glomerular MCQs', query: 'Give me 5 high-yield clinical MCQs on Glomerulonephritis with distractor analysis.' },
+          { label: 'Biopsy Electron Microscopy', query: 'Review classic electron microscopy findings in nephrotic and nephritic syndromes for FMGE.' },
+          { label: 'PSGN vs IgA Nephropathy', query: 'Explain PSGN vs IgA nephropathy timeline, complement levels, and management.' },
+        ];
+      }
+
+      // Check if last question has a topic
+      const lastQ = [...messages].reverse().find((m) => m.singleQuiz)?.singleQuiz;
+      if (lastQ?.topic) {
+        return [
+          { label: `5 harder ${lastQ.topic} MCQs`, query: `Give me 5 harder clinical MCQs on ${lastQ.topic} with distractor analysis.` },
+          { label: `FMGE Traps in ${lastQ.topic}`, query: `What are the most common FMGE exam traps and pitfalls in ${lastQ.topic}?` },
+          { label: `Clinical Differentials`, query: `What are the top clinical differential diagnoses for ${lastQ.topic}?` },
+          { label: `Diagnostic Pearls`, query: `Summarize the high-yield diagnostic criteria and drugs of choice for ${lastQ.topic}.` },
+        ];
+      }
+    }
+
+    // Default landing prompts grounded in student's real weak areas
+    const topWeak = computedStudentContext.weakSubjects[0] || 'General Medicine';
+    return [
+      { label: `Quiz me on ${topWeak}`, query: `Quiz me on high-yield clinical questions from ${topWeak} with distractor analysis.` },
+      { label: 'Explain Nephrotic Syndrome', query: 'Explain nephrotic syndrome with high-yield points, biopsy findings, and classic exam traps.' },
+      { label: 'Crohn’s vs Ulcerative Colitis', query: 'What is the difference between Crohn\'s disease and ulcerative colitis?' },
+      { label: 'MCQ on Heart Blocks', query: 'Give me an FMGE clinical MCQ on heart blocks with distractor analysis.' },
+    ];
+  }, [messages, computedStudentContext.weakSubjects]);
+
+  // Contextual consultation starters using real application data (never fabricated)
+  const contextualStarters = useMemo(() => {
+    // 1. Explain a Concept: intelligently suggests the student's actual logged weak topic or recent error
+    const weakTopic = computedStudentContext.weakTopics[0];
+    const weakSub = computedStudentContext.weakSubjects[0];
+    const conceptStarter = weakTopic
+      ? {
+          category: 'BASED ON YOUR WEAK TOPICS',
+          badgeStyle: 'bg-amber-50 text-amber-900 border-amber-200/80',
+          icon: Brain,
+          title: `Master ${weakTopic}`,
+          description: `Pathophysiology, clinical presentation, and high-yield FMGE diagnostic criteria in ${weakSub || 'Medicine'}.`,
+          query: `Explain ${weakTopic} in ${weakSub || 'General Medicine'} with high-yield FMGE diagnostic criteria, biopsy findings, and classic exam traps.`,
+        }
+      : {
+          category: 'EXPLAIN A CONCEPT',
+          badgeStyle: 'bg-emerald-50 text-[#006B63] border-emerald-200/60',
+          icon: Brain,
+          title: 'Nephrotic vs Nephritic Syndrome',
+          description: 'Pathophysiology, clinical hallmarks, and biopsy/urinalysis discriminators.',
+          query: 'Explain the pathophysiology and clinical hallmarks of Nephrotic vs Nephritic Syndrome, including diagnostic urinalysis criteria.',
+        };
+
+    // 2. Compare Two Conditions
+    const compareStarter = {
+      category: 'COMPARE TWO CONDITIONS',
+      badgeStyle: 'bg-sky-50 text-sky-800 border-sky-200/60',
+      icon: Stethoscope,
+      title: 'Crohn’s vs Ulcerative Colitis',
+      description: 'Endoscopy findings, skip lesions, histology, and high-yield complications.',
+      query: 'Compare Crohn’s Disease vs Ulcerative Colitis: clinical features, endoscopy findings, histology, and high-yield complications.',
+    };
+
+    // 3. Clinical MCQ Challenge: Contextual when close to exam
+    const isExamClose = typeof daysRemaining === 'number' && daysRemaining <= 30;
+    const mcqStarter = {
+      category: isExamClose ? 'HIGH-YIELD MODE · EXAM FOCUS' : 'CLINICAL MCQ CHALLENGE',
+      badgeStyle: isExamClose ? 'bg-rose-50 text-rose-800 border-rose-200/80' : 'bg-teal-50 text-[#006B63] border-teal-200/60',
+      icon: Award,
+      title: 'Clinical MCQ Challenge',
+      description: isExamClose
+        ? 'High-yield exam-pattern clinical vignette on AV dissociation and Heart Blocks.'
+        : 'AV dissociation and heart block vignette with distractor analysis.',
+      query: 'Give me a high-yield clinical vignette MCQ on AV dissociation and Heart Blocks with distractor analysis.',
+    };
+
+    // 4. Targeted Subject Quiz: Contextual based on real weak subjects
+    const topWeakList = computedStudentContext.weakSubjects.slice(0, 2);
+    const quizStarter = topWeakList.length > 0
+      ? {
+          category: 'BASED ON YOUR WEAK AREAS',
+          badgeStyle: 'bg-purple-50 text-purple-900 border-purple-200/80',
+          icon: Activity,
+          title: `Targeted Quiz: ${topWeakList.join(' & ')}`,
+          description: `5 high-yield clinical questions tailored to your tracked performance in ${topWeakList.join(', ')}.`,
+          query: `Quiz me on 5 high-yield clinical MCQs from my weakest subjects (${topWeakList.join(', ')}) with faculty distractor analysis.`,
+        }
+      : {
+          category: 'QUIZ MY WEAK AREAS',
+          badgeStyle: 'bg-emerald-50 text-[#006B63] border-emerald-200/60',
+          icon: Activity,
+          title: 'Targeted Subject Quiz',
+          description: '5 high-yield clinical questions tailored to weak subjects.',
+          query: 'Quiz me on 5 high-yield clinical MCQs from my weakest subjects with faculty distractor analysis.',
+        };
+
+    return [conceptStarter, compareStarter, mcqStarter, quizStarter];
+  }, [computedStudentContext, daysRemaining]);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-4 sm:space-y-6 font-sans text-slate-900 pb-6 md:pb-8">
@@ -1247,6 +1491,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         activeSessionTitle={activeSession?.title}
         onOpenHistory={() => setIsHistoryOpen(true)}
         onNewSession={handleNewSession}
+        isGoldenHourMode={isGoldenHourActive}
+        onToggleGoldenHour={() => setIsGoldenHourActive((prev) => !prev)}
       />
 
       {/* ================= MAIN CLINICAL CONSULTATION WORKSPACE ================= */}
@@ -1270,21 +1516,38 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="mentor-messages-scroller flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-6 scroll-smooth overscroll-contain"
+          className="mentor-messages-scroller flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-6 scroll-smooth overscroll-contain relative"
         >
           {messages.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, ease: 'easeOut' }}
-              className="flex flex-col items-center justify-start py-4 sm:py-6 px-4 text-center space-y-3 sm:space-y-4 w-full"
+              className="flex flex-col items-center justify-start py-5 sm:py-8 px-4 text-center space-y-4 sm:space-y-5 w-full relative"
             >
+              {/* Subtle Clinical Background Architecture Grid & Faint Waveform */}
+              <div className="pointer-events-none absolute inset-0 opacity-[0.03] bg-[radial-gradient(#006b63_1px,transparent_1px)] [background-size:20px_20px]" aria-hidden="true" />
+              <div className="pointer-events-none absolute top-12 left-1/2 -translate-x-1/2 w-96 h-44 rounded-full bg-teal-500/5 blur-3xl" aria-hidden="true" />
+
+              {/* Faint Decorative ECG Trace Motif */}
+              <div className="pointer-events-none absolute top-20 left-0 right-0 h-16 opacity-[0.04] overflow-hidden flex items-center justify-center select-none" aria-hidden="true">
+                <svg viewBox="0 0 1000 60" className="w-full h-full text-[#006B63]" fill="none">
+                  <path
+                    d="M 0 30 L 180 30 L 195 18 L 210 44 L 225 6 L 240 52 L 255 26 L 270 34 L 285 30 L 480 30 L 495 18 L 510 44 L 525 6 L 540 52 L 555 26 L 570 34 L 585 30 L 780 30 L 795 18 L 810 44 L 825 6 L 840 52 L 855 26 L 870 34 L 885 30 L 1000 30"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+
               {/* Faculty Insignia with Animated Ambient Glow */}
               <motion.div
                 initial={{ scale: 0.85, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', damping: 16, stiffness: 200 }}
-                className="relative flex items-center justify-center"
+                className="relative flex items-center justify-center z-10"
               >
                 <div className="absolute inset-0 rounded-2xl bg-teal-500/20 blur-xl animate-pulse" />
                 <div className="relative h-14 w-14 rounded-2xl bg-gradient-to-tr from-[#006B63] to-[#008f84] text-white flex items-center justify-center shadow-lg shadow-teal-900/15">
@@ -1292,7 +1555,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                 </div>
               </motion.div>
 
-              <div className="max-w-lg space-y-1.5">
+              <div className="max-w-lg space-y-1.5 z-10">
                 <h2 className="text-2xl sm:text-3xl font-extrabold font-['Outfit'] text-slate-900 tracking-tight">
                   Faculty Clinical Desk
                 </h2>
@@ -1301,38 +1564,9 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                 </p>
               </div>
 
-              {/* 4 Categorized Quick Starters with Staggered Motion */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl sm:max-w-3xl text-left pt-1">
-                {[
-                  {
-                    category: 'EXPLAIN A CONCEPT',
-                    icon: Brain,
-                    title: 'Nephrotic vs Nephritic Syndrome',
-                    description: 'Pathophysiology, clinical hallmarks, and biopsy/urinalysis discriminators.',
-                    query: 'Explain the pathophysiology and clinical hallmarks of Nephrotic vs Nephritic Syndrome, including diagnostic urinalysis criteria.',
-                  },
-                  {
-                    category: 'COMPARE TWO CONDITIONS',
-                    icon: Stethoscope,
-                    title: 'Crohn’s vs Ulcerative Colitis',
-                    description: 'Endoscopy findings, skip lesions, histology, and high-yield complications.',
-                    query: 'Compare Crohn’s Disease vs Ulcerative Colitis: clinical features, endoscopy findings, histology, and high-yield complications.',
-                  },
-                  {
-                    category: 'GIVE ME AN FMGE MCQ',
-                    icon: Award,
-                    title: 'Clinical MCQ Challenge',
-                    description: 'AV dissociation and heart block vignette with distractor analysis.',
-                    query: 'Give me a high-yield clinical vignette MCQ on AV dissociation and Heart Blocks with distractor analysis.',
-                  },
-                  {
-                    category: 'QUIZ MY WEAK AREAS',
-                    icon: Activity,
-                    title: 'Targeted Subject Quiz',
-                    description: '5 high-yield clinical questions tailored to weak subjects.',
-                    query: 'Quiz me on 5 high-yield clinical MCQs from my weakest subjects with faculty distractor analysis.',
-                  },
-                ].map((starter, sIdx) => {
+              {/* 4 Contextual Quick Starters with Staggered Motion */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full max-w-2xl sm:max-w-3xl text-left pt-1 z-10">
+                {contextualStarters.map((starter, sIdx) => {
                   const Icon = starter.icon;
                   return (
                     <motion.button
@@ -1344,11 +1578,14 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                       whileHover={{ y: -3, scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleSendMessage(starter.query)}
-                      className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-white to-slate-50/70 hover:from-white hover:to-teal-50/40 border border-slate-200/90 hover:border-teal-300 transition-all text-left group cursor-pointer shadow-2xs hover:shadow-md flex flex-col justify-between"
+                      className="relative p-4 sm:p-4.5 rounded-2xl bg-gradient-to-b from-white to-slate-50/70 hover:from-white hover:to-teal-50/35 border border-slate-200/90 hover:border-teal-300 transition-all duration-200 text-left group cursor-pointer shadow-2xs hover:shadow-md flex flex-col justify-between overflow-hidden"
                     >
+                      {/* Subtle hover accent shimmer */}
+                      <div className="absolute top-0 left-4 right-4 h-[2px] bg-transparent group-hover:bg-gradient-to-r group-hover:from-transparent group-hover:via-teal-400 group-hover:to-transparent transition-all" />
+
                       <div>
-                        <div className="flex items-center justify-between gap-2 mb-1.5">
-                          <span className="text-[9px] font-bold tracking-wider uppercase text-[#006B63] font-mono bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full inline-block">
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <span className={`text-[9.5px] font-bold tracking-wider uppercase font-mono px-2.5 py-0.5 rounded-full inline-block border ${starter.badgeStyle}`}>
                             {starter.category}
                           </span>
                           <div className="h-6 w-6 rounded-lg bg-teal-50/80 border border-teal-100 flex items-center justify-center text-[#006B63] group-hover:scale-110 transition-transform">
@@ -1358,11 +1595,11 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                         <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-teal-950 font-['Outfit'] leading-snug">
                           {starter.title}
                         </h4>
-                        <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed font-sans">
+                        <p className="text-[11.5px] text-slate-500 mt-1 line-clamp-2 leading-relaxed font-sans">
                           {starter.description}
                         </p>
                       </div>
-                      <div className="flex items-center gap-1 text-[11px] font-semibold text-[#006B63] group-hover:text-[#005049] pt-2.5">
+                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#006B63] group-hover:text-[#005049] pt-3">
                         <span>Start consultation</span>
                         <span className="transition-transform group-hover:translate-x-1">→</span>
                       </div>

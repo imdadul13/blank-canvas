@@ -11,6 +11,8 @@ interface MentorHeaderProps {
   activeSessionTitle?: string;
   onOpenHistory: () => void;
   onNewSession: () => void;
+  isGoldenHourMode?: boolean;
+  onToggleGoldenHour?: () => void;
 }
 
 export const MentorHeader: React.FC<MentorHeaderProps> = ({
@@ -18,10 +20,30 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
   sessionsCount,
   onOpenHistory,
   onNewSession,
+  isGoldenHourMode = false,
+  onToggleGoldenHour,
 }) => {
   const circadian = useCircadianTheme();
   const reducedMotion = useReducedMotion();
-  const displayDays = daysRemaining !== undefined && daysRemaining !== null ? daysRemaining : 0;
+
+  // Refined non-alarming countdown driven by settings
+  let countdownText = 'Target';
+  let countdownSub = 'to FMGE';
+  if (daysRemaining !== undefined && daysRemaining !== null) {
+    if (daysRemaining < 0) {
+      countdownText = 'Ready';
+      countdownSub = 'Exam Phase';
+    } else if (daysRemaining === 0) {
+      countdownText = 'Today';
+      countdownSub = 'Exam Day';
+    } else if (daysRemaining === 1) {
+      countdownText = 'Tomorrow';
+      countdownSub = '1d to FMGE';
+    } else {
+      countdownText = `${daysRemaining}d`;
+      countdownSub = 'to FMGE';
+    }
+  }
 
   return (
     <motion.header
@@ -269,18 +291,45 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
           <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap pt-1 md:pt-0 shrink-0">
             <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
 
-            {/* Days to FMGE Target Badge */}
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl border shadow-2xs backdrop-blur-sm shrink-0 ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-white' : 'bg-white/90 border-stone-200/80'}`}>
+            {/* Days to FMGE Target Badge (Settings-driven, non-alarming) */}
+            <div
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl border shadow-2xs backdrop-blur-sm shrink-0 transition-all ${
+                circadian.isNight
+                  ? 'bg-slate-800/80 border-slate-700/80 text-white'
+                  : 'bg-white/90 border-stone-200/80'
+              }`}
+            >
               <div className="h-7 w-7 rounded-xl bg-teal-500/10 text-[#00685F] flex items-center justify-center shrink-0">
                 <Target className="h-3.5 w-3.5" />
               </div>
               <div className="leading-tight text-left">
-                <span className={`text-xs sm:text-sm font-extrabold font-['Outfit'] tabular-nums ${circadian.isNight ? 'text-white' : 'text-stone-900'}`}>
-                  {displayDays}d
+                <span
+                  className={`text-xs sm:text-sm font-extrabold font-['Outfit'] tabular-nums ${
+                    circadian.isNight ? 'text-white' : 'text-stone-900'
+                  }`}
+                >
+                  {countdownText}
                 </span>
-                <span className={`text-[10px] sm:text-[11px] font-medium ml-1 ${circadian.isNight ? 'text-slate-400' : 'text-stone-500'}`}>to FMGE</span>
+                <span
+                  className={`text-[10px] sm:text-[11px] font-medium ml-1 ${
+                    circadian.isNight ? 'text-slate-400' : 'text-stone-500'
+                  }`}
+                >
+                  {countdownSub}
+                </span>
               </div>
             </div>
+
+            {/* Purposeful Golden Hour High-Yield Pill */}
+            {isGoldenHourMode && (
+              <div
+                className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-2xl bg-amber-500/10 border border-amber-400/40 text-amber-800 dark:text-amber-300 text-[10.5px] font-bold font-mono tracking-wider uppercase shrink-0"
+                title="Golden Hour mode prioritizes high-yield clinical traps, rapid revision, and exam-pattern MCQs"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <span>High-Yield Active</span>
+              </div>
+            )}
 
             {/* Saved History Trigger Button */}
             <motion.button

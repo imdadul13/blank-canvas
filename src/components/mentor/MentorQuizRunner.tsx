@@ -388,8 +388,28 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold font-['Outfit']">
+          <div className="flex items-center gap-3">
+            {/* Quiet Dot Progress Indicator */}
+            <div className="hidden xs:flex items-center gap-1.5" title={`Question ${currentIndex + 1} of ${totalQuestions}`}>
+              {questions.map((_, qIdx) => {
+                const isAnswered = userAnswers[qIdx] !== undefined;
+                const isCurrent = qIdx === currentIndex;
+                return (
+                  <span
+                    key={qIdx}
+                    className={`rounded-full transition-all duration-200 ${
+                      isCurrent
+                        ? 'w-4 h-2 bg-[#006B63]'
+                        : isAnswered
+                        ? 'w-2 h-2 bg-teal-500/80'
+                        : 'w-2 h-2 bg-slate-200'
+                    }`}
+                  />
+                );
+              })}
+            </div>
+
+            <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold font-['Outfit'] border border-slate-200/60">
               Question {currentIndex + 1} of {totalQuestions}
             </span>
             <span className="text-xs font-bold text-slate-400 font-['Outfit']">
@@ -398,7 +418,7 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
           </div>
         </div>
 
-        {/* Progress Bar */}
+        {/* Progress Bar Track */}
         <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
           <div
             className="bg-[#006B63] h-full transition-all duration-300 rounded-full"
@@ -478,30 +498,35 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
         </p>
       </div>
 
-      {/* 4. Options A, B, C, D */}
+      {/* 4. Options A, B, C, D with Radio Selectors */}
       <div className="grid grid-cols-1 gap-2.5">
         {currentQ.options.map((opt) => {
           const isSelected = selectedKey === opt.key;
           const isStaged = stagedKey === opt.key;
           const isOptCorrect = opt.key === correctKey;
 
-          let btnStyle = 'border-slate-200/90 bg-white hover:border-slate-400 hover:bg-slate-50/60 text-slate-800 shadow-2xs';
-          let badgeStyle = 'bg-slate-100 text-slate-700 border border-slate-200';
+          let btnStyle = 'border-slate-200/90 bg-white hover:border-[#006B63]/40 hover:bg-slate-50/70 text-slate-800 shadow-2xs';
+          let badgeStyle = 'bg-slate-100 text-slate-700 border border-slate-200/80';
+          let radioClasses = 'border-slate-300 bg-white';
 
           if (isCurrentAnswered) {
             if (isOptCorrect) {
-              btnStyle = 'border-emerald-500 bg-emerald-50/90 text-emerald-950 font-semibold ring-2 ring-emerald-500/20 shadow-xs';
+              btnStyle = 'border-emerald-500/80 bg-emerald-50/70 text-emerald-950 font-semibold ring-2 ring-emerald-500/20 shadow-xs';
               badgeStyle = 'bg-emerald-600 text-white border-transparent';
+              radioClasses = 'border-emerald-600 bg-emerald-600';
             } else if (isSelected && !isOptCorrect) {
-              btnStyle = 'border-rose-400 bg-rose-50/90 text-rose-950 font-semibold ring-1 ring-rose-400/20';
+              btnStyle = 'border-rose-400/80 bg-rose-50/70 text-rose-950 font-semibold ring-1 ring-rose-400/20';
               badgeStyle = 'bg-rose-600 text-white border-transparent';
+              radioClasses = 'border-rose-600 bg-rose-600';
             } else {
-              btnStyle = 'border-slate-200/70 bg-slate-50/50 text-slate-400 opacity-65 cursor-not-allowed';
-              badgeStyle = 'bg-slate-100 text-slate-400 border-slate-200';
+              btnStyle = 'border-slate-200/70 bg-slate-50/40 text-slate-400 opacity-65 cursor-not-allowed';
+              badgeStyle = 'bg-slate-100 text-slate-400 border-slate-200/60';
+              radioClasses = 'border-slate-200 bg-slate-100';
             }
           } else if (isStaged) {
-            btnStyle = 'border-[#006B63] bg-teal-50/60 text-slate-950 font-semibold ring-2 ring-[#006B63]/25 shadow-xs';
+            btnStyle = 'border-[#006B63] bg-teal-50/50 text-slate-950 font-semibold ring-2 ring-[#006B63]/25 shadow-xs';
             badgeStyle = 'bg-[#006B63] text-white border-transparent';
+            radioClasses = 'border-[#006B63] bg-white';
           }
 
           return (
@@ -510,20 +535,43 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
               type="button"
               disabled={isCurrentAnswered}
               onClick={() => handleSelectOption(opt.key)}
-              className={`p-3.5 sm:p-4 rounded-2xl border text-left text-xs sm:text-sm font-medium transition-all flex items-start gap-3.5 cursor-pointer min-h-[48px] ${btnStyle}`}
+              className={`p-3.5 sm:p-4 rounded-2xl border text-left text-xs sm:text-sm font-medium transition-all duration-150 flex items-start gap-3.5 cursor-pointer min-h-[50px] ${btnStyle}`}
             >
+              {/* Radio Indicator */}
               <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold font-['Outfit'] transition-colors ${badgeStyle}`}
+                className={`mt-0.5 h-4 w-4 rounded-full border flex items-center justify-center shrink-0 transition-all ${radioClasses}`}
               >
                 {isCurrentAnswered && isOptCorrect ? (
-                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
                 ) : isCurrentAnswered && isSelected && !isOptCorrect ? (
-                  <X className="w-3.5 h-3.5 stroke-[2.5]" />
-                ) : (
-                  opt.key
-                )}
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                ) : isStaged ? (
+                  <span className="h-2 w-2 rounded-full bg-[#006B63]" />
+                ) : null}
               </span>
+
+              {/* Letter Key Pill */}
+              <span
+                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold font-['Outfit'] transition-colors ${badgeStyle}`}
+              >
+                {opt.key}
+              </span>
+
               <span className="leading-relaxed pt-0.5 flex-1">{opt.text}</span>
+
+              {/* Status and selection indicators on the right */}
+              {isCurrentAnswered && isOptCorrect && (
+                <span className="ml-auto shrink-0 self-center flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full font-['Outfit'] border border-emerald-300/60">
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Correct</span>
+                </span>
+              )}
+              {isCurrentAnswered && isSelected && !isOptCorrect && (
+                <span className="ml-auto shrink-0 self-center flex items-center gap-1 text-[11px] font-bold text-rose-800 bg-rose-100/90 px-2.5 py-0.5 rounded-full font-['Outfit'] border border-rose-300/60">
+                  <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Your Answer</span>
+                </span>
+              )}
             </button>
           );
         })}
@@ -531,8 +579,8 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
 
       {/* 5. Pre-Answer Submission Action Bar */}
       {!isCurrentAnswered && (
-        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-          <p className="text-xs text-slate-400 font-medium hidden sm:block">
+        <div className="flex items-center justify-between pt-2 border-t border-slate-100/90">
+          <p className="text-xs text-slate-500 font-medium hidden sm:block">
             {stagedKey ? `Selected Option ${stagedKey}. Click Submit Answer to verify.` : 'Select an option above to answer.'}
           </p>
 
@@ -540,10 +588,10 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
             type="button"
             disabled={!stagedKey}
             onClick={handleConfirmAnswer}
-            className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-['Outfit'] font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer ${
+            className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-['Outfit'] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all duration-150 shadow-xs cursor-pointer ${
               stagedKey
-                ? 'bg-[#006B63] hover:bg-[#00524c] text-white active:scale-98'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200/60'
+                ? 'bg-[#006B63] hover:bg-[#00524c] text-white active:scale-98 shadow-sm hover:shadow-md'
+                : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200/70'
             }`}
           >
             <span>Submit Answer</span>

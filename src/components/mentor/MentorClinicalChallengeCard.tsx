@@ -164,30 +164,35 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
         </p>
       </div>
 
-      {/* 4. Answer Options (A, B, C, D) */}
+      {/* 4. Answer Options (A, B, C, D) with Radio Selectors */}
       <div className="grid grid-cols-1 gap-2.5">
         {quiz.options.map((opt) => {
           const isStaged = stagedKey === opt.key;
           const isSelected = userAnswer === opt.key;
           const isCorrectOption = opt.key === correctKey;
 
-          let btnClasses = 'border-slate-200 bg-white hover:border-[#006B63]/40 hover:bg-[#f8fafc] text-slate-800';
-          let letterClasses = 'bg-slate-100 text-slate-700';
+          let btnClasses = 'border-slate-200/90 bg-white hover:border-[#006B63]/40 hover:bg-slate-50/70 text-slate-800 shadow-2xs';
+          let letterClasses = 'bg-slate-100 text-slate-700 border border-slate-200/80';
+          let radioClasses = 'border-slate-300 bg-white';
 
           if (isRevealed) {
             if (isCorrectOption) {
-              btnClasses = 'border-emerald-500 bg-[#f0fdf4] text-emerald-950 font-semibold ring-2 ring-emerald-500/25 shadow-2xs';
-              letterClasses = 'bg-emerald-600 text-white';
+              btnClasses = 'border-emerald-500/80 bg-emerald-50/70 text-emerald-950 font-semibold ring-2 ring-emerald-500/20 shadow-2xs';
+              letterClasses = 'bg-emerald-600 text-white border-transparent';
+              radioClasses = 'border-emerald-600 bg-emerald-600';
             } else if (isSelected && !isCorrectOption) {
-              btnClasses = 'border-rose-400 bg-[#fff1f2] text-rose-950 font-semibold ring-2 ring-rose-400/25';
-              letterClasses = 'bg-rose-600 text-white';
+              btnClasses = 'border-rose-400/80 bg-rose-50/70 text-rose-950 font-semibold ring-2 ring-rose-400/20';
+              letterClasses = 'bg-rose-600 text-white border-transparent';
+              radioClasses = 'border-rose-600 bg-rose-600';
             } else {
-              btnClasses = 'border-slate-200/70 bg-slate-50/50 text-slate-400 opacity-70 cursor-default';
-              letterClasses = 'bg-slate-100 text-slate-400';
+              btnClasses = 'border-slate-200/70 bg-slate-50/40 text-slate-400 opacity-65 cursor-default';
+              letterClasses = 'bg-slate-100 text-slate-400 border-slate-200/60';
+              radioClasses = 'border-slate-200 bg-slate-100';
             }
           } else if (isStaged) {
-            btnClasses = 'border-[#006B63] bg-[#f0fdf9] text-slate-900 font-semibold ring-2 ring-[#006B63]/25 shadow-2xs';
-            letterClasses = 'bg-[#006B63] text-white';
+            btnClasses = 'border-[#006B63] bg-teal-50/50 text-slate-900 font-semibold ring-2 ring-[#006B63]/25 shadow-xs';
+            letterClasses = 'bg-[#006B63] text-white border-transparent';
+            radioClasses = 'border-[#006B63] bg-white';
           }
 
           return (
@@ -196,24 +201,39 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
               type="button"
               disabled={isRevealed}
               onClick={() => handleSelectOption(opt.key)}
-              className={`w-full min-h-[48px] p-3.5 sm:p-4 rounded-2xl border text-left text-xs sm:text-sm font-medium transition-all flex items-start gap-3.5 cursor-pointer disabled:cursor-default ${btnClasses}`}
+              className={`w-full min-h-[50px] p-3.5 sm:p-4 rounded-2xl border text-left text-xs sm:text-sm font-medium transition-all duration-150 flex items-start gap-3.5 cursor-pointer disabled:cursor-default ${btnClasses}`}
             >
+              {/* Radio Indicator */}
               <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold font-['Outfit'] ${letterClasses}`}
+                className={`mt-0.5 h-4 w-4 rounded-full border flex items-center justify-center shrink-0 transition-all ${radioClasses}`}
+              >
+                {isRevealed && isCorrectOption ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                ) : isRevealed && isSelected && !isCorrectOption ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                ) : isStaged ? (
+                  <span className="h-2 w-2 rounded-full bg-[#006B63]" />
+                ) : null}
+              </span>
+
+              {/* Letter Key Pill */}
+              <span
+                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold font-['Outfit'] transition-colors ${letterClasses}`}
               >
                 {opt.key}
               </span>
+
               <span className="leading-relaxed pt-0.5 flex-1">{opt.text}</span>
 
               {/* Status and selection indicators on the right */}
               {isRevealed && isCorrectOption && (
-                <span className="ml-auto shrink-0 self-center flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md font-['Outfit']">
+                <span className="ml-auto shrink-0 self-center flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full font-['Outfit'] border border-emerald-300/60">
                   <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span>Correct</span>
                 </span>
               )}
               {isRevealed && isSelected && !isCorrectOption && (
-                <span className="ml-auto shrink-0 self-center flex items-center gap-1 text-[11px] font-bold text-rose-700 bg-rose-100/80 px-2 py-0.5 rounded-md font-['Outfit']">
+                <span className="ml-auto shrink-0 self-center flex items-center gap-1 text-[11px] font-bold text-rose-800 bg-rose-100/90 px-2.5 py-0.5 rounded-full font-['Outfit'] border border-rose-300/60">
                   <X className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span>Your Answer</span>
                 </span>
@@ -230,20 +250,20 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
 
       {/* 5. Submit Action Button (Before submission) */}
       {!isRevealed && (
-        <div className="pt-2 flex items-center justify-between flex-wrap gap-3">
+        <div className="pt-2 flex items-center justify-between flex-wrap gap-3 border-t border-slate-100/90">
           <span className="text-xs text-slate-500 font-medium">
             {stagedKey
-              ? `Option ${stagedKey} selected. Confirm your answer.`
+              ? `Option ${stagedKey} selected. Confirm your diagnosis.`
               : 'Select an option above to submit your clinical diagnosis.'}
           </span>
           <button
             type="button"
             disabled={!stagedKey}
             onClick={handleSubmit}
-            className={`px-5 py-2.5 rounded-xl font-['Outfit'] font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+            className={`px-6 py-2.5 rounded-xl font-['Outfit'] font-bold text-xs sm:text-sm transition-all duration-150 flex items-center gap-2 ${
               stagedKey
-                ? 'bg-[#006B63] hover:bg-[#00554e] text-white shadow-xs hover:shadow-sm cursor-pointer active:scale-[0.99]'
-                : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                ? 'bg-[#006B63] hover:bg-[#00554e] text-white shadow-xs hover:shadow-md cursor-pointer active:scale-[0.98]'
+                : 'bg-slate-100 text-slate-400 border border-slate-200/80 cursor-not-allowed'
             }`}
           >
             <span>Submit Answer</span>
