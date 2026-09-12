@@ -188,8 +188,9 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
             type="button"
             onClick={() => setShowReviewList((prev) => !prev)}
             className="px-4 py-2.5 rounded-xl border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold font-['Outfit'] flex items-center gap-2 cursor-pointer transition-colors shadow-2xs"
+            title="Review Mistakes and Question Rationales"
           >
-            <span>{showReviewList ? 'Hide Question Review' : 'Review 5 Questions'}</span>
+            <span>{showReviewList ? 'Hide Question Review' : `Review Mistakes (${totalQuestions - score}) & Rationales (Review 5 Questions)`}</span>
             {showReviewList ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
           </button>
 
@@ -199,7 +200,7 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
             className="px-5 py-2.5 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold font-['Outfit'] flex items-center gap-2 cursor-pointer shadow-xs transition-transform active:scale-98"
           >
             <RotateCw className="w-3.5 h-3.5" />
-            <span>Start Another Clinical Challenge</span>
+            <span>Try Again (Start Another Clinical Challenge)</span>
           </button>
 
           <button
@@ -207,7 +208,7 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
             onClick={onClose}
             className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold font-['Outfit'] cursor-pointer transition-colors"
           >
-            Return to Mentor
+            New Topic
           </button>
         </div>
 

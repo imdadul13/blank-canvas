@@ -1068,6 +1068,23 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
       // If backend provided a multi-question interactive quiz session
       if (data?.quizSession && Array.isArray(data.quizSession.questions) && data.quizSession.questions.length > 1) {
+        const quizTitle = data.quizSession.title || 'Interactive Clinical Drill';
+        const qCount = data.quizSession.questions.length;
+        const topicName = data.topic || data.quizSession.topic || 'High-Yield Clinical Medicine';
+        
+        const assistantMsg: ChatMessage = {
+          id: `ai-${Date.now()}`,
+          role: 'assistant',
+          content: data.reply || `Starting an interactive **${qCount}-question clinical drill** on **${topicName}**. Test your diagnostic approach below:`,
+          timestamp: new Date(),
+          suggestedFollowUps: [
+            `Give me another drill on ${topicName}`,
+            'Explain the core pathophysiological mechanism',
+            'What is the gold standard diagnostic test?'
+          ],
+        };
+
+        setMessages([...newMessages, assistantMsg]);
         setQuizSession({
           questions: data.quizSession.questions,
           currentIndex: 0,

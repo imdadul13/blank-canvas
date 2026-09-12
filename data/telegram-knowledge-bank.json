@@ -1,398 +1,98 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-12T11:31:26.914Z",
+  "updatedAt": "2026-09-12T12:03:46.922Z",
   "telegram_messages": [
     {
-      "id": "raw-tg-1789200294544-x72tx",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86325",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.544Z",
-      "text": "🔴🔴Will provide you hot topics, daily tasks, important pdf, flashcards, hot topics videos, hot images, daily live topicwise question sessions.\n\nAll the essential thing each &amp; every corner which you require to crack this exam in our OCTOBER CAPSULE REVISION BATCH.\n\nSO DONT BE LATE TO JOIN:-\n\n\nJUST TEXT :- &quot;JOIN&quot; to t.me/targetfmgeexam to book a slot &amp; pass this October 31st Fmge exam 💯😍",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86325",
-      "ingestedAt": "2026-09-12T08:04:54.544Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86325",
-      "processedAt": "2026-09-12T08:04:54.545Z"
-    },
-    {
-      "id": "raw-tg-1789200294540-w8wkj",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86324",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.540Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86324",
-      "ingestedAt": "2026-09-12T08:04:54.540Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86324",
-      "processedAt": "2026-09-12T08:04:54.543Z"
-    },
-    {
-      "id": "raw-tg-1789200294536-62wih",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86323",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.536Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86323",
-      "ingestedAt": "2026-09-12T08:04:54.536Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86323",
-      "processedAt": "2026-09-12T08:04:54.538Z"
-    },
-    {
-      "id": "raw-tg-1789200294533-odauf",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86322",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.533Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86322",
-      "ingestedAt": "2026-09-12T08:04:54.533Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86322",
-      "processedAt": "2026-09-12T08:04:54.535Z"
-    },
-    {
-      "id": "raw-tg-1789200294530-6ib1m",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86321",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.530Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86321",
-      "ingestedAt": "2026-09-12T08:04:54.530Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86321",
-      "processedAt": "2026-09-12T08:04:54.532Z"
-    },
-    {
-      "id": "raw-tg-1789200294527-hl8je",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86320",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.527Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86320",
-      "ingestedAt": "2026-09-12T08:04:54.527Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86320",
-      "processedAt": "2026-09-12T08:04:54.528Z"
-    },
-    {
-      "id": "raw-tg-1789200294523-4l9ve",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86319",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.523Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86319",
-      "ingestedAt": "2026-09-12T08:04:54.523Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86319",
-      "processedAt": "2026-09-12T08:04:54.525Z"
-    },
-    {
-      "id": "raw-tg-1789200294519-tf4p7",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86318",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.519Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86318",
-      "ingestedAt": "2026-09-12T08:04:54.519Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86318",
-      "processedAt": "2026-09-12T08:04:54.521Z"
-    },
-    {
-      "id": "raw-tg-1789200294515-lo0tx",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86317",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.515Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86317",
-      "ingestedAt": "2026-09-12T08:04:54.515Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86317",
-      "processedAt": "2026-09-12T08:04:54.517Z"
-    },
-    {
-      "id": "raw-tg-1789200294511-qu42a",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86316",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.511Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86316",
-      "ingestedAt": "2026-09-12T08:04:54.511Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86316",
-      "processedAt": "2026-09-12T08:04:54.514Z"
-    },
-    {
-      "id": "raw-tg-1789200294321-e6fgd",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86315",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.321Z",
-      "text": "=========================\n\n➡️FMGE RECALL QUESTIONS\n🔴FMGE 2021 RECALL\n🔴FMGE 2022 RECALL\n🔴FMGE 2023 RECALL\n🔴FMGE 2024 RECALL\n🔴FMGE JAN 2025 RECALL\n🔴FMGE JULY 2025 RECALL\n🔴FMGE JAN 2026 RECALL\n🔴FMGE JUNE 2026 RECALL\n\n=========================\n=========================\n\n➡️NEETPG RECALL QUESTIONS\n🔵NEETPG 2022 RECALL\n🔵NEETPG 2023 RECALL\n🔵NEETPG 2024 RECALL\n🔵NEETPG 2025 RECALL\n🔵NEETPG 2026 RECALL\n\n👑 SPECIAL NEETPG IMAGE RECALL\n\n=========================\n=========================\n\n➡️INICET RECALLS\n🔴INICET 2025 RECALL\n🔴INICET 2026 RECALL\n\n=========================\n=========================",
-      "mediaType": "IMAGE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86315",
-      "ingestedAt": "2026-09-12T08:04:54.321Z",
-      "processingStatus": "QUESTION_CREATED",
-      "compositeKey": "targetfmgechannel:86315",
-      "processedAt": "2026-09-12T08:04:54.509Z"
-    },
-    {
-      "id": "raw-tg-1789200294318-aqm8j",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86314",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.318Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86314",
-      "ingestedAt": "2026-09-12T08:04:54.318Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86314",
-      "processedAt": "2026-09-12T08:04:54.320Z"
-    },
-    {
-      "id": "raw-tg-1789200294315-bx3nl",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86313",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.315Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86313",
-      "ingestedAt": "2026-09-12T08:04:54.315Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86313",
-      "processedAt": "2026-09-12T08:04:54.317Z"
-    },
-    {
-      "id": "raw-tg-1789200294312-cce8a",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86312",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.312Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86312",
-      "ingestedAt": "2026-09-12T08:04:54.312Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86312",
-      "processedAt": "2026-09-12T08:04:54.314Z"
-    },
-    {
-      "id": "raw-tg-1789200294123-czs3p",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86311",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:54.123Z",
-      "text": "========================\n\n➡️BOUNCE BACK PART B\n🔵BOUNCE BACK - 14\n🟣IBQ &amp; 1 LINERS - 15\n🔵BOUNCE BACK - 16\n🔵BOUNCE BACK - 17\n🔵BOUNCE BACK - 18\n🔵BOUNCE BACK - 19\n🔵BOUNCE BACK - 20\n🔵BOUNCE BACK - 21\n🔵BOUNCE BACK - 22\n🔵BOUNCE BACK - 23\n🔵BOUNCE BACK - 24\n🟣IBQ &amp; 1 LINERS - 25\n🟣OBG IMAGE BAG - 26\n🟣DERMA, RADIO &amp; PSY - 27\n🟣MEDICINE 1 IBQ - 28\n🟣IBQ &amp; 1 LINERS - 29\n\n========================\n========================\n\n➡️TOP 200 IMAGES\n🔵IBQ SPECIAL QUIZ BAG\n\n=========================\n=========================\n\n➡️GRAND MOCK TEST - A\n🔴GRAND MOCK PART - 01\n🔴GRAND MOCK PART - 02\n\n=========================\n=========================\n\n➡️GRAND MOCK TEST - B\n🔴GRAND MOCK PART - 01\n🔴GRAND MOCK PART - 02\n\n=========================\n=========================",
-      "mediaType": "IMAGE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86311",
-      "ingestedAt": "2026-09-12T08:04:54.123Z",
-      "processingStatus": "QUESTION_CREATED",
-      "compositeKey": "targetfmgechannel:86311",
-      "processedAt": "2026-09-12T08:04:54.310Z"
-    },
-    {
-      "id": "raw-tg-1789200293446-91yl5",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86310",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:53.446Z",
-      "text": "========================\n\n➡️BOUNCE BACK PART A\n🔴BOUNCE BACK - 01\n🔴BOUNCE BACK - 02\n🔴BOUNCE BACK - 03\n🔴BOUNCE BACK - 04\n🔴BOUNCE BACK - 05\n🔴IBQ &amp; 1 LINERS - 06\n🔴BOUNCE BACK - 07\n🔴BOUNCE BACK - 08\n🔴IBQ &amp; 1 LINERS - 09\n🔴BOUNCE BACK - 10\n🔴BOUNCE BACK - 11\n🔴IBQ &amp; 1 LINERS - 12\n🔴BOUNCE BACK - 13\n\n========================\n========================",
-      "mediaType": "IMAGE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86310",
-      "ingestedAt": "2026-09-12T08:04:53.446Z",
-      "processingStatus": "QUESTION_CREATED",
-      "compositeKey": "targetfmgechannel:86310",
-      "processedAt": "2026-09-12T08:04:54.121Z"
-    },
-    {
-      "id": "raw-tg-1789200293443-bjzpj",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86309",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:53.443Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86309",
-      "ingestedAt": "2026-09-12T08:04:53.443Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86309",
-      "processedAt": "2026-09-12T08:04:53.445Z"
-    },
-    {
-      "id": "raw-tg-1789200293440-komxp",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86308",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:53.440Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86308",
-      "ingestedAt": "2026-09-12T08:04:53.440Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86308",
-      "processedAt": "2026-09-12T08:04:53.441Z"
-    },
-    {
-      "id": "raw-tg-1789200293436-b48h7",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86307",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:53.436Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86307",
-      "ingestedAt": "2026-09-12T08:04:53.436Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86307",
-      "processedAt": "2026-09-12T08:04:53.438Z"
-    },
-    {
-      "id": "raw-tg-1789200293431-isi4a",
-      "channelId": "@targetfmgechannel",
-      "telegramMessageId": "86306",
-      "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T08:04:53.431Z",
-      "text": "⭐⭐⭐⭐⭐",
-      "mediaType": "NONE",
-      "media": [],
-      "sourceUrl": "https://t.me/targetfmgechannel/86306",
-      "ingestedAt": "2026-09-12T08:04:53.431Z",
-      "processingStatus": "MEDIA_ONLY",
-      "compositeKey": "targetfmgechannel:86306",
-      "processedAt": "2026-09-12T08:04:53.435Z"
-    },
-    {
-      "id": "raw-tg-1789199600388-ptujs",
+      "id": "raw-tg-1789214626910-2dhh8",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10006",
       "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T07:53:20.388Z",
+      "messageDate": "2026-09-12T12:03:46.910Z",
       "text": "Raw damaged Telegram payload with incomplete tokens",
       "mediaType": "NONE",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10006",
-      "ingestedAt": "2026-09-12T07:53:20.388Z",
+      "ingestedAt": "2026-09-12T12:03:46.910Z",
       "processingStatus": "RAW_MESSAGE_SAVED",
       "compositeKey": "targetfmgechannel:10006"
     },
     {
-      "id": "raw-tg-1789199600383-vwni6",
+      "id": "raw-tg-1789214626907-j8sjr",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10005",
       "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T07:53:20.383Z",
+      "messageDate": "2026-09-12T12:03:46.907Z",
       "text": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification and admit card release date announced on natboard.edu.in.",
       "mediaType": "NONE",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10005",
-      "ingestedAt": "2026-09-12T07:53:20.383Z",
+      "ingestedAt": "2026-09-12T12:03:46.907Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "targetfmgechannel:10005",
-      "processedAt": "2026-09-12T07:53:20.386Z"
+      "processedAt": "2026-09-12T12:03:46.909Z"
     },
     {
-      "id": "raw-tg-1789199600378-6m7mm",
+      "id": "raw-tg-1789214626904-nnvm8",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10004",
       "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T07:53:20.378Z",
+      "messageDate": "2026-09-12T12:03:46.904Z",
       "text": "HIGH-YIELD FMGE PEARL: Modified Parkland Formula for Burns = 4 mL x Body Weight (kg) x % Total Burn Surface Area. Give 50% in first 8 hours and 50% in remaining 16 hours.",
       "mediaType": "NONE",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10004",
-      "ingestedAt": "2026-09-12T07:53:20.378Z",
+      "ingestedAt": "2026-09-12T12:03:46.904Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "targetfmgechannel:10004",
-      "processedAt": "2026-09-12T07:53:20.381Z"
+      "processedAt": "2026-09-12T12:03:46.906Z"
     },
     {
-      "id": "raw-tg-1789199600166-0ndyd",
+      "id": "raw-tg-1789214626667-70jaz",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10003",
       "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T07:53:20.166Z",
+      "messageDate": "2026-09-12T12:03:46.667Z",
       "text": "Observe the clinical video showing rhythmic involuntary horizontal oscillations of the eyes that increase on lateral gaze. What is the condition shown?\nA) Horizontal Jerk Nystagmus\nB) Opsoclonus\nC) Ocular Flutter\nD) Saccadic Intrusion\nAns: A\nExp: The video demonstrates horizontal jerk nystagmus with slow drift and fast corrective phase.",
       "mediaType": "VIDEO",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10003",
-      "ingestedAt": "2026-09-12T07:53:20.166Z",
+      "ingestedAt": "2026-09-12T12:03:46.667Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "targetfmgechannel:10003",
-      "processedAt": "2026-09-12T07:53:20.376Z"
+      "processedAt": "2026-09-12T12:03:46.903Z"
     },
     {
-      "id": "raw-tg-1789199599191-p0ajm",
+      "id": "raw-tg-1789214625842-3qud3",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10002",
       "telegramChatId": "targetfmgechannel",
-      "messageDate": "2026-09-12T07:53:19.191Z",
+      "messageDate": "2026-09-12T12:03:45.842Z",
       "text": "A 45-year-old male presents with severe epigastric pain radiating to the back. Serum amylase and lipase are elevated. CT abdomen is shown below. What is the most likely diagnosis?\nA) Acute pancreatitis\nB) Peptic ulcer perforation\nC) Acute cholecystitis\nD) Mesenteric ischemia\nAns: A\nExp: CT confirms peripancreatic fat stranding and acute necrotizing pancreatitis.",
       "mediaType": "IMAGE",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10002",
-      "ingestedAt": "2026-09-12T07:53:19.191Z",
+      "ingestedAt": "2026-09-12T12:03:45.842Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "targetfmgechannel:10002",
-      "processedAt": "2026-09-12T07:53:20.164Z"
+      "processedAt": "2026-09-12T12:03:46.666Z"
     },
     {
-      "id": "raw-tg-1789199599190-f14ku",
+      "id": "raw-tg-1789214625833-is092",
       "channelId": "@mission_fmge8",
       "telegramMessageId": "50005",
       "telegramChatId": "mission_fmge8",
-      "messageDate": "2026-09-12T07:53:19.190Z",
+      "messageDate": "2026-09-12T12:03:45.833Z",
       "text": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine is first-line.",
       "mediaType": "NONE",
       "media": [],
       "sourceUrl": "https://t.me/mission_fmge8/50005",
-      "ingestedAt": "2026-09-12T07:53:19.190Z",
+      "ingestedAt": "2026-09-12T12:03:45.833Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "mission_fmge8:50005",
-      "processedAt": "2026-09-12T07:53:19.191Z"
+      "processedAt": "2026-09-12T12:03:45.841Z"
     },
     {
-      "id": "raw-tg-1789199599188-vbujr",
+      "id": "raw-tg-1789214625829-j7ntn",
       "channelId": "@targetfmgechannel",
       "telegramMessageId": "10001",
       "telegramChatId": "targetfmgechannel",
@@ -401,281 +101,35 @@
       "mediaType": "NONE",
       "media": [],
       "sourceUrl": "https://t.me/targetfmgechannel/10001",
-      "ingestedAt": "2026-09-12T07:53:19.188Z",
+      "ingestedAt": "2026-09-12T12:03:45.829Z",
       "processingStatus": "QUESTION_CREATED",
       "compositeKey": "targetfmgechannel:10001",
-      "processedAt": "2026-09-12T07:53:19.189Z"
+      "processedAt": "2026-09-12T12:03:45.831Z"
     }
   ],
   "media_assets": [
     {
-      "id": "media-1789200294504-xglx",
-      "telegramMessageId": "86315",
-      "mediaType": "IMAGE",
-      "originalFilename": "tg_86315_1789200294322_q1n5.jpg",
-      "mimeType": "image/jpeg",
-      "storageUrl": "/uploads/telegram/media/tg_86315_1789200294322_q1n5.jpg",
-      "filePath": "/Users/imdadul/Downloads/untitled-2/public/uploads/telegram/media/tg_86315_1789200294322_q1n5.jpg",
-      "createdAt": "2026-09-12T08:04:54.504Z"
-    },
-    {
-      "id": "media-1789200294306-qe5k",
-      "telegramMessageId": "86311",
-      "mediaType": "IMAGE",
-      "originalFilename": "tg_86311_1789200294124_lsnq.jpg",
-      "mimeType": "image/jpeg",
-      "storageUrl": "/uploads/telegram/media/tg_86311_1789200294124_lsnq.jpg",
-      "filePath": "/Users/imdadul/Downloads/untitled-2/public/uploads/telegram/media/tg_86311_1789200294124_lsnq.jpg",
-      "createdAt": "2026-09-12T08:04:54.306Z"
-    },
-    {
-      "id": "media-1789200294117-8g41",
-      "telegramMessageId": "86310",
-      "mediaType": "IMAGE",
-      "originalFilename": "tg_86310_1789200293447_26b9.jpg",
-      "mimeType": "image/jpeg",
-      "storageUrl": "/uploads/telegram/media/tg_86310_1789200293447_26b9.jpg",
-      "filePath": "/Users/imdadul/Downloads/untitled-2/public/uploads/telegram/media/tg_86310_1789200293447_26b9.jpg",
-      "createdAt": "2026-09-12T08:04:54.117Z"
-    },
-    {
-      "id": "media-1789199600371-h2bs",
+      "id": "media-1789214626902-c6i7",
       "telegramMessageId": "10003",
       "mediaType": "VIDEO",
-      "originalFilename": "tg_10003_1789199600167_1grl.mp4",
+      "originalFilename": "tg_10003_1789214626669_0w9v.mp4",
       "mimeType": "video/mp4",
       "storageUrl": "https://api.telegram.org/file/bot12345/videos/nystagmus_clip.mp4",
-      "createdAt": "2026-09-12T07:53:20.371Z"
+      "createdAt": "2026-09-12T12:03:46.902Z"
     },
     {
-      "id": "media-1789199600162-6pot",
+      "id": "media-1789214626664-s8b2",
       "telegramMessageId": "10002",
       "mediaType": "IMAGE",
-      "originalFilename": "tg_10002_1789199599192_jbqi.jpg",
+      "originalFilename": "tg_10002_1789214625843_z7b0.jpg",
       "mimeType": "image/jpeg",
       "storageUrl": "https://api.telegram.org/file/bot12345/photos/file_pancreatitis_ct.jpg",
-      "createdAt": "2026-09-12T07:53:20.162Z"
+      "createdAt": "2026-09-12T12:03:46.664Z"
     }
   ],
   "questions": [
     {
-      "id": "q-tg-1789200294508-sn62",
-      "sourceChannel": "@targetfmgechannel",
-      "channelTitle": "targetfmgechannel",
-      "rawText": "=========================\n\n➡️FMGE RECALL QUESTIONS\n🔴FMGE 2021 RECALL\n🔴FMGE 2022 RECALL\n🔴FMGE 2023 RECALL\n🔴FMGE 2024 RECALL\n🔴FMGE JAN 2025 RECALL\n🔴FMGE JULY 2025 RECALL\n🔴FMGE JAN 2026 RECALL\n🔴FMGE JUNE 2026 RECALL\n\n=========================\n=========================\n\n➡️NEETPG RECALL QUESTIONS\n🔵NEETPG 2022 RECALL\n🔵NEETPG 2023 RECALL\n🔵NEETPG 2024 RECALL\n🔵NEETPG 2025 RECALL\n🔵NEETPG 2026 RECALL\n\n👑 SPECIAL NEETPG IMAGE RECALL\n\n=========================\n=========================\n\n➡️INICET RECALLS\n🔴INICET 2025 RECALL\n🔴INICET 2026 RECALL\n\n=========================\n=========================",
-      "subjectId": "medicine",
-      "topic": "Cardiology & Emergency ECGs",
-      "question": "========================= ➡️FMGE RECALL QUESTIONS 🔴FMGE 2021 RECALL 🔴FMGE 2022 RECALL 🔴FMGE 2023 RECALL 🔴FMGE 2024 RECALL 🔴FMGE JAN 2025 RECALL 🔴FMGE JULY 2025 RECALL 🔴FMGE JAN 2026 RECALL 🔴FMGE JUNE 2026 RECALL ========================= ========================= ➡️NEETPG RECALL QUESTIONS 🔵NEETPG 2022 RECALL 🔵NEETPG 2023 RECALL 🔵NEETPG 2024 RECALL 🔵NEETPG 2025 RECALL 🔵NEETPG 2026 RECALL 👑 SPECIAL NEETPG IMAGE RECALL ========================= ========================= ➡️INICET RECALLS 🔴INICET 2025 RECALL 🔴INICET 2026 RECALL ========================= =========================",
-      "options": [
-        {
-          "key": "A",
-          "text": "Loss of deep tendon reflexes (Patellar)"
-        },
-        {
-          "key": "B",
-          "text": "Respiratory arrest (< 12 / min)"
-        },
-        {
-          "key": "C",
-          "text": "Cardiac arrest (> 15 mEq/L)"
-        },
-        {
-          "key": "D",
-          "text": "Oliguria (< 30 mL/hr)"
-        }
-      ],
-      "correctKey": "A",
-      "explanation": "Option A is the high-yield correct answer based on standard FMGE clinical guidelines.",
-      "whyOtherOptionsAreWrong": [
-        {
-          "key": "B",
-          "reason": "Option B (Respiratory arrest (< 12 / min)) is incorrect in this clinical setting. It represents an alternative differential diagnosis with distinct investigative and pharmacological parameters."
-        },
-        {
-          "key": "C",
-          "reason": "Option C (Cardiac arrest (> 15 mEq/L)) is incorrect in this clinical setting. It represents an alternative differential diagnosis with distinct investigative and pharmacological parameters."
-        },
-        {
-          "key": "D",
-          "reason": "Option D (Oliguria (< 30 mL/hr)) is incorrect in this clinical setting. It represents an alternative differential diagnosis with distinct investigative and pharmacological parameters."
-        }
-      ],
-      "highYieldPearl": "FMGE HIGH-YIELD TAKEAWAY: When evaluating this clinical presentation, Option (A) is the gold standard diagnostic or therapeutic choice. Always look for classic exam buzzwords.",
-      "difficulty": "high-yield",
-      "tags": [
-        "Telegram",
-        "MEDICINE",
-        "HighYield"
-      ],
-      "questionType": "ibq",
-      "imageUrl": "/uploads/telegram/media/tg_86315_1789200294322_q1n5.jpg",
-      "postUrl": "https://t.me/targetfmgechannel/86315",
-      "messageId": "86315",
-      "datePulled": "2026-09-12T08:04:54.508Z",
-      "userStatus": "unsolved",
-      "isAutoSaved": true,
-      "aiCrossCheckStatus": "verified",
-      "aiCrossCheckNotes": "Cross-checked against high-yield FMGE medical curriculum. Clinical stem, options, and key verified.",
-      "sources": [
-        {
-          "questionId": "q-tg-1789200294508",
-          "telegramMessageId": "86315",
-          "channelId": "@targetfmgechannel",
-          "channelTitle": "targetfmgechannel",
-          "sourceUrl": "https://t.me/targetfmgechannel/86315",
-          "sourceDate": "2026-09-12T08:04:54.508Z",
-          "isPrimary": true
-        }
-      ],
-      "seenInChannelsCount": 1,
-      "normalizedHash": "911db8be636930d3dc164a22d1fd0f65bef0e7a1fe0024c3f8f139460efb08c3"
-    },
-    {
-      "id": "q-tg-1789200294309-no1a",
-      "sourceChannel": "@targetfmgechannel",
-      "channelTitle": "targetfmgechannel",
-      "rawText": "========================\n\n➡️BOUNCE BACK PART B\n🔵BOUNCE BACK - 14\n🟣IBQ &amp; 1 LINERS - 15\n🔵BOUNCE BACK - 16\n🔵BOUNCE BACK - 17\n🔵BOUNCE BACK - 18\n🔵BOUNCE BACK - 19\n🔵BOUNCE BACK - 20\n🔵BOUNCE BACK - 21\n🔵BOUNCE BACK - 22\n🔵BOUNCE BACK - 23\n🔵BOUNCE BACK - 24\n🟣IBQ &amp; 1 LINERS - 25\n🟣OBG IMAGE BAG - 26\n🟣DERMA, RADIO &amp; PSY - 27\n🟣MEDICINE 1 IBQ - 28\n🟣IBQ &amp; 1 LINERS - 29\n\n========================\n========================\n\n➡️TOP 200 IMAGES\n🔵IBQ SPECIAL QUIZ BAG\n\n=========================\n=========================\n\n➡️GRAND MOCK TEST - A\n🔴GRAND MOCK PART - 01\n🔴GRAND MOCK PART - 02\n\n=========================\n=========================\n\n➡️GRAND MOCK TEST - B\n🔴GRAND MOCK PART - 01\n🔴GRAND MOCK PART - 02\n\n=========================\n=========================",
-      "subjectId": "medicine",
-      "topic": "Cardiology & Emergency ECGs",
-      "question": "======================== ➡️BOUNCE BACK PART B 🔵BOUNCE BACK - 14 🟣IBQ &amp; 1 LINERS - 15 🔵BOUNCE BACK - 16 🔵BOUNCE BACK - 17 🔵BOUNCE BACK - 18 🔵BOUNCE BACK - 19 🔵BOUNCE BACK - 20 🔵BOUNCE BACK - 21 🔵BOUNCE BACK - 22 🔵BOUNCE BACK - 23 🔵BOUNCE BACK - 24 🟣IBQ &amp; 1 LINERS - 25 🟣OBG IMAGE BAG - 26 🟣DERMA, RADIO &amp; PSY - 27 🟣MEDICINE 1 IBQ - 28 🟣IBQ &amp; 1 LINERS - 29 ======================== ======================== ➡️TOP 200 IMAGES 🔵IBQ SPECIAL QUIZ BAG ========================= ========================= ➡️GRAND MOCK TEST - A 🔴GRAND MOCK PART - 01 🔴GRAND MOCK PART - 02 ========================= ========================= ➡️GRAND MOCK TEST - B 🔴GRAND MOCK PART - 01 🔴GRAND MOCK PART - 02 ========================= =========================",
-      "options": [
-        {
-          "key": "A",
-          "text": "Loss of deep tendon reflexes (Patellar)"
-        },
-        {
-          "key": "B",
-          "text": "Respiratory arrest (< 12 / min)"
-        },
-        {
-          "key": "C",
-          "text": "Cardiac arrest (> 15 mEq/L)"
-        },
-        {
-          "key": "D",
-          "text": "Oliguria (< 30 mL/hr)"
-        }
-      ],
-      "correctKey": "A",
-      "explanation": "Option A is the high-yield correct answer based on standard FMGE clinical guidelines.",
-      "whyOtherOptionsAreWrong": [
-        {
-          "key": "B",
-          "reason": "Option B (Respiratory arrest (< 12 / min)) is incorrect in this clinical setting. It represents an alternative differential diagnosis with distinct investigative and pharmacological parameters."
-        },
-        {
-          "key": "C",
-          "reason": "Option C (Cardiac arrest (> 15 mEq/L)) is incorrect in this clinical setting. It represents an alternative differential diagnosis with distinct investigative and pharmacological parameters."
-        },
-        {
-          "key": "D",
-          "reason": "Option D (Oliguria (< 30 mL/hr)) is incorrect in this clinical setting. It represents an alternative differential diagnosis with distinct investigative and pharmacological parameters."
-        }
-      ],
-      "highYieldPearl": "FMGE HIGH-YIELD TAKEAWAY: When evaluating this clinical presentation, Option (A) is the gold standard diagnostic or therapeutic choice. Always look for classic exam buzzwords.",
-      "difficulty": "high-yield",
-      "tags": [
-        "Telegram",
-        "MEDICINE",
-        "HighYield"
-      ],
-      "questionType": "ibq",
-      "imageUrl": "/uploads/telegram/media/tg_86311_1789200294124_lsnq.jpg",
-      "postUrl": "https://t.me/targetfmgechannel/86311",
-      "messageId": "86311",
-      "datePulled": "2026-09-12T08:04:54.309Z",
-      "userStatus": "unsolved",
-      "isAutoSaved": true,
-      "aiCrossCheckStatus": "verified",
-      "aiCrossCheckNotes": "Cross-checked against high-yield FMGE medical curriculum. Clinical stem, options, and key verified.",
-      "sources": [
-        {
-          "questionId": "q-tg-1789200294309",
-          "telegramMessageId": "86311",
-          "channelId": "@targetfmgechannel",
-          "channelTitle": "targetfmgechannel",
-          "sourceUrl": "https://t.me/targetfmgechannel/86311",
-          "sourceDate": "2026-09-12T08:04:54.309Z",
-          "isPrimary": true
-        }
-      ],
-      "seenInChannelsCount": 1,
-      "normalizedHash": "4b8fecfa701454f763401242bd55d3c14a4f4a2c534fb82e4bdd4a5246b4b340"
-    },
-    {
-      "id": "q-tg-1789200294120-1k7k",
-      "sourceChannel": "@targetfmgechannel",
-      "channelTitle": "targetfmgechannel",
-      "rawText": "========================\n\n➡️BOUNCE BACK PART A\n🔴BOUNCE BACK - 01\n🔴BOUNCE BACK - 02\n🔴BOUNCE BACK - 03\n🔴BOUNCE BACK - 04\n🔴BOUNCE BACK - 05\n🔴IBQ &amp; 1 LINERS - 06\n🔴BOUNCE BACK - 07\n🔴BOUNCE BACK - 08\n🔴IBQ &amp; 1 LINERS - 09\n🔴BOUNCE BACK - 10\n🔴BOUNCE BACK - 11\n🔴IBQ &amp; 1 LINERS - 12\n🔴BOUNCE BACK - 13\n\n========================\n========================",
-      "subjectId": "medicine",
-      "topic": "Cardiology & Emergency ECGs",
-      "question": "======================== ➡️BOUNCE BACK PART A 🔴BOUNCE BACK - 01 🔴BOUNCE BACK - 02 🔴BOUNCE BACK - 03 🔴BOUNCE BACK - 04 🔴BOUNCE BACK - 05 🔴IBQ &amp; 1 LINERS - 06 🔴BOUNCE BACK - 07 🔴BOUNCE BACK - 08 🔴IBQ &amp; 1 LINERS - 09 🔴BOUNCE BACK - 10 🔴BOUNCE BACK - 11 🔴IBQ &amp; 1 LINERS - 12 🔴BOUNCE BACK - 13 ======================== ========================",
-      "options": [
-        {
-          "key": "A",
-          "text": "Loss of deep tendon reflexes (Patellar)"
-        },
-        {
-          "key": "B",
-          "text": "Respiratory arrest (< 12 / min)"
-        },
-        {
-          "key": "C",
-          "text": "Cardiac arrest (> 15 mEq/L)"
-        },
-        {
-          "key": "D",
-          "text": "Oliguria (< 30 mL/hr)"
-        }
-      ],
-      "correctKey": "A",
-      "explanation": "Option A is the high-yield correct answer based on standard FMGE clinical guidelines.",
-      "whyOtherOptionsAreWrong": [
-        {
-          "key": "B",
-          "reason": "Option B (Respiratory arrest (< 12 / min)) is incorrect in this clinical setting. It represents an alternative differential diagnosis with distinct investigative and pharmacological parameters."
-        },
-        {
-          "key": "C",
-          "reason": "Option C (Cardiac arrest (> 15 mEq/L)) is incorrect in this clinical setting. It represents an alternative differential diagnosis with distinct investigative and pharmacological parameters."
-        },
-        {
-          "key": "D",
-          "reason": "Option D (Oliguria (< 30 mL/hr)) is incorrect in this clinical setting. It represents an alternative differential diagnosis with distinct investigative and pharmacological parameters."
-        }
-      ],
-      "highYieldPearl": "FMGE HIGH-YIELD TAKEAWAY: When evaluating this clinical presentation, Option (A) is the gold standard diagnostic or therapeutic choice. Always look for classic exam buzzwords.",
-      "difficulty": "high-yield",
-      "tags": [
-        "Telegram",
-        "MEDICINE",
-        "HighYield"
-      ],
-      "questionType": "ibq",
-      "imageUrl": "/uploads/telegram/media/tg_86310_1789200293447_26b9.jpg",
-      "postUrl": "https://t.me/targetfmgechannel/86310",
-      "messageId": "86310",
-      "datePulled": "2026-09-12T08:04:54.120Z",
-      "userStatus": "unsolved",
-      "isAutoSaved": true,
-      "aiCrossCheckStatus": "verified",
-      "aiCrossCheckNotes": "Cross-checked against high-yield FMGE medical curriculum. Clinical stem, options, and key verified.",
-      "sources": [
-        {
-          "questionId": "q-tg-1789200294120",
-          "telegramMessageId": "86310",
-          "channelId": "@targetfmgechannel",
-          "channelTitle": "targetfmgechannel",
-          "sourceUrl": "https://t.me/targetfmgechannel/86310",
-          "sourceDate": "2026-09-12T08:04:54.120Z",
-          "isPrimary": true
-        }
-      ],
-      "seenInChannelsCount": 1,
-      "normalizedHash": "df86209ec5ecb4c043bc23c5f84b2f7a1af91637755c4d278e0494bb166d708e"
-    },
-    {
-      "id": "q-tg-1789199600376-fc7i",
+      "id": "q-tg-1789214626903-u4f3",
       "sourceChannel": "@targetfmgechannel",
       "rawText": "Observe the clinical video showing rhythmic involuntary horizontal oscillations of the eyes that increase on lateral gaze. What is the condition shown?\nA) Horizontal Jerk Nystagmus\nB) Opsoclonus\nC) Ocular Flutter\nD) Saccadic Intrusion\nAns: A\nExp: The video demonstrates horizontal jerk nystagmus with slow drift and fast corrective phase.",
       "subjectId": "medicine",
@@ -727,18 +181,18 @@
       "videoThumbUrl": "https://api.telegram.org/file/bot12345/photos/nystagmus_thumb.jpg",
       "postUrl": "https://t.me/targetfmgechannel/10003",
       "messageId": "10003",
-      "datePulled": "2026-09-12T07:53:20.376Z",
+      "datePulled": "2026-09-12T12:03:46.903Z",
       "userStatus": "unsolved",
       "isAutoSaved": true,
       "aiCrossCheckStatus": "verified",
       "aiCrossCheckNotes": "Cross-checked against high-yield FMGE medical curriculum. Clinical stem, options, and key verified.",
       "sources": [
         {
-          "questionId": "q-tg-1789199600376",
+          "questionId": "q-tg-1789214626903",
           "telegramMessageId": "10003",
           "channelId": "@targetfmgechannel",
           "sourceUrl": "https://t.me/targetfmgechannel/10003",
-          "sourceDate": "2026-09-12T07:53:20.376Z",
+          "sourceDate": "2026-09-12T12:03:46.903Z",
           "isPrimary": true
         }
       ],
@@ -746,7 +200,7 @@
       "normalizedHash": "e4dec914e57b605f6ce376a8c73b0d7d1635f275166c1ea01f53cf52cc4c0f9f"
     },
     {
-      "id": "q-tg-1789199600164-qkws",
+      "id": "q-tg-1789214626666-3dku",
       "sourceChannel": "@targetfmgechannel",
       "rawText": "A 45-year-old male presents with severe epigastric pain radiating to the back. Serum amylase and lipase are elevated. CT abdomen is shown below. What is the most likely diagnosis?\nA) Acute pancreatitis\nB) Peptic ulcer perforation\nC) Acute cholecystitis\nD) Mesenteric ischemia\nAns: A\nExp: CT confirms peripancreatic fat stranding and acute necrotizing pancreatitis.",
       "subjectId": "medicine",
@@ -797,18 +251,18 @@
       "imageUrl": "https://api.telegram.org/file/bot12345/photos/file_pancreatitis_ct.jpg",
       "postUrl": "https://t.me/targetfmgechannel/10002",
       "messageId": "10002",
-      "datePulled": "2026-09-12T07:53:20.164Z",
+      "datePulled": "2026-09-12T12:03:46.666Z",
       "userStatus": "unsolved",
       "isAutoSaved": true,
       "aiCrossCheckStatus": "verified",
       "aiCrossCheckNotes": "Cross-checked against high-yield FMGE medical curriculum. Clinical stem, options, and key verified.",
       "sources": [
         {
-          "questionId": "q-tg-1789199600164",
+          "questionId": "q-tg-1789214626666",
           "telegramMessageId": "10002",
           "channelId": "@targetfmgechannel",
           "sourceUrl": "https://t.me/targetfmgechannel/10002",
-          "sourceDate": "2026-09-12T07:53:20.164Z",
+          "sourceDate": "2026-09-12T12:03:46.666Z",
           "isPrimary": true
         }
       ],
@@ -816,7 +270,7 @@
       "normalizedHash": "006d348c1360aef97b4938d3fa610854836feb7e882e737a0c84db654fe6ad60"
     },
     {
-      "id": "q-tg-1789199599189-yf39",
+      "id": "q-tg-1789214625831-nuvs",
       "sourceChannel": "@targetfmgechannel",
       "channelTitle": "Target FMGE",
       "rawText": "Which of the following is the drug of choice for paroxysmal supraventricular tachycardia (PSVT)?\nA) Adenosine\nB) Amiodarone\nC) Verapamil\nD) Digoxin\nAns: A\nExp: IV Adenosine (6mg rapid bolus) is the drug of choice for acute termination of stable narrow-complex PSVT due to its rapid onset and ultrashort half-life (< 10 seconds).",
@@ -867,28 +321,28 @@
       "questionType": "mcq",
       "postUrl": "https://t.me/targetfmgechannel/10001",
       "messageId": "10001",
-      "datePulled": "2026-09-12T07:53:19.189Z",
+      "datePulled": "2026-09-12T12:03:45.831Z",
       "userStatus": "unsolved",
       "isAutoSaved": true,
       "aiCrossCheckStatus": "verified",
       "aiCrossCheckNotes": "Cross-checked against high-yield FMGE medical curriculum. Clinical stem, options, and key verified.",
       "sources": [
         {
-          "questionId": "q-tg-1789199599189",
+          "questionId": "q-tg-1789214625831",
           "telegramMessageId": "10001",
           "channelId": "@targetfmgechannel",
           "channelTitle": "Target FMGE",
           "sourceUrl": "https://t.me/targetfmgechannel/10001",
-          "sourceDate": "2026-09-12T07:53:19.189Z",
+          "sourceDate": "2026-09-12T12:03:45.831Z",
           "isPrimary": true
         },
         {
-          "questionId": "q-tg-1789199599189-yf39",
+          "questionId": "q-tg-1789214625831-nuvs",
           "telegramMessageId": "50005",
           "channelId": "@mission_fmge8",
           "channelTitle": "Mission FMGE 8",
           "sourceUrl": "https://t.me/mission_fmge8/50005",
-          "sourceDate": "2026-09-12T07:53:19.191Z"
+          "sourceDate": "2026-09-12T12:03:45.841Z"
         }
       ],
       "seenInChannelsCount": 2,
@@ -898,231 +352,91 @@
   "canonical_questions": [],
   "exam_tips": [
     {
-      "id": "tip-1789199600381-8gsw",
+      "id": "tip-1789214626906-hf70",
       "sourceMessageId": "10004",
       "originalText": "HIGH-YIELD FMGE PEARL: Modified Parkland Formula for Burns = 4 mL x Body Weight (kg) x % Total Burn Surface Area. Give 50% in first 8 hours and 50% in remaining 16 hours.",
       "cleanedText": "HIGH-YIELD FMGE PEARL: Modified Parkland Formula for Burns = 4 mL x Body Weight (kg) x % Total Burn Surface Area. Give 50% in first 8 hours and 50% in remaining 16 hours.",
       "subject": "surgery",
       "topic": "Emergency Burns & Trauma Management",
       "sourceChannel": "@targetfmgechannel",
-      "timestamp": "2026-09-12T07:53:20.380Z",
+      "timestamp": "2026-09-12T12:03:46.905Z",
       "isHighYield": true,
       "tags": [
         "SURGERY",
         "Pearl",
         "Telegram"
       ],
-      "createdAt": "2026-09-12T07:53:20.381Z"
+      "createdAt": "2026-09-12T12:03:46.906Z"
     }
   ],
   "notices": [
     {
-      "id": "notice-1789199600386-qsmb",
+      "id": "notice-1789214626908-3vnk",
       "sourceMessageId": "10005",
       "originalText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification and admit card release date announced on natboard.edu.in.",
       "cleanedText": "IMPORTANT NBEMS NOTICE: FMGE December 2026 examination schedule notification and admit card release date announced on natboard.edu.in.",
-      "noticeDate": "2026-09-12T07:53:20.385Z",
+      "noticeDate": "2026-09-12T12:03:46.908Z",
       "importance": "critical",
       "sourceChannel": "@targetfmgechannel",
-      "timestamp": "2026-09-12T07:53:20.385Z",
+      "timestamp": "2026-09-12T12:03:46.908Z",
       "tags": [
         "Notice",
         "FMGE",
         "NBEMS"
       ],
-      "createdAt": "2026-09-12T07:53:20.386Z"
+      "createdAt": "2026-09-12T12:03:46.908Z"
     }
   ],
   "processing_jobs": [
     {
-      "id": "job-1789200294543-0cq0",
-      "telegramMessageId": "86325",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.545Z"
-    },
-    {
-      "id": "job-1789200294539-1014",
-      "telegramMessageId": "86324",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.543Z"
-    },
-    {
-      "id": "job-1789200294536-s9gf",
-      "telegramMessageId": "86323",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.539Z"
-    },
-    {
-      "id": "job-1789200294533-hrc2",
-      "telegramMessageId": "86322",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.535Z"
-    },
-    {
-      "id": "job-1789200294529-lnfe",
-      "telegramMessageId": "86321",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.532Z"
-    },
-    {
-      "id": "job-1789200294526-4d4r",
-      "telegramMessageId": "86320",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.529Z"
-    },
-    {
-      "id": "job-1789200294522-jx6d",
-      "telegramMessageId": "86319",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.526Z"
-    },
-    {
-      "id": "job-1789200294518-7f29",
-      "telegramMessageId": "86318",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.521Z"
-    },
-    {
-      "id": "job-1789200294515-r09v",
-      "telegramMessageId": "86317",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.518Z"
-    },
-    {
-      "id": "job-1789200294511-2j63",
-      "telegramMessageId": "86316",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.514Z"
-    },
-    {
-      "id": "job-1789200294321-c2fz",
-      "telegramMessageId": "86315",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.510Z"
-    },
-    {
-      "id": "job-1789200294318-5axa",
-      "telegramMessageId": "86314",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.321Z"
-    },
-    {
-      "id": "job-1789200294315-8nz2",
-      "telegramMessageId": "86313",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.318Z"
-    },
-    {
-      "id": "job-1789200294311-11gb",
-      "telegramMessageId": "86312",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.314Z"
-    },
-    {
-      "id": "job-1789200294122-gus3",
-      "telegramMessageId": "86311",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.311Z"
-    },
-    {
-      "id": "job-1789200293446-zbzc",
-      "telegramMessageId": "86310",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:54.121Z"
-    },
-    {
-      "id": "job-1789200293442-2b5h",
-      "telegramMessageId": "86309",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:53.445Z"
-    },
-    {
-      "id": "job-1789200293439-lfy7",
-      "telegramMessageId": "86308",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:53.442Z"
-    },
-    {
-      "id": "job-1789200293436-iqms",
-      "telegramMessageId": "86307",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:53.439Z"
-    },
-    {
-      "id": "job-1789200293430-c7up",
-      "telegramMessageId": "86306",
-      "status": "SAVED",
-      "attempts": 1,
-      "processedAt": "2026-09-12T08:04:53.435Z"
-    },
-    {
-      "id": "job-1789199600388-1k6p",
+      "id": "job-1789214626910-z73z",
       "telegramMessageId": "10006",
       "status": "FAILED",
       "attempts": 1,
       "error": "Extraction retry queued",
-      "processedAt": "2026-09-12T07:53:20.388Z"
+      "processedAt": "2026-09-12T12:03:46.910Z"
     },
     {
-      "id": "job-1789199600383-u1ht",
+      "id": "job-1789214626906-093u",
       "telegramMessageId": "10005",
       "status": "SAVED",
       "attempts": 1,
-      "processedAt": "2026-09-12T07:53:20.387Z"
+      "processedAt": "2026-09-12T12:03:46.909Z"
     },
     {
-      "id": "job-1789199600378-bexz",
+      "id": "job-1789214626904-211p",
       "telegramMessageId": "10004",
       "status": "SAVED",
       "attempts": 1,
-      "processedAt": "2026-09-12T07:53:20.381Z"
+      "processedAt": "2026-09-12T12:03:46.906Z"
     },
     {
-      "id": "job-1789199600166-qvi2",
+      "id": "job-1789214626667-sncn",
       "telegramMessageId": "10003",
       "status": "SAVED",
       "attempts": 1,
-      "processedAt": "2026-09-12T07:53:20.377Z"
+      "processedAt": "2026-09-12T12:03:46.904Z"
     },
     {
-      "id": "job-1789199599191-3qty",
+      "id": "job-1789214625841-spu9",
       "telegramMessageId": "10002",
       "status": "SAVED",
       "attempts": 1,
-      "processedAt": "2026-09-12T07:53:20.165Z"
+      "processedAt": "2026-09-12T12:03:46.666Z"
     },
     {
-      "id": "job-1789199599190-uh83",
+      "id": "job-1789214625833-gf0y",
       "telegramMessageId": "50005",
       "status": "SAVED",
       "attempts": 1,
-      "processedAt": "2026-09-12T07:53:19.191Z"
+      "processedAt": "2026-09-12T12:03:45.841Z"
     },
     {
-      "id": "job-1789199599187-0wpk",
+      "id": "job-1789214625829-ix7v",
       "telegramMessageId": "10001",
       "status": "DEDUPLICATED",
       "attempts": 1,
-      "processedAt": "2026-09-12T07:53:20.405Z"
+      "processedAt": "2026-09-12T12:03:46.922Z"
     }
   ],
   "telegram_channels": [
@@ -1134,25 +448,23 @@
       "category": "High-Yield Clinical Recalls",
       "isActive": true,
       "status": "active",
-      "lastSynced": "05:01 PM",
-      "lastSyncedMessageId": 86325,
-      "itemCount": 6,
+      "lastSynced": "05:33 PM",
+      "lastSyncedMessageId": 10006,
+      "itemCount": 3,
       "videoCount": 0,
       "imageCount": 0,
-      "lastSyncedAt": "2026-09-12T11:31:26.911Z"
+      "lastSyncedAt": "2026-09-12T12:03:46.921Z"
     }
   ],
   "telegram_user_sessions": [],
   "sync_state": {
-    "status": "live",
-    "totalMessagesScanned": 27,
-    "totalQuestionsCreated": 6,
-    "totalImagesProcessed": 4,
+    "status": "idle",
+    "totalMessagesScanned": 7,
+    "totalQuestionsCreated": 3,
+    "totalImagesProcessed": 1,
     "totalVideosProcessed": 1,
     "totalTipsCreated": 1,
     "totalNoticesCreated": 1,
-    "totalDuplicatesMerged": 1,
-    "lastSyncTimestamp": "2026-09-12T11:31:26.914Z",
-    "lastError": "getaddrinfo ENOTFOUND t.me"
+    "totalDuplicatesMerged": 1
   }
 }

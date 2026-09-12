@@ -1,6 +1,7 @@
 import {
   classifyTopicAndSubject,
   generateStructuredClinicalMCQ,
+  getTopicClinicalMCQBatch,
   detectImageQuestionRequest,
   generateMedicalImageSearchQuery,
 } from "./dynamic-mcq-engine";
@@ -1309,6 +1310,69 @@ function generateOfflineFallbackExplanation(subject: string, topic: string, quer
 - **Trap 4**: Surgical colectomy is curative in UC but NOT in Crohn's.`;
   }
 
+  // Crohn's Disease (Single entity explanation)
+  if (combined.includes('crohn') || combined.includes("crohn's")) {
+    return `### 🩺 High-Yield Gastroenterology Breakdown: **Crohn's Disease (Regional Enteritis)**
+
+#### 1. Pathophysiology & Anatomical Hallmarks
+- **Anatomical Distribution**: Affects **any segment of the GI tract** from mouth to anus, with the **terminal ileum** being the most common site (~75% of cases).
+- **Segmental Inflammation**: Features characteristic **skip lesions** (discontinuous areas of normal bowel between sharply demarcated inflamed segments).
+- **Transmural Involvement**: Inflammation spans all intestinal layers (mucosa, submucosa, muscularis propria, serosa).
+- **Gross Pathology**: **Cobblestone mucosa** (criss-crossing linear ulcers separated by swollen mucosa) and **creeping mesenteric fat** wrapping around the bowel wall.
+
+#### 2. Diagnostic Gold Standards & Histopathology
+- **Gold Standard Histopathology**: **Non-caseating epithelioid granulomas** (seen in ~50-60% of transmural biopsies, pathognomonic for Crohn's vs Ulcerative Colitis).
+- **Endoscopic Appearance**: Aphthoid ulcers, deep linear "serpiginous" fissuring ulcers, and cobblestoning.
+- **Barium Radiography**: **String sign of Kantor** (marked narrowing of the terminal ileal lumen due to severe spasm, edema, or fibrotic stricturing).
+- **Serological Biomarker**: **ASCA (+)** (Anti-*Saccharomyces cerevisiae* antibodies positive in 60-70%; p-ANCA is negative).
+- **Inflammatory Activity Monitor**: Fecal Calprotectin (>250 μg/g correlates with active mucosal ulceration).
+
+#### 3. Guideline-Directed Pharmacotherapy
+- **Mild-to-Moderate Ileal/Colonic Disease**: Oral Budesonide (controlled ileal-release 9 mg/day) or Oral 5-ASA (Mesalamine).
+- **Moderate-to-Severe Disease**: Oral Prednisolone (40-60 mg/day) for induction of remission, tapering over 8-12 weeks.
+- **Steroid-Sparing / Maintenance**: Thiopurines (Azathioprine / 6-Mercaptopurine) or Methotrexate.
+- **Fistulizing / Refractory Disease (Biologics)**: **Infliximab** or **Adalimumab** (Anti-TNF-α monoclonal antibodies). Screening for latent Tuberculosis (Mantoux / IGRA) is mandatory prior to initiation.
+- **Perianal Disease & Fistulae**: Antibiotics (Metronidazole + Ciprofloxacin) alongside Anti-TNF therapy.
+
+#### 4. ⚠️ Classic FMGE Traps
+- **Trap 1**: **Biopsy Gold Standard**: Non-caseating granulomas differentiate Crohn's from UC (UC has crypt abscesses without granulomas).
+- **Trap 2**: **Surgery**: Resection is **never curative** in Crohn's disease and disease recurs at the anastomosis site; in contrast, total proctocolectomy is curative for UC.
+- **Trap 3**: **Fistulae**: Transmural inflammation leads to enterocutaneous, enterovesical (pneumaturia/fecaluria), and perianal fistulae. Fistulae do NOT occur in uncomplicated UC.
+- **Trap 4**: **ASCA vs p-ANCA**: ASCA is positive in Crohn's; p-ANCA is positive in UC.`;
+  }
+
+  // Sjögren Syndrome (Autoimmune exocrinopathy)
+  if (combined.includes('sjogren') || combined.includes("sjögren") || combined.includes('sicca')) {
+    return `### 🩺 High-Yield Rheumatology Breakdown: **Sjögren Syndrome (Autoimmune Exocrinopathy)**
+
+#### 1. Pathophysiology & Clinical Presentation
+- **Primary Pathology**: Autoimmune destruction of exocrine glands mediated by CD4+ T-cells and polyclonal B-cell hyperactivity.
+- **Classic Clinical Triad**:
+  - **Keratoconjunctivitis sicca**: Gritty, burning sensation in eyes, photophobia, reduced tear production.
+  - **Xerostomia**: Severe dry mouth, accelerated dental caries, dysphagia to dry solids.
+  - **Bilateral Salivary Gland Enlargement**: Firm, painless, or episodic swelling of parotid and submandibular glands.
+- **Secondary Sjögren**: Associated with other autoimmune diseases (most commonly Rheumatoid Arthritis, SLE, or Systemic Sclerosis).
+
+#### 2. Diagnostic Gold Standards & Objective Testing
+- **Minor Salivary Gland (Lip) Biopsy (Gold Standard)**: Demonstrates **Focal Lymphocytic Sialadenitis** with a **Focus Score ≥ 1** (defined as ≥ 50 mononuclear cells per 4 mm² of glandular tissue).
+- **Schirmer-I Test**: Evaluates tear secretion without topical anesthesia. Wetting of **≤ 5 mm in 5 minutes** is diagnostic for keratoconjunctivitis sicca.
+- **Rose Bengal / Lissamine Green Staining**: Highlights devitalized epithelial cells and corneal ulcerations.
+- **Serological Autoantibodies**:
+  - **Anti-Ro / SSA**: Positive in ~70-80% (more sensitive; also associated with Neonatal Lupus & Congenital Heart Block).
+  - **Anti-La / SSB**: Positive in ~40-50% (more specific).
+  - **ANA**: Positive in >90% (speckled pattern); Rheumatoid Factor (RF) positive in ~70%.
+
+#### 3. Guideline-Directed Management
+- **Symptomatic Tear Replacement**: Preservative-free artificial tears (Carboxymethylcellulose) and nighttime ocular lubricants.
+- **Secretagogue Pharmacotherapy (DOC)**: Oral **Pilocarpine** (5 mg TID-QID) or **Cevimeline** (30 mg TID) — muscarinic M1/M3 receptor agonists that stimulate salivary and lacrimal secretion.
+- **Extraglandular / Systemic Manifestations**: Hydroxychloroquine (for arthralgias/fatigue); Corticosteroids and immunosuppressants for vasculitis or nephritis.
+
+#### 4. ⚠️ Classic FMGE Traps
+- **Trap 1**: **Malignancy Risk**: Sjögren syndrome confers a **30- to 44-fold increased lifetime risk** of **Non-Hodgkin B-cell Lymphoma** (specifically salivary gland MALToma or DLBCL). High suspicion if parotid gland enlarges rapidly or low C4 levels develop.
+- **Trap 2**: **Pregnancy Complication**: Transplacental passage of maternal **Anti-Ro/SSA antibodies** causes **Congenital Complete Heart Block** (permanent AV dissociation in the fetus).
+- **Trap 3**: **Biopsy Requirement**: Focus score ≥ 1 focus of ≥ 50 lymphocytes per 4 mm² on minor salivary gland tissue is the histological gold standard.`;
+  }
+
   // Malaria
   if (combined.includes('malaria') || combined.includes('plasmodium') || combined.includes('falciparum') || combined.includes('vivax') || combined.includes('chloroquine')) {
     return `### 🦟 High-Yield Parasitology Breakdown: **Malaria — Plasmodium Species Comparison**
@@ -1588,10 +1652,15 @@ app.post("/api/ai/chat/stream", async (req, res) => {
     : "No personalized plan available yet; recommend a sensible next high-yield step.";
 
   const systemInstruction = `You are the Expert FMGE / NExT AI Medical Study Coach.
-Exam Countdown: ${daysRemaining} days remaining. Target Score: ${targetScore}/300.
 Subject: ${detectedSubject} | Topic: ${detectedTopic}.
 Provide a rapid, high-yield, structured medical breakdown. Use clear markdown headers, bold keywords, and bullet points. Include Drug of Choice, Diagnostic Gold Standards, and Classic NBE Traps where relevant.
 FORMATTING & SYMBOL RULES: Output clean, standard plain text with basic Markdown (bold, headers, bullets). NEVER output LaTeX math delimiters or syntax like $\\ge$, $\\le$, $\\rightarrow$, $\\times$, $\\pm$, $m^2$. Always use direct Unicode symbols like '≥', '≤', '→', '±', '×', 'm²', '°C', '↑', '↓', 'μg'.
+
+STRICT EXAM COUNTDOWN & TIMING RULE:
+- The student's days remaining (${daysRemaining} days) and target score (${targetScore}/300) are BACKGROUND PLANNING CONTEXT ONLY.
+- NEVER mention phrases like "final 24 hours", "exam tomorrow", "final week", "since you are in the final phase", or the countdown itself unless the student explicitly asks about study planning, timeline, revision schedule, or "what should I study today".
+- For pure medical questions, clinical explanations, disease mechanisms, diagnostic criteria, and MCQs, DO NOT mention the exam date or countdown. Answer the medical question directly with pure medical facts.
+
 USER STUDY CONTEXT:
 - Latest Average GT Score: ${averageGTScore}/300
 - Weak Subjects: ${weakSubjectsStr}
@@ -1610,7 +1679,7 @@ CRITICAL REASONING & TOPIC INTEGRITY DIRECTIVES:
 1. The student's current message is AUTHORITATIVE. You must strictly respond to "${detectedTopic}" in "${detectedSubject}".
 2. NEVER inject or blend in unrelated medical conditions from previous turns (such as myocardial infarction, heart blocks) unless the student explicitly asks to compare them.
 3. If the student was previously discussing a different condition and now asks about "${detectedTopic}", completely switch focus to "${detectedTopic}".
-When the student asks "what should I study today" or similar, ground your answer in the personalized Today's plan above and current phase. Do not fabricate medical facts.
+4. When the student asks "what should I study today" or "make me a revision plan for today", ground your answer in the personalized Today's plan above, exam timing, and current phase. Do not fabricate medical facts.
 (Note: weak subjects, weak topics, recent mistakes, GT score, estimated performance and today's plan are STUDY-STRATEGY personalization context from the student's onboarding profile and live planning engine. Never present them as, or let them alter, standard-of-care medical facts.)`;
 
   try {
@@ -1678,15 +1747,15 @@ When the student asks "what should I study today" or similar, ground your answer
     }
 
     if (!streamSuccess) {
-      const fallbackClinical = `# 🩺 FMGE Clinical Study Coach: ${detectedTopic}\n\n**Subject:** ${detectedSubject} | **High-Yield Exam Focus**\n\n### Core Clinical Concept\nFor **${detectedTopic}**, high-yield FMGE questions focus on the first-line investigation, the definitive gold standard, and the drug of choice.\n\n- **First-Line / Initial Step:** Detailed clinical evaluation and baseline lab or imaging confirmation.\n- **Gold Standard:** Tissue diagnosis or definitive diagnostic imaging.\n- **Drug of Choice:** Targeted pharmacotherapy based on staging and clinical stratification.\n\n> 💡 **Exam Pearl:** Pay close attention to age-dependent thresholds and classic triads tested in recent NBE recalls.`;
-      res.write(`data: ${JSON.stringify({ text: fallbackClinical })}\n\n`);
-      res.write(`data: ${JSON.stringify({ done: true, fullText: fallbackClinical })}\n\n`);
+      const offlineExplanation = generateOfflineFallbackExplanation(detectedSubject, detectedTopic, message);
+      res.write(`data: ${JSON.stringify({ text: offlineExplanation })}\n\n`);
+      res.write(`data: ${JSON.stringify({ done: true, fullText: offlineExplanation })}\n\n`);
       res.end();
     }
   } catch (err: any) {
     console.warn("[Streaming AI Chat] Outer notice:", err.message);
-    const fallbackClinical = `# 🩺 FMGE Clinical Study Coach\n\n**Subject:** Clinical Medicine | **High-Yield Topic Review**\n\n- **First-Line Investigation:** Initial screening and non-invasive assessment.\n- **Definitive Diagnosis:** Histopathology / Gold standard imaging.\n- **Management:** Protocol-driven therapy and examination buzzwords.\n\n> 💡 **Exam Tip:** Keep error notebook reviewed daily to retain high-weightage points.`;
-    res.write(`data: ${JSON.stringify({ text: fallbackClinical, done: true, fullText: fallbackClinical })}\n\n`);
+    const offlineExplanation = generateOfflineFallbackExplanation(detectedSubject, detectedTopic, message);
+    res.write(`data: ${JSON.stringify({ text: offlineExplanation, done: true, fullText: offlineExplanation })}\n\n`);
     res.end();
   }
 });
@@ -1804,6 +1873,11 @@ INSTRUCTION: Formulate the single MCQ specifically around this real image. Set s
 CURRENT AUTHORITATIVE QUERY CONTEXT:
 - Target Subject: ${detectedSubject}
 - Target Topic: ${detectedTopic}
+
+STRICT EXAM COUNTDOWN & TIMING RULE:
+- The student's days remaining (${daysRemaining} days) and target score (${targetScore}/300) are BACKGROUND PLANNING CONTEXT ONLY.
+- NEVER mention phrases like "final 24 hours", "exam tomorrow", "final week", "since you are in the final phase", or the countdown itself unless the student explicitly asks about study planning, timeline, revision schedule, or "what should I study today".
+- For pure medical questions, clinical explanations, disease mechanisms, diagnostic criteria, and MCQs, DO NOT mention the exam date or countdown. Answer the medical question directly with pure medical facts.
 
 USER STUDY CONTEXT:
 - Days to Exam: ${daysRemaining} days
@@ -2038,7 +2112,19 @@ Output strictly valid JSON matching this schema:
       lower.includes('drill me') ||
       (imageDetection.isImageRequest && (lower.includes('mcq') || lower.includes('question') || lower.includes('quiz')));
 
-    const isQuizRequest = lower.includes('quiz') || lower.includes('5 questions') || lower.includes('batch');
+    // Check for explicit count: e.g. "gimme 5 mcqs on sjogren syndrome", "give me 3 questions", "5 harder ones"
+    const countMatch = message.match(/\b(\d+)\s*(?:harder\s+)?(?:mcqs?|questions?|vignettes?)\b/i) ||
+      message.match(/\b(?:gimme|give me)\s+(\d+)\b/i);
+    const requestedCount = countMatch ? Math.min(Math.max(parseInt(countMatch[1], 10), 1), 10) : 0;
+
+    const isQuizRequest =
+      requestedCount > 1 ||
+      lower.includes('quiz') ||
+      lower.includes('5 questions') ||
+      lower.includes('batch') ||
+      lower.includes('drill me') ||
+      (/\b\d+\s*mcqs?\b/i.test(message));
+
     const isGeneralChat = /^(hi|hello|hey|greetings|who are you|what can you do|help me)/i.test(message.trim()) && !lower.includes('explain') && !lower.includes('disease') && !lower.includes('syndrome') && !lower.includes('nephr') && !lower.includes('asthma') && !lower.includes('copd');
 
     if (isGeneralChat) {
@@ -2062,34 +2148,36 @@ Output strictly valid JSON matching this schema:
     }
 
     if (isQuizRequest) {
-      const quizQuestions = getVerifiedSubjectQuestionsBatch(detectedSubject, detectedTopic, 5).map((q: any, i: number) => ({
+      const qCount = requestedCount > 1 ? requestedCount : 5;
+      const rawBatch = getTopicClinicalMCQBatch(detectedSubject, detectedTopic, qCount, history);
+      const quizQuestions = rawBatch.map((q: any, i: number) => ({
         id: `quiz-fallback-${Date.now()}-${i + 1}`,
         questionNumber: i + 1,
-        totalQuestions: 5,
-        subject: detectedSubject,
+        totalQuestions: rawBatch.length,
+        subject: q.subject || detectedSubject,
         topic: q.topic || detectedTopic,
-        stem: q.question,
-        question: "What is the definitive diagnosis, investigation of choice, or first-line management?",
+        stem: q.stem || q.question,
+        question: q.question || "What is the definitive diagnosis, investigation of choice, or first-line management?",
         options: (q.options || []).map((o: any, oIdx: number) => ({
           key: o.key || ['A', 'B', 'C', 'D'][oIdx] || 'A',
           text: typeof o === 'string' ? o.replace(/^[A-D]\)\s*/, '') : (o.text || '').replace(/^[A-D]\)\s*/, ''),
         })),
-        correctKey: q.correctKey || q.correctAnswer || 'A',
+        correctKey: q.correctAnswer || q.correctKey || 'A',
         explanation: q.explanation || "This is the standard evidence-based guideline management in FMGE.",
-        distractorBreakdown: q.distractorExplanations || {},
-        fmgeTakeaway: q.highYieldPearl || "Master the primary clinical discriminator.",
-        memoryHook: q.trap || "Identify the pathognomonic finding on the clinical stem.",
+        distractorBreakdown: q.distractorBreakdown || q.distractorExplanations || {},
+        fmgeTakeaway: q.fmgeTakeaway || q.highYieldPearl || "Master the primary clinical discriminator.",
+        memoryHook: q.memoryHook || q.trap || "Identify the pathognomonic finding on the clinical stem.",
       }));
 
       res.json({
         success: true,
-        reply: `Here is a targeted 5-question clinical practice drill on **${detectedSubject}** (${detectedTopic}):`,
+        reply: `Here is an interactive ${quizQuestions.length}-question clinical reasoning drill on **${detectedSubject}** (${detectedTopic}):`,
         intent: "quiz",
         topic: detectedTopic,
         subject: detectedSubject,
         singleMcq: null,
         quizSession: {
-          title: `${detectedSubject} High-Yield Drill`,
+          title: `${detectedTopic} Clinical Drill`,
           subject: detectedSubject,
           topic: detectedTopic,
           questions: quizQuestions,

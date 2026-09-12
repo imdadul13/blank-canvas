@@ -212,12 +212,21 @@ export function classifyTopicAndSubject(
     lower.includes('next question') ||
     lower.includes('one more') ||
     lower.includes('more mcq') ||
+    lower.includes('more questions') ||
+    lower.includes('harder ones') ||
+    lower.includes('harder question') ||
+    lower.includes('harder mcq') ||
+    lower.includes('give me harder') ||
+    lower.includes('make it harder') ||
+    lower.includes('give me 5 harder') ||
     lower.includes('solve vignette') ||
     lower.includes('solve another') ||
     lower.includes('on this topic') ||
     lower.includes('on this') ||
     lower.includes('from this topic') ||
     lower.includes('test me on this') ||
+    lower.trim() === 'harder' ||
+    lower.trim() === 'harder ones' ||
     lower.trim() === 'mcq' ||
     lower.trim() === 'vignette';
 
@@ -236,7 +245,10 @@ export function classifyTopicAndSubject(
       }
 
       const lowerHist = text.toLowerCase();
-      if (lowerHist.includes('asthma') || lowerHist.includes('copd') || lowerHist.includes('gina') || lowerHist.includes('gold') || lowerHist.includes('pulmonolog')) {
+      if (lowerHist.includes('sjogren') || lowerHist.includes('sjögren') || lowerHist.includes('sicca') || lowerHist.includes('anti-ro') || lowerHist.includes('anti-la') || lowerHist.includes('schirmer')) {
+        return { subject: 'General Medicine', topic: 'Rheumatology · Sjögren Syndrome & Autoimmune Connective Tissue Diseases' };
+      }
+      if (lowerHist.includes('asthma') || lowerHist.includes('copd') || lowerHist.includes('gina') || /\bgold\s+(guidelines?|stage)\b/i.test(text) || lowerHist.includes('pulmonolog')) {
         return { subject: 'General Medicine', topic: 'Pulmonology · Asthma (GINA) & COPD (GOLD Guidelines)' };
       }
       if (lowerHist.includes('enzyme') || lowerHist.includes('kinetics') || lowerHist.includes('lineweaver') || lowerHist.includes('km') || lowerHist.includes('vmax') || lowerHist.includes('biochem')) {
@@ -281,7 +293,7 @@ export function classifyTopicAndSubject(
   const clean = cleanQueryString(rawQuery);
 
   // 1. Pulmonology / Respiratory Medicine
-  if (lower.includes('asthma') || lower.includes('copd') || lower.includes('gina') || lower.includes('gold') || lower.includes('spirometr') || lower.includes('fev1') || lower.includes('bronchodilat') || lower.includes('pulmonolog') || lower.includes('emphysema') || lower.includes('chronic bronchitis')) {
+  if (lower.includes('asthma') || lower.includes('copd') || lower.includes('gina') || /\bgold\s+guidelines?\b/i.test(rawQuery) || /\bgold\s+stage\b/i.test(rawQuery) || lower.includes('spirometr') || lower.includes('fev1') || lower.includes('bronchodilat') || lower.includes('pulmonolog') || lower.includes('emphysema') || lower.includes('chronic bronchitis')) {
     return { subject: 'General Medicine', topic: 'Pulmonology · Asthma (GINA) & COPD (GOLD Guidelines)' };
   }
   if (lower.includes('pneumonia') || lower.includes('curb-65') || lower.includes('tuberculosis') || lower.includes('ntep') || lower.includes('mantoux') || lower.includes('pleural effusion') || lower.includes('light criteria') || lower.includes('bronchiectasis')) {
@@ -454,6 +466,14 @@ export function classifyTopicAndSubject(
   // 16. Dermatology
   if (lower.includes('pemphigus') || lower.includes('bullous') || lower.includes('nikolsky') || lower.includes('erythema multiforme')) {
     return { subject: 'Dermatology', topic: 'Bullous Disorders · Pemphigus, Pemphigoid & Erythema Multiforme' };
+  }
+
+  // 17. Rheumatology & Autoimmune Connective Tissue Diseases
+  if (lower.includes('sjogren') || lower.includes('sjögren') || lower.includes('sicca') || lower.includes('schirmer') || lower.includes('anti-ro') || lower.includes('anti-la') || lower.includes('ssa') || lower.includes('ssb')) {
+    return { subject: 'General Medicine', topic: 'Rheumatology · Sjögren Syndrome & Autoimmune Connective Tissue Diseases' };
+  }
+  if (lower.includes('rheumatoid') || lower.includes('anti-ccp') || lower.includes('lupus') || lower.includes('sle') || lower.includes('scleroderma') || lower.includes('crest')) {
+    return { subject: 'General Medicine', topic: 'Rheumatology · Connective Tissue Diseases & Autoantibodies' };
   }
 
   // Default clean formatting
@@ -815,6 +835,164 @@ const AI_COACH_QUESTION_BANK: Record<string, StructuredMCQ[]> = {
       },
       fmgeTakeaway: "Crohn's Disease = Transmural + Skip lesions + Non-caseating granulomas + ASCA(+) + Terminal ileum + Cobblestoning + Fistulae/Strictures. Ulcerative Colitis = Mucosal/submucosal + Continuous + Pseudopolyps + p-ANCA(+) + Rectum always involved + Toxic megacolon.",
       memoryHook: "Crohn's = 'Christ skips from mouth to anus with Non-caseating Granulomas & ASCA'."
+    },
+    {
+      subject: 'General Medicine',
+      topic: 'Gastroenterology · Crohn\'s Disease Complications & Diagnostic Imaging',
+      questionType: 'clinical_vignette',
+      stem: "A 31-year-old female with a 5-year history of Crohn's disease presents with severe postprandial cramping, abdominal distension, and weight loss. A small bowel follow-through barium study is performed and shows marked luminal narrowing in the terminal ileum with complete separation of adjacent bowel loops due to mesenteric fibrofatty proliferation ('creeping fat').",
+      question: "Which classical radiological sign on barium examination is demonstrated in this patient?",
+      options: [
+        { key: 'A', text: 'String sign of Kantor' },
+        { key: 'B', text: 'Lead-pipe sign' },
+        { key: 'C', text: 'Apple-core sign' },
+        { key: 'D', text: 'Bird\'s beak sign' }
+      ],
+      correctAnswer: 'A',
+      explanation: "The 'String sign of Kantor' represents severe, rigid luminal narrowing of the terminal ileum caused by transmural inflammation, edema, and fibrous stricture formation in Crohn's disease. The lead-pipe sign indicates chronic ulcerative colitis with loss of haustrations. The apple-core sign denotes colorectal adenocarcinoma. The bird's beak sign is classic for achalasia cardia or sigmoid volvulus.",
+      distractorBreakdown: {
+        'B': 'Lead-pipe colon occurs in Ulcerative Colitis due to total loss of colonic haustrations and mucosal atrophy.',
+        'C': 'Apple-core lesion is typical of annular constricting colonic adenocarcinoma.',
+        'D': 'Bird\'s beak appearance on barium swallow identifies Achalasia Cardia.'
+      },
+      fmgeTakeaway: "String sign of Kantor = Crohn's disease (severe terminal ileal stricture). Creeping fat on laparotomy/CT is also pathognomonic for Crohn's.",
+      memoryHook: "Kantor's string ties up Crohn's terminal ileum."
+    },
+    {
+      subject: 'General Medicine',
+      topic: 'Gastroenterology · Crohn\'s Disease Medical Management & Biologics',
+      questionType: 'clinical_vignette',
+      stem: "A 28-year-old male with moderate-to-severe ileocolonic Crohn's disease fails induction therapy with high-dose oral corticosteroids and mesalamine. He develops enterocutaneous perianal fistulae with drainage. Colonoscopy shows deep ulcerations.",
+      question: "Which class of biological agents is the preferred evidence-based therapy for inducing and maintaining remission in fistula-forming Crohn's disease?",
+      options: [
+        { key: 'A', text: 'Anti-Tumor Necrosis Factor alpha (anti-TNF-α) monoclonal antibodies (Infliximab or Adalimumab)' },
+        { key: 'B', text: 'Interleukin-6 receptor antagonists (Tocilizumab)' },
+        { key: 'C', text: 'Janus Kinase 1 (JAK1) inhibitors alone' },
+        { key: 'D', text: 'Continuous high-dose oral Methotrexate monotherapy' }
+      ],
+      correctAnswer: 'A',
+      explanation: "Anti-TNF-α biologics (Infliximab, Adalimumab) represent the first-line targeted therapy for moderate-to-severe Crohn's disease refractory to steroids and are specifically proven to induce mucosal healing and close fistulae. Pre-treatment screening for latent Tuberculosis (Mantoux/IGRA and Chest X-ray) and Hepatitis B is mandatory prior to initiating anti-TNF therapy due to risk of reactivation.",
+      distractorBreakdown: {
+        'B': 'Tocilizumab is an IL-6 receptor antagonist used in Rheumatoid Arthritis and Giant Cell Arteritis, not Crohn\'s.',
+        'C': 'JAK inhibitors like Upadacitinib are approved for refractory UC and Crohn\'s, but anti-TNF-α (Infliximab) is the classical first-line biologic choice especially with fistulizing disease.',
+        'D': 'Methotrexate is second-line for maintaining remission in Crohn\'s patients who cannot tolerate Thiopurines, but biologics are superior for fistulae.'
+      },
+      fmgeTakeaway: "Fistulizing & Severe Crohn's Disease -> Infliximab / Adalimumab (Anti-TNF-α). Always screen for latent TB (CBNAAT/IGRA) before starting!",
+      memoryHook: "Infliximab Inflicts closure on Crohn's Fistulae!"
+    }
+  ],
+
+  // Rheumatology: Sjögren Syndrome & Autoimmune Connective Tissue Diseases
+  'rheumatology': [
+    {
+      subject: 'General Medicine',
+      topic: 'Rheumatology · Sjögren Syndrome & Autoimmune Connective Tissue Diseases',
+      questionType: 'clinical_vignette',
+      stem: "A 45-year-old female presents with a 9-month history of persistent dry gritty eyes (keratoconjunctivitis sicca), severe dry mouth (xerostomia) requiring water to swallow dry food, and bilateral painless enlargement of the parotid glands. Schirmer test demonstrates 3 mm wetting of filter paper at 5 minutes (normal > 10 mm). Serology shows positive ANA, Anti-Ro/SSA antibodies, and Anti-La/SSB antibodies.",
+      question: "Which of the following histopathological criteria on minor labial salivary gland biopsy is the definitive diagnostic gold standard for confirming Sjögren syndrome?",
+      options: [
+        { key: 'A', text: 'Focal lymphocytic sialadenitis with a Focus Score ≥ 1 (≥ 50 lymphocytes per 4 mm² of glandular tissue)' },
+        { key: 'B', text: 'Diffuse non-caseating epithelioid granulomas with Langhans giant cells' },
+        { key: 'C', text: 'Caseous necrosis with acid-fast bacilli on Ziehl-Neelsen stain' },
+        { key: 'D', text: 'Oncocyte metaplasia with lymphoid stroma (Warthin tumor appearance)' }
+      ],
+      correctAnswer: 'A',
+      explanation: "Sjögren syndrome is an autoimmune exocrinopathy characterized by lymphocytic infiltration (predominantly CD4+ T-cells and B-cells) of lacrimal and salivary glands leading to dry eyes (keratoconjunctivitis sicca) and dry mouth (xerostomia). The diagnostic gold standard on minor salivary gland lip biopsy is Focal Lymphocytic Sialadenitis defined as a Focus Score ≥ 1 (at least one focus of ≥ 50 mononuclear cells per 4 mm² of glandular tissue). Serology characteristically reveals Anti-Ro/SSA (more sensitive) and Anti-La/SSB (more specific).",
+      distractorBreakdown: {
+        'B': 'Non-caseating granulomas in salivary glands characterize Sarcoidosis (Heerfordt syndrome: uveoparotid fever), not primary Sjögren syndrome.',
+        'C': 'Caseous necrosis is diagnostic of mycobacterial tuberculosis infection.',
+        'D': 'Warthin tumor (adenolymphoma) is a benign salivary neoplasm strongly linked with smoking, not an autoimmune disease.'
+      },
+      fmgeTakeaway: "Sjögren Syndrome = Keratoconjunctivitis sicca + Xerostomia + Bilateral Parotid swelling. Serology = Anti-Ro/SSA and Anti-La/SSB. Biopsy Gold Standard = Minor salivary gland Focus Score ≥ 1 (≥50 lymphocytes/4mm²).",
+      memoryHook: "Sjögren = Sicca (dry eyes/mouth) + Schirmer < 5mm + SSA/SSB + Salivary biopsy Focus Score ≥ 1."
+    },
+    {
+      subject: 'General Medicine',
+      topic: 'Rheumatology · Sjögren Syndrome Malignancy Risk & Long-term Complications',
+      questionType: 'clinical_vignette',
+      stem: "A 52-year-old female with long-standing primary Sjögren syndrome notices rapid, asymmetric enlargement of her left parotid gland over the last 3 months, accompanied by drenching night sweats and a 5 kg weight loss. Laboratory workup reveals persistent hypocomplementemia (low C4), monoclonal IgG kappa paraproteinemia on serum protein electrophoresis, and palpable cervical lymphadenopathy.",
+      question: "Patients with primary Sjögren syndrome carry an estimated 30- to 40-fold elevated lifetime risk for developing which of the following neoplasms?",
+      options: [
+        { key: 'A', text: 'Non-Hodgkin B-cell Lymphoma (MALToma or Diffuse Large B-Cell Lymphoma)' },
+        { key: 'B', text: 'Mucoepidermoid carcinoma of the salivary glands' },
+        { key: 'C', text: 'Adenoid cystic carcinoma of the parotid' },
+        { key: 'D', text: 'Multiple myeloma with osteolytic bone lesions' }
+      ],
+      correctAnswer: 'A',
+      explanation: "The most serious long-term neoplastic complication of primary Sjögren syndrome is Non-Hodgkin B-cell Lymphoma, occurring at a 30- to 44-fold increased incidence compared to the general population. The most common subtypes are Extranodal Marginal Zone B-cell Lymphoma (MALT lymphoma) of the salivary glands and Diffuse Large B-cell Lymphoma (DLBCL). High-risk clinical and laboratory predictors of lymphomagenesis include persistent parotid enlargement, purpura/vasculitis, cryoglobulinemia, low C4 complement levels, and monoclonal gammopathy.",
+      distractorBreakdown: {
+        'B': 'Mucoepidermoid carcinoma is the most common primary malignant epithelial tumor of salivary glands, but its incidence is not specifically driven by Sjögren syndrome.',
+        'C': 'Adenoid cystic carcinoma features perineural invasion, but is not the characteristic autoimmune-driven lymphoproliferative malignancy in Sjögren\'s.',
+        'D': 'Multiple myeloma is a plasma cell neoplasm of the bone marrow; Sjögren patients develop B-cell lymphomas (MALToma/DLBCL).'
+      },
+      fmgeTakeaway: "Sjögren Syndrome + Rapid Parotid Enlargement + Low C4 = Suspect Non-Hodgkin B-cell Lymphoma (MALT lymphoma). Risk is 30-40x higher than general population!",
+      memoryHook: "Sjögren\'s = Salivary Swelling + Sicca -> Beware of MALToma Lymphoma!"
+    },
+    {
+      subject: 'General Medicine',
+      topic: 'Rheumatology · Sjögren Syndrome Pregnancy & Congenital Heart Block',
+      questionType: 'clinical_vignette',
+      stem: "A 29-year-old pregnant female at 20 weeks gestation with known primary Sjögren syndrome is referred to fetal cardiology. Routine anomaly ultrasound reveals fetal bradycardia with an atrial rate of 140 bpm and an independent ventricular rate of 55 bpm (complete atrioventricular dissociation). Maternal serum testing confirms high titers of IgG antibodies.",
+      question: "Transplacental passage of which maternal autoantibody is directly responsible for causing Congenital Complete Heart Block in the fetus?",
+      options: [
+        { key: 'A', text: 'Anti-Ro / SSA antibodies' },
+        { key: 'B', text: 'Anti-dsDNA antibodies' },
+        { key: 'C', text: 'Anti-centromere antibodies' },
+        { key: 'D', text: 'Anti-Scl-70 (topoisomerase I) antibodies' }
+      ],
+      correctAnswer: 'A',
+      explanation: "Maternal Anti-Ro/SSA antibodies (specifically targeting Ro52) and Anti-La/SSB antibodies cross the placenta between 16 and 24 weeks gestation and bind to fetal cardiocytes and the atrioventricular (AV) conduction system, inducing autoimmune myocarditis, calcification, and irreversible fibrosis of the AV node. This results in Neonatal Lupus and Congenital Complete Heart Block (third-degree AV block), which is permanent and usually necessitates neonatal pacemaker implantation.",
+      distractorBreakdown: {
+        'B': 'Anti-dsDNA antibodies are highly specific for Systemic Lupus Erythematosus (SLE) and lupus nephritis activity, but do not directly cause congenital heart block.',
+        'C': 'Anti-centromere antibodies are diagnostic of limited cutaneous systemic sclerosis (CREST syndrome).',
+        'D': 'Anti-Scl-70 (anti-topoisomerase I) is specific for diffuse cutaneous systemic sclerosis with pulmonary fibrosis.'
+      },
+      fmgeTakeaway: "Maternal Anti-Ro/SSA antibodies -> Cross placenta (16-24 wks) -> Irreversible Fetal Congenital Complete Heart Block (permanent neonatal pacemaker needed). Also causes neonatal annular erythematous rash.",
+      memoryHook: "Anti-Ro 'Ro-cks' the fetal conduction node -> Heart Block!"
+    },
+    {
+      subject: 'General Medicine',
+      topic: 'Rheumatology · Sjögren Syndrome Diagnostic Testing & Tear Film Evaluation',
+      questionType: 'clinical_vignette',
+      stem: "A 38-year-old female presents with burning ocular pain and photophobia. Slit-lamp biomicroscopy with fluorescein and rose bengal staining demonstrates punctate corneal ulcerations and tear film breakup time of 4 seconds (normal > 10 seconds).",
+      question: "Which of the following diagnostic tests measures tear production without topical anesthesia and is considered positive for keratoconjunctivitis sicca at ≤ 5 mm in 5 minutes?",
+      options: [
+        { key: 'A', text: 'Schirmer-I test' },
+        { key: 'B', text: 'Jones dye test' },
+        { key: 'C', text: 'Seidel test' },
+        { key: 'D', text: 'Schiotz tonometry' }
+      ],
+      correctAnswer: 'A',
+      explanation: "The Schirmer-I test evaluates basal and reflex tear production by placing a Whatman No. 41 filter paper strip into the lower conjunctival fornix for 5 minutes. Wetting ≤ 5 mm in 5 minutes is diagnostic of severe aqueous tear deficiency (keratoconjunctivitis sicca). The Jones dye test evaluates nasolacrimal duct patency. The Seidel test detects corneal perforation or aqueous leak with fluorescein. Schiotz tonometry measures intraocular pressure.",
+      distractorBreakdown: {
+        'B': 'Jones dye test evaluates primary and secondary patency of the nasolacrimal drainage system.',
+        'C': 'Seidel test evaluates for full-thickness corneal lacerations / aqueous humor leakage.',
+        'D': 'Schiotz tonometry is an indentation technique used to measure intraocular pressure in glaucoma.'
+      },
+      fmgeTakeaway: "Schirmer-I test ≤ 5 mm in 5 minutes = Positive for dry eyes in Sjögren syndrome. Rose Bengal stain detects devitalized epithelial cells on cornea.",
+      memoryHook: "Schirmer measures tears; <=5 mm = Sjögren sicca."
+    },
+    {
+      subject: 'General Medicine',
+      topic: 'Rheumatology · Sjögren Syndrome First-Line Pharmacotherapy',
+      questionType: 'clinical_vignette',
+      stem: "A 40-year-old female diagnosed with primary Sjögren syndrome has persistent xerostomia and dry eyes refractory to artificial tears and sugar-free lozenges. She has preserved residual salivary gland tissue on sialometry.",
+      question: "Which of the following cholinergic muscarinic receptor agonists is the first-line oral secretagogue of choice for symptomatic stimulation of salivary and lacrimal secretions?",
+      options: [
+        { key: 'A', text: 'Pilocarpine (or Cevimeline)' },
+        { key: 'B', text: 'Atropine sulfate' },
+        { key: 'C', text: 'Scopolamine' },
+        { key: 'D', text: 'Oxybutynin' }
+      ],
+      correctAnswer: 'A',
+      explanation: "Pilocarpine (a non-selective muscarinic receptor agonist) and Cevimeline (a selective M1 and M3 muscarinic receptor agonist) stimulate secretomotor function in residual functional acinar tissue of salivary and lacrimal glands, significantly improving xerostomia and ocular comfort. Atropine, scopolamine, and oxybutynin are antimuscarinic anticholinergics that exacerbate xerostomia and are contraindicated.",
+      distractorBreakdown: {
+        'B': 'Atropine is an anticholinergic agent that completely blocks salivary secretions and would severely worsen dry mouth.',
+        'C': 'Scopolamine is an anticholinergic used for motion sickness, causing profound xerostomia.',
+        'D': 'Oxybutynin is an antimuscarinic used for urge incontinence that causes dry mouth as its primary adverse effect.'
+      },
+      fmgeTakeaway: "Drug of Choice for Xerostomia in Sjögren\'s = Pilocarpine / Cevimeline (M3 muscarinic agonists). Artificial tears (carboxymethylcellulose) for dry eyes.",
+      memoryHook: "Pilocarpine 'Pours' saliva out of Parotid."
     }
   ],
 
@@ -1098,7 +1276,7 @@ export function generateStructuredClinicalMCQ(
   // Check candidate pool
   let candidatePool: StructuredMCQ[] = [];
 
-  if (lower.includes('asthma') || lower.includes('copd') || lower.includes('gina') || lower.includes('gold') || lower.includes('pulmonolog') || lower.includes('spirometr')) {
+  if (lower.includes('asthma') || lower.includes('copd') || lower.includes('gina') || /\bgold\s+(guidelines?|stage)\b/i.test(lower) || lower.includes('pulmonolog') || lower.includes('spirometr')) {
     candidatePool = AI_COACH_QUESTION_BANK['pulmonology'] || [];
   } else if (lower.includes('enzyme') || lower.includes('kinetics') || lower.includes('lineweaver') || lower.includes('km') || lower.includes('vmax') || lower.includes('biochem')) {
     candidatePool = AI_COACH_QUESTION_BANK['biochemistry'] || [];
@@ -1118,6 +1296,8 @@ export function generateStructuredClinicalMCQ(
     candidatePool = AI_COACH_QUESTION_BANK['anatomy'] || [];
   } else if (lower.includes('crohn') || lower.includes('ulcerative colitis') || lower.includes('ibd') || lower.includes('gastro')) {
     candidatePool = AI_COACH_QUESTION_BANK['gastroenterology'] || [];
+  } else if (lower.includes('sjogren') || lower.includes('sjögren') || lower.includes('sicca') || lower.includes('schirmer') || lower.includes('rheumatolog')) {
+    candidatePool = AI_COACH_QUESTION_BANK['rheumatology'] || [];
   }
 
   // Filter out any question that was already asked in history and score by query relevance
@@ -1250,5 +1430,55 @@ export function generateStructuredClinicalMCQ(
     imageAsset: attachedImageAsset || undefined,
     whatToLookFor: attachedImageAsset?.whatToLookFor,
   };
+}
+
+/**
+ * Returns a batch of N structured clinical questions strictly for a given subject & topic.
+ */
+export function getTopicClinicalMCQBatch(
+  subject: string,
+  topic: string,
+  count: number = 5,
+  history: Array<{ role: string; content: string }> = []
+): StructuredMCQ[] {
+  const lower = (topic + ' ' + subject).toLowerCase();
+  let pool: StructuredMCQ[] = [];
+
+  if (lower.includes('sjogren') || lower.includes('sjögren') || lower.includes('sicca') || lower.includes('rheumatolog')) {
+    pool = AI_COACH_QUESTION_BANK['rheumatology'] || [];
+  } else if (lower.includes('crohn') || lower.includes('ulcerative colitis') || lower.includes('ibd') || lower.includes('gastro')) {
+    pool = AI_COACH_QUESTION_BANK['gastroenterology'] || [];
+  } else if (lower.includes('nephrolog') || lower.includes('kidney') || lower.includes('glomerul') || lower.includes('ckd') || lower.includes('aki')) {
+    pool = AI_COACH_QUESTION_BANK['nephrology'] || [];
+  } else if (lower.includes('asthma') || lower.includes('copd') || lower.includes('gina') || lower.includes('gold') || lower.includes('pulmonolog')) {
+    pool = AI_COACH_QUESTION_BANK['pulmonology'] || [];
+  } else if (lower.includes('cardio') || lower.includes('heart block') || lower.includes('stemi') || lower.includes('arrhythmia') || lower.includes('wpw')) {
+    pool = AI_COACH_QUESTION_BANK['cardiology'] || [];
+  } else if (lower.includes('anatom') || lower.includes('cavernous') || lower.includes('femoral') || lower.includes('brachial')) {
+    pool = AI_COACH_QUESTION_BANK['anatomy'] || [];
+  } else if (lower.includes('psm') || lower.includes('immuniz') || lower.includes('cold chain')) {
+    pool = AI_COACH_QUESTION_BANK['psm'] || [];
+  } else if (lower.includes('biochem') || lower.includes('enzyme') || lower.includes('kinetics')) {
+    pool = AI_COACH_QUESTION_BANK['biochemistry'] || [];
+  } else if (lower.includes('pharm') || lower.includes('beta blocker')) {
+    pool = AI_COACH_QUESTION_BANK['pharmacology'] || [];
+  } else if (lower.includes('patho') || lower.includes('hodgkin')) {
+    pool = AI_COACH_QUESTION_BANK['pathology'] || [];
+  } else if (lower.includes('physio') || lower.includes('action potential')) {
+    pool = AI_COACH_QUESTION_BANK['physiology'] || [];
+  }
+
+  // If pool has enough, return sliced copy
+  if (pool.length >= count) {
+    return pool.slice(0, count);
+  }
+
+  // If pool has some, return all from pool plus generated items
+  const results = [...pool];
+  while (results.length < count) {
+    const nextQ = generateStructuredClinicalMCQ(`${topic} question ${results.length + 1}`, null, history);
+    results.push(nextQ);
+  }
+  return results.slice(0, count);
 }
 
