@@ -118,6 +118,8 @@ export interface CoachSession {
   updatedAt: string;
   messages: ChatMessage[];
   quizSession?: ActiveQuizSession | null;
+  isPinned?: boolean;
+  subject?: string;
 }
 
 const COACH_STORAGE_KEY = 'fmge_ai_coach_sessions_v1';
@@ -1456,6 +1458,20 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     }
   };
 
+  const handleTogglePinSession = (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setSessions((prev) => {
+      const updated = prev.map((s) =>
+        s.id === sessionId ? { ...s, isPinned: !s.isPinned } : s
+      );
+      try {
+        localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(updated));
+      } catch (_) {}
+      return updated;
+    });
+  };
+
   const executeClearAllHistory = () => {
     try {
       localStorage.removeItem(COACH_STORAGE_KEY);
@@ -1469,6 +1485,21 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     setAttachedImage(null);
     setQuizSession(null);
     setIsHistoryOpen(false);
+  };
+
+  const executeClearUnpinnedHistory = () => {
+    const kept = sessions.filter((s) => s.isPinned);
+    try {
+      localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(kept));
+    } catch (_) {}
+    setSessions(kept);
+    if (kept.length > 0) {
+      if (!kept.some((s) => s.id === activeSessionId)) {
+        handleSelectSession(kept[0]);
+      }
+    } else {
+      handleNewSession();
+    }
   };
 
   const activeSession = sessions.find((s) => s.id === activeSessionId) || {
@@ -1990,7 +2021,9 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         onSearchChange={setHistorySearch}
         onSelectSession={handleSelectSession}
         onDeleteSession={handleDeleteSession}
+        onTogglePinSession={handleTogglePinSession}
         onClearAllHistory={executeClearAllHistory}
+        onClearUnpinnedHistory={executeClearUnpinnedHistory}
         formatRelativeDate={formatRelativeDate}
       />
     </div>
