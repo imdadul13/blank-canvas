@@ -36,6 +36,9 @@ import { SubjectAppleIcon, getSubjectVisualTheme } from './SubjectAppleIcon';
 import { DoctorMountainArt } from './DoctorMountainArt';
 import { RevisionMatrixView } from './RevisionMatrixView';
 import { AppStats, calculateAppStats } from '../utils/storage';
+import { useCircadianTheme } from '../hooks/useCircadianTheme';
+import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
+import { HeaderTabInsignia } from './HeaderTabInsignia';
 
 interface SyllabusViewProps {
   state: AppState;
@@ -94,6 +97,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
   const [phaseFilter, setPhaseFilter] = useState<'all' | SubjectPhase>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'default' | 'weightage' | 'progress' | 'alpha'>('default');
+  const circadian = useCircadianTheme(state.settings?.bgTheme);
 
   // Total topics count & completed statistics
   const overallStats = useMemo(() => {
@@ -175,39 +179,13 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-3xl border border-blue-200/60 bg-gradient-to-br from-[#F8FAFC] via-[#FAFBFD] via-45% to-[#EFF6FF] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+        className={`relative overflow-hidden rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
       >
-        {/* Dynamic Animated Ambient Study Background Effects */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        {/* Dynamic Animated Circadian Time-of-Day Atmosphere & 2px Shimmer Track */}
+        <CircadianHeaderAtmosphere circadian={circadian} />
 
-          {/* Soft glowing corner radial gradient orbs with breathing motion */}
-          <motion.div
-            animate={{
-              scale: [1, 1.18, 1],
-              opacity: [0.35, 0.55, 0.35],
-              x: [0, 18, 0],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-blue-400/30 via-sky-200/20 to-transparent blur-3xl"
-          />
-          <motion.div
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.2, 0.35, 0.2],
-              y: [0, -12, 0],
-            }}
-            transition={{
-              duration: 9.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-indigo-300/25 via-blue-100/20 to-transparent blur-3xl"
-          />
-          <div className="absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r from-sky-200/20 via-blue-100/15 to-transparent blur-3xl" />
+        {/* Botanical Tree of Knowledge & Architectural Study Blueprint Background */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
 
           {/* Subtle Curriculum Blueprint Grid */}
           <svg
@@ -472,38 +450,39 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         {/* Content Layout with Original Previous Texts */}
         <div className="relative z-10 space-y-2.5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
-              <motion.div
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.94 }}
-                animate={{ y: [0, -2, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-blue-50/90 border border-blue-100/90 text-blue-700 shadow-2xs shrink-0 mt-0.5 cursor-default"
-              >
-                <BookOpen className="h-5 w-5 text-blue-700 stroke-[2]" />
-              </motion.div>
+            <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 max-w-2xl">
+              <HeaderTabInsignia tab="syllabus" circadian={circadian} />
 
               <div className="space-y-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                  <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold font-display uppercase tracking-tight bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-700 bg-clip-text text-transparent leading-snug">
+                <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+                  <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${
+                    circadian.isNight
+                      ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'
+                      : 'bg-gradient-to-r from-[#003830] via-[#008779] via-35% to-[#10B981]'
+                  }`}>
                     YOUR STUDY PLAN
                   </h1>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-blue-500/15 via-sky-500/10 to-indigo-500/10 border border-blue-200/80 text-blue-800 shadow-2xs shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase shadow-2xs shrink-0 border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-emerald-500 shadow-[0_0_6px_#10b981]'}`} />
                     Curriculum · 19 Subjects
                   </span>
                 </div>
 
-                <p className="text-xs sm:text-sm text-stone-600 leading-normal">
+                <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
                   Master the 19 subjects. Step by step.
                 </p>
               </div>
             </div>
+
+            {/* Right Side: Live Circadian Phase Pill with Cycle Action */}
+            <div className="flex items-center gap-2 self-start md:self-center shrink-0">
+              <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+            </div>
           </div>
 
           {/* Secondary Sub-Tab Switcher Dock */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-teal-900/10">
-            <div className="inline-flex p-0.5 bg-white/85 backdrop-blur-md border border-teal-200/70 rounded-xl shadow-2xs">
+          <div className={`flex flex-wrap items-center justify-between gap-2 pt-2 border-t ${circadian.isNight ? 'border-sky-800/40' : 'border-stone-200/70'}`}>
+            <div className={`inline-flex p-0.5 backdrop-blur-md rounded-xl shadow-2xs border ${circadian.isNight ? 'bg-slate-900/80 border-sky-800/60' : 'bg-white/85 border-stone-200/80'}`}>
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}

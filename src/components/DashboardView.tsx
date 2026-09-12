@@ -61,6 +61,8 @@ import { TopicMasteryWorkspace } from './TopicMasteryWorkspace';
 import { NotificationCenterModal } from './NotificationCenterModal';
 import { hasUnreadNotifications } from '../utils/notificationEngine';
 import { DailyPlannerView } from './DailyPlannerView';
+import { useDoctorCreed } from '../hooks/useDoctorCreed';
+import { AnimatedMountainInsignia } from './AnimatedMountainInsignia';
 
 interface DashboardViewProps {
   state: AppState;
@@ -575,6 +577,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     }
   }, [hour, themeSetting]);
 
+  // Authentic FMGE Doctor's Creed tailored to circadian study phase
+  const { creed: doctorCreed, shuffleCreed, isShuffling: isCreedShuffling } = useDoctorCreed(timeOfDay);
+
   // Dynamic header theme styling that adapts with time of day and user theme setting
   const heroTheme = useMemo(() => {
     switch (timeOfDay) {
@@ -901,12 +906,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Right Action Icons: Top Quote + Notification Bell + Avatar (Desktop only) */}
           <div className="hidden lg:flex items-center gap-3 sm:gap-4 shrink-0">
             {/* Top Creed Quote */}
-            <div className="flex flex-col items-end pr-1 text-right select-none">
-              <span className="italic text-[11.5px] font-medium text-slate-500 tracking-tight leading-snug">
-                Discipline today leads to<br />freedom tomorrow. —
+            <motion.div
+              onClick={shuffleCreed}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex flex-col items-end pr-1 text-right select-none cursor-pointer group"
+              title="Click to shuffle motivational creed"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') shuffleCreed();
+              }}
+            >
+              <span className="italic text-[11.5px] font-medium text-slate-500 group-hover:text-[#006B63] tracking-tight leading-snug transition-colors">
+                {doctorCreed.compact[0]}<br />{doctorCreed.compact[1]}
               </span>
-              <span className="h-[2px] w-6 bg-[#006B63] rounded-full mt-0.5 ml-auto" />
-            </div>
+              <span className="h-[2px] w-6 bg-[#006B63] group-hover:w-10 rounded-full mt-0.5 ml-auto transition-all" />
+            </motion.div>
 
             <button
               type="button"
@@ -1053,32 +1069,75 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <h1 className={`text-3xl sm:text-4xl lg:text-[38px] font-extrabold tracking-tight font-['Plus_Jakarta_Sans'] leading-tight ${heroTheme.nameColor}`}>
                   {userName}
                 </h1>
-                <p className={`text-xs sm:text-sm leading-relaxed italic mt-1 ${heroTheme.subtitleColor}`}>
+                <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic mt-1 ${heroTheme.subtitleColor}`}>
                   &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
                 </p>
+                <div
+                  className="md:hidden flex items-center gap-2.5 mt-1.5 cursor-pointer active:scale-98 transition-transform"
+                  onClick={shuffleCreed}
+                  title="Tap to shuffle motivation"
+                >
+                  <div className="h-6 w-9 shrink-0">
+                    <AnimatedMountainInsignia
+                      phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
+                      creedId={doctorCreed.id}
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <p className={`text-xs leading-relaxed italic ${heroTheme.subtitleColor}`}>
+                    &ldquo;{doctorCreed.quote}&rdquo;
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Right side: Doctor's Mountain Creed Floating Badge */}
+            {/* Right side: Doctor's Mountain Creed Floating Badge with Dynamic Motivation */}
             <motion.div
               whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 350, damping: 20 }}
-              className="hidden md:flex items-center gap-3.5 bg-white/90 backdrop-blur-md border border-white/90 rounded-2xl px-4 py-2.5 shadow-xs cursor-pointer"
+              onClick={shuffleCreed}
+              title="Click to shuffle motivation"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') shuffleCreed();
+              }}
+              className={`hidden md:flex items-center gap-3.5 rounded-2xl px-4 py-2.5 shadow-xs cursor-pointer select-none transition-all duration-300 group ${
+                timeOfDay === 'night'
+                  ? 'bg-sky-950/80 backdrop-blur-md border border-cyan-500/30 shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:border-cyan-400/60'
+                  : 'bg-white/90 backdrop-blur-md border border-white/90 hover:border-[#006B63]/40 hover:shadow-md'
+              }`}
             >
-              <div className="h-8 w-11 shrink-0 relative">
-                <svg viewBox="0 0 44 24" fill="none" className="w-full h-full drop-shadow-2xs">
-                  <path d="M2 24L18 6L26 14L38 24H2Z" fill="#006B63" fillOpacity="0.25" />
-                  <path d="M14 24L28 9L36 19L42 24H14Z" fill="#0284C7" fillOpacity="0.2" />
-                  <path d="M18 6L21 3V7L18 6Z" fill="#F43F5E" />
-                </svg>
+              <div className="h-8 w-12 shrink-0 relative flex items-center justify-center">
+                <AnimatedMountainInsignia
+                  phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
+                  creedId={doctorCreed.id}
+                  className="w-full h-full"
+                />
               </div>
-              <div className="text-right space-y-0.5">
-                <p className="text-xs font-bold italic text-[#0D3833]">
-                  &ldquo;Discipline today leads to freedom tomorrow.&rdquo;
+              <div className="text-right space-y-0.5 min-w-[200px] max-w-[290px]">
+                <p className={`text-xs font-bold italic transition-colors line-clamp-2 ${
+                  timeOfDay === 'night'
+                    ? 'text-cyan-100 group-hover:text-cyan-200'
+                    : 'text-[#0D3833] group-hover:text-[#006B63]'
+                }`}>
+                  &ldquo;{doctorCreed.quote}&rdquo;
                 </p>
-                <p className="text-[9.5px] font-mono font-bold uppercase tracking-wider text-[#5B948C]">
-                  DOCTOR&apos;S CREED · FMGE READY
-                </p>
+                <div className="flex items-center justify-end gap-1.5">
+                  <span className={`text-[9.5px] font-mono font-bold uppercase tracking-wider ${
+                    timeOfDay === 'night' ? 'text-cyan-400' : 'text-[#5B948C]'
+                  }`}>
+                    {doctorCreed.tagline}
+                  </span>
+                  <RotateCcw
+                    className={`h-2.5 w-2.5 opacity-60 group-hover:opacity-100 transition-all duration-500 ${
+                      isCreedShuffling ? 'rotate-180' : 'group-hover:-rotate-90'
+                    } ${
+                      timeOfDay === 'night' ? 'text-cyan-300' : 'text-[#5B948C] group-hover:text-[#006B63]'
+                    }`}
+                  />
+                </div>
               </div>
             </motion.div>
           </div>

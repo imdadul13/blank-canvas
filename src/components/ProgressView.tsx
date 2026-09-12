@@ -43,6 +43,9 @@ import { AccuracyTrendDetailModal } from './AccuracyTrendDetailModal';
 import { GrandTestDiagnosticModal } from './GrandTestDiagnosticModal';
 import { ErrorVaultDiagnosticModal } from './ErrorVaultDiagnosticModal';
 import { ErrorsView } from './ErrorsView';
+import { useCircadianTheme } from '../hooks/useCircadianTheme';
+import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
+import { HeaderTabInsignia } from './HeaderTabInsignia';
 import { FmgePredictorView } from './FmgePredictorView';
 
 interface ProgressViewProps {
@@ -234,42 +237,17 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
   // Dynamic Accuracy Delta
   const accuracyDelta = overallPerf.recentAccuracy - overallPerf.overallAccuracy;
+  const circadian = useCircadianTheme(state.settings?.bgTheme);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 space-y-5 sm:space-y-6 text-[#121E1B] font-sans antialiased">
       {/* ================= 1. PERFORMANCE HEADER CARD & SECONDARY SWITCHER ================= */}
-      <header className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#F4F2FB] p-4 sm:px-6 sm:py-3.5 shadow-xs">
-        {/* Dynamic Animated Ambient Data Analytics Background Effects */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <header className={`relative overflow-hidden rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}>
+        {/* Dynamic Circadian Ambient Diagnostics Atmosphere & 2px Shimmer Track */}
+        <CircadianHeaderAtmosphere circadian={circadian} />
 
-          {/* Soft glowing corner radial gradient orbs with breathing motion */}
-          <motion.div
-            animate={{
-              scale: [1, 1.15, 1],
-              opacity: [0.35, 0.55, 0.35],
-              x: [0, 15, 0],
-            }}
-            transition={{
-              duration: 8.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-violet-400/35 via-indigo-200/25 to-transparent blur-3xl"
-          />
-          <motion.div
-            animate={{
-              scale: [1.08, 1, 1.08],
-              opacity: [0.22, 0.38, 0.22],
-              y: [0, -10, 0],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-cyan-200/30 via-teal-100/20 to-transparent blur-3xl"
-          />
-          <div className="absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r from-violet-200/20 via-indigo-100/15 to-transparent blur-3xl" />
+        {/* High-Tech Diagnostic Data Matrix Background */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
 
           {/* High-Tech Diagnostic Data Dot Matrix Backdrop */}
           <svg
@@ -422,44 +400,47 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         {/* Main Content Layout */}
         <div className="relative z-10 space-y-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
-              <motion.div
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.94 }}
-                animate={{ y: [0, -2, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-indigo-50/90 border border-indigo-100/90 text-indigo-600 shadow-2xs shrink-0 mt-0.5 cursor-default"
-              >
-                <TrendingUp className="h-5 w-5 text-indigo-600 stroke-[2]" />
-              </motion.div>
+            <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 max-w-2xl">
+              <HeaderTabInsignia tab="progress" circadian={circadian} />
 
               <div className="space-y-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                  <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase tracking-tight bg-gradient-to-r from-slate-950 via-indigo-950 to-indigo-800 bg-clip-text text-transparent leading-snug">
-                    Performance &amp; Diagnostics
+                <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+                  <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${
+                    circadian.isNight
+                      ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'
+                      : 'bg-gradient-to-r from-slate-950 via-indigo-950 to-indigo-800'
+                  }`}>
+                    PERFORMANCE &amp; DIAGNOSTICS
                   </h1>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-indigo-500/15 via-indigo-400/10 to-teal-500/10 border border-indigo-200/80 text-indigo-800 shadow-2xs shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase shadow-2xs shrink-0 border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-indigo-500'}`} />
                     Diagnostic Engine
                   </span>
                 </div>
 
-                <p className="text-xs sm:text-sm text-[#4A5553] leading-normal font-sans line-clamp-1 sm:line-clamp-none">
+                <p className={`text-xs sm:text-sm leading-normal font-sans line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
                   Know exactly where you stand. Diagnose preparation depth, clinical solving accuracy, and high-yield retention.
                 </p>
               </div>
             </div>
 
-            {/* Date Badge */}
-            <div className="flex items-center gap-1.5 self-start sm:self-center px-3 py-1 rounded-full bg-gradient-to-r from-white/95 via-violet-50/40 to-white/95 border border-violet-100/90 text-[11px] font-mono text-stone-600 shadow-2xs backdrop-blur-md shrink-0">
-              <Calendar className="w-3 h-3 text-[#4338CA]" />
-              <span>Updated: {formattedToday}</span>
+            {/* Live Circadian Phase Pill & Date Badge */}
+            <div className="flex items-center gap-2 self-start sm:self-center shrink-0 flex-wrap sm:flex-nowrap">
+              <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono shadow-2xs backdrop-blur-md shrink-0 border ${
+                circadian.isNight
+                  ? 'bg-slate-900/80 border-sky-800/60 text-cyan-200'
+                  : 'bg-gradient-to-r from-white/95 via-violet-50/40 to-white/95 border-violet-100/90 text-stone-600'
+              }`}>
+                <Calendar className={`w-3 h-3 ${circadian.isNight ? 'text-cyan-400' : 'text-[#4338CA]'}`} />
+                <span>Updated: {formattedToday}</span>
+              </div>
             </div>
           </div>
 
           {/* Secondary Switcher: [ Overview ] [ Error Vault ] [ Score Predictor ] */}
-          <div className="flex items-center justify-between gap-2 pt-2 border-t border-teal-100/70 flex-wrap">
-            <div className="inline-flex p-0.5 bg-white/90 border border-teal-100/90 rounded-xl shadow-2xs backdrop-blur-md">
+          <div className={`flex items-center justify-between gap-2 pt-2 border-t flex-wrap ${circadian.isNight ? 'border-sky-800/40' : 'border-teal-100/70'}`}>
+            <div className={`inline-flex p-0.5 rounded-xl shadow-2xs backdrop-blur-md border ${circadian.isNight ? 'bg-slate-900/80 border-sky-800/60' : 'bg-white/90 border-teal-100/90'}`}>
               <motion.button
                 type="button"
                 whileHover={{ scale: 1.01 }}

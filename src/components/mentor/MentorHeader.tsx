@@ -1,6 +1,9 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Target, History, Plus, Stethoscope } from 'lucide-react';
+import { useCircadianTheme } from '../../hooks/useCircadianTheme';
+import { CircadianHeaderAtmosphere, CircadianPill } from '../CircadianHeaderAtmosphere';
+import { HeaderTabInsignia } from '../HeaderTabInsignia';
 
 interface MentorHeaderProps {
   daysRemaining?: number | null;
@@ -16,6 +19,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
   onOpenHistory,
   onNewSession,
 }) => {
+  const circadian = useCircadianTheme();
   const reducedMotion = useReducedMotion();
   const displayDays = daysRemaining !== undefined && daysRemaining !== null ? daysRemaining : 0;
 
@@ -24,8 +28,9 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-      className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#EEFBF7] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+      className={`relative overflow-hidden rounded-3xl border p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
     >
+      <CircadianHeaderAtmosphere circadian={circadian} />
       {/* Dynamic Animated Ambient Faculty Background Effects */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         {/* Soft glowing corner radial gradient orbs with breathing motion */}
@@ -239,47 +244,41 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
       {/* Content Layout Matching Editorial Design System */}
       <div className="relative z-10 space-y-2.5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
+          <div className="flex items-center gap-3 sm:gap-3.5 max-w-2xl">
             {/* Minimal Animated Insignia */}
-            <motion.div
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.94 }}
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0 mt-0.5 cursor-default"
-            >
-              <Stethoscope className="h-5 w-5 text-[#00685F] stroke-[2]" />
-            </motion.div>
+            <HeaderTabInsignia tab="mentor" circadian={circadian} />
 
             <div className="space-y-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase font-['Newsreader'] tracking-tight bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-900 bg-clip-text text-transparent leading-snug">
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+                <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${circadian.isNight ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200' : circadian.titleGrad}`}>
                   FACULTY MENTOR
                 </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-teal-500/10 border border-teal-200/80 text-teal-800 shadow-2xs shrink-0">
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border shadow-2xs shrink-0 ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
                   Clinical AI Faculty
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-[#3d4947] leading-normal line-clamp-1 sm:line-clamp-none">
+              <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
                 High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted remediation.
               </p>
             </div>
           </div>
 
-          {/* Right Action Controls: Target Days Badge, History Drawer Trigger, New Chat Action */}
+          {/* Right Action Controls: CircadianPill, Target Days Badge, History Drawer Trigger, New Chat Action */}
           <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap pt-1 md:pt-0 shrink-0">
+            <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+
             {/* Days to FMGE Target Badge */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/90 border border-stone-200/80 shadow-2xs backdrop-blur-sm shrink-0">
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl border shadow-2xs backdrop-blur-sm shrink-0 ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-white' : 'bg-white/90 border-stone-200/80'}`}>
               <div className="h-7 w-7 rounded-xl bg-teal-500/10 text-[#00685F] flex items-center justify-center shrink-0">
                 <Target className="h-3.5 w-3.5" />
               </div>
               <div className="leading-tight text-left">
-                <span className="text-xs sm:text-sm font-extrabold text-stone-900 font-['Outfit'] tabular-nums">
+                <span className={`text-xs sm:text-sm font-extrabold font-['Outfit'] tabular-nums ${circadian.isNight ? 'text-white' : 'text-stone-900'}`}>
                   {displayDays}d
                 </span>
-                <span className="text-[10px] sm:text-[11px] text-stone-500 font-medium ml-1">to FMGE</span>
+                <span className={`text-[10px] sm:text-[11px] font-medium ml-1 ${circadian.isNight ? 'text-slate-400' : 'text-stone-500'}`}>to FMGE</span>
               </div>
             </div>
 
@@ -289,12 +288,16 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
               whileHover={reducedMotion ? undefined : { scale: 1.02, y: -1 }}
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               onClick={onOpenHistory}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border border-stone-200/80 bg-white/90 hover:bg-[#FAF5F2] hover:border-[#B57B66]/40 text-xs sm:text-sm font-semibold text-stone-700 hover:text-[#B57B66] shadow-2xs hover:shadow-xs transition-all cursor-pointer backdrop-blur-sm group shrink-0"
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border text-xs sm:text-sm font-semibold shadow-2xs hover:shadow-xs transition-all cursor-pointer backdrop-blur-sm group shrink-0 ${
+                circadian.isNight
+                  ? 'bg-slate-800/80 hover:bg-slate-700 border-slate-700/80 text-slate-200 hover:text-white'
+                  : 'bg-white/90 hover:bg-[#FAF5F2] border-stone-200/80 hover:border-[#B57B66]/40 text-stone-700 hover:text-[#B57B66]'
+              }`}
               title="Open saved consultations history"
             >
-              <History className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-stone-500 group-hover:text-[#B57B66] group-hover:rotate-[-20deg] transition-transform" />
+              <History className={`h-3.5 sm:h-4 w-3.5 sm:w-4 transition-transform group-hover:rotate-[-20deg] ${circadian.isNight ? 'text-slate-400 group-hover:text-cyan-300' : 'text-stone-500 group-hover:text-[#B57B66]'}`} />
               <span className="whitespace-nowrap">History</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-teal-50 text-[10px] sm:text-[11px] font-mono font-bold text-[#00685F] border border-teal-200/60">
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold border ${circadian.isNight ? 'bg-teal-950/70 text-teal-300 border-teal-800/80' : 'bg-teal-50 text-[#00685F] border-teal-200/60'}`}>
                 {sessionsCount}
               </span>
             </motion.button>

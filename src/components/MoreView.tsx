@@ -13,6 +13,9 @@ import { AppState, ErrorNotebookItem, DailyTask, DailyStudyLog, MedicalPearl } f
 import { AppStats } from '../utils/storage';
 import { TelegramHubView } from './TelegramHubView';
 import { ActiveTab } from './Navbar';
+import { useCircadianTheme } from '../hooks/useCircadianTheme';
+import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
+import { HeaderTabInsignia } from './HeaderTabInsignia';
 
 interface MoreViewProps {
   state: AppState;
@@ -57,6 +60,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
   onAddErrorItem,
   onUpdateAppState,
 }) => {
+  const circadian = useCircadianTheme(state.settings?.bgTheme);
   const [activeSection, setActiveSection] = useState<MoreSection>('hub');
 
   const utilityItems = [
@@ -114,36 +118,41 @@ export const MoreView: React.FC<MoreViewProps> = ({
       {activeSection === 'hub' && (
         <div className="space-y-8">
           {/* Header */}
-          <header className="border-b border-slate-200/80 pb-6">
-            <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
-              {/* Minimal Animated Insignia */}
-              <motion.div
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.94 }}
-                animate={{ rotate: [0, 3, 0] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-slate-100/90 border border-slate-200/80 text-slate-700 shadow-2xs shrink-0 mt-0.5 cursor-default"
-              >
-                <LayoutGrid className="h-5 w-5 text-slate-700 stroke-[2]" />
-              </motion.div>
+          <motion.header
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className={`relative overflow-hidden rounded-3xl border p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
+          >
+            <CircadianHeaderAtmosphere circadian={circadian} />
 
-              <div className="space-y-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                  <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase font-display tracking-tight bg-gradient-to-r from-slate-950 via-stone-900 to-slate-700 bg-clip-text text-transparent leading-snug">
-                    CLINICAL UTILITIES &amp; SERVICES
-                  </h1>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-slate-500/12 via-stone-500/8 to-slate-500/8 border border-slate-200/90 text-slate-700 shadow-2xs shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse" />
-                    System Directory
-                  </span>
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3 sm:gap-3.5 max-w-2xl">
+                {/* Minimal Animated Insignia */}
+                <HeaderTabInsignia tab="more" circadian={circadian} />
+
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+                    <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase font-['Outfit'] tracking-tight leading-snug bg-clip-text text-transparent shrink-0 ${circadian.isNight ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200' : circadian.titleGrad}`}>
+                      CLINICAL UTILITIES &amp; SERVICES
+                    </h1>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border shadow-2xs shrink-0 ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse" />
+                      System Directory
+                    </span>
+                  </div>
+
+                  <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
+                    Grand test mock exams, Telegram clinical feed, cloud telemetry synchronization, and application preferences.
+                  </p>
                 </div>
+              </div>
 
-                <p className="text-xs sm:text-sm text-slate-500 leading-normal line-clamp-1 sm:line-clamp-none">
-                  Grand test mock exams, Telegram clinical feed, cloud telemetry synchronization, and application preferences.
-                </p>
+              <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+                <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
               </div>
             </div>
-          </header>
+          </motion.header>
 
           {/* Directory of Hub Items */}
           <div className="divide-y divide-slate-100 editorial-surface overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">

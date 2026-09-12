@@ -35,6 +35,9 @@ import { getLocalDateKey } from '../utils/date';
 import { useAuth } from '../context/AuthContext';
 import { getPersonalizedDailyPlan, PersonalizedPlanTask } from '../utils/personalizationEngine';
 import { calculateStudyStreak } from '../utils/dailyMissionEngine';
+import { useCircadianTheme } from '../hooks/useCircadianTheme';
+import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
+import { HeaderTabInsignia } from './HeaderTabInsignia';
 
 interface DailyPlannerViewProps {
   state: AppState;
@@ -72,6 +75,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
   // Streak calculation
   const streakDays = useMemo(() => calculateStudyStreak(state.studyLogs), [state.studyLogs]);
+  const circadian = useCircadianTheme(state.settings?.bgTheme);
 
   // View state & tabs
   const [mobileTab, setMobileTab] = useState<'planner' | 'focus'>('planner');
@@ -395,30 +399,13 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#F4F9F6] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+        className={`relative overflow-hidden rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
       >
+        {/* Dynamic Circadian Ambient Schedule Atmosphere & 2px Shimmer Track */}
+        <CircadianHeaderAtmosphere circadian={circadian} />
+
         {/* Dynamic Animated Ambient Effects */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-
-          {/* Soft glowing corner radial gradient orbs with breathing motion */}
-          <motion.div
-            animate={{
-              scale: [1, 1.18, 1],
-              opacity: [0.35, 0.6, 0.35],
-              x: [0, 16, 0],
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-amber-400/35 via-orange-200/25 to-transparent blur-3xl"
-          />
-          <motion.div
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.2, 0.4, 0.2],
-              y: [0, -10, 0],
-            }}
-            transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute -bottom-16 -left-12 h-60 w-60 rounded-full bg-gradient-to-tr from-emerald-300/25 via-teal-100/20 to-transparent blur-3xl"
-          />
 
           {/* Subtle Coordinate Grid */}
           <svg
@@ -650,52 +637,60 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             </div>
 
             {/* Quick Metadata Cluster */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+              <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+
               {/* Today's Date */}
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 border border-stone-200/80 text-xs font-semibold text-slate-700 shadow-2xs backdrop-blur-xs">
-                <Calendar className="w-3 h-3 text-[#00685F]" />
+              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold shadow-2xs backdrop-blur-xs border ${
+                circadian.isNight
+                  ? 'bg-slate-900/80 border-sky-800/60 text-slate-200'
+                  : 'bg-white/90 border-stone-200/80 text-slate-700'
+              }`}>
+                <Calendar className={`w-3 h-3 ${circadian.isNight ? 'text-cyan-400' : 'text-[#00685F]'}`} />
                 <span>{formattedDate}</span>
               </div>
 
               {/* Active Streak */}
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-50/90 border border-orange-200/80 text-xs font-bold text-orange-700 shadow-2xs">
+              <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold shadow-2xs border ${
+                circadian.isNight
+                  ? 'bg-orange-950/70 border-orange-800/60 text-orange-300'
+                  : 'bg-orange-50/90 border-orange-200/80 text-orange-700'
+              }`}>
                 <Flame className="w-3 h-3 text-orange-500 fill-orange-500" />
                 <span>{streakDays}d</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
+          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 max-w-2xl">
             {/* Main Title & Subtitle + Sidely Aligned Top Words */}
-            <motion.div
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.94 }}
-              animate={{ scale: [1, 1.04, 1] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0 mt-0.5 cursor-default"
-            >
-              <Calendar className="h-5 w-5 text-[#00685F] stroke-[2]" />
-            </motion.div>
+            <HeaderTabInsignia tab="daily" circadian={circadian} />
 
             <div className="space-y-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                <h1 className="font-serif text-xl sm:text-2xl lg:text-[24px] font-extrabold uppercase tracking-tight bg-gradient-to-r from-stone-950 via-stone-800 to-teal-800 bg-clip-text text-transparent leading-snug">
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+                <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${
+                  circadian.isNight
+                    ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'
+                    : 'bg-gradient-to-r from-stone-950 via-stone-800 to-teal-800'
+                }`}>
                   TODAY’S PLAN &amp; FOCUS
                 </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-stone-500/10 to-emerald-500/10 border border-teal-200/80 text-teal-800 shadow-2xs shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase shadow-2xs shrink-0 border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-teal-500'}`} />
                   Daily Planner · Clinical Schedule
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-stone-500 leading-normal line-clamp-1 sm:line-clamp-none">
+              <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
                 Focus on high-yield mastery. One intentional milestone at a time.
               </p>
             </div>
           </div>
 
           {/* Minimal Integrated Telemetry Strip */}
-          <div className="flex flex-wrap items-center gap-3 sm:gap-6 pt-2 border-t border-stone-200/60 text-xs">
+          <div className={`flex flex-wrap items-center gap-3 sm:gap-6 pt-2 border-t text-xs ${
+            circadian.isNight ? 'border-sky-800/40' : 'border-stone-200/60'
+          }`}>
             {/* Planned / Progress */}
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-teal-50 text-[#00685F] flex items-center justify-center shrink-0 border border-teal-100/80">

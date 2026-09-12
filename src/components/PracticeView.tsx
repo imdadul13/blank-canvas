@@ -13,6 +13,9 @@ import {
 import { motion } from 'motion/react';
 import { AppState, ErrorNotebookItem, DailyTask } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
+import { useCircadianTheme } from '../hooks/useCircadianTheme';
+import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
+import { HeaderTabInsignia } from './HeaderTabInsignia';
 
 interface PracticeViewProps {
   state: AppState;
@@ -29,8 +32,10 @@ interface PracticeViewProps {
 }
 
 export const PracticeView: React.FC<PracticeViewProps> = ({
+  state,
   onLaunchPracticeSession,
 }) => {
+  const circadian = useCircadianTheme(state?.settings?.bgTheme);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('medicine');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -91,39 +96,13 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#EEFBFB] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+        className={`relative overflow-hidden rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
       >
-        {/* Dynamic Animated Ambient Clinical Practice Effects */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        {/* Dynamic Circadian Ambient Clinical Atmosphere & 2px Shimmer Track */}
+        <CircadianHeaderAtmosphere circadian={circadian} />
 
-          {/* Soft glowing corner radial gradient orbs with breathing motion */}
-          <motion.div
-            animate={{
-              scale: [1, 1.18, 1],
-              opacity: [0.4, 0.65, 0.4],
-              x: [0, 18, 0],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/40 via-emerald-200/30 to-transparent blur-3xl"
-          />
-          <motion.div
-            animate={{
-              scale: [1.1, 1, 1.1],
-              opacity: [0.25, 0.45, 0.25],
-              y: [0, -12, 0],
-            }}
-            transition={{
-              duration: 9.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-cyan-200/35 via-teal-100/25 to-transparent blur-3xl"
-          />
-          <div className="absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r from-teal-200/25 via-emerald-100/20 to-transparent blur-3xl" />
+        {/* Clinical Calibration Pattern Background */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
 
           {/* Subtle Precision Clinical Calibration Dot & Cross Pattern */}
           <svg
@@ -308,33 +287,34 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         </div>
 
         {/* Content Layout with Original Previous Texts */}
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
-            <motion.div
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.94 }}
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-sky-50/90 border border-sky-100/90 text-sky-600 shadow-2xs shrink-0 mt-0.5 cursor-default"
-            >
-              <Stethoscope className="h-5 w-5 text-sky-600 stroke-[2]" />
-            </motion.div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 max-w-2xl">
+            <HeaderTabInsignia tab="practice" circadian={circadian} />
 
             <div className="space-y-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase tracking-tight bg-gradient-to-r from-slate-950 via-sky-950 to-blue-800 bg-clip-text text-transparent leading-snug">
-                  Clinical Vignettes &amp; Drills
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+                <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${
+                  circadian.isNight
+                    ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'
+                    : 'bg-gradient-to-r from-slate-950 via-sky-950 to-blue-800'
+                }`}>
+                  CLINICAL VIGNETTES &amp; DRILLS
                 </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-sky-500/15 via-teal-500/10 to-blue-500/10 border border-sky-200/80 text-sky-800 shadow-2xs shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase shadow-2xs shrink-0 border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-sky-500'}`} />
                   Practice Engine · 10 MCQs
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-[#3d4947] leading-normal line-clamp-1 sm:line-clamp-none">
+              <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
                 10-MCQ clinical drills with instant distractor breakdowns &amp; recall testing.
               </p>
             </div>
+          </div>
+
+          {/* Right Action: Live Circadian Phase Pill */}
+          <div className="flex items-center gap-2 self-start md:self-center shrink-0">
+            <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
           </div>
         </div>
       </motion.header>

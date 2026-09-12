@@ -33,6 +33,9 @@ import {
   COMPREHENSIVE_PEARL_REPOSITORY,
   DynamicPearlTopicPackage
 } from '../utils/medicalPearlsEngine';
+import { useCircadianTheme } from '../hooks/useCircadianTheme';
+import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
+import { HeaderTabInsignia } from './HeaderTabInsignia';
 
 // Visual theme helper for consistent, subtle content differentiation
 const getPearlVisualTheme = (pearl: MedicalPearl) => {
@@ -109,6 +112,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
   onToggleBookmark,
   onAddCustomPearl,
 }) => {
+  const circadian = useCircadianTheme(state.settings?.bgTheme);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'mnemonics' | 'doc' | 'triads' | 'formulas' | 'traps'>('all');
@@ -276,8 +280,9 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#FAF8EE] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+        className={`relative overflow-hidden rounded-3xl border p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
       >
+        <CircadianHeaderAtmosphere circadian={circadian} />
         {/* Dynamic Animated Ambient Knowledge & Synapse Background Effects */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
 
@@ -716,35 +721,29 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
         {/* Header Main Content */}
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl min-w-0">
-            <motion.div
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.94 }}
-              animate={{ scale: [1, 1.05, 1], rotate: [0, 2, 0] }}
-              transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-amber-50/90 border border-amber-100/90 text-amber-700 shadow-2xs shrink-0 mt-0.5 cursor-default"
-            >
-              <Brain className="h-5 w-5 text-amber-700 stroke-[2]" />
-            </motion.div>
+          <div className="flex items-center gap-3 sm:gap-3.5 max-w-2xl min-w-0">
+            <HeaderTabInsignia tab="pearls" circadian={circadian} />
 
             <div className="space-y-1 min-w-0">
               <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
-                <h1 className="text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase font-['Outfit'] tracking-tight bg-gradient-to-r from-stone-950 via-amber-950 to-amber-800 bg-clip-text text-transparent leading-snug shrink-0">
+                <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase font-['Outfit'] tracking-tight ${circadian.isNight ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200' : circadian.titleGrad} bg-clip-text text-transparent leading-snug shrink-0`}>
                   KNOWLEDGE &amp; PEARLS
                 </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-200/80 text-amber-800 shadow-2xs shrink-0">
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText} shadow-2xs shrink-0`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                   AI Synthesizer
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-stone-600 leading-normal max-w-xl line-clamp-1 sm:line-clamp-none">
+              <p className={`text-xs sm:text-sm ${circadian.subtitleColor} leading-normal max-w-xl line-clamp-1 sm:line-clamp-none`}>
                 Clinical mnemonics, Drugs of Choice (DOC), diagnostic triads, and exam traps.
               </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-2 self-stretch sm:self-start md:self-center shrink-0">
+            <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+
             <motion.button
               type="button"
               whileHover={{ scale: 1.02, y: -1 }}
@@ -760,7 +759,9 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               className={`w-full sm:w-auto px-3.5 py-1.5 min-h-[36px] justify-center rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs backdrop-blur-sm ${
                 bookmarkedOnly
                   ? 'bg-amber-500 text-white border-amber-600 shadow-amber-500/20 shadow-xs'
-                  : 'bg-white/80 hover:bg-white text-stone-700 border-teal-200/70 hover:border-teal-300'
+                  : circadian.isNight
+                    ? 'bg-slate-800/80 hover:bg-slate-700/90 text-slate-200 border-slate-700/80 hover:border-slate-600'
+                    : 'bg-white/80 hover:bg-white text-stone-700 border-teal-200/70 hover:border-teal-300'
               }`}
             >
               <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-white text-white' : 'fill-amber-500/20 text-amber-500'}`} />

@@ -30,6 +30,9 @@ import { motion } from 'motion/react';
 import { GrandTest, AppState } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { getLocalDateKey } from '../utils/date';
+import { useCircadianTheme } from '../hooks/useCircadianTheme';
+import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
+import { HeaderTabInsignia } from './HeaderTabInsignia';
 
 interface GrandTestsViewProps {
   state: AppState;
@@ -46,6 +49,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 }) => {
   const [showAddGTModal, setShowAddGTModal] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const circadian = useCircadianTheme(state.settings?.bgTheme);
 
   // Filters & Search
   const [platformFilter, setPlatformFilter] = useState<string>('all');
@@ -308,31 +312,13 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-3xl border border-stone-200/80 bg-gradient-to-br from-[#FAF9F5] via-[#FCFCFA] via-45% to-[#F1F5FA] p-4 sm:px-6 sm:py-3.5 shadow-xs"
+        className={`relative overflow-hidden rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
       >
+        {/* Dynamic Circadian Ambient Mock Exam Atmosphere & 2px Shimmer Track */}
+        <CircadianHeaderAtmosphere circadian={circadian} />
+
         {/* Dynamic Animated Ambient Effects */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-
-          {/* Soft glowing corner radial gradient orbs with breathing motion */}
-          <motion.div
-            animate={{
-              scale: [1, 1.18, 1],
-              opacity: [0.35, 0.6, 0.35],
-              x: [0, 16, 0],
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/35 via-emerald-200/25 to-transparent blur-3xl"
-          />
-          <motion.div
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.2, 0.4, 0.2],
-              y: [0, -10, 0],
-            }}
-            transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute -bottom-16 -left-12 h-60 w-60 rounded-full bg-gradient-to-tr from-cyan-300/25 via-teal-100/20 to-transparent blur-3xl"
-          />
-
           {/* Subtle Coordinate Grid */}
           <svg
             className="absolute inset-0 h-full w-full opacity-[0.035] text-teal-950 pointer-events-none select-none"
@@ -525,53 +511,57 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
         {/* Header Content Body */}
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
-            <motion.div
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.94 }}
-              animate={{ rotate: [-2, 2, -2] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-indigo-50/90 border border-indigo-100/90 text-indigo-700 shadow-2xs shrink-0 mt-0.5 cursor-default"
-            >
-              <Award className="h-5 w-5 text-indigo-700 stroke-[2]" />
-            </motion.div>
+          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 max-w-2xl">
+            <HeaderTabInsignia tab="grandtests" circadian={circadian} />
 
             <div className="space-y-1.5 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold uppercase bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-900 bg-clip-text text-transparent tracking-tight font-['Outfit'] leading-snug">
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+                <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase bg-clip-text text-transparent tracking-tight font-['Outfit'] leading-snug shrink-0 ${
+                  circadian.isNight
+                    ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'
+                    : 'bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-900'
+                }`}>
                   GRAND TESTS &amp; MOCKS
                 </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-indigo-500/15 via-blue-500/10 to-slate-500/10 border border-indigo-200/80 text-indigo-900 shadow-2xs shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase shadow-2xs shrink-0 border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-indigo-500'}`} />
                   NBE Simulation · 300 Questions
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-slate-600 leading-normal line-clamp-1 sm:line-clamp-none">
+              <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
                 Simulate 300-Q NBE exams &amp; track your trajectory past the 150-mark cutoff.
               </p>
 
               {/* Quick Metrics Bar */}
               <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
-                  <span className="text-slate-400">Tests:</span>
-                  <span className="font-bold text-slate-900">{stats.totalTests}</span>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-mono shadow-2xs border ${
+                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/85 border-slate-200/80 text-slate-700'
+                }`}>
+                  <span className={circadian.isNight ? 'text-sky-300/70' : 'text-slate-400'}>Tests:</span>
+                  <span className={`font-bold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{stats.totalTests}</span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
-                  <span className="text-slate-400">Latest:</span>
-                  <span className={`font-bold ${stats.latestPassed ? 'text-emerald-700' : stats.latestScore > 0 ? 'text-amber-700' : 'text-slate-900'}`}>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-mono shadow-2xs border ${
+                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/85 border-slate-200/80 text-slate-700'
+                }`}>
+                  <span className={circadian.isNight ? 'text-sky-300/70' : 'text-slate-400'}>Latest:</span>
+                  <span className={`font-bold ${stats.latestPassed ? 'text-emerald-400' : stats.latestScore > 0 ? (circadian.isNight ? 'text-amber-300' : 'text-amber-700') : (circadian.isNight ? 'text-white' : 'text-slate-900')}`}>
                     {stats.latestScore > 0 ? `${stats.latestScore}/300` : 'None'}
                   </span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
-                  <span className="text-slate-400">Peak:</span>
-                  <span className="font-bold text-teal-700">
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-mono shadow-2xs border ${
+                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/85 border-slate-200/80 text-slate-700'
+                }`}>
+                  <span className={circadian.isNight ? 'text-sky-300/70' : 'text-slate-400'}>Peak:</span>
+                  <span className={`font-bold ${circadian.isNight ? 'text-cyan-300' : 'text-teal-700'}`}>
                     {stats.highestScore > 0 ? `${stats.highestScore}/300` : '-'}
                   </span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white/85 border border-slate-200/80 text-[11px] font-mono text-slate-700 shadow-2xs">
-                  <span className="text-slate-400">Pass Rate:</span>
-                  <span className="font-bold text-emerald-700">
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-mono shadow-2xs border ${
+                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/85 border-slate-200/80 text-slate-700'
+                }`}>
+                  <span className={circadian.isNight ? 'text-sky-300/70' : 'text-slate-400'}>Pass Rate:</span>
+                  <span className="font-bold text-emerald-400">
                     {stats.clearanceRate}%
                   </span>
                 </div>
@@ -579,8 +569,9 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             </div>
           </div>
 
-          {/* Right Action Button */}
-          <div className="flex items-center shrink-0">
+          {/* Right Action: Live Circadian Phase Pill & Log GT Button */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+            <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
             <button
               type="button"
               onClick={() => setShowAddGTModal(true)}
