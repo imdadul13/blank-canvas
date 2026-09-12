@@ -500,7 +500,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
       {currentSubTab === 'overview' && (
         <>
           {/* ================= 2. EXAM READINESS HERO ================= */}
-      <section className="bg-white rounded-3xl border border-[#DCE4E1] shadow-xs p-6 sm:p-8 transition-shadow">
+      <section className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] p-6 sm:p-8 transition-shadow">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left Column: Readiness Dial & High-Yield Verdict */}
           <div className="lg:col-span-5 flex flex-col items-center sm:items-start text-center sm:text-left space-y-5 lg:border-r lg:border-[#EAEFEA] lg:pr-8">
@@ -600,7 +600,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         {showReadinessBreakdown && (
           <div className="mt-6 pt-6 border-t border-[#EAEFEA] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-200">
             {readiness.components.map((c) => (
-              <div key={c.id} className="p-3 rounded-xl bg-stone-50/80 border border-stone-200/60 text-xs space-y-1">
+              <div key={c.id} className="p-3 rounded-xl bg-white/70 backdrop-blur-xs border border-stone-200/60 text-xs space-y-1">
                 <span className="font-bold text-stone-800 block">{c.name}</span>
                 <span className="text-stone-500 text-[11px] block">{c.label}</span>
                 <p className="text-stone-600 text-[11px] leading-snug">{c.details}</p>
@@ -619,7 +619,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* 1. Overall Accuracy */}
-          <div className="p-5 rounded-2xl bg-white border border-[#DCE4E1] shadow-xs space-y-2">
+          <div className="p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_32px_rgba(0,107,99,0.08)] transition-all space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 font-mono">
                 Overall Accuracy
@@ -650,7 +650,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           </div>
 
           {/* 2. Questions Attempted */}
-          <div className="p-5 rounded-2xl bg-white border border-[#DCE4E1] shadow-xs space-y-2">
+          <div className="p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_32px_rgba(0,107,99,0.08)] transition-all space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 font-mono">
                 Questions Attempted
@@ -668,7 +668,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           </div>
 
           {/* 3. Average Response Pace */}
-          <div className="p-5 rounded-2xl bg-white border border-[#DCE4E1] shadow-xs space-y-2">
+          <div className="p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_32px_rgba(0,107,99,0.08)] transition-all space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 font-mono">
                 Avg. Response Time
@@ -690,7 +690,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           </div>
 
           {/* 4. Repeated Errors */}
-          <div className="p-5 rounded-2xl bg-white border border-[#DCE4E1] shadow-xs space-y-2">
+          <div className="p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_32px_rgba(0,107,99,0.08)] transition-all space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 font-mono">
                 Repeated Errors
@@ -719,7 +719,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
       {/* ================= 4. WHAT NEEDS ATTENTION & QUICK ACTIONS ================= */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (65%): Adaptive Priority Weak Topics */}
-        <div className="lg:col-span-8 bg-white rounded-3xl border border-[#DCE4E1] shadow-xs p-6 space-y-4">
+        <div className="lg:col-span-8 bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <h2 className="text-base font-bold text-[#121E1B]">
@@ -747,7 +747,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
           <div className="divide-y divide-stone-100">
             {topPriorityTopics.map((topic) => {
-              // Only classify as confirmed weakness/high priority if real performance data actually supports that classification
               const hasAttempts = topic.attemptCount > 0;
               const hasErrors = topic.errorCount > 0 || topic.repeatedErrorCount > 0;
               const hasRepeatedMistake = hasAttempts && topic.repeatedErrorCount >= 1;
@@ -769,28 +768,27 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 actionHint = 'Spaced Revision';
               }
 
+              let iconBg = 'bg-stone-50 text-stone-600 border border-stone-200/80';
+              if (hasRepeatedMistake || isConfirmedWeakness) {
+                iconBg = 'bg-rose-50 text-rose-700 border border-rose-200/70';
+              } else if (isHighPriority) {
+                iconBg = 'bg-orange-50 text-orange-700 border border-orange-200/70';
+              } else if (isRevision) {
+                iconBg = 'bg-amber-50 text-amber-700 border border-amber-200/70';
+              } else {
+                iconBg = 'bg-teal-50 text-[#00685f] border border-teal-200/70';
+              }
+
               return (
                 <div
                   key={`${topic.subjectId}-${topic.topicId}`}
-                  className="py-3.5 first:pt-1 last:pb-1 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                  className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group hover:bg-stone-50/50 rounded-xl px-2.5 transition-colors"
                 >
                   <div className="flex items-start gap-3 min-w-0">
-                    <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-                        hasRepeatedMistake || isConfirmedWeakness
-                          ? 'bg-rose-50 text-rose-700 border border-rose-200/70'
-                          : isHighPriority
-                          ? 'bg-orange-50 text-orange-700 border border-orange-200/70'
-                          : isRevision
-                          ? 'bg-amber-50 text-amber-700 border border-amber-200/70'
-                          : 'bg-teal-50 text-[#00685f] border border-teal-200/70'
-                      }`}
-                    >
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${iconBg}`}>
                       {hasRepeatedMistake ? (
-                        <AlertCircle className="w-4 h-4" />
+                        <AlertTriangle className="w-4 h-4" />
                       ) : isConfirmedWeakness ? (
-                        <AlertCircle className="w-4 h-4" />
-                      ) : isHighPriority ? (
                         <AlertTriangle className="w-4 h-4" />
                       ) : isRevision ? (
                         <RotateCcw className="w-4 h-4" />
@@ -886,8 +884,8 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   onClick={() => setIsErrorVaultModalOpen(true)}
                   className={`p-4 rounded-2xl transition-all cursor-pointer flex items-center gap-3.5 ${
                     isPrimary
-                      ? 'bg-white border-2 border-rose-200/80 shadow-xs hover:border-rose-400'
-                      : 'bg-white border border-[#DCE4E1] shadow-2xs hover:border-[#00685f]'
+                      ? 'bg-white/85 backdrop-blur-md border-2 border-rose-200/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(225,29,72,0.06)] hover:border-rose-400'
+                      : 'bg-white/80 backdrop-blur-md border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:border-[#00685f]'
                   }`}
                 >
                   <div
@@ -947,8 +945,8 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   }}
                   className={`p-4 rounded-2xl transition-all cursor-pointer flex items-center gap-3.5 ${
                     isPrimary
-                      ? 'bg-white border-2 border-teal-200/80 shadow-xs hover:border-[#00685f]'
-                      : 'bg-white border border-[#DCE4E1] shadow-2xs hover:border-[#00685f]'
+                      ? 'bg-white/85 backdrop-blur-md border-2 border-teal-200/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.06)] hover:border-[#00685f]'
+                      : 'bg-white/80 backdrop-blur-md border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:border-[#00685f]'
                   }`}
                 >
                   <div
@@ -983,7 +981,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               onClick={() => {
                 onNavigateTab?.('revision');
               }}
-              className="p-4 rounded-2xl bg-white border border-[#DCE4E1] shadow-2xs hover:border-[#00685f] transition-all cursor-pointer flex items-center gap-3.5"
+              className="p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:border-[#00685f] transition-all cursor-pointer flex items-center gap-3.5"
             >
               <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0">
                 <RotateCcw className="w-5 h-5" />
@@ -1018,7 +1016,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search subjects..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-full text-xs bg-white border border-stone-200 focus:outline-none focus:border-[#00685f] text-stone-800 placeholder-stone-400 transition-colors shadow-2xs"
+              className="w-full pl-9 pr-3 py-1.5 rounded-full text-xs bg-white/80 backdrop-blur-md border border-white/85 focus:outline-none focus:border-[#00685f] text-stone-800 placeholder-stone-400 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)]"
             />
           </div>
         </div>
@@ -1037,8 +1035,8 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               onClick={() => setSelectedDiscipline(tab.id as any)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 selectedDiscipline === tab.id
-                  ? 'bg-stone-900 text-white shadow-2xs'
-                  : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+                  ? 'bg-[#00685F] text-white shadow-xs font-bold'
+                  : 'bg-white/80 backdrop-blur-md text-stone-600 border border-white/80 hover:bg-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
               }`}
             >
               {tab.label}
@@ -1047,7 +1045,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         </div>
 
         {/* Subject Table / Card Ledger */}
-        <div className="bg-white rounded-3xl border border-[#DCE4E1] shadow-xs divide-y divide-stone-100 overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] divide-y divide-white/60 overflow-hidden">
           {/* Table Header on Desktop */}
           <div className="hidden sm:grid sm:grid-cols-12 px-6 py-3 bg-stone-50/70 text-[11px] font-mono font-bold uppercase tracking-wider text-stone-400">
             <div className="sm:col-span-4">Subject</div>

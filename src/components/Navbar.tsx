@@ -522,13 +522,13 @@ export const SidebarDock: React.FC<NavbarProps> = ({
 
   return (
     <aside
-      className="hidden lg:flex flex-col justify-between w-60 xl:w-64 shrink-0 h-screen sticky top-0 bg-gradient-to-b from-white via-white to-teal-50/25 border-r border-slate-100/80 z-40 select-none font-['Plus_Jakarta_Sans']"
+      className="hidden lg:flex flex-col justify-between w-60 xl:w-64 shrink-0 h-screen sticky top-0 bg-white/80 backdrop-blur-2xl border-r border-white/80 shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,107,99,0.03)] z-40 select-none font-['Plus_Jakarta_Sans']"
       aria-label="Desktop Navigation"
     >
       {/* ── Top: Logo & Primary Navigation ─────────────────── */}
       <div className="flex flex-col">
         {/* Brand Header */}
-        <div className="px-4 pt-5 pb-4 border-b border-slate-100/80">
+        <div className="px-4 pt-5 pb-4 border-b border-white/80">
           <div
             onClick={() => setActiveTab('dashboard')}
             className="cursor-pointer rounded-xl p-1 -ml-1 transition-opacity hover:opacity-85 active:opacity-70"
@@ -671,12 +671,12 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={reducedMotion ? undefined : { opacity: 0, x: -8, scale: 0.96 }}
                   transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute left-[calc(100%+8px)] top-0 w-64 bg-white/98 backdrop-blur-md rounded-2xl shadow-[0_14px_44px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-slate-200/90 py-2.5 px-2 z-50 font-['Plus_Jakarta_Sans']"
+                  className="absolute left-[calc(100%+8px)] top-0 w-64 bg-white/85 backdrop-blur-2xl rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_18px_48px_rgba(0,107,99,0.12)] border border-white/85 py-2.5 px-2 z-50 font-['Plus_Jakarta_Sans']"
                   role="menu"
                   aria-label="Secondary Utilities"
                 >
                   {/* Top Bar matching Reference B panel 4 */}
-                  <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100 mb-1.5">
+                  <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100/80 mb-1.5">
                     <div className="flex items-center gap-2 text-slate-700 font-semibold text-xs">
                       <MoreHorizontal className="h-3.5 w-3.5 text-[#006B63]" />
                       <span>More</span>
@@ -739,7 +739,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
       {/* Local Practice Mode Active Card with Quick Exit */}
       {isGuest && (
         <div className="px-3 pb-2.5">
-          <div className="rounded-2xl p-3 bg-gradient-to-br from-teal-50/90 via-white to-amber-50/50 border border-teal-200/80 shadow-xs space-y-2">
+          <div className="rounded-2xl p-3 bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.04)] space-y-2">
             <div className="flex items-center justify-between text-[11px]">
               <span className="font-extrabold text-[#006B63] flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -827,7 +827,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       {/* ── Mobile Top Header ──────────────────────── */}
-      <header className="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-2.5 flex items-center justify-between font-['Plus_Jakarta_Sans']">
+      <header className="lg:hidden sticky top-0 z-40 bg-white/80 backdrop-blur-2xl border-b border-white/80 px-4 py-2.5 flex items-center justify-between font-['Plus_Jakarta_Sans'] shadow-[0_4px_20px_rgba(0,107,99,0.02)]">
         <div className="flex items-center gap-2">
           <div
             onClick={() => setActiveTab('dashboard')}
@@ -851,7 +851,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.94 }}
               onClick={onExitGuest}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-300/80 text-[11px] font-extrabold text-[#006B63] shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-teal-50/80 backdrop-blur-md border border-teal-300/80 text-[11px] font-extrabold text-[#006B63] shadow-2xs cursor-pointer"
               title="Exit Local Practice Mode"
             >
               <ArrowLeft className="h-3 w-3 stroke-[2.5]" />
@@ -869,7 +869,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setMobileMoreOpen(false);
                 onOpenNotifications();
               }}
-              className="relative flex items-center justify-center h-9 w-9 rounded-full bg-white border border-stone-200/90 shadow-2xs text-stone-700 hover:text-stone-900 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]/40"
+              className="relative flex items-center justify-center h-9 w-9 rounded-full bg-white/80 backdrop-blur-xl border border-white/85 shadow-2xs text-stone-700 hover:text-stone-900 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]/40"
               title="Study Intelligence"
               aria-label={
                 unreadNotificationCount && unreadNotificationCount > 0
@@ -897,14 +897,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`relative flex items-center justify-center h-9 w-9 rounded-full border shadow-2xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]/40 ${
                 mobileMoreOpen || isSecondaryActive
                   ? 'bg-[#E8F5F3] border-teal-200 text-[#006B63]'
-                  : 'bg-white border-stone-200/90 text-stone-700 hover:text-[#006B63] hover:border-teal-300'
+                  : 'bg-white/80 backdrop-blur-xl border-white/85 text-stone-700 hover:text-[#006B63] hover:border-teal-300'
               }`}
-              title="More utilities"
             >
-              <MoreHorizontal className="h-4.5 w-4.5 stroke-[2]" />
+              <MoreHorizontal className="h-4.5 w-4.5" />
             </button>
 
-            {/* Mobile Top More Dropdown Menu matching Reference B Panel 4 */}
+            {/* Mobile More Popover */}
             <AnimatePresence>
               {mobileMoreOpen && (
                 <motion.div
@@ -912,7 +911,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reducedMotion ? undefined : { opacity: 0, y: -6, scale: 0.96 }}
                   transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute right-0 top-[calc(100%+0.5rem)] w-64 max-w-[calc(100vw-2rem)] z-50 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_12px_40px_rgba(0,0,0,0.16)] p-2 font-['Plus_Jakarta_Sans']"
+                  className="absolute right-0 top-[calc(100%+0.5rem)] w-64 max-w-[calc(100vw-2rem)] z-50 rounded-2xl bg-white/85 backdrop-blur-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_18px_48px_rgba(0,107,99,0.12)] p-2 font-['Plus_Jakarta_Sans']"
                   role="menu"
                   aria-label="Secondary Utilities"
                 >
@@ -929,7 +928,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         setMobileMoreOpen(false);
                       }
                     }}
-                    className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100 mb-1 cursor-pointer hover:bg-teal-50/70 rounded-xl transition-colors group"
+                    className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100/80 mb-1 cursor-pointer hover:bg-teal-50/70 rounded-xl transition-colors group"
                   >
                     <div className="flex items-center gap-2 text-slate-700 group-hover:text-[#006B63] font-semibold text-xs">
                       <MoreHorizontal className="h-3.5 w-3.5 text-[#006B63]" />
@@ -960,62 +959,37 @@ export const Navbar: React.FC<NavbarProps> = ({
                         className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
                           active
                             ? 'bg-[#E8F5F3] text-[#006B63]'
-                            : 'text-slate-700 hover:bg-teal-50/70 hover:text-[#006B63]'
+                            : 'hover:bg-teal-50/70 hover:text-[#006B63] text-slate-700'
                         }`}
                       >
                         <div
-                          className={`p-1.5 rounded-lg shrink-0 transition-colors ${
+                          className={`p-2 rounded-lg shrink-0 transition-colors ${
                             active
-                              ? 'bg-[#006B63] text-white'
+                              ? 'bg-[#006B63] text-white shadow-2xs'
                               : 'bg-slate-100 text-slate-600 group-hover:bg-[#006B63]/10 group-hover:text-[#006B63]'
                           }`}
                         >
                           <Icon className="h-4 w-4" />
                         </div>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-xs font-semibold leading-tight">{label}</span>
-                          {desc && (
-                            <span className="block text-[10px] text-slate-400 truncate">{desc}</span>
-                          )}
-                        </span>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[13px] font-semibold leading-tight">{label}</span>
+                          <span className="text-[10px] text-slate-400 truncate">{desc}</span>
+                        </div>
                       </button>
                     );
                   })}
-
-                    {isGuest && onExitGuest && (
-                      <div className="pt-1.5 mt-1 border-t border-slate-100">
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() => {
-                            setMobileMoreOpen(false);
-                            onExitGuest();
-                          }}
-                          className="w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer bg-rose-50/60 hover:bg-rose-100/70 text-rose-800"
-                        >
-                          <div className="p-1.5 rounded-lg shrink-0 bg-rose-100 text-rose-700">
-                            <LogOut className="h-4 w-4" />
-                          </div>
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-xs font-bold leading-tight">Exit Local Mode</span>
-                            <span className="block text-[10px] text-rose-500 truncate">Return to Sign In & Cloud Sync</span>
-                          </span>
-                        </button>
-                      </div>
-                    )}
-                  </motion.div>
+                </motion.div>
               )}
             </AnimatePresence>
           </div>
 
+          {/* Avatar Profile Trigger */}
           <button
             type="button"
-            onClick={() => {
-              setMobileMoreOpen(false);
-              onOpenProfile();
-            }}
-            className="h-8 w-8 rounded-full overflow-hidden bg-slate-900 text-white flex items-center justify-center text-xs font-bold shadow-xs cursor-pointer ring-2 ring-slate-900/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]/50"
-            aria-label={`Profile: ${userName || 'User'}`}
+            onClick={onOpenProfile}
+            className="h-9 w-9 rounded-full bg-[#2A2322] text-white font-['Outfit'] font-bold text-xs flex items-center justify-center ring-2 ring-slate-900/10 shadow-xs cursor-pointer hover:ring-[#006B63] transition-all overflow-hidden"
+            title={`${userName} — Doctor Profile`}
+            aria-label={`${userName} — Doctor Profile`}
           >
             {photoURL ? (
               <img src={photoURL} alt={userName} className="h-full w-full object-cover" />
@@ -1028,7 +1002,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* ── Mobile Floating Bottom Navigation Bar matching Reference B Panel 6 ───────────── */}
       <nav
-        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-0.75rem)] w-auto bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_8px_32px_rgba(0,0,0,0.10)] rounded-2xl px-1.5 xs:px-2.5 py-1.5 font-['Plus_Jakarta_Sans']"
+        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-0.75rem)] w-auto bg-white/78 backdrop-blur-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_36px_rgba(0,107,99,0.10)] rounded-2xl px-1.5 xs:px-2.5 py-1.5 font-['Plus_Jakarta_Sans']"
         style={{ bottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}
         aria-label="Mobile Navigation"
       >
@@ -1057,12 +1031,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {active && !reducedMotion && (
                     <motion.div
                       layoutId="mobile-nav-active-tile"
-                      className="absolute inset-0 rounded-xl bg-[#E8F5F3]"
+                      className="absolute inset-0 rounded-xl bg-[#E8F5F3]/90 border border-white/60 shadow-2xs"
                       transition={{ type: 'spring', stiffness: 440, damping: 30 }}
                     />
                   )}
                   {active && reducedMotion && (
-                    <div className="absolute inset-0 rounded-xl bg-[#E8F5F3]" />
+                    <div className="absolute inset-0 rounded-xl bg-[#E8F5F3]/90 border border-white/60 shadow-2xs" />
                   )}
 
                   <motion.div

@@ -406,10 +406,10 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 16 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-          className="bg-white sm:rounded-3xl max-w-5xl w-full my-auto h-[100dvh] sm:h-auto sm:max-h-[94vh] flex flex-col shadow-2xl border-0 sm:border border-stone-200/90 overflow-hidden"
+          className="bg-white/90 backdrop-blur-2xl sm:rounded-3xl max-w-5xl w-full my-auto h-[100dvh] sm:h-auto sm:max-h-[94vh] flex flex-col shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_25px_60px_rgba(0,107,99,0.12)] border-0 sm:border border-white/85 overflow-hidden"
         >
           {/* ================= EDITORIAL TEXTBOOK HEADER ================= */}
-          <header className="p-4 sm:p-7 border-b border-stone-200/80 flex flex-col sm:flex-row sm:items-start justify-between gap-4 bg-stone-50/70 shrink-0">
+          <header className="p-4 sm:p-7 border-b border-white/80 flex flex-col sm:flex-row sm:items-start justify-between gap-4 bg-white/70 backdrop-blur-md shrink-0">
             <div className="space-y-1.5 min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-mono text-xs font-semibold uppercase tracking-wider text-stone-400">
@@ -443,7 +443,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={fetchGeminiMastery}
                 disabled={isAiLoading}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-stone-50 text-stone-900 border border-stone-200/90 hover:border-indigo-200 text-xs font-semibold font-display transition-all cursor-pointer shadow-2xs disabled:opacity-60 min-h-[38px] group"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/80 backdrop-blur-xs hover:bg-white text-stone-900 border border-white/85 hover:border-indigo-200 text-xs font-semibold font-display transition-all cursor-pointer shadow-2xs disabled:opacity-60 min-h-[38px] group"
                 title="Comprehensive Gemini-powered study pack"
               >
                 {isAiLoading ? (
@@ -477,7 +477,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
 
           {/* Status Notification Bar */}
           {aiStatus && (
-            <div className="px-5 sm:px-6 py-2.5 bg-stone-50 border-b border-stone-200/80 text-xs text-stone-700 font-medium flex items-center justify-between transition-all">
+            <div className="px-5 sm:px-6 py-2.5 bg-white/60 backdrop-blur-xs border-b border-white/80 text-xs text-stone-700 font-medium flex items-center justify-between transition-all">
               <span className="flex items-center gap-2 min-w-0">
                 {isAiLoading ? (
                   <RefreshCw className="h-3.5 w-3.5 animate-spin text-indigo-600 shrink-0" />
@@ -497,7 +497,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
           )}
 
           {/* ================= 6-STEP ROADMAP RAIL ================= */}
-          <div ref={stageRailRef} className="bg-stone-50/50 border-b border-stone-200/80 px-3 sm:px-6 py-2 overflow-x-auto scrollbar-none">
+          <div ref={stageRailRef} className="bg-white/60 backdrop-blur-md border-b border-white/80 px-3 sm:px-6 py-2 overflow-x-auto scrollbar-none">
             <div className="flex items-center justify-start min-w-max gap-1.5">
               {STEPS.map((step, idx) => {
                 const isActive = activeStep === step.id;

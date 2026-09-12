@@ -792,7 +792,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             e.preventDefault();
             handleQueryTopic(activeTopicQuery);
           }}
-          className="relative flex items-center bg-white border border-stone-200/90 rounded-2xl p-1.5 shadow-xs focus-within:border-[#006B63] focus-within:ring-2 focus-within:ring-[#006B63]/10 transition-all"
+          className="relative flex items-center bg-white/80 backdrop-blur-xl border border-white/85 rounded-2xl p-1.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)] focus-within:border-[#006B63] focus-within:ring-2 focus-within:ring-[#006B63]/10 transition-all"
         >
           <Search className="ml-2 sm:ml-3 h-4 sm:h-4.5 w-4 sm:w-4.5 text-stone-400 shrink-0 pointer-events-none" />
           <input
@@ -816,7 +816,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           <button
             type="submit"
             disabled={isGenerating || !activeTopicQuery.trim()}
-            className="h-10 px-3 sm:px-5 rounded-xl text-xs font-semibold bg-[#006B63] hover:bg-[#00554e] text-white transition-all cursor-pointer disabled:opacity-40 flex items-center justify-center gap-1.5 shrink-0 shadow-xs min-w-[90px] sm:min-w-0"
+            className="h-10 px-3 sm:px-5 rounded-xl text-xs font-semibold bg-[#006B63] hover:bg-[#00554e] text-white transition-all cursor-pointer disabled:opacity-40 flex items-center justify-center gap-1.5 shrink-0 shadow-xs min-w-[90px] sm:min-w-0 font-bold"
           >
             {isGenerating ? (
               <>
@@ -861,8 +861,8 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   onClick={() => handleQueryTopic(topic)}
                   className={`min-h-[34px] px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer shrink-0 border flex items-center ${
                     isSelected
-                      ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs'
-                      : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-200/90'
+                      ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs font-bold'
+                      : 'bg-white/80 backdrop-blur-md hover:bg-white text-stone-700 border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
                   }`}
                 >
                   {topic}
@@ -885,7 +885,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   key={topic}
                   type="button"
                   onClick={() => handleQueryTopic(topic)}
-                  className="px-2.5 py-0.5 rounded-lg text-xs bg-stone-100/90 hover:bg-stone-200/80 text-stone-700 border border-stone-200/90 font-medium transition-colors cursor-pointer"
+                  className="px-2.5 py-0.5 rounded-lg text-xs bg-white/80 backdrop-blur-xs hover:bg-white text-stone-700 border border-white/80 font-medium transition-colors cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]"
                 >
                   {topic}
                 </button>
@@ -901,7 +901,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
       {/* ═══ 3. VALUE PROPOSITION CARDS ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-2xs flex items-start gap-3">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] flex items-start gap-3">
           <div className="h-9 w-9 rounded-xl bg-[#006B63]/10 text-[#006B63] border border-[#006B63]/20 flex items-center justify-center shrink-0 mt-0.5">
             <Brain className="h-4.5 w-4.5 stroke-[1.8]" />
           </div>
@@ -913,7 +913,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-2xs flex items-start gap-3">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] flex items-start gap-3">
           <div className="h-9 w-9 rounded-xl bg-sky-50 text-sky-700 border border-sky-200/60 flex items-center justify-center shrink-0 mt-0.5">
             <Activity className="h-4.5 w-4.5 stroke-[1.8]" />
           </div>
@@ -925,7 +925,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-2xs flex items-start gap-3">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] flex items-start gap-3">
           <div className="h-9 w-9 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0 mt-0.5">
             <Star className="h-4.5 w-4.5 stroke-[1.8] fill-amber-500/20" />
           </div>
@@ -1355,7 +1355,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
       {/* ═══ 5. MY KNOWLEDGE VAULT / MASTER PEARLS ARCHIVE ═══ */}
       <section
         id="master-vault"
-        className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 border border-stone-200/90 shadow-xs space-y-6 scroll-mt-6"
+        className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] space-y-6 scroll-mt-6"
       >
         {/* VAULT HEADER */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200/80 pb-5">
@@ -1390,14 +1390,14 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                 bookmarkedOnly
                   ? 'bg-amber-50 text-amber-900 border-amber-300 shadow-2xs font-bold'
-                  : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200/80'
+                  : 'bg-white/80 backdrop-blur-xs hover:bg-white text-stone-700 border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
               }`}
               title="Toggle Starred only filter"
             >
               <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-amber-500 text-amber-500' : 'text-amber-500 fill-amber-400/30'}`} />
               <span>{bookmarkedCount} Starred</span>
             </button>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200/80 text-stone-700 font-medium">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 backdrop-blur-xs border border-white/80 text-stone-700 font-medium shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]">
               <BookOpen className="h-3.5 w-3.5 text-stone-400" />
               <span>{allPearls.length} Total</span>
             </span>
@@ -1415,7 +1415,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search saved pearls by keyword, drug, or formula..."
               aria-label="Search saved pearls"
-              className="w-full h-10 pl-10 pr-10 rounded-xl bg-stone-50/90 hover:bg-stone-50 focus:bg-white border border-stone-200/90 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 transition-all outline-none font-medium"
+              className="w-full h-10 pl-10 pr-10 rounded-xl bg-white/80 backdrop-blur-md hover:bg-white focus:bg-white border border-white/85 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 transition-all outline-none font-medium shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)]"
             />
             {searchQuery && (
               <button
@@ -1436,7 +1436,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               <select
                 value={selectedSubject}
                 onChange={(e) => setSelectedSubject(e.target.value)}
-                className="w-full sm:w-auto h-9 px-3 rounded-xl bg-stone-50 hover:bg-stone-100/80 border border-stone-200/90 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#006B63] cursor-pointer transition-colors"
+                className="w-full sm:w-auto h-9 px-3 rounded-xl bg-white/80 backdrop-blur-md hover:bg-white border border-white/85 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#006B63] cursor-pointer transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)]"
                 aria-label="Filter pearls by subject"
               >
                 <option value="all">All 19 Subjects</option>
@@ -1448,7 +1448,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               </select>
             </div>
 
-            {/* Category Filter Pills (horizontally scrollable on mobile without wrapping awkwardly) */}
+            {/* Category Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 scrollbar-none -mx-1 px-1 touch-pan-x">
               {[
                 { id: 'all', label: 'All' },
@@ -1462,10 +1462,10 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                     key={cat.id}
                     type="button"
                     onClick={() => setSelectedCategory(cat.id as any)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border shrink-0 ${
+                    className={`h-8 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
                       isSelected
-                        ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
-                        : 'bg-stone-50 text-stone-600 border-stone-200/80 hover:bg-stone-100 hover:text-stone-900'
+                        ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs font-bold'
+                        : 'bg-white/80 backdrop-blur-md hover:bg-white text-stone-700 border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
                     }`}
                   >
                     {cat.label}
@@ -1556,7 +1556,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               return (
                 <article
                   key={pearl.id}
-                  className="p-4 sm:p-6 rounded-2xl bg-white border border-stone-200/90 shadow-2xs hover:shadow-xs hover:border-stone-300 transition-all flex flex-col justify-between space-y-4"
+                  className="p-4 sm:p-6 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.03)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_36px_rgba(0,107,99,0.07)] hover:border-white transition-all flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-3">
                     {/* Header: Subject & Content Type Badge + Actions */}

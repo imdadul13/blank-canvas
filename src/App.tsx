@@ -712,7 +712,7 @@ function AppInner() {
               initial={{ y: -30, opacity: 0, scale: 0.96 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-              className="pointer-events-auto mx-auto w-full max-w-4xl px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white/92 backdrop-blur-2xl border border-teal-500/30 shadow-[0_12px_36px_rgba(0,107,99,0.12)] flex items-center justify-between gap-3 text-slate-800 select-none"
+              className="pointer-events-auto mx-auto w-full max-w-4xl px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white/80 backdrop-blur-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_12px_36px_rgba(0,107,99,0.08)] flex items-center justify-between gap-3 text-slate-800 select-none"
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <span className="relative flex h-2.5 w-2.5 shrink-0">
@@ -720,7 +720,7 @@ function AppInner() {
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#006B63]" />
                 </span>
                 <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-teal-50 to-emerald-50 text-[#006B63] border border-teal-200/80 shrink-0">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold uppercase tracking-wider bg-teal-50/80 backdrop-blur-md text-[#006B63] border border-teal-200/70 shadow-2xs shrink-0">
                     Local Practice Mode
                   </span>
                   <span className="text-xs text-stone-500 hidden md:inline truncate font-medium">

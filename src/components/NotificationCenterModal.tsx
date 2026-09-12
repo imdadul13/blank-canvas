@@ -147,11 +147,11 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] text-slate-900 animate-in fade-in duration-150">
-      <div className="relative bg-[#FAF9F6] rounded-3xl max-w-xl w-full shadow-2xl border border-stone-200/90 overflow-hidden flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] text-slate-900 animate-in fade-in duration-150">
+      <div className="relative bg-white/88 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 overflow-hidden flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
         
         {/* ── 1. Premium Medical Intelligence Header ── */}
-        <div className="p-5 sm:p-6 border-b border-stone-200/80 bg-gradient-to-b from-white via-[#FAF9F5] to-[#FAF9F5] relative z-10 shrink-0">
+        <div className="p-5 sm:p-6 border-b border-white/80 bg-white/70 backdrop-blur-md relative z-10 shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3.5">
               <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-br from-[#006B63] to-[#004D47] text-white flex items-center justify-center shadow-md shadow-teal-950/15 shrink-0">
@@ -185,7 +185,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
 
           {/* System Telemetry Intelligence Strip */}
           <div className="mt-4 pt-3.5 border-t border-stone-200/60 grid grid-cols-4 gap-2 text-center">
-            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-stone-200/60">
+            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_2px_6px_rgba(0,107,99,0.03)]">
               <span className="text-[9.5px] uppercase font-semibold text-stone-400 tracking-wider block">
                 Target Score
               </span>
@@ -194,7 +194,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               </span>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-stone-200/60">
+            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_2px_6px_rgba(0,107,99,0.03)]">
               <span className="text-[9.5px] uppercase font-semibold text-stone-400 tracking-wider block">
                 Countdown
               </span>
@@ -204,7 +204,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               </span>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-stone-200/60">
+            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_2px_6px_rgba(0,107,99,0.03)]">
               <span className="text-[9.5px] uppercase font-semibold text-stone-400 tracking-wider block">
                 Error Vault
               </span>
@@ -213,7 +213,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               </span>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-stone-200/60">
+            <div className="bg-white/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_2px_6px_rgba(0,107,99,0.03)]">
               <span className="text-[9.5px] uppercase font-semibold text-stone-400 tracking-wider block">
                 Daily Goal
               </span>
@@ -225,13 +225,14 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
         </div>
 
         {/* ── 2. Segmented Filter Navigation Dock ── */}
-        <div className="px-4 sm:px-6 pt-2.5 pb-2.5 border-b border-stone-200/80 bg-[#FAF9F5] flex items-center justify-between gap-2 overflow-x-auto scrollbar-none shrink-0">
+        <div className="px-4 sm:px-6 pt-2.5 pb-2.5 border-b border-white/80 bg-white/60 backdrop-blur-md flex items-center justify-between gap-2 overflow-x-auto scrollbar-none shrink-0">
           <div className="flex items-center gap-1.5">
             {[
-              { id: 'all', label: `All (${visibleNotifications.length})` },
-              { id: 'clinical', label: `Clinical (${clinicalCount})` },
-              { id: 'exam', label: `Mocks (${examCount})` },
-              { id: 'wellness', label: `Pacing (${wellnessCount})` },
+              { id: 'all', label: 'All Alerts' },
+              { id: 'mistake', label: 'Error Traps' },
+              { id: 'recall', label: 'Spaced Recall' },
+              { id: 'pacing', label: 'Velocity' },
+              { id: 'wellness', label: 'Rest & Focus' },
             ].map((tab) => {
               const active = activeFilter === tab.id;
               return (
@@ -242,7 +243,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                   className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                     active
                       ? 'bg-[#00685F] text-white shadow-xs font-bold'
-                      : 'bg-white/80 text-stone-600 border border-stone-200/80 hover:bg-white hover:text-stone-900'
+                      : 'bg-white/70 backdrop-blur-xs text-stone-600 border border-white/80 hover:bg-white hover:text-stone-900 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
                   }`}
                 >
                   {tab.label}
@@ -264,18 +265,18 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
 
         {/* Feedback Banner */}
         {wellnessLoggedToast && (
-          <div className="mx-5 mt-3 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in shrink-0">
+          <div className="mx-5 mt-3 p-3 rounded-2xl bg-emerald-50/90 backdrop-blur-xs border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in shrink-0">
             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
             <span className="font-semibold">{wellnessLoggedToast}</span>
           </div>
         )}
 
         {/* ── 3. Modal Body: Notifications & Proactive Intelligence ── */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-white min-h-[300px]">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-white/40 min-h-[300px]">
           {filteredNotifications.length === 0 ? (
             /* Proactive System Intelligence Briefing (When all caught up) */
             <div className="space-y-4 animate-in fade-in duration-150">
-              <div className="p-4 rounded-2xl bg-[#F0FDF9] border border-teal-200/80 flex items-start gap-3">
+              <div className="p-4 rounded-2xl bg-teal-50/80 backdrop-blur-md border border-teal-200/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.03)] flex items-start gap-3">
                 <div className="h-9 w-9 rounded-xl bg-[#006B63] text-white flex items-center justify-center shrink-0 shadow-2xs">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
@@ -296,7 +297,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                 </span>
 
                 {/* Card 1: Today's High-Yield Vignettes */}
-                <div className="p-3.5 rounded-2xl bg-stone-50/80 border border-stone-200/80 hover:border-teal-300 transition-all flex items-center justify-between gap-3">
+                <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:border-teal-300 transition-all flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="h-9 w-9 rounded-xl bg-teal-50 text-[#006B63] border border-teal-200/70 flex items-center justify-center shrink-0">
                       <BookOpen className="h-4.5 w-4.5" />
@@ -331,7 +332,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                 </div>
 
                 {/* Card 2: Grand Test Diagnostic Simulation */}
-                <div className="p-3.5 rounded-2xl bg-stone-50/80 border border-stone-200/80 hover:border-indigo-300 transition-all flex items-center justify-between gap-3">
+                <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:border-indigo-300 transition-all flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="h-9 w-9 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200/70 flex items-center justify-center shrink-0">
                       <GraduationCap className="h-4.5 w-4.5" />
@@ -362,7 +363,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                 </div>
 
                 {/* Card 3: Error Vault Distractor Drill */}
-                <div className="p-3.5 rounded-2xl bg-stone-50/80 border border-stone-200/80 hover:border-rose-300 transition-all flex items-center justify-between gap-3">
+                <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:border-rose-300 transition-all flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="h-9 w-9 rounded-xl bg-rose-50 text-rose-700 border border-rose-200/70 flex items-center justify-center shrink-0">
                       <AlertTriangle className="h-4.5 w-4.5" />
@@ -401,7 +402,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                 return (
                   <div
                     key={n.id}
-                    className="p-4 rounded-2xl bg-stone-50/70 border border-stone-200/80 hover:border-stone-300 transition-all space-y-3 group"
+                    className="p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:border-teal-300/70 transition-all space-y-3 group"
                   >
                     <div className="flex items-start gap-3">
                       <div className={`h-10 w-10 rounded-2xl border flex items-center justify-center shrink-0 shadow-2xs ${n.iconColor}`}>
@@ -411,7 +412,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                       <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider bg-white border border-stone-200/80 text-stone-700">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider bg-white/90 border border-stone-200/80 text-stone-700">
                               {n.badge || n.category}
                             </span>
                             {n.priority === 'high' && (
@@ -462,7 +463,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
         </div>
 
         {/* ── 4. Polished Action Footer ── */}
-        <div className="p-4 bg-[#FAF9F5] border-t border-stone-200/80 flex items-center justify-between shrink-0">
+        <div className="p-4 bg-white/70 backdrop-blur-md border-t border-white/80 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-1.5 text-[11px] text-stone-500 font-medium">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Sensed live from your progress &amp; schedule</span>
@@ -471,7 +472,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 rounded-xl hover:bg-stone-200/50 transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 rounded-xl hover:bg-white/80 transition-colors cursor-pointer"
           >
             Close
           </button>

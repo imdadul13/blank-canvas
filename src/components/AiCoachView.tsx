@@ -1681,7 +1681,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       )}
 
       {/* 3. Main Clinical Consultation Workspace Card — ChatGPT/Gemini-Style Docked Layout */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col h-[calc(100dvh-250px)] min-h-[400px] sm:h-[calc(100vh-185px)] sm:min-h-[540px] max-h-[850px] overflow-hidden relative font-['Plus_Jakarta_Sans']">
+      <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] flex flex-col h-[calc(100dvh-250px)] min-h-[400px] sm:h-[calc(100vh-185px)] sm:min-h-[540px] max-h-[850px] overflow-hidden relative font-['Plus_Jakarta_Sans']">
         {/* Scrollable Conversational Message Stream */}
         <div
           ref={scrollContainerRef}
@@ -1748,7 +1748,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                       whileHover={{ y: -3, scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleSendMessage(starter.query)}
-                      className="relative p-4 sm:p-4.5 rounded-2xl bg-gradient-to-b from-white to-slate-50/70 hover:from-white hover:to-teal-50/35 border border-slate-200/90 hover:border-teal-300 transition-all duration-200 text-left group cursor-pointer shadow-2xs hover:shadow-md flex flex-col justify-between overflow-hidden"
+                      className="relative p-4 sm:p-4.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 hover:border-teal-300 transition-all duration-200 text-left group cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_8px_24px_rgba(0,107,99,0.06)] flex flex-col justify-between overflow-hidden"
                     >
                       {/* Subtle hover accent shimmer */}
                       <div className="absolute top-0 left-4 right-4 h-[2px] bg-transparent group-hover:bg-gradient-to-r group-hover:from-transparent group-hover:via-teal-400 group-hover:to-transparent transition-all" />
@@ -1794,7 +1794,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                   {userInitials}
                 </div>
                 <div className="flex flex-col items-start space-y-1 min-w-0 max-w-full">
-                  <div className="bg-[#ebf5fb] border border-sky-100/90 text-slate-800 rounded-2xl px-3.5 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm shadow-2xs leading-relaxed space-y-2 break-words max-w-full">
+                  <div className="bg-[#ebf5fb]/90 backdrop-blur-xs border border-sky-100/90 text-slate-800 rounded-2xl px-3.5 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_6px_rgba(0,0,0,0.02)] leading-relaxed space-y-2 break-words max-w-full">
                     {msg.userAttachedImage && (
                       <div
                         className="relative group rounded-xl overflow-hidden border border-slate-300 max-w-xs cursor-zoom-in bg-slate-950 shadow-inner"
@@ -1950,7 +1950,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       </div>
 
       {/* 4. Bottom Docked ChatGPT / Gemini Dynamic Asking Bar & Floating Cursor */}
-      <div className="relative shrink-0 border-t border-slate-100 bg-white/95 backdrop-blur-md px-3 sm:px-5 py-2 sm:py-2.5 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+      <div className="relative shrink-0 border-t border-white/80 bg-white/85 backdrop-blur-xl px-3 sm:px-5 py-2 sm:py-2.5 z-20 shadow-[0_-4px_20px_rgba(0,107,99,0.03)]">
         {/* Soft upward gradient scrim so scrolling text fades smoothly behind the bar */}
         <div className="pointer-events-none absolute -top-7 left-0 right-0 h-7 bg-gradient-to-t from-white via-white/80 to-transparent" />
 
@@ -1964,7 +1964,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               exit={{ opacity: 0, y: 6, scale: 0.88 }}
               transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => scrollToBottom(true)}
-              className="absolute right-5 sm:right-7 -top-11 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_4px_16px_rgba(0,0,0,0.12)] text-xs font-semibold text-slate-700 hover:text-[#006B63] hover:border-teal-300 hover:shadow-lg active:scale-95 transition-all cursor-pointer group"
+              className="absolute right-5 sm:right-7 -top-11 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/85 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.08)] text-xs font-semibold text-slate-700 hover:text-[#006B63] hover:border-teal-300 hover:shadow-lg active:scale-95 transition-all cursor-pointer group"
               title="Return to latest message"
               aria-label="Return to latest message"
             >
