@@ -207,12 +207,14 @@ function HighRes3DHeroVisual({
   reduced,
   fallback,
   overlay,
+  imageClassName = '',
 }: {
   src: string;
   alt: string;
   reduced: boolean;
   fallback: React.ReactNode;
   overlay?: React.ReactNode;
+  imageClassName?: string;
 }) {
   const [loadError, setLoadError] = useState(false);
 
@@ -226,7 +228,7 @@ function HighRes3DHeroVisual({
         src={src}
         alt={alt}
         onError={() => setLoadError(true)}
-        className="w-auto h-full max-h-[210px] xs:max-h-[235px] sm:max-h-[255px] md:max-h-[270px] lg:max-h-[285px] object-contain select-none pointer-events-none transition-transform duration-300"
+        className={`w-auto h-full max-h-[210px] xs:max-h-[235px] sm:max-h-[255px] md:max-h-[270px] lg:max-h-[285px] object-contain select-none pointer-events-none transition-transform duration-300 ${imageClassName}`}
         animate={
           reduced
             ? {}
@@ -330,11 +332,12 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
           src="/images/medical/cardiology_heart_3d.png"
           alt="3D Anatomical Heart with Coronary Circulation"
           reduced={Boolean(reducedMotion)}
+          imageClassName="scale-112 md:scale-115"
           fallback={<Heart3DModel accent={accent} topicName={topicName} reduced={Boolean(reducedMotion)} />}
           overlay={
             !reducedMotion && (
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                <div className="w-24 h-24 rounded-full bg-rose-500/10 filter blur-xl animate-pulse" />
+                <div className="w-26 h-26 rounded-full bg-rose-500/10 filter blur-xl animate-pulse" />
               </div>
             )
           }
@@ -607,7 +610,7 @@ function Heart3DModel({ accent, topicName, reduced }: { accent: string; topicNam
   return (
     <svg
       viewBox="0 0 460 300"
-      className="w-full h-full filter drop-shadow-[0_12px_24px_rgba(0,107,99,0.18)]"
+      className="w-full h-full scale-110 filter drop-shadow-[0_12px_24px_rgba(0,107,99,0.18)]"
       fill="none"
       shapeRendering="geometricPrecision"
     >
