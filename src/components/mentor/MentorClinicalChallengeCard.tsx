@@ -68,7 +68,7 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
     : 'Clinical Challenge';
 
   return (
-    <div className="w-full my-4 rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-2xs space-y-5 text-slate-800 break-words font-sans">
+    <div className="w-full my-4 rounded-3xl border border-slate-200/90 bg-white p-3.5 xs:p-5 sm:p-7 shadow-2xs space-y-5 text-slate-800 break-words font-sans">
       {/* 1. Header: Classification Badge & Question Status */}
       <div className="flex items-center justify-between flex-wrap gap-2.5 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2.5 flex-wrap">

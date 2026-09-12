@@ -135,7 +135,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
         <div className="flex min-h-full items-center justify-center p-2 sm:p-4 md:p-6">
           <div className="bg-stone-50/95 rounded-3xl max-w-4xl w-full my-auto max-h-[92vh] flex flex-col shadow-2xl border border-stone-200/90 overflow-hidden">
             {/* ================= 1. WORKSPACE HEADER & NAVIGATION HIERARCHY ================= */}
-            <div className="p-5 sm:p-6 border-b border-stone-200/80 bg-white space-y-4">
+            <div className="p-3.5 sm:p-6 border-b border-stone-200/80 bg-white space-y-4">
               {/* Navigation Location Bar: Study → Subject */}
               <div className="flex items-center justify-between gap-3">
                 <nav className="flex items-center gap-1.5 text-xs font-mono flex-wrap">

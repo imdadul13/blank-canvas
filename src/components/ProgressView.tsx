@@ -404,7 +404,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               <HeaderTabInsignia tab="progress" circadian={circadian} />
 
               <div className="space-y-1 min-w-0">
-                <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
                   <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${
                     circadian.isNight
                       ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'

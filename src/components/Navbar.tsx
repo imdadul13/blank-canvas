@@ -912,7 +912,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reducedMotion ? undefined : { opacity: 0, y: -6, scale: 0.96 }}
                   transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute right-0 top-[calc(100%+0.5rem)] w-64 z-50 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_12px_40px_rgba(0,0,0,0.16)] p-2 font-['Plus_Jakarta_Sans']"
+                  className="absolute right-0 top-[calc(100%+0.5rem)] w-64 max-w-[calc(100vw-2rem)] z-50 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_12px_40px_rgba(0,0,0,0.16)] p-2 font-['Plus_Jakarta_Sans']"
                   role="menu"
                   aria-label="Secondary Utilities"
                 >
@@ -1028,11 +1028,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* ── Mobile Floating Bottom Navigation Bar matching Reference B Panel 6 ───────────── */}
       <nav
-        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1.5rem)] w-auto bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_8px_32px_rgba(0,0,0,0.10)] rounded-2xl px-2.5 py-1.5 font-['Plus_Jakarta_Sans']"
+        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-0.75rem)] w-auto bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_8px_32px_rgba(0,0,0,0.10)] rounded-2xl px-1.5 xs:px-2.5 py-1.5 font-['Plus_Jakarta_Sans']"
         style={{ bottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}
         aria-label="Mobile Navigation"
       >
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-0.5 xs:gap-1 sm:gap-2">
           {mobileNavItems.map(({ id, label, icon: Icon }) => {
             const active = isTabActiveLocal(id);
             return (
@@ -1044,7 +1044,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setMobileMoreOpen(false);
                   }}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative flex flex-col items-center justify-center min-w-[46px] sm:min-w-[50px] py-1 px-1.5 rounded-xl transition-all duration-150 cursor-pointer active:scale-[0.95] group ${
+                  className={`relative flex flex-col items-center justify-center min-w-[38px] xs:min-w-[46px] sm:min-w-[50px] py-1 px-1 xs:px-1.5 rounded-xl transition-all duration-150 cursor-pointer active:scale-[0.95] group ${
                     active
                       ? 'text-[#006B63]'
                       : 'text-slate-600 hover:text-[#B57B66]'
@@ -1063,14 +1063,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                   )}
 
                   <Icon
-                    className={`relative z-10 h-[19px] w-[19px] transition-transform duration-150 ${
+                    className={`relative z-10 h-[18px] w-[18px] xs:h-[19px] xs:w-[19px] transition-transform duration-150 ${
                       active
                         ? 'text-[#006B63] stroke-[2.2] fill-[#006B63]/25'
                         : 'text-slate-600 stroke-[1.8]'
                     }`}
                   />
                   <span
-                    className={`relative z-10 text-[10px] leading-tight tracking-tight mt-0.5 ${
+                    className={`relative z-10 text-[9px] xs:text-[10px] leading-tight tracking-tight mt-0.5 ${
                       active ? 'font-semibold text-[#006B63]' : 'font-medium text-slate-600'
                     }`}
                   >

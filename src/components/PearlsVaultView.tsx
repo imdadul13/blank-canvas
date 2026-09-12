@@ -725,7 +725,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             <HeaderTabInsignia tab="pearls" circadian={circadian} />
 
             <div className="space-y-1 min-w-0">
-              <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
                 <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase font-['Outfit'] tracking-tight ${circadian.isNight ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200' : circadian.titleGrad} bg-clip-text text-transparent leading-snug shrink-0`}>
                   KNOWLEDGE &amp; PEARLS
                 </h1>

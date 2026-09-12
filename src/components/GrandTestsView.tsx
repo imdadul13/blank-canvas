@@ -515,7 +515,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             <HeaderTabInsignia tab="grandtests" circadian={circadian} />
 
             <div className="space-y-1.5 min-w-0">
-              <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap">
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
                 <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase bg-clip-text text-transparent tracking-tight font-['Outfit'] leading-snug shrink-0 ${
                   circadian.isNight
                     ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'
