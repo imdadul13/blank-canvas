@@ -22,6 +22,7 @@ import {
   BookOpen,
   Bell,
   ArrowRight,
+  ArrowLeft,
   ChevronDown,
   ChevronRight,
   X,
@@ -624,14 +625,36 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           {/* Top Eyebrow & Status Cluster */}
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-xs font-semibold font-mono tracking-wider">
-              <span className="text-stone-500 uppercase text-[11px]">PLANNER</span>
-              <span className="text-stone-300">•</span>
-              <span className="text-teal-800 font-bold uppercase text-[11px] flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              {onBackToOverview ? (
+                <button
+                  type="button"
+                  onClick={onBackToOverview}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer border ${
+                    circadian.isNight
+                      ? 'bg-slate-900/90 text-cyan-300 border-sky-800/70 hover:bg-slate-800'
+                      : 'bg-white/95 text-[#006B63] border-teal-200/80 hover:bg-teal-50/80 shadow-2xs'
+                  }`}
+                  title="Return to Home Overview"
+                >
+                  <ArrowLeft className="w-3 h-3 stroke-[2.5]" />
+                  <span>Dashboard</span>
+                </button>
+              ) : (
+                <span className="text-stone-500 uppercase text-[11px]">PLANNER</span>
+              )}
+              <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
+              <span className={`font-bold uppercase text-[11px] flex items-center gap-1.5 ${
+                circadian.isNight ? 'text-cyan-300' : 'text-teal-800'
+              }`}>
+                <span className={`h-1.5 w-1.5 rounded-full animate-pulse ${
+                  circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-emerald-500'
+                }`} />
                 DAILY FOCUS
               </span>
-              <span className="text-stone-300 hidden sm:inline">•</span>
-              <span className="text-stone-500 font-sans text-xs hidden sm:inline normal-case font-medium">
+              <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-stone-300'}`}>•</span>
+              <span className={`font-sans text-xs hidden sm:inline normal-case font-medium ${
+                circadian.isNight ? 'text-slate-300' : 'text-stone-500'
+              }`}>
                 {greeting}
               </span>
             </div>
@@ -697,13 +720,13 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <BookmarkCheck className="w-3.5 h-3.5" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className="text-[11px] text-stone-400 font-sans">Tasks:</span>
-                <span className="font-bold text-slate-900 text-xs sm:text-[13px]">{completedTaskCount}/{totalTaskCount}</span>
-                <span className="text-teal-700 font-medium text-[11px]">({progressPercent}%)</span>
+                <span className={`text-[11px] font-sans ${circadian.isNight ? 'text-slate-400' : 'text-stone-400'}`}>Tasks:</span>
+                <span className={`font-bold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{completedTaskCount}/{totalTaskCount}</span>
+                <span className={`font-medium text-[11px] ${circadian.isNight ? 'text-cyan-400' : 'text-teal-700'}`}>({progressPercent}%)</span>
               </div>
             </div>
 
-            <span className="text-stone-300 hidden sm:inline">•</span>
+            <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-stone-300'}`}>•</span>
 
             {/* Study Time */}
             <div className="flex items-center gap-2">
@@ -711,13 +734,13 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <Clock className="w-3.5 h-3.5" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className="text-[11px] text-stone-400 font-sans">Focus Time:</span>
-                <span className="font-bold text-slate-900 text-xs sm:text-[13px]">{studyTimeFormatted}</span>
-                <span className="text-stone-400 text-[11px]">/ {dailyGoalHours}h</span>
+                <span className={`text-[11px] font-sans ${circadian.isNight ? 'text-slate-400' : 'text-stone-400'}`}>Focus Time:</span>
+                <span className={`font-bold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{studyTimeFormatted}</span>
+                <span className={`text-[11px] ${circadian.isNight ? 'text-slate-400' : 'text-stone-400'}`}>/ {dailyGoalHours}h</span>
               </div>
             </div>
 
-            <span className="text-stone-300 hidden md:inline">•</span>
+            <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-stone-300'}`}>•</span>
 
             {/* Goal % */}
             <div className="flex items-center gap-2">
@@ -725,8 +748,8 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <Target className="w-3.5 h-3.5" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className="text-[11px] text-stone-400 font-sans">Daily Goal:</span>
-                <span className="font-bold text-emerald-700 text-xs sm:text-[13px]">{dailyGoalPercent}%</span>
+                <span className={`text-[11px] font-sans ${circadian.isNight ? 'text-slate-400' : 'text-stone-400'}`}>Daily Goal:</span>
+                <span className={`font-bold text-xs sm:text-[13px] ${circadian.isNight ? 'text-emerald-400' : 'text-emerald-700'}`}>{dailyGoalPercent}%</span>
               </div>
             </div>
           </div>

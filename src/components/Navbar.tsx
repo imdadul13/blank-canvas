@@ -574,7 +574,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer group ${
                     active
                       ? 'text-[#006B63] font-bold'
-                      : 'text-slate-700 font-medium hover:text-[#B57B66] hover:bg-[#FAF5F2]/80'
+                      : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-teal-50/70'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -582,7 +582,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                       className={`h-[19px] w-[19px] shrink-0 transition-all duration-200 ${
                         active
                           ? 'text-[#006B63] fill-[#006B63]/25 stroke-[#006B63] stroke-[2.2] scale-105'
-                          : 'text-slate-500 stroke-[1.8] group-hover:text-[#B57B66] group-hover:stroke-[#B57B66] group-hover:scale-105'
+                          : 'text-slate-500 stroke-[1.8] group-hover:text-[#006B63] group-hover:stroke-[#006B63] group-hover:scale-105'
                       }`}
                     />
                     <span>{label}</span>
@@ -637,7 +637,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer group ${
                   isSecondaryActive || isMoreMenuOpen
                     ? 'text-[#006B63] font-bold bg-[#D8F2EC]'
-                    : 'text-slate-700 font-medium hover:text-[#B57B66] hover:bg-[#FAF5F2]/80'
+                    : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-teal-50/70'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -645,7 +645,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                     className={`w-7 h-7 rounded-xl flex items-center justify-center transition-colors ${
                       isSecondaryActive || isMoreMenuOpen
                         ? 'bg-[#006B63]/15 text-[#006B63]'
-                        : 'bg-slate-100 text-slate-500 group-hover:bg-[#B57B66]/15 group-hover:text-[#B57B66]'
+                        : 'bg-slate-100 text-slate-500 group-hover:bg-[#006B63]/10 group-hover:text-[#006B63]'
                     }`}
                   >
                     <MoreHorizontal className="h-4 w-4 stroke-[2]" />
@@ -709,14 +709,14 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                           className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
                             active
                               ? 'bg-[#E8F5F3] text-[#006B63]'
-                              : 'hover:bg-[#FAF5F2] hover:text-[#B57B66] text-slate-700'
+                              : 'hover:bg-teal-50/70 hover:text-[#006B63] text-slate-700'
                           }`}
                         >
                           <div
                             className={`p-2 rounded-lg shrink-0 transition-colors ${
                               active
                                 ? 'bg-[#006B63] text-white shadow-2xs'
-                                : 'bg-slate-100 text-slate-600 group-hover:bg-[#B57B66]/15 group-hover:text-[#B57B66]'
+                                : 'bg-slate-100 text-slate-600 group-hover:bg-[#006B63]/10 group-hover:text-[#006B63]'
                             }`}
                           >
                             <Icon className="h-4 w-4" />
@@ -897,7 +897,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`relative flex items-center justify-center h-9 w-9 rounded-full border shadow-2xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]/40 ${
                 mobileMoreOpen || isSecondaryActive
                   ? 'bg-[#E8F5F3] border-teal-200 text-[#006B63]'
-                  : 'bg-white border-stone-200/90 text-stone-700 hover:text-[#B57B66] hover:border-[#B57B66]/40'
+                  : 'bg-white border-stone-200/90 text-stone-700 hover:text-[#006B63] hover:border-teal-300'
               }`}
               title="More utilities"
             >
@@ -929,13 +929,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                         setMobileMoreOpen(false);
                       }
                     }}
-                    className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100 mb-1 cursor-pointer hover:bg-[#FAF5F2] rounded-xl transition-colors group"
+                    className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100 mb-1 cursor-pointer hover:bg-teal-50/70 rounded-xl transition-colors group"
                   >
-                    <div className="flex items-center gap-2 text-slate-700 group-hover:text-[#B57B66] font-semibold text-xs">
-                      <MoreHorizontal className="h-3.5 w-3.5 text-[#006B63] group-hover:text-[#B57B66]" />
+                    <div className="flex items-center gap-2 text-slate-700 group-hover:text-[#006B63] font-semibold text-xs">
+                      <MoreHorizontal className="h-3.5 w-3.5 text-[#006B63]" />
                       <span>More</span>
                     </div>
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#B57B66] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all" />
                   </div>
                   {moreUtilityItems.map((item) => {
                     const { id, label, icon: Icon, desc } = item;
@@ -960,14 +960,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                         className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
                           active
                             ? 'bg-[#E8F5F3] text-[#006B63]'
-                            : 'text-slate-700 hover:bg-[#FAF5F2] hover:text-[#B57B66]'
+                            : 'text-slate-700 hover:bg-teal-50/70 hover:text-[#006B63]'
                         }`}
                       >
                         <div
                           className={`p-1.5 rounded-lg shrink-0 transition-colors ${
                             active
                               ? 'bg-[#006B63] text-white'
-                              : 'bg-slate-100 text-slate-600 group-hover:bg-[#B57B66]/15 group-hover:text-[#B57B66]'
+                              : 'bg-slate-100 text-slate-600 group-hover:bg-[#006B63]/10 group-hover:text-[#006B63]'
                           }`}
                         >
                           <Icon className="h-4 w-4" />
@@ -1037,17 +1037,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             const active = isTabActiveLocal(id);
             return (
               <div key={id} className="relative">
-                <button
+                <motion.button
                   type="button"
+                  whileHover={reducedMotion ? undefined : { y: -2 }}
+                  whileTap={reducedMotion ? undefined : { scale: 0.92 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                   onClick={() => {
                     setActiveTab(id);
                     setMobileMoreOpen(false);
                   }}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative flex flex-col items-center justify-center min-w-[38px] xs:min-w-[46px] sm:min-w-[50px] py-1 px-1 xs:px-1.5 rounded-xl transition-all duration-150 cursor-pointer active:scale-[0.95] group ${
+                  className={`relative flex flex-col items-center justify-center min-w-[38px] xs:min-w-[46px] sm:min-w-[50px] py-1 px-1 xs:px-1.5 rounded-xl transition-all duration-150 cursor-pointer group ${
                     active
                       ? 'text-[#006B63]'
-                      : 'text-slate-600 hover:text-[#B57B66]'
+                      : 'text-slate-600 hover:text-[#006B63]'
                   }`}
                   title={label}
                 >
@@ -1055,20 +1058,26 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <motion.div
                       layoutId="mobile-nav-active-tile"
                       className="absolute inset-0 rounded-xl bg-[#E8F5F3]"
-                      transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                      transition={{ type: 'spring', stiffness: 440, damping: 30 }}
                     />
                   )}
                   {active && reducedMotion && (
                     <div className="absolute inset-0 rounded-xl bg-[#E8F5F3]" />
                   )}
 
-                  <Icon
-                    className={`relative z-10 h-[18px] w-[18px] xs:h-[19px] xs:w-[19px] transition-transform duration-150 ${
-                      active
-                        ? 'text-[#006B63] stroke-[2.2] fill-[#006B63]/25'
-                        : 'text-slate-600 stroke-[1.8]'
-                    }`}
-                  />
+                  <motion.div
+                    animate={active && !reducedMotion ? { scale: [1, 1.18, 1] } : undefined}
+                    transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                    className="relative z-10"
+                  >
+                    <Icon
+                      className={`h-[18px] w-[18px] xs:h-[19px] xs:w-[19px] transition-transform duration-150 ${
+                        active
+                          ? 'text-[#006B63] stroke-[2.2] fill-[#006B63]/25'
+                          : 'text-slate-600 stroke-[1.8]'
+                      }`}
+                    />
+                  </motion.div>
                   <span
                     className={`relative z-10 text-[9px] xs:text-[10px] leading-tight tracking-tight mt-0.5 ${
                       active ? 'font-semibold text-[#006B63]' : 'font-medium text-slate-600'
@@ -1076,7 +1085,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   >
                     {label}
                   </span>
-                </button>
+                </motion.button>
               </div>
             );
           })}

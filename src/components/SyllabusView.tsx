@@ -705,24 +705,31 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         </div>
 
         {filteredSubjects.length === 0 ? (
-          <div className="p-12 text-center bg-white rounded-2xl border border-stone-200/80 shadow-xs space-y-3">
-            <Compass className="h-8 w-8 text-stone-400 mx-auto" />
-            <div className="text-sm font-semibold text-stone-700 font-display">
-              No subjects or topics match "{searchQuery}"
+          <div className="p-8 sm:p-12 text-center bg-white rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#00685F] border border-teal-100/80 flex items-center justify-center mx-auto shadow-2xs">
+              <Compass className="h-6 w-6 stroke-[2]" />
             </div>
-            <p className="text-xs text-stone-500 max-w-sm mx-auto">
-              Try searching by subject name (e.g. "Anatomy", "Medicine") or specific clinical keywords.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery('');
-                setPhaseFilter('all');
-              }}
-              className="px-4 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold font-display transition-colors cursor-pointer"
-            >
-              Reset Filters
-            </button>
+            <div className="space-y-1 max-w-md mx-auto">
+              <h3 className="text-base font-bold text-stone-900 font-display">
+                No subjects or topics match "{searchQuery}"
+              </h3>
+              <p className="text-xs text-stone-500 leading-relaxed max-w-sm mx-auto">
+                Try searching by subject name (e.g. "Anatomy", "Medicine") or specific clinical keywords.
+              </p>
+            </div>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setPhaseFilter('all');
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#005750] text-white text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+              >
+                <RotateCw className="h-3.5 w-3.5" />
+                <span>Reset Filters</span>
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">
@@ -749,14 +756,22 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 .join(', ') + (allTopics.length > 4 ? '...' : '');
 
               return (
-                <div
+                <motion.div
                   key={sub.id}
+                  whileHover={{ y: -3, scale: 1.006 }}
+                  whileTap={{ scale: 0.985 }}
+                  transition={{ type: 'spring', stiffness: 420, damping: 26 }}
                   onClick={() => onSelectSubject(sub.id)}
-                  className="p-4 sm:p-5 rounded-2xl bg-white border border-stone-200/80 shadow-2xs hover:shadow-md hover:border-stone-300 transition-all cursor-pointer group flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                  className="p-4 sm:p-5 rounded-2xl bg-white border border-stone-200/80 shadow-2xs hover:shadow-md hover:border-teal-300/80 transition-colors cursor-pointer group flex flex-col lg:flex-row lg:items-center justify-between gap-4"
                 >
                   {/* Left: Icon & Subject Metadata */}
                   <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
-                    <SubjectAppleIcon subjectId={sub.id} size="lg" className="shrink-0" />
+                    <motion.div
+                      whileHover={{ scale: 1.12, rotate: [-2, 2, 0] }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 20 }}
+                    >
+                      <SubjectAppleIcon subjectId={sub.id} size="lg" className="shrink-0" />
+                    </motion.div>
 
                     <div className="min-w-0 space-y-1 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -784,9 +799,11 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                         <span className="font-semibold text-stone-900">{pct}%</span>
                       </div>
                       <div className="h-1.5 w-full bg-stone-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500 bg-[#006B63]"
-                          style={{ width: `${Math.max(pct > 0 ? 6 : 0, pct)}%` }}
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.max(pct > 0 ? 6 : 0, pct)}%` }}
+                          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                          className="h-full rounded-full bg-[#006B63]"
                         />
                       </div>
                     </div>
@@ -838,19 +855,22 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                     )}
 
                     {/* Open Button */}
-                    <button
+                    <motion.button
                       type="button"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.94 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 22 }}
                       onClick={(e) => {
                         e.stopPropagation();
                         onSelectSubject(sub.id);
                       }}
                       className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#006B63] hover:bg-[#00554E] text-white text-xs font-semibold font-display shadow-xs transition-all cursor-pointer shrink-0 min-h-[40px] sm:min-h-[36px]"
                     >
-                      <span>Open</span>
+                      <span>Study</span>
                       <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </button>
+                    </motion.button>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>

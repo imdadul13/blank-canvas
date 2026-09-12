@@ -10,6 +10,7 @@ export interface MedicalHeroVisualProps {
   topicName?: string;
   className?: string;
   showTelemetryTag?: boolean;
+  hideInternalBackdrop?: boolean;
 }
 
 export function getSubjectTelemetry(subjectId: string, topicName: string = '') {
@@ -260,6 +261,7 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
   topicName = '',
   className = '',
   showTelemetryTag = false,
+  hideInternalBackdrop = false,
 }) => {
   const reducedMotion = useReducedMotion();
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -490,10 +492,14 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      className={`relative w-full h-full flex flex-col items-center justify-center select-none overflow-hidden rounded-3xl transition-transform duration-300 ${className}`}
+      className={`relative w-full h-full flex flex-col items-center justify-center select-none ${
+        hideInternalBackdrop ? 'overflow-visible' : 'overflow-hidden rounded-3xl'
+      } transition-transform duration-300 ${className}`}
       style={{
         perspective: '1200px',
-        background: `radial-gradient(ellipse at 50% 45%, ${accent}12 0%, ${accent}05 45%, transparent 75%)`,
+        background: hideInternalBackdrop
+          ? 'transparent'
+          : `radial-gradient(ellipse at 50% 45%, ${accent}12 0%, ${accent}05 45%, transparent 75%)`,
       }}
     >
       {/* Dynamic 3D Specimen Stage Container */}
@@ -513,31 +519,35 @@ export const MedicalHeroVisual: React.FC<MedicalHeroVisualProps> = ({
         className="relative w-full h-full flex items-center justify-center p-1 sm:p-2"
       >
         {/* Background Volumetric Depth Aura & Isometric Grid Rings */}
-        <div
-          className="absolute inset-0 pointer-events-none flex items-center justify-center"
-          style={{ transform: 'translateZ(-40px)' }}
-        >
+        {!hideInternalBackdrop && (
           <div
-            className="w-60 h-60 sm:w-72 sm:h-72 md:w-80 md:h-80 rounded-full"
-            style={{
-              background: `radial-gradient(circle, ${accent}26 0%, ${accent}0c 45%, transparent 70%)`,
-              filter: 'blur(24px)',
-            }}
-          />
-        </div>
+            className="absolute inset-0 pointer-events-none flex items-center justify-center"
+            style={{ transform: 'translateZ(-40px)' }}
+          >
+            <div
+              className="w-60 h-60 sm:w-72 sm:h-72 md:w-80 md:h-80 rounded-full"
+              style={{
+                background: `radial-gradient(circle, ${accent}26 0%, ${accent}0c 45%, transparent 70%)`,
+                filter: 'blur(24px)',
+              }}
+            />
+          </div>
+        )}
 
         {/* Ambient Hologram Crosshairs */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-25 flex items-center justify-center"
-          style={{ transform: 'translateZ(-20px)' }}
-        >
-          <svg viewBox="0 0 200 200" className="w-full h-full max-w-[250px] stroke-teal-500/30" fill="none">
-            <circle cx="100" cy="100" r="70" strokeWidth="0.75" strokeDasharray="3 4" />
-            <circle cx="100" cy="100" r="45" strokeWidth="0.75" />
-            <line x1="20" y1="100" x2="180" y2="100" strokeWidth="0.5" strokeDasharray="2 3" />
-            <line x1="100" y1="20" x2="100" y2="180" strokeWidth="0.5" strokeDasharray="2 3" />
-          </svg>
-        </div>
+        {!hideInternalBackdrop && (
+          <div
+            className="absolute inset-0 pointer-events-none opacity-25 flex items-center justify-center"
+            style={{ transform: 'translateZ(-20px)' }}
+          >
+            <svg viewBox="0 0 200 200" className="w-full h-full max-w-[250px] stroke-teal-500/30" fill="none">
+              <circle cx="100" cy="100" r="70" strokeWidth="0.75" strokeDasharray="3 4" />
+              <circle cx="100" cy="100" r="45" strokeWidth="0.75" />
+              <line x1="20" y1="100" x2="180" y2="100" strokeWidth="0.5" strokeDasharray="2 3" />
+              <line x1="100" y1="20" x2="100" y2="180" strokeWidth="0.5" strokeDasharray="2 3" />
+            </svg>
+          </div>
+        )}
 
         {/* The Animated 3D Scene Viewport */}
         <div className="relative z-10 w-full h-full max-w-[440px] sm:max-w-[490px] max-h-[230px] sm:max-h-[255px] md:max-h-[275px] flex items-center justify-center">

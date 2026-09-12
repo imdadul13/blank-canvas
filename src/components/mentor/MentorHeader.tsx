@@ -340,11 +340,11 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
               className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border text-xs sm:text-sm font-semibold shadow-2xs hover:shadow-xs transition-all cursor-pointer backdrop-blur-sm group shrink-0 ${
                 circadian.isNight
                   ? 'bg-slate-800/80 hover:bg-slate-700 border-slate-700/80 text-slate-200 hover:text-white'
-                  : 'bg-white/90 hover:bg-[#FAF5F2] border-stone-200/80 hover:border-[#B57B66]/40 text-stone-700 hover:text-[#B57B66]'
+                  : 'bg-white/90 hover:bg-teal-50/70 border-stone-200/80 hover:border-teal-300 text-stone-700 hover:text-[#006B63]'
               }`}
               title="Open saved consultations history"
             >
-              <History className={`h-3.5 sm:h-4 w-3.5 sm:w-4 transition-transform group-hover:rotate-[-20deg] ${circadian.isNight ? 'text-slate-400 group-hover:text-cyan-300' : 'text-stone-500 group-hover:text-[#B57B66]'}`} />
+              <History className={`h-3.5 sm:h-4 w-3.5 sm:w-4 transition-transform group-hover:rotate-[-20deg] ${circadian.isNight ? 'text-slate-400 group-hover:text-cyan-300' : 'text-stone-500 group-hover:text-[#006B63]'}`} />
               <span className="whitespace-nowrap">History</span>
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold border ${circadian.isNight ? 'bg-teal-950/70 text-teal-300 border-teal-800/80' : 'bg-teal-50 text-[#00685F] border-teal-200/60'}`}>
                 {sessionsCount}

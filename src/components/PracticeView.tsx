@@ -428,12 +428,14 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         ) : (
           <div className="divide-y divide-[#F0F3F2]">
             {displayedTopics.map((topic) => (
-              <div
+              <motion.div
                 key={`${topic.subjectId}-${topic.id}`}
-                className="py-4 px-2 sm:px-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:bg-[#F7F9F8] rounded-xl transition-all group"
+                whileHover={{ x: 3 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+                className="py-4 px-2 sm:px-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:bg-[#F7F9F8] rounded-xl transition-colors group cursor-pointer"
               >
                 {/* Topic Info */}
-                <div className="min-w-0 pr-2 space-y-1">
+                <div className="min-w-0 pr-2 space-y-1 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm sm:text-base font-semibold font-['Newsreader'] text-[#121e1b] group-hover:text-[#006B63] transition-colors leading-snug">
                       {topic.name}
@@ -455,15 +457,18 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                 </div>
 
                 {/* Primary Action Button */}
-                <button
+                <motion.button
                   type="button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.94 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 22 }}
                   onClick={() => onLaunchPracticeSession(topic.subjectId, topic.id, topic.name)}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#006B63] hover:bg-[#005049] text-white text-xs font-semibold shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all cursor-pointer shrink-0 self-start sm:self-center"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#006B63] hover:bg-[#005049] text-white text-xs font-semibold shadow-2xs hover:shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
                 >
                   <Play className="h-3.5 w-3.5 fill-current" />
                   <span>Start 10-MCQs</span>
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
             ))}
           </div>
         )}

@@ -778,9 +778,9 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             <Award className="h-3 w-3 text-amber-500" />
             <span className="font-mono text-[10px] uppercase tracking-wider font-semibold text-stone-600">NBE Clinical Synthesis</span>
           </div>
-          <h1 className="font-['Newsreader',_Georgia,_serif] text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight leading-[1.18] bg-gradient-to-r from-stone-950 via-stone-800 to-[#006B63] bg-clip-text text-transparent">
+          <h2 className="font-['Newsreader',_Georgia,_serif] text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight leading-[1.18] bg-gradient-to-r from-stone-950 via-stone-800 to-[#006B63] bg-clip-text text-transparent">
             Understand it. Remember it.
-          </h1>
+          </h2>
           <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl">
             Ask for any FMGE disease, syndrome, or clinical concept to synthesize a structured, high-yield mnemonic, drug of choice, diagnostic triad, and exam trap breakdown.
           </p>

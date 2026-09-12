@@ -34,9 +34,10 @@ import {
   Award,
   ExternalLink,
   MoreVertical,
-  HelpCircle,
   Stethoscope,
   ShieldCheck,
+  Heart,
+  Lightbulb,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -271,6 +272,18 @@ export interface SubjectCardTheme {
   arrowText: string;
   heroGradient?: string;
   cardGradient?: string;
+  // Subject-specific ECG & hero halo accents
+  ecgStrokeStart: string;
+  ecgStrokeMid: string;
+  ecgGlow: string;
+  ecgDotColor: string;
+  haloStart: string;
+  haloMid: string;
+  haloEnd: string;
+  orbitStroke: string;
+  primaryBtnBg: string;
+  primaryBtnHover: string;
+  primaryBtnShadow: string;
 }
 
 /** Subject Card Gradient Themes & Backdrops matching Reference Mockup */
@@ -283,7 +296,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-[#006B63] group-hover:text-white',
     arrowText: 'text-cyan-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.20) 0%, rgba(6, 182, 212, 0.14) 42%, transparent 72%)',
-    cardGradient: 'from-rose-50/50 via-[#EAF8F5] to-cyan-50/40',
+    cardGradient: 'from-[#F4FAF8] via-[#FBFCFC] to-[#EFF8F5]',
+    ecgStrokeStart: '#006B63',
+    ecgStrokeMid: '#0284C7',
+    ecgGlow: 'rgba(2, 132, 199, 0.85)',
+    ecgDotColor: '#00D8B4',
+    haloStart: '#2DD4BF',
+    haloMid: '#38BDF8',
+    haloEnd: '#0EA5E9',
+    orbitStroke: '#006B63',
+    primaryBtnBg: 'bg-[#006B63]',
+    primaryBtnHover: 'hover:bg-[#00554E]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,107,99,0.25)]',
   },
   psychiatry: {
     bg: 'from-purple-100/70 via-indigo-50/40 to-white/95',
@@ -293,7 +317,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-purple-600 group-hover:text-white',
     arrowText: 'text-purple-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.22) 0%, rgba(14, 165, 233, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-purple-50/50 via-[#EAF8F5] to-indigo-50/40',
+    cardGradient: 'from-[#FAF5FF] via-[#FBFCFC] to-[#F3E8FF]',
+    ecgStrokeStart: '#9333EA',
+    ecgStrokeMid: '#C084FC',
+    ecgGlow: 'rgba(192, 132, 252, 0.85)',
+    ecgDotColor: '#E9D5FF',
+    haloStart: '#C084FC',
+    haloMid: '#A855F7',
+    haloEnd: '#7E22CE',
+    orbitStroke: '#9333EA',
+    primaryBtnBg: 'bg-[#7E22CE]',
+    primaryBtnHover: 'hover:bg-[#6B21A8]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(126,34,206,0.25)]',
   },
   physiology: {
     bg: 'from-sky-100/70 via-cyan-50/40 to-white/95',
@@ -303,7 +338,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-sky-600 group-hover:text-white',
     arrowText: 'text-sky-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.22) 0%, rgba(13, 148, 136, 0.15) 44%, transparent 72%)',
-    cardGradient: 'from-sky-50/50 via-[#EAF8F5] to-teal-50/40',
+    cardGradient: 'from-[#F0F9FF] via-[#FBFCFC] to-[#E0F2FE]',
+    ecgStrokeStart: '#0284C7',
+    ecgStrokeMid: '#38BDF8',
+    ecgGlow: 'rgba(56, 189, 248, 0.85)',
+    ecgDotColor: '#BAE6FD',
+    haloStart: '#38BDF8',
+    haloMid: '#0284C7',
+    haloEnd: '#0369A1',
+    orbitStroke: '#0284C7',
+    primaryBtnBg: 'bg-[#0284C7]',
+    primaryBtnHover: 'hover:bg-[#0369A1]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(2,132,199,0.25)]',
   },
   surgery: {
     bg: 'from-rose-100/70 via-orange-50/40 to-white/95',
@@ -313,7 +359,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-rose-600 group-hover:text-white',
     arrowText: 'text-rose-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.20) 0%, rgba(245, 158, 11, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-rose-50/50 via-[#EAF8F5] to-orange-50/35',
+    cardGradient: 'from-[#FFF1F2] via-[#FBFCFC] to-[#FFE4E6]',
+    ecgStrokeStart: '#E11D48',
+    ecgStrokeMid: '#FB7185',
+    ecgGlow: 'rgba(251, 113, 133, 0.85)',
+    ecgDotColor: '#FECDD3',
+    haloStart: '#FB7185',
+    haloMid: '#F43F5E',
+    haloEnd: '#BE123C',
+    orbitStroke: '#E11D48',
+    primaryBtnBg: 'bg-[#BE123C]',
+    primaryBtnHover: 'hover:bg-[#9F1239]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(190,18,60,0.25)]',
   },
   pathology: {
     bg: 'from-blue-100/70 via-indigo-50/40 to-white/95',
@@ -323,7 +380,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-blue-600 group-hover:text-white',
     arrowText: 'text-blue-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.20) 0%, rgba(99, 102, 241, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-blue-50/50 via-[#EAF8F5] to-indigo-50/40',
+    cardGradient: 'from-[#EFF6FF] via-[#FBFCFC] to-[#DBEAFE]',
+    ecgStrokeStart: '#2563EB',
+    ecgStrokeMid: '#60A5FA',
+    ecgGlow: 'rgba(96, 165, 250, 0.85)',
+    ecgDotColor: '#BFDBFE',
+    haloStart: '#60A5FA',
+    haloMid: '#3B82F6',
+    haloEnd: '#1D4ED8',
+    orbitStroke: '#2563EB',
+    primaryBtnBg: 'bg-[#1D4ED8]',
+    primaryBtnHover: 'hover:bg-[#1E40AF]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(29,78,216,0.25)]',
   },
   biochemistry: {
     bg: 'from-amber-100/70 via-orange-50/30 to-white/95',
@@ -333,7 +401,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-amber-600 group-hover:text-white',
     arrowText: 'text-amber-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.22) 0%, rgba(251, 191, 36, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-amber-50/50 via-[#EAF8F5] to-orange-50/30',
+    cardGradient: 'from-[#FFFBEB] via-[#FBFCFC] to-[#FEF3C7]',
+    ecgStrokeStart: '#D97706',
+    ecgStrokeMid: '#FBBF24',
+    ecgGlow: 'rgba(251, 191, 36, 0.85)',
+    ecgDotColor: '#FDE68A',
+    haloStart: '#FBBF24',
+    haloMid: '#F59E0B',
+    haloEnd: '#B45309',
+    orbitStroke: '#D97706',
+    primaryBtnBg: 'bg-[#B45309]',
+    primaryBtnHover: 'hover:bg-[#92400E]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(180,83,9,0.25)]',
   },
   anatomy: {
     bg: 'from-teal-100/70 via-emerald-50/40 to-white/95',
@@ -343,7 +422,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
     arrowText: 'text-teal-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.20) 0%, rgba(0, 107, 99, 0.15) 44%, transparent 72%)',
-    cardGradient: 'from-teal-50/60 via-[#EAF8F5] to-emerald-50/40',
+    cardGradient: 'from-[#F0FDF4] via-[#FBFCFC] to-[#DCFCE7]',
+    ecgStrokeStart: '#059669',
+    ecgStrokeMid: '#34D399',
+    ecgGlow: 'rgba(52, 211, 153, 0.85)',
+    ecgDotColor: '#A7F3D0',
+    haloStart: '#34D399',
+    haloMid: '#10B981',
+    haloEnd: '#047857',
+    orbitStroke: '#059669',
+    primaryBtnBg: 'bg-[#047857]',
+    primaryBtnHover: 'hover:bg-[#065F46]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(4,120,87,0.25)]',
   },
   pharmacology: {
     bg: 'from-emerald-100/70 via-teal-50/40 to-white/95',
@@ -353,7 +443,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-emerald-600 group-hover:text-white',
     arrowText: 'text-emerald-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.20) 0%, rgba(20, 184, 166, 0.15) 44%, transparent 72%)',
-    cardGradient: 'from-emerald-50/50 via-[#EAF8F5] to-teal-50/40',
+    cardGradient: 'from-[#ECFDF5] via-[#FBFCFC] to-[#D1FAE5]',
+    ecgStrokeStart: '#059669',
+    ecgStrokeMid: '#10B981',
+    ecgGlow: 'rgba(16, 185, 129, 0.85)',
+    ecgDotColor: '#6EE7B7',
+    haloStart: '#10B981',
+    haloMid: '#059669',
+    haloEnd: '#065F46',
+    orbitStroke: '#059669',
+    primaryBtnBg: 'bg-[#065F46]',
+    primaryBtnHover: 'hover:bg-[#064E3B]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(6,95,70,0.25)]',
   },
   microbiology: {
     bg: 'from-teal-100/70 via-cyan-50/40 to-white/95',
@@ -363,7 +464,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
     arrowText: 'text-teal-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.22) 0%, rgba(16, 185, 129, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-teal-50/50 via-[#EAF8F5] to-cyan-50/40',
+    cardGradient: 'from-[#ECFEFF] via-[#FBFCFC] to-[#CFFAFE]',
+    ecgStrokeStart: '#0891B2',
+    ecgStrokeMid: '#22D3EE',
+    ecgGlow: 'rgba(34, 211, 238, 0.85)',
+    ecgDotColor: '#A5F3FC',
+    haloStart: '#22D3EE',
+    haloMid: '#06B6D4',
+    haloEnd: '#0E7490',
+    orbitStroke: '#0891B2',
+    primaryBtnBg: 'bg-[#0E7490]',
+    primaryBtnHover: 'hover:bg-[#155E75]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(14,116,144,0.25)]',
   },
   fmt: {
     bg: 'from-slate-200/70 via-slate-100/50 to-white/95',
@@ -373,7 +485,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-slate-700 group-hover:text-white',
     arrowText: 'text-slate-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(100, 116, 139, 0.20) 0%, rgba(148, 163, 184, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-slate-100/60 via-[#EAF8F5] to-slate-50/40',
+    cardGradient: 'from-[#F8FAFC] via-[#FBFCFC] to-[#F1F5F9]',
+    ecgStrokeStart: '#475569',
+    ecgStrokeMid: '#94A3B8',
+    ecgGlow: 'rgba(148, 163, 184, 0.85)',
+    ecgDotColor: '#CBD5E1',
+    haloStart: '#94A3B8',
+    haloMid: '#64748B',
+    haloEnd: '#334155',
+    orbitStroke: '#475569',
+    primaryBtnBg: 'bg-[#334155]',
+    primaryBtnHover: 'hover:bg-[#1E293B]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(51,65,85,0.25)]',
   },
   psm: {
     bg: 'from-cyan-100/70 via-teal-50/40 to-white/95',
@@ -383,7 +506,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-cyan-600 group-hover:text-white',
     arrowText: 'text-cyan-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(0, 107, 99, 0.22) 0%, rgba(6, 182, 212, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-cyan-50/50 via-[#EAF8F5] to-teal-50/40',
+    cardGradient: 'from-[#F0FDFA] via-[#FBFCFC] to-[#CCFBF1]',
+    ecgStrokeStart: '#007F73',
+    ecgStrokeMid: '#2DD4BF',
+    ecgGlow: 'rgba(45, 212, 191, 0.85)',
+    ecgDotColor: '#99F6E4',
+    haloStart: '#2DD4BF',
+    haloMid: '#0D9488',
+    haloEnd: '#006B63',
+    orbitStroke: '#007F73',
+    primaryBtnBg: 'bg-[#006B63]',
+    primaryBtnHover: 'hover:bg-[#00554E]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,107,99,0.25)]',
   },
   ophthalmology: {
     bg: 'from-indigo-100/70 via-sky-50/40 to-white/95',
@@ -393,7 +527,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-indigo-600 group-hover:text-white',
     arrowText: 'text-indigo-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.22) 0%, rgba(99, 102, 241, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-indigo-50/50 via-[#EAF8F5] to-sky-50/40',
+    cardGradient: 'from-[#EEF2FF] via-[#FBFCFC] to-[#E0E7FF]',
+    ecgStrokeStart: '#4F46E5',
+    ecgStrokeMid: '#818CF8',
+    ecgGlow: 'rgba(129, 140, 248, 0.85)',
+    ecgDotColor: '#C7D2FE',
+    haloStart: '#818CF8',
+    haloMid: '#6366F1',
+    haloEnd: '#4338CA',
+    orbitStroke: '#4F46E5',
+    primaryBtnBg: 'bg-[#4338CA]',
+    primaryBtnHover: 'hover:bg-[#3730A3]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(67,56,202,0.25)]',
   },
   ent: {
     bg: 'from-purple-100/70 via-fuchsia-50/30 to-white/95',
@@ -403,7 +548,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-purple-600 group-hover:text-white',
     arrowText: 'text-purple-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.20) 0%, rgba(236, 72, 153, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-purple-50/50 via-[#EAF8F5] to-fuchsia-50/30',
+    cardGradient: 'from-[#FDF4FF] via-[#FBFCFC] to-[#FAE8FF]',
+    ecgStrokeStart: '#C026D3',
+    ecgStrokeMid: '#E879F9',
+    ecgGlow: 'rgba(232, 121, 249, 0.85)',
+    ecgDotColor: '#F5D0FE',
+    haloStart: '#E879F9',
+    haloMid: '#D946EF',
+    haloEnd: '#A21CAF',
+    orbitStroke: '#C026D3',
+    primaryBtnBg: 'bg-[#A21CAF]',
+    primaryBtnHover: 'hover:bg-[#86198F]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(162,28,175,0.25)]',
   },
   obg: {
     bg: 'from-pink-100/70 via-rose-50/40 to-white/95',
@@ -413,7 +569,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-pink-600 group-hover:text-white',
     arrowText: 'text-pink-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.20) 0%, rgba(251, 113, 133, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-pink-50/50 via-[#EAF8F5] to-rose-50/40',
+    cardGradient: 'from-[#FDF2F8] via-[#FBFCFC] to-[#FCE7F3]',
+    ecgStrokeStart: '#DB2777',
+    ecgStrokeMid: '#F472B6',
+    ecgGlow: 'rgba(244, 114, 182, 0.85)',
+    ecgDotColor: '#FBCFE8',
+    haloStart: '#F472B6',
+    haloMid: '#EC4899',
+    haloEnd: '#BE185D',
+    orbitStroke: '#DB2777',
+    primaryBtnBg: 'bg-[#BE185D]',
+    primaryBtnHover: 'hover:bg-[#9D174D]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(190,24,93,0.25)]',
   },
   pediatrics: {
     bg: 'from-cyan-100/70 via-emerald-50/30 to-white/95',
@@ -423,7 +590,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-cyan-600 group-hover:text-white',
     arrowText: 'text-cyan-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.22) 0%, rgba(6, 182, 212, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-cyan-50/50 via-[#EAF8F5] to-emerald-50/30',
+    cardGradient: 'from-[#F0FDFA] via-[#FBFCFC] to-[#E0F2FE]',
+    ecgStrokeStart: '#0284C7',
+    ecgStrokeMid: '#38BDF8',
+    ecgGlow: 'rgba(56, 189, 248, 0.85)',
+    ecgDotColor: '#BAE6FD',
+    haloStart: '#38BDF8',
+    haloMid: '#0EA5E9',
+    haloEnd: '#0369A1',
+    orbitStroke: '#0284C7',
+    primaryBtnBg: 'bg-[#0284C7]',
+    primaryBtnHover: 'hover:bg-[#0369A1]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(2,132,199,0.25)]',
   },
   orthopedics: {
     bg: 'from-violet-100/60 via-slate-50/40 to-white/95',
@@ -433,7 +611,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-violet-600 group-hover:text-white',
     arrowText: 'text-violet-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.20) 0%, rgba(16, 185, 129, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-violet-50/50 via-[#EAF8F5] to-slate-50/40',
+    cardGradient: 'from-[#F5F3FF] via-[#FBFCFC] to-[#EDE9FE]',
+    ecgStrokeStart: '#7C3AED',
+    ecgStrokeMid: '#A78BFA',
+    ecgGlow: 'rgba(167, 139, 250, 0.85)',
+    ecgDotColor: '#DDD6FE',
+    haloStart: '#A78BFA',
+    haloMid: '#8B5CF6',
+    haloEnd: '#6D28D9',
+    orbitStroke: '#7C3AED',
+    primaryBtnBg: 'bg-[#6D28D9]',
+    primaryBtnHover: 'hover:bg-[#5B21B6]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(109,40,217,0.25)]',
   },
   dermatology: {
     bg: 'from-rose-100/70 via-amber-50/30 to-white/95',
@@ -443,7 +632,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-rose-600 group-hover:text-white',
     arrowText: 'text-rose-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.20) 0%, rgba(245, 158, 11, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-rose-50/50 via-[#EAF8F5] to-amber-50/30',
+    cardGradient: 'from-[#FFF7ED] via-[#FBFCFC] to-[#FFEDD5]',
+    ecgStrokeStart: '#EA580C',
+    ecgStrokeMid: '#FB923C',
+    ecgGlow: 'rgba(251, 146, 60, 0.85)',
+    ecgDotColor: '#FED7AA',
+    haloStart: '#FB923C',
+    haloMid: '#F97316',
+    haloEnd: '#C2410C',
+    orbitStroke: '#EA580C',
+    primaryBtnBg: 'bg-[#C2410C]',
+    primaryBtnHover: 'hover:bg-[#9A3412]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(194,65,12,0.25)]',
   },
   radiology: {
     bg: 'from-slate-200/70 via-cyan-50/30 to-white/95',
@@ -453,7 +653,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-slate-700 group-hover:text-white',
     arrowText: 'text-slate-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(2, 132, 199, 0.22) 0%, rgba(71, 85, 105, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-slate-100/60 via-[#EAF8F5] to-cyan-50/35',
+    cardGradient: 'from-[#F0F9FF] via-[#FBFCFC] to-[#E2E8F0]',
+    ecgStrokeStart: '#0369A1',
+    ecgStrokeMid: '#38BDF8',
+    ecgGlow: 'rgba(56, 189, 248, 0.85)',
+    ecgDotColor: '#BAE6FD',
+    haloStart: '#38BDF8',
+    haloMid: '#0284C7',
+    haloEnd: '#0F172A',
+    orbitStroke: '#0369A1',
+    primaryBtnBg: 'bg-[#0369A1]',
+    primaryBtnHover: 'hover:bg-[#075985]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(3,105,161,0.25)]',
   },
   anesthesia: {
     bg: 'from-teal-100/70 via-slate-50/40 to-white/95',
@@ -463,7 +674,18 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
     arrowText: 'text-teal-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(13, 148, 136, 0.22) 0%, rgba(56, 189, 248, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-teal-50/50 via-[#EAF8F5] to-slate-50/40',
+    cardGradient: 'from-[#F0FDFA] via-[#FBFCFC] to-[#F1F5F9]',
+    ecgStrokeStart: '#0F766E',
+    ecgStrokeMid: '#2DD4BF',
+    ecgGlow: 'rgba(45, 212, 191, 0.85)',
+    ecgDotColor: '#99F6E4',
+    haloStart: '#2DD4BF',
+    haloMid: '#0D9488',
+    haloEnd: '#115E59',
+    orbitStroke: '#0F766E',
+    primaryBtnBg: 'bg-[#0F766E]',
+    primaryBtnHover: 'hover:bg-[#115E59]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(15,118,110,0.25)]',
   },
 };
 
@@ -475,7 +697,18 @@ const DEFAULT_CARD_THEME: SubjectCardTheme = {
   arrowBg: 'group-hover:bg-[#006B63] group-hover:text-white',
   arrowText: 'text-slate-600',
   heroGradient: 'radial-gradient(circle at 50% 50%, rgba(45, 212, 191, 0.22) 0%, transparent 70%)',
-  cardGradient: 'from-[#EAF8F5] via-white to-[#E1F3EF]',
+  cardGradient: 'from-[#F4FAF8] via-[#FBFCFC] to-[#EFF8F5]',
+  ecgStrokeStart: '#0D9488',
+  ecgStrokeMid: '#00F0FF',
+  ecgGlow: 'rgba(0, 240, 255, 0.85)',
+  ecgDotColor: '#00FFFF',
+  haloStart: '#2DD4BF',
+  haloMid: '#38BDF8',
+  haloEnd: '#0EA5E9',
+  orbitStroke: '#0D9488',
+  primaryBtnBg: 'bg-[#006B63]',
+  primaryBtnHover: 'hover:bg-[#00554E]',
+  primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,107,99,0.25)]',
 };
 
 const SECTION_ENTER = (delay: number, reduced: boolean | null) =>
@@ -606,7 +839,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           bannerBg: 'bg-gradient-to-br from-[#FFF8EE] via-[#FAF9F6] to-[#E5F3EE] border-[#E8D7C2]',
           auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(249,115,22,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(244,63,94,0.15),transparent_70%)]',
           topLight: 'from-transparent via-orange-400/40 to-transparent',
-          nameColor: 'bg-gradient-to-r from-[#2D1B11] via-stone-900 to-[#B57B66] bg-clip-text text-transparent',
+          nameColor: 'bg-gradient-to-r from-[#2D1B11] via-stone-900 to-[#006B63] bg-clip-text text-transparent',
           subtitleColor: 'text-[#7C5E4E]',
           greetingIconColor: 'text-orange-500',
         };
@@ -694,6 +927,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     [activeFocusSubject.id]
   );
 
+  // Dynamic scattered multi-point ambient gradient tailored to the active subject (No rigid circle / bullseye)
+  const cardGradientStyle = useMemo(() => {
+    const primary = focusTheme.ecgStrokeStart || '#0D9488';
+    const secondary = focusTheme.haloStart || '#2DD4BF';
+    const bgColors = focusTheme.cardGradient?.match(/#[A-Fa-f0-9]{6}/g) || ['#F4FAF8', '#FBFCFC', '#EFF8F5'];
+    const baseStart = bgColors[0] || '#FFFFFF';
+    const baseMid = bgColors[1] || '#FAFCFC';
+    const baseEnd = bgColors[2] || '#F4F8F7';
+
+    return {
+      background: `
+        radial-gradient(ellipse 55% 50% at 85% 25%, ${secondary}2a 0%, transparent 70%),
+        radial-gradient(ellipse 45% 45% at 20% 75%, ${primary}16 0%, transparent 65%),
+        radial-gradient(ellipse 50% 60% at 65% 85%, ${secondary}1c 0%, transparent 75%),
+        radial-gradient(ellipse 35% 35% at 10% 20%, ${primary}14 0%, transparent 60%),
+        linear-gradient(135deg, ${baseStart} 0%, ${baseMid} 50%, ${baseEnd} 100%)
+      `,
+    };
+  }, [focusTheme]);
+
   // Dynamic clinical telemetry metadata tailored to the active subject & topic
   const currentTelemetry = useMemo(
     () => getSubjectTelemetry(activeFocusSubject.id, activeFocusTopic.name),
@@ -769,6 +1022,89 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     [state.studyLogs]
   );
 
+  // Active topic completion calculations for the circular gauge & status
+  const { topicProgressPercent, topicStatusLabel, topicSubtext, topicTitlePrimary, topicTitleHighlight, topicSubtitleItems } = useMemo(() => {
+    const key = `${activeFocusSubject.id}-${activeFocusTopic.id}`;
+    const topicState = state.topicsState?.[key];
+    
+    let checks = 0;
+    if (topicState?.notesDone) checks += 1;
+    if (topicState?.qBankDone) checks += 1;
+    if (topicState?.r1Done) checks += 1;
+    if (topicState?.r2Done) checks += 1;
+    if (topicState?.r3Done) checks += 1;
+    
+    const pct = Math.round((checks / 5) * 100);
+    
+    let status = 'Not started';
+    if (pct === 100) status = 'Completed';
+    else if (pct > 0) status = 'In progress';
+
+    // Parse topic title for clean two-tone bold styling: "Cardiology — " and "ECGs"
+    let primary = 'Cardiology — ';
+    let highlight = 'ECGs';
+    let subtitleList: string[] = ['STEMI', 'Arrhythmias', 'Heart Blocks', 'WPW'];
+
+    const fullName = activeFocusTopic.name;
+    // Check if name has parenthetical list like "(STEMI, Arrhythmias, Heart Blocks, WPW)"
+    const parenMatch = fullName.match(/\(([^)]+)\)/);
+    if (parenMatch) {
+      const insideParen = parenMatch[1];
+      const items = insideParen.split(',').map(s => s.trim()).filter(Boolean);
+      if (items.length >= 2) {
+        subtitleList = items;
+      }
+    }
+
+    // Strip parenthetical text for clean title display
+    const cleanTitle = fullName.replace(/\([^)]*\)/g, '').trim();
+
+    if (cleanTitle.includes(' - ')) {
+      const parts = cleanTitle.split(' - ');
+      primary = `${parts[0].trim()} — `;
+      highlight = parts.slice(1).join(' - ').trim();
+    } else if (cleanTitle.includes(': ')) {
+      const parts = cleanTitle.split(': ');
+      primary = `${parts[0].trim()} — `;
+      highlight = parts.slice(1).join(': ').trim();
+    } else if (cleanTitle.includes(' — ')) {
+      const parts = cleanTitle.split(' — ');
+      primary = `${parts[0].trim()} — `;
+      highlight = parts.slice(1).join(' — ').trim();
+    } else {
+      const words = cleanTitle.split(' ');
+      if (words.length >= 3) {
+        primary = `${words.slice(0, 2).join(' ')} — `;
+        highlight = words.slice(2).join(' ');
+      } else {
+        primary = cleanTitle;
+        highlight = '';
+      }
+    }
+
+    // High yield concepts / sub-bullet items fallback if not found in paren
+    if (subtitleList.length === 0) {
+      const rawReason = adaptiveRecommendation.actionDescription || activeFocusTopic.reason || '';
+      const matches = rawReason.replace(/^(Master|Focus on|Study)\s+/i, '').split(/,|;|\band\b/).map(s => s.trim()).filter(Boolean);
+      subtitleList = matches.length >= 2 ? matches.slice(0, 4) : ['High-yield Clinical Review', 'First-order Recall', 'Image Vignettes'];
+    }
+
+    const subtext = pct === 0
+      ? `Let's build your confidence in ${highlight || primary.replace(/—\s*$/, '').trim()}.`
+      : pct === 100
+      ? `Mastery achieved. Ready for clinical application & grand mock tests.`
+      : `Keep going! Solidify retention with exam-style QBank practice.`;
+
+    return {
+      topicProgressPercent: pct,
+      topicStatusLabel: status,
+      topicSubtext: subtext,
+      topicTitlePrimary: primary,
+      topicTitleHighlight: highlight,
+      topicSubtitleItems: subtitleList,
+    };
+  }, [activeFocusSubject.id, activeFocusTopic.id, activeFocusTopic.name, activeFocusTopic.reason, adaptiveRecommendation.actionDescription, state.topicsState]);
+
   // Study streak 7-day calendar data
   const weekDays = useMemo(() => {
     const now = new Date();
@@ -813,30 +1149,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   if (currentSubTab === 'planner') {
     return (
-      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Navigation header allowing quick return to dashboard */}
-        <div className="flex items-center justify-between border-b border-stone-200/80 pb-3">
-          <button
-            type="button"
-            onClick={() => handleSubTabChange('overview')}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-stone-200/80 text-stone-700 hover:text-[#B57B66] hover:border-[#B57B66]/40 hover:bg-[#FAF5F2] font-semibold text-xs transition-colors shadow-2xs cursor-pointer"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 text-[#00685f]" />
-            <span>Return to Home Dashboard</span>
-          </button>
-        </div>
-
-        <DailyPlannerView
-          state={state}
-          onAddTask={onAddTask || (() => {})}
-          onToggleTask={onToggleTask || (() => {})}
-          onDeleteTask={onDeleteTask || (() => {})}
-          onUpdateDailyLog={onUpdateDailyLog || (() => {})}
-          onLaunchPracticeSession={onLaunchPracticeSession}
-          onNavigateTab={onNavigateTab}
-          onBackToOverview={() => handleSubTabChange('overview')}
-        />
-      </div>
+      <DailyPlannerView
+        state={state}
+        onAddTask={onAddTask || (() => {})}
+        onToggleTask={onToggleTask || (() => {})}
+        onDeleteTask={onDeleteTask || (() => {})}
+        onUpdateDailyLog={onUpdateDailyLog || (() => {})}
+        onLaunchPracticeSession={onLaunchPracticeSession}
+        onNavigateTab={onNavigateTab}
+        onBackToOverview={() => handleSubTabChange('overview')}
+      />
     );
   }
 
@@ -868,7 +1190,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </svg>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-4.5">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
 
         {/* ═══ 1. TOP BAR (Search, Notifications, Profile) ═══ */}
         <div className="flex items-center justify-between gap-2 sm:gap-4">
@@ -927,7 +1249,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={() => setIsNotificationCenterOpen(true)}
-              className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white border border-[#D5EAE3] shadow-xs text-slate-600 cursor-pointer hover:bg-[#FAF5F2] hover:text-[#B57B66] hover:border-[#B57B66]/40 transition-colors shrink-0"
+              className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white border border-[#D5EAE3] shadow-xs text-slate-600 cursor-pointer hover:bg-teal-50/70 hover:text-[#006B63] hover:border-teal-300 transition-colors shrink-0"
               title="View Study Notifications"
               aria-label="View Study Notifications"
             >
@@ -943,13 +1265,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={onOpenProfile}
-              className="flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white border border-[#D5EAE3] shadow-xs hover:bg-[#FAF5F2] hover:border-[#B57B66]/40 transition-colors cursor-pointer group"
+              className="flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white border border-[#D5EAE3] shadow-xs hover:bg-teal-50/70 hover:border-teal-300 transition-colors cursor-pointer group"
               title="Doctor Profile & Blueprint"
             >
               <div className="h-8 w-8 rounded-full bg-[#2A2322] text-white flex items-center justify-center font-['Outfit'] font-bold text-xs shrink-0 ring-2 ring-slate-900/10">
                 {initials}
               </div>
-              <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400 group-hover:text-[#B57B66] transition-colors" />
+              <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] transition-colors" />
             </button>
           </div>
         </div>
@@ -1001,7 +1323,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             topicName: topic.name,
                           });
                         }}
-                        className="px-2.5 py-1 text-[11px] font-bold bg-[#006B63] text-white rounded-lg hover:bg-[#B57B66] transition-colors cursor-pointer"
+                        className="px-2.5 py-1 text-[11px] font-bold bg-[#006B63] text-white rounded-lg hover:bg-[#005750] transition-colors cursor-pointer"
                       >
                         Study
                       </button>
@@ -1143,16 +1465,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* 4 Stat Cards Row with Staggered Motion and Micro-Interactions */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 pt-3 mt-3 border-t border-[#D0EBE5] relative z-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 pt-3 mt-3 border-t border-[#D0EBE5] relative z-10">
             {/* Card 1: Days remaining */}
             <motion.div
               whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => handleSubTabChange('planner')}
-              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/95 backdrop-blur-xs border border-white/90 hover:border-[#B57B66]/40 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/95 backdrop-blur-xs border border-white/90 hover:border-[#006B63]/30 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#FAF5F2] group-hover:text-[#B57B66] transition-all group-hover:scale-110 group-hover:rotate-[-4deg]">
+              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110 group-hover:rotate-[-4deg]">
                 <Calendar className="h-4.5 w-4.5 transition-transform" />
                 <span className="absolute -top-1 -right-1 flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B63] opacity-75" />
@@ -1168,7 +1490,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     Live
                   </span>
                 </div>
-                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#B57B66] transition-colors truncate">
+                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors truncate">
                   days to FMGE
                 </span>
               </div>
@@ -1180,9 +1502,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={onOpenProfile}
-              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/95 backdrop-blur-xs border border-white/90 hover:border-[#B57B66]/40 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/95 backdrop-blur-xs border border-white/90 hover:border-[#006B63]/30 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#FAF5F2] group-hover:text-[#B57B66] transition-all group-hover:scale-110">
+              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
                 <Target className="h-4.5 w-4.5 transition-transform" />
               </div>
               <div className="min-w-0 flex-1">
@@ -1194,7 +1516,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     150 Pass
                   </span>
                 </div>
-                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#B57B66] transition-colors truncate">
+                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors truncate">
                   Target Score
                 </span>
               </div>
@@ -1206,9 +1528,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => onNavigateTab('syllabus')}
-              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/95 backdrop-blur-xs border border-white/90 hover:border-[#B57B66]/40 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/95 backdrop-blur-xs border border-white/90 hover:border-[#006B63]/30 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E5F1FA] text-[#0A6EB4] group-hover:bg-[#FAF5F2] group-hover:text-[#B57B66] transition-all group-hover:scale-110 group-hover:rotate-[4deg]">
+              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E5F1FA] text-[#0A6EB4] group-hover:bg-[#D5EBF8] group-hover:text-[#08558D] transition-all group-hover:scale-110 group-hover:rotate-[4deg]">
                 <BookOpen className="h-4.5 w-4.5 transition-transform" />
               </div>
               <div className="min-w-0 flex-1">
@@ -1220,7 +1542,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     NBE Core
                   </span>
                 </div>
-                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#B57B66] transition-colors truncate">
+                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors truncate">
                   Subjects
                 </span>
               </div>
@@ -1232,9 +1554,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => onNavigateTab('progress')}
-              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/95 backdrop-blur-xs border border-white/90 hover:border-[#B57B66]/40 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/95 backdrop-blur-xs border border-white/90 hover:border-[#006B63]/30 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#EFF8F6] text-[#006B63] group-hover:bg-[#FAF5F2] group-hover:text-[#B57B66] transition-all group-hover:scale-110">
+              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#EFF8F6] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
                 <Activity className="h-4.5 w-4.5 transition-transform animate-pulse" />
               </div>
               <div className="min-w-0 flex-1">
@@ -1246,7 +1568,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
                   </span>
                 </div>
-                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#B57B66] transition-colors truncate" title="Small steps. Big progress.">
+                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors truncate" title="Small steps. Big progress.">
                   Small steps. Big progress.
                 </span>
               </div>
@@ -1278,7 +1600,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`relative snap-start inline-flex items-center px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[34px] ${
                     active
                       ? 'text-white'
-                      : 'text-slate-600 hover:text-[#B57B66] bg-white border border-slate-200/80 hover:border-[#B57B66]/40 hover:bg-[#FAF5F2] shadow-2xs'
+                      : 'text-slate-600 hover:text-[#006B63] bg-white border border-slate-200/80 hover:border-teal-300 hover:bg-teal-50/70 shadow-2xs'
                   }`}
                 >
                   {active && (
@@ -1297,7 +1619,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <button
             type="button"
             onClick={scrollPillsRight}
-            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/95 border border-slate-200 shadow-sm text-slate-500 hover:text-[#B57B66] hover:border-[#B57B66]/40 items-center justify-center cursor-pointer transition-colors"
+            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/95 border border-slate-200 shadow-sm text-slate-500 hover:text-[#006B63] hover:border-teal-300 items-center justify-center cursor-pointer transition-colors"
             title="Scroll subjects right"
           >
             <ChevronRight className="h-4 w-4" />
@@ -1305,308 +1627,355 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </motion.div>
 
         {/* ═══ 4. TWO-COLUMN DESKTOP LAYOUT (LEFT & RIGHT) ═══ */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-6 items-start">
 
-          {/* ══════════════ LEFT COLUMN (lg:col-span-7) ══════════════ */}
-          <div className="lg:col-span-7 space-y-5">
+          {/* ══════════════ LEFT COLUMN (xl:col-span-7) ══════════════ */}
+          <div className="xl:col-span-7 space-y-5">
 
-            {/* ── TODAY'S FOCUS CARD ── */}
+            {/* ── TODAY'S FOCUS HERO CARD (MATCHING REFERENCE DESIGN - SIDE COLUMN) ── */}
             <motion.section
+              key={`hero-focus-card-${activeFocusSubject.id}`}
               initial={SECTION_ENTER(0.08, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className={`rounded-[28px] border border-[#BEE4DC] bg-gradient-to-br ${focusTheme.cardGradient || 'from-[#EAF8F5] via-white to-[#E1F3EF]'} shadow-[0_8px_30px_rgba(0,107,99,0.04)] p-4.5 sm:p-5 md:p-5.5 relative overflow-hidden transition-all duration-500`}
+              style={cardGradientStyle}
+              className={`rounded-3xl border ${focusTheme.border.split(' ')[0] || 'border-[#CDEAE3]'} bg-gradient-to-br ${focusTheme.cardGradient || 'from-[#F4FAF8] via-[#FBFCFC] to-[#EFF8F5]'} shadow-[0_4px_24px_rgba(0,107,99,0.06)] overflow-hidden transition-all duration-500 relative`}
             >
-              {/* Dynamic Subject-Themed Ambient Background Glow Orbs with Breathing Motion */}
-              <motion.div
-                animate={reducedMotion ? undefined : { scale: [1, 1.1, 1], opacity: [0.35, 0.55, 0.35] }}
-                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -top-24 -right-24 w-72 h-72 rounded-full pointer-events-none filter blur-3xl transition-all duration-500"
-                style={{
-                  background: `radial-gradient(circle, ${focusTheme.glow} 0%, transparent 70%)`,
-                }}
-              />
-              <motion.div
-                animate={reducedMotion ? undefined : { scale: [1, 1.08, 1], opacity: [0.25, 0.45, 0.25] }}
-                transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full pointer-events-none filter blur-3xl transition-all duration-500"
-                style={{
-                  background: `radial-gradient(circle, ${focusTheme.glow} 0%, transparent 70%)`,
-                }}
-              />
-
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-5 relative z-10">
-                {/* Left side: Focus Text & Actions */}
-                <div className="flex-1 space-y-2.5 min-w-0 max-w-md">
-                  {/* Category Header Badges (Inline on one row to save vertical space) */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider bg-[#E0F5F1] text-[#007F75] border border-[#BDE8DF] font-mono shadow-2xs">
-                      ✦ TODAY&apos;S FOCUS
-                    </span>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider font-mono bg-[#DCF2F9] text-[#0284A5] shadow-2xs">
-                      {activeFocusSubject.name.toUpperCase()}
-                    </span>
-                  </div>
-
-                  {/* Topic Title */}
-                  <div className="pt-0.5">
-                    <h2 className="font-['Outfit'] text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-[#0B2A26] via-slate-900 to-[#006B63] bg-clip-text text-transparent leading-tight break-words">
-                      {activeFocusTopic.name}
-                    </h2>
-                    <p className="text-xs text-[#527670] leading-snug mt-1 max-w-sm line-clamp-2">
-                      {adaptiveRecommendation.actionDescription || activeFocusTopic.reason}
-                    </p>
-                  </div>
-
-                  {/* 4 Meta Badges with Interactive Micro-Spring Hover */}
-                  <div className="space-y-1.5 pt-0.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <motion.span
-                        whileHover={reducedMotion ? undefined : { scale: 1.05, y: -1 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs cursor-default"
-                      >
-                        <Calendar className="h-3.5 w-3.5 text-[#3E655F]/70" />
-                        <AnimatedNumber value={focusMarks} /> marks
-                      </motion.span>
-                      <motion.span
-                        whileHover={reducedMotion ? undefined : { scale: 1.05, y: -1 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs cursor-default"
-                      >
-                        <Clock className="h-3.5 w-3.5 text-[#3E655F]/70" />
-                        <AnimatedNumber value={focusMinutes} /> min
-                      </motion.span>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <motion.span
-                        whileHover={reducedMotion ? undefined : { scale: 1.05, y: -1 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-medium bg-white/90 text-[#3E655F] border border-[#D5EAE3] shadow-2xs cursor-default"
-                      >
-                        <BookOpen className="h-3.5 w-3.5 text-[#3E655F]/70" /> Clinical MCQ
-                      </motion.span>
-                      <motion.span
-                        whileHover={reducedMotion ? undefined : { scale: 1.05, y: -1 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#FFF0F0] text-[#D32F2F] border border-[#FED7D7] shadow-2xs cursor-default"
-                      >
-                        <Flame className="h-3.5 w-3.5 fill-[#D32F2F] text-[#D32F2F]" /> High-yield
-                      </motion.span>
-                    </div>
-                  </div>
-
-                  {/* Action Button: Start Session (Desktop & Mobile) */}
-                  <div className="pt-2">
-                    <motion.button
-                      type="button"
-                      onClick={startFocusSession}
-                      whileHover={{ scale: 1.03, y: -1, boxShadow: '0 10px 24px -4px rgba(0, 107, 99, 0.45)' }}
-                      whileTap={{ scale: 0.97 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                      className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold bg-[#006B63] hover:bg-[#00554E] text-white shadow-md transition-colors cursor-pointer min-h-[40px]"
-                    >
-                      <Play className="h-3.5 w-3.5 fill-white text-white" />
-                      <span>Start Session</span>
-                    </motion.button>
-                  </div>
+              {/* ══ TOP COMPARTMENT ══ */}
+              <div className="p-4 sm:p-5 lg:p-6 relative z-10">
+                {/* Top Right Motivational Quote: Master concepts. Score higher. */}
+                <div className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 text-right select-none pointer-events-none z-20 hidden sm:block">
+                  <p className="text-[11px] font-medium text-slate-500 leading-snug">
+                    Master<br />
+                    concepts.<br />
+                    <span className="text-slate-800 font-bold">Score higher.</span>
+                  </p>
+                  <div className="w-5 h-0.5 bg-slate-300 ml-auto mt-1 rounded-full" />
                 </div>
 
-                {/* Right side: Integrated 3D Anatomical Visual Stage (Increased Size & Rich Motion) */}
-                <div className="relative w-full md:w-[350px] lg:w-[385px] h-[260px] sm:h-[280px] md:h-[295px] shrink-0 flex items-center justify-center pt-1 md:pt-0">
-                  {/* Floating Telemetry Pill Top with Subtle Gentle Float Animation */}
-                  <motion.div
-                    key={`${activeFocusSubject.id}-${currentTelemetry.label}`}
-                    initial={{ opacity: 0, y: -6, scale: 0.95 }}
-                    animate={
-                      reducedMotion
-                        ? { opacity: 1, y: 0, scale: 1 }
-                        : { opacity: 1, y: [0, -3, 0], scale: 1 }
-                    }
-                    transition={
-                      reducedMotion
-                        ? { duration: 0.35, ease: 'easeOut' }
-                        : { y: { repeat: Infinity, duration: 3.6, ease: 'easeInOut' }, duration: 0.35 }
-                    }
-                    className="absolute top-1 sm:top-1.5 left-3 sm:left-5 z-30 inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-white/95 backdrop-blur-md border border-[#E0F2EC] shadow-[0_4px_14px_rgba(0,107,99,0.06)] pointer-events-none"
-                  >
-                    <span className="relative flex h-2 w-2">
-                      <span
-                        className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                        style={{ backgroundColor: currentTelemetry.dotColor }}
-                      />
-                      <span
-                        className="relative inline-flex rounded-full h-2 w-2"
-                        style={{ backgroundColor: currentTelemetry.dotColor }}
-                      />
-                    </span>
-                    <span className="text-[10.5px] font-mono font-bold text-slate-800 tracking-tight">
-                      {currentTelemetry.label}
-                    </span>
-                  </motion.div>
-
-                  {/* Ambient Telemetry Compass, Cyan ECG Line, Rotating Rings & Vascular Tree Watermark */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
-                    {/* Subject-Specific Atmospheric Glow Gradient behind the 3D organ with Dynamic Breathing */}
-                    <motion.div
-                      animate={reducedMotion ? {} : { scale: [0.94, 1.14, 0.94], opacity: [0.7, 1, 0.7] }}
-                      transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-                      className="absolute w-68 h-68 rounded-full filter blur-2xl pointer-events-none transition-all duration-700"
-                      style={{
-                        background: focusTheme.heroGradient || `radial-gradient(circle at 50% 50%, ${focusTheme.glow} 0%, transparent 70%)`,
-                      }}
-                    />
-
-                    <svg viewBox="0 0 380 290" className="w-full h-full stroke-[#006B63] fill-none overflow-visible">
-                      {/* Rotating Concentric Compass/Radar Rings */}
-                      <motion.g
-                        animate={reducedMotion ? {} : { rotate: [0, 360] }}
-                        transition={{ duration: 75, repeat: Infinity, ease: 'linear' }}
-                        style={{ transformOrigin: '200px 145px' }}
-                      >
-                        <circle cx="200" cy="145" r="128" strokeDasharray="4 6" strokeWidth="1" strokeOpacity="0.16" />
-                        <circle cx="200" cy="145" r="102" strokeWidth="0.8" strokeOpacity="0.12" />
-                        <circle cx="200" cy="145" r="72" strokeDasharray="2 4" strokeWidth="0.75" strokeOpacity="0.10" />
-                      </motion.g>
-
-                      {/* Horizontal Cyan ECG Waveform Line traversing behind the organ */}
-                      <path
-                        d="M 10 145 L 115 145 L 127 122 L 135 168 L 143 115 L 153 158 L 163 145 L 370 145"
-                        stroke="#0D9488"
-                        strokeWidth="1.5"
-                        strokeOpacity="0.32"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-
-                      {/* Traveling electrical conduction impulse dot across ECG line */}
-                      {!reducedMotion && (
-                        <motion.circle
-                          r="3"
-                          fill="#00F0D0"
-                          animate={{
-                            cx: [10, 115, 127, 135, 143, 153, 163, 370],
-                            cy: [145, 145, 122, 168, 115, 158, 145, 145],
-                            opacity: [0, 0.9, 1, 1, 1, 0.9, 0.8, 0],
-                          }}
-                          transition={{
-                            duration: 2.8,
-                            repeat: Infinity,
-                            ease: 'linear',
-                            repeatDelay: 0.8,
-                          }}
-                        />
-                      )}
-
-                      {/* Clinical ECG Wave Markers */}
-                      <text x="121" y="116" className="text-[8.5px] font-mono font-bold fill-[#006B63] opacity-40">R</text>
-                      <text x="139" y="180" className="text-[8px] font-mono font-bold fill-[#006B63] opacity-40">QRS</text>
-                      <text x="169" y="136" className="text-[8.5px] font-mono font-bold fill-[#006B63] opacity-40">T</text>
-
-                      {/* Upper-right delicate vascular/bronchial tree branch network */}
-                      <g strokeOpacity="0.22" strokeWidth="1.1" strokeLinecap="round">
-                        <path d="M 290 78 C 310 60, 335 48, 365 38" />
-                        <path d="M 320 56 C 335 44, 350 36, 370 30" />
-                        <path d="M 305 70 C 322 80, 345 86, 368 82" />
-                        <path d="M 335 78 C 348 87, 362 93, 375 91" />
-                        <circle cx="365" cy="38" r="1.5" fill="#006B63" fillOpacity="0.35" />
-                        <circle cx="370" cy="30" r="1.5" fill="#006B63" fillOpacity="0.35" />
-                        <circle cx="368" cy="82" r="1.5" fill="#006B63" fillOpacity="0.35" />
-                        <circle cx="375" cy="91" r="1.5" fill="#006B63" fillOpacity="0.35" />
-                      </g>
-
-                      {/* Upper right vertical editorial text: CLINICAL REASONING BETTER OUTCOMES */}
-                      <text x="368" y="62" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
-                        CLINICAL
-                      </text>
-                      <text x="368" y="73" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
-                        REASONING
-                      </text>
-                      <text x="368" y="88" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
-                        BETTER
-                      </text>
-                      <text x="368" y="99" className="text-[7.5px] font-mono font-extrabold tracking-[0.2em] fill-[#006B63] opacity-45 select-none" textAnchor="end">
-                        OUTCOMES
-                      </text>
-
-                      {/* Pulsing molecular constellation in top-right */}
-                      <motion.g
-                        animate={reducedMotion ? {} : { opacity: [0.35, 0.75, 0.35] }}
-                        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-                      >
-                        <circle cx="340" cy="185" r="2" fill="#006B63" fillOpacity="0.3" />
-                        <circle cx="355" cy="170" r="1.8" fill="#006B63" fillOpacity="0.3" />
-                        <circle cx="365" cy="200" r="2.2" fill="#006B63" fillOpacity="0.3" />
-                        <line x1="340" y1="185" x2="355" y2="170" strokeWidth="0.8" strokeOpacity="0.2" />
-                        <line x1="340" y1="185" x2="365" y2="200" strokeWidth="0.8" strokeOpacity="0.2" />
-                      </motion.g>
-                    </svg>
-                  </div>
-
-                  {/* 3D Anatomical Visual — Enhanced Multi-Harmonic Floating & Tactile Hover Spring */}
-                  <motion.div
-                    animate={
-                      reducedMotion
-                        ? undefined
-                        : {
-                            y: [-5, 5, -5],
-                            rotate: [-1.2, 1.5, -1.2],
-                            scale: [1, 1.025, 1],
-                          }
-                    }
-                    transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-                    whileHover={reducedMotion ? undefined : { scale: 1.05, y: -6 }}
-                    className="relative w-full h-full flex items-center justify-center z-10 transition-transform cursor-pointer"
-                  >
-                    <MedicalHeroVisual
-                      subjectId={activeFocusSubject.id}
-                      subjectName={activeFocusSubject.name}
-                      subjectColor={activeFocusSubject.color}
-                      topicId={activeFocusTopic.id}
-                      topicName={activeFocusTopic.name}
-                      className="w-full h-full"
-                    />
-                  </motion.div>
-
-                  {/* Floating Bottom Capsule Pill: [🟢 GENERAL MEDICINE  ~/\~  Live] with subtle bobbing */}
-                  <motion.div
-                    key={`bottom-pill-${activeFocusSubject.id}`}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={
-                      reducedMotion
-                        ? { opacity: 1, y: 0 }
-                        : { opacity: 1, y: [0, -2, 0] }
-                    }
-                    transition={
-                      reducedMotion
-                        ? { duration: 0.35, delay: 0.1 }
-                        : { y: { repeat: Infinity, duration: 4, ease: 'easeInOut' }, duration: 0.35, delay: 0.1 }
-                    }
-                    className="absolute bottom-1 sm:bottom-1.5 z-20 inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-[#D0ECE4] shadow-[0_4px_14px_rgba(0,107,99,0.06)]"
-                  >
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-800 truncate">
-                        {activeFocusSubject.name}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 lg:gap-5">
+                  
+                  {/* Left Column: Eyebrow pills, two-tone title, subtopics, meta chips, and CTA buttons */}
+                  <div className="flex-1 space-y-2.5 sm:space-y-3 min-w-0">
+                    
+                    {/* Eyebrow Pills: [🎯 TODAY'S FOCUS] and Dynamic Subject Pill */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-wider bg-white/90 text-slate-700 border border-slate-200/80 shadow-2xs">
+                        <Target className="w-3 h-3" style={{ color: focusTheme.ecgStrokeStart }} />
+                        <span>TODAY&apos;S FOCUS</span>
+                      </span>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${focusTheme.badge}`}>
+                        {activeFocusSubject.name.toUpperCase()}
                       </span>
                     </div>
 
-                    {/* Animated SVG live pulse line */}
-                    <div className="w-12 h-3.5 flex items-center shrink-0">
-                      <svg viewBox="0 0 60 18" className="w-full h-full stroke-[#006B63] fill-none" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M0 9 L18 9 L22 3 L26 15 L30 5 L34 11 L38 9 L60 9" />
+                    {/* Topic Title with Two-Tone Bold Hierarchy & Subtopics */}
+                    <div>
+                      <h2 className="font-['Outfit'] text-xl sm:text-2xl lg:text-[25px] font-extrabold tracking-tight leading-[1.15] text-slate-900 break-normal flex flex-wrap items-baseline gap-x-1.5">
+                        <span className="whitespace-normal">{topicTitlePrimary}</span>
+                        <span className="whitespace-normal" style={{ color: focusTheme.ecgStrokeStart }}>{topicTitleHighlight || activeFocusTopic.name}</span>
+                      </h2>
+
+                      {/* Sub-bullet highlights: STEMI • Arrhythmias • Heart Blocks • WPW */}
+                      {topicSubtitleItems.length > 0 && (
+                        <div className="flex items-center gap-1.5 flex-wrap text-[11px] sm:text-xs font-medium text-slate-500 tracking-wide mt-1">
+                          {topicSubtitleItems.map((item, idx) => (
+                            <React.Fragment key={item}>
+                              <span>{item}</span>
+                              {idx < topicSubtitleItems.length - 1 && (
+                                <span className="text-slate-300 font-bold">•</span>
+                              )}
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 4 Clean Rounded Meta Badges */}
+                    <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs">
+                        <BookOpen className="h-3 w-3 text-slate-500" />
+                        <span className="font-semibold">{focusMarks} marks</span>
+                      </div>
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs">
+                        <Clock className="h-3 w-3 text-slate-500" />
+                        <span className="font-semibold">{focusMinutes} min</span>
+                      </div>
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs">
+                        <Layers className="h-3 w-3 text-slate-500" />
+                        <span className="font-semibold">Clinical MCQ</span>
+                      </div>
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#FFF2F2] text-[#E11D48] border border-rose-200/80 shadow-2xs">
+                        <Flame className="h-3 w-3 fill-[#E11D48] text-[#E11D48]" />
+                        <span>High-yield</span>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons: [Start Session →] and [View Topic Overview] */}
+                    <div className="flex items-center gap-2.5 sm:gap-3 pt-1.5 flex-wrap">
+                      <motion.button
+                        type="button"
+                        onClick={startFocusSession}
+                        whileHover={{ scale: 1.025, y: -1, boxShadow: `0 8px 18px -2px ${focusTheme.glow}` }}
+                        whileTap={{ scale: 0.975 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        className={`inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold text-white transition-all cursor-pointer min-h-[40px] ${focusTheme.primaryBtnBg} ${focusTheme.primaryBtnHover} ${focusTheme.primaryBtnShadow}`}
+                      >
+                        <Play className="h-3.5 w-3.5 fill-white text-white" />
+                        <span>Start Session</span>
+                        <ArrowRight className="h-3.5 w-3.5 stroke-[2.5]" />
+                      </motion.button>
+
+                      <button
+                        type="button"
+                        onClick={() => onSelectSubject(activeFocusSubject.id)}
+                        className="group inline-flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                        title="View full topic breakdown in Syllabus"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-white border border-slate-200/90 flex items-center justify-center text-slate-500 group-hover:border-slate-300 group-hover:text-slate-900 group-hover:bg-slate-50 transition-all shadow-2xs">
+                          <FileText className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="text-left leading-tight">
+                          <span className="block text-[11px] font-semibold text-slate-700 group-hover:text-slate-900">
+                            View Topic
+                          </span>
+                          <span className="block text-[9.5px] text-slate-400">
+                            Overview
+                          </span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                    {/* Right Column: 3D Anatomical Organ Stage with Bio-Pulse Coupled ECG & Telemetry */}
+                  <div className="relative w-full sm:w-[280px] md:w-[300px] lg:w-[320px] h-[200px] sm:h-[220px] shrink-0 flex items-center justify-center">
+                    
+                    {/* Integrated Bioluminescent Halo directly wrapping behind the organ */}
+                    <div
+                      className="absolute w-[170px] h-[170px] pointer-events-none select-none rounded-full"
+                      style={{
+                        background: `radial-gradient(circle, ${focusTheme.haloStart}44 0%, ${focusTheme.haloMid}22 50%, transparent 72%)`,
+                        filter: 'blur(22px)',
+                      }}
+                    />
+
+                    {/* Grounding Soft Ambient Occlusion Contact Shadow under the 3D organ (eliminates floating cutout look) */}
+                    <div
+                      className="absolute bottom-[18px] w-[130px] h-[20px] pointer-events-none select-none rounded-full"
+                      style={{
+                        background: `radial-gradient(ellipse at center, ${focusTheme.ecgStrokeStart}40 0%, ${focusTheme.haloMid}18 50%, transparent 75%)`,
+                        filter: 'blur(7px)',
+                      }}
+                    />
+
+                    {/* Ambient ECG Rhythm Waveform and Telemetry Markers - Ported from High-Quality Sidebar */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible" shapeRendering="geometricPrecision">
+                        <defs>
+                          <linearGradient id={`ecgGrad-${activeFocusSubject.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#006B63" stopOpacity="0.25" />
+                            <stop offset="25%" stopColor={focusTheme.ecgStrokeStart || '#006B63'} stopOpacity="0.85" />
+                            <stop offset="50%" stopColor="#F59E0B" stopOpacity="1" />
+                            <stop offset="75%" stopColor={focusTheme.ecgStrokeStart || '#006B63'} stopOpacity="0.85" />
+                            <stop offset="100%" stopColor="#006B63" stopOpacity="0.20" />
+                          </linearGradient>
+                        </defs>
+
+                        {/* RAZOR-SHARP HIGH-DEFINITION FOREGROUND VECTOR STROKE (matching sidebar 2.2px strokeWidth + drop-shadow-xs) */}
+                        {/* Inflow trace entering heart conduction system */}
+                        <path
+                          d="M 0 110 L 32 110 C 36 110, 38 104, 41 104 C 44 104, 46 110, 50 110 L 56 110 L 60 116 L 68 44 L 76 164 L 82 110 C 86 110, 89 101, 93 101 C 97 101, 99 110, 102 110 C 114 110, 120 116, 130 120"
+                          stroke={`url(#ecgGrad-${activeFocusSubject.id})`}
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="drop-shadow-xs"
+                          fill="none"
+                        />
+                        {/* Outflow trace emerging from organ */}
+                        <path
+                          d="M 190 102 C 198 106, 204 110, 214 110 L 218 110 L 222 116 L 230 42 L 238 166 L 244 110 C 248 110, 252 98, 256 98 C 260 98, 262 110, 266 110 L 270 110 L 273 115 L 277 78 L 281 138 L 284 110 L 320 110"
+                          stroke={`url(#ecgGrad-${activeFocusSubject.id})`}
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="drop-shadow-xs"
+                          fill="none"
+                        />
+
+                        {/* Animated Sweeping Pulse Beam over the ECG Path (Sidebar signature feature) */}
+                        {!reducedMotion && (
+                          <>
+                            <motion.path
+                              d="M 0 110 L 32 110 C 36 110, 38 104, 41 104 C 44 104, 46 110, 50 110 L 56 110 L 60 116 L 68 44 L 76 164 L 82 110 C 86 110, 89 101, 93 101 C 97 101, 99 110, 102 110 C 114 110, 120 116, 130 120"
+                              stroke="#FDE68A"
+                              strokeWidth="2.6"
+                              strokeLinecap="round"
+                              fill="none"
+                              strokeDasharray="24 160"
+                              animate={{ strokeDashoffset: [180, -180] }}
+                              transition={{ duration: 2.8, repeat: Infinity, ease: 'linear', repeatDelay: 0.8 }}
+                            />
+                            <motion.path
+                              d="M 190 102 C 198 106, 204 110, 214 110 L 218 110 L 222 116 L 230 42 L 238 166 L 244 110 C 248 110, 252 98, 256 98 C 260 98, 262 110, 266 110 L 270 110 L 273 115 L 277 78 L 281 138 L 284 110 L 320 110"
+                              stroke="#FDE68A"
+                              strokeWidth="2.6"
+                              strokeLinecap="round"
+                              fill="none"
+                              strokeDasharray="24 160"
+                              animate={{ strokeDashoffset: [180, -180] }}
+                              transition={{ duration: 2.8, repeat: Infinity, ease: 'linear', repeatDelay: 0.8, delay: 0.4 }}
+                            />
+                          </>
+                        )}
+
+
+
+                        {/* Luminous Glowing Dot Traveling Continuously from Start to End */}
+                        {!reducedMotion && (
+                          <motion.g
+                            animate={{
+                              x: [0, 32, 41, 50, 56, 60, 68, 76, 82, 93, 102, 130, 190, 214, 218, 222, 230, 238, 244, 256, 266, 270, 273, 277, 281, 284, 320],
+                              y: [110, 110, 104, 110, 110, 116, 44, 164, 110, 101, 110, 120, 102, 110, 110, 116, 42, 166, 110, 98, 110, 110, 115, 78, 138, 110, 110],
+                              opacity: [0, 0.9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.25, 0.25, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+                            }}
+                            transition={{
+                              duration: 3.2,
+                              times: [0, 0.0345, 0.0461, 0.0578, 0.0642, 0.072, 0.15, 0.2795, 0.338, 0.3533, 0.367, 0.399, 0.4665, 0.4937, 0.498, 0.5058, 0.5859, 0.7198, 0.7804, 0.7987, 0.8155, 0.8198, 0.8261, 0.8662, 0.9309, 0.9612, 1],
+                              repeat: Infinity,
+                              ease: 'linear',
+                              repeatDelay: 0.5,
+                            }}
+                          >
+                            {/* Outer ambient glow */}
+                            <circle r="7" fill="#F59E0B" fillOpacity="0.35" />
+                            {/* Inner bright flare */}
+                            <circle r="3.5" fill="#FDE68A" />
+                            {/* Center pure white core */}
+                            <circle r="1.8" fill="#FFFFFF" />
+                          </motion.g>
+                        )}
                       </svg>
                     </div>
 
-                    <span className="text-[10px] font-semibold text-slate-400 shrink-0">
-                      Live
-                    </span>
-                  </motion.div>
+                    {/* 3D Anatomical Visual Centered Harmoniously on the Exact Origin (160, 110) */}
+                    <motion.div
+                      animate={
+                        reducedMotion
+                          ? undefined
+                          : {
+                              scale: [1, 1.025, 0.99, 1.015, 1],
+                            }
+                      }
+                      transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+                      whileHover={reducedMotion ? undefined : { scale: 1.04 }}
+                      className="relative w-full h-full flex items-center justify-center z-10 select-none cursor-pointer"
+                    >
+                      <MedicalHeroVisual
+                        subjectId={activeFocusSubject.id}
+                        subjectName={activeFocusSubject.name}
+                        subjectColor={activeFocusSubject.color}
+                        topicId={activeFocusTopic.id}
+                        topicName={activeFocusTopic.name}
+                        className="w-full h-full max-h-[175px]"
+                        hideInternalBackdrop={true}
+                      />
+                    </motion.div>
+
+                    {/* Floating Heart Rate / Telemetry Widget at bottom right */}
+                    <motion.div
+                      key={`telemetry-card-${activeFocusSubject.id}`}
+                      initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                      animate={
+                        reducedMotion
+                          ? { opacity: 1, y: 0, scale: 1 }
+                          : { opacity: 1, y: [0, -2, 0], scale: 1 }
+                      }
+                      transition={
+                        reducedMotion
+                          ? { duration: 0.35 }
+                          : { y: { repeat: Infinity, duration: 3.8, ease: 'easeInOut' }, duration: 0.35 }
+                      }
+                      className="absolute -bottom-1 sm:bottom-0 right-1 sm:right-2 z-30 inline-flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-100/90 shadow-[0_4px_16px_rgba(0,0,0,0.06)] select-none"
+                    >
+                      <Heart className="w-4 h-4 shrink-0" style={{ color: focusTheme.ecgStrokeStart, fill: focusTheme.ecgStrokeStart }} />
+                      <div className="leading-tight">
+                        <div className="text-xs sm:text-[13px] font-bold text-slate-900 tracking-tight font-['Outfit']">
+                          {currentTelemetry.label.split('·')[0].trim()}
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-medium">
+                          {currentTelemetry.label.split('·')[1]?.trim() || 'Sinus Rhythm'}
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ══ BOTTOM COMPARTMENT: STATUS & FEATURE HIGHLIGHTS ══ */}
+              <div className="border-t border-slate-200/80 bg-white/75 backdrop-blur-xs px-4 sm:px-5 py-2.5 sm:py-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                  
+                  {/* Circular Completion Gauge & Status Description */}
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="relative w-9 h-9 rounded-full border-[3px] border-slate-200/60 flex items-center justify-center shrink-0 bg-white shadow-2xs">
+                      {topicProgressPercent > 0 && (
+                        <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 48 48">
+                          <circle
+                            cx="24"
+                            cy="24"
+                            r="19"
+                            fill="none"
+                            stroke={focusTheme.ecgStrokeStart}
+                            strokeWidth="4"
+                            strokeDasharray={119.38}
+                            strokeDashoffset={119.38 - (119.38 * topicProgressPercent) / 100}
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      )}
+                      <span className="text-[10px] font-bold font-mono text-slate-800">
+                        {topicProgressPercent}%
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-slate-900">
+                          {topicStatusLabel}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-medium">•</span>
+                        <span className="text-[10px] text-slate-500 font-mono font-medium">
+                          NBE Blueprint Core
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 truncate max-w-[280px] sm:max-w-md">
+                        {topicSubtext}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right: Quick Launch Review Shortcut */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => onNavigateTab('revision')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" style={{ color: focusTheme.ecgStrokeStart }} />
+                      <span>Review Deck</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onNavigateTab('practice')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-800 border border-slate-200/90 hover:border-slate-300 shadow-2xs transition-all cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>MCQs (25)</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.section>
-
-            {/* ── TODAY'S PLAN ── */}
             <motion.section
               initial={SECTION_ENTER(0.12, reducedMotion)}
               animate={SECTION_SHOW}
@@ -1630,7 +1999,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSubTabChange('planner')}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#006B63] hover:text-[#B57B66] bg-teal-50/80 hover:bg-[#FAF5F2] border border-teal-200/60 hover:border-[#B57B66]/40 transition-colors cursor-pointer min-h-[32px]"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#006B63] hover:text-[#005750] bg-teal-50/80 hover:bg-teal-100/70 border border-teal-200/60 hover:border-teal-300 transition-colors cursor-pointer min-h-[32px]"
                   >
                     <span>Planner</span>
                     <ChevronRight className="h-3.5 w-3.5" />
@@ -1645,7 +2014,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     key={task.id}
                     whileHover={reducedMotion ? undefined : { y: -2, scale: 1.006 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 hover:bg-[#FAF5F2]/60 transition-colors group cursor-pointer"
+                    className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 hover:bg-teal-50/40 transition-colors group cursor-pointer"
                   >
                     <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
                       {/* Status Check / Play Icon with Micro-Bounce on Hover */}
@@ -1653,7 +2022,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-[-5deg] ${
                           index === 0
                             ? 'bg-rose-50/90 border border-rose-100 text-rose-500'
-                            : 'bg-slate-50 border border-slate-100 text-slate-400 group-hover:text-[#B57B66] group-hover:bg-[#FAF5F2]'
+                            : 'bg-slate-50 border border-slate-100 text-slate-400 group-hover:text-[#006B63] group-hover:bg-teal-50'
                         }`}
                       >
                         <BookOpen className="h-4 w-4" />
@@ -1669,7 +2038,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           >
                             {task.subjectName.toUpperCase()}
                           </span>
-                          <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-teal-50 text-[#006B63] border border-teal-100 group-hover:border-[#B57B66]/30 transition-colors">
+                          <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-teal-50 text-[#006B63] border border-teal-100 group-hover:border-teal-300 transition-colors">
                             MCQ drill
                           </span>
                         </div>
@@ -1694,14 +2063,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         whileTap={{ scale: 0.94 }}
                         transition={{ type: 'spring', stiffness: 450, damping: 22 }}
                         onClick={() => onLaunchPracticeSession?.(task.subjectId, task.topicId, task.topicName)}
-                        className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#006B63] hover:bg-[#B57B66] shadow-xs transition-all cursor-pointer min-h-[32px]"
+                        className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#006B63] hover:bg-[#005750] shadow-xs transition-all cursor-pointer min-h-[32px]"
                       >
                         <Play className="h-3 w-3 fill-white" /> Start
                       </motion.button>
                       <button
                         type="button"
                         onClick={() => onOpenAiCoach('concept', task.subjectId, task.topicName)}
-                        className="p-1 sm:p-1.5 text-slate-400 hover:text-[#B57B66] rounded-lg hover:bg-[#FAF5F2] transition-colors cursor-pointer"
+                        className="p-1 sm:p-1.5 text-slate-400 hover:text-[#006B63] rounded-lg hover:bg-teal-50 transition-colors cursor-pointer"
                         title="Options"
                       >
                         <MoreVertical className="h-4 w-4" />
@@ -1714,7 +2083,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleSubTabChange('planner')}
-                className="w-full text-center text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline py-1 transition-colors cursor-pointer"
+                className="w-full text-center text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline py-1 transition-colors cursor-pointer"
               >
                 Open full plan →
               </button>
@@ -1796,8 +2165,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </motion.section>
           </div>
 
-          {/* ══════════════ RIGHT COLUMN (lg:col-span-5) ══════════════ */}
-          <div className="lg:col-span-5 space-y-4">
+          {/* ══════════════ RIGHT COLUMN (xl:col-span-5) ══════════════ */}
+          <div className="xl:col-span-5 space-y-4">
 
             {/* ── YOUR EXAM JOURNEY (Teal/Mint Identity) ── */}
             <motion.section
@@ -1829,7 +2198,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateTab('progress')}
-                  className="text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline cursor-pointer flex items-center"
+                  className="text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline cursor-pointer flex items-center"
                 >
                   View details →
                 </button>
@@ -1897,7 +2266,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <motion.div
                 whileHover={reducedMotion ? {} : { y: -2, scale: 1.01 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className="rounded-2xl bg-[#EFF8F6] border border-[#DEF0EB] p-2.5 px-3 flex items-center gap-2.5 mt-2 relative z-10 hover:border-[#B57B66]/40 transition-colors shadow-2xs cursor-default"
+                className="rounded-2xl bg-[#EFF8F6] border border-[#DEF0EB] p-2.5 px-3 flex items-center gap-2.5 mt-2 relative z-10 hover:border-[#006B63]/30 transition-colors shadow-2xs cursor-default"
               >
                 <div className="h-6 w-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
                   <Quote className="h-3.5 w-3.5 text-emerald-700" />
@@ -1943,7 +2312,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleSubTabChange('planner')}
-                  className="text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline cursor-pointer flex items-center"
+                  className="text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline cursor-pointer flex items-center"
                 >
                   View calendar →
                 </button>
@@ -2006,7 +2375,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateTab('syllabus')}
-                  className="text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline cursor-pointer min-h-[32px] flex items-center"
+                  className="text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline cursor-pointer min-h-[32px] flex items-center"
                 >
                   View curriculum →
                 </button>
@@ -2027,7 +2396,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       className="group p-2 sm:p-2.5 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer space-y-1.5 border border-transparent hover:border-slate-200/60"
                     >
                       <div className="flex items-center justify-between text-xs gap-1.5">
-                        <span className="font-bold text-slate-900 group-hover:text-[#B57B66] transition-colors truncate">
+                        <span className="font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
                           {sub.name}
                         </span>
                         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -2078,7 +2447,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateTab('syllabus')}
-                  className="w-full text-center text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline py-1 transition-colors cursor-pointer flex items-center justify-center gap-1 min-h-[36px]"
+                  className="w-full text-center text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline py-1 transition-colors cursor-pointer flex items-center justify-center gap-1 min-h-[36px]"
                 >
                   View all subjects →
                 </button>
@@ -2089,7 +2458,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <motion.div
               whileHover={reducedMotion ? {} : { y: -2, scale: 1.01 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className="rounded-3xl bg-gradient-to-br from-sky-50 via-teal-50/60 to-emerald-50 border border-teal-100/70 p-4 sm:p-4.5 relative overflow-hidden group hover:border-[#B57B66]/40 transition-colors shadow-2xs"
+              className="rounded-3xl bg-gradient-to-br from-sky-50 via-teal-50/60 to-emerald-50 border border-teal-100/70 p-4 sm:p-4.5 relative overflow-hidden group hover:border-teal-300 transition-colors shadow-2xs"
             >
               <div className="relative z-10 space-y-1">
                 <span className="text-3xl font-serif text-[#006B63]/40 leading-none block select-none">
@@ -2141,7 +2510,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={() => onNavigateTab('syllabus')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#006B63] hover:text-[#B57B66] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
             >
               View all 19 subjects <ArrowRight className="h-3.5 w-3.5" />
             </button>
@@ -2167,7 +2536,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   className={`group relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col justify-between cursor-pointer border bg-gradient-to-b ${theme.bg} ${
                     isCurrent
                       ? 'border-[#006B63] shadow-md ring-2 ring-[#006B63]/25'
-                      : `${theme.border} shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md hover:border-[#B57B66]/40`
+                      : `${theme.border} shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md hover:border-teal-300`
                   }`}
                 >
                   {/* Weightage Badge top right */}
@@ -2199,7 +2568,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <div className="flex items-start justify-between gap-1">
                       <div className="min-w-0 flex-1">
                         <h4
-                          className="text-[11px] sm:text-xs md:text-[13px] font-bold text-slate-900 group-hover:text-[#B57B66] transition-colors truncate"
+                          className="text-[11px] sm:text-xs md:text-[13px] font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate"
                           title={sub.name}
                         >
                           {sub.name}
@@ -2213,7 +2582,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5 ${
                           isCurrent
                             ? 'bg-[#006B63] text-white shadow-xs'
-                            : `bg-white/80 ${theme.arrowText} border border-slate-200/70 shadow-2xs group-hover:border-[#B57B66]/50 group-hover:text-[#B57B66] ${theme.arrowBg}`
+                            : `bg-white/80 ${theme.arrowText} border border-slate-200/70 shadow-2xs group-hover:border-teal-300 group-hover:text-[#006B63] ${theme.arrowBg}`
                         }`}
                       >
                         <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 group-hover:translate-x-0.5 transition-transform duration-200" />
