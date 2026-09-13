@@ -219,16 +219,16 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
   const currentCase = casesDeck.cases[currentCaseIndex];
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-900/40 backdrop-blur-md overflow-y-auto font-['Plus_Jakarta_Sans']">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-slate-950/50 backdrop-blur-md overflow-y-auto font-['Plus_Jakarta_Sans']">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 16 }}
         transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-        className="bg-[#F8FAFC] border border-slate-200/90 sm:rounded-3xl w-full max-w-5xl shadow-2xl flex flex-col h-[100dvh] sm:h-auto sm:max-h-[92vh] overflow-hidden text-slate-900"
+        className="bg-white/88 backdrop-blur-2xl border border-white/85 sm:rounded-3xl w-full max-w-5xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] flex flex-col h-[100dvh] sm:h-auto sm:max-h-[92vh] overflow-hidden text-slate-900"
       >
         {/* MODAL HEADER */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 bg-white shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-white/60 bg-white/40 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-3">
             <div
               className="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shadow-xs text-xs font-['Outfit']"
@@ -241,7 +241,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-['Outfit']">
                   {topicCandidate.subjectName} · {topicCandidate.weightage} Marks
                 </span>
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-800 border border-amber-200 font-['Outfit']">
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-800 border border-amber-200 font-['Outfit'] shadow-2xs">
                   {topicCandidate.priorityLabel}
                 </span>
               </div>
@@ -253,7 +253,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
 
           <div className="flex items-center gap-3">
             {/* Mastery Score Gauge */}
-            <div className="hidden sm:flex items-center gap-2 bg-slate-50 px-3.5 py-1.5 rounded-xl border border-slate-200">
+            <div className="hidden sm:flex items-center gap-2 bg-white/80 backdrop-blur-sm px-3.5 py-1.5 rounded-xl border border-white/85 shadow-2xs">
               <Award className="w-4 h-4 text-emerald-600" />
               <div className="text-xs">
                 <span className="text-slate-500 font-medium">Mastery: </span>
@@ -267,7 +267,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
               whileHover={{ scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 450, damping: 25 }}
               onClick={onClose}
-              className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              className="p-2 rounded-full bg-white/80 hover:bg-white text-slate-600 hover:text-slate-900 border border-white/80 transition-colors cursor-pointer shadow-2xs backdrop-blur-sm"
               title="Close Workspace"
             >
               <X className="w-5 h-5" />
@@ -276,7 +276,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
         </div>
 
         {/* WORKSPACE NAVIGATION TABS: LEARN -> PRACTICE -> REVIEW -> MASTER */}
-        <div className="flex items-center border-b border-slate-200 bg-white px-4 sm:px-6 gap-2 overflow-x-auto py-2.5 shrink-0 scrollbar-none">
+        <div className="flex items-center border-b border-white/60 bg-white/30 backdrop-blur-md px-4 sm:px-6 gap-2 overflow-x-auto py-2.5 shrink-0 scrollbar-none">
           <motion.button
             type="button"
             whileHover={{ scale: 1.02 }}
@@ -359,13 +359,13 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
         </div>
 
         {/* WORKSPACE CONTENT BODY */}
-        <div className="p-6 overflow-y-auto flex-1 bg-[#F8FAFC]">
+        <div className="p-6 overflow-y-auto flex-1 bg-transparent">
           {/* TAB 1: TOPIC BLUEPRINT & OVERVIEW & HIGH-YIELD PEARLS */}
           {activeTab === 'overview' && (
             <div className="space-y-6 animate-in fade-in duration-150">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Card 1: Diagnostic Signal */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div className="bg-white/75 backdrop-blur-xl p-5 rounded-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)]">
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Target Weakness</div>
                   <div className="text-2xl font-bold font-['Outfit'] text-rose-600">
                     {topicCandidate.accuracy}% Accuracy
@@ -378,7 +378,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                 </div>
 
                 {/* Card 2: Concept Clusters */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div className="bg-white/75 backdrop-blur-xl p-5 rounded-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)]">
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Key Concepts</div>
                   <div className="text-2xl font-bold font-['Outfit'] text-amber-600">
                     {topicIntel.conceptClusters.length} Core Clusters
@@ -389,7 +389,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                 </div>
 
                 {/* Card 3: Next Action */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                <div className="bg-white/75 backdrop-blur-xl p-5 rounded-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)] flex flex-col justify-between">
                   <div>
                     <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Learning Package</div>
                     <div className="text-base font-bold text-emerald-600 flex items-center gap-1.5">
@@ -401,7 +401,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
               </div>
 
               {/* High-Yield Pearls Section */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+              <div className="bg-white/75 backdrop-blur-xl p-6 rounded-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)] space-y-4">
                 <h3 className="text-base font-bold text-slate-900 font-['Outfit'] flex items-center gap-2">
                   <Lightbulb className="w-5 h-5 text-amber-500" />
                   💎 High-Yield FMGE Exam Pearls:
@@ -410,14 +410,14 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                   {pearls.map((p, idx) => (
                     <div
                       key={p.id || idx}
-                      className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 space-y-2"
+                      className="p-4 rounded-xl bg-white/70 backdrop-blur-sm border border-white/80 text-slate-800 space-y-2 shadow-2xs"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-amber-800 bg-amber-50 border border-amber-200 uppercase tracking-wider text-[10px] px-2.5 py-0.5 rounded-md">
+                        <span className="font-bold text-amber-800 bg-amber-50 border border-amber-200 uppercase tracking-wider text-[10px] px-2.5 py-0.5 rounded-md shadow-2xs">
                           {p.category}
                         </span>
                         {p.discriminatorTip && (
-                          <span className="text-[10px] px-2.5 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200 font-semibold">
+                          <span className="text-[10px] px-2.5 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200 font-semibold shadow-2xs">
                             {p.discriminatorTip}
                           </span>
                         )}
@@ -434,7 +434,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
               </div>
 
               {/* Concept Clusters List */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+              <div className="bg-white/75 backdrop-blur-xl p-6 rounded-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)] space-y-4">
                 <h3 className="text-base font-bold text-slate-900 font-['Outfit'] flex items-center gap-2">
                   <BookOpen className="w-5 h-5 text-sky-600" />
                   FMGE High-Yield Concept Pillars to Master:
@@ -443,7 +443,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
                   {topicIntel.conceptClusters.map((cluster, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium"
+                      className="flex items-start gap-3 p-3.5 rounded-xl bg-white/70 backdrop-blur-sm border border-white/80 text-xs text-slate-700 font-medium shadow-2xs"
                     >
                       <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
                         {idx + 1}
@@ -517,15 +517,15 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
               </div>
 
               {/* Case Scenario Card */}
-              <div className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200/80 shadow-sm space-y-5">
+              <div className="bg-white/75 backdrop-blur-xl p-6 sm:p-7 rounded-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)] space-y-5">
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200 font-['Outfit']">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200 font-['Outfit'] shadow-2xs">
                     {currentCase.patientDemographics}
                   </span>
                   <h3 className="text-lg sm:text-xl font-bold text-slate-900 font-['Outfit'] mt-2">{currentCase.title}</h3>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-800 leading-relaxed space-y-3">
+                <div className="p-5 rounded-2xl bg-white/60 backdrop-blur-md border border-white/80 text-sm text-slate-800 leading-relaxed space-y-3 shadow-2xs">
                   <p>{currentCase.presentation}</p>
                   <p className="font-semibold text-slate-900">{currentCase.physicalExamOrLabs}</p>
                 </div>
@@ -803,10 +803,10 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
               {/* Interactive Flashcard Card */}
               <div
                 onClick={() => setIsCardFlipped((p) => !p)}
-                className={`cursor-pointer min-h-[260px] sm:min-h-[300px] p-8 rounded-3xl border-2 transition-all duration-300 flex flex-col justify-between select-none bg-white shadow-sm hover:shadow-md ${
+                className={`cursor-pointer min-h-[260px] sm:min-h-[300px] p-8 rounded-3xl border-2 transition-all duration-300 flex flex-col justify-between select-none backdrop-blur-xl ${
                   isCardFlipped
-                    ? 'border-emerald-500 ring-2 ring-emerald-100'
-                    : 'border-slate-200 hover:border-slate-400'
+                    ? 'border-emerald-500 ring-2 ring-emerald-100 bg-white/85 shadow-md'
+                    : 'border-white/85 hover:border-teal-200/80 bg-white/75 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)] hover:shadow-md'
                 }`}
               >
                 <div>
@@ -898,7 +898,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
               </div>
 
               {/* Slide Content Card */}
-              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-sm min-h-[340px] flex flex-col justify-between">
+              <div className="bg-white/75 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)] min-h-[340px] flex flex-col justify-between">
                 <div>
                   <h3 className="text-lg sm:text-xl font-bold text-slate-900 font-['Outfit'] mb-4 flex items-center gap-2.5">
                     <span className="w-7 h-7 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xs font-bold">
@@ -1005,7 +1005,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
         </div>
 
         {/* WORKSPACE FOOTER */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
+        <div className="px-6 py-4 border-t border-white/60 bg-white/40 backdrop-blur-md flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
             <span>Subject: {topicCandidate.subjectName}</span>
             <span>•</span>
@@ -1019,7 +1019,7 @@ export const MasterTopicWorkspaceModal: React.FC<MasterTopicWorkspaceModalProps>
               whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 450, damping: 25 }}
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-white/80 hover:bg-white text-xs font-semibold text-slate-700 border border-white/80 shadow-2xs backdrop-blur-sm transition cursor-pointer"
             >
               Close Workspace
             </motion.button>

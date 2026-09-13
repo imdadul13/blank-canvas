@@ -278,9 +278,9 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
       {/* ================= 3. THE 3 REVISION PHASE CARDS ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: R1 Foundation */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs flex items-center justify-between gap-3 hover:border-slate-300 transition-colors">
+        <div className="rounded-2xl border border-white/85 bg-white/80 backdrop-blur-xl p-4 sm:p-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] flex items-center justify-between gap-3 hover:border-teal-200/80 transition-all">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs">
               <BookOpen className="h-5 w-5" />
             </div>
             <div className="min-w-0 space-y-0.5">
@@ -303,9 +303,9 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
         </div>
 
         {/* Card 2: R2 Rapid Review */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs flex items-center justify-between gap-3 hover:border-slate-300 transition-colors">
+        <div className="rounded-2xl border border-white/85 bg-white/80 backdrop-blur-xl p-4 sm:p-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] flex items-center justify-between gap-3 hover:border-amber-200/80 transition-all">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs">
               <RotateCcw className="h-5 w-5" />
             </div>
             <div className="min-w-0 space-y-0.5">
@@ -328,9 +328,9 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
         </div>
 
         {/* Card 3: R3 Final Sprint */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs flex items-center justify-between gap-3 hover:border-slate-300 transition-colors">
+        <div className="rounded-2xl border border-white/85 bg-white/80 backdrop-blur-xl p-4 sm:p-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] flex items-center justify-between gap-3 hover:border-rose-200/80 transition-all">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/60 text-rose-600 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/60 text-rose-600 flex items-center justify-center shrink-0 shadow-2xs">
               <Target className="h-5 w-5" />
             </div>
             <div className="min-w-0 space-y-0.5">
@@ -356,7 +356,7 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
       {/* ================= 4. MAIN TWO-COLUMN SECTION ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* ================= LEFT COLUMN: SUBJECT PROGRESS ================= */}
-        <div className="lg:col-span-7 rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between space-y-5">
+        <div className="lg:col-span-7 rounded-2xl border border-white/85 bg-white/80 backdrop-blur-xl p-5 sm:p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-5">
           {/* Card Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
             <div className="flex items-center gap-3">
@@ -588,11 +588,11 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
         {/* ================= RIGHT COLUMN: YOUR REVISION JOURNEY & QUICK ACTIONS ================= */}
         <div className="lg:col-span-5 space-y-6">
           {/* Top Card: Your Revision Journey */}
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs space-y-5">
+          <div className="rounded-2xl border border-white/85 bg-white/80 backdrop-blur-xl p-5 sm:p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] space-y-5">
             {/* Header */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs">
                   <TrendingUp className="h-4 w-4" />
                 </div>
                 <div>
@@ -805,12 +805,12 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
       {/* ================= 6. REVISION CALENDAR MODAL ================= */}
       {isCalendarModalOpen &&
         createPortal(
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-xl bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+            <div className="p-5 border-b border-white/60 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200/60 text-[#006B63] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200/60 text-[#006B63] flex items-center justify-center shadow-2xs">
                   <Calendar className="h-4 w-4" />
                 </div>
                 <div>
@@ -825,7 +825,7 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsCalendarModalOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 bg-white/80 hover:bg-white border border-white/80 shadow-2xs transition-colors backdrop-blur-sm cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>

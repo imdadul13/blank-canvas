@@ -22,6 +22,7 @@ import {
   ArrowRight,
   Filter,
   SlidersHorizontal,
+  Sparkles,
 } from 'lucide-react';
 import {
   AppState,
@@ -493,10 +494,10 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       {/* 4. Top Dashboard Section: Predicted Score Hero & Score Breakdown (2 Columns) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (col-span-7): Predicted FMGE Score Hero */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-6">
+        <div className="lg:col-span-7 bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-6">
           {/* Header */}
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-50 text-[#00685f]">
+            <div className="p-2 rounded-xl bg-emerald-50 text-[#00685f] shadow-2xs">
               <BookOpen className="w-5 h-5" />
             </div>
             <h2 className="text-base font-bold text-slate-900">
@@ -604,11 +605,11 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
         </div>
 
         {/* Right Column (col-span-5): Score Breakdown by Subject Group */}
-        <div className="lg:col-span-5 bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-5 bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-teal-50 text-[#00685f]">
+              <div className="p-2 rounded-xl bg-teal-50 text-[#00685f] shadow-2xs">
                 <PieChart className="w-5 h-5" />
               </div>
               <div>
@@ -630,7 +631,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                   <span className="text-slate-700">{grp.name}</span>
                   <span className="font-mono text-slate-900">{grp.percentage}%</span>
                 </div>
-                <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-2 w-full rounded-full bg-slate-200/70 overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -653,11 +654,11 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       {/* 5. Middle Dashboard Section: Biggest Risks & Strategic Actions (2 Columns) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Card: Biggest Risks */}
-        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-rose-50 text-rose-600">
+              <div className="p-2 rounded-xl bg-rose-50 text-rose-600 shadow-2xs">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
@@ -722,10 +723,10 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
         </div>
 
         {/* Right Card: Strategic Actions */}
-        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-4">
           {/* Header */}
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
+            <div className="p-2 rounded-xl bg-amber-50 text-amber-600 shadow-2xs">
               <Activity className="w-5 h-5 animate-pulse" />
             </div>
             <div>
@@ -743,10 +744,10 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
             {/* Action 1: Revise High-Risk Topics */}
             <div
               onClick={handleAddAllTodaysToPlanner}
-              className="p-4 rounded-2xl bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 hover:border-emerald-300 transition-all cursor-pointer flex items-center justify-between gap-4 group"
+              className="p-4 rounded-2xl bg-white/70 backdrop-blur-sm hover:bg-white/90 border border-white/80 hover:border-emerald-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
             >
               <div className="flex items-center gap-3.5">
-                <div className="p-3 rounded-2xl bg-emerald-50 text-[#00685f] group-hover:scale-105 transition-transform">
+                <div className="p-3 rounded-2xl bg-emerald-50 text-[#00685f] group-hover:scale-105 transition-transform shadow-2xs">
                   <BookOpen className="w-5 h-5" />
                 </div>
                 <div>
@@ -758,7 +759,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                   </p>
                 </div>
               </div>
-              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-[#00685f] group-hover:border-[#00685f] transition-colors shrink-0">
+              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-[#00685f] group-hover:border-[#00685f] transition-colors shrink-0 shadow-2xs">
                 <ArrowRight className="w-4 h-4" />
               </div>
             </div>
@@ -768,58 +769,51 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
               onClick={() => {
                 if (onLaunchPracticeSession) {
                   onLaunchPracticeSession('all', undefined, 'FMGE Full Grand Test Mock', undefined, 'predictor_grand_test');
-                } else {
-                  showToast('Launch a Grand Test from Practice tab to refresh predictions');
                 }
               }}
-              className="p-4 rounded-2xl bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 hover:border-sky-300 transition-all cursor-pointer flex items-center justify-between gap-4 group"
+              className="p-4 rounded-2xl bg-white/70 backdrop-blur-sm hover:bg-white/90 border border-white/80 hover:border-teal-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
             >
               <div className="flex items-center gap-3.5">
-                <div className="p-3 rounded-2xl bg-sky-50 text-sky-600 group-hover:scale-105 transition-transform">
-                  <FileText className="w-5 h-5" />
+                <div className="p-3 rounded-2xl bg-teal-50 text-[#00685f] group-hover:scale-105 transition-transform shadow-2xs">
+                  <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-sky-700 transition-colors">
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#00685f] transition-colors">
                     Take a Grand Test
                   </h3>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Get a new prediction calibrated with your latest test data
+                    Benchmark full 300 marks under exam conditions
                   </p>
                 </div>
               </div>
-              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-sky-600 group-hover:border-sky-600 transition-colors shrink-0">
+              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-[#00685f] group-hover:border-[#00685f] transition-colors shrink-0 shadow-2xs">
                 <ArrowRight className="w-4 h-4" />
               </div>
             </div>
 
-            {/* Action 3: Improve Weak Subjects */}
+            {/* Action 3: Review Error Vault */}
             <div
               onClick={() => {
-                const weakest = metrics.highestRiskSubject;
-                if (weakest) {
-                  onOpenAiCoach('strategy', weakest.subjectId, weakest.subjectName);
-                } else {
-                  onOpenAiCoach('strategy');
-                }
+                // Typically navigation to errors view
+                const errTab = document.querySelector('[data-tab="errors"]') as HTMLElement;
+                if (errTab) errTab.click();
               }}
-              className="p-4 rounded-2xl bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 hover:border-purple-300 transition-all cursor-pointer flex items-center justify-between gap-4 group"
+              className="p-4 rounded-2xl bg-white/70 backdrop-blur-sm hover:bg-white/90 border border-white/80 hover:border-purple-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
             >
               <div className="flex items-center gap-3.5">
-                <div className="p-3 rounded-2xl bg-purple-50 text-purple-600 group-hover:scale-105 transition-transform">
-                  <Target className="w-5 h-5" />
+                <div className="p-3 rounded-2xl bg-purple-50 text-purple-600 group-hover:scale-105 transition-transform shadow-2xs">
+                  <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-purple-700 transition-colors">
-                    Improve Weak Subjects
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-purple-600 transition-colors">
+                    Review Error Vault
                   </h3>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    {metrics.highestRiskSubject
-                      ? `Create a focused study plan for ${metrics.highestRiskSubject.subjectName}`
-                      : 'Create a focused AI strategy study plan'}
+                    Clear active mistakes to safeguard marks
                   </p>
                 </div>
               </div>
-              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-purple-600 group-hover:border-purple-600 transition-colors shrink-0">
+              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-purple-600 group-hover:border-purple-600 transition-colors shrink-0 shadow-2xs">
                 <ArrowRight className="w-4 h-4" />
               </div>
             </div>
@@ -833,11 +827,11 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       </div>
 
       {/* 6. Bottom Section: Subject-wise Prediction */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-6">
+      <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] space-y-6">
         {/* Header & Sort Dropdown */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-teal-50 text-[#00685f]">
+            <div className="p-2 rounded-xl bg-teal-50 text-[#00685f] shadow-2xs">
               <BarChart3 className="w-5 h-5" />
             </div>
             <div>
@@ -926,7 +920,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       </div>
 
       {/* 7. Detailed High-Yield Topics Ledger & Filters */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-7 space-y-4">
+      <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] p-5 sm:p-7 space-y-4">
         {/* Search & Filter Controls */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Search Bar */}
@@ -936,7 +930,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search high-yield topics or keywords..."
-              className="w-full h-10 pl-9 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
+              className="w-full h-10 pl-9 pr-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/85 text-xs font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-900 focus:outline-none transition-all shadow-2xs"
             />
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
           </div>

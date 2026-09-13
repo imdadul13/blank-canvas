@@ -133,16 +133,16 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-md overflow-y-auto">
       <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        className="bg-white border border-slate-200/80 rounded-3xl w-full my-auto max-w-3xl overflow-hidden shadow-2xl text-slate-900 flex flex-col max-h-[92vh]"
+        className="bg-white/88 backdrop-blur-2xl border border-white/85 rounded-3xl w-full my-auto max-w-3xl overflow-hidden shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] text-slate-900 flex flex-col max-h-[92vh]"
       >
         {/* ================= MODAL HEADER ================= */}
-        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+        <div className="p-5 sm:p-6 border-b border-stone-200/60 flex items-center justify-between bg-white/40 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-2xl bg-sky-50 border border-sky-200 text-sky-700 flex items-center justify-center font-bold">
               <RotateCcw className="h-5 w-5" />

@@ -587,10 +587,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
       {/* 3. Primary Actions & Benchmark Bar: Clear NBE benchmark card (300 questions / 150 pass mark) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Card: NBE 300-Question / 150-Pass Mark Benchmark Blueprint */}
-        <div className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-6">
+        <div className="lg:col-span-8 bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-emerald-50 text-[#00685f]">
+              <div className="p-2.5 rounded-2xl bg-emerald-50 text-[#00685f] shadow-2xs">
                 <GraduationCap className="w-6 h-6" />
               </div>
               <div>
@@ -598,7 +598,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                   <h2 className="text-base font-bold text-slate-900">
                     NBE Examination Benchmark
                   </h2>
-                  <span className="px-2 py-0.5 rounded-full bg-[#00685f] text-white text-[10px] font-mono font-bold">
+                  <span className="px-2 py-0.5 rounded-full bg-[#00685f] text-white text-[10px] font-mono font-bold shadow-2xs">
                     OFFICIAL SCHEME
                   </span>
                 </div>
@@ -622,7 +622,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           {/* Scheme Breakdown Grid (3 Pillars: Total Qs, Pass Mark, No Negative Marking) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {/* 300 Questions */}
-            <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 flex flex-col justify-between">
+            <div className="p-4 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/80 shadow-2xs flex flex-col justify-between">
               <div className="text-[11px] font-mono uppercase font-bold text-slate-500 mb-1 flex items-center justify-between">
                 <span>Format</span>
                 <Clock className="w-3.5 h-3.5 text-slate-400" />
@@ -636,7 +636,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             </div>
 
             {/* 150 Pass Mark */}
-            <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col justify-between">
+            <div className="p-4 rounded-2xl bg-emerald-50/70 backdrop-blur-sm border border-emerald-200/80 shadow-2xs flex flex-col justify-between">
               <div className="text-[11px] font-mono uppercase font-bold text-emerald-800 mb-1 flex items-center justify-between">
                 <span>Pass Benchmark</span>
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
@@ -707,10 +707,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         </div>
 
         {/* Right Card: Student Mock Portfolio Summary */}
-        <div className="lg:col-span-4 bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-4 bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-teal-50 text-[#00685f]">
+              <div className="p-2 rounded-xl bg-teal-50 text-[#00685f] shadow-2xs">
                 <BarChart3 className="w-5 h-5" />
               </div>
               <h2 className="text-base font-bold text-slate-900">
@@ -725,7 +725,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           {stats.totalTests > 0 ? (
             <div className="space-y-3.5">
               {/* Latest Score Tile */}
-              <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 flex items-center justify-between">
+              <div className="p-3.5 rounded-2xl bg-white/70 backdrop-blur-sm border border-white/80 shadow-2xs flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-mono uppercase font-bold text-slate-500 block">
                     Latest Mock Result
@@ -750,7 +750,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
               {/* 2x2 Grid: Highest, Average, Clearance Rate, Delta */}
               <div className="grid grid-cols-2 gap-2.5">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="p-3 rounded-xl bg-white/70 backdrop-blur-sm border border-white/80 shadow-2xs">
                   <span className="text-[10px] font-mono uppercase text-slate-400 block">
                     Highest Mock
                   </span>
@@ -816,10 +816,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
       {/* 4. Score Trajectory Progression (Visible when >= 2 tests logged) */}
       {gts.length >= 2 && (
-        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-emerald-50 text-[#00685f]">
+              <div className="p-2 rounded-xl bg-emerald-50 text-[#00685f] shadow-2xs">
                 <TrendingUp className="w-5 h-5" />
               </div>
               <div>
@@ -832,7 +832,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               </div>
             </div>
 
-            <div className="text-xs font-mono font-bold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 self-start sm:self-auto">
+            <div className="text-xs font-mono font-bold text-slate-600 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-white/85 shadow-2xs self-start sm:self-auto">
               {stats.scoreDelta >= 0 ? `+${stats.scoreDelta} PTS IMPROVEMENT` : `${stats.scoreDelta} PTS TREND`}
             </div>
           </div>
@@ -849,7 +849,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                   return (
                     <div
                       key={gt.id}
-                      className="flex-1 bg-slate-50/80 hover:bg-slate-50 border border-slate-200/70 p-3.5 rounded-2xl transition-all space-y-2 group"
+                      className="flex-1 bg-white/70 hover:bg-white/90 backdrop-blur-sm border border-white/80 p-3.5 rounded-2xl transition-all space-y-2 group shadow-2xs"
                     >
                       <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
                         <span className="font-bold text-slate-700">GT #{idx + 1}</span>
@@ -874,7 +874,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       </div>
 
                       {/* Mini bar */}
-                      <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                      <div className="w-full h-1.5 rounded-full bg-slate-200/70 overflow-hidden">
                         <div
                           className={`h-full rounded-full ${isPass ? 'bg-[#00685f]' : 'bg-amber-500'}`}
                           style={{ width: `${Math.min(100, Math.max(10, (gt.score / 300) * 100))}%` }}
@@ -890,7 +890,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
       {/* 5. Filter & Search Controls (Visible when tests exist) */}
       {gts.length > 0 && (
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-4 sm:p-5 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Search Bar */}
           <div className="relative w-full md:w-80">
             <input
@@ -898,7 +898,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tests, platforms, or weak areas..."
-              className="w-full h-10 pl-9 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-900 focus:outline-none transition-all"
+              className="w-full h-10 pl-9 pr-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/85 text-xs font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-900 focus:outline-none transition-all shadow-2xs"
             />
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
           </div>
@@ -972,8 +972,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             return (
               <div
                 key={gt.id}
-                className={`bg-white rounded-3xl p-6 border transition-all flex flex-col justify-between space-y-4 relative ${
-                  isPassed ? 'border-emerald-200/90 shadow-xs' : 'border-slate-200/80 shadow-xs'
+                className={`bg-white/80 backdrop-blur-xl rounded-3xl p-6 border transition-all flex flex-col justify-between space-y-4 relative ${
+                  isPassed
+                    ? 'border-emerald-200/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.04)]'
+                    : 'border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)]'
                 }`}
               >
                 {/* Card Top: Platform Tag, Title, Date & Delete Action */}
@@ -1262,13 +1264,13 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
       {/* 6. REDESIGNED LOG GRAND TEST MODAL */}
       {showAddGTModal &&
         createPortal(
-          <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto space-y-6">
+          <div className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150">
+          <div className="bg-white/88 backdrop-blur-2xl rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 max-h-[92vh] overflow-y-auto space-y-6">
             {/* Modal Header */}
-            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+            <div className="flex items-start justify-between border-b border-white/60 pb-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#00685f] text-[10px] font-mono font-bold">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#00685f] text-[10px] font-mono font-bold shadow-2xs">
                     NBE 300-MARK RECORD
                   </span>
                 </div>
@@ -1283,7 +1285,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowAddGTModal(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 bg-white/80 hover:bg-white border border-white/80 shadow-2xs transition-colors cursor-pointer backdrop-blur-sm"
               >
                 <X className="w-5 h-5" />
               </button>

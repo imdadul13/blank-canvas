@@ -184,15 +184,15 @@ export const ReadinessBreakdownModal: React.FC<ReadinessBreakdownModalProps> = (
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/50 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl bg-white rounded-3xl border border-[#DCE4E1] shadow-xl overflow-hidden my-auto text-[#121E1B]"
+        className="relative w-full max-w-4xl bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] overflow-hidden my-auto text-[#121E1B]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-start justify-between p-6 sm:px-8 border-b border-[#EAEFEA] bg-[#FAF9F5]">
+        <div className="flex items-start justify-between p-6 sm:px-8 border-b border-stone-200/60 bg-white/40 backdrop-blur-md">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#00685f]">
@@ -213,7 +213,7 @@ export const ReadinessBreakdownModal: React.FC<ReadinessBreakdownModalProps> = (
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors cursor-pointer shrink-0 ml-4"
+            className="p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-white/80 transition-colors cursor-pointer shrink-0 ml-4 border border-transparent hover:border-stone-200/60"
           >
             <X className="w-5 h-5" />
           </button>
@@ -222,7 +222,7 @@ export const ReadinessBreakdownModal: React.FC<ReadinessBreakdownModalProps> = (
         {/* Modal Body */}
         <div className="p-6 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
           {/* Top Score Banner */}
-          <div className="p-5 sm:p-6 rounded-2xl bg-stone-50 border border-stone-200/80 flex flex-col sm:flex-row items-center gap-6 justify-between">
+          <div className="p-5 sm:p-6 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.03)] flex flex-col sm:flex-row items-center gap-6 justify-between">
             <div className="flex items-center gap-5">
               <div className="relative inline-flex items-center justify-center shrink-0">
                 <svg width="84" height="84" viewBox="0 0 84 84" className="-rotate-90">
@@ -308,7 +308,7 @@ export const ReadinessBreakdownModal: React.FC<ReadinessBreakdownModalProps> = (
                 return (
                   <div
                     key={comp.id}
-                    className="p-4 rounded-2xl bg-white border border-[#DCE4E1] shadow-2xs hover:border-[#00685f]/50 transition-all flex flex-col justify-between space-y-3"
+                    className="p-4 rounded-2xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)] hover:border-[#00685f]/40 hover:bg-white/85 transition-all flex flex-col justify-between space-y-3"
                   >
                     {/* Card Top */}
                     <div className="space-y-2">

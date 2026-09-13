@@ -89,15 +89,15 @@ export const ErrorVaultDiagnosticModal: React.FC<ErrorVaultDiagnosticModalProps>
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/50 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl bg-white rounded-3xl border border-[#DCE4E1] shadow-xl overflow-hidden my-auto text-[#121E1B]"
+        className="relative w-full max-w-4xl bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] overflow-hidden my-auto text-[#121E1B]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-start justify-between p-6 sm:px-8 border-b border-[#EAEFEA] bg-[#FAF9F5]">
+        <div className="flex items-start justify-between p-6 sm:px-8 border-b border-stone-200/60 bg-white/40 backdrop-blur-md">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs font-bold uppercase tracking-widest text-rose-600">
@@ -120,7 +120,7 @@ export const ErrorVaultDiagnosticModal: React.FC<ErrorVaultDiagnosticModalProps>
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors cursor-pointer shrink-0 ml-4"
+            className="p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-white/80 transition-colors cursor-pointer shrink-0 ml-4 border border-transparent hover:border-stone-200/60"
           >
             <X className="w-5 h-5" />
           </button>
@@ -131,7 +131,7 @@ export const ErrorVaultDiagnosticModal: React.FC<ErrorVaultDiagnosticModalProps>
           {/* Key Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Unresolved Mistakes */}
-            <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-1">
+            <div className="p-4 rounded-2xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)] space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 font-mono block">
                 Unresolved Mistakes
               </span>

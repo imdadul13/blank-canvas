@@ -167,14 +167,14 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
         }}
       >
       <div
-        className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col overflow-hidden my-auto"
+        className="relative w-full max-w-3xl bg-white/88 backdrop-blur-2xl rounded-3xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 max-h-[90vh] flex flex-col overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-white border-b border-slate-200 p-5 sm:p-6 shrink-0 relative">
+        <div className="bg-white/40 backdrop-blur-md border-b border-stone-200/60 p-5 sm:p-6 shrink-0 relative">
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+            className="absolute top-5 right-5 p-2 rounded-full bg-white/80 hover:bg-white text-slate-500 hover:text-slate-900 border border-transparent hover:border-stone-200/60 transition-colors cursor-pointer"
             title="Close explanation"
           >
             <X className="w-5 h-5" />

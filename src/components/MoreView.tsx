@@ -155,15 +155,15 @@ export const MoreView: React.FC<MoreViewProps> = ({
           </motion.header>
 
           {/* Directory of Hub Items */}
-          <div className="divide-y divide-slate-100 editorial-surface overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+          <div className="divide-y divide-white/60 overflow-hidden rounded-3xl border border-white/85 bg-white/80 backdrop-blur-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)]">
             {utilityItems.map(({ id, title, subtitle, badge, icon: Icon, action }) => (
               <div
                 key={id}
                 onClick={action}
-                className="p-5 hover:bg-slate-50/80 transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+                className="p-5 hover:bg-white/60 transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
               >
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="h-11 w-11 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-800 shrink-0 group-hover:bg-[#006B63]/10 group-hover:text-[#006B63] transition-colors">
+                  <div className="h-11 w-11 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/85 flex items-center justify-center text-slate-800 shrink-0 group-hover:bg-[#006B63]/10 group-hover:text-[#006B63] transition-colors shadow-2xs">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="space-y-0.5 min-w-0">
@@ -177,7 +177,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
                 </div>
 
                 <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end">
-                  <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-mono font-semibold">
+                  <span className="px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-white/85 text-slate-700 text-xs font-mono font-semibold shadow-2xs">
                     {badge}
                   </span>
                   <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all" />

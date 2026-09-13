@@ -2035,7 +2035,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
           {/* Saved Items List */}
           {filteredSavedItems.length === 0 ? (
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
+            <div className="rounded-3xl border border-white/85 bg-white/80 backdrop-blur-xl p-12 text-center space-y-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)]">
               <Star className="h-10 w-10 text-amber-400 mx-auto" />
               <h3 className="font-bold font-['Outfit'] text-base text-slate-900">Your Saved Vault is Empty.</h3>
               <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
@@ -2647,9 +2647,9 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* ========================================================================= */}
       {isConnectModalOpen &&
         createPortal(
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fadeIn">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 border border-slate-200 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 backdrop-blur-md p-4 animate-fadeIn">
+          <div className="w-full max-w-md bg-white/88 backdrop-blur-2xl rounded-3xl p-6 border border-white/85 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] space-y-4">
+            <div className="flex items-center justify-between border-b border-white/60 pb-3">
               <div className="flex items-center gap-2">
                 <Lock className="h-5 w-5 text-slate-700" />
                 <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
@@ -2658,9 +2658,9 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               </div>
               <button
                 onClick={() => setIsConnectModalOpen(false)}
-                className="p-1 rounded-full text-slate-400 hover:bg-slate-100 cursor-pointer"
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 bg-white/80 hover:bg-white border border-white/80 shadow-2xs backdrop-blur-sm transition-colors cursor-pointer"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
@@ -2867,9 +2867,9 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* Manage Connected Telegram Account Modal */}
       {isManageModalOpen &&
         createPortal(
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-fadeIn">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 border border-stone-200 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 backdrop-blur-md p-4 animate-fadeIn">
+          <div className="w-full max-w-md bg-white/88 backdrop-blur-2xl rounded-3xl p-6 border border-white/85 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] space-y-4">
+            <div className="flex items-center justify-between border-b border-white/60 pb-3">
               <div className="flex items-center gap-2">
                 <Send className="w-5 h-5 text-[#229ED9]" />
                 <h3 className="font-serif text-lg font-bold text-slate-900">
@@ -2879,9 +2879,9 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsManageModalOpen(false)}
-                className="p-1 rounded-full text-slate-400 hover:bg-stone-100 cursor-pointer"
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 bg-white/80 hover:bg-white border border-white/80 shadow-2xs backdrop-blur-sm transition-colors cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 

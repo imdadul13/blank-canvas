@@ -372,10 +372,10 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 16 }}
         transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-        className="bg-[#FBFDFB] sm:rounded-3xl max-w-5xl w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] overflow-hidden shadow-2xl flex flex-col border-0 sm:border border-[#DCE4E1]"
+        className="bg-white/90 backdrop-blur-2xl sm:rounded-3xl max-w-5xl w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] overflow-hidden shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.14)] flex flex-col border-0 sm:border border-white/85"
       >
         {/* MODAL HEADER */}
-        <div className="px-3.5 sm:px-6 py-3 sm:py-4 border-b border-[#F0F3F2] flex items-center justify-between bg-white shrink-0">
+        <div className="px-3.5 sm:px-6 py-3 sm:py-4 border-b border-stone-200/60 flex items-center justify-between bg-white/40 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
             {/* Circular Counter Badge 1/10 */}
             <div
@@ -865,7 +865,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
               {/* Left/Main: Question & Options Area (~70% width) */}
               <div className="flex-1 min-w-0 space-y-5">
                 {/* Dedicated Clinical Vignette Card */}
-                <div className="p-4 sm:p-6 lg:p-7 bg-white rounded-2xl sm:rounded-3xl border border-[#DCE4E1] shadow-2xs space-y-4">
+                <div className="p-4 sm:p-6 lg:p-7 bg-white/75 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] space-y-4">
                   {/* Vignette Metadata Badge Row */}
                   <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
                     <div className="flex items-center gap-2">

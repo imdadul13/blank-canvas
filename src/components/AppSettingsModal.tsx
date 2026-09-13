@@ -127,10 +127,10 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
       : 'Night Moonlit';
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] animate-in fade-in duration-150">
-      <div className="relative bg-[#FAF9F6] rounded-3xl max-w-xl w-full shadow-2xl border border-stone-200/90 overflow-hidden flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] animate-in fade-in duration-150">
+      <div className="relative bg-white/88 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 overflow-hidden flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="p-5 sm:p-6 border-b border-stone-200/80 bg-gradient-to-b from-[#FAF9F5] via-white to-white flex items-center justify-between relative z-10">
+        <div className="p-5 sm:p-6 border-b border-stone-200/60 bg-white/40 backdrop-blur-md flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3.5">
             <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] to-[#044E48] text-white shadow-md shadow-teal-950/15 shrink-0">
               <Settings2 className="h-5 w-5 text-emerald-50 stroke-[1.8]" />
