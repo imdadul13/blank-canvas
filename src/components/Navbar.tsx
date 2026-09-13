@@ -1089,6 +1089,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-1 xs:gap-1.5">
           {mobileNavItems.map(({ id, label, icon: Icon }) => {
             const active = isTabActiveLocal(id);
+            const isFilledIcon = id === 'dashboard' || id === 'pearls';
             return (
               <div key={id} className="relative">
                 <motion.button
@@ -1100,33 +1101,26 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setMobileMoreOpen(false);
                   }}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative flex items-center justify-center h-10 w-11 xs:w-12 rounded-full transition-colors cursor-pointer group ${
-                    active ? 'text-stone-950' : 'text-stone-600 hover:text-stone-950'
+                  className={`relative flex items-center justify-center h-10 w-11 xs:w-12 rounded-full transition-all duration-200 cursor-pointer group ${
+                    active
+                      ? 'bg-[#006B63]/14 border border-[#006B63]/25 shadow-xs text-[#006B63]'
+                      : 'border border-transparent text-black'
                   }`}
                   title={label}
                   aria-label={label}
                 >
-                  {active && !reducedMotion && (
-                    <motion.div
-                      layoutId="instagram-pill-active"
-                      className="absolute inset-0 rounded-full bg-black/[0.08] border border-black/5 shadow-2xs"
-                      transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-                    />
-                  )}
-                  {active && reducedMotion && (
-                    <div className="absolute inset-0 rounded-full bg-black/[0.08] border border-black/5 shadow-2xs" />
-                  )}
-
                   <motion.div
-                    animate={active && !reducedMotion ? { scale: [1, 1.18, 1] } : undefined}
+                    animate={active && !reducedMotion ? { scale: [1, 1.15, 1] } : undefined}
                     transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                     className="relative z-10 flex items-center justify-center"
                   >
                     <Icon
                       className={`h-[21px] w-[21px] transition-all duration-150 ${
                         active
-                          ? 'stroke-[2.3] text-stone-950 fill-stone-950'
-                          : 'stroke-[1.85] text-stone-600 group-hover:text-stone-900'
+                          ? isFilledIcon
+                            ? 'stroke-[2.2] text-[#006B63] fill-[#006B63]'
+                            : 'stroke-[2.3] text-[#006B63] fill-[#006B63]/20'
+                          : 'stroke-[2.1] text-black fill-transparent'
                       }`}
                     />
                   </motion.div>
