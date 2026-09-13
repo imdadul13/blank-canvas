@@ -147,8 +147,14 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] text-slate-900 animate-in fade-in duration-150">
-      <div className="relative bg-white/88 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 overflow-hidden flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
+    <div
+      className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] text-slate-900 animate-in fade-in duration-150"
+      style={{
+        paddingTop: 'max(0.75rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
+        paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))'
+      }}
+    >
+      <div className="relative bg-white/88 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
         
         {/* ── 1. Premium Medical Intelligence Header ── */}
         <div className="p-5 sm:p-6 border-b border-white/80 bg-white/70 backdrop-blur-md relative z-10 shrink-0">
@@ -272,7 +278,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
         )}
 
         {/* ── 3. Modal Body: Notifications & Proactive Intelligence ── */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-white/40 min-h-[300px]">
+        <div className="p-4 sm:p-6 pb-8 sm:pb-6 overflow-y-auto flex-1 space-y-4 bg-white/40 min-h-[300px]">
           {filteredNotifications.length === 0 ? (
             /* Proactive System Intelligence Briefing (When all caught up) */
             <div className="space-y-4 animate-in fade-in duration-150">
@@ -463,7 +469,10 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
         </div>
 
         {/* ── 4. Polished Action Footer ── */}
-        <div className="p-4 bg-white/70 backdrop-blur-md border-t border-white/80 flex items-center justify-between shrink-0">
+        <div
+          className="p-4 bg-white/70 backdrop-blur-md border-t border-white/80 flex items-center justify-between shrink-0"
+          style={{ paddingBottom: 'max(0.875rem, calc(0.625rem + env(safe-area-inset-bottom, 0px)))' }}
+        >
           <div className="flex items-center gap-1.5 text-[11px] text-stone-500 font-medium">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Sensed live from your progress &amp; schedule</span>

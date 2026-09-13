@@ -200,8 +200,14 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
   const targetScoreBuffer = Math.max(0, (formData.targetScore || 200) - 150);
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] animate-in fade-in duration-150">
-      <div className="relative bg-white/88 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 overflow-hidden flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
+    <div
+      className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] animate-in fade-in duration-150"
+      style={{
+        paddingTop: 'max(0.75rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
+        paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))',
+      }}
+    >
+      <div className="relative bg-white/88 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
         
         {/* ── 1. Premium Doctor Identity Banner ── */}
         <div className="p-5 sm:p-6 border-b border-stone-200/60 bg-white/40 backdrop-blur-md relative z-10">
@@ -295,11 +301,11 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         </div>
 
         {/* ── 2. Minimal Segmented Tab Navigation ── */}
-        <div className="px-4 sm:px-6 pt-3 pb-3 border-b border-stone-200/80 bg-[#FAF9F5] flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+        <div className="px-3 sm:px-6 pt-2.5 pb-2.5 sm:pt-3 sm:pb-3 border-b border-stone-200/80 bg-[#FAF9F5] flex items-center gap-1.5 overflow-x-auto scrollbar-none">
           {[
-            { id: 'blueprint', label: 'Exam Blueprint', icon: Target },
-            { id: 'telemetry', label: 'Telemetry & Progress', icon: Activity },
-            { id: 'cloud', label: 'Cloud & Backup', icon: Cloud },
+            { id: 'blueprint', label: 'Exam Blueprint', shortLabel: 'Blueprint', icon: Target },
+            { id: 'telemetry', label: 'Telemetry & Progress', shortLabel: 'Telemetry', icon: Activity },
+            { id: 'cloud', label: 'Cloud & Backup', shortLabel: 'Cloud Sync', icon: Cloud },
           ].map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -308,14 +314,15 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   active
                     ? 'bg-[#00685F] text-white shadow-xs font-bold'
                     : 'bg-white/80 text-stone-600 border border-stone-200/80 hover:bg-white hover:text-stone-900'
                 }`}
               >
-                <Icon className={`h-3.5 w-3.5 ${active ? 'text-teal-200' : 'text-stone-400'}`} />
-                <span>{tab.label}</span>
+                <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-teal-200' : 'text-stone-400'}`} />
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.shortLabel}</span>
               </button>
             );
           })}
@@ -330,7 +337,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         )}
 
         {/* ── 3. Modal Body Content ── */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6 bg-white">
+        <div className="p-4 sm:p-6 pb-8 sm:pb-6 overflow-y-auto flex-1 space-y-6 bg-white">
           {/* ================= TAB 1: EXAM BLUEPRINT ================= */}
           {activeTab === 'blueprint' && (
             <form onSubmit={handleSaveBlueprint} className="space-y-5 animate-in fade-in duration-150">
@@ -758,7 +765,12 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         </div>
 
         {/* ── 4. Polished Action Footer ── */}
-        <div className="p-4 bg-[#FAF9F5] border-t border-stone-200/80 flex items-center justify-between">
+        <div
+          className="p-3.5 sm:p-4 bg-[#FAF9F5] border-t border-stone-200/80 flex items-center justify-between shrink-0"
+          style={{
+            paddingBottom: 'max(0.875rem, calc(0.625rem + env(safe-area-inset-bottom, 0px)))',
+          }}
+        >
           <div className="flex items-center gap-1.5 text-[11px] text-stone-500 font-medium">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Encrypted credentials &amp; study blueprint</span>

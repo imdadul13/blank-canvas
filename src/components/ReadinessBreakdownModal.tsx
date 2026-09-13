@@ -185,10 +185,14 @@ export const ReadinessBreakdownModal: React.FC<ReadinessBreakdownModalProps> = (
   return createPortal(
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/50 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+      style={{
+        paddingTop: 'max(0.75rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
+        paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))'
+      }}
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] overflow-hidden my-auto text-[#121E1B]"
+        className="relative w-full max-w-4xl bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] overflow-hidden my-auto text-[#121E1B] flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
@@ -220,7 +224,7 @@ export const ReadinessBreakdownModal: React.FC<ReadinessBreakdownModalProps> = (
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
+        <div className="p-6 sm:p-8 pb-10 sm:pb-8 space-y-6 overflow-y-auto flex-1">
           {/* Top Score Banner */}
           <div className="p-5 sm:p-6 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.03)] flex flex-col sm:flex-row items-center gap-6 justify-between">
             <div className="flex items-center gap-5">
@@ -385,7 +389,10 @@ export const ReadinessBreakdownModal: React.FC<ReadinessBreakdownModalProps> = (
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 sm:px-8 border-t border-[#EAEFEA] bg-stone-50 flex items-center justify-between">
+        <div
+          className="p-4 sm:px-8 border-t border-[#EAEFEA] bg-stone-50 flex items-center justify-between"
+          style={{ paddingBottom: 'max(0.875rem, calc(0.625rem + env(safe-area-inset-bottom, 0px)))' }}
+        >
           <span className="text-xs font-mono text-stone-400">
             Readiness dynamically updates as drills, notes, and Grand Tests are recorded.
           </span>
