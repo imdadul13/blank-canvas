@@ -43,6 +43,11 @@ html {
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 body {
@@ -50,6 +55,23 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  overscroll-behavior-x: none;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Hide scrollbars across all WebKit browsers while preserving native scrolling */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Remove default iOS tap highlight rectangle */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Display Headings match Apple.com SF Pro Display signature tracking & optical weight */
@@ -103,6 +125,38 @@ button, input, textarea, select {
   }
 }
 
+/* iOS Keyboard Scroll Margins: Keeps focused inputs visible above keyboard & dock */
+input, textarea, select {
+  scroll-margin-bottom: max(5rem, calc(4rem + env(safe-area-inset-bottom, 0px)));
+  scroll-margin-top: max(4.5rem, calc(3.5rem + env(safe-area-inset-top, 0px)));
+}
+
+/* Eliminate 300ms mobile tap delay */
+button,
+a,
+[role="button"],
+input[type="submit"],
+input[type="button"] {
+  touch-action: manipulation;
+}
+
+/* Subtle Apple-style tactile pressed response for buttons and interactive controls */
+button:active:not(:disabled),
+[role="button"]:active:not([aria-disabled="true"]) {
+  transform: scale(0.98);
+  transition: transform 0.08s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Modern Dynamic Viewport Units for iOS (100dvh) with fallback */
+@supports (min-height: 100dvh) {
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+  .h-screen {
+    height: 100dvh;
+  }
+}
+
 /* Touch momentum scrolling and safe tap boundaries */
 .touch-scroll {
   -webkit-overflow-scrolling: touch;
@@ -136,7 +190,7 @@ button, input, textarea, select {
 
 /* Responsive mobile workspace padding to account for floating dock + iOS safe areas */
 .workspace-main {
-  padding-bottom: max(6.5rem, calc(5rem + env(safe-area-inset-bottom, 0px)));
+  padding-bottom: max(6.5rem, calc(5.5rem + env(safe-area-inset-bottom, 0px)));
 }
 
 @media (min-width: 1024px) {

@@ -707,7 +707,7 @@ function AppInner() {
 
         {/* SwiftUI Floating Dynamic Island: Local Practice Mode Banner with Quick Exit */}
         {isGuest && (
-          <div className="sticky top-2 sm:top-3 z-30 px-3 sm:px-6 pt-1 pointer-events-none">
+          <div className="hidden sm:block sticky top-2 sm:top-3 z-30 px-3 sm:px-6 pt-1 pointer-events-none">
             <motion.div
               initial={{ y: -30, opacity: 0, scale: 0.96 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}

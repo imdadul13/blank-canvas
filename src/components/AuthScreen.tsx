@@ -374,7 +374,13 @@ export const AuthScreen: React.FC = () => {
   ───────────────────────────────────────────────────────────── */
   if (mode === 'welcome') {
     return (
-      <div className="min-h-screen bg-[#FAFBFB] flex flex-col justify-between p-4 sm:p-6 lg:p-10 relative overflow-hidden font-['Plus_Jakarta_Sans'] text-stone-900">
+      <div
+        className="min-h-screen bg-[#FAFBFB] flex flex-col justify-between p-4 sm:p-6 lg:p-10 relative overflow-hidden font-['Plus_Jakarta_Sans'] text-stone-900"
+        style={{
+          paddingTop: 'max(1rem, calc(0.75rem + env(safe-area-inset-top, 0px)))',
+          paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))',
+        }}
+      >
         {/* Dynamic Ethereal Background Artwork */}
         <BackgroundArt />
 
@@ -542,7 +548,13 @@ export const AuthScreen: React.FC = () => {
      2. AUTH MODES (Sign In / Sign Up / Forgot Password)
   ───────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-[#FAFBFB] text-stone-900 flex flex-col justify-center items-center p-4 sm:p-6 relative overflow-hidden font-['Plus_Jakarta_Sans']">
+    <div
+      className="min-h-screen bg-[#FAFBFB] text-stone-900 flex flex-col justify-center items-center p-4 sm:p-6 relative overflow-hidden font-['Plus_Jakarta_Sans']"
+      style={{
+        paddingTop: 'max(1rem, calc(0.75rem + env(safe-area-inset-top, 0px)))',
+        paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))',
+      }}
+    >
       {/* Dynamic Background Artwork */}
       <BackgroundArt />
 

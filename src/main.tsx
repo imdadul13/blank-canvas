@@ -21,6 +21,19 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// Service Worker Registration for iOS PWA Application Shell
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    if (window.location.protocol.startsWith('http')) {
+      navigator.serviceWorker
+        .register('/sw.js', { scope: '/' })
+        .catch((err) => {
+          console.warn('[SW] Registration failed (non-fatal):', err);
+        });
+    }
+  });
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

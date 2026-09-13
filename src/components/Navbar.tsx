@@ -827,7 +827,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       {/* ── Mobile Top Header ──────────────────────── */}
-      <header className="lg:hidden sticky top-0 z-40 bg-white/80 backdrop-blur-2xl border-b border-white/80 px-4 py-2.5 flex items-center justify-between font-['Plus_Jakarta_Sans'] shadow-[0_4px_20px_rgba(0,107,99,0.02)]">
+      <header
+        className="lg:hidden sticky top-0 z-40 bg-white/80 backdrop-blur-2xl border-b border-white/80 px-4 py-2.5 flex items-center justify-between font-['Plus_Jakarta_Sans'] shadow-[0_4px_20px_rgba(0,107,99,0.02)] transition-all"
+        style={{
+          paddingTop: 'max(0.625rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
+          paddingLeft: 'max(1rem, calc(0.75rem + env(safe-area-inset-left, 0px)))',
+          paddingRight: 'max(1rem, calc(0.75rem + env(safe-area-inset-right, 0px)))',
+        }}
+      >
         <div className="flex items-center gap-2">
           <div
             onClick={() => setActiveTab('dashboard')}
@@ -1003,7 +1010,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* ── Mobile Floating Bottom Navigation Bar matching Reference B Panel 6 ───────────── */}
       <nav
         className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-0.75rem)] w-auto bg-white/78 backdrop-blur-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_36px_rgba(0,107,99,0.10)] rounded-2xl px-1.5 xs:px-2.5 py-1.5 font-['Plus_Jakarta_Sans']"
-        style={{ bottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}
+        style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
         aria-label="Mobile Navigation"
       >
         <div className="flex items-center gap-0.5 xs:gap-1 sm:gap-2">
