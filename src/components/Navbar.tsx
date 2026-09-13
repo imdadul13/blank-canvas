@@ -824,6 +824,60 @@ export const Navbar: React.FC<NavbarProps> = ({
     };
   }, [mobileMoreOpen]);
 
+  // Instagram-style dynamic scroll zoom tracking
+  const [scrollState, setScrollState] = useState<{
+    direction: 'up' | 'down';
+    isScrolling: boolean;
+    scrolledDistance: number;
+  }>({
+    direction: 'up',
+    isScrolling: false,
+    scrolledDistance: 0,
+  });
+
+  const lastScrollY = useRef(0);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    lastScrollY.current = typeof window !== 'undefined' ? window.scrollY : 0;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollY.current;
+
+      // Ignore micro-jitters and iOS negative bounce overscroll at top
+      if (Math.abs(delta) < 4) return;
+
+      const direction = delta > 0 ? 'down' : 'up';
+
+      setScrollState({
+        direction,
+        isScrolling: true,
+        scrolledDistance: currentScrollY,
+      });
+
+      lastScrollY.current = currentScrollY;
+
+      // Debounce: when scrolling stops/pauses, zoom smoothly back in
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        setScrollState((prev) => ({
+          ...prev,
+          isScrolling: false,
+          direction: 'up',
+        }));
+      }, 200);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, []);
+
   return (
     <>
       {/* ── Mobile Top Header ──────────────────────── */}
@@ -1007,71 +1061,81 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </header>
 
-      {/* ── Mobile Floating Bottom Navigation Bar matching Reference B Panel 6 ───────────── */}
-      <nav
-        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-0.75rem)] w-auto bg-white/78 backdrop-blur-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_36px_rgba(0,107,99,0.10)] rounded-2xl px-1.5 xs:px-2.5 py-1.5 font-['Plus_Jakarta_Sans']"
-        style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+      {/* ── Instagram-Style iOS Floating Pill Navigation Bar with Dynamic Scroll Zoom ── */}
+      <motion.nav
+        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1.25rem)] w-auto bg-white/78 backdrop-blur-2xl backdrop-saturate-150 border border-white/85 shadow-[0_12px_36px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,107,99,0.05),inset_0_1px_1.5px_rgba(255,255,255,0.95)] rounded-full px-2 py-1.5 font-['Plus_Jakarta_Sans'] select-none"
+        style={{
+          bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))',
+          transformOrigin: 'center bottom',
+        }}
+        initial={false}
+        animate={
+          reducedMotion
+            ? { scale: 1, y: 0, opacity: 1 }
+            : scrollState.direction === 'down' && scrollState.isScrolling && scrollState.scrolledDistance > 30
+            ? { scale: 0.90, y: 8, opacity: 0.88 }
+            : scrollState.direction === 'up' && scrollState.isScrolling
+            ? { scale: 1.03, y: 0, opacity: 1 }
+            : { scale: 1, y: 0, opacity: 1 }
+        }
+        transition={{
+          type: 'spring',
+          stiffness: 440,
+          damping: 24,
+          mass: 0.75,
+        }}
         aria-label="Mobile Navigation"
       >
-        <div className="flex items-center gap-0.5 xs:gap-1 sm:gap-2">
+        <div className="flex items-center gap-1 xs:gap-1.5">
           {mobileNavItems.map(({ id, label, icon: Icon }) => {
             const active = isTabActiveLocal(id);
             return (
               <div key={id} className="relative">
                 <motion.button
                   type="button"
-                  whileHover={reducedMotion ? undefined : { y: -2 }}
-                  whileTap={reducedMotion ? undefined : { scale: 0.92 }}
-                  transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                  whileTap={reducedMotion ? undefined : { scale: 0.86 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 22 }}
                   onClick={() => {
                     setActiveTab(id);
                     setMobileMoreOpen(false);
                   }}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative flex flex-col items-center justify-center min-w-[38px] xs:min-w-[46px] sm:min-w-[50px] py-1 px-1 xs:px-1.5 rounded-xl transition-all duration-150 cursor-pointer group ${
-                    active
-                      ? 'text-[#006B63]'
-                      : 'text-slate-600 hover:text-[#006B63]'
+                  className={`relative flex items-center justify-center h-10 w-11 xs:w-12 rounded-full transition-colors cursor-pointer group ${
+                    active ? 'text-stone-950' : 'text-stone-600 hover:text-stone-950'
                   }`}
                   title={label}
+                  aria-label={label}
                 >
                   {active && !reducedMotion && (
                     <motion.div
-                      layoutId="mobile-nav-active-tile"
-                      className="absolute inset-0 rounded-xl bg-[#E8F5F3]/90 border border-white/60 shadow-2xs"
-                      transition={{ type: 'spring', stiffness: 440, damping: 30 }}
+                      layoutId="instagram-pill-active"
+                      className="absolute inset-0 rounded-full bg-black/[0.08] border border-black/5 shadow-2xs"
+                      transition={{ type: 'spring', stiffness: 450, damping: 30 }}
                     />
                   )}
                   {active && reducedMotion && (
-                    <div className="absolute inset-0 rounded-xl bg-[#E8F5F3]/90 border border-white/60 shadow-2xs" />
+                    <div className="absolute inset-0 rounded-full bg-black/[0.08] border border-black/5 shadow-2xs" />
                   )}
 
                   <motion.div
                     animate={active && !reducedMotion ? { scale: [1, 1.18, 1] } : undefined}
-                    transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-                    className="relative z-10"
+                    transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                    className="relative z-10 flex items-center justify-center"
                   >
                     <Icon
-                      className={`h-[18px] w-[18px] xs:h-[19px] xs:w-[19px] transition-transform duration-150 ${
+                      className={`h-[21px] w-[21px] transition-all duration-150 ${
                         active
-                          ? 'text-[#006B63] stroke-[2.2] fill-[#006B63]/25'
-                          : 'text-slate-600 stroke-[1.8]'
+                          ? 'stroke-[2.3] text-stone-950 fill-stone-950'
+                          : 'stroke-[1.85] text-stone-600 group-hover:text-stone-900'
                       }`}
                     />
                   </motion.div>
-                  <span
-                    className={`relative z-10 text-[9px] xs:text-[10px] leading-tight tracking-tight mt-0.5 ${
-                      active ? 'font-semibold text-[#006B63]' : 'font-medium text-slate-600'
-                    }`}
-                  >
-                    {label}
-                  </span>
                 </motion.button>
               </div>
             );
           })}
         </div>
-      </nav>
+      </motion.nav>
     </>
   );
 };
