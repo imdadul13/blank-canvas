@@ -1103,7 +1103,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   aria-current={active ? 'page' : undefined}
                   className={`relative flex items-center justify-center h-10 w-11 xs:w-12 rounded-full transition-all duration-200 cursor-pointer group ${
                     active
-                      ? 'bg-[#006B63]/14 border border-[#006B63]/25 shadow-xs text-[#006B63]'
+                      ? 'bg-[#FA2D48]/14 border border-[#FA2D48]/25 shadow-xs text-[#FA2D48]'
                       : 'border border-transparent text-black'
                   }`}
                   title={label}
@@ -1118,8 +1118,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                       className={`h-[21px] w-[21px] transition-all duration-150 ${
                         active
                           ? isFilledIcon
-                            ? 'stroke-[2.2] text-[#006B63] fill-[#006B63]'
-                            : 'stroke-[2.3] text-[#006B63] fill-[#006B63]/20'
+                            ? 'stroke-[2.2] text-[#FA2D48] fill-[#FA2D48]'
+                            : 'stroke-[2.3] text-[#FA2D48] fill-[#FA2D48]/20'
                           : 'stroke-[2.1] text-black fill-transparent'
                       }`}
                     />
