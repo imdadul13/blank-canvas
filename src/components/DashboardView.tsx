@@ -1472,25 +1472,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => handleSubTabChange('planner')}
-              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2.5 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110 group-hover:rotate-[-4deg]">
-                <Calendar className="h-4.5 w-4.5 transition-transform" />
+              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110 group-hover:rotate-[-4deg]">
+                <Calendar className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform" />
                 <span className="absolute -top-1 -right-1 flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B63] opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B63]" />
                 </span>
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="block text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
+                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+                  <span className="text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors shrink-0">
                     <AnimatedNumber value={daysRemaining} />
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-bold uppercase tracking-wider bg-teal-50 text-[#006B63] border border-teal-100/80">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-bold uppercase tracking-wider bg-teal-50 text-[#006B63] border border-teal-100/80 shrink-0">
                     Live
                   </span>
                 </div>
-                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors truncate">
+                <span className="block text-[10px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
                   days to FMGE
                 </span>
               </div>
@@ -1502,21 +1502,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={onOpenProfile}
-              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2.5 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
-                <Target className="h-4.5 w-4.5 transition-transform" />
+              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
+                <Target className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="block text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
+                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+                  <span className="text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors shrink-0">
                     {savedTargetScore ? `${savedTargetScore}+` : '200+'}
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100/80">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100/80 shrink-0">
                     150 Pass
                   </span>
                 </div>
-                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors truncate">
+                <span className="block text-[10px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
                   Target Score
                 </span>
               </div>
@@ -1528,21 +1528,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => onNavigateTab('syllabus')}
-              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2.5 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E5F1FA] text-[#0A6EB4] group-hover:bg-[#D5EBF8] group-hover:text-[#08558D] transition-all group-hover:scale-110 group-hover:rotate-[4deg]">
-                <BookOpen className="h-4.5 w-4.5 transition-transform" />
+              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E5F1FA] text-[#0A6EB4] group-hover:bg-[#D5EBF8] group-hover:text-[#08558D] transition-all group-hover:scale-110 group-hover:rotate-[4deg]">
+                <BookOpen className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="block text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#0A6EB4] transition-colors truncate">
+                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+                  <span className="text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#0A6EB4] transition-colors shrink-0">
                     19
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100/80">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100/80 shrink-0">
                     NBE Core
                   </span>
                 </div>
-                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors truncate">
+                <span className="block text-[10px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
                   Subjects
                 </span>
               </div>
@@ -1554,21 +1554,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => onNavigateTab('progress')}
-              className="group flex items-center gap-3 rounded-2xl p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2.5 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#EFF8F6] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
-                <Activity className="h-4.5 w-4.5 transition-transform animate-pulse" />
+              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#EFF8F6] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
+                <Activity className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform animate-pulse" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="block text-sm sm:text-base font-extrabold font-['Outfit'] leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
+                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+                  <span className="text-xs sm:text-base font-extrabold font-['Outfit'] leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors whitespace-nowrap shrink-0">
                     Keep going
                   </span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.2 sm:px-2 sm:py-0.5 rounded-full text-[8.5px] sm:text-[9.5px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80 shrink-0">
+                    <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
                   </span>
                 </div>
-                <span className="block text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors truncate" title="Small steps. Big progress.">
+                <span className="block text-[10px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
                   Small steps. Big progress.
                 </span>
               </div>
