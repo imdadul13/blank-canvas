@@ -9,7 +9,6 @@ import {
   ChevronRight,
   Flame,
   CheckCircle2,
-  Sparkles,
 } from 'lucide-react';
 import { AppState } from '../types';
 import { AppStats } from '../utils/storage';

@@ -38,7 +38,6 @@ import {
   AlertCircle,
   BookmarkCheck,
   BookmarkPlus,
-  Sparkles,
   ShieldAlert,
   Pill,
   Download,
@@ -2135,7 +2134,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-teal-50/80 hover:bg-teal-100/90 text-[#006B63] border border-teal-200/60 text-[11px] font-bold font-['Outfit'] transition-all active:scale-95 cursor-pointer shadow-2xs"
                             title="Test your recall with an exam-style MCQ"
                           >
-                            <Sparkles className="w-3 h-3 text-[#006B63]" />
+                            <HelpCircle className="w-3 h-3 text-[#006B63]" />
                             <span>Quiz me on this</span>
                           </button>
                           <button

@@ -839,7 +839,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                 </h1>
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText} shadow-2xs shrink-0`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  AI Synthesizer
+                  Clinical Synthesis
                 </span>
               </div>
 

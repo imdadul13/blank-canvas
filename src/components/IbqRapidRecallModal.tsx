@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
   Timer,
-  Sparkles,
   CheckCircle2,
   XCircle,
   ChevronRight,
@@ -138,7 +137,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/70">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center h-9 w-9 rounded-2xl bg-teal-600 text-white shadow-sm shadow-teal-600/30">
-                <Sparkles className="h-4 w-4" />
+                <Eye className="h-4 w-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">

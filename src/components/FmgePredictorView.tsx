@@ -22,7 +22,7 @@ import {
   ArrowRight,
   Filter,
   SlidersHorizontal,
-  Sparkles,
+  RotateCcw,
 } from 'lucide-react';
 import {
   AppState,
@@ -802,7 +802,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
             >
               <div className="flex items-center gap-3.5">
                 <div className="p-3 rounded-2xl bg-purple-50 text-purple-600 group-hover:scale-105 transition-transform shadow-2xs">
-                  <Sparkles className="w-5 h-5" />
+                  <RotateCcw className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 group-hover:text-purple-600 transition-colors">

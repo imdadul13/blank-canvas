@@ -39,7 +39,6 @@ import {
   Heart,
   Lightbulb,
   Share2,
-  Sparkles,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -772,6 +771,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Notification center modal state
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isIbqModalOpen, setIsIbqModalOpen] = useState(false);
+  const [isPassingGapModalOpen, setIsPassingGapModalOpen] = useState(false);
 
   // Spaced Repetition Due Today Count
   const duePearlsCount = useMemo(() => {
@@ -1240,14 +1240,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             )}
           </div>
 
-          {/* Right Action Icons: Top Quote + Notification Bell + Avatar (Desktop only) */}
-          <div className="hidden lg:flex items-center gap-3 sm:gap-4 shrink-0">
-            {/* Top Creed Quote */}
+          {/* Right Action Icons: Top Creed Quote + Focus Audio + Notification Bell + Avatar */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Top Creed Quote (Desktop only) */}
             <motion.div
               onClick={shuffleCreed}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex flex-col items-end pr-1 text-right select-none cursor-pointer group"
+              className="hidden lg:flex flex-col items-end pr-1 text-right select-none cursor-pointer group"
               title="Click to shuffle motivational creed"
               role="button"
               tabIndex={0}
@@ -1260,6 +1260,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </span>
               <span className="h-[2px] w-6 bg-[#006B63] group-hover:w-10 rounded-full mt-0.5 ml-auto transition-all" />
             </motion.div>
+
+            {/* Ambient Focus Audio Engine */}
+            <AmbientSoundWidget />
 
             <button
               type="button"
@@ -1280,7 +1283,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={onOpenProfile}
-              className="flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:bg-white/95 hover:border-teal-300 transition-all cursor-pointer group"
+              className="hidden sm:flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:bg-white/95 hover:border-teal-300 transition-all cursor-pointer group"
               title="Doctor Profile & Blueprint"
             >
               <div className="h-8 w-8 rounded-full bg-[#2A2322] text-white flex items-center justify-center font-['Outfit'] font-bold text-xs shrink-0 ring-2 ring-slate-900/10">
@@ -1393,13 +1396,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
             {/* Left side: Doctor Circadian Greeting + Bold Name + Strategic Subtitle */}
             <div className="space-y-1 sm:space-y-1.5 max-w-xl">
-              {/* Doctor Circadian Pill + Share Streak Button + Ambient Focus Sound */}
+              {/* Doctor Circadian Pill + Share Streak Button */}
               <div className="flex items-center justify-between sm:justify-start gap-2">
                 <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/80' : 'text-slate-500'}`}>
                   <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.2] ${heroTheme.greetingIconColor}`} />
                   <span>{greeting}</span>
                 </div>
-                <AmbientSoundWidget />
                 <button
                   type="button"
                   onClick={() => setIsShareModalOpen(true)}
@@ -1526,8 +1528,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              onClick={onOpenProfile}
+              onClick={() => setIsPassingGapModalOpen(true)}
               className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
+              title="Click to view 150/300 Passing Score Gap Analysis"
             >
               <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
                 <Target className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform" />
@@ -1601,67 +1604,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </motion.div>
 
-        {/* ═══ 2.5 PASSING GAP ANALYZER & RAPID CLINICAL RETENTION DRILLS ═══ */}
-        <div className="space-y-4">
-          {/* 150/300 Passing Score Gap Analyzer */}
-          <PassingGapAnalyzer
-            state={state}
-            stats={stats}
-            onSelectSubject={onSelectSubject}
-            onOpenAiCoach={onOpenAiCoach}
-          />
-
-          {/* Quick Exam Mastery & Retention Launchers */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {/* IBQ Rapid Recall Drill Card */}
-            <div
-              onClick={() => setIsIbqModalOpen(true)}
-              className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-teal-800 to-[#006B63] text-white shadow-xs hover:shadow-md transition-all cursor-pointer group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-white/15 backdrop-blur-xs text-amber-300 group-hover:scale-110 transition-transform">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs sm:text-sm font-bold font-['Outfit']">60s IBQ Rapid Recall Drill</span>
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-400 text-amber-950 uppercase tracking-wider">40–50 Marks</span>
-                  </div>
-                  <p className="text-[11px] text-teal-100/90 font-sans">Histopath, ECGs, radiological signs &amp; buzzwords</p>
-                </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-teal-200 group-hover:translate-x-1 transition-transform shrink-0" />
-            </div>
-
-            {/* Spaced Review Due Today Card */}
-            <div
-              onClick={() => onNavigateTab('pearls')}
-              className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-white border border-amber-300/80 hover:border-amber-400 shadow-2xs hover:shadow-xs transition-all cursor-pointer group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-500 text-white group-hover:scale-110 transition-transform shadow-xs">
-                  <Flame className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit']">
-                      {duePearlsCount > 0 ? `${duePearlsCount} Pearls Due Today` : 'Pearls Spaced Review'}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${duePearlsCount > 0 ? 'bg-amber-100 text-amber-900 animate-pulse' : 'bg-slate-100 text-slate-600'}`}>
-                      {duePearlsCount > 0 ? 'Review Now' : 'Memory Vault'}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 font-sans">
-                    {duePearlsCount > 0 ? 'Optimal SM-2 review window active for high retention' : 'Active recall deck with drugs of choice & mnemonics'}
-                  </p>
-                </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-amber-600 group-hover:translate-x-1 transition-transform shrink-0" />
-            </div>
-          </div>
-        </div>
-
-        {/* ═══ 3. SUBJECT FILTER PILLS BAR ═══ */}
+        {/* ═══ 2. SUBJECT FILTER PILLS BAR ═══ */}
         <motion.div
           initial={SECTION_ENTER(0.04, reducedMotion)}
           animate={SECTION_SHOW}
@@ -2280,13 +2223,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
                   <h3 className="text-sm font-bold text-[#0E322D]">Your Exam Journey</h3>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => onNavigateTab('progress')}
-                  className="text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline cursor-pointer flex items-center"
-                >
-                  View details →
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsPassingGapModalOpen(true)}
+                    className="text-[11px] font-bold text-[#006B63] hover:text-[#005750] bg-emerald-50 hover:bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-200/60 cursor-pointer flex items-center transition-colors"
+                    title="Open 150/300 Passing Gap Analyzer"
+                  >
+                    150 Cutoff
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onNavigateTab('progress')}
+                    className="text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline cursor-pointer flex items-center"
+                  >
+                    View details →
+                  </button>
+                </div>
               </div>
 
               {/* Circular Gauge + Stats Block */}
@@ -2734,6 +2687,40 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         onClose={() => setIsIbqModalOpen(false)}
         onOpenAiCoach={onOpenAiCoach}
       />
+
+      {/* 150/300 Passing Score Gap Analyzer Modal */}
+      <AnimatePresence>
+        {isPassingGapModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-slate-50/95 backdrop-blur-xl rounded-3xl border border-white/80 shadow-2xl p-4 sm:p-6 scrollbar-thin"
+            >
+              <button
+                type="button"
+                onClick={() => setIsPassingGapModalOpen(false)}
+                className="absolute top-4 right-4 h-9 w-9 rounded-full bg-white text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center shadow-xs cursor-pointer z-10 transition-colors border border-slate-200/70"
+                title="Close analyzer"
+                aria-label="Close"
+              >
+                <X className="h-4.5 w-4.5" />
+              </button>
+              <PassingGapAnalyzer
+                state={state}
+                stats={stats}
+                onSelectSubject={(subjId) => {
+                  setIsPassingGapModalOpen(false);
+                  onSelectSubject(subjId);
+                }}
+                onOpenAiCoach={onOpenAiCoach}
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

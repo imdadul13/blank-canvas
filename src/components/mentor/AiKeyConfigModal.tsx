@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
   Key,
-  Sparkles,
   CheckCircle2,
   AlertTriangle,
   ExternalLink,
@@ -137,7 +136,7 @@ export const AiKeyConfigModal: React.FC<AiKeyConfigModalProps> = ({
 
             <div className="flex items-center gap-3">
               <div className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-[#006B63] to-teal-500 text-white flex items-center justify-center shadow-md shadow-teal-900/15 shrink-0">
-                <Sparkles className="h-5 w-5" />
+                <Key className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="text-lg sm:text-xl font-extrabold font-['Outfit'] text-slate-900 dark:text-white tracking-tight">

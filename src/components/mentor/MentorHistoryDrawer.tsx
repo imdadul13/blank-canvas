@@ -15,7 +15,6 @@ import {
   Pill,
   Microscope,
   RotateCcw,
-  Sparkles,
   ChevronRight,
   CheckCircle2,
   Layers,

@@ -9,7 +9,6 @@ import {
   Flame,
   Target,
   Calendar,
-  Sparkles,
   MessageCircle,
   Send,
   Award,
@@ -120,7 +119,7 @@ ${appUrl}`;
 
             <div className="flex items-center gap-2 mb-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-teal-400/20 text-teal-200 border border-teal-300/30">
-                <Sparkles className="w-3 h-3 text-teal-300" />
+                <Award className="w-3 h-3 text-teal-300" />
                 Study Milestone
               </span>
             </div>

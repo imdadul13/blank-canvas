@@ -190,7 +190,7 @@ function AmbientMedicalMotif() {
         className="absolute left-0 bottom-16 w-36 h-36 rounded-full bg-gradient-to-tr from-amber-200/30 via-teal-100/20 to-transparent blur-2xl pointer-events-none"
       />
 
-      {/* Floating Micro Celestial Sparkles */}
+      {/* Ambient Particle Glow */}
       {!reducedMotion && (
         <div className="absolute inset-x-4 bottom-24 h-28 pointer-events-none overflow-hidden">
           <motion.span

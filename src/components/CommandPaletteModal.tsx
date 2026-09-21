@@ -9,7 +9,7 @@ import {
   BookmarkCheck,
   AlertTriangle,
   Calendar,
-  Sparkles,
+  Eye,
   Layers,
   ArrowRight,
   TrendingUp,
@@ -111,7 +111,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         subtitle: 'Timed image spotters, histopath, ECGs, and pathognomonic findings',
         badge: '40-50 Marks',
         badgeColor: '#006B63',
-        icon: Sparkles,
+        icon: Eye,
         onSelect: () => {
           if (onOpenIbqDrill) {
             onOpenIbqDrill();

@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, Award, FileText, Image as ImageIcon, Video as VideoIcon, Lightbulb, Bell, CheckCircle } from "lucide-react";
+import { Award, FileText, Image as ImageIcon, Video as VideoIcon, Lightbulb, Bell, CheckCircle } from "lucide-react";
 import { KnowledgeBankCounts } from "../../types";
 
 interface TelegramOverviewCardProps {
@@ -25,7 +25,7 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
         {/* Left: ONE SHOT CURATED Branding */}
         <div className="flex items-start sm:items-center gap-3 sm:gap-3.5">
           <div className="w-10 h-10 rounded-2xl bg-[#00685f]/10 text-[#00685f] flex items-center justify-center border border-[#00685f]/20 shadow-2xs shrink-0 mt-0.5 sm:mt-0">
-            <Sparkles className="w-5 h-5 stroke-[2.2]" />
+            <Award className="w-5 h-5 stroke-[2.2]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
