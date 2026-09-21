@@ -156,6 +156,11 @@ export interface MedicalPearl {
   tag?: string;
   isHighYield?: boolean;
   isBookmarked?: boolean;
+  srsInterval?: number; // Days until next review (e.g. 1, 3, 7, 14, 30)
+  srsRepetitions?: number; // Consecutive successful recalls
+  srsEaseFactor?: number; // Default 2.5
+  srsDueDate?: string; // YYYY-MM-DD
+  srsLastReviewed?: string; // ISO timestamp
 }
 
 export interface AiVerificationResult {

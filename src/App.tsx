@@ -24,6 +24,7 @@ import { DataMigrationModal } from './components/DataMigrationModal';
 import { NotificationCenterModal } from './components/NotificationCenterModal';
 import { CloudSyncModal } from './components/CloudSyncModal';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
+import { IbqRapidRecallModal } from './components/IbqRapidRecallModal';
 import { ErrorBoundary } from './components/error-boundary';
 import { AppSplashScreen } from './components/AppSplashScreen';
 import { AuthProvider, useAuth, DEV_AUTH_BYPASS } from './context/AuthContext';
@@ -130,6 +131,7 @@ function AppInner() {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isCloudSyncOpen, setIsCloudSyncOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isGlobalIbqModalOpen, setIsGlobalIbqModalOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
 
   // Global Command Palette Shortcut (Cmd+K / Ctrl+K)
@@ -1128,6 +1130,14 @@ function AppInner() {
         onSelectSubject={handleSelectSubject}
         onOpenAiCoach={handleOpenAiCoach}
         onLaunchPractice={() => handleLaunchPracticeSession('medicine', 'med-1', 'Cardiovascular System')}
+        onOpenIbqDrill={() => setIsGlobalIbqModalOpen(true)}
+      />
+
+      {/* Global 60s IBQ Rapid Recall Drill Modal */}
+      <IbqRapidRecallModal
+        isOpen={isGlobalIbqModalOpen}
+        onClose={() => setIsGlobalIbqModalOpen(false)}
+        onOpenAiCoach={handleOpenAiCoach}
       />
     </div>
   );

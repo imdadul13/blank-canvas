@@ -39,6 +39,7 @@ import {
   Heart,
   Lightbulb,
   Share2,
+  Sparkles,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -66,6 +67,10 @@ import { DailyPlannerView } from './DailyPlannerView';
 import { useDoctorCreed } from '../hooks/useDoctorCreed';
 import { AnimatedMountainInsignia } from './AnimatedMountainInsignia';
 import { ShareMilestoneModal } from './ShareMilestoneModal';
+import { PassingGapAnalyzer } from './PassingGapAnalyzer';
+import { IbqRapidRecallModal } from './IbqRapidRecallModal';
+import { AmbientSoundWidget } from './AmbientSoundWidget';
+import { getDuePearls } from '../utils/spacedRepetitionEngine';
 
 interface DashboardViewProps {
   state: AppState;
@@ -766,6 +771,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Notification center modal state
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
+  const [isIbqModalOpen, setIsIbqModalOpen] = useState(false);
+
+  // Spaced Repetition Due Today Count
+  const duePearlsCount = useMemo(() => {
+    const bookmarked = (state.customPearls || []).filter((p) => p.isBookmarked);
+    return getDuePearls(bookmarked).length;
+  }, [state.customPearls]);
 
   // Unread badge reflects live visible notifications
   const hasUnread = useMemo(
@@ -1381,12 +1393,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
             {/* Left side: Doctor Circadian Greeting + Bold Name + Strategic Subtitle */}
             <div className="space-y-1 sm:space-y-1.5 max-w-xl">
-              {/* Doctor Circadian Pill + Share Streak Button */}
+              {/* Doctor Circadian Pill + Share Streak Button + Ambient Focus Sound */}
               <div className="flex items-center justify-between sm:justify-start gap-2">
                 <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/80' : 'text-slate-500'}`}>
                   <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.2] ${heroTheme.greetingIconColor}`} />
                   <span>{greeting}</span>
                 </div>
+                <AmbientSoundWidget />
                 <button
                   type="button"
                   onClick={() => setIsShareModalOpen(true)}
@@ -1587,6 +1600,66 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </motion.div>
           </div>
         </motion.div>
+
+        {/* ═══ 2.5 PASSING GAP ANALYZER & RAPID CLINICAL RETENTION DRILLS ═══ */}
+        <div className="space-y-4">
+          {/* 150/300 Passing Score Gap Analyzer */}
+          <PassingGapAnalyzer
+            state={state}
+            stats={stats}
+            onSelectSubject={onSelectSubject}
+            onOpenAiCoach={onOpenAiCoach}
+          />
+
+          {/* Quick Exam Mastery & Retention Launchers */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* IBQ Rapid Recall Drill Card */}
+            <div
+              onClick={() => setIsIbqModalOpen(true)}
+              className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-teal-800 to-[#006B63] text-white shadow-xs hover:shadow-md transition-all cursor-pointer group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-white/15 backdrop-blur-xs text-amber-300 group-hover:scale-110 transition-transform">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs sm:text-sm font-bold font-['Outfit']">60s IBQ Rapid Recall Drill</span>
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-400 text-amber-950 uppercase tracking-wider">40–50 Marks</span>
+                  </div>
+                  <p className="text-[11px] text-teal-100/90 font-sans">Histopath, ECGs, radiological signs &amp; buzzwords</p>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-teal-200 group-hover:translate-x-1 transition-transform shrink-0" />
+            </div>
+
+            {/* Spaced Review Due Today Card */}
+            <div
+              onClick={() => onNavigateTab('pearls')}
+              className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-white border border-amber-300/80 hover:border-amber-400 shadow-2xs hover:shadow-xs transition-all cursor-pointer group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-500 text-white group-hover:scale-110 transition-transform shadow-xs">
+                  <Flame className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit']">
+                      {duePearlsCount > 0 ? `${duePearlsCount} Pearls Due Today` : 'Pearls Spaced Review'}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${duePearlsCount > 0 ? 'bg-amber-100 text-amber-900 animate-pulse' : 'bg-slate-100 text-slate-600'}`}>
+                      {duePearlsCount > 0 ? 'Review Now' : 'Memory Vault'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-sans">
+                    {duePearlsCount > 0 ? 'Optimal SM-2 review window active for high retention' : 'Active recall deck with drugs of choice & mnemonics'}
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-amber-600 group-hover:translate-x-1 transition-transform shrink-0" />
+            </div>
+          </div>
+        </div>
 
         {/* ═══ 3. SUBJECT FILTER PILLS BAR ═══ */}
         <motion.div
@@ -2653,6 +2726,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         onClose={() => setIsShareModalOpen(false)}
         state={state}
         stats={stats}
+      />
+
+      {/* 60s IBQ Rapid Recall Drill Modal */}
+      <IbqRapidRecallModal
+        isOpen={isIbqModalOpen}
+        onClose={() => setIsIbqModalOpen(false)}
+        onOpenAiCoach={onOpenAiCoach}
       />
     </div>
   );

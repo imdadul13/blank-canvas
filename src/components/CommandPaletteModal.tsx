@@ -41,7 +41,10 @@ interface CommandPaletteModalProps {
   onSelectSubject?: (subjectId: string) => void;
   onOpenAiCoach?: (query?: string, subject?: string) => void;
   onLaunchPractice?: () => void;
+  onOpenIbqDrill?: () => void;
 }
+
+import { ambientAudioEngine } from '../utils/ambientAudioEngine';
 
 export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   isOpen,
@@ -50,6 +53,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   onSelectSubject,
   onOpenAiCoach,
   onLaunchPractice,
+  onOpenIbqDrill,
 }) => {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -101,6 +105,53 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         },
       },
       {
+        id: 'action-ibq-drill',
+        category: 'Actions',
+        title: 'Start 60s IBQ Rapid Recall Drill',
+        subtitle: 'Timed image spotters, histopath, ECGs, and pathognomonic findings',
+        badge: '40-50 Marks',
+        badgeColor: '#006B63',
+        icon: Sparkles,
+        onSelect: () => {
+          if (onOpenIbqDrill) {
+            onOpenIbqDrill();
+          } else {
+            onNavigateTab('dashboard');
+          }
+          onClose();
+        },
+      },
+      {
+        id: 'action-viva-session',
+        category: 'Actions',
+        title: 'Start Faculty Bedside Viva',
+        subtitle: 'Faculty tests you with interactive clinical cases and assesses steps',
+        badge: 'Viva Exam',
+        badgeColor: '#D97706',
+        icon: Brain,
+        onSelect: () => {
+          if (onOpenAiCoach) {
+            onOpenAiCoach('Conduct a high-yield FMGE bedside Viva with me. Present a clinical emergency and ask for my immediate first step.');
+          } else {
+            onNavigateTab('aicoach');
+          }
+          onClose();
+        },
+      },
+      {
+        id: 'action-ambient-audio',
+        category: 'Actions',
+        title: 'Toggle Ambient Focus Sound',
+        subtitle: 'Brown noise, gentle rain, and 40Hz binaural beats for concentration',
+        badge: 'Audio',
+        badgeColor: '#0D9488',
+        icon: Zap,
+        onSelect: () => {
+          ambientAudioEngine.toggle();
+          onClose();
+        },
+      },
+      {
         id: 'action-review-mistakes',
         category: 'Actions',
         title: 'Review Mistake Notebook',
@@ -116,8 +167,8 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       {
         id: 'action-pearls-vault',
         category: 'Actions',
-        title: 'Explore Pearls Vault',
-        subtitle: 'Browse 2,000+ high-yield mnemonics, drugs of choice, and diagnostic triads',
+        title: 'Explore Pearls Vault & Due Today',
+        subtitle: 'Browse 2,000+ high-yield mnemonics, drugs of choice, and SM-2 recall deck',
         badge: 'Flashcards',
         badgeColor: '#059669',
         icon: BookmarkCheck,

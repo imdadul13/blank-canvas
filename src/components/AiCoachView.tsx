@@ -42,8 +42,11 @@ import {
   ShieldAlert,
   Pill,
   Download,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { speechEngine } from '../utils/speechEngine';
 import { useAuth } from '../context/AuthContext';
 import {
   getLearningContext,
@@ -557,6 +560,16 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   const initialTriggerHandledRef = useRef<string | null>(null);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const isUserScrolledUpRef = useRef(false);
+
+  // Audio Read-Aloud state for Faculty Mentor answers
+  const [playingFacultyMsgId, setPlayingFacultyMsgId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = speechEngine.subscribe((isPlaying, activeId) => {
+      setPlayingFacultyMsgId(isPlaying ? (activeId || null) : null);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Dynamically derive student learning context from actual AppState
   const computedStudentContext = React.useMemo(() => {
@@ -2017,6 +2030,39 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                             <>
                               <BookmarkPlus className="h-3.5 w-3.5" />
                               <span className="text-[11px]">Save as Pearl</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+
+                      {/* Hands-free Audio Read-Aloud Button */}
+                      {msg.content && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (playingFacultyMsgId === msg.id) {
+                              speechEngine.stop();
+                            } else {
+                              speechEngine.speak(msg.id, msg.content);
+                            }
+                          }}
+                          className={`flex items-center gap-1.5 text-xs transition-colors cursor-pointer px-2 py-1 rounded-lg active:scale-95 ${
+                            playingFacultyMsgId === msg.id
+                              ? 'text-teal-800 bg-teal-100/90 font-bold animate-pulse'
+                              : 'text-slate-400 hover:text-teal-700 hover:bg-teal-50'
+                          }`}
+                          title={playingFacultyMsgId === msg.id ? 'Stop audio' : 'Listen to Faculty answer'}
+                          aria-label="Listen to answer"
+                        >
+                          {playingFacultyMsgId === msg.id ? (
+                            <>
+                              <Volume2 className="h-3.5 w-3.5 text-teal-700" />
+                              <span className="text-[11px] text-teal-700">Listening...</span>
+                            </>
+                          ) : (
+                            <>
+                              <VolumeX className="h-3.5 w-3.5" />
+                              <span className="text-[11px]">Listen</span>
                             </>
                           )}
                         </button>

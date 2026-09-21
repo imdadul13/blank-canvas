@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   BookmarkCheck,
   Search,
@@ -22,9 +22,19 @@ import {
   Clock,
   AlertTriangle,
   RotateCcw,
+  Volume2,
+  VolumeX,
+  Printer,
+  Zap,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { MedicalPearl, AppState } from '../types';
+import { speechEngine } from '../utils/speechEngine';
+import {
+  getDuePearls,
+  calculateNextReview,
+  SrsRating,
+} from '../utils/spacedRepetitionEngine';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { INITIAL_PEARLS } from '../data/initialPearls';
 import {
@@ -259,6 +269,104 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
   }, [allPearls, bookmarkedOnly, selectedSubject, selectedCategory, searchQuery]);
 
   const bookmarkedCount = allPearls.filter((pearl) => pearl.isBookmarked).length;
+
+  // Spaced Repetition (SRS) Due Today queue
+  const duePearls = useMemo(() => {
+    return getDuePearls(allPearls.filter((p) => p.isBookmarked));
+  }, [allPearls]);
+
+  const [isSrsReviewOpen, setIsSrsReviewOpen] = useState<boolean>(false);
+  const [srsIndex, setSrsIndex] = useState<number>(0);
+  const [isSrsAnswerRevealed, setIsSrsAnswerRevealed] = useState<boolean>(false);
+
+  // Audio Read-Aloud state
+  const [playingPearlId, setPlayingPearlId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = speechEngine.subscribe((isPlaying, activeId) => {
+      setPlayingPearlId(isPlaying ? (activeId || null) : null);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleToggleAudio = (pearl: MedicalPearl) => {
+    if (playingPearlId === pearl.id) {
+      speechEngine.stop();
+    } else {
+      speechEngine.speak(
+        pearl.id,
+        `${pearl.title}. High Yield Takeaway: ${pearl.highYieldKey}. ${pearl.explanation}`
+      );
+    }
+  };
+
+  const handleSrsRate = (rating: SrsRating) => {
+    const currentPearl = duePearls[srsIndex];
+    if (!currentPearl) return;
+    const result = calculateNextReview(currentPearl, rating);
+    const updated: MedicalPearl = { ...currentPearl, ...result };
+    onAddCustomPearl(updated);
+    setIsSrsAnswerRevealed(false);
+    if (srsIndex < duePearls.length - 1) {
+      setSrsIndex((prev) => prev + 1);
+    } else {
+      setIsSrsReviewOpen(false);
+      setSrsIndex(0);
+    }
+  };
+
+  const handlePrintCheatSheet = () => {
+    const printContent = filteredPearls
+      .slice(0, 50)
+      .map(
+        (p, idx) => `
+      <div style="break-inside: avoid; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-family: system-ui, -apple-system, sans-serif;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span style="font-size: 10px; font-weight: bold; color: #006B63; text-transform: uppercase;">${p.subjectId}</span>
+          <span style="font-size: 9px; color: #64748b;">${p.tags.slice(0, 3).join(' • ')}</span>
+        </div>
+        <div style="font-size: 13px; font-weight: bold; color: #0f172a; margin-bottom: 4px;">${idx + 1}. ${p.title}</div>
+        <div style="background: #f0fdf4; border-left: 3px solid #16a34a; padding: 6px 8px; margin: 6px 0; font-size: 11px; font-weight: 600; color: #14532d;">
+          ⭐ Takeaway: ${p.highYieldKey}
+        </div>
+        <div style="font-size: 11px; color: #334155; line-height: 1.4; white-space: pre-line;">${p.explanation}</div>
+      </div>
+    `
+      )
+      .join('');
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>ONE SHOT FMGE — High-Yield Medical Pearls</title>
+          <style>
+            @page { size: A4; margin: 10mm; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0f172a; margin: 0; padding: 8px; }
+            .header { border-bottom: 2px solid #006B63; padding-bottom: 6px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end; }
+            .grid { column-count: 2; column-gap: 12px; }
+            @media print { .no-print { display: none; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <h1 style="margin: 0; font-size: 18px; color: #006B63; font-weight: 800;">ONE SHOT FMGE — High-Yield Pearls Cheat Sheet</h1>
+              <div style="font-size: 11px; color: #64748b;">2-Column Medical Rapid Revision Deck • ${filteredPearls.length} Pearls • ${new Date().toLocaleDateString()}</div>
+            </div>
+            <button class="no-print" onclick="window.print()" style="background: #006B63; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px;">Print / Save as PDF</button>
+          </div>
+          <div class="grid">${printContent}</div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => {
+      printWindow.focus();
+    }, 250);
+  };
 
   const handleCopy = (pearl: MedicalPearl) => {
     navigator.clipboard.writeText(`${pearl.title}\nKey Point: ${pearl.highYieldKey}\n\n${pearl.explanation}`);
@@ -741,8 +849,39 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 self-stretch sm:self-start md:self-center shrink-0">
+          <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-start md:self-center shrink-0">
             <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+
+            {/* Spaced Repetition Due Today Review Button */}
+            {duePearls.length > 0 && (
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  setSrsIndex(0);
+                  setIsSrsAnswerRevealed(false);
+                  setIsSrsReviewOpen(true);
+                }}
+                className="w-full sm:w-auto px-3 py-1.5 min-h-[36px] justify-center rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs"
+              >
+                <Flame className="h-3.5 w-3.5 fill-white text-white animate-pulse" />
+                <span>Review Due ({duePearls.length})</span>
+              </motion.button>
+            )}
+
+            {/* Printable Cheat Sheet Button */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handlePrintCheatSheet}
+              className="w-full sm:w-auto px-3 py-1.5 min-h-[36px] justify-center rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border bg-white/80 hover:bg-white text-stone-700 border-teal-200/70 hover:border-teal-300 shadow-2xs"
+              title="Print or save 2-column clinical cheat sheet as PDF"
+            >
+              <Printer className="h-3.5 w-3.5 text-teal-700" />
+              <span className="hidden sm:inline">Cheat Sheet</span>
+            </motion.button>
 
             <motion.button
               type="button"
@@ -765,7 +904,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               }`}
             >
               <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-white text-white' : 'fill-amber-500/20 text-amber-500'}`} />
-              <span>Starred Vault ({bookmarkedCount})</span>
+              <span>Starred ({bookmarkedCount})</span>
             </motion.button>
           </div>
         </div>
@@ -1571,8 +1710,27 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                         </span>
                       </div>
 
-                      {/* Card Actions: Copy & Star */}
+                      {/* Card Actions: Audio, Copy & Star */}
                       <div className="flex items-center gap-1 shrink-0">
+                        {/* Audio Read-Aloud Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleAudio(pearl)}
+                          className={`p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-colors cursor-pointer ${
+                            playingPearlId === pearl.id
+                              ? 'text-teal-700 bg-teal-100/90 animate-pulse'
+                              : 'text-stone-400 hover:text-stone-700 hover:bg-stone-100'
+                          }`}
+                          title={playingPearlId === pearl.id ? 'Stop audio' : 'Listen to pearl'}
+                          aria-label="Listen to pearl"
+                        >
+                          {playingPearlId === pearl.id ? (
+                            <Volume2 className="h-4 w-4 text-teal-700" />
+                          ) : (
+                            <VolumeX className="h-4 w-4" />
+                          )}
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => handleCopy(pearl)}
@@ -1643,6 +1801,163 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           </div>
         )}
       </section>
+
+      {/* ═══ 6. SPACED REPETITION (SM-2) ACTIVE RECALL REVIEW MODAL ═══ */}
+      <AnimatePresence>
+        {isSrsReviewOpen && duePearls.length > 0 && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative flex flex-col w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
+            >
+              {/* Review Header */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/80">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-xl bg-amber-500 text-white shadow-xs">
+                    <Flame className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 font-['Outfit']">
+                      Spaced Recall Session
+                    </h3>
+                    <p className="text-[11px] text-slate-500 font-sans">
+                      Item <span className="font-bold text-slate-800">{srsIndex + 1}</span> of{' '}
+                      {duePearls.length} due today
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsSrsReviewOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-200/60 transition-colors cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Card Body */}
+              <div className="p-5 sm:p-7 space-y-5">
+                {duePearls[srsIndex] && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-teal-50 text-teal-800 border border-teal-200">
+                          {duePearls[srsIndex].subjectId}
+                        </span>
+                        {duePearls[srsIndex].tags.slice(0, 2).map((t) => (
+                          <span
+                            key={t}
+                            className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-600"
+                          >
+                            #{t}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Audio Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleAudio(duePearls[srsIndex])}
+                        className={`p-1.5 rounded-xl border transition-colors cursor-pointer ${
+                          playingPearlId === duePearls[srsIndex].id
+                            ? 'bg-teal-100 text-teal-800 border-teal-300 animate-pulse'
+                            : 'bg-white text-slate-500 border-slate-200 hover:text-slate-900'
+                        }`}
+                        title="Listen to pearl"
+                      >
+                        <Volume2 className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-950 font-['Outfit'] leading-snug">
+                      {duePearls[srsIndex].title}
+                    </h2>
+
+                    {!isSrsAnswerRevealed ? (
+                      <div className="pt-4">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => setIsSrsAnswerRevealed(true)}
+                          className="w-full py-4 bg-teal-700 hover:bg-teal-800 text-white rounded-2xl font-bold font-['Outfit'] text-sm shadow-md shadow-teal-700/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <Zap className="h-4 w-4 text-amber-300" />
+                          <span>Show High-Yield Key &amp; Answer</span>
+                        </motion.button>
+                      </div>
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-4"
+                      >
+                        {/* High-Yield Key Box */}
+                        <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-1">
+                          <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                            High-Yield Takeaway
+                          </span>
+                          <p className="text-sm font-bold text-emerald-950 leading-relaxed font-sans">
+                            {duePearls[srsIndex].highYieldKey}
+                          </p>
+                        </div>
+
+                        {/* Detailed Clinical Explanation */}
+                        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-700 leading-relaxed max-h-48 overflow-y-auto">
+                          {duePearls[srsIndex].explanation}
+                        </div>
+
+                        {/* Rating Row (SM-2) */}
+                        <div className="pt-2 space-y-2">
+                          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider text-center">
+                            Rate Recall Accuracy
+                          </p>
+                          <div className="grid grid-cols-4 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleSrsRate('again')}
+                              className="py-2.5 px-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-center text-xs font-bold text-rose-800 transition-colors cursor-pointer"
+                            >
+                              <div>Again</div>
+                              <div className="text-[10px] font-normal text-rose-600">1 day</div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSrsRate('hard')}
+                              className="py-2.5 px-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-center text-xs font-bold text-amber-800 transition-colors cursor-pointer"
+                            >
+                              <div>Hard</div>
+                              <div className="text-[10px] font-normal text-amber-600">3 days</div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSrsRate('good')}
+                              className="py-2.5 px-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-center text-xs font-bold text-emerald-800 transition-colors cursor-pointer"
+                            >
+                              <div>Good</div>
+                              <div className="text-[10px] font-normal text-emerald-600">7 days</div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSrsRate('easy')}
+                              className="py-2.5 px-1 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-xl text-center text-xs font-bold text-teal-800 transition-colors cursor-pointer"
+                            >
+                              <div>Easy</div>
+                              <div className="text-[10px] font-normal text-teal-600">14+ days</div>
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

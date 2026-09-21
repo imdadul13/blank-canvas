@@ -142,6 +142,28 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
     return Activity;
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file && fileInputRef.current) {
+          try {
+            e.preventDefault();
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInputRef.current.files = dt.files;
+            const evt = new Event('change', { bubbles: true });
+            fileInputRef.current.dispatchEvent(evt);
+          } catch (_) {}
+          break;
+        }
+      }
+    }
+  };
+
   const hasContent = Boolean(inputQuery.trim() || attachedImage);
 
   return (
@@ -187,6 +209,23 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
 
       {/* Quick Action Suggestion Chips (Docked above input with refined clinical pill styling) */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar text-xs touch-pan-x">
+        {/* Faculty Viva Quick Action Chip */}
+        <motion.button
+          type="button"
+          whileHover={{ scale: 1.03, y: -1 }}
+          whileTap={{ scale: 0.96 }}
+          onClick={() =>
+            onSendMessage(
+              'Conduct a high-yield FMGE bedside Viva with me. Present a 35yo patient presenting in the emergency room with acute symptoms. Give me ONLY the initial scenario and ask for my immediate first step. Wait for my answer, then critique and proceed to stage 2.'
+            )
+          }
+          disabled={isLoading}
+          className="whitespace-nowrap px-3 py-1.5 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 border border-amber-300 rounded-full text-[11px] font-bold text-amber-900 transition-all cursor-pointer shadow-2xs hover:shadow-xs disabled:opacity-50 shrink-0 flex items-center gap-1.5 group"
+        >
+          <Stethoscope className="h-3.5 w-3.5 text-amber-600 group-hover:scale-110 transition-transform" />
+          <span className="font-['Outfit']">🩺 Start Faculty Viva</span>
+        </motion.button>
+
         {quickActions.map((action, idx) => {
           const Icon = getActionIcon(action.label, idx);
           return (
@@ -281,6 +320,7 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
             value={inputQuery}
             onChange={onInputChange}
             onKeyDown={onKeyDown}
+            onPaste={handlePaste}
             placeholder={
               attachedImage
                 ? 'Ask about this attached investigation...'
