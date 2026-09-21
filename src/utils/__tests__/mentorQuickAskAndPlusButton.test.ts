@@ -2,8 +2,8 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 
-describe('Mentor Quick Ask (+) Button & Effortless Inquiry Navigation', () => {
-  it('1. AiCoachView defines handleQuickAskNew with scroll and focus behavior', () => {
+describe('Mentor Streamlined Quick Ask & Decluttered Inquiry Navigation', () => {
+  it('1. AiCoachView defines handleQuickAskNew with scroll, focus, and highlight behavior', () => {
     const coachContent = fs.readFileSync('src/components/AiCoachView.tsx', 'utf8');
     assert.ok(coachContent.includes('const handleQuickAskNew = () =>'), 'Must define handleQuickAskNew');
     assert.ok(coachContent.includes('textareaRef.current.focus()'), 'Must focus textarea automatically');
@@ -11,24 +11,25 @@ describe('Mentor Quick Ask (+) Button & Effortless Inquiry Navigation', () => {
     assert.ok(coachContent.includes('setIsPromptHighlighted(true)'), 'Must highlight prompt desk with glowing ring');
   });
 
-  it('2. Floating Quick Ask New (+) Action Button is rendered for instant access without scrolling', () => {
+  it('2. Streamlined Ask New jump button is only rendered when scrolled up away from bottom', () => {
     const coachContent = fs.readFileSync('src/components/AiCoachView.tsx', 'utf8');
-    assert.ok(coachContent.includes('Floating Quick "Ask New (+)" Action Button'), 'Must include floating action button');
-    assert.ok(coachContent.includes('Ask New'), 'Must show Ask New label');
-    assert.ok(coachContent.includes('onClick={handleQuickAskNew}'), 'Must bind to handleQuickAskNew');
-    assert.ok(coachContent.includes('fixed bottom-'), 'Must be fixed in viewport so scrolling is never required');
+    assert.ok(coachContent.includes('{showScrollBottom && ('), 'Must be conditioned on showScrollBottom so zero clutter when at bottom');
+    assert.ok(coachContent.includes('Ask New'), 'Must show clean Ask New label');
+    assert.ok(coachContent.includes('onClick={handleQuickAskNew}'), 'Must bind to handleQuickAskNew to jump and focus');
   });
 
-  it('3. Sticky consultation sub-header allows quick ask and new chat from the top of messages', () => {
+  it('3. Duplicate and cluttering buttons are eliminated from message view and prompt desk', () => {
     const coachContent = fs.readFileSync('src/components/AiCoachView.tsx', 'utf8');
-    assert.ok(coachContent.includes('Sticky Consultation Sub-Header with Instant + Ask Action Button'), 'Must include sticky sub-header');
-    assert.ok(coachContent.includes('Ask Question'), 'Must include Ask Question quick trigger');
-  });
+    assert.ok(!coachContent.includes('Sticky Consultation Sub-Header'), 'Sticky sub-header clutter must be removed');
+    assert.ok(!coachContent.includes('fixed bottom-5 right-5'), 'Fixed bottom-right double button clutter must be removed');
 
-  it('4. MentorPromptDesk includes a + button for quick fresh inquiry next to attachment tools', () => {
     const deskContent = fs.readFileSync('src/components/mentor/MentorPromptDesk.tsx', 'utf8');
-    assert.ok(deskContent.includes('onNewSession?: () => void;'), 'MentorPromptDeskProps must accept onNewSession');
-    assert.ok(deskContent.includes('onClick={onNewSession}'), 'Must bind onNewSession to button');
-    assert.ok(deskContent.includes('Start a new consultation (clean slate)'), 'Must provide clear title for new inquiry button');
+    assert.ok(!deskContent.includes('onNewSession'), 'MentorPromptDesk must not have duplicate onNewSession prop');
+  });
+
+  it('4. MentorHeader retains the primary, prominent New Chat button', () => {
+    const headerContent = fs.readFileSync('src/components/mentor/MentorHeader.tsx', 'utf8');
+    assert.ok(headerContent.includes('onNewSession'), 'MentorHeader must receive onNewSession');
+    assert.ok(headerContent.includes('New Chat'), 'MentorHeader must display single authoritative New Chat action');
   });
 });

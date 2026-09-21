@@ -1857,42 +1857,12 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               </div>
             </motion.div>
           ) : (
-            <>
-              {/* Sticky Consultation Sub-Header with Instant + Ask Action Button */}
-              <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 px-4 sm:px-6 py-2 bg-white/95 backdrop-blur-md border-b border-slate-200/70 flex items-center justify-between gap-3 text-xs shadow-2xs">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse shrink-0" />
-                  <span className="font-bold text-slate-700 font-['Outfit'] truncate">
-                    {activeSession?.title || 'Active Consultation'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={handleQuickAskNew}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-teal-50 hover:bg-teal-100 text-[#006B63] font-bold text-[11px] font-['Outfit'] border border-teal-200/70 transition-all cursor-pointer shadow-2xs active:scale-95"
-                    title="Jump down to ask bar"
-                  >
-                    <Plus className="h-3 w-3 stroke-[2.5]" />
-                    <span>Ask Question</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNewSession}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-[11px] font-['Outfit'] transition-all cursor-pointer shadow-2xs active:scale-95"
-                    title="Start fresh consultation"
-                  >
-                    <span>New Chat</span>
-                  </button>
-                </div>
-              </div>
-
-              {messages.map((msg) => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
+            messages.map((msg) => (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
             className="w-full flex justify-start"
           >
             {/* User Bubble */}
@@ -2051,9 +2021,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               </div>
             )}
             </motion.div>
-          ))}
-        </>
-      )}
+          ))
+        )}
 
         <div ref={chatBottomRef} />
       </div>
@@ -2063,7 +2032,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         {/* Soft upward gradient scrim so scrolling text fades smoothly behind the bar */}
         <div className="pointer-events-none absolute -top-7 left-0 right-0 h-7 bg-gradient-to-t from-white via-white/80 to-transparent" />
 
-        {/* Floating "Scroll to bottom / Latest response" Cursor Button */}
+        {/* Quick "Ask New" Jump Button — only shown when user is scrolled up away from bottom */}
         <AnimatePresence>
           {showScrollBottom && (
             <motion.button
@@ -2072,15 +2041,15 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 6, scale: 0.88 }}
               transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-              onClick={() => scrollToBottom(true)}
-              className="absolute right-5 sm:right-7 -top-11 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/85 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.08)] text-xs font-semibold text-slate-700 hover:text-[#006B63] hover:border-teal-300 hover:shadow-lg active:scale-95 transition-all cursor-pointer group"
-              title="Return to latest message"
-              aria-label="Return to latest message"
+              onClick={handleQuickAskNew}
+              className="absolute right-5 sm:right-7 -top-11 z-30 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#00685F] hover:bg-[#00554E] text-white shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer group text-xs font-bold font-['Outfit']"
+              title="Jump to ask bar to ask something new"
+              aria-label="Ask new question"
             >
-              <ChevronDown className="h-4 w-4 text-[#006B63] stroke-[2.5] transition-transform duration-150 group-hover:translate-y-0.5" />
-              <span className="text-[11px] font-bold font-['Outfit'] text-slate-700 group-hover:text-[#006B63]">
-                Latest message
-              </span>
+              <Plus className="h-3.5 w-3.5 stroke-[2.5] group-hover:rotate-90 transition-transform duration-150" />
+              <span className="text-[11px] font-bold font-['Outfit']">Ask New</span>
+              <span className="sr-only">Latest message</span>
+              <ChevronDown className="h-3.5 w-3.5 text-teal-200/90 group-hover:translate-y-0.5 transition-transform" />
             </motion.button>
           )}
         </AnimatePresence>
@@ -2099,51 +2068,10 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
           onImageSelect={handleImageSelect}
           quickActions={quickActions}
           isHighlighted={isPromptHighlighted}
-          onNewSession={handleNewSession}
         />
       </div>
       </div>
       </main>
-
-      {/* Floating Quick "Ask New (+)" Action Button — Always Accessible Without Scrolling */}
-      <AnimatePresence>
-        {messages.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.85, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.85, y: 16 }}
-            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="fixed bottom-5 right-5 sm:bottom-7 sm:right-8 z-40 flex items-center gap-2"
-          >
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.94 }}
-              onClick={handleQuickAskNew}
-              className="flex items-center gap-2 px-4 py-2.5 sm:px-5 sm:py-3 rounded-full bg-gradient-to-r from-[#00685F] via-[#00746b] to-[#008f84] hover:from-[#00544e] hover:to-[#00746b] text-white shadow-[0_8px_25px_rgba(0,107,99,0.38)] hover:shadow-[0_12px_32px_rgba(0,107,99,0.48)] border border-teal-300/40 text-xs sm:text-sm font-bold font-['Outfit'] cursor-pointer backdrop-blur-md group"
-              title="Jump directly to ask bar to ask something new"
-              aria-label="Ask something new"
-            >
-              <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                <Plus className="h-3.5 w-3.5 stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
-              </div>
-              <span className="tracking-wide">Ask New</span>
-            </motion.button>
-
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.94 }}
-              onClick={handleNewSession}
-              className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-white/95 hover:bg-teal-50 text-slate-600 hover:text-[#006B63] border border-slate-200/90 hover:border-teal-300 shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-lg flex items-center justify-center cursor-pointer transition-all backdrop-blur-md group"
-              title="Start a fresh consultation (clean slate)"
-              aria-label="Start new consultation"
-            >
-              <Plus className="h-4 w-4 text-slate-600 group-hover:text-[#006B63] stroke-[2.5]" />
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* 5. Editorial Clinical Value Propositions Banner */}
       <MentorValuePropsBanner />
