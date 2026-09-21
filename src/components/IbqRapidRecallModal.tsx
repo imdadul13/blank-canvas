@@ -125,7 +125,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-950/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-950/80 backdrop-blur-md">
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 8 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -495,7 +495,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
         {/* Image Zoom Lightbox */}
         {isImageZoomed && currentItem && (
           <div
-            className="fixed inset-0 z-60 bg-black/90 flex flex-col items-center justify-center p-4 cursor-zoom-out"
+            className="fixed inset-0 z-[80] bg-black/90 flex flex-col items-center justify-center p-4 cursor-zoom-out"
             onClick={() => setIsImageZoomed(false)}
           >
             <div className="relative max-w-4xl max-h-[85vh]">

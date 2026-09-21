@@ -9,6 +9,7 @@ import {
   TrendingUp,
   Stethoscope,
   X,
+  CheckCircle2,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AppState, ErrorNotebookItem, DailyTask } from '../types';
@@ -90,7 +91,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
   }, [selectedSubjectId, selectedSubject, searchQuery]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-20 space-y-4 sm:space-y-6 font-['Inter'] text-[#121e1b]">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-20 space-y-4 sm:space-y-6 font-['Plus_Jakarta_Sans'] text-[#121e1b]">
       {/* ================= 1. PRACTICE EDITORIAL HEADER CARD ================= */}
       <motion.header
         initial={{ opacity: 0, y: -12 }}
@@ -432,12 +433,12 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                 key={`${topic.subjectId}-${topic.id}`}
                 whileHover={{ x: 3 }}
                 transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-                className="py-4 px-2 sm:px-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:bg-[#F7F9F8] rounded-xl transition-colors group cursor-pointer"
+                className="py-3.5 px-3 sm:px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:bg-[#F7F9F8] rounded-2xl transition-colors group cursor-pointer"
               >
                 {/* Topic Info */}
                 <div className="min-w-0 pr-2 space-y-1 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm sm:text-base font-semibold font-['Newsreader'] text-[#121e1b] group-hover:text-[#006B63] transition-colors leading-snug">
+                    <span className="text-sm sm:text-base font-bold font-['Outfit'] text-[#121e1b] group-hover:text-[#006B63] transition-colors leading-snug">
                       {topic.name}
                     </span>
                     {topic.isHighYield && (
@@ -524,11 +525,13 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           {/* Pillar 5 / Quote Card */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#F0FDF8]/90 to-white/80 backdrop-blur-md border border-white/85 flex items-center justify-between gap-2 sm:col-span-2 lg:col-span-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)]">
             <div className="space-y-0.5">
-              <p className="text-xs font-semibold font-['Newsreader'] italic text-[#121e1b] leading-tight">
+              <p className="text-xs font-medium text-[#121e1b] leading-tight">
                 &ldquo;Practice with purpose. Perform with confidence.&rdquo;
               </p>
             </div>
-            <span className="text-base shrink-0">🌱</span>
+            <div className="w-7 h-7 rounded-lg bg-teal-50 text-[#006B63] flex items-center justify-center shrink-0 border border-teal-200/50">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            </div>
           </div>
         </div>
       </div>

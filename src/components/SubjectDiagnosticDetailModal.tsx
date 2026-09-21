@@ -232,7 +232,7 @@ export const SubjectDiagnosticDetailModal: React.FC<SubjectDiagnosticDetailModal
             </div>
 
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl sm:text-3xl font-bold font-['Newsreader'] tracking-tight text-[#121E1B] truncate">
+              <h2 className="text-2xl sm:text-3xl font-bold font-['Outfit'] tracking-tight text-[#121E1B] truncate">
                 {subject.name}
               </h2>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border font-mono ${masteryBadge.style}`}>

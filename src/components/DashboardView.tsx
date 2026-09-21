@@ -1240,26 +1240,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             )}
           </div>
 
-          {/* Right Action Icons: Top Creed Quote + Focus Audio + Notification Bell + Avatar */}
+          {/* Right Action Controls: Focus Audio Engine + Notification Bell + Doctor Avatar */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Top Creed Quote (Desktop only) */}
-            <motion.div
-              onClick={shuffleCreed}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="hidden lg:flex flex-col items-end pr-1 text-right select-none cursor-pointer group"
-              title="Click to shuffle motivational creed"
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') shuffleCreed();
-              }}
-            >
-              <span className="italic text-[11.5px] font-medium text-slate-500 group-hover:text-[#006B63] tracking-tight leading-snug transition-colors">
-                {doctorCreed.compact[0]}<br />{doctorCreed.compact[1]}
-              </span>
-              <span className="h-[2px] w-6 bg-[#006B63] group-hover:w-10 rounded-full mt-0.5 ml-auto transition-all" />
-            </motion.div>
 
             {/* Ambient Focus Audio Engine */}
             <AmbientSoundWidget />
@@ -1396,26 +1378,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
             {/* Left side: Doctor Circadian Greeting + Bold Name + Strategic Subtitle */}
             <div className="space-y-1 sm:space-y-1.5 max-w-xl">
-              {/* Doctor Circadian Pill + Share Streak Button */}
-              <div className="flex items-center justify-between sm:justify-start gap-2">
+              {/* Doctor Circadian Pill */}
+              <div className="flex items-center gap-2">
                 <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/80' : 'text-slate-500'}`}>
                   <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.2] ${heroTheme.greetingIconColor}`} />
                   <span>{greeting}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsShareModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/85 hover:bg-white text-[#006B63] border border-teal-200/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
-                  title="Share your FMGE milestone"
-                >
-                  <Share2 className="h-3 w-3 text-[#006B63]" />
-                  <span>Share Streak</span>
-                </button>
               </div>
 
               {/* Doctor Name */}
               <div className="pt-0.5">
-                <h1 className={`text-2xl sm:text-4xl lg:text-[38px] font-extrabold tracking-tight font-['Plus_Jakarta_Sans'] leading-tight ${heroTheme.nameColor}`}>
+                <h1 className={`text-2xl sm:text-4xl lg:text-[38px] font-black tracking-tight font-['Outfit'] leading-tight ${heroTheme.nameColor}`}>
                   {userName}
                 </h1>
                 <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic mt-1 ${heroTheme.subtitleColor}`}>
@@ -1576,7 +1549,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </motion.div>
 
-            {/* Card 4: Progress / Streak */}
+            {/* Card 4: Study Streak */}
             <motion.div
               whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
@@ -1585,19 +1558,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
               <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#EFF8F6] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
-                <Activity className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform animate-pulse" />
+                <Activity className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-xs sm:text-base font-extrabold font-['Outfit'] leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors whitespace-nowrap shrink-0">
-                    Keep going
+                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors shrink-0">
+                    {currentStreak || 1}d
                   </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.2 sm:px-2 sm:py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80 shrink-0">
-                    <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80 shrink-0">
+                    <span className="h-1 w-1 rounded-full bg-emerald-500 animate-pulse" />
+                    Active
                   </span>
                 </div>
                 <span className="block text-[9.5px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
-                  Small steps. Big progress.
+                  Study Streak
                 </span>
               </div>
             </motion.div>
@@ -1613,7 +1587,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         >
           <div
             ref={filterScrollRef}
-            className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none select-none snap-x w-full pr-2 sm:pr-10"
+            className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none select-none snap-x w-full pr-2 sm:pr-10 [mask-image:linear-gradient(to_right,black_92%,transparent_100%)]"
           >
             {[{ id: 'all', name: 'All Subjects (19)' }, ...FMGE_SUBJECTS.map((s) => ({ id: s.id, name: s.name }))].map((f) => {
               const active = selectedFilterSubjectId === f.id;
@@ -2201,7 +2175,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.1, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-[28px] bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] p-4 sm:p-5 space-y-3.5 relative overflow-hidden"
+              className="rounded-3xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] p-4 sm:p-5 space-y-3.5 relative overflow-hidden"
             >
               {/* Subtle Target / Radar Watermark Graphic in Background */}
               <div className="absolute -top-3 right-3 w-36 h-36 pointer-events-none select-none opacity-[0.07] overflow-hidden" aria-hidden="true">
@@ -2223,21 +2197,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
                   <h3 className="text-sm font-bold text-[#0E322D]">Your Exam Journey</h3>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => setIsPassingGapModalOpen(true)}
-                    className="text-[11px] font-bold text-[#006B63] hover:text-[#005750] bg-emerald-50 hover:bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-200/60 cursor-pointer flex items-center transition-colors"
-                    title="Open 150/300 Passing Gap Analyzer"
+                    className="text-[11px] font-bold text-[#006B63] hover:text-[#005750] bg-teal-50 hover:bg-teal-100/70 px-2.5 py-0.5 rounded-full border border-teal-200/60 cursor-pointer flex items-center gap-1 transition-colors"
+                    title="Open 150/300 Passing Score Gap Analyzer"
                   >
-                    150 Cutoff
+                    <span>150 Cutoff</span>
+                    <span className="text-[9px]">→</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => onNavigateTab('progress')}
-                    className="text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline cursor-pointer flex items-center"
+                    className="text-xs font-semibold text-slate-500 hover:text-[#006B63] hover:underline cursor-pointer flex items-center transition-colors"
                   >
-                    View details →
+                    Details →
                   </button>
                 </div>
               </div>
@@ -2320,7 +2295,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.14, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-[28px] bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] p-4 sm:p-5 space-y-3.5 relative overflow-hidden"
+              className="rounded-3xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] p-4 sm:p-5 space-y-3.5 relative overflow-hidden"
             >
               {/* Faint ECG / Flowing rhythm wave near bottom edge */}
               <div className="absolute bottom-1 right-2 w-48 h-6 pointer-events-none select-none opacity-[0.08] overflow-hidden" aria-hidden="true">
@@ -2611,19 +2586,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         >
                           {sub.name}
                         </h4>
-                        <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">
-                          {hyCount} High-yield
-                        </p>
-                      </div>
-
-                      <div
-                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 mt-0.5 ${
-                          isCurrent
-                            ? 'bg-[#006B63] text-white shadow-xs'
-                            : `bg-white/80 ${theme.arrowText} border border-slate-200/70 shadow-2xs group-hover:border-teal-300 group-hover:text-[#006B63] ${theme.arrowBg}`
-                        }`}
-                      >
-                        <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 group-hover:translate-x-0.5 transition-transform duration-200" />
+                        <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-slate-500">
+                          <span className="truncate">{hyCount} High-yield</span>
+                          <span className="opacity-0 group-hover:opacity-100 text-[#006B63] font-semibold flex items-center gap-0.5 transition-opacity duration-200 text-[10px] shrink-0">
+                            <span>Open</span>
+                            <ArrowRight className="h-2.5 w-2.5" />
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -2691,7 +2660,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 150/300 Passing Score Gap Analyzer Modal */}
       <AnimatePresence>
         {isPassingGapModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

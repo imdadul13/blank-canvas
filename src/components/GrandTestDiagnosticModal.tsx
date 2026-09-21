@@ -71,7 +71,7 @@ export const GrandTestDiagnosticModal: React.FC<GrandTestDiagnosticModalProps> =
                 {grandTests.length} GRAND TESTS LOGGED
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-['Newsreader'] tracking-tight text-[#121E1B]">
+            <h2 className="text-2xl sm:text-3xl font-bold font-['Outfit'] tracking-tight text-[#121E1B]">
               Grand Test Performance
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 max-w-2xl leading-relaxed">
@@ -100,7 +100,7 @@ export const GrandTestDiagnosticModal: React.FC<GrandTestDiagnosticModalProps> =
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-stone-400">
                       MOST RECENT MOCK EXAM
                     </span>
-                    <h3 className="text-lg font-bold text-stone-900 font-['Newsreader']">
+                    <h3 className="text-lg font-bold text-stone-900 font-['Outfit']">
                       {latestGT.title}
                     </h3>
                     <div className="flex items-center gap-2 text-xs text-stone-500 font-mono">

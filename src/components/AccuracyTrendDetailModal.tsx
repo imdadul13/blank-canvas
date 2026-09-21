@@ -162,7 +162,7 @@ export const AccuracyTrendDetailModal: React.FC<AccuracyTrendDetailModalProps> =
                 {sessions.length} SESSIONS RECORDED
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-['Newsreader'] tracking-tight text-[#121E1B]">
+            <h2 className="text-2xl sm:text-3xl font-bold font-['Outfit'] tracking-tight text-[#121E1B]">
               Accuracy Trend & Trajectory
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 max-w-2xl leading-relaxed">

@@ -108,7 +108,7 @@ export const ErrorVaultDiagnosticModal: React.FC<ErrorVaultDiagnosticModalProps>
                 {totalErrors} MISTAKES LOGGED
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-['Newsreader'] tracking-tight text-[#121E1B]">
+            <h2 className="text-2xl sm:text-3xl font-bold font-['Outfit'] tracking-tight text-[#121E1B]">
               Error Vault & Mistake Remediation
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 max-w-2xl leading-relaxed">

@@ -179,7 +179,7 @@ export const TopicMasteryDetailModal: React.FC<TopicMasteryDetailModalProps> = (
               <span className="w-1 h-1 rounded-full bg-[#00685f]/40" />
               <span className="text-xs text-stone-400 font-mono">19 SUBJECTS · {allTopicRows.length} TOPICS</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-['Newsreader'] tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-[#00685f] bg-clip-text text-transparent">
+            <h2 className="text-2xl sm:text-3xl font-bold font-['Outfit'] tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-[#00685f] bg-clip-text text-transparent">
               Topic Mastery Diagnostic
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 max-w-2xl leading-relaxed">

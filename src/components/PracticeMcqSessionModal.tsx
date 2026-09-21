@@ -365,7 +365,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
     : [];
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md overflow-y-auto font-['Inter'] text-[#121E1B]">
+    <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md overflow-y-auto font-['Plus_Jakarta_Sans'] text-[#121E1B]">
       <div className="flex min-h-full items-center justify-center p-0 sm:p-4 md:p-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
@@ -401,7 +401,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                   {context.topicName}
                 </span>
               </div>
-              <h3 className="text-xs sm:text-sm font-semibold font-['Newsreader'] text-[#121E1B] truncate mt-0.5">
+              <h3 className="text-xs sm:text-sm font-bold font-['Outfit'] text-[#121E1B] truncate mt-0.5">
                 {sessionSummary
                   ? 'Session Performance Summary'
                   : `Question ${currentIdx + 1} of ${targetCount}`}
@@ -494,7 +494,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                   </span>
                 </div>
 
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold font-['Newsreader'] text-[#121E1B] tracking-tight leading-snug">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold font-['Outfit'] text-[#121E1B] tracking-tight leading-snug">
                   {sessionSummary.accuracy >= 80
                     ? 'Outstanding Clinical Mastery'
                     : sessionSummary.accuracy >= 60
@@ -517,7 +517,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                       OVERALL DRILL ACCURACY
                     </span>
                     <div className="flex items-baseline gap-3 mt-1.5 flex-wrap">
-                      <span className="font-['Newsreader'] text-4xl sm:text-5xl font-bold text-[#006B63] leading-none">
+                      <span className="font-['Outfit'] text-4xl sm:text-5xl font-bold text-[#006B63] leading-none">
                         {sessionSummary.accuracy}%
                       </span>
                       <span className="text-xs sm:text-sm text-[#66716F]">
@@ -579,7 +579,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                     </span>
                     <CheckCircle2 className="w-4 h-4 text-[#006B63]" />
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold font-['Newsreader'] text-[#121E1B]">
+                  <div className="text-xl sm:text-2xl font-bold font-['Outfit'] text-[#121E1B]">
                     {sessionSummary.totalQuestions} Questions
                   </div>
                   <p className="text-[11px] sm:text-xs text-[#66716F]">
@@ -595,7 +595,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                     </span>
                     <Clock className="w-4 h-4 text-[#006B63]" />
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold font-['Newsreader'] text-[#121E1B]">
+                  <div className="text-xl sm:text-2xl font-bold font-['Outfit'] text-[#121E1B]">
                     {sessionSummary.averageTimeSeconds}s <span className="text-xs font-normal text-[#66716F]">/ question</span>
                   </div>
                   <p className="text-[11px] sm:text-xs text-[#66716F]">
@@ -611,7 +611,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                     </span>
                     <Award className="w-4 h-4 text-[#006B63]" />
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold font-['Newsreader'] text-[#121E1B]">
+                  <div className="text-xl sm:text-2xl font-bold font-['Outfit'] text-[#121E1B]">
                     {sessionSummary.accuracy >= 70 ? 'Target Met' : 'Review Suggested'}
                   </div>
                   <p className="text-[11px] sm:text-xs text-[#66716F]">
@@ -751,7 +751,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                           </p>
                         </div>
 
-                        <h4 className="font-['Newsreader'] font-bold text-sm sm:text-base text-[#121E1B] leading-snug">
+                        <h4 className="font-['Outfit'] font-bold text-sm sm:text-base text-[#121E1B] leading-snug">
                           {q.question}
                         </h4>
 
@@ -949,7 +949,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
                   {/* Question Inquiry Stem — Strongest Visual Element */}
                   <div className="pt-3 border-t border-[#F0F3F2]">
-                    <h4 className="text-base sm:text-lg lg:text-xl font-bold font-['Newsreader'] text-[#121E1B] leading-snug tracking-tight">
+                    <h4 className="text-base sm:text-lg lg:text-xl font-bold font-['Outfit'] text-[#121E1B] leading-snug tracking-tight">
                       {currentQ.question}
                     </h4>
                   </div>
@@ -1019,7 +1019,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                             </div>
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-base sm:text-lg font-bold font-['Newsreader'] text-[#0E3E36] leading-snug">
+                                <h3 className="text-base sm:text-lg font-bold font-['Outfit'] text-[#0E3E36] leading-snug">
                                   Correct Answer: Option {currentQ.correctAnswer}
                                 </h3>
                                 <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#E8F5F1] text-[#006B63] border border-[#006B63]/20">
@@ -1098,7 +1098,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                             </div>
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-base sm:text-lg font-bold font-['Newsreader'] text-[#4F131A] leading-snug">
+                                <h3 className="text-base sm:text-lg font-bold font-['Outfit'] text-[#4F131A] leading-snug">
                                   Incorrect · Correct Answer is Option {currentQ.correctAnswer}
                                 </h3>
                                 <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-200">
