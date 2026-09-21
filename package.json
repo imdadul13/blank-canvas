@@ -19,7 +19,9 @@
     "test": "tsx --test src/utils/__tests__/*.test.ts",
     "validate": "npm run lint && npm test && npm run build",
     "emulators": "firebase emulators:start --only auth,firestore",
-    "dev:local": "VITE_USE_FIREBASE_EMULATORS=true npm run dev"
+    "dev:local": "VITE_USE_FIREBASE_EMULATORS=true npm run dev",
+    "cap:sync": "npm run build:client && cap sync ios",
+    "cap:open": "cap open ios"
   },
   "dependencies": {
     "@capacitor/core": "^8.5.2",
