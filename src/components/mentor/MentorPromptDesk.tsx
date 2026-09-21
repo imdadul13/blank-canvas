@@ -12,6 +12,7 @@ import {
   Award,
   ArrowUp,
   ShieldCheck,
+  Plus,
 } from 'lucide-react';
 
 interface QuickAction {
@@ -38,6 +39,7 @@ interface MentorPromptDeskProps {
   onImageSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   quickActions: QuickAction[];
   isHighlighted?: boolean;
+  onNewSession?: () => void;
 }
 
 export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
@@ -54,6 +56,7 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
   onImageSelect,
   quickActions,
   isHighlighted = false,
+  onNewSession,
 }) => {
   const [isNarrowScreen, setIsNarrowScreen] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -175,6 +178,21 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
             className="hidden"
             onChange={onImageSelect}
           />
+
+          {/* Start Fresh Inquiry / New Topic Action Button */}
+          {onNewSession && (
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.94 }}
+              onClick={onNewSession}
+              className="flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-slate-50 hover:bg-teal-50/80 text-slate-400 hover:text-[#006B63] border border-slate-200/70 hover:border-teal-200 transition-all shrink-0 cursor-pointer"
+              title="Start a new consultation (clean slate)"
+              aria-label="Start new consultation"
+            >
+              <Plus className="h-4 w-4 stroke-[2.5]" />
+            </motion.button>
+          )}
 
           {/* Medical Asset Attachment Tool Button */}
           <motion.button
