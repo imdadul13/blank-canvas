@@ -34,6 +34,7 @@ import {
   isValidBaselineScore,
 } from '../utils/onboarding';
 import { AppStats, downloadBackupFile, normalizeAppState } from '../utils/storage';
+import { getNextFmgeSessionDate } from '../utils/date';
 
 interface DoctorProfileModalProps {
   isOpen: boolean;
@@ -95,9 +96,12 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
     .toUpperCase();
 
   const daysRemaining = useMemo(() => {
-    if (!formData.examDate) return 1;
-    const diff = new Date(formData.examDate).getTime() - Date.now();
-    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    const target = formData.examDate || getNextFmgeSessionDate();
+    const diff = new Date(target).getTime() - Date.now();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    if (!isNaN(days) && days > 0) return days;
+    const fallbackDiff = new Date(getNextFmgeSessionDate()).getTime() - Date.now();
+    return Math.max(1, Math.ceil(fallbackDiff / (1000 * 60 * 60 * 24)));
   }, [formData.examDate]);
 
   const formattedExamDate = useMemo(() => {

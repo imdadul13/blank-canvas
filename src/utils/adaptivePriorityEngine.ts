@@ -12,18 +12,29 @@ import {
 } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { calculateTopicPerformanceMetrics } from './performanceEngine';
+import { getNextFmgeSessionDate } from './date';
 
 /**
  * Calculates remaining days until the FMGE exam.
- * Defaults to 90 days if examDate is unconfigured or invalid.
+ * If examDate is unconfigured or in the past, dynamically falls back to the next NBE FMGE exam cycle.
  */
 export function getDaysRemainingToExam(state: AppState): number {
   const examDateStr = state.settings?.examDate;
-  if (!examDateStr) return 90;
-  const examDate = new Date(examDateStr).getTime();
   const now = new Date().getTime();
-  const diffDays = Math.ceil((examDate - now) / (1000 * 60 * 60 * 24));
-  return Math.max(1, isNaN(diffDays) ? 90 : diffDays);
+
+  if (examDateStr) {
+    const examDate = new Date(examDateStr).getTime();
+    const diffDays = Math.ceil((examDate - now) / (1000 * 60 * 60 * 24));
+    if (!isNaN(diffDays) && diffDays > 0) {
+      return diffDays;
+    }
+  }
+
+  // Fallback to next upcoming official FMGE session
+  const nextSessionDate = getNextFmgeSessionDate();
+  const nextExamTime = new Date(nextSessionDate).getTime();
+  const fallbackDiff = Math.ceil((nextExamTime - now) / (1000 * 60 * 60 * 24));
+  return Math.max(1, isNaN(fallbackDiff) ? 90 : fallbackDiff);
 }
 
 /**

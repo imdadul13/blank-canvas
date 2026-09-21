@@ -1,12 +1,12 @@
 import { AppState } from '../types';
-import { getLocalDateKey } from '../utils/date';
+import { getLocalDateKey, getNextFmgeSessionDate } from '../utils/date';
 
 /** Content defaults only; authenticated progress is restored from userData/{uid}. */
 export const getInitialAppState = (): AppState => {
   return {
     settings: {
       userName: 'Dr. Aspirant',
-      examDate: '2026-06-28', // Standard FMGE June Session target
+      examDate: getNextFmgeSessionDate(), // Dynamic upcoming FMGE Session target
       targetScore: 200,
       coachingSource: 'Marrow / Prepladder',
       dailyStudyHourGoal: 6,

@@ -26,6 +26,7 @@ import {
   type SmartNotification,
 } from '../utils/notificationEngine';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
+import { getDaysRemainingToExam } from '../utils/adaptivePriorityEngine';
 
 interface NotificationCenterModalProps {
   isOpen: boolean;
@@ -81,10 +82,8 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
   );
 
   const daysRemaining = useMemo(() => {
-    if (!state.settings?.examDate) return 1;
-    const diff = new Date(state.settings.examDate).getTime() - Date.now();
-    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  }, [state.settings?.examDate]);
+    return getDaysRemainingToExam(state);
+  }, [state]);
 
   const unreviewedMistakesCount = useMemo(() => {
     return Object.values(state.errorNotebook || {}).filter((m) => m && !m.isReviewed).length;

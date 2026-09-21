@@ -1295,12 +1295,24 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               </div>
             </div>
           ) : (
-            <div className="py-10 text-center space-y-2.5 px-4 bg-stone-50/50 rounded-2xl border border-dashed border-stone-200">
-              <TrendingUp className="w-8 h-8 text-stone-300 mx-auto" />
-              <h3 className="text-xs font-bold text-stone-700">Trajectory Calibrating</h3>
-              <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                Complete at least 2 clinical MCQ drill sessions to unlock your historical accuracy curve and passing trendline.
-              </p>
+            <div className="py-8 text-center space-y-3 px-4 bg-[#F4FAF8] rounded-2xl border border-dashed border-[#C5E8E1]">
+              <div className="h-10 w-10 rounded-full bg-teal-50 border border-teal-200/80 flex items-center justify-center mx-auto text-[#006B63]">
+                <TrendingUp className="w-5 h-5 text-[#006B63]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">Trajectory Ready to Calibrate</h3>
+                <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1">
+                  Solve your first 10 High-Yield MCQs to unlock your historical accuracy curve and passing trendline.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onLaunchPracticeSession ? onLaunchPracticeSession('medicine', 'med-cardio', 'Cardiology') : onNavigateTab?.('study')}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#005750] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              >
+                <span>Start 10-Q Micro Drill</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           )}
         </div>
@@ -1414,12 +1426,24 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               </div>
             </div>
           ) : (
-            <div className="py-10 text-center space-y-2.5 px-4 bg-stone-50/50 rounded-2xl border border-dashed border-stone-200">
-              <Award className="w-8 h-8 text-stone-300 mx-auto" />
-              <h3 className="text-xs font-bold text-stone-700">No Grand Tests Logged</h3>
-              <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                Log full 300-Q mock exam scores in the Grand Tests view to unlock percentile tracking and passing threshold benchmarks.
-              </p>
+            <div className="py-8 text-center space-y-3 px-4 bg-[#F4FAF8] rounded-2xl border border-dashed border-[#C5E8E1]">
+              <div className="h-10 w-10 rounded-full bg-teal-50 border border-teal-200/80 flex items-center justify-center mx-auto text-[#006B63]">
+                <Award className="w-5 h-5 text-[#006B63]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">No Grand Tests Logged Yet</h3>
+                <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1">
+                  Log scores from your Marrow, PrepLadder, or Cerebellum GTs to unlock percentile benchmarks and pass-mark safety tracking.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsGrandTestModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#005750] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              >
+                <span>Log First Mock Score</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           )}
         </div>

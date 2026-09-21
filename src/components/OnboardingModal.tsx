@@ -13,12 +13,13 @@ import {
   Award,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getNextFmgeSessionDate } from '../utils/date';
 
 export const OnboardingModal: React.FC = () => {
   const { profile, completeOnboarding } = useAuth();
 
   const [step, setStep] = useState<number>(1);
-  const [examDate, setExamDate] = useState(profile?.examDate || '2026-12-15');
+  const [examDate, setExamDate] = useState(profile?.examDate || getNextFmgeSessionDate());
   const [targetScore, setTargetScore] = useState<number>(profile?.targetScore || 185);
   const [prepLevel, setPrepLevel] = useState<'beginner' | 'intermediate' | 'revision'>('intermediate');
   const [dailyHours, setDailyHours] = useState<number>(profile?.dailyHoursTarget || 6);

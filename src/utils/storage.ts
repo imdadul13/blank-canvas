@@ -3,7 +3,7 @@ import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { getInitialAppState } from '../data/sampleData';
 import { INITIAL_PEARLS } from '../data/initialPearls';
 import { DEFAULT_TELEGRAM_CHANNELS, DEFAULT_TELEGRAM_ANNOUNCEMENTS } from '../data/telegramPresetData';
-import { getDaysUntilDateKey, getLocalDateKey } from './date';
+import { getDaysUntilDateKey, getLocalDateKey, getNextFmgeSessionDate } from './date';
 import { calculateStudyReadiness } from './readinessEngine';
 
 const STORAGE_KEY = 'fmge_study_tracker_v2';
@@ -292,7 +292,11 @@ export function calculateAppStats(state: AppState): AppStats {
   const todayQuestionsSolved = todayLog?.questionsSolved || 0;
 
   // Days remaining until exam
-  const daysRemaining = getDaysUntilDateKey(state.settings.examDate || getLocalDateKey());
+  const configuredDate = state.settings?.examDate;
+  const targetDate = configuredDate && getDaysUntilDateKey(configuredDate) > 0
+    ? configuredDate
+    : getNextFmgeSessionDate();
+  const daysRemaining = Math.max(1, getDaysUntilDateKey(targetDate));
 
   return {
     totalTopics,

@@ -1169,8 +1169,20 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
         if (res.ok) {
           data = await res.json();
+        } else if (res.status === 429) {
+          throw new Error('Dr. AI is currently reviewing heavy case volume from medical aspirants. Please wait a moment and tap retry below.');
+        } else {
+          try {
+            const errData = await res.json();
+            if (errData?.error === 'RATE_LIMITED' || errData?.message?.includes('case volume')) {
+              throw new Error(errData.message);
+            }
+          } catch (parseE: any) {
+            if (parseE?.message?.includes('Dr. AI')) throw parseE;
+          }
         }
-      } catch (fetchErr) {
+      } catch (fetchErr: any) {
+        if (fetchErr?.message?.includes('Dr. AI')) throw fetchErr;
         console.warn('[AI Coach] Remote fetch failed, utilizing resilient offline synthesis:', fetchErr);
       }
 
@@ -1263,13 +1275,13 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
       setMessages([...newMessages, assistantMessage]);
     } catch (err: any) {
-      console.error('[AI Coach] Request Error:', err);
+      const isFriendlyClinical = err?.message?.includes('Dr. AI') || err?.message?.includes('case volume') || err?.message?.includes('AI Service Notice');
       const assistantMessage: ChatMessage = {
         id: `ai-${Date.now()}`,
         role: 'assistant',
-        content: err?.message?.includes('AI Service Notice')
+        content: isFriendlyClinical
           ? err.message
-          : 'Unable to reach Faculty Mentor right now. Please check your connection or try again.',
+          : 'Unable to reach Faculty Mentor right now. Please check your connection or tap retry below.',
         timestamp: new Date(),
         isError: true,
         retryQuery: text,

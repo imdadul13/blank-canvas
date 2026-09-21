@@ -38,6 +38,7 @@ import {
   ShieldCheck,
   Heart,
   Lightbulb,
+  Share2,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -64,6 +65,7 @@ import { hasUnreadNotifications } from '../utils/notificationEngine';
 import { DailyPlannerView } from './DailyPlannerView';
 import { useDoctorCreed } from '../hooks/useDoctorCreed';
 import { AnimatedMountainInsignia } from './AnimatedMountainInsignia';
+import { ShareMilestoneModal } from './ShareMilestoneModal';
 
 interface DashboardViewProps {
   state: AppState;
@@ -742,6 +744,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [currentSubTab, setCurrentSubTab] = useState<'overview' | 'planner'>(
     subTab || 'overview'
   );
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
     if (subTab) {
@@ -1350,7 +1353,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion)}
-          className={`rounded-3xl border shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_8px_32px_rgba(0,107,99,0.05)] backdrop-blur-xl p-4 sm:p-4.5 lg:p-5 relative overflow-hidden transition-colors duration-700 ${heroTheme.bannerBg}`}
+          className={`rounded-3xl border shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_8px_32px_rgba(0,107,99,0.05)] backdrop-blur-xl p-3.5 sm:p-4.5 lg:p-5 relative overflow-hidden transition-colors duration-700 ${heroTheme.bannerBg}`}
         >
           {/* Subtle Ambient Radial Aura Mesh */}
           <div
@@ -1377,18 +1380,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
             {/* Left side: Doctor Circadian Greeting + Bold Name + Strategic Subtitle */}
-            <div className="space-y-1.5 max-w-xl">
-              {/* Doctor Circadian Pill */}
-              <div className="flex items-center gap-2">
+            <div className="space-y-1 sm:space-y-1.5 max-w-xl">
+              {/* Doctor Circadian Pill + Share Streak Button */}
+              <div className="flex items-center justify-between sm:justify-start gap-2">
                 <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/80' : 'text-slate-500'}`}>
                   <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.2] ${heroTheme.greetingIconColor}`} />
                   <span>{greeting}</span>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/85 hover:bg-white text-[#006B63] border border-teal-200/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                  title="Share your FMGE milestone"
+                >
+                  <Share2 className="h-3 w-3 text-[#006B63]" />
+                  <span>Share Streak</span>
+                </button>
               </div>
 
               {/* Doctor Name */}
               <div className="pt-0.5">
-                <h1 className={`text-3xl sm:text-4xl lg:text-[38px] font-extrabold tracking-tight font-['Plus_Jakarta_Sans'] leading-tight ${heroTheme.nameColor}`}>
+                <h1 className={`text-2xl sm:text-4xl lg:text-[38px] font-extrabold tracking-tight font-['Plus_Jakarta_Sans'] leading-tight ${heroTheme.nameColor}`}>
                   {userName}
                 </h1>
                 <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic mt-1 ${heroTheme.subtitleColor}`}>
@@ -1465,17 +1477,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* 4 Stat Cards Row with Staggered Motion and Micro-Interactions */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 pt-3 mt-3 border-t border-[#D0EBE5]/70 relative z-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 pt-2.5 mt-2.5 sm:pt-3 sm:mt-3 border-t border-[#D0EBE5]/70 relative z-10">
             {/* Card 1: Days remaining */}
             <motion.div
               whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => handleSubTabChange('planner')}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2.5 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110 group-hover:rotate-[-4deg]">
-                <Calendar className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform" />
+              <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110 group-hover:rotate-[-4deg]">
+                <Calendar className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform" />
                 <span className="absolute -top-1 -right-1 flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B63] opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B63]" />
@@ -1483,14 +1495,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors shrink-0">
+                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors shrink-0">
                     <AnimatedNumber value={daysRemaining} />
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-bold uppercase tracking-wider bg-teal-50 text-[#006B63] border border-teal-100/80 shrink-0">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-teal-50 text-[#006B63] border border-teal-100/80 shrink-0">
                     Live
                   </span>
                 </div>
-                <span className="block text-[10px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
+                <span className="block text-[9.5px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
                   days to FMGE
                 </span>
               </div>
@@ -1502,21 +1514,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={onOpenProfile}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2.5 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
-                <Target className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform" />
+              <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E3F5F1] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
+                <Target className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors shrink-0">
+                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors shrink-0">
                     {savedTargetScore ? `${savedTargetScore}+` : '200+'}
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100/80 shrink-0">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100/80 shrink-0">
                     150 Pass
                   </span>
                 </div>
-                <span className="block text-[10px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
+                <span className="block text-[9.5px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
                   Target Score
                 </span>
               </div>
@@ -1528,21 +1540,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => onNavigateTab('syllabus')}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2.5 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E5F1FA] text-[#0A6EB4] group-hover:bg-[#D5EBF8] group-hover:text-[#08558D] transition-all group-hover:scale-110 group-hover:rotate-[4deg]">
-                <BookOpen className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform" />
+              <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#E5F1FA] text-[#0A6EB4] group-hover:bg-[#D5EBF8] group-hover:text-[#08558D] transition-all group-hover:scale-110 group-hover:rotate-[4deg]">
+                <BookOpen className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-base sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#0A6EB4] transition-colors shrink-0">
+                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-[#0A6EB4] transition-colors shrink-0">
                     19
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100/80 shrink-0">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100/80 shrink-0">
                     NBE Core
                   </span>
                 </div>
-                <span className="block text-[10px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
+                <span className="block text-[9.5px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
                   Subjects
                 </span>
               </div>
@@ -1554,21 +1566,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => onNavigateTab('progress')}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2.5 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/75 backdrop-blur-md border border-white/85 hover:border-[#006B63]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_12px_rgba(0,107,99,0.03)] hover:bg-white/90 hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
-              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#EFF8F6] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
-                <Activity className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform animate-pulse" />
+              <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-[#EFF8F6] text-[#006B63] group-hover:bg-[#CCF0E8] group-hover:text-[#005750] transition-all group-hover:scale-110">
+                <Activity className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform animate-pulse" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
                   <span className="text-xs sm:text-base font-extrabold font-['Outfit'] leading-tight text-slate-900 group-hover:text-[#006B63] transition-colors whitespace-nowrap shrink-0">
                     Keep going
                   </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.2 sm:px-2 sm:py-0.5 rounded-full text-[8.5px] sm:text-[9.5px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80 shrink-0">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.2 sm:px-2 sm:py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80 shrink-0">
                     <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
                   </span>
                 </div>
-                <span className="block text-[10px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
+                <span className="block text-[9.5px] sm:text-[11px] font-medium text-[#608882] group-hover:text-[#006B63] transition-colors leading-tight mt-0.5">
                   Small steps. Big progress.
                 </span>
               </div>
@@ -2633,6 +2645,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         onNavigateTab={onNavigateTab}
         onSelectSubject={onSelectSubject}
         onLaunchPracticeSession={onLaunchPracticeSession}
+      />
+
+      {/* Viral Share Milestone Modal */}
+      <ShareMilestoneModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        state={state}
+        stats={stats}
       />
     </div>
   );
