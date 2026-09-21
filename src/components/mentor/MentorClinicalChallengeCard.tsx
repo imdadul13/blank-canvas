@@ -10,9 +10,10 @@ import {
   ArrowRight,
   Lightbulb,
   Brain,
+  BookmarkPlus,
 } from 'lucide-react';
 import type { QuizQuestionItem } from '../AiCoachView';
-import { MedicalImageAsset } from '../../types';
+import { MedicalImageAsset, ErrorNotebookItem } from '../../types';
 
 export interface MentorClinicalChallengeCardProps {
   quiz: QuizQuestionItem;
@@ -29,6 +30,7 @@ export interface MentorClinicalChallengeCardProps {
   onFollowUpClick?: (text: string) => void;
   questionNumber?: number;
   totalQuestions?: number;
+  onAddErrorItem?: (item: ErrorNotebookItem) => void;
 }
 
 export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardProps> = ({
@@ -39,8 +41,10 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
   onFollowUpClick,
   questionNumber,
   totalQuestions,
+  onAddErrorItem,
 }) => {
   const [stagedKey, setStagedKey] = useState<string | null>(null);
+  const [isLoggedToErrorVault, setIsLoggedToErrorVault] = useState(false);
 
   const correctKey = quiz.correctKey || (quiz as any).correctAnswer || 'A';
   const userAnswer = quiz.userAnswer;
@@ -334,6 +338,48 @@ export const MentorClinicalChallengeCard: React.FC<MentorClinicalChallengeCardPr
                   (userAnswer && (quiz.distractorBreakdown?.[userAnswer] || quiz.distractorExplanations?.[userAnswer])) ||
                   `Option ${userAnswer} is a common FMGE trap choice that focuses on single features while missing key diagnostic criteria for Option ${correctKey}.`}
               </p>
+
+              {/* One-Tap Save to Error Notebook */}
+              {onAddErrorItem && (
+                <div className="pt-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isLoggedToErrorVault) return;
+                      const userOpt = quiz.options.find((o) => o.key === userAnswer);
+                      onAddErrorItem({
+                        id: `err-challenge-${Date.now()}`,
+                        subjectId: quiz.subject || 'general',
+                        topic: quiz.topic || 'Clinical Challenge',
+                        questionGist: quiz.stem || quiz.question,
+                        myMistake: `Selected Option ${userAnswer}: ${userOpt?.text || ''}`,
+                        correctConcept: `Option ${correctKey}: ${correctOpt?.text || ''}. ${quiz.explanation}`,
+                        isReviewed: false,
+                        dateAdded: new Date().toISOString(),
+                        imageUrl: quiz.imageUrl,
+                      });
+                      setIsLoggedToErrorVault(true);
+                    }}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold font-['Outfit'] transition-all shadow-2xs active:scale-95 cursor-pointer ${
+                      isLoggedToErrorVault
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                        : 'bg-white hover:bg-rose-50 text-rose-800 border-rose-200 hover:border-rose-300'
+                    }`}
+                  >
+                    {isLoggedToErrorVault ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Logged to Mistake Notebook</span>
+                      </>
+                    ) : (
+                      <>
+                        <BookmarkPlus className="w-3.5 h-3.5 text-rose-700" />
+                        <span>Log to Mistake Notebook</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

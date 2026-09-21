@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import {
   ImageIcon,
@@ -12,6 +12,8 @@ import {
   Award,
   ArrowUp,
   ShieldCheck,
+  Mic,
+  MicOff,
 } from 'lucide-react';
 
 interface QuickAction {
@@ -38,6 +40,7 @@ interface MentorPromptDeskProps {
   onImageSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   quickActions: QuickAction[];
   isHighlighted?: boolean;
+  onSetInputQuery?: (query: string) => void;
 }
 
 export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
@@ -54,7 +57,68 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
   onImageSelect,
   quickActions,
   isHighlighted = false,
+  onSetInputQuery,
 }) => {
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const toggleVoiceDictation = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition =
+      typeof window !== 'undefined'
+        ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+        : null;
+
+    if (!SpeechRecognition) {
+      alert('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results?.[0]?.[0]?.transcript || '';
+        if (transcript) {
+          const newQuery = inputQuery ? `${inputQuery.trim()} ${transcript}` : transcript;
+          if (onSetInputQuery) {
+            onSetInputQuery(newQuery);
+          } else {
+            const synthEvent = {
+              target: { value: newQuery },
+            } as React.ChangeEvent<HTMLTextAreaElement>;
+            onInputChange(synthEvent);
+          }
+        }
+      };
+
+      recognition.onerror = () => {
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error('Speech recognition error:', err);
+      setIsListening(false);
+    }
+  };
   const [isNarrowScreen, setIsNarrowScreen] = useState(() => {
     if (typeof window !== 'undefined') {
       return window.innerWidth < 640;
@@ -191,6 +255,23 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
             aria-label="Attach medical image"
           >
             <ImageIcon className="h-4 w-4" />
+          </motion.button>
+
+          {/* Hands-Free Voice Dictation Button */}
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.94 }}
+            onClick={toggleVoiceDictation}
+            className={`flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-2xl transition-all shrink-0 cursor-pointer ${
+              isListening
+                ? 'bg-rose-500 text-white shadow-md animate-pulse'
+                : 'bg-slate-50 hover:bg-teal-50/80 text-slate-400 hover:text-[#006B63] border border-slate-200/70 hover:border-teal-200'
+            }`}
+            title={isListening ? 'Stop listening' : 'Dictate question (Speech-to-Text)'}
+            aria-label="Dictate question"
+          >
+            {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
           </motion.button>
 
           {/* Auto-resizing Question Textarea */}

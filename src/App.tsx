@@ -23,6 +23,7 @@ import { OnboardingFlow } from './components/OnboardingFlow';
 import { DataMigrationModal } from './components/DataMigrationModal';
 import { NotificationCenterModal } from './components/NotificationCenterModal';
 import { CloudSyncModal } from './components/CloudSyncModal';
+import { CommandPaletteModal } from './components/CommandPaletteModal';
 import { ErrorBoundary } from './components/error-boundary';
 import { AppSplashScreen } from './components/AppSplashScreen';
 import { AuthProvider, useAuth, DEV_AUTH_BYPASS } from './context/AuthContext';
@@ -128,7 +129,20 @@ function AppInner() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isCloudSyncOpen, setIsCloudSyncOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
+
+  // Global Command Palette Shortcut (Cmd+K / Ctrl+K)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   // Onboarding flow session: the flow latches on once shown and stays mounted
   // through its ready screen until the user acknowledges, even though
@@ -1017,6 +1031,8 @@ function AppInner() {
                       handleSetActiveTab('syllabus');
                     }}
                     onLaunchPracticeSession={handleLaunchPracticeSession}
+                    onAddCustomPearl={handleAddCustomPearl}
+                    onAddErrorItem={handleAddErrorItem}
                   />
                 )}
               </motion.div>
@@ -1102,6 +1118,16 @@ function AppInner() {
         state={state}
         syncStatus={syncStatus}
         onUpdateAppState={setState}
+      />
+
+      {/* Universal Command Palette (Cmd+K / Ctrl+K) */}
+      <CommandPaletteModal
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onNavigateTab={handleSetActiveTab}
+        onSelectSubject={handleSelectSubject}
+        onOpenAiCoach={handleOpenAiCoach}
+        onLaunchPractice={() => handleLaunchPracticeSession('medicine', 'med-1', 'Cardiovascular System')}
       />
     </div>
   );

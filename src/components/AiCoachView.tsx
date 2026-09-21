@@ -36,6 +36,12 @@ import {
   Brain,
   Award,
   AlertCircle,
+  BookmarkCheck,
+  BookmarkPlus,
+  Sparkles,
+  ShieldAlert,
+  Pill,
+  Download,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
@@ -44,7 +50,7 @@ import {
   getPersonalizedDailyPlan,
 } from '../utils/personalizationEngine';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
-import { GrandTest, AppState, MedicalImageAsset } from '../types';
+import { GrandTest, AppState, MedicalImageAsset, MedicalPearl, ErrorNotebookItem } from '../types';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
 import { buildMentorContext, resolveMedicalTopic, detectMentorMode } from '../utils/mentorContextEngine';
 import { MarkdownRenderer } from './MarkdownRenderer';
@@ -332,6 +338,8 @@ interface AiCoachViewProps {
   onLaunchPracticeSession?: (subjectId: string, topicId: string, topicName: string, subtopic?: string) => void;
   onClose?: () => void;
   onClearInitialTrigger?: () => void;
+  onAddCustomPearl?: (pearl: MedicalPearl) => void;
+  onAddErrorItem?: (item: ErrorNotebookItem) => void;
 }
 
 export const AiCoachView: React.FC<AiCoachViewProps> = ({
@@ -347,6 +355,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   onLaunchPracticeSession,
   onClose,
   onClearInitialTrigger,
+  onAddCustomPearl,
+  onAddErrorItem,
 }) => {
   const { profile } = useAuth();
   const userInitials = useMemo(() => {
@@ -360,8 +370,69 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   const [inputQuery, setInputQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [savedPearlIds, setSavedPearlIds] = useState<Set<string>>(new Set());
   const [confirmClearHistory, setConfirmClearHistory] = useState(false);
   const [isGoldenHourActive, setIsGoldenHourActive] = useState(false);
+
+  const handleSaveToPearls = (msgId: string, content: string) => {
+    if (!onAddCustomPearl || !content) return;
+    const lines = content.split('\n').map((l) => l.trim()).filter(Boolean);
+    const firstLine = lines.find((l) => !l.startsWith('![') && !l.startsWith('<')) || 'Clinical Faculty Pearl';
+    const cleanTitle = firstLine.replace(/^#+\s*/, '').replace(/\*\*/g, '').slice(0, 75).trim();
+    const pearlId = `pearl-mentor-${Date.now()}`;
+    const resolvedSubject = resolveMedicalTopic(content) || resolveMedicalTopic(cleanTitle);
+    const subjectId = resolvedSubject?.subjectId || initialSubject || 'medicine';
+    const subjectName = FMGE_SUBJECTS.find((s) => s.id === subjectId)?.name || 'General Medicine';
+    const newPearl: MedicalPearl = {
+      id: pearlId,
+      subjectId,
+      title: cleanTitle || 'High-Yield Clinical Pearl',
+      highYieldKey: cleanTitle || 'FMGE Core Concept',
+      explanation: content,
+      tags: ['AI Mentor', 'High-Yield', subjectName],
+      isHighYield: true,
+      isBookmarked: true,
+    };
+    onAddCustomPearl(newPearl);
+    setSavedPearlIds((prev) => new Set(prev).add(msgId));
+  };
+
+  const handleExportConsultation = (sessionToExport?: CoachSession) => {
+    const currentActive = sessions.find((s) => s.id === activeSessionId);
+    const targetSession = sessionToExport || currentActive || {
+      id: activeSessionId,
+      title: currentActive?.title || 'Clinical Consultation',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      messages,
+    };
+    if (!targetSession || !targetSession.messages || targetSession.messages.length === 0) return;
+
+    let note = `# FMGE Faculty Mentor Consultation Note\n\n`;
+    note += `**Consultation Topic:** ${targetSession.title}\n`;
+    note += `**Date:** ${new Date(targetSession.updatedAt || targetSession.createdAt).toLocaleDateString('en-IN', { dateStyle: 'full' })}\n`;
+    note += `**Student:** ${profile?.displayName || state?.settings?.userName || 'Dr. Aspirant'}\n\n`;
+    note += `---\n\n`;
+
+    targetSession.messages.forEach((m) => {
+      if (m.role === 'user') {
+        note += `### 🧑‍⚕️ Clinical Inquiry\n${cleanTextForClipboard(m.content)}\n\n`;
+      } else if (m.role === 'assistant') {
+        note += `### 🎓 Clinical Faculty Guidance\n${m.content}\n\n---\n\n`;
+      }
+    });
+
+    const blob = new Blob([note], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const sanitizedTitle = (targetSession.title || 'consultation').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40);
+    link.download = `fmge-mentor-${sanitizedTitle}-${new Date().toISOString().slice(0, 10)}.md`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   // Persistent Consultation Session History & Memory State
   // Filter out any empty dummy sessions from prior runs
@@ -1928,27 +1999,51 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                       )}
                     </div>
 
-                    {msg.content && (
-                      <button
-                        type="button"
-                        onClick={() => handleCopyMessage(msg.id, msg.content)}
-                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-700 transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-slate-100/80 active:scale-95"
-                        title="Copy answer"
-                        aria-label="Copy answer"
-                      >
-                        {copiedMessageId === msg.id ? (
-                          <>
-                            <Check className="h-3.5 w-3.5 text-emerald-600" />
-                            <span className="text-emerald-600 font-medium text-[11px]">Copied</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-3.5 w-3.5" />
-                            <span className="text-[11px]">Copy</span>
-                          </>
-                        )}
-                      </button>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {onAddCustomPearl && msg.content && (
+                        <button
+                          type="button"
+                          onClick={() => handleSaveToPearls(msg.id, msg.content)}
+                          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-teal-700 transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-teal-50 active:scale-95"
+                          title="Save key clinical takeaway to Pearls Vault"
+                          aria-label="Save to Pearls Vault"
+                        >
+                          {savedPearlIds.has(msg.id) ? (
+                            <>
+                              <BookmarkCheck className="h-3.5 w-3.5 text-teal-600" />
+                              <span className="text-teal-600 font-medium text-[11px]">Saved to Pearls</span>
+                            </>
+                          ) : (
+                            <>
+                              <BookmarkPlus className="h-3.5 w-3.5" />
+                              <span className="text-[11px]">Save as Pearl</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+
+                      {msg.content && (
+                        <button
+                          type="button"
+                          onClick={() => handleCopyMessage(msg.id, msg.content)}
+                          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-700 transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-slate-100/80 active:scale-95"
+                          title="Copy answer"
+                          aria-label="Copy answer"
+                        >
+                          {copiedMessageId === msg.id ? (
+                            <>
+                              <Check className="h-3.5 w-3.5 text-emerald-600" />
+                              <span className="text-emerald-600 font-medium text-[11px]">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3.5 w-3.5" />
+                              <span className="text-[11px]">Copy</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* Proper Markdown Output via MarkdownRenderer, Error Notice with Retry, or Streaming Indicator */}
@@ -1977,6 +2072,54 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                   ) : msg.content ? (
                     <div className="transition-opacity duration-200">
                       <MarkdownRenderer content={msg.content} />
+
+                      {/* Contextual High-Yield Active Recall Chips */}
+                      {!isLoading && !msg.isError && msg.content && (
+                        <div className="flex flex-wrap items-center gap-2 pt-2.5 border-t border-slate-100/90 mt-3.5">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+                            Active Recall:
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleSendMessage(
+                                'Generate a high-yield FMGE clinical vignette MCQ on this topic with 4 options (A, B, C, D) and distractor analysis.'
+                              )
+                            }
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-teal-50/80 hover:bg-teal-100/90 text-[#006B63] border border-teal-200/60 text-[11px] font-bold font-['Outfit'] transition-all active:scale-95 cursor-pointer shadow-2xs"
+                            title="Test your recall with an exam-style MCQ"
+                          >
+                            <Sparkles className="w-3 h-3 text-[#006B63]" />
+                            <span>Quiz me on this</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleSendMessage(
+                                'What are the common FMGE examiner traps, high-yield look-alikes, and distractor pitfalls for this condition?'
+                              )
+                            }
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-50/80 hover:bg-amber-100/90 text-amber-800 border border-amber-200/60 text-[11px] font-bold font-['Outfit'] transition-all active:scale-95 cursor-pointer shadow-2xs"
+                            title="See common exam tricks and traps"
+                          >
+                            <ShieldAlert className="w-3 h-3 text-amber-600" />
+                            <span>FMGE Traps</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleSendMessage(
+                                'What is the first-line Drug of Choice (DOC) and emergency management protocol for this condition according to latest guidelines?'
+                              )
+                            }
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50/80 hover:bg-emerald-100/90 text-emerald-800 border border-emerald-200/60 text-[11px] font-bold font-['Outfit'] transition-all active:scale-95 cursor-pointer shadow-2xs"
+                            title="First-line pharmacotherapy & management"
+                          >
+                            <Pill className="w-3 h-3 text-emerald-600" />
+                            <span>DOC & Protocol</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="flex items-center gap-3 py-3 px-4 rounded-2xl bg-teal-50/60 border border-teal-100 text-xs font-medium text-teal-900 shadow-2xs animate-fadeIn">
@@ -1996,6 +2139,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                     onAnswer={handleSingleQuizAnswer}
                     onOpenImageModal={setActiveModalImage}
                     onFollowUpClick={handleSendMessage}
+                    onAddErrorItem={onAddErrorItem}
                   />
                 )}
 
@@ -2068,6 +2212,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
           onImageSelect={handleImageSelect}
           quickActions={quickActions}
           isHighlighted={isPromptHighlighted}
+          onSetInputQuery={(q) => setInputQuery(q)}
         />
       </div>
       </div>
@@ -2103,6 +2248,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         onClearAllHistory={executeClearAllHistory}
         onClearUnpinnedHistory={executeClearUnpinnedHistory}
         formatRelativeDate={formatRelativeDate}
+        onExportSession={handleExportConsultation}
       />
 
       {/* Gemini AI Engine Key & Status Modal */}

@@ -23,6 +23,7 @@ import {
   AlertTriangle,
   Database,
   ShieldAlert,
+  Download,
 } from 'lucide-react';
 import { CoachSession } from '../AiCoachView';
 import { useCircadianTheme } from '../../hooks/useCircadianTheme';
@@ -49,6 +50,7 @@ interface MentorHistoryDrawerProps {
   onClearAllHistory: () => void;
   onClearUnpinnedHistory?: () => void;
   formatRelativeDate: (dateStr: string) => string;
+  onExportSession?: (session: CoachSession) => void;
 }
 
 export const MentorHistoryDrawer: React.FC<MentorHistoryDrawerProps> = ({
@@ -63,13 +65,27 @@ export const MentorHistoryDrawer: React.FC<MentorHistoryDrawerProps> = ({
   onClearAllHistory,
   onClearUnpinnedHistory,
   formatRelativeDate,
+  onExportSession,
 }) => {
   const circadian = useCircadianTheme();
   const [internalSearch, setInternalSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<SessionIntentType>('all');
+  const [selectedSubject, setSelectedSubject] = useState<string>('all');
   const [confirmClear, setConfirmClear] = useState(false);
   const starredCount = useMemo(() => sessions.filter((s) => s.isPinned).length, [sessions]);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+
+  // Available subjects detected across past sessions
+  const availableSubjects = useMemo(() => {
+    const set = new Set<string>();
+    sessions.forEach((s) => {
+      const intel = extractSessionIntelligence(s);
+      if (intel.subjectName && intel.subjectName !== 'General') {
+        set.add(intel.subjectName);
+      }
+    });
+    return Array.from(set).sort();
+  }, [sessions]);
 
   // Keyboard accessibility: ESC key to dismiss
   useEffect(() => {
@@ -87,8 +103,12 @@ export const MentorHistoryDrawer: React.FC<MentorHistoryDrawerProps> = ({
 
   // Compute processed, filtered, and sorted sessions
   const processedSessions = useMemo(() => {
-    return filterSessions(sessions, internalSearch, activeFilter);
-  }, [sessions, internalSearch, activeFilter]);
+    let list = filterSessions(sessions, internalSearch, activeFilter);
+    if (selectedSubject !== 'all') {
+      list = list.filter((s) => extractSessionIntelligence(s).subjectName === selectedSubject);
+    }
+    return list;
+  }, [sessions, internalSearch, activeFilter, selectedSubject]);
 
   // Group filtered sessions into smart date buckets
   const groupedSessions = useMemo(() => {
@@ -291,6 +311,40 @@ export const MentorHistoryDrawer: React.FC<MentorHistoryDrawerProps> = ({
                   );
                 })}
               </div>
+
+              {/* High-Yield Subject Filter Strip (if multiple subjects exist) */}
+              {availableSubjects.length > 0 && (
+                <div className="flex items-center gap-1 overflow-x-auto pt-1 pb-0.5 no-scrollbar touch-pan-x text-[10.5px] border-t border-slate-100 dark:border-slate-800">
+                  <span className="text-[9.5px] font-mono font-bold text-slate-400 uppercase mr-1 shrink-0">
+                    Subject:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSubject('all')}
+                    className={`whitespace-nowrap px-2 py-0.5 rounded-md font-mono font-bold transition-all cursor-pointer shrink-0 border ${
+                      selectedSubject === 'all'
+                        ? 'bg-teal-100 text-[#006B63] border-teal-300'
+                        : 'bg-transparent text-slate-500 border-transparent hover:border-slate-200'
+                    }`}
+                  >
+                    All
+                  </button>
+                  {availableSubjects.map((sub) => (
+                    <button
+                      key={sub}
+                      type="button"
+                      onClick={() => setSelectedSubject(sub)}
+                      className={`whitespace-nowrap px-2 py-0.5 rounded-md font-mono font-bold transition-all cursor-pointer shrink-0 border ${
+                        selectedSubject === sub
+                          ? 'bg-teal-100 text-[#006B63] border-teal-300'
+                          : 'bg-transparent text-slate-500 border-transparent hover:border-slate-200'
+                      }`}
+                    >
+                      {sub}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ── 3. Scrollable Session List with Date Grouping ─────────────── */}
@@ -454,6 +508,22 @@ export const MentorHistoryDrawer: React.FC<MentorHistoryDrawerProps> = ({
 
                               {/* Right Action Tools: Pin & Delete */}
                               <div className="flex items-center gap-0.5 shrink-0">
+                                {/* Export Note Button */}
+                                {onExportSession && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onExportSession(s);
+                                    }}
+                                    className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-slate-700 transition-all cursor-pointer opacity-70 group-hover:opacity-100"
+                                    title="Export consultation note (.md)"
+                                    aria-label="Export consultation note"
+                                  >
+                                    <Download className="h-3.5 w-3.5" />
+                                  </button>
+                                )}
+
                                 {/* Star / Pin Button */}
                                 {onTogglePinSession && (
                                   <button
