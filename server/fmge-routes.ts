@@ -49,44 +49,25 @@ const app = express();
 app.use(express.json());
 app.use("/uploads/telegram/media", express.static(path.join(process.cwd(), "public", "uploads", "telegram", "media")));
 
-// Initialize Google GenAI — reads GEMINI_API_KEY from process.env on every call
-// so hot-reloads and .env changes are always reflected.
-function getAI(): GoogleGenAI {
-  let apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    try {
-      const envFile = path.resolve(process.cwd(), ".env");
-      if (fs.existsSync(envFile)) {
-        const raw = fs.readFileSync(envFile, "utf8");
-        for (const line of raw.split("\n")) {
-          const match = line.match(/^\s*GEMINI_API_KEY\s*=\s*(.*)$/);
-          if (match) {
-            apiKey = match[1].trim().replace(/^["\"]|["\"]$/g, "");
-            process.env.GEMINI_API_KEY = apiKey;
-            break;
-          }
-        }
-      }
-    } catch (e) {
-      console.warn("[Gemini] Failed to read .env file directly:", e);
-    }
-  }
-  if (!apiKey) {
-    console.warn('[Gemini] GEMINI_API_KEY is not set — API calls will fail. Set it in .env and restart.');
-  }
-  return new GoogleGenAI({ apiKey: apiKey || '' });
-}
-
+// Resiliently resolve GEMINI_API_KEY from environment, runtime data store, or .env file
+export { getGeminiApiKey, getAI } from "./gemini-config";
+import { getGeminiApiKey, getAI } from "./gemini-config";
 
 // Resilient helper with multi-model fallback across active, working Gemini models
 async function callGeminiWithRetry(params: any, retries = 2, delayMs = 500): Promise<any> {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured on this server. Please set GEMINI_API_KEY in your Render dashboard environment variables or in App Settings.");
+  }
+
   const ai = getAI();
   const requestedModel = params.model;
   
-  // Sanitize and prioritize models:
-  // 1. "gemini-3.1-flash-lite": blazing fast (~3-7s) structured JSON output, high availability
-  // 2. "gemini-3.8-flash": complex reasoning and deep synthesis fallback
-  // 3. "gemini-flash-latest": flash alias fallback
+  // Sanitize and prioritize active models:
+  // 1. "gemini-3.1-flash-lite": blazing fast (~1-2s) structured JSON output, high availability
+  // 2. "gemini-3.8-flash": complex reasoning and deep clinical synthesis
+  // 3. "gemini-3.6-flash": high-throughput stable fallback
+  // 4. "gemini-3.7-flash": Gemini 3.7 Flash clinical reasoning engine
   const validRequested = (requestedModel && requestedModel !== "gemini-flash-lite-latest" && requestedModel !== "gemini-3.5-flash-lite" && requestedModel !== "gemini-2.5-flash")
     ? requestedModel
     : null;
@@ -95,7 +76,8 @@ async function callGeminiWithRetry(params: any, retries = 2, delayMs = 500): Pro
     validRequested || "gemini-3.1-flash-lite",
     "gemini-3.1-flash-lite",
     "gemini-3.8-flash",
-    "gemini-flash-latest",
+    "gemini-3.6-flash",
+    "gemini-3.7-flash",
   ])).filter(Boolean);
 
   let lastErr: any = null;
@@ -418,7 +400,122 @@ Provide output in valid JSON matching this schema:
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", service: "FMGE Study Tracker API" });
+  const apiKey = getGeminiApiKey();
+  res.json({
+    status: "ok",
+    service: "FMGE Study Tracker API",
+    geminiConfigured: Boolean(apiKey),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// AI Engine Health & Diagnostic Status Endpoint
+app.get("/api/ai/status", async (req, res) => {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    res.json({
+      configured: false,
+      status: "missing_key",
+      message: "GEMINI_API_KEY is not configured on the server. Set it in the Render dashboard environment variables or configure it in App Settings.",
+      activeModel: "gemini-3.1-flash-lite",
+    });
+    return;
+  }
+
+  const keyPreview = apiKey.length > 8
+    ? `${apiKey.slice(0, 4)}...${apiKey.slice(-4)}`
+    : "***";
+
+  if (req.query.probe === "true") {
+    try {
+      const ai = getAI();
+      const probeStart = Date.now();
+      await ai.models.generateContent({
+        model: "gemini-3.1-flash-lite",
+        contents: "ping",
+      });
+      const latencyMs = Date.now() - probeStart;
+
+      res.json({
+        configured: true,
+        status: "active",
+        keyPreview,
+        activeModel: "gemini-3.1-flash-lite",
+        latencyMs,
+        message: "Gemini API is live and responsive.",
+      });
+      return;
+    } catch (err: any) {
+      const isQuota = err?.status === 429 || err?.message?.includes("RESOURCE_EXHAUSTED") || err?.message?.includes("429");
+      const isInvalid = err?.status === 403 || err?.message?.includes("PERMISSION_DENIED") || err?.message?.includes("API_KEY_INVALID");
+
+      res.json({
+        configured: true,
+        status: isQuota ? "rate_limited" : isInvalid ? "invalid_key" : "error",
+        keyPreview,
+        activeModel: "gemini-3.1-flash-lite",
+        error: err.message,
+        message: isQuota
+          ? "Gemini API daily quota reached. Showing offline clinical high-yield notes."
+          : isInvalid
+          ? "Gemini API key is invalid or unauthorized. Please verify your key at ai.google.dev."
+          : `Gemini API probe error: ${err.message}`,
+      });
+      return;
+    }
+  }
+
+  res.json({
+    configured: true,
+    status: "ready",
+    keyPreview,
+    activeModel: "gemini-3.1-flash-lite",
+    message: "GEMINI_API_KEY is configured and ready.",
+  });
+});
+
+// AI Engine Runtime Key Configuration Endpoint (enables instant activation on Render without waiting for rebuild)
+app.post("/api/ai/config", async (req, res) => {
+  const { apiKey } = req.body;
+  if (!apiKey || typeof apiKey !== "string" || apiKey.trim().length < 10) {
+    res.status(400).json({ success: false, error: "Valid Gemini API key string is required." });
+    return;
+  }
+
+  const cleanKey = apiKey.trim().replace(/^["']|["']$/g, "");
+
+  try {
+    const testAI = new GoogleGenAI({ apiKey: cleanKey });
+    await testAI.models.generateContent({
+      model: "gemini-3.1-flash-lite",
+      contents: "ping",
+    });
+
+    // Verification succeeded: activate key in process memory
+    process.env.GEMINI_API_KEY = cleanKey;
+
+    // Persist to server data directory
+    const dataDir = path.resolve(process.cwd(), "server/data");
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    const keyPath = path.join(dataDir, "gemini_key.json");
+    fs.writeFileSync(keyPath, JSON.stringify({
+      apiKey: cleanKey,
+      updatedAt: new Date().toISOString(),
+    }, null, 2), "utf8");
+
+    res.json({
+      success: true,
+      message: "Gemini API key successfully verified and connected!",
+      keyPreview: `${cleanKey.slice(0, 4)}...${cleanKey.slice(-4)}`,
+    });
+  } catch (err: any) {
+    res.status(400).json({
+      success: false,
+      error: `Gemini verification failed: ${err.message || "Invalid API key"}`,
+    });
+  }
 });
 
 // AI: Generate 10-Question High-Yield Practice Session Batch strictly locked to topic
@@ -1678,10 +1775,15 @@ Your errors suggest the distinction is the issue. Let's lock down the difference
   // Generic well-structured fallback that uses the actual query keywords — never generic template language
   const topicDisplay = topic || query.slice(0, 60);
   const subjectDisplay = subject || 'Medicine';
+  const apiKey = getGeminiApiKey();
+
+  const noticeHeader = !apiKey
+    ? `> ⚠️ **Gemini AI Engine Setup Required** — The \`GEMINI_API_KEY\` environment variable is not configured on this server (Render). Showing offline high-yield clinical notes for **"${query}"**. Please configure \`GEMINI_API_KEY\` in your Render dashboard environment variables or in App Settings.`
+    : `> ⚡ **FMGE AI Coach** — Live Gemini API quota reached for today (free tier: 20 req/day). Showing offline high-yield notes for **"${query}"**. The AI will answer freely again tomorrow, or upgrade your API plan at [ai.google.dev](https://ai.google.dev).`;
 
   return `### 🩺 Clinical High-Yield Breakdown: **${topicDisplay}** (${subjectDisplay})
 
-> ⚡ **FMGE AI Coach** — Gemini API rate limit reached for today (free tier: 20 req/day). Showing offline high-yield notes for **"${query}"**. The AI will answer freely again tomorrow, or upgrade your API plan at [ai.google.dev](https://ai.google.dev).
+${noticeHeader}
 
 #### 1. Pathophysiology & Core Mechanism
 Based on the topic **"${query}"**, this covers the underlying cellular, molecular, and anatomical mechanism that drives the disease process and determines its clinical presentation pattern.
@@ -1877,6 +1979,29 @@ CRITICAL REASONING & TOPIC INTEGRITY DIRECTIVES:
 (Note: weak subjects, weak topics, recent mistakes, GT score, estimated performance and today's plan are STUDY-STRATEGY personalization context from the student's onboarding profile and live planning engine. Never present them as, or let them alter, standard-of-care medical facts.)`;
 
   try {
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) {
+      const setupMsg = `### ⚠️ Gemini AI Engine Setup Required
+
+The **\`GEMINI_API_KEY\`** environment variable is not configured on this server (Render).
+
+#### How to enable live AI on Render:
+1. Open your [Render Dashboard](https://dashboard.render.com/) $\\rightarrow$ select your web service (**oneshot-fmge-web**).
+2. Go to **Environment** $\\rightarrow$ click **Add Environment Variable**.
+3. Set **Key**: \`GEMINI_API_KEY\` and **Value**: your Google Gemini API key from [Google AI Studio](https://ai.google.dev).
+4. Click **Save Changes** — Render will automatically redeploy with the key active.
+
+*(You can also configure your key right now in the app under **Faculty Desk > AI Settings** to activate live AI immediately without redeploying).*
+
+---
+` + generateOfflineFallbackExplanation(detectedSubject, detectedTopic, message);
+
+      res.write(`data: ${JSON.stringify({ text: setupMsg })}\n\n`);
+      res.write(`data: ${JSON.stringify({ done: true, fullText: setupMsg })}\n\n`);
+      res.end();
+      return;
+    }
+
     const ai = getAI();
     const contents: any[] = [];
 
@@ -1906,7 +2031,7 @@ CRITICAL REASONING & TOPIC INTEGRITY DIRECTIVES:
       parts: currentParts,
     });
 
-    const models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-flash-latest"];
+    const models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.7-flash"];
     let streamSuccess = false;
 
     for (const model of models) {

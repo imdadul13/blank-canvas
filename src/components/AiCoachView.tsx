@@ -55,6 +55,7 @@ import { MentorPromptDesk } from './mentor/MentorPromptDesk';
 import { MentorValuePropsBanner } from './mentor/MentorValuePropsBanner';
 import { MentorClinicalChallengeCard } from './mentor/MentorClinicalChallengeCard';
 import { MentorQuizRunner } from './mentor/MentorQuizRunner';
+import { AiKeyConfigModal } from './mentor/AiKeyConfigModal';
 
 export interface QuizQuestionItem {
   id: string;
@@ -414,6 +415,25 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   
   // Interactive Multi-Question Quiz Mode State
   const [quizSession, setQuizSession] = useState<ActiveQuizSession | null>(null);
+
+  // Gemini API Engine Status & Key Modal State
+  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+  const [aiConfigured, setAiConfigured] = useState<boolean | null>(null);
+
+  const checkAiStatus = () => {
+    fetch('/api/ai/status')
+      .then((r) => r.json())
+      .then((data) => {
+        if (typeof data?.configured === 'boolean') {
+          setAiConfigured(data.configured);
+        }
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    checkAiStatus();
+  }, []);
 
   // Student Image Attachment State
   const [attachedImage, setAttachedImage] = useState<{
@@ -1675,7 +1695,28 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         onNewSession={handleNewSession}
         isGoldenHourMode={isGoldenHourActive}
         onToggleGoldenHour={() => setIsGoldenHourActive((prev) => !prev)}
+        onOpenKeyConfig={() => setIsKeyModalOpen(true)}
+        isAiConfigured={aiConfigured ?? true}
       />
+
+      {/* Render AI Engine Notice Banner (shown only if GEMINI_API_KEY is not configured on server) */}
+      {aiConfigured === false && (
+        <div className="w-full max-w-5xl xl:max-w-6xl mx-auto flex items-center justify-between gap-3 p-3.5 sm:px-4.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-900 dark:text-amber-200 text-xs shadow-2xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+            <span className="leading-snug">
+              <strong>Gemini API Key Required:</strong> Live faculty reasoning is running in offline mode on this server. Configure your key to activate real-time AI.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsKeyModalOpen(true)}
+            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#006B63] to-teal-600 hover:from-[#00554E] hover:to-teal-700 text-white font-bold text-xs shrink-0 cursor-pointer shadow-xs transition-all whitespace-nowrap"
+          >
+            Connect Key
+          </button>
+        </div>
+      )}
 
       {/* ================= MAIN CLINICAL CONSULTATION WORKSPACE ================= */}
       <main className="w-full max-w-5xl xl:max-w-6xl mx-auto space-y-3 sm:space-y-4 min-w-0">
@@ -2037,6 +2078,15 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         onClearAllHistory={executeClearAllHistory}
         onClearUnpinnedHistory={executeClearUnpinnedHistory}
         formatRelativeDate={formatRelativeDate}
+      />
+
+      {/* Gemini AI Engine Key & Status Modal */}
+      <AiKeyConfigModal
+        isOpen={isKeyModalOpen}
+        onClose={() => setIsKeyModalOpen(false)}
+        onKeyConfigured={() => {
+          setAiConfigured(true);
+        }}
       />
     </div>
   );

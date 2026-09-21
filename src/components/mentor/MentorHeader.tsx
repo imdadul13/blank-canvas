@@ -13,6 +13,8 @@ interface MentorHeaderProps {
   onNewSession: () => void;
   isGoldenHourMode?: boolean;
   onToggleGoldenHour?: () => void;
+  onOpenKeyConfig?: () => void;
+  isAiConfigured?: boolean;
 }
 
 export const MentorHeader: React.FC<MentorHeaderProps> = ({
@@ -22,6 +24,8 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
   onNewSession,
   isGoldenHourMode = false,
   onToggleGoldenHour,
+  onOpenKeyConfig,
+  isAiConfigured = true,
 }) => {
   const circadian = useCircadianTheme();
   const reducedMotion = useReducedMotion();
@@ -275,10 +279,19 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
                 <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${circadian.isNight ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200' : circadian.titleGrad}`}>
                   FACULTY MENTOR
                 </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border shadow-2xs shrink-0 ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                  Clinical AI Faculty
-                </span>
+                <button
+                  type="button"
+                  onClick={onOpenKeyConfig}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border shadow-2xs shrink-0 cursor-pointer hover:opacity-90 transition-all ${
+                    isAiConfigured === false
+                      ? 'bg-amber-500/10 border-amber-400/40 text-amber-700 dark:text-amber-300'
+                      : `${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`
+                  }`}
+                  title="Click to view Gemini AI Engine status & settings"
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${isAiConfigured === false ? 'bg-amber-500' : 'bg-teal-500 animate-pulse'}`} />
+                  {isAiConfigured === false ? 'AI Setup Needed' : 'Clinical AI Faculty'}
+                </button>
               </div>
 
               <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
