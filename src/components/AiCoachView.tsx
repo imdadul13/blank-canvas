@@ -699,16 +699,22 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     setIsLoading(false);
     isStreamingRef.current = true;
 
+    const streamController = new AbortController();
+    const streamTimeout = setTimeout(() => streamController.abort(), 35000);
+
     try {
       const streamRes = await fetch('/api/ai/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: streamController.signal,
         body: JSON.stringify({
           message: promptText,
           history: [{ role: 'user', content: promptText }],
           studentContext: computedStudentContext,
         }),
       });
+
+      clearTimeout(streamTimeout);
 
       if (streamRes.ok && streamRes.body) {
         const reader = streamRes.body.getReader();
@@ -739,7 +745,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             }
 
             const now = Date.now();
-            if (newTextAdded && now - lastFlush > 60) {
+            if (newTextAdded && (lastFlush === 0 || now - lastFlush > 50)) {
               lastFlush = now;
               const currentText = accumulated;
               setMessages((prev) =>
@@ -1059,7 +1065,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       isStreamingRef.current = true;
 
       const streamController = new AbortController();
-      const streamTimeout = setTimeout(() => streamController.abort(), 18000); // 18s max timeout
+      const streamTimeout = setTimeout(() => streamController.abort(), 35000); // 35s max timeout
 
       try {
         const streamRes = await fetch('/api/ai/chat/stream', {
@@ -1108,7 +1114,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               }
 
               const now = Date.now();
-              if (newTextAdded && now - lastFlush > 80) {
+              if (newTextAdded && (lastFlush === 0 || now - lastFlush > 50)) {
                 lastFlush = now;
                 const currentText = accumulated;
                 setMessages((prev) =>

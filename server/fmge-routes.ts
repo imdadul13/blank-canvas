@@ -53,8 +53,39 @@ app.use("/uploads/telegram/media", express.static(path.join(process.cwd(), "publ
 export { getGeminiApiKey, getAI } from "./gemini-config";
 import { getGeminiApiKey, getAI } from "./gemini-config";
 
+/**
+ * Normalizes contents for Gemini API:
+ * 1. Merges consecutive identical roles into a single turn.
+ * 2. Filters out empty text parts.
+ * 3. Ensures the very first turn is role: 'user'.
+ */
+function normalizeGeminiContents(contents: Array<{ role: string; parts: any[] }>): Array<{ role: string; parts: any[] }> {
+  const result: Array<{ role: string; parts: any[] }> = [];
+  for (const item of contents) {
+    if (!item || !Array.isArray(item.parts) || item.parts.length === 0) continue;
+    const cleanParts = item.parts.filter((p: any) => {
+      if (typeof p.text === 'string') return p.text.trim().length > 0;
+      if (p.inlineData) return Boolean(p.inlineData.data);
+      return true;
+    });
+    if (cleanParts.length === 0) continue;
+
+    const normalizedRole = item.role === 'assistant' ? 'model' : item.role;
+    if (result.length > 0 && result[result.length - 1].role === normalizedRole) {
+      result[result.length - 1].parts.push(...cleanParts);
+    } else {
+      result.push({ role: normalizedRole, parts: cleanParts });
+    }
+  }
+
+  while (result.length > 0 && result[0].role !== 'user') {
+    result.shift();
+  }
+  return result;
+}
+
 // Resilient helper with multi-model fallback across active, working Gemini models
-async function callGeminiWithRetry(params: any, retries = 2, delayMs = 500): Promise<any> {
+async function callGeminiWithRetry(params: any, retries = 1, delayMs = 300): Promise<any> {
   const apiKey = getGeminiApiKey();
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not configured on this server. Please set GEMINI_API_KEY in your Render dashboard environment variables or in App Settings.");
@@ -64,19 +95,21 @@ async function callGeminiWithRetry(params: any, retries = 2, delayMs = 500): Pro
   const requestedModel = params.model;
   
   // Sanitize and prioritize active models:
-  // 1. "gemini-3.1-flash-lite": blazing fast (~1-2s) structured JSON output, high availability
-  // 2. "gemini-3.8-flash": complex reasoning and deep clinical synthesis
-  // 3. "gemini-3.6-flash": high-throughput stable fallback
-  // 4. "gemini-3.7-flash": Gemini 3.7 Flash clinical reasoning engine
-  const validRequested = (requestedModel && requestedModel !== "gemini-flash-lite-latest" && requestedModel !== "gemini-3.5-flash-lite" && requestedModel !== "gemini-2.5-flash")
+  // 1. "gemini-3.5-flash-lite": ultra-low latency (~1s), high availability
+  // 2. "gemini-flash-lite-latest": robust structured JSON output
+  // 3. "gemini-3.1-flash-lite": high availability fallback
+  // 4. "gemini-3-flash-preview": high-speed fallback
+  // 5. "gemini-3.7-flash": Gemini 3.7 Flash clinical reasoning engine
+  const validRequested = (requestedModel && requestedModel !== "gemini-2.5-flash" && requestedModel !== "gemini-2.5-flash-lite")
     ? requestedModel
     : null;
 
   const models = Array.from(new Set([
-    validRequested || "gemini-3.1-flash-lite",
+    validRequested || "gemini-3.5-flash-lite",
+    "gemini-3.5-flash-lite",
+    "gemini-flash-lite-latest",
     "gemini-3.1-flash-lite",
-    "gemini-3.8-flash",
-    "gemini-3.6-flash",
+    "gemini-3-flash-preview",
     "gemini-3.7-flash",
   ])).filter(Boolean);
 
@@ -85,7 +118,7 @@ async function callGeminiWithRetry(params: any, retries = 2, delayMs = 500): Pro
   for (const model of models) {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        const timeoutMs = params.timeoutMs || 30000;
+        const timeoutMs = params.timeoutMs || 10000;
         const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error(`Timeout on ${model} after ${timeoutMs / 1000}s`)), timeoutMs)
         );
@@ -99,11 +132,19 @@ async function callGeminiWithRetry(params: any, retries = 2, delayMs = 500): Pro
         return response;
       } catch (err: any) {
         lastErr = err;
-        const isTransient =
+        const isHighDemand =
           err?.status === 503 ||
           err?.message?.includes("503") ||
           err?.message?.includes("high demand") ||
-          err?.message?.includes("UNAVAILABLE") ||
+          err?.message?.includes("UNAVAILABLE");
+
+        // If 503 high demand, immediately break to next model without wasting time in retry loop!
+        if (isHighDemand) {
+          console.warn(`[Gemini API] Model ${model} is experiencing high demand (503). Instantly switching to next fallback model...`);
+          break;
+        }
+
+        const isTransient =
           err?.status === 429 ||
           err?.message?.includes("429") ||
           err?.message?.includes("RESOURCE_EXHAUSTED") ||
@@ -417,7 +458,7 @@ app.get("/api/ai/status", async (req, res) => {
       configured: false,
       status: "missing_key",
       message: "GEMINI_API_KEY is not configured on the server. Set it in the Render dashboard environment variables or configure it in App Settings.",
-      activeModel: "gemini-3.1-flash-lite",
+      activeModel: "gemini-3.5-flash-lite",
     });
     return;
   }
@@ -431,7 +472,7 @@ app.get("/api/ai/status", async (req, res) => {
       const ai = getAI();
       const probeStart = Date.now();
       await ai.models.generateContent({
-        model: "gemini-3.1-flash-lite",
+        model: "gemini-3.5-flash-lite",
         contents: "ping",
       });
       const latencyMs = Date.now() - probeStart;
@@ -440,7 +481,7 @@ app.get("/api/ai/status", async (req, res) => {
         configured: true,
         status: "active",
         keyPreview,
-        activeModel: "gemini-3.1-flash-lite",
+        activeModel: "gemini-3.5-flash-lite",
         latencyMs,
         message: "Gemini API is live and responsive.",
       });
@@ -453,7 +494,7 @@ app.get("/api/ai/status", async (req, res) => {
         configured: true,
         status: isQuota ? "rate_limited" : isInvalid ? "invalid_key" : "error",
         keyPreview,
-        activeModel: "gemini-3.1-flash-lite",
+        activeModel: "gemini-3.5-flash-lite",
         error: err.message,
         message: isQuota
           ? "Gemini API daily quota reached. Showing offline clinical high-yield notes."
@@ -469,7 +510,7 @@ app.get("/api/ai/status", async (req, res) => {
     configured: true,
     status: "ready",
     keyPreview,
-    activeModel: "gemini-3.1-flash-lite",
+    activeModel: "gemini-3.5-flash-lite",
     message: "GEMINI_API_KEY is configured and ready.",
   });
 });
@@ -487,7 +528,7 @@ app.post("/api/ai/config", async (req, res) => {
   try {
     const testAI = new GoogleGenAI({ apiKey: cleanKey });
     await testAI.models.generateContent({
-      model: "gemini-3.1-flash-lite",
+      model: "gemini-3.5-flash-lite",
       contents: "ping",
     });
 
@@ -1819,11 +1860,14 @@ app.post("/api/ai/chat/stream", async (req, res) => {
     return;
   }
 
-  // Set SSE Headers
+  // Set SSE Headers with reverse-proxy buffering disabled (Cloudflare / Render)
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  res.setHeader("Transfer-Encoding", "chunked");
   res.flushHeaders?.();
+  res.write(": connected\n\n");
 
   const {
     daysRemaining = 60,
@@ -2003,11 +2047,11 @@ The **\`GEMINI_API_KEY\`** environment variable is not configured on this server
     }
 
     const ai = getAI();
-    const contents: any[] = [];
+    const rawContents: any[] = [];
 
     // History context
     for (const h of history.slice(-6)) {
-      contents.push({
+      rawContents.push({
         role: h.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: h.content || '' }],
       });
@@ -2026,12 +2070,15 @@ The **\`GEMINI_API_KEY\`** environment variable is not configured on this server
     }
     currentParts.push({ text: message });
 
-    contents.push({
+    rawContents.push({
       role: 'user',
       parts: currentParts,
     });
 
-    const models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.7-flash"];
+    const contents = normalizeGeminiContents(rawContents);
+
+    // Prioritize ultra-fast models with sub-second time-to-first-token
+    const models = ["gemini-3.5-flash-lite", "gemini-flash-lite-latest", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-3.7-flash"];
     let streamSuccess = false;
 
     for (const model of models) {
@@ -2510,12 +2557,15 @@ Output strictly valid JSON matching this schema:
     userParts.push({ text: message });
 
     // Optimized model engine: gemini-3.7-flash / gemini-flash-lite-latest for ultra-low latency (<1s)
+    const rawContents = [
+      ...formattedHistory,
+      { role: "user", parts: userParts }
+    ];
+    const contents = normalizeGeminiContents(rawContents);
+
     const response = await callGeminiWithRetry({
-      model: "gemini-flash-lite-latest",
-      contents: [
-        ...formattedHistory,
-        { role: "user", parts: userParts }
-      ],
+      model: "gemini-3.5-flash-lite",
+      contents,
       config: {
         responseMimeType: "application/json",
         systemInstruction,
