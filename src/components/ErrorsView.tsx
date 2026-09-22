@@ -712,7 +712,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
 
               {/* Search Bar */}
               <div className="relative w-full md:w-64 shrink-0">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Search your error vault..."
@@ -721,7 +721,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                     setSearchQuery(e.target.value);
                     setVisibleCount(5);
                   }}
-                  className="w-full rounded-full border border-slate-200 bg-slate-50/60 py-1.5 pl-8 pr-8 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-400 focus:outline-none transition-colors"
+                  className="w-full rounded-full border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white py-1.5 pl-8 pr-8 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none transition-all shadow-xs"
                 />
                 {searchQuery && (
                   <button

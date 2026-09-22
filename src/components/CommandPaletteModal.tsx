@@ -439,8 +439,8 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
           onKeyDown={handleKeyDown}
         >
           {/* Search Input Bar */}
-          <div className="relative flex items-center px-4 sm:px-5 py-3.5 border-b border-slate-100 bg-slate-50/50">
-            <Search className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
+          <div className="relative flex items-center px-4 sm:px-5 py-3.5 border-b border-slate-200/90 bg-slate-50/80">
+            <Search className="w-5 h-5 text-slate-500 shrink-0 mr-3" />
             <input
               ref={inputRef}
               type="text"

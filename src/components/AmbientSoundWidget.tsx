@@ -126,7 +126,7 @@ export const AmbientSoundWidget: React.FC<AmbientSoundWidgetProps> = ({
         className={`relative flex items-center justify-center h-10 w-10 rounded-full border transition-all cursor-pointer select-none ${
           isPlaying
             ? 'bg-[#006B63] text-white border-[#005750] shadow-md shadow-teal-900/20'
-            : 'bg-white/80 backdrop-blur-xl border-white/85 text-slate-600 hover:text-[#006B63] hover:border-teal-300 hover:bg-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)]'
+            : 'bg-slate-100/90 hover:bg-white border-slate-200/90 hover:border-slate-300 text-slate-600 hover:text-[#006B63] shadow-xs'
         }`}
         title={isPlaying ? 'Focus Audio Playing (Tap to configure)' : 'Focus Ambient Audio (Rain, Brown Noise, 40Hz)'}
         aria-label="Focus Audio"
@@ -151,7 +151,7 @@ export const AmbientSoundWidget: React.FC<AmbientSoundWidgetProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-            className="absolute right-0 top-full mt-2.5 w-80 max-w-[calc(100vw-1.5rem)] p-4 bg-white/95 backdrop-blur-2xl border border-white/90 rounded-3xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_20px_50px_rgba(0,107,99,0.14),0_2px_8px_rgba(0,0,0,0.04)] z-[110] space-y-3.5 font-sans text-slate-800"
+            className="absolute right-0 top-full mt-2.5 w-80 max-w-[calc(100vw-1.5rem)] p-4 bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-[0_20px_50px_rgba(0,107,99,0.14),0_2px_8px_rgba(0,0,0,0.06)] z-[110] space-y-3.5 font-sans text-slate-800"
           >
             {/* Header */}
             <div className="flex items-center justify-between pb-2 border-b border-stone-200/60">

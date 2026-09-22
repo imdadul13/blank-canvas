@@ -763,7 +763,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={reducedMotion ? undefined : { opacity: 0, x: -8, scale: 0.96 }}
                   transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute left-[calc(100%+8px)] top-0 w-64 bg-white/85 backdrop-blur-2xl rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_18px_48px_rgba(0,107,99,0.12)] border border-white/85 py-2.5 px-2 z-50 font-['Plus_Jakarta_Sans']"
+                  className="absolute left-[calc(100%+8px)] top-0 w-64 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-[0_18px_48px_rgba(0,107,99,0.12)] border border-slate-200/90 py-2.5 px-2 z-50 font-['Plus_Jakarta_Sans']"
                   role="menu"
                   aria-label="Secondary Utilities"
                 >
@@ -1029,7 +1029,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`relative flex items-center justify-center h-9 w-9 rounded-full border shadow-2xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]/40 ${
                 mobileMoreOpen || isSecondaryActive
                   ? 'bg-[#E8F5F3] border-teal-200 text-[#006B63]'
-                  : 'bg-white/80 backdrop-blur-xl border-white/85 text-stone-700 hover:text-[#006B63] hover:border-teal-300'
+                  : 'bg-slate-100/90 hover:bg-white border-slate-200/90 hover:border-slate-300 text-stone-700 hover:text-[#006B63] shadow-xs'
               }`}
             >
               <MoreHorizontal className="h-4.5 w-4.5" />
@@ -1043,7 +1043,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reducedMotion ? undefined : { opacity: 0, y: -6, scale: 0.96 }}
                   transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute right-0 top-[calc(100%+0.5rem)] w-64 max-w-[calc(100vw-2rem)] z-50 rounded-2xl bg-white/90 backdrop-blur-2xl saturate-[180%] border border-black/[0.06] shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_18px_48px_rgba(0,0,0,0.1)] p-2 font-sans"
+                  className="absolute right-0 top-[calc(100%+0.5rem)] w-64 max-w-[calc(100vw-2rem)] z-50 rounded-2xl bg-white/95 backdrop-blur-2xl saturate-[180%] border border-slate-200/90 shadow-[0_18px_48px_rgba(0,0,0,0.1)] p-2 font-sans"
                   role="menu"
                   aria-label="Secondary Utilities"
                 >

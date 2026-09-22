@@ -1049,9 +1049,9 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               e.preventDefault();
               handleQueryTopic(activeTopicQuery);
             }}
-            className="relative flex items-center bg-stone-50/80 hover:bg-white focus-within:bg-white border border-stone-200 focus-within:border-[#006B63] focus-within:ring-3 focus-within:ring-[#006B63]/10 rounded-2xl p-1.5 transition-all shadow-xs"
+            className="relative flex items-center bg-slate-100/90 hover:bg-slate-100 focus-within:bg-white border border-slate-200/90 focus-within:border-[#006B63] focus-within:ring-2 focus-within:ring-[#006B63]/15 rounded-2xl p-1.5 transition-all shadow-xs"
           >
-            <Search className="ml-2.5 sm:ml-3 h-4 w-4 text-slate-400 shrink-0 pointer-events-none" />
+            <Search className="ml-2.5 sm:ml-3 h-4 w-4 text-slate-500 shrink-0 pointer-events-none" />
             <input
               type="text"
               value={activeTopicQuery}
@@ -1513,14 +1513,14 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           <div className="space-y-3">
             {/* Search Input Bar */}
             <div className="relative w-full">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search saved pearls by keyword, drug, or formula..."
                 aria-label="Search saved pearls"
-                className="w-full h-10 pl-10 pr-10 rounded-2xl bg-stone-50/80 hover:bg-white focus:bg-white border border-stone-200 focus:border-[#006B63] focus:ring-3 focus:ring-[#006B63]/10 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 transition-all outline-none font-medium shadow-xs"
+                className="w-full h-10 pl-10 pr-10 rounded-2xl bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 transition-all outline-none font-medium shadow-xs"
               />
               {searchQuery && (
                 <button

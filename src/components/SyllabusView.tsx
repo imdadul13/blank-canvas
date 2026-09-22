@@ -661,13 +661,13 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         <div className="flex items-center gap-2.5 w-full md:w-auto">
           {/* Search Input */}
           <div className="relative flex-1 md:w-64">
-            <Search className="h-4 w-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="h-4 w-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               placeholder="Search subjects, topics..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-slate-200/80 bg-white/95 backdrop-blur-md py-2 pl-9 pr-8 text-xs text-stone-900 placeholder-stone-400 focus:border-[#006B63] focus:ring-1 focus:ring-[#006B63] focus:outline-none transition-all shadow-2xs"
+              className="w-full rounded-full border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white py-2 pl-9 pr-8 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none transition-all shadow-xs"
             />
             {searchQuery && (
               <button
@@ -685,7 +685,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="appearance-none rounded-full border border-slate-200/80 bg-white/95 backdrop-blur-md py-2 pl-3.5 pr-8 text-xs font-semibold text-stone-700 focus:border-[#006B63] focus:outline-none cursor-pointer shadow-2xs"
+              className="appearance-none rounded-full border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white py-2 pl-3.5 pr-8 text-xs font-semibold text-slate-700 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none cursor-pointer transition-all shadow-xs"
             >
               <option value="default">Sort: Default</option>
               <option value="weightage">Weightage (High → Low)</option>

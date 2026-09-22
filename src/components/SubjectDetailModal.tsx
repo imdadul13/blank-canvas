@@ -410,13 +410,13 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
 
                   {/* Search Input */}
                   <div className="relative w-full sm:w-48 shrink-0">
-                    <Search className="h-3.5 w-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <Search className="h-3.5 w-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type="text"
                       placeholder="Filter topics..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full rounded-lg border border-slate-200/80 bg-white pl-8 pr-3 py-1.5 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#006B63] shadow-2xs"
+                      className="w-full rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 transition-all shadow-xs"
                     />
                   </div>
                 </div>

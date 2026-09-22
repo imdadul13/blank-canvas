@@ -286,13 +286,13 @@ export const TopicMasteryDetailModal: React.FC<TopicMasteryDetailModalProps> = (
 
             {/* Search Input */}
             <div className="relative w-full sm:w-64 shrink-0">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search topics or subjects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 rounded-full border border-stone-200 text-xs bg-white focus:outline-none focus:border-[#00685f] transition-colors"
+                className="w-full pl-9 pr-3 py-1.5 rounded-full border border-slate-200/90 text-xs bg-slate-100/90 hover:bg-slate-100 focus:bg-white focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 transition-all text-slate-800 placeholder:text-slate-400 shadow-xs"
               />
             </div>
           </div>

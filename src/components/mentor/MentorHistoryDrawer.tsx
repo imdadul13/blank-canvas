@@ -262,7 +262,7 @@ export const MentorHistoryDrawer: React.FC<MentorHistoryDrawerProps> = ({
 
               {/* Smart Search Bar */}
               <div className="relative">
-                <Search className="absolute left-3.5 top-3 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+                <Search className="absolute left-3.5 top-3 h-3.5 w-3.5 text-slate-500 pointer-events-none" />
                 <input
                   type="text"
                   value={internalSearch}
@@ -271,7 +271,7 @@ export const MentorHistoryDrawer: React.FC<MentorHistoryDrawerProps> = ({
                   className={`w-full pl-9 pr-8 py-2 rounded-xl text-xs transition-all focus:outline-none focus:ring-2 font-sans ${
                     circadian.isNight
                       ? 'bg-slate-800/90 border border-slate-700 text-white placeholder:text-slate-500 focus:ring-cyan-500/30 focus:border-cyan-500'
-                      : 'bg-white border border-stone-200 text-slate-900 placeholder:text-slate-400 focus:ring-[#006B63]/20 focus:border-[#006B63]'
+                      : 'bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 text-slate-900 placeholder:text-slate-400 focus:ring-[#006B63]/20 focus:border-[#006B63] shadow-xs'
                   }`}
                 />
                 {internalSearch && (

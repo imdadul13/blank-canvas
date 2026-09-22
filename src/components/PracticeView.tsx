@@ -374,13 +374,13 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#66716F] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search topics or modules..."
-              className="w-full pl-10 pr-9 py-2 sm:py-2.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200/80 hover:border-slate-300 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 text-xs sm:text-sm text-[#121e1b] placeholder:text-[#66716F] transition-all outline-none shadow-2xs"
+              className="w-full pl-10 pr-9 py-2 sm:py-2.5 rounded-xl bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 transition-all outline-none shadow-xs"
             />
             {searchQuery && (
               <button
@@ -399,7 +399,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             <select
               value={selectedSubjectId}
               onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="w-full appearance-none pl-3.5 pr-8 py-2 sm:py-2.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200/80 hover:border-slate-300 focus:border-[#006B63] text-xs sm:text-sm font-medium text-[#121e1b] cursor-pointer outline-none transition-all shadow-2xs"
+              className="w-full appearance-none pl-3.5 pr-8 py-2 sm:py-2.5 rounded-xl bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 text-xs sm:text-sm font-medium text-slate-800 cursor-pointer outline-none transition-all shadow-xs"
             >
               <option value="all">All Subjects ({FMGE_SUBJECTS.length})</option>
               {FMGE_SUBJECTS.map((sub) => (

@@ -1010,13 +1010,13 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
           {/* Search Box */}
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search subjects..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-full text-xs bg-white/95 backdrop-blur-md border border-slate-200/80 focus:outline-none focus:border-[#00685f] text-stone-800 placeholder-stone-400 transition-colors shadow-2xs"
+              className="w-full pl-9 pr-3 py-1.5 rounded-full text-xs bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 text-slate-800 placeholder:text-slate-400 transition-all shadow-xs"
             />
           </div>
         </div>

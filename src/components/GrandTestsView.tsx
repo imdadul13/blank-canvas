@@ -907,7 +907,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
       {/* 5. Filter & Search Controls (Visible when tests exist) */}
       {gts.length > 0 && (
-        <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-4 sm:p-5 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_30px_rgba(0,107,99,0.04)] flex flex-col md:flex-row items-center justify-between gap-3">
+        <div className="bg-slate-50/70 backdrop-blur-xl rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Search Bar */}
           <div className="relative w-full md:w-80">
             <input
@@ -915,9 +915,9 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tests, platforms, or weak areas..."
-              className="w-full h-10 pl-9 pr-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/85 text-xs font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:border-slate-900 focus:outline-none transition-all shadow-2xs"
+              className="w-full h-10 pl-9 pr-3 rounded-xl bg-white hover:bg-white focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all shadow-xs"
             />
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
           </div>
 
           {/* Filter Pills & Sort */}
@@ -926,7 +926,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             <select
               value={platformFilter}
               onChange={(e) => setPlatformFilter(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+              className="h-10 px-3 rounded-xl bg-white border border-slate-200/90 hover:border-slate-300 text-xs font-semibold text-slate-700 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none cursor-pointer shadow-xs"
             >
               <option value="all">All Platforms</option>
               {platforms.map((p) => (

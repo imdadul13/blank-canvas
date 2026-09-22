@@ -1387,14 +1387,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           transition={{ type: 'spring', stiffness: 450, damping: 28 }}
           className={`sticky top-0 z-30 py-2 sm:py-2.5 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
             scrollY > 30
-              ? 'bg-white/85 backdrop-blur-2xl border-b border-slate-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.03)]'
+              ? 'bg-white/90 backdrop-blur-2xl border-b border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)]'
               : 'bg-transparent'
           }`}
         >
           <div className="flex items-center justify-between gap-2 sm:gap-4 max-w-7xl mx-auto">
             {/* Search topics input */}
             <div className="relative flex-1 w-full lg:max-w-xl">
-              <Search className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              <Search className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
@@ -1405,7 +1405,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onFocus={() => setIsSearchOpen(true)}
                 placeholder="Search topics, subjects, questions..."
                 aria-label="Search topics"
-                className="w-full pl-9 sm:pl-10 pr-8 sm:pr-14 h-10 sm:h-11 rounded-full bg-white/75 backdrop-blur-xl border border-white/80 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] focus:bg-white/95 focus:outline-none focus:border-[#006B63]/40 focus:ring-2 focus:ring-[#006B63]/10 transition-all"
+                className="w-full pl-9 sm:pl-10 pr-8 sm:pr-14 h-10 sm:h-11 rounded-full bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 shadow-xs focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 transition-all"
               />
               {searchQuery ? (
                 <button
@@ -1417,7 +1417,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <X className="h-3.5 w-3.5" />
                 </button>
               ) : (
-                <span className="hidden sm:inline-flex absolute right-3.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-white/80 border border-slate-200/50 text-[10px] font-mono text-slate-400 font-medium">
+                <span className="hidden sm:inline-flex absolute right-3.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-mono text-slate-500 font-medium shadow-2xs">
                   ⌘ K
                 </span>
               )}
@@ -1432,7 +1432,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsNotificationCenterOpen(true)}
-                className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] text-slate-600 cursor-pointer hover:bg-white/95 hover:text-[#006B63] hover:border-teal-300 transition-all shrink-0"
+                className="relative flex items-center justify-center h-10 w-10 rounded-full bg-slate-100/90 hover:bg-white border border-slate-200/90 hover:border-slate-300 shadow-xs text-slate-600 cursor-pointer hover:text-[#006B63] transition-all shrink-0"
                 title="View Study Notifications"
                 aria-label="View Study Notifications"
               >
@@ -1448,7 +1448,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 type="button"
                 onClick={onOpenProfile}
-                className="hidden sm:flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:bg-white/95 hover:border-teal-300 transition-all cursor-pointer group"
+                className="hidden sm:flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-slate-100/90 hover:bg-white border border-slate-200/90 hover:border-slate-300 shadow-xs transition-all cursor-pointer group"
                 title="Doctor Profile & Blueprint"
               >
                 <div className="h-8 w-8 rounded-full bg-[#2A2322] text-white flex items-center justify-center font-['Outfit'] font-bold text-xs shrink-0 ring-2 ring-slate-900/10">
