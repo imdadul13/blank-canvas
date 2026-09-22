@@ -87,7 +87,7 @@ export interface MoreUtilityItem {
   icon: typeof GraduationCap;
   desc: string;
   tab?: ActiveTab;
-  action?: 'cloudsync' | 'settings' | 'onboarding';
+  action?: 'cloudsync' | 'settings' | 'onboarding' | 'notifications';
 }
 
 export const moreUtilityItems: MoreUtilityItem[] = [
@@ -104,6 +104,13 @@ export const moreUtilityItems: MoreUtilityItem[] = [
     icon: Send,
     desc: 'Curated question feeds',
     tab: 'telegram',
+  },
+  {
+    id: 'notifications',
+    label: 'Notifications',
+    icon: Bell,
+    desc: 'Alerts & revision debts',
+    action: 'notifications',
   },
   {
     id: 'onboarding',
@@ -800,6 +807,9 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                             } else if (item.action === 'cloudsync') {
                               onOpenCloudSync?.();
                               if (!isSidebarOpen) onSidebarHoverLeave?.();
+                            } else if (item.action === 'notifications') {
+                              onOpenNotifications?.();
+                              if (!isSidebarOpen) onSidebarHoverLeave?.();
                             } else if (item.action === 'onboarding') {
                               onOpenOnboarding?.();
                               if (!isSidebarOpen) onSidebarHoverLeave?.();
@@ -1017,29 +1027,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="text-[10px] font-medium hidden xs:inline">{syncStatus === 'offline' ? 'Offline' : 'Synced'}</span>
             </button>
           )}
-          {onOpenNotifications && (
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMoreOpen(false);
-                onOpenNotifications();
-              }}
-              className="relative flex items-center justify-center h-9 w-9 rounded-full bg-white/80 backdrop-blur-xl border border-white/85 shadow-2xs text-stone-700 hover:text-stone-900 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]/40"
-              title="Study Intelligence"
-              aria-label={
-                unreadNotificationCount && unreadNotificationCount > 0
-                  ? `Study Intelligence, ${unreadNotificationCount} unread insights`
-                  : 'Study Intelligence'
-              }
-            >
-              <Bell className="h-4.5 w-4.5 stroke-[1.8]" />
-              {unreadNotificationCount !== undefined && unreadNotificationCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 rounded-full bg-rose-500 text-white font-['Outfit'] text-[9px] font-bold flex items-center justify-center border-2 border-white shadow-xs leading-none">
-                  {unreadNotificationCount}
-                </span>
-              )}
-            </button>
-          )}
 
           {/* Mobile More Utilities Button in Top Header */}
           <div className="relative" ref={mobileMoreRef}>
@@ -1104,6 +1091,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                             setActiveTab(item.tab);
                           } else if (item.action === 'cloudsync') {
                             onOpenCloudSync?.();
+                          } else if (item.action === 'notifications') {
+                            onOpenNotifications?.();
                           } else if (item.action === 'onboarding') {
                             onOpenOnboarding?.();
                           } else if (item.action === 'settings') {
