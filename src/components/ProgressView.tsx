@@ -25,18 +25,6 @@ import {
   Eye,
   Calendar,
   Target,
-  Sprout,
-  Mountain,
-  Stethoscope,
-  Scissors,
-  Users,
-  Baby,
-  Microscope,
-  Pill,
-  Atom,
-  Scale,
-  Flame,
-  Check,
 } from 'lucide-react';
 import { AppState, DailyTask, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -47,9 +35,7 @@ import {
   calculateImagePerformanceSummary,
 } from '../utils/performanceEngine';
 import { calculateStudyReadiness } from '../utils/readinessEngine';
-import { getTopPriorityTopics, getDaysRemainingToExam } from '../utils/adaptivePriorityEngine';
-import { calculateProtectedStudyStreak } from '../utils/streakProtectionEngine';
-import { getLocalDateKey } from '../utils/date';
+import { getTopPriorityTopics } from '../utils/adaptivePriorityEngine';
 import { ReadinessBreakdownModal } from './ReadinessBreakdownModal';
 import { SubjectDiagnosticDetailModal } from './SubjectDiagnosticDetailModal';
 import { TopicMasteryDetailModal } from './TopicMasteryDetailModal';
@@ -152,41 +138,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   const imageSummary = useMemo(() => calculateImagePerformanceSummary(state), [state]);
 
   // 5. SUBJECT PERFORMANCE AGGREGATES ACROSS ALL 19 SUBJECTS
-  const getSubjectSpecialty = (subjectId: string) => {
-    const id = subjectId.toLowerCase();
-    if (id.includes('med')) {
-      return { icon: Stethoscope, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200/80' };
-    }
-    if (id.includes('surg')) {
-      return { icon: Scissors, color: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200/80' };
-    }
-    if (id.includes('psm') || id.includes('community') || id.includes('preventive')) {
-      return { icon: Users, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200/80' };
-    }
-    if (id.includes('obg') || id.includes('gyne') || id.includes('obs') || id.includes('ped')) {
-      return { icon: Baby, color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-200/80' };
-    }
-    if (id.includes('path')) {
-      return { icon: Microscope, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200/80' };
-    }
-    if (id.includes('pharm')) {
-      return { icon: Pill, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200/80' };
-    }
-    if (id.includes('micro')) {
-      return { icon: Atom, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200/80' };
-    }
-    if (id.includes('forensic') || id.includes('fmt')) {
-      return { icon: Scale, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200/80' };
-    }
-    if (id.includes('opht') || id.includes('eye')) {
-      return { icon: Eye, color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-200/80' };
-    }
-    if (id.includes('anat') || id.includes('physio') || id.includes('neuro') || id.includes('psych')) {
-      return { icon: Brain, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-200/80' };
-    }
-    return { icon: BookOpen, color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200/80' };
-  };
-
   const subjectList = useMemo(() => {
     return FMGE_SUBJECTS.map((sub) => {
       let disciplineType: 'clinical' | 'preclinical' | 'paraclinical' = 'clinical';
@@ -197,22 +148,10 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
       }
 
       const metrics = overallPerf.subjectMetrics?.[sub.id] || calculateSubjectPerformanceMetrics(sub.id, state);
-      const completedTopics = sub.topics.filter((t) => {
-        const topState = state.topicsState?.[`${sub.id}-${t.id}`] || state.topicsState?.[t.id];
-        return topState?.notesDone || topState?.qBankDone || topState?.r1Done;
-      }).length;
-      const totalTopics = sub.topics.length;
-      const completionPct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
-      const estHoursRemaining = Math.max(1, Math.round((totalTopics - completedTopics) * 1.5));
-
       return {
         ...sub,
         disciplineType,
         metrics,
-        completedTopics,
-        totalTopics,
-        completionPct,
-        estHoursRemaining,
       };
     });
   }, [overallPerf.subjectMetrics, state]);
@@ -299,104 +238,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   // Dynamic Accuracy Delta
   const accuracyDelta = overallPerf.recentAccuracy - overallPerf.overallAccuracy;
   const circadian = useCircadianTheme(state.settings?.bgTheme);
-
-  // Real Journey & Countdown Metrics (Reference Screen 3 Alignment)
-  const daysRemaining = useMemo(() => getDaysRemainingToExam(state), [state]);
-  const targetScore = state.settings?.targetScore || 200;
-  const estScore = Math.round(stats.estimatedMasteredMarks) || stats.overallReadinessScore || 158;
-
-  const targetExamDateLabel = useMemo(() => {
-    if (state.settings?.examDate) {
-      try {
-        const d = new Date(state.settings.examDate);
-        return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) + ' FMGE';
-      } catch {
-        // fallback
-      }
-    }
-    return 'Dec 2024 FMGE';
-  }, [state.settings?.examDate]);
-
-  const syllabusPct = useMemo(() => {
-    let totalTopics = 0;
-    let completedTopics = 0;
-    for (const sub of FMGE_SUBJECTS) {
-      for (const top of sub.topics) {
-        totalTopics++;
-        const topState = state.topicsState?.[`${sub.id}-${top.id}`] || state.topicsState?.[top.id];
-        if (topState?.notesDone || topState?.qBankDone || topState?.r1Done) {
-          completedTopics++;
-        }
-      }
-    }
-    return totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
-  }, [state.topicsState]);
-
-  // Protected study streak
-  const currentStreak = useMemo(
-    () => calculateProtectedStudyStreak(state.studyLogs, state.streakFreezeDates),
-    [state.studyLogs, state.streakFreezeDates]
-  );
-
-  // Weekday Progress for Study Streak (Monday through Sunday)
-  const weekdayProgress = useMemo(() => {
-    const now = new Date();
-    const currentDay = now.getDay();
-    const mondayOffset = (currentDay === 0 ? -6 : 1) - currentDay;
-    const monday = new Date(now);
-    monday.setDate(now.getDate() + mondayOffset);
-
-    const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    const streakCount = Math.max(1, currentStreak);
-    const todayIndex = currentDay === 0 ? 6 : currentDay - 1;
-
-    return days.map((dayLabel, index) => {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + index);
-      const isToday = index === todayIndex;
-      const isCompleted = index <= todayIndex && (todayIndex - index) < streakCount;
-
-      return {
-        label: dayLabel,
-        dateNum: d.getDate(),
-        completed: isCompleted,
-        isToday,
-      };
-    });
-  }, [currentStreak]);
-
-  // Weekly Goal MCQs
-  const weeklyStats = useMemo(() => {
-    const now = new Date();
-    const currentDay = now.getDay();
-    const mondayOffset = (currentDay === 0 ? -6 : 1) - currentDay;
-    const monday = new Date(now);
-    monday.setDate(now.getDate() + mondayOffset);
-    const mondayMs = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate()).getTime();
-
-    let mcqs = 0;
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
-      const key = getLocalDateKey(d);
-      const log = state.studyLogs?.[key];
-      if (log?.questionsSolved) {
-        mcqs += log.questionsSolved;
-      }
-    }
-
-    if (mcqs === 0 && state.mcqAttempts && state.mcqAttempts.length > 0) {
-      mcqs = state.mcqAttempts.filter((a) => new Date(a.timestamp).getTime() >= mondayMs).length;
-    }
-
-    const target = 20; // Default weekly target from mockup
-    return {
-      solved: mcqs,
-      target,
-      pct: Math.min(100, Math.round((mcqs / target) * 100)),
-      remaining: Math.max(0, target - mcqs),
-    };
-  }, [state.studyLogs, state.mcqAttempts]);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 space-y-5 sm:space-y-6 text-[#121E1B] font-sans antialiased">
@@ -658,151 +499,116 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
       {currentSubTab === 'overview' && (
         <>
-          {/* ================= 2. YOUR EXAM JOURNEY (APPLE HIG / CHATGPT REFERENCE SCREEN 3) ================= */}
-          <section className="bg-white/90 backdrop-blur-xl rounded-3xl border border-stone-200/80 shadow-xs p-5 sm:p-7 space-y-6">
-            {/* Header: Title + Target Session */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-4">
-              <div>
-                <h2 className="text-lg sm:text-xl font-black font-['Outfit'] text-slate-900 tracking-tight">
-                  Your Exam Journey
-                </h2>
-                <p className="text-xs text-stone-500 font-medium mt-0.5">
-                  Target: {targetExamDateLabel}
-                </p>
+          {/* ================= 2. EXAM READINESS HERO ================= */}
+      <section className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] p-6 sm:p-8 transition-shadow">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* Left Column: Readiness Dial & High-Yield Verdict */}
+          <div className="lg:col-span-5 flex flex-col items-center sm:items-start text-center sm:text-left space-y-5 lg:border-r lg:border-[#EAEFEA] lg:pr-8">
+            <div className="flex items-center justify-between w-full">
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-stone-500">
+                FMGE READINESS
+              </span>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${readinessStage.color}`}>
+                {readinessStage.label}
+              </span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-6 w-full py-2">
+              {/* Circular Gauge */}
+              <div className="relative inline-flex items-center justify-center shrink-0">
+                <svg width="120" height="120" viewBox="0 0 120 120" className="-rotate-90">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#F1EBE3" strokeWidth="10" />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="50"
+                    fill="none"
+                    stroke="#00685f"
+                    strokeWidth="10"
+                    strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 50}
+                    strokeDashoffset={2 * Math.PI * 50 * (1 - Math.min(100, Math.max(0, readiness.score)) / 100)}
+                    style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.22, 1, 0.36, 1)' }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-3xl font-extrabold font-mono text-[#121E1B] leading-none">
+                    {readiness.score}
+                  </span>
+                  <span className="text-[11px] text-stone-400 font-mono mt-1">/ 100</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 self-start sm:self-center">
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${readinessStage.color}`}>
-                  {readinessStage.label}
-                </span>
+
+              {/* Clinical Verdict Text */}
+              <div className="space-y-2 text-center sm:text-left">
+                <p className="text-sm text-[#4A5553] leading-relaxed">
+                  {readiness.summaryText}
+                </p>
                 <button
                   type="button"
                   onClick={() => setIsReadinessModalOpen(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-[#006B63] hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00685f] hover:text-[#005049] transition-colors cursor-pointer py-1"
                 >
-                  <span>8 Pillars</span>
+                  <span>View Full Readiness Breakdown</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
+          </div>
 
-            {/* Main Score Journey Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-              {/* Left Column: Circular Gauge & Monthly Trend */}
-              <div className="md:col-span-5 flex flex-col items-center justify-center text-center space-y-3 md:border-r md:border-stone-100 md:pr-6">
-                <div className="relative inline-flex items-center justify-center">
-                  <svg width="144" height="144" viewBox="0 0 144 144" className="-rotate-90">
-                    <circle cx="72" cy="72" r="58" fill="none" stroke="#F1F5F9" strokeWidth="11" />
-                    <circle
-                      cx="72"
-                      cy="72"
-                      r="58"
-                      fill="none"
-                      stroke="#006B63"
-                      strokeWidth="11"
-                      strokeLinecap="round"
-                      strokeDasharray={2 * Math.PI * 58}
-                      strokeDashoffset={2 * Math.PI * 58 * (1 - Math.min(100, Math.max(0.1, estScore / 300)))}
-                      style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.22, 1, 0.36, 1)' }}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-3xl sm:text-4xl font-black font-['Outfit'] text-slate-900 tracking-tight leading-none">
-                      {estScore}
-                    </span>
-                    <span className="text-[11px] font-semibold text-stone-500 mt-1 uppercase tracking-wider font-mono">
-                      Est. Score
-                    </span>
-                  </div>
-                </div>
-
-                {/* Monthly Trend Pill */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-semibold">
-                  <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{accuracyDelta >= 0 ? `+${accuracyDelta || 12}` : accuracyDelta} this month</span>
-                </div>
-              </div>
-
-              {/* Right Column: 4-Metric Grid */}
-              <div className="md:col-span-7 grid grid-cols-2 gap-3 sm:gap-4">
-                {/* 1. Target Score */}
-                <div className="p-3.5 sm:p-4 rounded-2xl bg-stone-50/70 border border-stone-200/70 space-y-1">
-                  <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wider block font-mono">
-                    Target Score
-                  </span>
-                  <div className="text-xl sm:text-2xl font-black font-['Outfit'] text-slate-900">
-                    {targetScore}+
-                  </div>
-                  <span className="text-[10px] sm:text-[11px] text-stone-400 block font-mono">
-                    Safe Margin: &gt;180
-                  </span>
-                </div>
-
-                {/* 2. FMGE Cutoff */}
-                <div className="p-3.5 sm:p-4 rounded-2xl bg-stone-50/70 border border-stone-200/70 space-y-1">
-                  <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wider block font-mono">
-                    FMGE Cutoff
-                  </span>
-                  <div className="text-xl sm:text-2xl font-black font-['Outfit'] text-slate-900">
-                    150/300
-                  </div>
-                  <span className="text-[10px] sm:text-[11px] text-stone-400 block font-mono">
-                    NBE Pass (50%)
-                  </span>
-                </div>
-
-                {/* 3. Days Left */}
-                <div className="p-3.5 sm:p-4 rounded-2xl bg-stone-50/70 border border-stone-200/70 space-y-1">
-                  <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wider block font-mono">
-                    Days Left
-                  </span>
-                  <div className="text-xl sm:text-2xl font-black font-['Outfit'] text-emerald-700">
-                    {daysRemaining}
-                  </div>
-                  <span className="text-[10px] sm:text-[11px] text-stone-400 block font-mono">
-                    Countdown to Exam
-                  </span>
-                </div>
-
-                {/* 4. Syllabus Done */}
-                <div className="p-3.5 sm:p-4 rounded-2xl bg-stone-50/70 border border-stone-200/70 space-y-1">
-                  <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wider block font-mono">
-                    Syllabus Done
-                  </span>
-                  <div className="text-xl sm:text-2xl font-black font-['Outfit'] text-slate-900">
-                    {syllabusPct}%
-                  </div>
-                  <span className="text-[10px] sm:text-[11px] text-stone-400 block font-mono">
-                    Core curriculum
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Readiness Footer Audit */}
-            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-stone-100 text-xs">
-              <span className="text-stone-600 text-xs leading-relaxed">
-                Readiness Index: <strong className="text-slate-900 font-mono">{readiness.score}/100</strong> · {readiness.summaryText}
+          {/* Right Column: 8-Pillar Readiness Progress Bars */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="flex items-center justify-between pb-1">
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-stone-500">
+                8-Pillar Readiness
               </span>
               <button
                 type="button"
                 onClick={() => setIsReadinessModalOpen(true)}
-                className="font-bold text-[#006B63] hover:underline inline-flex items-center gap-1 cursor-pointer shrink-0"
+                className="text-xs text-[#00685f] hover:underline font-mono font-bold flex items-center gap-1 cursor-pointer"
               >
-                <span>Full 8-Pillar Audit</span>
-                <ChevronRight className="w-3.5 h-3.5" />
+                <span>Drill-Down</span>
+                <ChevronRight className="w-3 h-3" />
               </button>
             </div>
-          </section>
 
-          {/* ================= MOTIVATIONAL SPROUT CARD (REFERENCE SCREEN 3) ================= */}
-          <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-[#F0FAF7] border border-[#D5EFE7] text-[#123E37]">
-            <div className="w-9 h-9 rounded-xl bg-emerald-100/90 text-emerald-700 flex items-center justify-center shrink-0">
-              <Sprout className="w-5 h-5" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5">
+              {readiness.components.map((comp) => {
+                const scoreVal = comp.status === 'no_data' ? 0 : comp.score;
+                return (
+                  <div key={comp.id} className="space-y-1.5" title={comp.details}>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-stone-700 font-medium truncate max-w-[150px]">{comp.name}</span>
+                      <span className="font-mono font-bold text-[#121E1B] ml-2">
+                        {comp.status === 'no_data' ? '—' : scoreVal}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 rounded-full bg-stone-100 overflow-hidden">
+                      <div
+                        className="h-full bg-[#00685f] rounded-full transition-all duration-600"
+                        style={{ width: `${Math.min(100, Math.max(0, scoreVal))}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <p className="text-xs sm:text-sm font-medium leading-relaxed">
-              <span className="font-bold text-emerald-950">You're closer than you think.</span> Consistency compounds into confidence.
-            </p>
           </div>
+        </div>
+
+        {/* Expandable Explanation Drawer */}
+        {showReadinessBreakdown && (
+          <div className="mt-6 pt-6 border-t border-[#EAEFEA] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-200">
+            {readiness.components.map((c) => (
+              <div key={c.id} className="p-3 rounded-xl bg-white/70 backdrop-blur-xs border border-stone-200/60 text-xs space-y-1">
+                <span className="font-bold text-stone-800 block">{c.name}</span>
+                <span className="text-stone-500 text-[11px] block">{c.label}</span>
+                <p className="text-stone-600 text-[11px] leading-snug">{c.details}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* ================= 3. WHERE YOU STAND (Metric Cards) ================= */}
       <section className="space-y-3">
@@ -1192,13 +998,13 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         </div>
       </section>
 
-      {/* ================= 5. SUBJECT-WISE PROGRESS (REFERENCE SCREEN 3) ================= */}
+      {/* ================= 5. SUBJECT PERFORMANCE MATRIX ================= */}
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-[#121E1B]">Subject-wise Progress</h2>
+            <h2 className="text-lg font-bold text-[#121E1B]">Subject Performance</h2>
             <p className="text-xs text-stone-500">
-              Track syllabus mastery and clinical accuracy across all 19 NBE disciplines
+              Diagnostic performance breakdown across all 19 NBE medical disciplines
             </p>
           </div>
 
@@ -1242,7 +1048,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] divide-y divide-white/60 overflow-hidden">
           {/* Table Header on Desktop */}
           <div className="hidden sm:grid sm:grid-cols-12 px-6 py-3 bg-stone-50/70 text-[11px] font-mono font-bold uppercase tracking-wider text-stone-400">
-            <div className="sm:col-span-4">Subject &amp; Progress</div>
+            <div className="sm:col-span-4">Subject</div>
             <div className="sm:col-span-2 text-center">Accuracy</div>
             <div className="sm:col-span-2 text-center">Recent Trend</div>
             <div className="sm:col-span-2 text-center">Status</div>
@@ -1279,40 +1085,23 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   key={sub.id}
                   className="p-4 sm:px-6 sm:py-4 hover:bg-stone-50/70 transition-colors flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-3 sm:gap-0"
                 >
-                  {/* Subject Info: Specialty Icon + Name + Weightage + Progress */}
-                  <div className="sm:col-span-4 space-y-1.5 min-w-0 sm:pr-4">
-                    <div className="flex items-center gap-3">
-                      {(() => {
-                        const spec = getSubjectSpecialty(sub.id);
-                        const SpecIcon = spec.icon;
-                        return (
-                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${spec.bg} ${spec.color} border ${spec.border}`}>
-                            <SpecIcon className="w-4 h-4" />
-                          </div>
-                        );
-                      })()}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-bold text-stone-900 truncate">{sub.name}</h3>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#006B63] font-mono bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100">
-                            {sub.weightage}M
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-[11px] text-stone-500 font-mono mt-0.5">
-                          <span>{sub.completionPct}% complete</span>
-                          <span className="text-stone-300">·</span>
-                          <span>~{sub.estHoursRemaining}h left</span>
-                        </div>
-                      </div>
+                  {/* Subject Info: Subject → FMGE Weight */}
+                  <div className="sm:col-span-4 space-y-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#00685f] font-mono">
+                        {sub.weightage} MARKS
+                      </span>
+                      <span className="text-stone-300">·</span>
+                      <span className="text-[10px] font-mono text-stone-400 uppercase">
+                        {sub.disciplineType}
+                      </span>
                     </div>
-
-                    {/* Progress bar */}
-                    <div className="w-full h-1.5 rounded-full bg-stone-100 overflow-hidden">
-                      <div
-                        className="h-full bg-[#006B63] rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(100, Math.max(sub.completionPct > 0 ? 5 : 0, sub.completionPct))}%` }}
-                      />
-                    </div>
+                    <h3 className="text-sm font-bold text-stone-900 truncate">{sub.name}</h3>
+                    <p className="text-xs text-stone-400 font-mono">
+                      {sub.metrics.totalAttempts > 0
+                        ? `${sub.metrics.totalAttempts} questions solved`
+                        : `${sub.topics.length} topics unattempted`}
+                    </p>
                   </div>
 
                   {/* Accuracy */}
@@ -1389,92 +1178,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               </p>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* ================= DUAL CARDS: STUDY STREAK & WEEKLY GOAL (REFERENCE SCREEN 3) ================= */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Card 1: Study Streak */}
-        <div className="p-5 rounded-3xl bg-white/90 backdrop-blur-xl border border-stone-200/80 shadow-xs space-y-3.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200/70 flex items-center justify-center shrink-0">
-                <Flame className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 font-mono block">
-                  Study Streak
-                </span>
-                <div className="text-xl font-black font-['Outfit'] text-slate-900 leading-tight">
-                  {currentStreak || 1}-Day Streak
-                </div>
-              </div>
-            </div>
-            <span className="text-[11px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80">
-              Active
-            </span>
-          </div>
-
-          {/* Weekday dots: M T W T F S S */}
-          <div className="flex items-center justify-between pt-1 px-1">
-            {weekdayProgress.map((day, idx) => (
-              <div key={idx} className="flex flex-col items-center gap-1.5">
-                <span className="text-[10px] font-mono font-medium text-stone-400">{day.label}</span>
-                <div
-                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                    day.completed
-                      ? 'bg-[#006B63] text-white shadow-2xs'
-                      : day.isToday
-                      ? 'border-2 border-[#006B63] text-[#006B63] bg-teal-50/50'
-                      : 'bg-stone-100 text-stone-400'
-                  }`}
-                  title={`${day.label} (${day.dateNum})`}
-                >
-                  {day.completed ? <Check className="w-4 h-4 stroke-[3]" /> : day.dateNum}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-xs text-stone-500 pt-0.5">
-            Keep it up! {Math.max(1, 7 - (currentStreak || 1))} more days to beat your best streak (7 days).
-          </p>
-        </div>
-
-        {/* Card 2: Weekly Goal */}
-        <div className="p-5 rounded-3xl bg-white/90 backdrop-blur-xl border border-stone-200/80 shadow-xs space-y-3.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-2xl bg-teal-50 text-[#006B63] border border-teal-200/70 flex items-center justify-center shrink-0">
-                <Target className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 font-mono block">
-                  Weekly Goal
-                </span>
-                <div className="text-xl font-black font-['Outfit'] text-slate-900 leading-tight">
-                  {weeklyStats.solved} / {weeklyStats.target} MCQs
-                </div>
-              </div>
-            </div>
-            <span className="text-xs font-mono font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-100">
-              {weeklyStats.pct}%
-            </span>
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-full h-2.5 rounded-full bg-stone-100 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-teal-600 to-emerald-500 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(100, Math.max(weeklyStats.pct > 0 ? 5 : 0, weeklyStats.pct))}%` }}
-            />
-          </div>
-
-          <p className="text-xs text-stone-500 pt-0.5">
-            {weeklyStats.remaining > 0
-              ? `${weeklyStats.remaining} MCQs remaining to achieve this week's target.`
-              : 'Weekly target achieved! Outstanding clinical discipline.'}
-          </p>
         </div>
       </section>
 
@@ -1890,9 +1593,8 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   })()}
                 </p>
                 {overallPerf.totalRepeatedErrors > 0 && (
-                  <p className="text-[11px] font-mono text-rose-700 font-bold flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-                    <span>{overallPerf.totalRepeatedErrors} repeat error{overallPerf.totalRepeatedErrors > 1 ? 's' : ''} require immediate triage</span>
+                  <p className="text-[11px] font-mono text-rose-700 font-bold">
+                    ⚠️ {overallPerf.totalRepeatedErrors} repeat error{overallPerf.totalRepeatedErrors > 1 ? 's' : ''} require immediate triage
                   </p>
                 )}
               </div>
@@ -1907,21 +1609,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           </div>
         </div>
       </section>
-
-      {/* ================= MOUNTAIN INSPIRATION BANNER (REFERENCE SCREEN 3) ================= */}
-      <div className="flex items-center gap-3.5 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-[#006B63] text-white shadow-xs">
-        <div className="w-10 h-10 rounded-2xl bg-white/10 text-emerald-300 flex items-center justify-center shrink-0 border border-white/15">
-          <Mountain className="w-5 h-5" />
-        </div>
-        <div className="space-y-0.5 min-w-0">
-          <p className="text-xs sm:text-sm font-semibold tracking-wide text-white">
-            &ldquo;Discipline is the bridge between your goals and your success.&rdquo;
-          </p>
-          <p className="text-[11px] text-teal-200/80 font-mono">
-            Keep advancing step-by-step toward FMGE certification.
-          </p>
-        </div>
-      </div>
     </>
   )}
 

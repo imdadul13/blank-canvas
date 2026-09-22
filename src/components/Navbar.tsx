@@ -128,12 +128,7 @@ export const moreUtilityItems: MoreUtilityItem[] = [
   },
 ];
 
-export const mobileNavItems = [
-  { id: 'dashboard' as ActiveTab, label: 'Home', icon: Home },
-  { id: 'syllabus' as ActiveTab, label: 'Subjects', icon: BookOpen },
-  { id: 'practice' as ActiveTab, label: 'Practice', icon: Edit3 },
-  { id: 'progress' as ActiveTab, label: 'Progress', icon: BarChart3 },
-];
+export const mobileNavItems = primaryNavItems;
 
 export const isTabActive = (id: ActiveTab, currentTab: ActiveTab) => {
   if (currentTab === id) return true;
@@ -1173,91 +1168,87 @@ export const Navbar: React.FC<NavbarProps> = ({
         }}
         aria-label="Mobile Navigation"
       >
-        <div className="flex items-center justify-around gap-1 xs:gap-1.5 md:gap-2.5 w-full">
+        <div className="flex items-center gap-1 xs:gap-1.5 md:gap-2.5">
           {mobileNavItems.map(({ id, label, icon: Icon }) => {
             const active = isTabActiveLocal(id);
+            const isFilledIcon = id === 'dashboard' || id === 'pearls';
             return (
-              <motion.button
-                key={id}
-                type="button"
-                whileTap={reducedMotion ? undefined : { scale: 0.90 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-                onClick={() => {
-                  setActiveTab(id);
-                  setMobileMoreOpen(false);
-                }}
-                aria-current={active ? 'page' : undefined}
-                className={`relative flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all duration-200 cursor-pointer min-w-[50px] xs:min-w-[56px] select-none ${
-                  active
-                    ? 'text-[#006B63]'
-                    : 'text-stone-500 hover:text-stone-800'
-                }`}
-                title={label}
-                aria-label={label}
-              >
-                <div className="relative flex items-center justify-center">
-                  <Icon
-                    className={`h-5 w-5 transition-all duration-150 ${
-                      active
-                        ? 'stroke-[2.5] text-[#006B63]'
-                        : 'stroke-[2] text-stone-500'
-                    }`}
-                  />
-                  {active && (
-                    <motion.div
-                      layoutId="mobile-nav-active-dot"
-                      className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-[#006B63]"
+              <div key={id} className="relative">
+                <motion.button
+                  type="button"
+                  whileTap={reducedMotion ? undefined : { scale: 0.86 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                  onClick={() => {
+                    setActiveTab(id);
+                    setMobileMoreOpen(false);
+                  }}
+                  aria-current={active ? 'page' : undefined}
+                  className={`relative flex items-center justify-center h-10 w-11 xs:w-12 md:w-14 md:h-11 rounded-full transition-all duration-200 cursor-pointer group ${
+                    active
+                      ? 'bg-[#FA2D48]/14 border border-[#FA2D48]/25 shadow-xs text-[#FA2D48]'
+                      : 'border border-transparent text-black'
+                  }`}
+                  title={label}
+                  aria-label={label}
+                >
+                  <motion.div
+                    animate={active && !reducedMotion ? { scale: [1, 1.15, 1] } : undefined}
+                    transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                    className="relative z-10 flex items-center justify-center"
+                  >
+                    <Icon
+                      className={`h-[21px] w-[21px] transition-all duration-150 ${
+                        active
+                          ? isFilledIcon
+                            ? 'stroke-[2.2] text-[#FA2D48] fill-[#FA2D48]'
+                            : 'stroke-[2.3] text-[#FA2D48] fill-[#FA2D48]/20'
+                          : 'stroke-[2.1] text-black fill-transparent'
+                      }`}
                     />
-                  )}
-                </div>
-                <span className={`text-[10px] tracking-tight mt-0.5 font-['Outfit'] ${
-                  active ? 'font-bold text-[#006B63]' : 'font-medium text-stone-500'
-                }`}>
-                  {label}
-                </span>
-              </motion.button>
+                  </motion.div>
+                </motion.button>
+              </div>
             );
           })}
 
           {/* More Tab in Mobile Floating Dock */}
-          <motion.button
-            type="button"
-            whileTap={reducedMotion ? undefined : { scale: 0.90 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-            onClick={() => {
-              setActiveTab('more');
-              setMobileMoreOpen(false);
-            }}
-            aria-current={activeTab === 'more' || isSecondaryActive ? 'page' : undefined}
-            className={`relative flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all duration-200 cursor-pointer min-w-[50px] xs:min-w-[56px] select-none ${
-              activeTab === 'more' || isSecondaryActive
-                ? 'text-[#006B63]'
-                : 'text-stone-500 hover:text-stone-800'
-            }`}
-            title="More Utilities"
-            aria-label="More"
-          >
-            <div className="relative flex items-center justify-center">
-              <MoreHorizontal
-                className={`h-5 w-5 transition-all duration-150 ${
-                  activeTab === 'more' || isSecondaryActive
-                    ? 'stroke-[2.5] text-[#006B63]'
-                    : 'stroke-[2] text-stone-500'
-                }`}
-              />
-              {(activeTab === 'more' || isSecondaryActive) && (
-                <motion.div
-                  layoutId="mobile-nav-active-dot"
-                  className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-[#006B63]"
+          <div className="relative">
+            <motion.button
+              type="button"
+              whileTap={reducedMotion ? undefined : { scale: 0.86 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+              onClick={() => {
+                setActiveTab('more');
+                setMobileMoreOpen(false);
+              }}
+              aria-current={activeTab === 'more' || isSecondaryActive ? 'page' : undefined}
+              className={`relative flex items-center justify-center h-10 w-11 xs:w-12 md:w-14 md:h-11 rounded-full transition-all duration-200 cursor-pointer group ${
+                activeTab === 'more' || isSecondaryActive
+                  ? 'bg-[#FA2D48]/14 border border-[#FA2D48]/25 shadow-xs text-[#FA2D48]'
+                  : 'border border-transparent text-black'
+              }`}
+              title="More Utilities"
+              aria-label="More"
+            >
+              <motion.div
+                animate={
+                  (activeTab === 'more' || isSecondaryActive) && !reducedMotion
+                    ? { scale: [1, 1.15, 1] }
+                    : undefined
+                }
+                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                className="relative z-10 flex items-center justify-center"
+              >
+                <MoreHorizontal
+                  className={`h-[21px] w-[21px] transition-all duration-150 ${
+                    activeTab === 'more' || isSecondaryActive
+                      ? 'stroke-[2.3] text-[#FA2D48]'
+                      : 'stroke-[2.1] text-black fill-transparent'
+                  }`}
                 />
-              )}
-            </div>
-            <span className={`text-[10px] tracking-tight mt-0.5 font-['Outfit'] ${
-              activeTab === 'more' || isSecondaryActive ? 'font-bold text-[#006B63]' : 'font-medium text-stone-500'
-            }`}>
-              More
-            </span>
-          </motion.button>
+              </motion.div>
+            </motion.button>
+          </div>
         </div>
       </motion.nav>
     </>
