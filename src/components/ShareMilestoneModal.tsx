@@ -46,7 +46,7 @@ export const ShareMilestoneModal: React.FC<ShareMilestoneModalProps> = ({
 🔥 ${streak}-Day Continuous Study Streak
 🎯 Target Score: ${targetScore}+ / 300
 ⏳ ${daysRemaining} Days to NBE FMGE Exam
-⚡ Questions Mastered Today: ${solvedToday}
+Questions Mastered Today: ${solvedToday}
 
 Practicing high-yield clinical vignettes on One Shot FMGE:
 ${appUrl}`;

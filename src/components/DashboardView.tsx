@@ -39,9 +39,8 @@ import {
   Heart,
   Lightbulb,
   Share2,
-  Zap,
+  Eye,
   Pill,
-  Sparkles,
   ShieldAlert,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext, GrandTest, ErrorNotebookItem } from '../types';
@@ -1499,28 +1498,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
             {/* Left side: Doctor Circadian Greeting + Bold Name + Strategic Subtitle */}
             <div className="space-y-1 sm:space-y-1.5 max-w-xl">
-              {/* Doctor Circadian Pill & Calibrated Exam Target */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/80' : 'text-slate-500'}`}>
+              {/* Doctor Circadian Greeting */}
+              <div className="flex items-center gap-2">
+                <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/90' : 'text-slate-500'}`}>
                   <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.2] ${heroTheme.greetingIconColor}`} />
                   <span>{greeting}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => onOpenProfile?.()}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/80 hover:bg-white active:scale-98 border border-white/90 text-slate-700 hover:text-[#006B63] transition-all text-[11px] font-mono font-bold cursor-pointer group/calib shadow-2xs"
-                  title="Calibrated to your actual exam date. Click to customize date in Profile."
-                >
-                  <span className="flex h-1.5 w-1.5 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B63] opacity-75" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#006B63]" />
-                  </span>
-                  <span className="text-slate-800 group-hover/calib:text-[#006B63] transition-colors">
-                    Exam: {targetExamDateFormatted}
-                  </span>
-                  <span className="text-slate-300">•</span>
-                  <span className="text-[#006B63] font-extrabold">{sprintPhase.stageLabel}</span>
-                </button>
               </div>
 
               {/* Doctor Name */}
@@ -2592,7 +2575,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             onClick={() => setIsPearlRevealed(true)}
                             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 hover:bg-[#006B63] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-98"
                           >
-                            <Sparkles className="h-3 w-3 text-amber-300" />
+                            <Eye className="h-3.5 w-3.5" />
                             <span>Tap to Reveal Diagnosis</span>
                           </button>
                         )}

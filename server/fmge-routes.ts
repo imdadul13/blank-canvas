@@ -1437,7 +1437,7 @@ function generateOfflineFallbackExplanation(subject: string, topic: string, quer
 
   // 0B. Rapid Revision of Crohn's Disease
   if ((combined.includes('rapid revision') || combined.includes('quick revision')) && (combined.includes('crohn') || combined.includes("crohn's"))) {
-    return `### ⚡ Rapid Revision: **Crohn's Disease**
+    return `### Rapid Revision: **Crohn's Disease**
 
 - **DEFINITION** → Transmural, granulomatous IBD with skip lesions affecting any part of GI tract (mouth to anus; terminal ileum ~75% most common).
 - **CAUSES** → Mucosal immune dysregulation, NOD2/CARD15 genetic mutations, smoking exacerbates disease severity.
@@ -1820,7 +1820,7 @@ Your errors suggest the distinction is the issue. Let's lock down the difference
 
   const noticeHeader = !apiKey
     ? `> ⚠️ **Gemini AI Engine Setup Required** — The \`GEMINI_API_KEY\` environment variable is not configured on this server (Render). Showing offline high-yield clinical notes for **"${query}"**. Please configure \`GEMINI_API_KEY\` in your Render dashboard environment variables or in App Settings.`
-    : `> ⚡ **FMGE AI Coach** — Live Gemini API quota reached for today (free tier: 20 req/day). Showing offline high-yield notes for **"${query}"**. The AI will answer freely again tomorrow, or upgrade your API plan at [ai.google.dev](https://ai.google.dev).`;
+    : `> **FMGE AI Coach** — Live Gemini API quota reached for today (free tier: 20 req/day). Showing offline high-yield notes for **"${query}"**. The AI will answer freely again tomorrow, or upgrade your API plan at [ai.google.dev](https://ai.google.dev).`;
 
   return `### 🩺 Clinical High-Yield Breakdown: **${topicDisplay}** (${subjectDisplay})
 
