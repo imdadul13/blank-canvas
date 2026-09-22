@@ -1031,9 +1031,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         stageLabel: `Day ${Math.max(1, 7 - daysRemaining + 1)} of 7`,
         headline: 'Emergency Exam-Eve Lockdown',
         description: 'Focus strictly on guaranteed 1-liners, clinical triads, drug doses & visual IBQs. Avoid new heavy theory.',
-        anchorLabel: 'HIGH-FREQUENCY TRIAGE',
-        drillLabel: 'INSTANT RECALL MCQ',
-        shieldLabel: 'ERROR NOTEBOOK LOCK',
+        anchorLabel: 'HIGH-FREQUENCY',
+        drillLabel: 'SPEED MCQ',
+        shieldLabel: 'ERROR VAULT',
       };
     }
     if (daysRemaining <= 30) {
@@ -1042,9 +1042,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         stageLabel: `Day ${Math.max(1, 30 - daysRemaining + 1)} of 30`,
         headline: "Today's Clinical Survival Target",
         description: 'Targeted high-yield blueprint concepts to systematically secure +2 to +4 marks every day.',
-        anchorLabel: 'HY ANCHOR',
-        drillLabel: 'SPEED DRILL',
-        shieldLabel: 'ERROR SHIELD',
+        anchorLabel: 'HIGH-YIELD',
+        drillLabel: 'SPEED MCQ',
+        shieldLabel: 'ERROR VAULT',
       };
     }
     if (daysRemaining <= 60) {
@@ -1053,9 +1053,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         stageLabel: `Day ${Math.max(1, 60 - daysRemaining + 1)} of 60`,
         headline: 'Systematic High-Yield Consolidation',
         description: 'Consolidating core clinical disciplines and converting weak topic gaps into reliable strengths.',
-        anchorLabel: 'CORE ANCHOR',
-        drillLabel: 'VIGNETTE DRILL',
-        shieldLabel: 'GAP DEFENSE',
+        anchorLabel: 'CORE STUDY',
+        drillLabel: 'VIGNETTE MCQ',
+        shieldLabel: 'ERROR VAULT',
       };
     }
     return {
@@ -1063,9 +1063,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       stageLabel: `T-${daysRemaining} Days to Exam`,
       headline: '19-Subject Blueprint Foundation',
       description: 'Systematic syllabus coverage and high-yield question pattern calibration.',
-      anchorLabel: 'TOPIC ANCHOR',
-      drillLabel: 'SPEED DRILL',
-      shieldLabel: 'BLUNDER SHIELD',
+      anchorLabel: 'TOPIC STUDY',
+      drillLabel: 'SPEED MCQ',
+      shieldLabel: 'ERROR VAULT',
     };
   }, [daysRemaining]);
 
@@ -1848,6 +1848,129 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </motion.div>
 
+        {/* ═══ 3. HIGH-YIELD ACTION DOCK (5 FULL-WIDTH LAUNCHPAD PILLS) ═══ */}
+        <motion.div
+          initial={SECTION_ENTER(0.09, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3"
+        >
+          {/* Action 1: IBQ Visual Sprint */}
+          <motion.div
+            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            onClick={() => setIsIbqModalOpen(true)}
+            className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-emerald-300 hover:shadow-[0_8px_20px_rgba(16,185,129,0.14)] transition-all cursor-pointer group relative overflow-hidden"
+          >
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-teal-50 to-emerald-100/80 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
+              <Stethoscope className="h-4 w-4 stroke-[2.3]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors leading-tight">
+                IBQ Sprint
+              </h4>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                Visual &amp; ECG MCQs
+              </p>
+            </div>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all shrink-0" />
+          </motion.div>
+
+          {/* Action 2: Repeat Vault (PYTs) */}
+          <motion.div
+            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            onClick={() => setIsExamEveCheatSheetOpen(true)}
+            className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-violet-300 hover:shadow-[0_8px_20px_rgba(139,92,246,0.14)] transition-all cursor-pointer group relative overflow-hidden"
+          >
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-violet-50 to-purple-100/80 border border-violet-200/60 text-violet-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
+              <Pill className="h-4 w-4 stroke-[2.3]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-violet-700 transition-colors leading-tight">
+                Repeat Vault
+              </h4>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                DOCs &amp; Triads
+              </p>
+            </div>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-violet-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+          </motion.div>
+
+          {/* Action 3: Hands-Free Audio Recall Commute */}
+          <motion.div
+            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            onClick={() => onOpenAudioRecall?.()}
+            className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-teal-300 hover:shadow-[0_8px_20px_rgba(20,184,166,0.14)] transition-all cursor-pointer group relative overflow-hidden"
+          >
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-teal-50 to-cyan-100/80 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
+              <Headphones className="h-4 w-4 stroke-[2.3]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors leading-tight">
+                  Audio Recall
+                </h4>
+                <span className="px-1.5 py-0.2 rounded-full bg-teal-500/15 text-[8.5px] font-mono font-bold text-teal-800 border border-teal-300/40 shrink-0">
+                  PRO
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                Hospital Commute
+              </p>
+            </div>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all shrink-0" />
+          </motion.div>
+
+          {/* Action 4: Retest Mistakes */}
+          <motion.div
+            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            onClick={handleLaunchErrorDrill}
+            className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-amber-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.14)] transition-all cursor-pointer group relative overflow-hidden"
+          >
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-amber-50 to-orange-100/80 border border-amber-200/60 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
+              <RotateCcw className="h-4 w-4 stroke-[2.3]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors leading-tight">
+                Retest Errors
+              </h4>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                {unreviewedErrorsCount > 0 ? `${unreviewedErrorsCount} due mistakes` : 'Vault mastered'}
+              </p>
+            </div>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+          </motion.div>
+
+          {/* Action 5: NBE Simulator */}
+          <motion.div
+            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            onClick={() => setIsNbeMockOpen(true)}
+            className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-sky-300 hover:shadow-[0_8px_20px_rgba(14,165,233,0.14)] transition-all cursor-pointer group relative overflow-hidden"
+          >
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-sky-50 to-cyan-100/80 border border-sky-200/60 text-sky-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
+              <Award className="h-4 w-4 stroke-[2.3]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-sky-700 transition-colors leading-tight">
+                NBE Simulator
+              </h4>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                Official TCS iON Mock
+              </p>
+            </div>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-sky-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+          </motion.div>
+        </motion.div>
+
         {/* ═══ 4. TWO-COLUMN DESKTOP LAYOUT (LEFT & RIGHT) ═══ */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-6 items-start">
 
@@ -2230,7 +2353,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-teal-500/10 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
                               <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
                             </div>
-                            <span className="text-[10px] font-bold font-mono tracking-wider text-[#006B63] uppercase truncate">
+                            <span className="text-[9.5px] font-bold font-mono tracking-wider text-[#006B63] uppercase whitespace-nowrap shrink-0">
                               {sprintPhase.anchorLabel}
                             </span>
                           </div>
@@ -2241,7 +2364,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                         {/* Title & Clinical Subtitle */}
                         <div className="mt-2.5">
-                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors leading-snug truncate">
+                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors leading-snug">
                             Study Notes &amp; Patterns
                           </h4>
                           <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
@@ -2285,7 +2408,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-500/10 border border-amber-200/60 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
                               <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
                             </div>
-                            <span className="text-[10px] font-bold font-mono tracking-wider text-amber-800 uppercase truncate">
+                            <span className="text-[9.5px] font-bold font-mono tracking-wider text-amber-800 uppercase whitespace-nowrap shrink-0">
                               {sprintPhase.drillLabel}
                             </span>
                           </div>
@@ -2296,7 +2419,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                         {/* Title & Clinical Subtitle */}
                         <div className="mt-2.5">
-                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors leading-snug truncate">
+                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors leading-snug">
                             10 Timed Vignettes
                           </h4>
                           <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
@@ -2340,7 +2463,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-rose-500/10 border border-rose-200/60 text-rose-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
                               <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
                             </div>
-                            <span className="text-[10px] font-bold font-mono tracking-wider text-rose-800 uppercase truncate">
+                            <span className="text-[9.5px] font-bold font-mono tracking-wider text-rose-800 uppercase whitespace-nowrap shrink-0">
                               {sprintPhase.shieldLabel}
                             </span>
                           </div>
@@ -2357,7 +2480,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                         {/* Title & Clinical Subtitle */}
                         <div className="mt-2.5">
-                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-rose-700 transition-colors leading-snug truncate">
+                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-rose-700 transition-colors leading-snug">
                             {unreviewedErrorsCount > 0 ? `${unreviewedErrorsCount} Blunders Pending` : 'Vault Mastered'}
                           </h4>
                           <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
@@ -2382,128 +2505,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </motion.section>
 
-            {/* ═══ HIGH-YIELD MATERIALISTIC ACTION DOCK (5 PILLS) ═══ */}
-            <motion.div
-              initial={SECTION_ENTER(0.1, reducedMotion)}
-              animate={SECTION_SHOW}
-              transition={SECTION_TRANSITION(reducedMotion)}
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3"
-            >
-              {/* Action 1: IBQ Visual Sprint */}
-              <motion.div
-                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
-                whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                onClick={() => setIsIbqModalOpen(true)}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-emerald-300 hover:shadow-[0_8px_20px_rgba(16,185,129,0.14)] transition-all cursor-pointer group relative overflow-hidden"
-              >
-                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-teal-50 to-emerald-100/80 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
-                  <Stethoscope className="h-4 w-4 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
-                    IBQ Sprint
-                  </h4>
-                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
-                    ECGs &amp; Images
-                  </p>
-                </div>
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all shrink-0" />
-              </motion.div>
-
-              {/* Action 2: Repeat Vault (PYTs) */}
-              <motion.div
-                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
-                whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                onClick={() => setIsExamEveCheatSheetOpen(true)}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-violet-300 hover:shadow-[0_8px_20px_rgba(139,92,246,0.14)] transition-all cursor-pointer group relative overflow-hidden"
-              >
-                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-violet-50 to-purple-100/80 border border-violet-200/60 text-violet-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
-                  <Pill className="h-4 w-4 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 group-hover:text-violet-700 transition-colors truncate">
-                    Repeat Vault
-                  </h4>
-                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
-                    DOCs &amp; Triads
-                  </p>
-                </div>
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-violet-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-              </motion.div>
-
-              {/* Action 3: Hands-Free Audio Recall Commute */}
-              <motion.div
-                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
-                whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                onClick={() => onOpenAudioRecall?.()}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-teal-300 hover:shadow-[0_8px_20px_rgba(20,184,166,0.14)] transition-all cursor-pointer group relative overflow-hidden"
-              >
-                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-teal-50 to-cyan-100/80 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
-                  <Headphones className="h-4 w-4 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1">
-                    <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
-                      Audio Recall
-                    </h4>
-                    <span className="px-1.5 py-0.2 rounded-full bg-teal-500/15 text-[8.5px] font-mono font-bold text-teal-800 border border-teal-300/40">
-                      PRO
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
-                    Hospital Commute
-                  </p>
-                </div>
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all shrink-0" />
-              </motion.div>
-
-              {/* Action 4: Retest Mistakes */}
-              <motion.div
-                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
-                whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                onClick={handleLaunchErrorDrill}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-amber-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.14)] transition-all cursor-pointer group relative overflow-hidden"
-              >
-                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-amber-50 to-orange-100/80 border border-amber-200/60 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
-                  <RotateCcw className="h-4 w-4 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors truncate">
-                    Retest Errors
-                  </h4>
-                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
-                    {unreviewedErrorsCount} due mistakes
-                  </p>
-                </div>
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-              </motion.div>
-
-              {/* Action 5: NBE Simulator */}
-              <motion.div
-                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
-                whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                onClick={() => setIsNbeMockOpen(true)}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-sky-300 hover:shadow-[0_8px_20px_rgba(14,165,233,0.14)] transition-all cursor-pointer group relative overflow-hidden"
-              >
-                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-sky-50 to-cyan-100/80 border border-sky-200/60 text-sky-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
-                  <Award className="h-4 w-4 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 group-hover:text-sky-700 transition-colors truncate">
-                    NBE Simulator
-                  </h4>
-                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
-                    TCS iON Skin
-                  </p>
-                </div>
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-sky-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-              </motion.div>
-            </motion.div>
             <motion.section
               initial={SECTION_ENTER(0.12, reducedMotion)}
               animate={SECTION_SHOW}
@@ -2625,184 +2626,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               >
                 Open full plan →
               </button>
-            </motion.section>
-
-            {/* ── DAILY HIGH-YIELD RECALL / UP NEXT ── */}
-            <motion.section
-              initial={SECTION_ENTER(0.16, reducedMotion)}
-              animate={SECTION_SHOW}
-              transition={SECTION_TRANSITION(reducedMotion)}
-              className="space-y-3"
-            >
-              <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-teal-500/15 to-emerald-500/10 border border-teal-200/60 flex items-center justify-center text-[#006B63] shadow-2xs">
-                  <Compass className="h-4 w-4 stroke-[2.2]" />
-                </div>
-                <h3 className="text-sm font-bold text-slate-900 font-['Outfit']">
-                  {hasRevisionDue || errorsToReview ? 'Up Next' : 'Daily High-Yield Recall'}
-                </h3>
-              </div>
-
-              {hasRevisionDue || errorsToReview ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-                  {/* Card 1: Revision */}
-                  <motion.div
-                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
-                    whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                    onClick={() => onNavigateTab('revision')}
-                    className="relative rounded-3xl bg-gradient-to-b from-emerald-500/[0.08] via-teal-500/[0.03] to-white/95 backdrop-blur-xl border border-emerald-200/70 hover:border-emerald-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_20px_rgba(16,185,129,0.04)] hover:shadow-[0_12px_28px_rgba(16,185,129,0.12)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 transition-all duration-300 cursor-pointer group min-h-[64px] overflow-hidden"
-                  >
-                    {/* Top Specular Hairline */}
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/60 to-transparent pointer-events-none" />
-
-                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/15 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform duration-300">
-                        <CheckCircle2 className="h-4.5 w-4.5 sm:h-5 sm:w-5 stroke-[2.2]" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="block text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 group-hover:text-emerald-700 transition-colors">
-                          Revision
-                        </span>
-                        <span className="block text-[11px] sm:text-xs font-semibold text-emerald-800 mt-0.5">
-                          {dailyPlan.revisionDueCount} items due
-                        </span>
-                      </div>
-                    </div>
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/10 text-emerald-700 border border-emerald-200/50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <BookOpen className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-                    </div>
-                  </motion.div>
-
-                  {/* Card 2: Error Remediation */}
-                  <motion.div
-                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
-                    whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                    onClick={() => onNavigateTab('errors')}
-                    className="relative rounded-3xl bg-gradient-to-b from-amber-500/[0.08] via-orange-500/[0.03] to-white/95 backdrop-blur-xl border border-amber-200/70 hover:border-amber-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_20px_rgba(245,158,11,0.05)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.12)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 transition-all duration-300 cursor-pointer group min-h-[64px] overflow-hidden"
-                  >
-                    {/* Top Specular Hairline */}
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent pointer-events-none" />
-
-                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/15 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
-                        <RotateCcw className="h-4.5 w-4.5 sm:h-5 sm:w-5 group-hover:rotate-[-45deg] transition-transform duration-300 stroke-[2.2]" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="block text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-800 transition-colors">
-                          Error Remediation
-                        </span>
-                        <span className="block text-[11px] sm:text-xs font-semibold text-amber-800 mt-0.5">
-                          {dailyPlan.errorRemediationCount} errors to review
-                        </span>
-                      </div>
-                    </div>
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-700 border border-amber-200/50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <FileText className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-                    </div>
-                  </motion.div>
-                </div>
-              ) : (
-                /* Daily High-Yield Recall Pearl (Interactive Reveal) */
-                <motion.div
-                  whileHover={reducedMotion ? undefined : { y: -3, scale: 1.008 }}
-                  transition={{ type: 'spring', stiffness: 450, damping: 26 }}
-                  className="rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-amber-100/[0.12] to-teal-500/[0.04] backdrop-blur-2xl border border-amber-200/70 hover:border-amber-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_24px_rgba(245,158,11,0.06)] hover:shadow-[0_12px_32px_rgba(245,158,11,0.12)] p-4 sm:p-5 relative overflow-hidden transition-all duration-300 group"
-                >
-                  {/* Top Specular Hairline */}
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/70 to-transparent pointer-events-none" />
-
-                  {/* Header Row: Lightbulb with Halo & Shuffle/Vault Actions */}
-                  <div className="flex items-center justify-between gap-3 pb-3 border-b border-amber-200/50">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-300/70 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                        <div className="absolute inset-0 bg-amber-400/20 rounded-2xl filter blur-xs animate-pulse" />
-                        <Lightbulb className="h-4 w-4 relative z-10 stroke-[2.3]" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-[10px] font-bold font-mono tracking-wider text-amber-800 uppercase block">
-                          HIGH-YIELD RECALL PEARL
-                        </span>
-                        <h4 className="text-xs sm:text-[14px] font-bold font-['Outfit'] text-slate-900 truncate">
-                          {todayPearl?.name || "Beck's Triad"}
-                        </h4>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsPearlRevealed(false);
-                          setDailyPearlIndex((p) => p + 1);
-                        }}
-                        className="h-7 w-7 rounded-xl bg-white/80 hover:bg-amber-100/80 text-amber-800 border border-amber-200/70 flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95 group/shuffle"
-                        title="Next Recall Pearl"
-                      >
-                        <RotateCcw className="h-3.5 w-3.5 group-hover/shuffle:rotate-[-60deg] transition-transform duration-300" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsExamEveCheatSheetOpen(true)}
-                        className="text-[11px] font-bold text-[#006B63] hover:text-[#005750] bg-teal-500/10 hover:bg-teal-500/15 px-2.5 py-1 rounded-full border border-teal-200/80 shadow-2xs cursor-pointer flex items-center gap-1 transition-all active:scale-95"
-                      >
-                        <span>Vault</span>
-                        <ChevronRight className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Body: High-Yield Components & Reveal */}
-                  <div className="pt-3 space-y-3">
-                    {/* Clinical Findings / Token Pills */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {(todayPearl?.components || '').split('+').map((part, i) => (
-                        <span
-                          key={i}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-semibold bg-white/85 border border-amber-200/70 text-slate-800 shadow-2xs backdrop-blur-xs"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                          <span>{part.trim()}</span>
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Bottom Action Row: Reveal / Revealed Diagnosis & NBE Badge */}
-                    <div className="flex items-center justify-between gap-2 flex-wrap pt-0.5">
-                      <div className="min-w-0">
-                        {isPearlRevealed ? (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 2 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-300 text-emerald-900 text-xs sm:text-[13px] font-bold font-['Outfit'] shadow-2xs backdrop-blur-xs"
-                          >
-                            <div className="w-5 h-5 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-700 shrink-0">
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="tracking-tight">{todayPearl?.diagnosis}</span>
-                          </motion.div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => setIsPearlRevealed(true)}
-                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-[#006B63] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-98 group/btn relative overflow-hidden"
-                          >
-                            <Eye className="h-3.5 w-3.5 group-hover/btn:scale-110 transition-transform" />
-                            <span>Tap to Reveal Diagnosis</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
-                          </button>
-                        )}
-                      </div>
-
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 text-amber-800 border border-amber-300/60 shadow-2xs">
-                        <Sparkles className="w-3 h-3 text-amber-500 animate-pulse" />
-                        <span>Guaranteed NBE Repeat</span>
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
             </motion.section>
           </div>
 
@@ -3121,6 +2944,184 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   View all subjects →
                 </button>
               </div>
+            </motion.section>
+
+            {/* ── DAILY HIGH-YIELD RECALL / UP NEXT (BALANCED IN RIGHT COLUMN) ── */}
+            <motion.section
+              initial={SECTION_ENTER(0.16, reducedMotion)}
+              animate={SECTION_SHOW}
+              transition={SECTION_TRANSITION(reducedMotion)}
+              className="space-y-3"
+            >
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-teal-500/15 to-emerald-500/10 border border-teal-200/60 flex items-center justify-center text-[#006B63] shadow-2xs">
+                  <Compass className="h-4 w-4 stroke-[2.2]" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-900 font-['Outfit']">
+                  {hasRevisionDue || errorsToReview ? 'Up Next' : 'Daily High-Yield Recall'}
+                </h3>
+              </div>
+
+              {hasRevisionDue || errorsToReview ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                  {/* Card 1: Revision */}
+                  <motion.div
+                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
+                    whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                    onClick={() => onNavigateTab('revision')}
+                    className="relative rounded-3xl bg-gradient-to-b from-emerald-500/[0.08] via-teal-500/[0.03] to-white/95 backdrop-blur-xl border border-emerald-200/70 hover:border-emerald-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_20px_rgba(16,185,129,0.04)] hover:shadow-[0_12px_28px_rgba(16,185,129,0.12)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 transition-all duration-300 cursor-pointer group min-h-[64px] overflow-hidden"
+                  >
+                    {/* Top Specular Hairline */}
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/60 to-transparent pointer-events-none" />
+
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/15 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform duration-300">
+                        <CheckCircle2 className="h-4.5 w-4.5 sm:h-5 sm:w-5 stroke-[2.2]" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 group-hover:text-emerald-700 transition-colors">
+                          Revision
+                        </span>
+                        <span className="block text-[11px] sm:text-xs font-semibold text-emerald-800 mt-0.5">
+                          {dailyPlan.revisionDueCount} items due
+                        </span>
+                      </div>
+                    </div>
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/10 text-emerald-700 border border-emerald-200/50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <BookOpen className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                    </div>
+                  </motion.div>
+
+                  {/* Card 2: Error Remediation */}
+                  <motion.div
+                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
+                    whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                    onClick={() => onNavigateTab('errors')}
+                    className="relative rounded-3xl bg-gradient-to-b from-amber-500/[0.08] via-orange-500/[0.03] to-white/95 backdrop-blur-xl border border-amber-200/70 hover:border-amber-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_20px_rgba(245,158,11,0.05)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.12)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 transition-all duration-300 cursor-pointer group min-h-[64px] overflow-hidden"
+                  >
+                    {/* Top Specular Hairline */}
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent pointer-events-none" />
+
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/15 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                        <RotateCcw className="h-4.5 w-4.5 sm:h-5 sm:w-5 group-hover:rotate-[-45deg] transition-transform duration-300 stroke-[2.2]" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-800 transition-colors">
+                          Error Remediation
+                        </span>
+                        <span className="block text-[11px] sm:text-xs font-semibold text-amber-800 mt-0.5">
+                          {dailyPlan.errorRemediationCount} errors to review
+                        </span>
+                      </div>
+                    </div>
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-700 border border-amber-200/50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <FileText className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                    </div>
+                  </motion.div>
+                </div>
+              ) : (
+                /* Daily High-Yield Recall Pearl (Interactive Reveal) */
+                <motion.div
+                  whileHover={reducedMotion ? undefined : { y: -3, scale: 1.008 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 26 }}
+                  className="rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-amber-100/[0.12] to-teal-500/[0.04] backdrop-blur-2xl border border-amber-200/70 hover:border-amber-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_24px_rgba(245,158,11,0.06)] hover:shadow-[0_12px_32px_rgba(245,158,11,0.12)] p-4 sm:p-5 relative overflow-hidden transition-all duration-300 group"
+                >
+                  {/* Top Specular Hairline */}
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/70 to-transparent pointer-events-none" />
+
+                  {/* Header Row: Lightbulb with Halo & Shuffle/Vault Actions */}
+                  <div className="flex items-center justify-between gap-3 pb-3 border-b border-amber-200/50">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-300/70 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                        <div className="absolute inset-0 bg-amber-400/20 rounded-2xl filter blur-xs animate-pulse" />
+                        <Lightbulb className="h-4 w-4 relative z-10 stroke-[2.3]" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-bold font-mono tracking-wider text-amber-800 uppercase block">
+                          HIGH-YIELD RECALL PEARL
+                        </span>
+                        <h4 className="text-xs sm:text-[14px] font-bold font-['Outfit'] text-slate-900 leading-tight">
+                          {todayPearl?.name || "Beck's Triad"}
+                        </h4>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsPearlRevealed(false);
+                          setDailyPearlIndex((p) => p + 1);
+                        }}
+                        className="h-7 w-7 rounded-xl bg-white/80 hover:bg-amber-100/80 text-amber-800 border border-amber-200/70 flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95 group/shuffle"
+                        title="Next Recall Pearl"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5 group-hover/shuffle:rotate-[-60deg] transition-transform duration-300" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsExamEveCheatSheetOpen(true)}
+                        className="text-[11px] font-bold text-[#006B63] hover:text-[#005750] bg-teal-500/10 hover:bg-teal-500/15 px-2.5 py-1 rounded-full border border-teal-200/80 shadow-2xs cursor-pointer flex items-center gap-1 transition-all active:scale-95"
+                      >
+                        <span>Vault</span>
+                        <ChevronRight className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Body: High-Yield Components & Reveal */}
+                  <div className="pt-3 space-y-3">
+                    {/* Clinical Findings / Token Pills */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {(todayPearl?.components || '').split('+').map((part, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-semibold bg-white/85 border border-amber-200/70 text-slate-800 shadow-2xs backdrop-blur-xs"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                          <span>{part.trim()}</span>
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Bottom Action Row: Reveal / Revealed Diagnosis & NBE Badge */}
+                    <div className="flex items-center justify-between gap-2 flex-wrap pt-0.5">
+                      <div className="min-w-0">
+                        {isPearlRevealed ? (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 2 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-300 text-emerald-900 text-xs sm:text-[13px] font-bold font-['Outfit'] shadow-2xs backdrop-blur-xs"
+                          >
+                            <div className="w-5 h-5 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-700 shrink-0">
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                            </div>
+                            <span className="tracking-tight">{todayPearl?.diagnosis}</span>
+                          </motion.div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setIsPearlRevealed(true)}
+                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-[#006B63] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-98 group/btn relative overflow-hidden"
+                          >
+                            <Eye className="h-3.5 w-3.5 group-hover/btn:scale-110 transition-transform" />
+                            <span>Tap to Reveal Diagnosis</span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
+                          </button>
+                        )}
+                      </div>
+
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 text-amber-800 border border-amber-300/60 shadow-2xs">
+                        <Sparkles className="w-3 h-3 text-amber-500 animate-pulse" />
+                        <span>Guaranteed NBE Repeat</span>
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </motion.section>
           </div>
         </div>
