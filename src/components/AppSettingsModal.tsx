@@ -151,9 +151,9 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
         paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))',
       }}
     >
-      <div className="relative bg-white/88 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
+      <div className="relative bg-[#F8FAFA] backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="p-5 sm:p-6 border-b border-stone-200/60 bg-white/40 backdrop-blur-md flex items-center justify-between relative z-10">
+        <div className="p-5 sm:p-6 border-b border-slate-200/80 bg-white/80 backdrop-blur-md flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3.5">
             <div className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#00685F] to-[#044E48] text-white shadow-md shadow-teal-950/15 shrink-0">
               <Settings2 className="h-5 w-5 text-emerald-50 stroke-[1.8]" />

@@ -133,9 +133,9 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
     <>
       <div className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-md overflow-y-auto font-sans text-stone-900 animate-in fade-in duration-200">
         <div className="flex min-h-full items-center justify-center p-2 sm:p-4 md:p-6">
-          <div className="bg-white/88 backdrop-blur-2xl rounded-3xl max-w-4xl w-full my-auto max-h-[92vh] flex flex-col shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 overflow-hidden">
+          <div className="bg-[#F8FAFA] backdrop-blur-2xl rounded-3xl max-w-4xl w-full my-auto max-h-[92vh] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80 overflow-hidden">
             {/* ================= 1. WORKSPACE HEADER & NAVIGATION HIERARCHY ================= */}
-            <div className="p-3.5 sm:p-6 border-b border-white/60 bg-white/40 backdrop-blur-md space-y-4">
+            <div className="p-3.5 sm:p-6 border-b border-slate-200/80 bg-white/80 backdrop-blur-md space-y-4">
               {/* Navigation Location Bar: Study → Subject */}
               <div className="flex items-center justify-between gap-3">
                 <nav className="flex items-center gap-1.5 text-xs font-mono flex-wrap">
@@ -158,7 +158,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                 <button
                   onClick={onClose}
                   type="button"
-                  className="p-1.5 text-stone-400 hover:text-stone-900 rounded-full bg-white/60 hover:bg-white border border-white/80 transition-colors cursor-pointer shadow-2xs backdrop-blur-sm"
+                  className="p-1.5 text-stone-500 hover:text-stone-900 rounded-full bg-white hover:bg-slate-100 border border-slate-200/80 transition-colors cursor-pointer shadow-2xs"
                   aria-label="Close"
                 >
                   <X className="h-5 w-5" />
@@ -196,7 +196,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                         autoDeepen: true,
                       })
                     }
-                    className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/80 hover:bg-white text-stone-900 border border-white/85 hover:border-indigo-200/90 text-xs font-semibold font-display transition-all cursor-pointer shadow-2xs backdrop-blur-sm active:scale-[0.98] shrink-0 group"
+                    className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-stone-900 border border-slate-200/80 hover:border-indigo-300 text-xs font-semibold font-display transition-all cursor-pointer shadow-2xs shrink-0 group"
                     title="Comprehensive Gemini-powered study pack"
                   >
                     <div className="w-5 h-5 rounded-md bg-indigo-50/80 text-indigo-700 flex items-center justify-center shrink-0 group-hover:bg-indigo-100 transition-colors">
@@ -215,7 +215,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
               </div>
 
               {/* Subject Progress & Mastery Bar */}
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-white/60 backdrop-blur-md border border-white/80 space-y-3 shadow-2xs">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 space-y-3 shadow-xs">
                 {/* Progress track */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
@@ -286,7 +286,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                   <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
                     RECOMMENDED STUDY TARGET
                   </span>
-                  <div className="p-4 sm:p-5 rounded-2xl bg-white/75 backdrop-blur-xl border border-teal-200/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="p-4 sm:p-5 rounded-2xl bg-white border border-teal-300/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div
                       className="space-y-1.5 min-w-0 flex-1 cursor-pointer"
                       onClick={() =>
@@ -383,7 +383,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
               {/* ================= 3. SYLLABUS MODULES & TOPICS LIST ================= */}
               <div className="space-y-3">
                 {/* Search & Filter Toolbar */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-white/60">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-slate-200/80">
                   {/* Filter Tabs */}
                   <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5">
                     {[
@@ -400,7 +400,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold font-display whitespace-nowrap transition-all cursor-pointer ${
                           filterTab === tab.id
                             ? 'bg-stone-900 text-white shadow-2xs'
-                            : 'bg-white/75 backdrop-blur-sm text-stone-600 border border-white/85 hover:bg-white'
+                            : 'bg-white text-stone-600 border border-slate-200/80 hover:bg-slate-50'
                         }`}
                       >
                         {tab.label}
@@ -416,7 +416,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                       placeholder="Filter topics..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full rounded-lg border border-white/80 bg-white/75 backdrop-blur-sm pl-8 pr-3 py-1.5 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#006B63] shadow-2xs"
+                      className="w-full rounded-lg border border-slate-200/80 bg-white pl-8 pr-3 py-1.5 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#006B63] shadow-2xs"
                     />
                   </div>
                 </div>
@@ -424,7 +424,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                 {/* Topic Cards List */}
                 <div className="space-y-2.5">
                   {displayedTopics.length === 0 ? (
-                    <div className="p-8 text-center rounded-2xl bg-white/75 backdrop-blur-xl border border-white/80 text-xs text-stone-500 shadow-2xs">
+                    <div className="p-8 text-center rounded-2xl bg-white border border-slate-200/80 text-xs text-stone-500 shadow-2xs">
                       No topics matched the selected filter.
                     </div>
                   ) : (
@@ -444,10 +444,10 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                           key={topic.id}
                           className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-3.5 ${
                             isNextRecommended
-                              ? 'bg-teal-50/40 backdrop-blur-xl border-teal-300/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.04)]'
+                              ? 'bg-teal-50/70 border-teal-300 shadow-xs'
                               : isFullyCovered
-                              ? 'bg-white/60 backdrop-blur-md border-white/80 shadow-2xs'
-                              : 'bg-white/75 backdrop-blur-xl border-white/85 hover:border-stone-300 hover:shadow-xs shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_2px_8px_rgba(0,107,99,0.02)]'
+                              ? 'bg-white/90 border-slate-200/70 shadow-2xs'
+                              : 'bg-white border-slate-200/80 hover:border-teal-300 hover:shadow-xs shadow-2xs'
                           }`}
                         >
                           {/* Topic Details Left Column */}

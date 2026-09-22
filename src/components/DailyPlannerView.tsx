@@ -807,7 +807,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           }`}
         >
           {/* Card 1: Today's Personalized Plan + Top Priority */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] space-y-6">
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] space-y-6">
             {/* Card Header */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
@@ -903,7 +903,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           </div>
 
           {/* Card 2: Today's Tasks List with Progress */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] space-y-5">
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] space-y-5">
             {/* Header with Progress Bar */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -1088,7 +1088,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             mobileTab === 'focus' ? 'block' : 'hidden lg:block'
           }`}
         >
-          <div className="relative overflow-hidden bg-white/80 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] space-y-6">
+          <div className="relative overflow-hidden bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] space-y-6">
             {/* Luminous Top Shimmer Track */}
             <div className="absolute top-0 left-0 right-0 h-[2px] overflow-hidden pointer-events-none" aria-hidden="true">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-500/25 to-transparent" />

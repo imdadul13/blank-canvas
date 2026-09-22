@@ -93,11 +93,11 @@ export const ErrorVaultDiagnosticModal: React.FC<ErrorVaultDiagnosticModalProps>
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] overflow-hidden my-auto text-[#121E1B]"
+        className="relative w-full max-w-4xl bg-[#F8FAFA] backdrop-blur-2xl rounded-3xl border border-slate-200/80 shadow-[0_25px_60px_rgba(0,0,0,0.18)] overflow-hidden my-auto text-[#121E1B]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-start justify-between p-6 sm:px-8 border-b border-stone-200/60 bg-white/40 backdrop-blur-md">
+        <div className="flex items-start justify-between p-6 sm:px-8 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs font-bold uppercase tracking-widest text-rose-600">
@@ -131,7 +131,7 @@ export const ErrorVaultDiagnosticModal: React.FC<ErrorVaultDiagnosticModalProps>
           {/* Key Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Unresolved Mistakes */}
-            <div className="p-4 rounded-2xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(0,107,99,0.03)] space-y-1">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 font-mono block">
                 Unresolved Mistakes
               </span>

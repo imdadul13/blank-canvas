@@ -154,9 +154,9 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
         paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))'
       }}
     >
-      <div className="bg-white/88 backdrop-blur-2xl rounded-3xl max-w-lg w-full shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85 overflow-hidden max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-[#F8FAFA] backdrop-blur-2xl rounded-3xl max-w-lg w-full shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80 overflow-hidden max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="p-5 border-b border-stone-200/60 bg-white/40 backdrop-blur-md flex items-center justify-between">
+        <div className="p-5 border-b border-slate-200/80 bg-white/80 backdrop-blur-md flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shadow-xs">
               <Cloud className="h-5 w-5" />

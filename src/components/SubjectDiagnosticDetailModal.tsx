@@ -211,11 +211,11 @@ export const SubjectDiagnosticDetailModal: React.FC<SubjectDiagnosticDetailModal
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl bg-white/88 backdrop-blur-2xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] overflow-hidden my-auto text-[#121E1B]"
+        className="relative w-full max-w-4xl bg-[#F8FAFA] backdrop-blur-2xl rounded-3xl border border-slate-200/80 shadow-[0_25px_60px_rgba(0,0,0,0.18)] overflow-hidden my-auto text-[#121E1B]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-start justify-between p-6 sm:px-8 border-b border-stone-200/60 bg-white/40 backdrop-blur-md">
+        <div className="flex items-start justify-between p-6 sm:px-8 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
           <div className="space-y-1.5 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#00685f]">

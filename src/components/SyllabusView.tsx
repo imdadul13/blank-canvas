@@ -528,7 +528,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
       {/* ================= 4 METRIC CARDS ROW ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Circular Gauge Progress */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] hover:border-white hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_32px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-slate-300 hover:shadow-[0_8px_28px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
           <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 76 76">
               <circle
@@ -574,7 +574,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         </div>
 
         {/* Metric 2: Total Subjects */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] hover:border-white hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_32px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-slate-300 hover:shadow-[0_8px_28px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
           <div className="p-3.5 rounded-2xl bg-sky-50/80 text-sky-700 border border-sky-100 shrink-0">
             <BookOpen className="h-5 w-5" />
           </div>
@@ -592,7 +592,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         </div>
 
         {/* Metric 3: Estimated Study Hours */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] hover:border-white hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_32px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-slate-300 hover:shadow-[0_8px_28px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
           <div className="p-3.5 rounded-2xl bg-amber-50/80 text-amber-700 border border-amber-100 shrink-0">
             <Clock className="h-5 w-5" />
           </div>
@@ -610,7 +610,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         </div>
 
         {/* Metric 4: Target Score */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] hover:border-white hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_32px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-slate-300 hover:shadow-[0_8px_28px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
           <div className="p-3.5 rounded-2xl bg-emerald-50/80 text-emerald-700 border border-emerald-100 shrink-0">
             <Target className="h-5 w-5" />
           </div>
@@ -647,7 +647,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 className={`px-4 py-2 rounded-full text-xs font-semibold font-display transition-all cursor-pointer whitespace-nowrap border shadow-2xs ${
                   isActive
                     ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs font-bold'
-                    : 'bg-white/80 backdrop-blur-md hover:bg-white text-stone-600 hover:text-stone-900 border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
+                    : 'bg-white/90 backdrop-blur-md hover:bg-white text-stone-600 hover:text-stone-900 border-slate-200/80 shadow-2xs'
                 }`}
               >
                 <span className="hidden sm:inline">{p.label}</span>
@@ -667,7 +667,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
               placeholder="Search subjects, topics..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-white/85 bg-white/80 backdrop-blur-md py-2 pl-9 pr-8 text-xs text-stone-900 placeholder-stone-400 focus:border-[#006B63] focus:ring-1 focus:ring-[#006B63] focus:outline-none transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)]"
+              className="w-full rounded-full border border-slate-200/80 bg-white/95 backdrop-blur-md py-2 pl-9 pr-8 text-xs text-stone-900 placeholder-stone-400 focus:border-[#006B63] focus:ring-1 focus:ring-[#006B63] focus:outline-none transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -685,7 +685,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="appearance-none rounded-full border border-white/85 bg-white/80 backdrop-blur-md py-2 pl-3.5 pr-8 text-xs font-semibold text-stone-700 focus:border-[#006B63] focus:outline-none cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)]"
+              className="appearance-none rounded-full border border-slate-200/80 bg-white/95 backdrop-blur-md py-2 pl-3.5 pr-8 text-xs font-semibold text-stone-700 focus:border-[#006B63] focus:outline-none cursor-pointer shadow-2xs"
             >
               <option value="default">Sort: Default</option>
               <option value="weightage">Weightage (High → Low)</option>
@@ -705,7 +705,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         </div>
 
         {filteredSubjects.length === 0 ? (
-          <div className="p-8 sm:p-12 text-center bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] space-y-4">
+          <div className="p-8 sm:p-12 text-center bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#00685F] border border-teal-100/80 flex items-center justify-center mx-auto shadow-2xs">
               <Compass className="h-6 w-6 stroke-[2]" />
             </div>
@@ -762,7 +762,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                   whileTap={{ scale: 0.985 }}
                   transition={{ type: 'spring', stiffness: 420, damping: 26 }}
                   onClick={() => onSelectSubject(sub.id)}
-                  className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.03)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_36px_rgba(0,107,99,0.07)] hover:border-teal-300/80 transition-all cursor-pointer group flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                  className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,107,99,0.03)] hover:shadow-[0_10px_28px_rgba(0,107,99,0.08)] hover:border-teal-400 transition-all cursor-pointer group flex flex-col lg:flex-row lg:items-center justify-between gap-4"
                 >
                   {/* Left: Icon & Subject Metadata */}
                   <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">

@@ -344,7 +344,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer border ${
               selectedSubjectId === 'all'
                 ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs font-bold'
-                : 'bg-white/80 backdrop-blur-md hover:bg-white text-[#3d4947] hover:text-[#121e1b] border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
+                : 'bg-white/90 backdrop-blur-md hover:bg-white text-[#3d4947] hover:text-[#121e1b] border-slate-200/80 shadow-2xs'
             }`}
           >
             <span>All Subjects</span>
@@ -360,7 +360,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer border ${
                   isSelected
                     ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs font-bold'
-                    : 'bg-white/80 backdrop-blur-md hover:bg-white text-[#3d4947] hover:text-[#121e1b] border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
+                    : 'bg-white/90 backdrop-blur-md hover:bg-white text-[#3d4947] hover:text-[#121e1b] border-slate-200/80 shadow-2xs'
                 }`}
               >
                 <span>{sub.name}</span>
@@ -380,7 +380,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search topics or modules..."
-              className="w-full pl-10 pr-9 py-2 sm:py-2.5 rounded-xl bg-white/80 backdrop-blur-md border border-white/85 hover:border-white focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 text-xs sm:text-sm text-[#121e1b] placeholder:text-[#66716F] transition-all outline-none shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)]"
+              className="w-full pl-10 pr-9 py-2 sm:py-2.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200/80 hover:border-slate-300 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 text-xs sm:text-sm text-[#121e1b] placeholder:text-[#66716F] transition-all outline-none shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -399,7 +399,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             <select
               value={selectedSubjectId}
               onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="w-full appearance-none pl-3.5 pr-8 py-2 sm:py-2.5 rounded-xl bg-white/80 backdrop-blur-md border border-white/85 hover:border-white focus:border-[#006B63] text-xs sm:text-sm font-medium text-[#121e1b] cursor-pointer outline-none transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)]"
+              className="w-full appearance-none pl-3.5 pr-8 py-2 sm:py-2.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200/80 hover:border-slate-300 focus:border-[#006B63] text-xs sm:text-sm font-medium text-[#121e1b] cursor-pointer outline-none transition-all shadow-2xs"
             >
               <option value="all">All Subjects ({FMGE_SUBJECTS.length})</option>
               {FMGE_SUBJECTS.map((sub) => (
@@ -414,9 +414,9 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
       </motion.div>
 
       {/* ================= TOPICS & DRILLS CONTAINER ================= */}
-      <div className="clinical-card p-5 sm:p-7 lg:p-8 space-y-4 sm:space-y-6 bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)]">
+      <div className="clinical-card p-5 sm:p-7 lg:p-8 space-y-4 sm:space-y-6 bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)]">
         {/* Container Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#F0F3F2] text-xs font-semibold uppercase tracking-wider text-[#66716F] font-mono">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 text-xs font-semibold uppercase tracking-wider text-[#66716F] font-mono">
           <span>
             {selectedSubject ? `${selectedSubject.name} High-Yield Modules` : 'High-Yield Clinical Modules'}
           </span>
@@ -441,13 +441,14 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-[#F0F3F2]">
+          <div className="grid grid-cols-1 gap-3">
             {displayedTopics.map((topic) => (
               <motion.div
                 key={`${topic.subjectId}-${topic.id}`}
-                whileHover={{ x: 3 }}
+                whileHover={{ y: -1 }}
                 transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-                className="py-3.5 px-3 sm:px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:bg-[#F7F9F8] rounded-2xl transition-colors group cursor-pointer"
+                onClick={() => onLaunchPracticeSession(topic.subjectId, topic.id, topic.name)}
+                className="p-4 sm:p-4.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:border-teal-300 hover:shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all group cursor-pointer"
               >
                 {/* Topic Info */}
                 <div className="min-w-0 pr-2 space-y-1 flex-1">
@@ -477,7 +478,10 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.94 }}
                   transition={{ type: 'spring', stiffness: 450, damping: 22 }}
-                  onClick={() => onLaunchPracticeSession(topic.subjectId, topic.id, topic.name)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLaunchPracticeSession(topic.subjectId, topic.id, topic.name);
+                  }}
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#006B63] hover:bg-[#005049] text-white text-xs font-semibold shadow-2xs hover:shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
                 >
                   <Play className="h-3.5 w-3.5 fill-current" />
@@ -490,10 +494,10 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
       </div>
 
       {/* ================= EXAM VALUE PILLARS & FEATURE SECTION ================= */}
-      <div className="pt-2 border-t border-[#EAEFEA]">
+      <div className="pt-2 border-t border-slate-200/80">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 items-stretch">
           {/* Pillar 1 */}
-          <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 flex items-center gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)]">
+          <div className="p-3.5 rounded-2xl bg-white/95 border border-slate-200/80 flex items-center gap-3 shadow-[0_4px_16px_rgba(0,107,99,0.03)]">
             <div className="w-9 h-9 rounded-xl bg-[#006B63]/10 text-[#006B63] flex items-center justify-center shrink-0">
               <Target className="w-4 h-4 stroke-[2]" />
             </div>
@@ -504,7 +508,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           </div>
 
           {/* Pillar 2 */}
-          <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 flex items-center gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)]">
+          <div className="p-3.5 rounded-2xl bg-white/95 border border-slate-200/80 flex items-center gap-3 shadow-[0_4px_16px_rgba(0,107,99,0.03)]">
             <div className="w-9 h-9 rounded-xl bg-[#006B63]/10 text-[#006B63] flex items-center justify-center shrink-0">
               <BookOpen className="w-4 h-4 stroke-[2]" />
             </div>
@@ -515,7 +519,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           </div>
 
           {/* Pillar 3 */}
-          <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 flex items-center gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)]">
+          <div className="p-3.5 rounded-2xl bg-white/95 border border-slate-200/80 flex items-center gap-3 shadow-[0_4px_16px_rgba(0,107,99,0.03)]">
             <div className="w-9 h-9 rounded-xl bg-[#006B63]/10 text-[#006B63] flex items-center justify-center shrink-0">
               <Layers className="w-4 h-4 stroke-[2]" />
             </div>
@@ -526,7 +530,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           </div>
 
           {/* Pillar 4 */}
-          <div className="p-3.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 flex items-center gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)]">
+          <div className="p-3.5 rounded-2xl bg-white/95 border border-slate-200/80 flex items-center gap-3 shadow-[0_4px_16px_rgba(0,107,99,0.03)]">
             <div className="w-9 h-9 rounded-xl bg-[#006B63]/10 text-[#006B63] flex items-center justify-center shrink-0">
               <TrendingUp className="w-4 h-4 stroke-[2]" />
             </div>
@@ -537,7 +541,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           </div>
 
           {/* Pillar 5 / Quote Card */}
-          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#F0FDF8]/90 to-white/80 backdrop-blur-md border border-white/85 flex items-center justify-between gap-2 sm:col-span-2 lg:col-span-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)]">
+          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#F0FDF8]/90 to-white/95 border border-slate-200/80 flex items-center justify-between gap-2 sm:col-span-2 lg:col-span-1 shadow-[0_4px_16px_rgba(0,107,99,0.03)]">
             <div className="space-y-0.5">
               <p className="text-xs font-medium text-[#121e1b] leading-tight">
                 &ldquo;Practice with purpose. Perform with confidence.&rdquo;

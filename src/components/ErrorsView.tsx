@@ -603,7 +603,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
       {/* ================= 3. 4-METRIC TILES ROW ================= */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Errors */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] hover:border-teal-200/80 transition-all space-y-3">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-teal-300 transition-all space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500">Total Errors</span>
             <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shadow-2xs">
@@ -619,7 +619,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
         </div>
 
         {/* Resolved */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] hover:border-teal-200/80 transition-all space-y-3">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-teal-300 transition-all space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500">Resolved</span>
             <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shadow-2xs">
@@ -637,7 +637,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
         </div>
 
         {/* Pending */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] hover:border-teal-200/80 transition-all space-y-3">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-teal-300 transition-all space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500">Pending</span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shadow-2xs">
@@ -655,7 +655,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
         </div>
 
         {/* Accuracy Gain */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] hover:border-teal-200/80 transition-all space-y-3">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-teal-300 transition-all space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500">Accuracy Gain</span>
             <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center shadow-2xs">
@@ -676,7 +676,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
         {/* ================= LEFT COLUMN: FILTERS + ERROR QUESTION LIST ================= */}
         <div className="lg:col-span-8 space-y-4">
           {/* Filters & Search Card */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] space-y-3.5">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] space-y-3.5">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
               {/* Category Tabs */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
@@ -1427,15 +1427,15 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
       {showAddErrorModal &&
         createPortal(
           <div className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="bg-white/88 backdrop-blur-2xl rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] border border-white/85">
-            <div className="flex items-center justify-between border-b border-white/60 pb-3">
+          <div className="bg-[#F8FAFA] backdrop-blur-2xl rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80">
+            <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
               <h2 className="text-xl font-semibold font-display text-slate-900">
                 Log Clinical Question Mistake
               </h2>
               <button
                 type="button"
                 onClick={() => setShowAddErrorModal(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-700 bg-white/80 hover:bg-white border border-white/80 shadow-2xs rounded-full cursor-pointer backdrop-blur-sm transition-colors"
+                className="p-1.5 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 border border-slate-200/80 shadow-2xs rounded-full cursor-pointer transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
