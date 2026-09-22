@@ -37,6 +37,18 @@ import {
   Stethoscope,
   ShieldCheck,
   Heart,
+  HeartPulse,
+  Scissors,
+  Baby,
+  Microscope,
+  Bone,
+  Dna,
+  Ear,
+  Brain,
+  Scan,
+  Atom,
+  Syringe,
+  Scale,
   Lightbulb,
   Share2,
   Eye,
@@ -295,6 +307,52 @@ const SUBJECT_ACCENT_COLORS: Record<string, { bar: string; badge: string; text: 
   anesthesia: { bar: 'bg-[#475569]', badge: 'text-slate-700 bg-slate-100 border-slate-200', text: 'text-slate-600' },
 };
 
+/** Helper to get specialty insignia Lucide icon for each of the 19 subjects */
+export const getSubjectInsignia = (subjectId: string): React.ComponentType<{ className?: string }> => {
+  switch (subjectId) {
+    case 'medicine':
+      return HeartPulse;
+    case 'surgery':
+      return Scissors;
+    case 'obg':
+      return Baby;
+    case 'psm':
+      return ShieldCheck;
+    case 'pharmacology':
+      return Pill;
+    case 'pathology':
+      return Microscope;
+    case 'anatomy':
+      return Bone;
+    case 'biochemistry':
+      return Dna;
+    case 'physiology':
+      return Activity;
+    case 'ophthalmology':
+      return Eye;
+    case 'ent':
+      return Ear;
+    case 'pediatrics':
+      return Baby;
+    case 'orthopedics':
+      return Bone;
+    case 'dermatology':
+      return Layers;
+    case 'psychiatry':
+      return Brain;
+    case 'radiology':
+      return Scan;
+    case 'microbiology':
+      return Atom;
+    case 'anesthesia':
+      return Syringe;
+    case 'fmt':
+      return Scale;
+    default:
+      return Stethoscope;
+  }
+};
+
 export interface SubjectCardTheme {
   bg: string;
   border: string;
@@ -302,6 +360,9 @@ export interface SubjectCardTheme {
   badge: string;
   arrowBg: string;
   arrowText: string;
+  insigniaBg?: string;
+  insigniaText?: string;
+  progressBar?: string;
   heroGradient?: string;
   cardGradient?: string;
   // Subject-specific ECG & hero halo accents
@@ -321,10 +382,13 @@ export interface SubjectCardTheme {
 /** Subject Card Gradient Themes & Backdrops matching Reference Mockup */
 const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
   medicine: {
-    bg: 'from-cyan-100/70 via-teal-50/40 to-white/95',
-    border: 'border-cyan-200/80 hover:border-cyan-400/90',
-    glow: 'rgba(239, 68, 68, 0.22)',
+    bg: 'from-teal-500/[0.08] via-cyan-500/[0.04] to-white/95',
+    border: 'border-cyan-200/70 hover:border-cyan-400/90',
+    glow: 'rgba(6, 182, 212, 0.22)',
     badge: 'bg-cyan-500/10 text-cyan-800 border-cyan-200/70',
+    insigniaBg: 'bg-teal-500/10 text-teal-700 border-teal-200/70',
+    insigniaText: 'text-teal-700',
+    progressBar: 'from-teal-600 to-cyan-500',
     arrowBg: 'group-hover:bg-[#006B63] group-hover:text-white',
     arrowText: 'text-cyan-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.20) 0%, rgba(6, 182, 212, 0.14) 42%, transparent 72%)',
@@ -342,10 +406,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,107,99,0.25)]',
   },
   psychiatry: {
-    bg: 'from-purple-100/70 via-indigo-50/40 to-white/95',
-    border: 'border-purple-200/80 hover:border-purple-400/90',
+    bg: 'from-purple-500/[0.08] via-indigo-500/[0.04] to-white/95',
+    border: 'border-purple-200/70 hover:border-purple-400/90',
     glow: 'rgba(168, 85, 247, 0.20)',
     badge: 'bg-purple-500/10 text-purple-800 border-purple-200/70',
+    insigniaBg: 'bg-purple-500/10 text-purple-700 border-purple-200/70',
+    insigniaText: 'text-purple-700',
+    progressBar: 'from-purple-600 to-indigo-500',
     arrowBg: 'group-hover:bg-purple-600 group-hover:text-white',
     arrowText: 'text-purple-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.22) 0%, rgba(14, 165, 233, 0.13) 44%, transparent 72%)',
@@ -363,10 +430,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(126,34,206,0.25)]',
   },
   physiology: {
-    bg: 'from-sky-100/70 via-cyan-50/40 to-white/95',
-    border: 'border-sky-200/80 hover:border-sky-400/90',
+    bg: 'from-sky-500/[0.08] via-blue-500/[0.04] to-white/95',
+    border: 'border-sky-200/70 hover:border-sky-400/90',
     glow: 'rgba(14, 165, 233, 0.20)',
     badge: 'bg-sky-500/10 text-sky-800 border-sky-200/70',
+    insigniaBg: 'bg-sky-500/10 text-sky-700 border-sky-200/70',
+    insigniaText: 'text-sky-700',
+    progressBar: 'from-sky-600 to-cyan-500',
     arrowBg: 'group-hover:bg-sky-600 group-hover:text-white',
     arrowText: 'text-sky-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.22) 0%, rgba(13, 148, 136, 0.15) 44%, transparent 72%)',
@@ -384,10 +454,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(2,132,199,0.25)]',
   },
   surgery: {
-    bg: 'from-rose-100/70 via-orange-50/40 to-white/95',
-    border: 'border-rose-200/80 hover:border-rose-400/90',
+    bg: 'from-rose-500/[0.08] via-orange-500/[0.04] to-white/95',
+    border: 'border-rose-200/70 hover:border-rose-400/90',
     glow: 'rgba(244, 63, 94, 0.20)',
     badge: 'bg-rose-500/10 text-rose-800 border-rose-200/70',
+    insigniaBg: 'bg-rose-500/10 text-rose-700 border-rose-200/70',
+    insigniaText: 'text-rose-700',
+    progressBar: 'from-rose-600 to-red-500',
     arrowBg: 'group-hover:bg-rose-600 group-hover:text-white',
     arrowText: 'text-rose-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.20) 0%, rgba(245, 158, 11, 0.14) 44%, transparent 72%)',
@@ -405,10 +478,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(190,18,60,0.25)]',
   },
   pathology: {
-    bg: 'from-blue-100/70 via-indigo-50/40 to-white/95',
-    border: 'border-blue-200/80 hover:border-blue-400/90',
+    bg: 'from-blue-500/[0.08] via-indigo-500/[0.04] to-white/95',
+    border: 'border-blue-200/70 hover:border-blue-400/90',
     glow: 'rgba(59, 130, 246, 0.20)',
     badge: 'bg-blue-500/10 text-blue-800 border-blue-200/70',
+    insigniaBg: 'bg-blue-500/10 text-blue-700 border-blue-200/70',
+    insigniaText: 'text-blue-700',
+    progressBar: 'from-blue-600 to-indigo-500',
     arrowBg: 'group-hover:bg-blue-600 group-hover:text-white',
     arrowText: 'text-blue-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.20) 0%, rgba(99, 102, 241, 0.14) 44%, transparent 72%)',
@@ -426,10 +502,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(29,78,216,0.25)]',
   },
   biochemistry: {
-    bg: 'from-amber-100/70 via-orange-50/30 to-white/95',
-    border: 'border-amber-200/80 hover:border-amber-400/90',
+    bg: 'from-amber-500/[0.08] via-yellow-500/[0.04] to-white/95',
+    border: 'border-amber-200/70 hover:border-amber-400/90',
     glow: 'rgba(245, 158, 11, 0.20)',
     badge: 'bg-amber-500/10 text-amber-800 border-amber-200/70',
+    insigniaBg: 'bg-amber-500/10 text-amber-700 border-amber-200/70',
+    insigniaText: 'text-amber-700',
+    progressBar: 'from-amber-600 to-yellow-500',
     arrowBg: 'group-hover:bg-amber-600 group-hover:text-white',
     arrowText: 'text-amber-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.22) 0%, rgba(251, 191, 36, 0.13) 44%, transparent 72%)',
@@ -447,10 +526,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(180,83,9,0.25)]',
   },
   anatomy: {
-    bg: 'from-teal-100/70 via-emerald-50/40 to-white/95',
-    border: 'border-teal-200/80 hover:border-teal-400/90',
+    bg: 'from-emerald-500/[0.08] via-teal-500/[0.04] to-white/95',
+    border: 'border-emerald-200/70 hover:border-emerald-400/90',
     glow: 'rgba(20, 184, 166, 0.20)',
-    badge: 'bg-teal-500/10 text-teal-800 border-teal-200/70',
+    badge: 'bg-emerald-500/10 text-emerald-800 border-emerald-200/70',
+    insigniaBg: 'bg-emerald-500/10 text-emerald-700 border-emerald-200/70',
+    insigniaText: 'text-emerald-700',
+    progressBar: 'from-emerald-600 to-teal-500',
     arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
     arrowText: 'text-teal-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.20) 0%, rgba(0, 107, 99, 0.15) 44%, transparent 72%)',
@@ -468,33 +550,39 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(4,120,87,0.25)]',
   },
   pharmacology: {
-    bg: 'from-emerald-100/70 via-teal-50/40 to-white/95',
-    border: 'border-emerald-200/80 hover:border-emerald-400/90',
+    bg: 'from-violet-500/[0.08] via-purple-500/[0.04] to-white/95',
+    border: 'border-violet-200/70 hover:border-violet-400/90',
     glow: 'rgba(16, 185, 129, 0.20)',
-    badge: 'bg-emerald-500/10 text-emerald-800 border-emerald-200/70',
-    arrowBg: 'group-hover:bg-emerald-600 group-hover:text-white',
-    arrowText: 'text-emerald-700',
+    badge: 'bg-violet-500/10 text-violet-800 border-violet-200/70',
+    insigniaBg: 'bg-violet-500/10 text-violet-700 border-violet-200/70',
+    insigniaText: 'text-violet-700',
+    progressBar: 'from-violet-600 to-purple-500',
+    arrowBg: 'group-hover:bg-violet-600 group-hover:text-white',
+    arrowText: 'text-violet-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.20) 0%, rgba(20, 184, 166, 0.15) 44%, transparent 72%)',
     cardGradient: 'from-[#ECFDF5] via-[#FBFCFC] to-[#D1FAE5]',
-    ecgStrokeStart: '#059669',
-    ecgStrokeMid: '#10B981',
-    ecgGlow: 'rgba(16, 185, 129, 0.85)',
-    ecgDotColor: '#6EE7B7',
-    haloStart: '#10B981',
-    haloMid: '#059669',
-    haloEnd: '#065F46',
-    orbitStroke: '#059669',
-    primaryBtnBg: 'bg-[#065F46]',
-    primaryBtnHover: 'hover:bg-[#064E3B]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(6,95,70,0.25)]',
+    ecgStrokeStart: '#7C3AED',
+    ecgStrokeMid: '#A78BFA',
+    ecgGlow: 'rgba(167, 139, 250, 0.85)',
+    ecgDotColor: '#DDD6FE',
+    haloStart: '#A78BFA',
+    haloMid: '#7C3AED',
+    haloEnd: '#5B21B6',
+    orbitStroke: '#7C3AED',
+    primaryBtnBg: 'bg-[#5B21B6]',
+    primaryBtnHover: 'hover:bg-[#4C1D95]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(91,33,182,0.25)]',
   },
   microbiology: {
-    bg: 'from-teal-100/70 via-cyan-50/40 to-white/95',
-    border: 'border-teal-200/80 hover:border-teal-400/90',
+    bg: 'from-cyan-500/[0.08] via-teal-500/[0.04] to-white/95',
+    border: 'border-cyan-200/70 hover:border-cyan-400/90',
     glow: 'rgba(13, 148, 136, 0.20)',
-    badge: 'bg-teal-500/10 text-teal-800 border-teal-200/70',
-    arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
-    arrowText: 'text-teal-700',
+    badge: 'bg-cyan-500/10 text-cyan-800 border-cyan-200/70',
+    insigniaBg: 'bg-cyan-500/10 text-cyan-700 border-cyan-200/70',
+    insigniaText: 'text-cyan-700',
+    progressBar: 'from-cyan-600 to-teal-500',
+    arrowBg: 'group-hover:bg-cyan-600 group-hover:text-white',
+    arrowText: 'text-cyan-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.22) 0%, rgba(16, 185, 129, 0.14) 44%, transparent 72%)',
     cardGradient: 'from-[#ECFEFF] via-[#FBFCFC] to-[#CFFAFE]',
     ecgStrokeStart: '#0891B2',
@@ -510,10 +598,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(14,116,144,0.25)]',
   },
   fmt: {
-    bg: 'from-slate-200/70 via-slate-100/50 to-white/95',
-    border: 'border-slate-300/80 hover:border-slate-400',
+    bg: 'from-slate-500/[0.08] via-zinc-500/[0.04] to-white/95',
+    border: 'border-slate-300/70 hover:border-slate-400',
     glow: 'rgba(100, 116, 139, 0.18)',
     badge: 'bg-slate-500/10 text-slate-800 border-slate-300/70',
+    insigniaBg: 'bg-slate-500/10 text-slate-700 border-slate-300/70',
+    insigniaText: 'text-slate-700',
+    progressBar: 'from-slate-600 to-slate-500',
     arrowBg: 'group-hover:bg-slate-700 group-hover:text-white',
     arrowText: 'text-slate-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(100, 116, 139, 0.20) 0%, rgba(148, 163, 184, 0.13) 44%, transparent 72%)',
@@ -531,12 +622,15 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(51,65,85,0.25)]',
   },
   psm: {
-    bg: 'from-cyan-100/70 via-teal-50/40 to-white/95',
-    border: 'border-cyan-200/80 hover:border-cyan-400/90',
+    bg: 'from-teal-500/[0.08] via-emerald-500/[0.04] to-white/95',
+    border: 'border-teal-200/70 hover:border-teal-400/90',
     glow: 'rgba(6, 182, 212, 0.20)',
-    badge: 'bg-cyan-500/10 text-cyan-800 border-cyan-200/70',
-    arrowBg: 'group-hover:bg-cyan-600 group-hover:text-white',
-    arrowText: 'text-cyan-700',
+    badge: 'bg-teal-500/10 text-teal-800 border-teal-200/70',
+    insigniaBg: 'bg-teal-500/10 text-teal-700 border-teal-200/70',
+    insigniaText: 'text-teal-700',
+    progressBar: 'from-[#006B63] to-emerald-500',
+    arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
+    arrowText: 'text-teal-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(0, 107, 99, 0.22) 0%, rgba(6, 182, 212, 0.14) 44%, transparent 72%)',
     cardGradient: 'from-[#F0FDFA] via-[#FBFCFC] to-[#CCFBF1]',
     ecgStrokeStart: '#007F73',
@@ -552,10 +646,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,107,99,0.25)]',
   },
   ophthalmology: {
-    bg: 'from-indigo-100/70 via-sky-50/40 to-white/95',
-    border: 'border-indigo-200/80 hover:border-indigo-400/90',
+    bg: 'from-indigo-500/[0.08] via-blue-500/[0.04] to-white/95',
+    border: 'border-indigo-200/70 hover:border-indigo-400/90',
     glow: 'rgba(99, 102, 241, 0.20)',
     badge: 'bg-indigo-500/10 text-indigo-800 border-indigo-200/70',
+    insigniaBg: 'bg-indigo-500/10 text-indigo-700 border-indigo-200/70',
+    insigniaText: 'text-indigo-700',
+    progressBar: 'from-indigo-600 to-blue-500',
     arrowBg: 'group-hover:bg-indigo-600 group-hover:text-white',
     arrowText: 'text-indigo-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.22) 0%, rgba(99, 102, 241, 0.14) 44%, transparent 72%)',
@@ -573,12 +670,15 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(67,56,202,0.25)]',
   },
   ent: {
-    bg: 'from-purple-100/70 via-fuchsia-50/30 to-white/95',
-    border: 'border-purple-200/80 hover:border-purple-400/90',
+    bg: 'from-fuchsia-500/[0.08] via-pink-500/[0.04] to-white/95',
+    border: 'border-fuchsia-200/70 hover:border-fuchsia-400/90',
     glow: 'rgba(168, 85, 247, 0.20)',
-    badge: 'bg-purple-500/10 text-purple-800 border-purple-200/70',
-    arrowBg: 'group-hover:bg-purple-600 group-hover:text-white',
-    arrowText: 'text-purple-700',
+    badge: 'bg-fuchsia-500/10 text-fuchsia-800 border-fuchsia-200/70',
+    insigniaBg: 'bg-fuchsia-500/10 text-fuchsia-700 border-fuchsia-200/70',
+    insigniaText: 'text-fuchsia-700',
+    progressBar: 'from-fuchsia-600 to-pink-500',
+    arrowBg: 'group-hover:bg-fuchsia-600 group-hover:text-white',
+    arrowText: 'text-fuchsia-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.20) 0%, rgba(236, 72, 153, 0.13) 44%, transparent 72%)',
     cardGradient: 'from-[#FDF4FF] via-[#FBFCFC] to-[#FAE8FF]',
     ecgStrokeStart: '#C026D3',
@@ -594,10 +694,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(162,28,175,0.25)]',
   },
   obg: {
-    bg: 'from-pink-100/70 via-rose-50/40 to-white/95',
-    border: 'border-pink-200/80 hover:border-pink-400/90',
+    bg: 'from-pink-500/[0.08] via-rose-500/[0.04] to-white/95',
+    border: 'border-pink-200/70 hover:border-pink-400/90',
     glow: 'rgba(236, 72, 153, 0.20)',
     badge: 'bg-pink-500/10 text-pink-800 border-pink-200/70',
+    insigniaBg: 'bg-pink-500/10 text-pink-700 border-pink-200/70',
+    insigniaText: 'text-pink-700',
+    progressBar: 'from-pink-600 to-rose-500',
     arrowBg: 'group-hover:bg-pink-600 group-hover:text-white',
     arrowText: 'text-pink-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.20) 0%, rgba(251, 113, 133, 0.14) 44%, transparent 72%)',
@@ -615,31 +718,37 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(190,24,93,0.25)]',
   },
   pediatrics: {
-    bg: 'from-cyan-100/70 via-emerald-50/30 to-white/95',
-    border: 'border-cyan-200/80 hover:border-cyan-400/90',
-    glow: 'rgba(6, 182, 212, 0.20)',
-    badge: 'bg-cyan-500/10 text-cyan-800 border-cyan-200/70',
-    arrowBg: 'group-hover:bg-cyan-600 group-hover:text-white',
-    arrowText: 'text-cyan-700',
+    bg: 'from-amber-500/[0.08] via-orange-500/[0.04] to-white/95',
+    border: 'border-amber-200/70 hover:border-amber-400/90',
+    glow: 'rgba(245, 158, 11, 0.20)',
+    badge: 'bg-amber-500/10 text-amber-800 border-amber-200/70',
+    insigniaBg: 'bg-amber-500/10 text-amber-700 border-amber-200/70',
+    insigniaText: 'text-amber-700',
+    progressBar: 'from-amber-600 to-orange-500',
+    arrowBg: 'group-hover:bg-amber-600 group-hover:text-white',
+    arrowText: 'text-amber-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.22) 0%, rgba(6, 182, 212, 0.14) 44%, transparent 72%)',
     cardGradient: 'from-[#F0FDFA] via-[#FBFCFC] to-[#E0F2FE]',
-    ecgStrokeStart: '#0284C7',
-    ecgStrokeMid: '#38BDF8',
-    ecgGlow: 'rgba(56, 189, 248, 0.85)',
-    ecgDotColor: '#BAE6FD',
-    haloStart: '#38BDF8',
-    haloMid: '#0EA5E9',
-    haloEnd: '#0369A1',
-    orbitStroke: '#0284C7',
-    primaryBtnBg: 'bg-[#0284C7]',
-    primaryBtnHover: 'hover:bg-[#0369A1]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(2,132,199,0.25)]',
+    ecgStrokeStart: '#D97706',
+    ecgStrokeMid: '#FBBF24',
+    ecgGlow: 'rgba(251, 191, 36, 0.85)',
+    ecgDotColor: '#FDE68A',
+    haloStart: '#FBBF24',
+    haloMid: '#F59E0B',
+    haloEnd: '#B45309',
+    orbitStroke: '#D97706',
+    primaryBtnBg: 'bg-[#B45309]',
+    primaryBtnHover: 'hover:bg-[#92400E]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(180,83,9,0.25)]',
   },
   orthopedics: {
-    bg: 'from-violet-100/60 via-slate-50/40 to-white/95',
-    border: 'border-violet-200/80 hover:border-violet-400/90',
+    bg: 'from-violet-500/[0.08] via-purple-500/[0.04] to-white/95',
+    border: 'border-violet-200/70 hover:border-violet-400/90',
     glow: 'rgba(139, 92, 246, 0.18)',
     badge: 'bg-violet-500/10 text-violet-800 border-violet-200/70',
+    insigniaBg: 'bg-violet-500/10 text-violet-700 border-violet-200/70',
+    insigniaText: 'text-violet-700',
+    progressBar: 'from-violet-600 to-purple-500',
     arrowBg: 'group-hover:bg-violet-600 group-hover:text-white',
     arrowText: 'text-violet-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.20) 0%, rgba(16, 185, 129, 0.13) 44%, transparent 72%)',
@@ -657,12 +766,15 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(109,40,217,0.25)]',
   },
   dermatology: {
-    bg: 'from-rose-100/70 via-amber-50/30 to-white/95',
-    border: 'border-rose-200/80 hover:border-rose-400/90',
+    bg: 'from-orange-500/[0.08] via-rose-500/[0.04] to-white/95',
+    border: 'border-orange-200/70 hover:border-orange-400/90',
     glow: 'rgba(244, 63, 94, 0.20)',
-    badge: 'bg-rose-500/10 text-rose-800 border-rose-200/70',
-    arrowBg: 'group-hover:bg-rose-600 group-hover:text-white',
-    arrowText: 'text-rose-700',
+    badge: 'bg-orange-500/10 text-orange-800 border-orange-200/70',
+    insigniaBg: 'bg-orange-500/10 text-orange-700 border-orange-200/70',
+    insigniaText: 'text-orange-700',
+    progressBar: 'from-orange-600 to-rose-500',
+    arrowBg: 'group-hover:bg-orange-600 group-hover:text-white',
+    arrowText: 'text-orange-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.20) 0%, rgba(245, 158, 11, 0.13) 44%, transparent 72%)',
     cardGradient: 'from-[#FFF7ED] via-[#FBFCFC] to-[#FFEDD5]',
     ecgStrokeStart: '#EA580C',
@@ -678,10 +790,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(194,65,12,0.25)]',
   },
   radiology: {
-    bg: 'from-slate-200/70 via-cyan-50/30 to-white/95',
-    border: 'border-slate-300/80 hover:border-cyan-400/90',
+    bg: 'from-cyan-600/[0.08] via-slate-500/[0.04] to-white/95',
+    border: 'border-cyan-200/70 hover:border-cyan-400/90',
     glow: 'rgba(15, 23, 42, 0.18)',
-    badge: 'bg-slate-500/10 text-slate-800 border-slate-300/70',
+    badge: 'bg-cyan-600/10 text-cyan-800 border-cyan-200/70',
+    insigniaBg: 'bg-cyan-600/10 text-cyan-800 border-cyan-200/70',
+    insigniaText: 'text-cyan-800',
+    progressBar: 'from-cyan-600 to-slate-600',
     arrowBg: 'group-hover:bg-slate-700 group-hover:text-white',
     arrowText: 'text-slate-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(2, 132, 199, 0.22) 0%, rgba(71, 85, 105, 0.14) 44%, transparent 72%)',
@@ -699,10 +814,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
     primaryBtnShadow: 'shadow-[0_4px_14px_rgba(3,105,161,0.25)]',
   },
   anesthesia: {
-    bg: 'from-teal-100/70 via-slate-50/40 to-white/95',
-    border: 'border-teal-200/80 hover:border-teal-400/90',
+    bg: 'from-teal-600/[0.08] via-slate-500/[0.04] to-white/95',
+    border: 'border-teal-200/70 hover:border-teal-400/90',
     glow: 'rgba(13, 148, 136, 0.20)',
-    badge: 'bg-teal-500/10 text-teal-800 border-teal-200/70',
+    badge: 'bg-teal-600/10 text-teal-800 border-teal-200/70',
+    insigniaBg: 'bg-teal-600/10 text-teal-800 border-teal-200/70',
+    insigniaText: 'text-teal-800',
+    progressBar: 'from-teal-700 to-teal-500',
     arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
     arrowText: 'text-teal-700',
     heroGradient: 'radial-gradient(circle at 50% 50%, rgba(13, 148, 136, 0.22) 0%, rgba(56, 189, 248, 0.14) 44%, transparent 72%)',
@@ -722,10 +840,13 @@ const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
 };
 
 const DEFAULT_CARD_THEME: SubjectCardTheme = {
-  bg: 'from-teal-50/80 via-slate-50/40 to-white/95',
+  bg: 'from-teal-500/[0.08] via-slate-500/[0.04] to-white/95',
   border: 'border-slate-200/80 hover:border-teal-300',
   glow: 'rgba(13, 148, 136, 0.16)',
   badge: 'bg-slate-100 text-slate-700 border-slate-200',
+  insigniaBg: 'bg-teal-500/10 text-teal-700 border-teal-200/70',
+  insigniaText: 'text-teal-700',
+  progressBar: 'from-[#006B63] to-teal-500',
   arrowBg: 'group-hover:bg-[#006B63] group-hover:text-white',
   arrowText: 'text-slate-600',
   heroGradient: 'radial-gradient(circle at 50% 50%, rgba(45, 212, 191, 0.22) 0%, transparent 70%)',
@@ -2917,6 +3038,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               const isCurrent = sub.id === activeFocusSubject.id;
               const hyCount = sub.topics.filter((t) => t.isHighYield).length;
               const theme = SUBJECT_CARD_THEMES[sub.id] || DEFAULT_CARD_THEME;
+              const InsigniaIcon = getSubjectInsignia(sub.id);
 
               return (
                 <motion.div
@@ -2928,23 +3050,37 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     setSelectedFilterSubjectId(sub.id);
                     onSelectSubject(sub.id);
                   }}
-                  className={`group relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col justify-between cursor-pointer border bg-gradient-to-b ${theme.bg} backdrop-blur-md ${
+                  className={`group relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-3.5 flex flex-col justify-between cursor-pointer border bg-gradient-to-b ${theme.bg} backdrop-blur-xl overflow-hidden transition-all duration-300 ${
                     isCurrent
-                      ? 'border-[#006B63] shadow-md ring-2 ring-[#006B63]/25'
-                      : `${theme.border} shadow-[inset_0_1px_1px_rgba(255,255,255,0.85),0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md hover:border-teal-300`
+                      ? 'border-[#006B63] shadow-[0_8px_24px_rgba(0,107,99,0.18)] ring-2 ring-[#006B63]/25'
+                      : `${theme.border} shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.07)]`
                   }`}
                 >
-                  {/* Weightage Badge top right */}
-                  <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20">
-                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold border shadow-2xs backdrop-blur-xs ${theme.badge}`}>
-                      {sub.weightage}m
+                  {/* Top Specular Hairline Accent */}
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none" />
+
+                  {/* Top Row: Specialty Insignia & NBE Weightage Pill */}
+                  <div className="flex items-center justify-between gap-1 mb-1 z-20">
+                    <div
+                      className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl flex items-center justify-center border shadow-2xs backdrop-blur-xs transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${
+                        theme.insigniaBg || 'bg-slate-100 text-slate-700 border-slate-200'
+                      }`}
+                    >
+                      <InsigniaIcon className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-105" />
+                    </div>
+
+                    <span
+                      className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold border shadow-2xs backdrop-blur-xs ${theme.badge}`}
+                    >
+                      <span className="text-[8px] font-sans font-medium opacity-65">NBE</span>
+                      <span>{sub.weightage}m</span>
                     </span>
                   </div>
 
                   {/* 3D Medical Artwork Stage */}
-                  <div className="relative w-full h-18 sm:h-20 md:h-20 lg:h-20 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1 sm:p-1.5 group-hover:scale-105 transition-transform duration-300 ease-out">
+                  <div className="relative w-full h-18 sm:h-20 md:h-22 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1 sm:p-1.5 group-hover:scale-105 transition-transform duration-300 ease-out">
                     <div
-                      className="absolute inset-0 filter blur-sm pointer-events-none rounded-full"
+                      className="absolute inset-0 filter blur-sm pointer-events-none rounded-full transition-opacity duration-300 group-hover:opacity-100 opacity-70"
                       style={{
                         background: `radial-gradient(circle at 50% 55%, ${theme.glow} 0%, transparent 72%)`,
                       }}
@@ -2958,20 +3094,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </motion.div>
                   </div>
 
-                  {/* Content & Metadata */}
+                  {/* Content & Typography */}
                   <div className="mt-1.5 sm:mt-2 pt-0.5 space-y-1">
                     <div className="flex items-start justify-between gap-1">
                       <div className="min-w-0 flex-1">
                         <h4
-                          className="text-[11px] sm:text-xs md:text-[13px] font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate"
+                          className="text-[12px] sm:text-[13px] md:text-[14px] font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate font-['Outfit']"
                           title={sub.name}
                         >
                           {sub.name}
                         </h4>
-                        <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-slate-500">
-                          <span className="truncate">{hyCount} High-yield</span>
-                          <span className="opacity-0 group-hover:opacity-100 text-[#006B63] font-semibold flex items-center gap-0.5 transition-opacity duration-200 text-[10px] shrink-0">
-                            <span>Open</span>
+                        <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-slate-500 font-medium pt-0.5">
+                          <span className="inline-flex items-center gap-1 truncate">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20 shrink-0" />
+                            <span>{hyCount} High-yield</span>
+                          </span>
+                          <span className="opacity-0 group-hover:opacity-100 text-[#006B63] font-semibold flex items-center gap-0.5 transition-all duration-200 transform translate-x-1 group-hover:translate-x-0 text-[10px] shrink-0">
+                            <span>Blueprint</span>
                             <ArrowRight className="h-2.5 w-2.5" />
                           </span>
                         </div>
@@ -2980,13 +3119,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     {/* Micro Progress Bar */}
                     <div className="flex items-center gap-1.5 pt-0.5">
-                      <div className="flex-1 h-1 sm:h-1.5 bg-slate-200/60 rounded-full overflow-hidden">
+                      <div className="relative flex-1 h-1.5 bg-slate-200/60 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-[#006B63] to-[#10B981] rounded-full transition-all duration-300"
+                          className={`h-full bg-gradient-to-r ${theme.progressBar || 'from-[#006B63] to-[#10B981]'} rounded-full transition-all duration-500`}
                           style={{ width: `${Math.max(sub.percentage, 4)}%` }}
                         />
+                        {/* Interactive Shimmer Beam */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
                       </div>
-                      <span className="font-mono text-[9px] sm:text-[10px] font-semibold text-slate-600 tabular-nums shrink-0">
+                      <span className="font-mono text-[9px] sm:text-[10px] font-bold text-slate-600 tabular-nums shrink-0">
                         {sub.percentage}%
                       </span>
                     </div>
