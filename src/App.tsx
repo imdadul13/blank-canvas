@@ -164,15 +164,20 @@ function AppInner() {
   }, []);
 
   const handleSidebarHoverEnter = useCallback(() => {
-    if (sidebarHoverTimeoutRef.current) clearTimeout(sidebarHoverTimeoutRef.current);
+    if (sidebarHoverTimeoutRef.current) {
+      clearTimeout(sidebarHoverTimeoutRef.current);
+      sidebarHoverTimeoutRef.current = null;
+    }
     setIsSidebarHovered(true);
   }, []);
 
   const handleSidebarHoverLeave = useCallback(() => {
-    if (sidebarHoverTimeoutRef.current) clearTimeout(sidebarHoverTimeoutRef.current);
+    if (sidebarHoverTimeoutRef.current) {
+      clearTimeout(sidebarHoverTimeoutRef.current);
+    }
     sidebarHoverTimeoutRef.current = setTimeout(() => {
       setIsSidebarHovered(false);
-    }, 220);
+    }, 280);
   }, []);
 
   useEffect(() => {
@@ -781,17 +786,19 @@ function AppInner() {
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={toggleSidebar}
         isSidebarHovered={isSidebarHovered}
-        onSidebarHoverChange={setIsSidebarHovered}
+        onSidebarHoverEnter={handleSidebarHoverEnter}
+        onSidebarHoverLeave={handleSidebarHoverLeave}
       />
 
       {/* Floating Sidebar Toggle & Left Edge Hover Trigger (Desktop only, active when sidebar is OFF) */}
       {!isSidebarOpen && (
         <>
-          {/* Left Edge Hover Trigger Zone (Invisible 14px strip along left screen edge) */}
+          {/* Left Edge Hover Trigger Zone (Active only when NOT already hovered to prevent event fighting) */}
           <div
-            className="hidden lg:block fixed left-0 top-0 bottom-0 w-3.5 z-40 pointer-events-auto"
+            className={`hidden lg:block fixed left-0 top-0 bottom-0 w-6 z-40 ${
+              isSidebarHovered ? 'pointer-events-none' : 'pointer-events-auto'
+            }`}
             onMouseEnter={handleSidebarHoverEnter}
-            onMouseLeave={handleSidebarHoverLeave}
             aria-hidden="true"
           />
 
@@ -800,19 +807,19 @@ function AppInner() {
             type="button"
             initial={{ opacity: 0, x: -16 }}
             animate={{
-              opacity: isNavVisible ? 1 : 0,
-              x: isNavVisible ? 0 : -20,
+              opacity: isNavVisible && !isSidebarHovered ? 1 : 0,
+              x: isNavVisible && !isSidebarHovered ? 0 : -20,
               y: isNavVisible ? 0 : -80,
             }}
             exit={{ opacity: 0, x: -16 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             onClick={toggleSidebar}
             onMouseEnter={handleSidebarHoverEnter}
             onMouseLeave={handleSidebarHoverLeave}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={`hidden lg:flex items-center gap-2 fixed top-3 left-3.5 z-40 h-9 px-3 rounded-xl bg-white/90 backdrop-blur-2xl border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#006B63]/40 text-slate-700 hover:text-[#006B63] transition-colors cursor-pointer select-none group ${
-              !isNavVisible ? 'pointer-events-none' : 'pointer-events-auto'
+              !isNavVisible || isSidebarHovered ? 'pointer-events-none' : 'pointer-events-auto'
             }`}
             title="Turn sidebar ON (⌘B) · Hover to peek"
             aria-label="Turn sidebar ON"

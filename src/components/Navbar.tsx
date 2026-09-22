@@ -63,7 +63,8 @@ export interface NavbarProps {
   isSidebarOpen?: boolean;
   onToggleSidebar?: () => void;
   isSidebarHovered?: boolean;
-  onSidebarHoverChange?: (hovered: boolean) => void;
+  onSidebarHoverEnter?: () => void;
+  onSidebarHoverLeave?: () => void;
 }
 
 export const primaryNavItems = [
@@ -476,32 +477,21 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   isSidebarOpen = true,
   onToggleSidebar,
   isSidebarHovered = false,
-  onSidebarHoverChange,
+  onSidebarHoverEnter,
+  onSidebarHoverLeave,
 }) => {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const moreHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reducedMotion = useReducedMotion();
 
   const isVisible = isSidebarOpen || isSidebarHovered;
 
-  const handleSidebarMouseEnter = () => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    onSidebarHoverChange?.(true);
-  };
-
-  const handleSidebarMouseLeave = () => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => {
-      onSidebarHoverChange?.(false);
-    }, 220);
-  };
-
   const handleNavClick = (id: ActiveTab) => {
     setActiveTab(id);
     if (!isSidebarOpen) {
-      onSidebarHoverChange?.(false);
+      onSidebarHoverLeave?.();
     }
   };
 
@@ -510,30 +500,30 @@ export const SidebarDock: React.FC<NavbarProps> = ({
     if (isSidebarOpen || !isSidebarHovered) return;
     const handleClickOutside = (e: MouseEvent) => {
       if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
-        onSidebarHoverChange?.(false);
+        onSidebarHoverLeave?.();
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isSidebarOpen, isSidebarHovered, onSidebarHoverChange]);
+  }, [isSidebarOpen, isSidebarHovered, onSidebarHoverLeave]);
 
   const handleMoreMouseEnter = () => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    if (moreHoverTimeoutRef.current) clearTimeout(moreHoverTimeoutRef.current);
     setIsMoreMenuOpen(true);
   };
 
   const handleMoreMouseLeave = () => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => {
+    if (moreHoverTimeoutRef.current) clearTimeout(moreHoverTimeoutRef.current);
+    moreHoverTimeoutRef.current = setTimeout(() => {
       setIsMoreMenuOpen(false);
     }, 220);
   };
 
   useEffect(() => {
     return () => {
-      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+      if (moreHoverTimeoutRef.current) clearTimeout(moreHoverTimeoutRef.current);
     };
   }, []);
 
@@ -564,8 +554,8 @@ export const SidebarDock: React.FC<NavbarProps> = ({
         opacity: isVisible ? 1 : 0,
       }}
       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-      onMouseEnter={handleSidebarMouseEnter}
-      onMouseLeave={handleSidebarMouseLeave}
+      onMouseEnter={onSidebarHoverEnter}
+      onMouseLeave={onSidebarHoverLeave}
       className={`hidden lg:flex flex-col justify-between w-60 xl:w-64 h-screen select-none font-sans fixed inset-y-0 left-0 transition-colors duration-200 ${
         isSidebarOpen
           ? 'bg-[#F6F6F6]/85 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.06] shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.02)] z-40'
@@ -802,13 +792,13 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                               handleNavClick(item.tab);
                             } else if (item.action === 'cloudsync') {
                               onOpenCloudSync?.();
-                              if (!isSidebarOpen) onSidebarHoverChange?.(false);
+                              if (!isSidebarOpen) onSidebarHoverLeave?.();
                             } else if (item.action === 'onboarding') {
                               onOpenOnboarding?.();
-                              if (!isSidebarOpen) onSidebarHoverChange?.(false);
+                              if (!isSidebarOpen) onSidebarHoverLeave?.();
                             } else if (item.action === 'settings') {
                               onOpenSettings();
-                              if (!isSidebarOpen) onSidebarHoverChange?.(false);
+                              if (!isSidebarOpen) onSidebarHoverLeave?.();
                             }
                             setIsMoreMenuOpen(false);
                           }}
