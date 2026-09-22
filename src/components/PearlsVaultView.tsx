@@ -1,24 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
-  BookmarkCheck,
   Search,
   Star,
-  Plus,
   Copy,
   Check,
-  Tag,
   BookOpen,
   Brain,
   Pill,
-  ShieldAlert,
-  Flame,
   Scale,
-  Award,
   Activity,
-  Layers,
-  HelpCircle,
   X,
-  ArrowRight,
   Clock,
   AlertTriangle,
   RotateCcw,
@@ -26,6 +17,10 @@ import {
   VolumeX,
   Printer,
   Zap,
+  Flame,
+  Layers,
+  Sparkles,
+  ArrowRight,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MedicalPearl, AppState } from '../types';
@@ -41,7 +36,7 @@ import {
   searchOrGenerateMedicalPearl,
   fetchOrGenerateMedicalPearl,
   COMPREHENSIVE_PEARL_REPOSITORY,
-  DynamicPearlTopicPackage
+  DynamicPearlTopicPackage,
 } from '../utils/medicalPearlsEngine';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
@@ -60,9 +55,8 @@ const getPearlVisualTheme = (pearl: MedicalPearl) => {
     return {
       typeLabel: 'DOC & Protocol',
       badgeClass: 'bg-emerald-50/90 text-emerald-800 border-emerald-200/80',
-      keyBoxClass: 'bg-emerald-50/50 border-emerald-200/70 text-emerald-950',
+      keyBoxClass: 'bg-emerald-50/60 border-emerald-200/70 text-emerald-950',
       keyLabelClass: 'text-emerald-800',
-      tagBadgeClass: 'bg-emerald-50/50 text-emerald-700 border-emerald-200/50',
       icon: Pill,
     };
   }
@@ -76,9 +70,8 @@ const getPearlVisualTheme = (pearl: MedicalPearl) => {
     return {
       typeLabel: 'Formula & Rule',
       badgeClass: 'bg-sky-50/90 text-sky-800 border-sky-200/80',
-      keyBoxClass: 'bg-sky-50/50 border-sky-200/70 text-sky-950',
+      keyBoxClass: 'bg-sky-50/60 border-sky-200/70 text-sky-950',
       keyLabelClass: 'text-sky-800',
-      tagBadgeClass: 'bg-sky-50/50 text-sky-700 border-sky-200/50',
       icon: Scale,
     };
   }
@@ -93,20 +86,18 @@ const getPearlVisualTheme = (pearl: MedicalPearl) => {
     return {
       typeLabel: 'Diagnostic Hallmark',
       badgeClass: 'bg-purple-50/90 text-purple-800 border-purple-200/80',
-      keyBoxClass: 'bg-purple-50/50 border-purple-200/70 text-purple-950',
+      keyBoxClass: 'bg-purple-50/60 border-purple-200/70 text-purple-950',
       keyLabelClass: 'text-purple-800',
-      tagBadgeClass: 'bg-purple-50/50 text-purple-700 border-purple-200/50',
       icon: Activity,
     };
   }
 
-  // Mnemonic: Blue/teal informational treatment
+  // Mnemonic: Teal informational treatment
   return {
     typeLabel: 'Mnemonic',
     badgeClass: 'bg-[#006B63]/10 text-[#006B63] border-[#006B63]/20',
-    keyBoxClass: 'bg-stone-50 border-stone-200/80 text-stone-900',
+    keyBoxClass: 'bg-stone-50/80 border-stone-200/80 text-stone-900',
     keyLabelClass: 'text-stone-700',
-    tagBadgeClass: 'bg-stone-50 text-stone-600 border-stone-200/60',
     icon: Brain,
   };
 };
@@ -117,15 +108,22 @@ interface PearlsVaultViewProps {
   onAddCustomPearl: (pearl: MedicalPearl) => void;
 }
 
+type KnowledgeViewMode = 'all' | 'synthesizer' | 'vault';
+
 export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
   state,
   onToggleBookmark,
   onAddCustomPearl,
 }) => {
   const circadian = useCircadianTheme(state.settings?.bgTheme);
+
+  // SwiftUI-style active view mode
+  const [activeViewMode, setActiveViewMode] = useState<KnowledgeViewMode>('all');
+
+  // Master Vault filters
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'mnemonics' | 'doc' | 'triads' | 'formulas' | 'traps'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'mnemonics' | 'doc' | 'formulas'>('all');
   const [bookmarkedOnly, setBookmarkedOnly] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -137,7 +135,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
-  // In-session recent topics shelf (strictly derived from in-session queries, no invented persistence)
+  // In-session recent topics shelf
   const [recentTopics, setRecentTopics] = useState<string[]>(() => ['COPD']);
 
   const handleQueryTopic = async (topic: string) => {
@@ -208,7 +206,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
     const combined = [...INITIAL_PEARLS, ...repositoryAsPearls, ...(state.customPearls || [])];
     const bookmarkSet = new Set(state.bookmarkedPearlIds || []);
-    
+
     // Deduplicate by title
     const seen = new Set<string>();
     const uniqueList: MedicalPearl[] = [];
@@ -382,7 +380,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
   };
 
   return (
-    <div className="space-y-4 sm:space-y-5 pt-4 sm:pt-6 pb-20 max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 font-sans">
+    <div className="space-y-4 sm:space-y-6 pt-3 sm:pt-5 pb-20 max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 font-['Plus_Jakarta_Sans']">
       {/* ═══ 1. KNOWLEDGE IDENTITY HEADER CARD ═══ */}
       <motion.header
         initial={{ opacity: 0, y: -12 }}
@@ -910,72 +908,164 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         </div>
       </motion.header>
 
-      {/* ═══ 2. HERO / AI SEARCH WORKSPACE ═══ */}
-      <div className="bg-gradient-to-b from-white via-white to-stone-50/40 rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 border border-stone-200/90 shadow-xs space-y-5">
-        <div className="max-w-2xl space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100/90 border border-stone-200 text-stone-700 text-[11px] font-medium">
-            <Award className="h-3 w-3 text-amber-500" />
-            <span className="font-mono text-[10px] uppercase tracking-wider font-semibold text-stone-600">NBE Clinical Synthesis</span>
-          </div>
-          <h2 className="font-['Newsreader',_Georgia,_serif] text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight leading-[1.18] bg-gradient-to-r from-stone-950 via-stone-800 to-[#006B63] bg-clip-text text-transparent">
-            Understand it. Remember it.
-          </h2>
-          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl">
-            Ask for any FMGE disease, syndrome, or clinical concept to synthesize a structured, high-yield mnemonic, drug of choice, diagnostic triad, and exam trap breakdown.
-          </p>
+      {/* ═══ 2. SWIFTUI-GRADE SEGMENTED VIEW SWITCHER ═══ */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        {/* iOS-style Segmented Picker */}
+        <div className="inline-flex p-1 rounded-2xl bg-slate-200/70 backdrop-blur-md border border-slate-300/60 shadow-inner max-w-full overflow-x-auto scrollbar-none">
+          {[
+            { id: 'all' as KnowledgeViewMode, label: 'All Knowledge', icon: Layers },
+            { id: 'synthesizer' as KnowledgeViewMode, label: 'Clinical Synthesizer', icon: Brain },
+            { id: 'vault' as KnowledgeViewMode, label: `Revision Vault (${allPearls.length})`, icon: BookOpen },
+          ].map((tab) => {
+            const isActive = activeViewMode === tab.id;
+            const TabIcon = tab.icon;
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveViewMode(tab.id)}
+                className={`relative px-3.5 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
+                  isActive ? 'text-[#004D47]' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="knowledge-segmented-indicator"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    className="absolute inset-0 rounded-xl bg-white shadow-xs border border-slate-200/60"
+                  />
+                )}
+                <TabIcon className="h-3.5 w-3.5 relative z-10 stroke-[2.2]" />
+                <span className="relative z-10 whitespace-nowrap">{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Search & Synthesize Bar */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleQueryTopic(activeTopicQuery);
-          }}
-          className="relative flex items-center bg-white/80 backdrop-blur-xl border border-white/85 rounded-2xl p-1.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)] focus-within:border-[#006B63] focus-within:ring-2 focus-within:ring-[#006B63]/10 transition-all"
-        >
-          <Search className="ml-2 sm:ml-3 h-4 sm:h-4.5 w-4 sm:w-4.5 text-stone-400 shrink-0 pointer-events-none" />
-          <input
-            type="text"
-            value={activeTopicQuery}
-            onChange={(e) => setActiveTopicQuery(e.target.value)}
-            placeholder="Search topic (e.g. COPD, Asthma, Burns)..."
-            aria-label="Medical concept query"
-            className="flex-1 bg-transparent px-2 sm:px-3.5 text-xs sm:text-sm font-medium text-stone-900 placeholder-stone-400 focus:outline-none min-w-0"
-          />
-          {activeTopicQuery && (
-            <button
-              type="button"
-              onClick={() => setActiveTopicQuery('')}
-              className="p-1 text-stone-400 hover:text-stone-600 rounded-md transition-colors cursor-pointer mr-1 shrink-0"
-              aria-label="Clear input"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
-          <button
-            type="submit"
-            disabled={isGenerating || !activeTopicQuery.trim()}
-            className="h-10 px-3 sm:px-5 rounded-xl text-xs font-semibold bg-[#006B63] hover:bg-[#00554e] text-white transition-all cursor-pointer disabled:opacity-40 flex items-center justify-center gap-1.5 shrink-0 shadow-xs min-w-[90px] sm:min-w-0 font-bold"
-          >
-            {isGenerating ? (
-              <>
-                <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span className="hidden xs:inline">Synthesizing...</span>
-                <span className="xs:hidden">...</span>
-              </>
-            ) : (
-              <>
-                <Brain className="h-3.5 w-3.5 text-teal-200" />
-                <span>Synthesize</span>
-              </>
-            )}
-          </button>
-        </form>
+        {/* Quick Stat Pill */}
+        <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 font-mono">
+          <span>{filteredPearls.length} Pearls In Deck</span>
+          <span>•</span>
+          <span className="text-[#006B63] font-bold">19 Subjects</span>
+        </div>
+      </div>
 
-        {/* Quick Starts */}
-        <div className="space-y-1.5 pt-0.5">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1 touch-pan-x">
-            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider font-mono shrink-0">
+      {/* ═══ SPACED REPETITION DUE TODAY CARD (REPLACES STATIC MARKETING FLUFF) ═══ */}
+      {duePearls.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-teal-500/10 border border-amber-300/70 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
+              <Flame className="w-5 h-5 fill-white animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold font-['Outfit'] text-slate-900">
+                  Spaced Memory Recall • {duePearls.length} Due Today
+                </h3>
+                <span className="px-2 py-0.2 rounded-full text-[9px] font-extrabold uppercase bg-amber-100 text-amber-900 border border-amber-200">
+                  SM-2 Active
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 mt-0.5">
+                Consolidate long-term clinical recall before knowledge decays. Takes ~2 minutes.
+              </p>
+            </div>
+          </div>
+
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => {
+              setSrsIndex(0);
+              setIsSrsAnswerRevealed(false);
+              setIsSrsReviewOpen(true);
+            }}
+            className="px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shrink-0 shadow-sm cursor-pointer font-['Outfit']"
+          >
+            <span>Start Recall Session</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </motion.button>
+        </motion.div>
+      )}
+
+      {/* ═══ 3. AI CLINICAL CONCEPT SYNTHESIZER (VISIBLE IN 'all' OR 'synthesizer') ═══ */}
+      {(activeViewMode === 'all' || activeViewMode === 'synthesizer') && (
+        <motion.section
+          layout
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          className="bg-white/90 backdrop-blur-xl rounded-3xl p-5 sm:p-7 border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_10px_32px_rgba(0,107,99,0.04)] space-y-4"
+        >
+          <div className="max-w-2xl space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200/70 text-[#006B63] text-[10.5px] font-bold font-mono uppercase tracking-wider">
+              <Sparkles className="h-3 w-3 text-[#006B63]" />
+              <span>Instant Clinical Synthesis</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-extrabold font-['Outfit'] text-slate-900 tracking-tight leading-snug">
+              Synthesize Any Clinical Disease or Concept
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-xl">
+              Enter any FMGE condition or syndrome to generate a high-yield mnemonic, drug of choice, diagnostic triad, and examiner traps.
+            </p>
+          </div>
+
+          {/* Search & Synthesize Bar */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleQueryTopic(activeTopicQuery);
+            }}
+            className="relative flex items-center bg-stone-50/80 hover:bg-white focus-within:bg-white border border-stone-200 focus-within:border-[#006B63] focus-within:ring-3 focus-within:ring-[#006B63]/10 rounded-2xl p-1.5 transition-all shadow-xs"
+          >
+            <Search className="ml-2.5 sm:ml-3 h-4 w-4 text-slate-400 shrink-0 pointer-events-none" />
+            <input
+              type="text"
+              value={activeTopicQuery}
+              onChange={(e) => setActiveTopicQuery(e.target.value)}
+              placeholder="Search or enter concept (e.g. COPD, Celiac Disease, Burns)..."
+              aria-label="Medical concept query"
+              className="flex-1 bg-transparent px-2.5 sm:px-3 text-xs sm:text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none min-w-0"
+            />
+            {activeTopicQuery && (
+              <button
+                type="button"
+                onClick={() => setActiveTopicQuery('')}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-md transition-colors cursor-pointer mr-1 shrink-0"
+                aria-label="Clear input"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              disabled={isGenerating || !activeTopicQuery.trim()}
+              className="h-9 sm:h-10 px-3.5 sm:px-5 rounded-xl text-xs font-bold font-['Outfit'] bg-[#006B63] hover:bg-[#005750] text-white transition-all cursor-pointer disabled:opacity-40 flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
+            >
+              {isGenerating ? (
+                <>
+                  <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="hidden xs:inline">Synthesizing...</span>
+                </>
+              ) : (
+                <>
+                  <Brain className="h-3.5 w-3.5 text-teal-200" />
+                  <span>Synthesize</span>
+                </>
+              )}
+            </motion.button>
+          </form>
+
+          {/* Quick-Starts Horizontal Shelf */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none [mask-image:linear-gradient(to_right,black_92%,transparent_100%)]">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono shrink-0">
               Quick Starts:
             </span>
             {[
@@ -998,10 +1088,10 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   key={topic}
                   type="button"
                   onClick={() => handleQueryTopic(topic)}
-                  className={`min-h-[34px] px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer shrink-0 border flex items-center ${
+                  className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shrink-0 border ${
                     isSelected
-                      ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs font-bold'
-                      : 'bg-white/80 backdrop-blur-md hover:bg-white text-stone-700 border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
+                      ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs'
+                      : 'bg-stone-50/70 hover:bg-white text-slate-700 border-stone-200/70 hover:border-teal-300'
                   }`}
                 >
                   {topic}
@@ -1009,85 +1099,44 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               );
             })}
           </div>
-        </div>
 
-        {/* Recently Generated / Recent Topics Shelf */}
-        <div className="pt-2.5 border-t border-stone-200/60 flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1.5 text-stone-400 shrink-0">
-            <Clock className="h-3.5 w-3.5 text-stone-400" />
-            <span className="text-[10px] font-semibold text-stone-500 font-mono uppercase tracking-wider">Recent Topics:</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {recentTopics && recentTopics.length > 0 ? (
-              recentTopics.map((topic) => (
-                <button
-                  key={topic}
-                  type="button"
-                  onClick={() => handleQueryTopic(topic)}
-                  className="px-2.5 py-0.5 rounded-lg text-xs bg-white/80 backdrop-blur-xs hover:bg-white text-stone-700 border border-white/80 font-medium transition-colors cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]"
-                >
-                  {topic}
-                </button>
-              ))
-            ) : (
-              <span className="text-xs text-stone-400 italic">
-                Synthesized topics will appear here for fast re-access.
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
+          {/* Recent Queries Shelf */}
+          {recentTopics && recentTopics.length > 0 && (
+            <div className="pt-2 border-t border-stone-100 flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1 text-slate-400 shrink-0">
+                <Clock className="h-3 w-3" />
+                <span className="text-[10px] font-semibold text-slate-500 font-mono uppercase tracking-wider">
+                  Recent:
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {recentTopics.map((topic) => (
+                  <button
+                    key={topic}
+                    type="button"
+                    onClick={() => handleQueryTopic(topic)}
+                    className="px-2 py-0.5 rounded-lg text-[11px] bg-slate-100/70 hover:bg-white text-slate-600 hover:text-slate-900 border border-slate-200/60 font-medium transition-colors cursor-pointer"
+                  >
+                    {topic}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.section>
+      )}
 
-      {/* ═══ 3. VALUE PROPOSITION CARDS ═══ */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] flex items-start gap-3">
-          <div className="h-9 w-9 rounded-xl bg-[#006B63]/10 text-[#006B63] border border-[#006B63]/20 flex items-center justify-center shrink-0 mt-0.5">
-            <Brain className="h-4.5 w-4.5 stroke-[1.8]" />
-          </div>
-          <div className="space-y-0.5">
-            <h3 className="text-xs font-bold text-stone-900">High-Yield Answers</h3>
-            <p className="text-[11px] text-stone-500 leading-relaxed">
-              Structured, exam-focused clinical breakdown for NBE FMGE topics.
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] flex items-start gap-3">
-          <div className="h-9 w-9 rounded-xl bg-sky-50 text-sky-700 border border-sky-200/60 flex items-center justify-center shrink-0 mt-0.5">
-            <Activity className="h-4.5 w-4.5 stroke-[1.8]" />
-          </div>
-          <div className="space-y-0.5">
-            <h3 className="text-xs font-bold text-stone-900">Evidence-Based</h3>
-            <p className="text-[11px] text-stone-500 leading-relaxed">
-              Organized around standard treatment protocols and diagnostic triads.
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] flex items-start gap-3">
-          <div className="h-9 w-9 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0 mt-0.5">
-            <Star className="h-4.5 w-4.5 stroke-[1.8] fill-amber-500/20" />
-          </div>
-          <div className="space-y-0.5">
-            <h3 className="text-xs font-bold text-stone-900">Save &amp; Revisit</h3>
-            <p className="text-[11px] text-stone-500 leading-relaxed">
-              Star important pearls directly into your personal revision vault.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ═══ 4. GENERATED KNOWLEDGE READING EXPERIENCE (EDITORIAL REFERENCE SHEET) ═══ */}
+      {/* ═══ 4. GENERATED CLINICAL SHEET (READING EXPERIENCE) ═══ */}
       {isGenerating && (
-        <div className="bg-stone-50 border border-[#006B63]/30 rounded-2xl p-5 flex items-center gap-3.5 shadow-xs animate-pulse">
-          <div className="h-9 w-9 rounded-xl bg-[#006B63]/10 text-[#006B63] flex items-center justify-center shrink-0">
-            <span className="h-4 w-4 border-2 border-[#006B63]/30 border-t-[#006B63] rounded-full animate-spin" />
+        <div className="bg-white/80 backdrop-blur-md border border-[#006B63]/30 rounded-3xl p-5 sm:p-6 flex items-center gap-3.5 shadow-xs animate-pulse">
+          <div className="h-10 w-10 rounded-2xl bg-[#006B63]/10 text-[#006B63] flex items-center justify-center shrink-0">
+            <span className="h-4.5 w-4.5 border-2 border-[#006B63]/30 border-t-[#006B63] rounded-full animate-spin" />
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm font-bold text-stone-900">
+            <h3 className="text-sm font-bold font-['Outfit'] text-slate-900">
               Synthesizing Clinical Reference Sheet...
             </h3>
-            <p className="text-xs text-stone-500">
+            <p className="text-xs text-slate-500">
               Extracting structured mnemonics, drugs of choice, diagnostic hallmarks, and NBE examiner traps.
             </p>
           </div>
@@ -1095,54 +1144,55 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
       )}
 
       {generationError && (
-        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-center gap-3 text-rose-900 shadow-xs">
+        <div className="bg-rose-50 border border-rose-200 rounded-3xl p-4 flex items-center gap-3 text-rose-900 shadow-xs">
           <AlertTriangle className="h-5 w-5 text-rose-600 shrink-0" />
           <p className="text-xs sm:text-sm font-medium">{generationError}</p>
         </div>
       )}
 
-      {generatedTopic && (
-        <article
+      {generatedTopic && (activeViewMode === 'all' || activeViewMode === 'synthesizer') && (
+        <motion.article
+          layout
           id="generated-knowledge-sheet"
-          className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 border border-stone-200/90 shadow-xs space-y-6 sm:space-y-7 animate-in fade-in-50 duration-300 scroll-mt-6"
+          className="bg-white/95 backdrop-blur-2xl rounded-3xl p-5 sm:p-7 md:p-8 border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_15px_40px_rgba(0,107,99,0.06)] space-y-6"
         >
-          {/* 1. TOPIC IDENTITY / EDITORIAL HEADER */}
-          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-200/80 pb-5">
-            <div className="space-y-2 max-w-2xl">
+          {/* Header & Quick Action Buttons */}
+          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-200/60 pb-5">
+            <div className="space-y-1.5 max-w-2xl">
               <div className="flex items-center gap-2 flex-wrap">
                 {generatedTopic.subjectName && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#006B63]/10 text-[#006B63] border border-[#006B63]/20 font-mono tracking-wide">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#006B63]/10 text-[#006B63] border border-[#006B63]/20 font-mono tracking-wide">
                     {generatedTopic.subjectName}
                   </span>
                 )}
                 {generatedTopic.mnemonic?.acronym && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200/90 font-mono tracking-wider">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200/90 font-mono tracking-wider">
                     {generatedTopic.mnemonic.acronym}
                   </span>
                 )}
-                <span className="text-[11px] text-stone-400 font-mono uppercase tracking-wider">
+                <span className="text-[11px] text-slate-400 font-mono uppercase tracking-wider">
                   NBE High-Yield Reference
                 </span>
               </div>
 
-              <h2 className="font-['Newsreader',_Georgia,_serif] text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight leading-tight break-words bg-gradient-to-r from-stone-950 via-stone-800 to-[#006B63] bg-clip-text text-transparent">
+              <h2 className="text-2xl sm:text-3xl font-black font-['Outfit'] text-slate-900 tracking-tight leading-tight">
                 {generatedTopic.topicName || generatedTopic.mnemonic?.title}
               </h2>
 
               {generatedTopic.mnemonic?.title && generatedTopic.topicName && generatedTopic.mnemonic.title !== generatedTopic.topicName && (
-                <p className="text-xs sm:text-sm text-stone-600 font-medium break-words">
+                <p className="text-xs sm:text-sm text-slate-600 font-medium">
                   {generatedTopic.mnemonic.title}
                 </p>
               )}
             </div>
 
-            {/* Quick Actions (Copy & Save) */}
-            <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+            {/* Actions Bar */}
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={handleCopyGenerated}
-                className="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 min-h-[38px] rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200/80 text-stone-700 transition-colors border border-stone-200/90 cursor-pointer shadow-2xs"
-                aria-label="Copy knowledge summary to clipboard"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold font-['Outfit'] bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border border-slate-200 cursor-pointer shadow-2xs flex items-center gap-1.5"
+                aria-label="Copy knowledge summary"
               >
                 {copiedId === 'generated' ? (
                   <>
@@ -1151,7 +1201,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   </>
                 ) : (
                   <>
-                    <Copy className="h-3.5 w-3.5 text-stone-500" />
+                    <Copy className="h-3.5 w-3.5 text-slate-500" />
                     <span>Copy Summary</span>
                   </>
                 )}
@@ -1160,12 +1210,12 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               <button
                 type="button"
                 onClick={handleSaveGeneratedToVault}
-                className={`flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 min-h-[38px] rounded-xl text-xs font-semibold transition-all cursor-pointer border shadow-xs ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold font-['Outfit'] transition-all cursor-pointer border shadow-xs flex items-center gap-1.5 ${
                   isGeneratedSaved
                     ? 'bg-amber-500 text-white border-amber-600 hover:bg-amber-600'
-                    : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-200/90'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-200'
                 }`}
-                aria-label="Save this topic pearl to starred vault"
+                aria-label="Save this topic pearl"
               >
                 <Star className={`h-3.5 w-3.5 ${isGeneratedSaved ? 'fill-white text-white' : 'fill-amber-500/20 text-amber-600'}`} />
                 <span>{isGeneratedSaved ? 'Saved to Vault ★' : 'Save to Starred'}</span>
@@ -1173,503 +1223,375 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             </div>
           </header>
 
-          {/* 2. KEY TAKEAWAY / 1-LINE KEY ANCHOR */}
+          {/* 1-Line Key Anchor Box */}
           {generatedTopic.oneLineTakeaway && (
-            <div className="bg-stone-900 rounded-2xl p-4 sm:p-5 text-white border border-stone-800 shadow-xs space-y-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2.5 py-0.5 rounded-md bg-amber-400 text-stone-950 font-mono text-[10px] font-extrabold uppercase tracking-wider">
+            <div className="bg-slate-900 rounded-2xl p-4 sm:p-5 text-white border border-slate-800 shadow-sm space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 font-mono text-[10px] font-black uppercase tracking-wider">
                   1-Line Key Anchor
                 </span>
-                <span className="text-[11px] text-stone-400 font-mono tracking-wide">
+                <span className="text-[11px] text-slate-400 font-mono">
                   FMGE Exam Essential
                 </span>
               </div>
-              <p className="text-xs sm:text-sm md:text-[15px] font-medium text-stone-100 leading-relaxed break-words">
+              <p className="text-xs sm:text-sm font-medium text-slate-100 leading-relaxed">
                 {generatedTopic.oneLineTakeaway}
               </p>
             </div>
           )}
 
-          {/* 3. HIGH-YIELD KEY POINTS (AT-A-GLANCE SCAN GROUP) */}
-          <section className="space-y-2.5">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-stone-400 font-mono uppercase tracking-wider">
-                Key Clinical Hallmarks • At A Glance
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* Point 01: DOC */}
-              {generatedTopic.drugOfChoice?.firstLineDrug && (
-                <div className="bg-emerald-50/40 rounded-xl p-3.5 border border-emerald-200/70 space-y-1.5 flex flex-col justify-between">
-                  <div className="flex items-center justify-between gap-1 text-[10px] font-bold font-mono uppercase text-emerald-800">
-                    <span>Point 01</span>
-                    <span className="text-emerald-700 font-semibold">Therapeutic DOC</span>
-                  </div>
-                  <div className="text-xs sm:text-[13px] font-bold text-emerald-950 leading-snug">
-                    {generatedTopic.drugOfChoice.firstLineDrug}
-                  </div>
-                  <div className="text-[11px] text-emerald-800/80 line-clamp-2">
-                    {generatedTopic.drugOfChoice.condition || 'First-line protocol'}
-                  </div>
+          {/* 4 Key Points at a Glance */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Point 01: DOC */}
+            {generatedTopic.drugOfChoice?.firstLineDrug && (
+              <div className="bg-emerald-50/50 rounded-2xl p-4 border border-emerald-200/70 space-y-1">
+                <div className="text-[10px] font-bold font-mono uppercase text-emerald-800">
+                  Point 01 • Therapeutic DOC
                 </div>
-              )}
-
-              {/* Point 02: Hallmark / Sign */}
-              {generatedTopic.diagnosticTriad?.pathognomonicSign && (
-                <div className="bg-purple-50/40 rounded-xl p-3.5 border border-purple-200/70 space-y-1.5 flex flex-col justify-between">
-                  <div className="flex items-center justify-between gap-1 text-[10px] font-bold font-mono uppercase text-purple-800">
-                    <span>Point 02</span>
-                    <span className="text-purple-700 font-semibold">Diagnostic Sign</span>
-                  </div>
-                  <div className="text-xs sm:text-[13px] font-bold text-purple-950 leading-snug">
-                    {generatedTopic.diagnosticTriad.pathognomonicSign}
-                  </div>
-                  <div className="text-[11px] text-purple-800/80">
-                    Pathognomonic hallmark
-                  </div>
+                <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-emerald-950 leading-snug">
+                  {generatedTopic.drugOfChoice.firstLineDrug}
                 </div>
-              )}
-
-              {/* Point 03: Clinical Presentation / Triad */}
-              {generatedTopic.diagnosticTriad?.triadName && (
-                <div className="bg-sky-50/40 rounded-xl p-3.5 border border-sky-200/70 space-y-1.5 flex flex-col justify-between">
-                  <div className="flex items-center justify-between gap-1 text-[10px] font-bold font-mono uppercase text-sky-800">
-                    <span>Point 03</span>
-                    <span className="text-sky-700 font-semibold">Triad / Syndrome</span>
-                  </div>
-                  <div className="text-xs sm:text-[13px] font-bold text-sky-950 leading-snug">
-                    {generatedTopic.diagnosticTriad.triadName}
-                  </div>
-                  <div className="text-[11px] text-sky-800/80">
-                    {generatedTopic.diagnosticTriad.components?.length || 3} Cardinal findings
-                  </div>
+                <div className="text-[11px] text-emerald-800/80 line-clamp-2">
+                  {generatedTopic.drugOfChoice.condition || 'First-line protocol'}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Point 04: Top Trap Rule */}
-              {generatedTopic.examTraps && generatedTopic.examTraps.length > 0 && (
-                <div className="bg-amber-50/40 rounded-xl p-3.5 border border-amber-200/70 space-y-1.5 flex flex-col justify-between">
-                  <div className="flex items-center justify-between gap-1 text-[10px] font-bold font-mono uppercase text-amber-800">
-                    <span>Point 04</span>
-                    <span className="text-amber-700 font-semibold">Examiner Trap</span>
-                  </div>
-                  <div className="text-xs sm:text-[13px] font-bold text-stone-900 leading-snug">
-                    {generatedTopic.examTraps[0].trap}
-                  </div>
-                  <div className="text-[11px] text-emerald-800 font-medium line-clamp-2">
-                    ✓ {generatedTopic.examTraps[0].remedy}
-                  </div>
+            {/* Point 02: Hallmark / Sign */}
+            {generatedTopic.diagnosticTriad?.pathognomonicSign && (
+              <div className="bg-purple-50/50 rounded-2xl p-4 border border-purple-200/70 space-y-1">
+                <div className="text-[10px] font-bold font-mono uppercase text-purple-800">
+                  Point 02 • Diagnostic Sign
                 </div>
-              )}
-            </div>
-          </section>
+                <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-purple-950 leading-snug">
+                  {generatedTopic.diagnosticTriad.pathognomonicSign}
+                </div>
+                <div className="text-[11px] text-purple-800/80">
+                  Pathognomonic hallmark
+                </div>
+              </div>
+            )}
 
-          {/* 4. MNEMONIC CLINICAL BREAKDOWN */}
+            {/* Point 03: Clinical Presentation / Triad */}
+            {generatedTopic.diagnosticTriad?.triadName && (
+              <div className="bg-sky-50/50 rounded-2xl p-4 border border-sky-200/70 space-y-1">
+                <div className="text-[10px] font-bold font-mono uppercase text-sky-800">
+                  Point 03 • Triad / Syndrome
+                </div>
+                <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-sky-950 leading-snug">
+                  {generatedTopic.diagnosticTriad.triadName}
+                </div>
+                <div className="text-[11px] text-sky-800/80">
+                  {generatedTopic.diagnosticTriad.components?.length || 3} Cardinal findings
+                </div>
+              </div>
+            )}
+
+            {/* Point 04: Top Trap Rule */}
+            {generatedTopic.examTraps && generatedTopic.examTraps.length > 0 && (
+              <div className="bg-amber-50/50 rounded-2xl p-4 border border-amber-200/70 space-y-1">
+                <div className="text-[10px] font-bold font-mono uppercase text-amber-800">
+                  Point 04 • Examiner Trap
+                </div>
+                <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 leading-snug">
+                  {generatedTopic.examTraps[0].trap}
+                </div>
+                <div className="text-[11px] text-emerald-800 font-medium line-clamp-2">
+                  ✓ {generatedTopic.examTraps[0].remedy}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Mnemonic Clinical Breakdown */}
           {generatedTopic.mnemonic && generatedTopic.mnemonic.breakdown && generatedTopic.mnemonic.breakdown.length > 0 && (
-            <section className="space-y-3 pt-1">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-200/80 pb-2.5">
-                <div className="flex items-center gap-2 text-stone-900 font-semibold text-sm sm:text-base">
-                  <div className="h-7 w-7 rounded-lg bg-[#006B63]/10 text-[#006B63] flex items-center justify-center shrink-0">
-                    <Brain className="h-4 w-4 stroke-[1.8]" />
-                  </div>
-                  <span>Mnemonic Clinical Breakdown</span>
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-2 border-b border-stone-200/60 pb-2">
+                <div className="h-7 w-7 rounded-lg bg-[#006B63]/10 text-[#006B63] flex items-center justify-center shrink-0">
+                  <Brain className="h-4 w-4 stroke-[2]" />
                 </div>
-                {generatedTopic.mnemonic.acronym && (
-                  <span className="self-start sm:self-center px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-stone-100 text-stone-800 border border-stone-200">
-                    {generatedTopic.mnemonic.acronym}
-                  </span>
-                )}
+                <h3 className="text-sm font-bold font-['Outfit'] text-slate-900">
+                  Mnemonic Clinical Breakdown
+                </h3>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {generatedTopic.mnemonic.breakdown.map((item, i) => (
                   <div
                     key={i}
-                    className="bg-stone-50/70 rounded-xl p-3.5 sm:p-4 border border-stone-200/80 hover:border-stone-300 transition-all space-y-2 flex flex-col justify-between"
+                    className="bg-stone-50/70 rounded-2xl p-3.5 border border-stone-200/70 space-y-2 flex flex-col justify-between"
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="h-7 w-7 rounded-lg bg-stone-900 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                      <span className="h-7 w-7 rounded-lg bg-slate-900 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
                         {item.letter}
                       </span>
-                      <span className="text-xs sm:text-sm font-bold text-stone-900 leading-snug">
+                      <span className="text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 leading-snug">
                         {item.meaning}
                       </span>
                     </div>
-                    <p className="text-xs text-stone-600 leading-relaxed font-normal">
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal">
                       {item.clinicalNote}
                     </p>
                   </div>
                 ))}
               </div>
-            </section>
+            </div>
           )}
 
-          {/* 5. DRUG OF CHOICE (DOC) & PROTOCOL (GREEN / MINT TREATMENT) */}
+          {/* Drug of Choice & Treatment Protocol */}
           {generatedTopic.drugOfChoice && (
-            <section className="bg-emerald-50/60 rounded-2xl p-5 sm:p-6 border border-emerald-200/90 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-200/70 pb-3">
-                <div className="flex items-center gap-2 text-emerald-950 font-semibold text-sm sm:text-base">
-                  <div className="h-7 w-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                    <Pill className="h-4 w-4 stroke-[1.8]" />
-                  </div>
-                  <span>Drug of Choice (DOC) &amp; Treatment Protocol</span>
+            <div className="bg-emerald-50/60 rounded-3xl p-5 border border-emerald-200/80 space-y-3">
+              <div className="flex items-center gap-2 text-emerald-950 font-bold text-sm font-['Outfit']">
+                <div className="h-7 w-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                  <Pill className="h-4 w-4" />
                 </div>
-                {generatedTopic.drugOfChoice.condition && (
-                  <span className="self-start sm:self-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-100/90 text-emerald-900 border border-emerald-200">
-                    {generatedTopic.drugOfChoice.condition}
-                  </span>
-                )}
+                <span>Drug of Choice (DOC) &amp; Treatment Protocol</span>
               </div>
 
-              <div className="space-y-1.5">
-                <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider font-mono">
+              <div className="space-y-1">
+                <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider font-mono">
                   First-Line Pharmacotherapy
                 </div>
-                <div className="text-sm sm:text-base md:text-lg font-bold text-emerald-950 leading-snug">
+                <div className="text-base sm:text-lg font-bold font-['Outfit'] text-emerald-950">
                   {generatedTopic.drugOfChoice.firstLineDrug}
                 </div>
               </div>
 
               {generatedTopic.drugOfChoice.mechanism && (
-                <div className="bg-white/80 rounded-xl p-3.5 sm:p-4 border border-emerald-200/70 space-y-1">
-                  <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider font-mono">
-                    Pharmacological Mechanism of Action
+                <div className="bg-white/90 rounded-2xl p-3.5 border border-emerald-200/70 space-y-0.5">
+                  <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider font-mono">
+                    Pharmacological Mechanism
                   </div>
                   <p className="text-xs sm:text-sm text-emerald-950 leading-relaxed">
                     {generatedTopic.drugOfChoice.mechanism}
                   </p>
                 </div>
               )}
-
-              {generatedTopic.drugOfChoice.alternative && (
-                <div className="text-xs text-emerald-900 pt-1 border-t border-emerald-200/60 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2">
-                  <span className="font-bold text-emerald-950 shrink-0">Second-Line / Allergy Alternative:</span>
-                  <span className="leading-relaxed">{generatedTopic.drugOfChoice.alternative}</span>
-                </div>
-              )}
-            </section>
+            </div>
           )}
 
-          {/* 6 & 7. CLASSIC CLINICAL PRESENTATION & DIAGNOSTIC FINDINGS (PURPLE TREATMENT) */}
+          {/* Clinical Presentation & Diagnostic Triad */}
           {generatedTopic.diagnosticTriad && (
-            <section className="bg-purple-50/60 rounded-2xl p-5 sm:p-6 border border-purple-200/90 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-purple-200/70 pb-3">
-                <div className="flex items-center gap-2 text-purple-950 font-semibold text-sm sm:text-base">
-                  <div className="h-7 w-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0">
-                    <Activity className="h-4 w-4 stroke-[1.8]" />
-                  </div>
-                  <span>Clinical Presentation &amp; Diagnostic Triad</span>
+            <div className="bg-purple-50/60 rounded-3xl p-5 border border-purple-200/80 space-y-3">
+              <div className="flex items-center gap-2 text-purple-950 font-bold text-sm font-['Outfit']">
+                <div className="h-7 w-7 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0">
+                  <Activity className="h-4 w-4" />
                 </div>
-                {generatedTopic.diagnosticTriad.triadName && (
-                  <span className="self-start sm:self-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-100/90 text-purple-900 border border-purple-200">
-                    {generatedTopic.diagnosticTriad.triadName}
-                  </span>
-                )}
+                <span>Clinical Presentation &amp; Diagnostic Triad</span>
               </div>
 
-              {/* Cardinal presentation & findings */}
               {generatedTopic.diagnosticTriad.components && generatedTopic.diagnosticTriad.components.length > 0 && (
-                <div className="space-y-2">
-                  <div className="text-[11px] font-bold text-purple-800 uppercase tracking-wider font-mono">
-                    Cardinal Findings &amp; Clinical Chronology
-                  </div>
-                  <div className="space-y-1.5">
-                    {generatedTopic.diagnosticTriad.components.map((comp, idx) => (
-                      <div
-                        key={idx}
-                        className="bg-white/80 rounded-xl p-3 sm:p-3.5 border border-purple-200/70 flex items-start gap-2.5"
-                      >
-                        <span className="h-5 w-5 rounded-full bg-purple-100 text-purple-800 font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                          {idx + 1}
-                        </span>
-                        <span className="text-xs sm:text-sm text-purple-950 font-medium leading-relaxed">
-                          {comp}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                <div className="space-y-1.5">
+                  {generatedTopic.diagnosticTriad.components.map((comp, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-white/90 rounded-xl p-3 border border-purple-200/70 flex items-start gap-2.5"
+                    >
+                      <span className="h-5 w-5 rounded-full bg-purple-100 text-purple-800 font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <span className="text-xs sm:text-sm text-purple-950 font-medium leading-relaxed">
+                        {comp}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
-
-              {/* 7. Diagnostic / Imaging Hallmark & Pathognomonic Sign */}
-              {generatedTopic.diagnosticTriad.pathognomonicSign && (
-                <div className="bg-white rounded-xl p-4 border border-purple-200 shadow-2xs space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-purple-800 uppercase tracking-wider font-mono">
-                    <Search className="h-3.5 w-3.5 text-purple-600" />
-                    <span>Pathognomonic Sign &amp; Diagnostic Gold Standard</span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-purple-950 font-semibold leading-relaxed">
-                    {generatedTopic.diagnosticTriad.pathognomonicSign}
-                  </p>
-                </div>
-              )}
-            </section>
+            </div>
           )}
 
-          {/* 8. HIGH-FREQUENCY FMGE EXAM TRAPS (AMBER TREATMENT) */}
+          {/* High-Frequency Exam Traps */}
           {generatedTopic.examTraps && generatedTopic.examTraps.length > 0 && (
-            <section className="bg-amber-50/60 rounded-2xl p-4 sm:p-6 border border-amber-200/90 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-200/70 pb-3">
-                <div className="flex items-center gap-2 text-amber-950 font-semibold text-sm sm:text-base">
-                  <div className="h-7 w-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0">
-                    <AlertTriangle className="h-4 w-4 stroke-[1.8]" />
-                  </div>
-                  <span>High-Frequency FMGE Exam Traps &amp; Examiner Pitfalls</span>
+            <div className="bg-amber-50/60 rounded-3xl p-5 border border-amber-200/80 space-y-3">
+              <div className="flex items-center gap-2 text-amber-950 font-bold text-sm font-['Outfit']">
+                <div className="h-7 w-7 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
+                  <AlertTriangle className="h-4 w-4" />
                 </div>
-                <span className="self-start sm:self-center px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
-                  {generatedTopic.examTraps.length} Traps
-                </span>
+                <span>High-Frequency FMGE Exam Traps</span>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {generatedTopic.examTraps.map((trap, idx) => (
                   <div
                     key={idx}
-                    className="bg-white rounded-xl p-4 sm:p-5 border border-amber-200/80 shadow-2xs space-y-3"
+                    className="bg-white rounded-2xl p-4 border border-amber-200/80 shadow-2xs space-y-2"
                   >
                     <div className="space-y-1">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200 font-mono">
-                        Examiner Trap #{idx + 1}
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[9.5px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200 font-mono">
+                        Trap #{idx + 1}
                       </span>
-                      <p className="text-xs sm:text-sm text-stone-800 font-medium leading-relaxed pt-0.5 break-words">
+                      <p className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed">
                         {trap.trap}
                       </p>
                     </div>
 
-                    <div className="bg-emerald-50/70 rounded-xl p-3 sm:p-3.5 border border-emerald-200/70 space-y-1">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 font-mono">
-                        Clinical Rule &amp; Solution
+                    <div className="bg-emerald-50/70 rounded-xl p-2.5 border border-emerald-200/70">
+                      <span className="text-[9.5px] font-bold uppercase tracking-wider text-emerald-800 font-mono block">
+                        Clinical Solution
                       </span>
-                      <p className="text-xs sm:text-sm text-emerald-950 font-semibold leading-relaxed pt-0.5 break-words">
+                      <p className="text-xs text-emerald-950 font-semibold leading-relaxed mt-0.5">
                         {trap.remedy}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
-            </section>
+            </div>
           )}
-
-          {/* 9. FINAL TAKEAWAY / MEMORY ANCHOR CLOSING */}
-          {generatedTopic.oneLineTakeaway && (
-            <footer className="bg-stone-900 rounded-2xl p-4 sm:p-5 text-white border border-stone-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1 max-w-2xl">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 font-mono text-[10px] font-extrabold uppercase tracking-wider">
-                    Final Takeaway
-                  </span>
-                  <span className="text-[11px] text-stone-400 font-mono">
-                    Quick Revision Key
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm font-medium text-stone-200 leading-relaxed break-words">
-                  {generatedTopic.oneLineTakeaway}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 self-stretch sm:self-center">
-                <button
-                  type="button"
-                  onClick={handleCopyGenerated}
-                  className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[36px] justify-center rounded-xl text-xs font-semibold bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Copy className="h-3.5 w-3.5 text-stone-400" />
-                  <span>Copy</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveGeneratedToVault}
-                  className="flex-1 sm:flex-initial px-3.5 py-2 min-h-[36px] justify-center rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-stone-950 transition-colors flex items-center gap-1.5 cursor-pointer font-medium"
-                >
-                  <Star className="h-3.5 w-3.5 fill-stone-950" />
-                  <span>{isGeneratedSaved ? 'Saved' : 'Save'}</span>
-                </button>
-              </div>
-            </footer>
-          )}
-        </article>
+        </motion.article>
       )}
 
-      {/* ═══ 5. MY KNOWLEDGE VAULT / MASTER PEARLS ARCHIVE ═══ */}
-      <section
-        id="master-vault"
-        className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] space-y-6 scroll-mt-6"
-      >
-        {/* VAULT HEADER */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-stone-200/80 pb-5">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] font-bold text-stone-400 font-mono uppercase tracking-wider">
-                Personal Revision Library
-              </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#006B63]/10 text-[#006B63] border border-[#006B63]/20">
-                {filteredPearls.length} {filteredPearls.length === 1 ? 'Pearl' : 'Pearls'}
-              </span>
-              {allPearls.length > filteredPearls.length && (
-                <span className="text-xs text-stone-400 font-mono">
-                  (of {allPearls.length} in vault)
+      {/* ═══ 5. MASTER REVISION KNOWLEDGE VAULT (VISIBLE IN 'all' OR 'vault') ═══ */}
+      {(activeViewMode === 'all' || activeViewMode === 'vault') && (
+        <motion.section
+          layout
+          id="master-vault"
+          className="bg-white/85 backdrop-blur-xl rounded-3xl p-5 sm:p-7 border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_10px_32px_rgba(0,107,99,0.04)] space-y-5"
+        >
+          {/* Vault Header & Toolbar */}
+          <header className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-stone-200/60 pb-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">
+                  Personal Revision Library
                 </span>
-              )}
+                <span className="px-2 py-0.2 rounded-full text-[10px] font-mono font-bold bg-[#006B63]/10 text-[#006B63] border border-[#006B63]/20">
+                  {filteredPearls.length} Pearls
+                </span>
+              </div>
+
+              <h3 className="text-xl sm:text-2xl font-black font-['Outfit'] text-slate-900 tracking-tight">
+                MY KNOWLEDGE VAULT
+              </h3>
             </div>
 
-            <h3 className="font-['Newsreader',_Georgia,_serif] text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight leading-tight">
-              MY KNOWLEDGE VAULT
-            </h3>
-            <p className="text-xs sm:text-sm text-stone-600 font-normal max-w-2xl leading-relaxed">
-              Your saved high-yield FMGE pearls, formulas, mnemonics and treatment shortcuts.
-            </p>
-          </div>
-
-          {/* Quick Metrics Badges */}
-          <div className="flex items-center gap-2 text-xs font-mono text-stone-600 shrink-0 self-start md:self-auto">
-            <button
-              type="button"
-              onClick={() => setBookmarkedOnly((prev) => !prev)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-                bookmarkedOnly
-                  ? 'bg-amber-50 text-amber-900 border-amber-300 shadow-2xs font-bold'
-                  : 'bg-white/80 backdrop-blur-xs hover:bg-white text-stone-700 border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
-              }`}
-              title="Toggle Starred only filter"
-            >
-              <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-amber-500 text-amber-500' : 'text-amber-500 fill-amber-400/30'}`} />
-              <span>{bookmarkedCount} Starred</span>
-            </button>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 backdrop-blur-xs border border-white/80 text-stone-700 font-medium shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]">
-              <BookOpen className="h-3.5 w-3.5 text-stone-400" />
-              <span>{allPearls.length} Total</span>
-            </span>
-          </div>
-        </header>
-
-        {/* SEARCH & FILTERS CONTROLS */}
-        <div className="space-y-3.5">
-          {/* Search Input Bar */}
-          <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search saved pearls by keyword, drug, or formula..."
-              aria-label="Search saved pearls"
-              className="w-full h-10 pl-10 pr-10 rounded-xl bg-white/80 backdrop-blur-md hover:bg-white focus:bg-white border border-white/85 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/10 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 transition-all outline-none font-medium shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)]"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-600 rounded-md transition-colors cursor-pointer"
-                aria-label="Clear search query"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Subject Dropdown & Category Filter Pills */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
-            {/* Subject Selector */}
-            <div className="shrink-0 w-full sm:w-auto">
-              <select
-                value={selectedSubject}
-                onChange={(e) => setSelectedSubject(e.target.value)}
-                className="w-full sm:w-auto h-9 px-3 rounded-xl bg-white/80 backdrop-blur-md hover:bg-white border border-white/85 text-xs font-semibold text-stone-800 focus:outline-none focus:border-[#006B63] cursor-pointer transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.02)]"
-                aria-label="Filter pearls by subject"
-              >
-                <option value="all">All 19 Subjects</option>
-                {FMGE_SUBJECTS.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Category Filter Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 scrollbar-none -mx-1 px-1 touch-pan-x">
-              {[
-                { id: 'all', label: 'All' },
-                { id: 'mnemonics', label: 'Mnemonics' },
-                { id: 'doc', label: 'DOC' },
-                { id: 'formulas', label: 'Formulas' },
-              ].map((cat) => {
-                const isSelected = selectedCategory === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setSelectedCategory(cat.id as any)}
-                    className={`h-8 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
-                      isSelected
-                        ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs font-bold'
-                        : 'bg-white/80 backdrop-blur-md hover:bg-white text-stone-700 border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                );
-              })}
-
-              {/* Starred Toggle Filter Button */}
+            {/* Quick Metrics */}
+            <div className="flex items-center gap-2 text-xs font-mono text-slate-600 shrink-0">
               <button
                 type="button"
                 onClick={() => setBookmarkedOnly((prev) => !prev)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border shrink-0 ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                   bookmarkedOnly
-                    ? 'bg-amber-50 text-amber-900 border-amber-300 shadow-2xs font-bold'
-                    : 'bg-stone-50 text-stone-600 border-stone-200/80 hover:bg-stone-100 hover:text-stone-900'
+                    ? 'bg-amber-50 text-amber-900 border-amber-300 shadow-2xs'
+                    : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
                 }`}
               >
-                <Star className={`h-3 w-3 ${bookmarkedOnly ? 'fill-amber-500 text-amber-500' : 'text-stone-400'}`} />
-                <span>Starred ({bookmarkedCount})</span>
+                <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-amber-500 text-amber-500' : 'text-amber-500 fill-amber-400/30'}`} />
+                <span>{bookmarkedCount} Starred</span>
               </button>
+            </div>
+          </header>
 
-              {/* Reset active filters button if any filter is applied */}
-              {(selectedSubject !== 'all' || selectedCategory !== 'all' || bookmarkedOnly || searchQuery.trim()) && (
+          {/* Unified Vault Search & Filter Controls */}
+          <div className="space-y-3">
+            {/* Search Input Bar */}
+            <div className="relative w-full">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search saved pearls by keyword, drug, or formula..."
+                aria-label="Search saved pearls"
+                className="w-full h-10 pl-10 pr-10 rounded-2xl bg-stone-50/80 hover:bg-white focus:bg-white border border-stone-200 focus:border-[#006B63] focus:ring-3 focus:ring-[#006B63]/10 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 transition-all outline-none font-medium shadow-xs"
+              />
+              {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedSubject('all');
-                    setSelectedCategory('all');
-                    setBookmarkedOnly(false);
-                    setSearchQuery('');
-                  }}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors whitespace-nowrap cursor-pointer shrink-0"
-                  title="Reset all filters"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-md transition-colors cursor-pointer"
+                  aria-label="Clear search query"
                 >
-                  <RotateCcw className="h-3 w-3" />
-                  <span>Reset</span>
+                  <X className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>
-          </div>
-        </div>
 
-        {/* PEARLS GRID OR REFINED EMPTY STATE */}
-        {filteredPearls.length === 0 ? (
-          <div className="py-12 sm:py-16 px-4 text-center rounded-2xl bg-stone-50/60 border border-dashed border-stone-200 space-y-3.5">
-            <div className="h-12 w-12 rounded-2xl bg-stone-100 text-stone-400 flex items-center justify-center mx-auto shadow-2xs">
-              {bookmarkedOnly ? (
-                <Star className="h-5 w-5 text-amber-500 fill-amber-400/30" />
-              ) : (
-                <Search className="h-5 w-5 text-stone-400" />
-              )}
+            {/* Subject Selector & Category Filter Pills */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              {/* Subject Selector */}
+              <div className="shrink-0 w-full sm:w-auto">
+                <select
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  className="w-full sm:w-auto h-9 px-3 rounded-xl bg-stone-50 hover:bg-white border border-stone-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#006B63] cursor-pointer transition-colors shadow-xs font-['Outfit']"
+                  aria-label="Filter pearls by subject"
+                >
+                  <option value="all">All 19 Subjects</option>
+                  {FMGE_SUBJECTS.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Category Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none [mask-image:linear-gradient(to_right,black_92%,transparent_100%)]">
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'mnemonics', label: 'Mnemonics' },
+                  { id: 'doc', label: 'DOC' },
+                  { id: 'formulas', label: 'Formulas' },
+                ].map((cat) => {
+                  const isSelected = selectedCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setSelectedCategory(cat.id as any)}
+                      className={`h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
+                        isSelected
+                          ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs'
+                          : 'bg-stone-50 hover:bg-white text-slate-700 border-stone-200'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
+
+                {/* Reset Filters */}
+                {(selectedSubject !== 'all' || selectedCategory !== 'all' || bookmarkedOnly || searchQuery.trim()) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedSubject('all');
+                      setSelectedCategory('all');
+                      setBookmarkedOnly(false);
+                      setSearchQuery('');
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap cursor-pointer shrink-0"
+                    title="Reset all filters"
+                  >
+                    <RotateCcw className="h-3 w-3" />
+                    <span>Reset</span>
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="space-y-1 max-w-md mx-auto">
-              <h4 className="text-sm sm:text-base font-semibold text-stone-900">
-                {bookmarkedOnly ? 'No Starred Pearls in Vault' : 'No Matching Pearls Found'}
-              </h4>
-              <p className="text-xs text-stone-500 leading-relaxed font-normal">
-                {bookmarkedOnly
-                  ? 'Star high-yield pearls from the AI Knowledge generator or vault archive to build your rapid revision deck.'
-                  : searchQuery.trim()
-                  ? `No pearls matched "${searchQuery}". Try a broader term or reset the active filters.`
-                  : 'No pearls match your selected subject and category criteria.'}
-              </p>
-            </div>
-            <div className="pt-2">
+          </div>
+
+          {/* Pearls Grid */}
+          {filteredPearls.length === 0 ? (
+            <div className="py-12 px-4 text-center rounded-2xl bg-stone-50/60 border border-dashed border-stone-200 space-y-3">
+              <div className="h-10 w-10 rounded-2xl bg-stone-100 text-stone-400 flex items-center justify-center mx-auto shadow-2xs">
+                {bookmarkedOnly ? (
+                  <Star className="h-5 w-5 text-amber-500 fill-amber-400/30" />
+                ) : (
+                  <Search className="h-5 w-5 text-stone-400" />
+                )}
+              </div>
+              <div className="space-y-1 max-w-md mx-auto">
+                <h4 className="text-sm font-bold text-slate-900 font-['Outfit']">
+                  {bookmarkedOnly ? 'No Starred Pearls in Vault' : 'No Matching Pearls Found'}
+                </h4>
+                <p className="text-xs text-slate-500">
+                  {bookmarkedOnly
+                    ? 'Star high-yield pearls from the AI Knowledge generator to build your personal revision deck.'
+                    : 'No pearls match your search criteria. Try a broader term or reset filters.'}
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => {
@@ -1678,129 +1600,136 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   setBookmarkedOnly(false);
                   setSearchQuery('');
                 }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-stone-900 hover:bg-stone-800 text-white transition-colors cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition-colors cursor-pointer shadow-xs"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>Show All Pearls</span>
               </button>
             </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-            {filteredPearls.map((pearl) => {
-              const subject = FMGE_SUBJECTS.find((s) => s.id === pearl.subjectId);
-              const theme = getPearlVisualTheme(pearl);
-              const ThemeIcon = theme.icon;
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredPearls.map((pearl) => {
+                const subject = FMGE_SUBJECTS.find((s) => s.id === pearl.subjectId);
+                const theme = getPearlVisualTheme(pearl);
+                const ThemeIcon = theme.icon;
 
-              return (
-                <article
-                  key={pearl.id}
-                  className="p-4 sm:p-6 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.03)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_12px_36px_rgba(0,107,99,0.07)] hover:border-white transition-all flex flex-col justify-between space-y-4"
-                >
-                  <div className="space-y-3">
-                    {/* Header: Subject & Content Type Badge + Actions */}
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-stone-100 text-stone-800 border border-stone-200/80 shrink-0">
-                          {subject?.name || pearl.subjectId}
-                        </span>
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase border shrink-0 ${theme.badgeClass}`}>
-                          <ThemeIcon className="h-3 w-3" />
-                          <span>{theme.typeLabel}</span>
-                        </span>
+                return (
+                  <motion.article
+                    key={pearl.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                    className="p-5 rounded-3xl bg-white/90 backdrop-blur-md border border-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] hover:shadow-md hover:border-teal-200/80 transition-all flex flex-col justify-between space-y-3.5"
+                  >
+                    <div className="space-y-3">
+                      {/* Card Header */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-slate-100 text-slate-800 border border-slate-200/80 shrink-0">
+                            {subject?.name || pearl.subjectId}
+                          </span>
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase border shrink-0 ${theme.badgeClass}`}>
+                            <ThemeIcon className="h-3 w-3" />
+                            <span>{theme.typeLabel}</span>
+                          </span>
+                        </div>
+
+                        {/* Action Icons */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          {/* Audio Read-Aloud Button */}
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            type="button"
+                            onClick={() => handleToggleAudio(pearl)}
+                            className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
+                              playingPearlId === pearl.id
+                                ? 'text-[#006B63] bg-teal-100/90 animate-pulse'
+                                : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                            }`}
+                            title={playingPearlId === pearl.id ? 'Stop audio' : 'Listen to pearl'}
+                            aria-label="Listen to pearl"
+                          >
+                            {playingPearlId === pearl.id ? (
+                              <Volume2 className="h-4 w-4 text-[#006B63]" />
+                            ) : (
+                              <VolumeX className="h-4 w-4" />
+                            )}
+                          </motion.button>
+
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            type="button"
+                            onClick={() => handleCopy(pearl)}
+                            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                            title="Copy pearl"
+                            aria-label="Copy pearl"
+                          >
+                            {copiedId === pearl.id ? (
+                              <Check className="h-4 w-4 text-emerald-600" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                          </motion.button>
+
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            type="button"
+                            onClick={() => onToggleBookmark(pearl.id)}
+                            className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
+                              pearl.isBookmarked
+                                ? 'text-amber-500 hover:bg-amber-50'
+                                : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                            }`}
+                            title={pearl.isBookmarked ? 'Remove from starred' : 'Star pearl'}
+                            aria-label={pearl.isBookmarked ? 'Unstar pearl' : 'Star pearl'}
+                          >
+                            <Star className={`h-4 w-4 ${pearl.isBookmarked ? 'fill-amber-500 text-amber-500' : ''}`} />
+                          </motion.button>
+                        </div>
                       </div>
 
-                      {/* Card Actions: Audio, Copy & Star */}
-                      <div className="flex items-center gap-1 shrink-0">
-                        {/* Audio Read-Aloud Button */}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleAudio(pearl)}
-                          className={`p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-colors cursor-pointer ${
-                            playingPearlId === pearl.id
-                              ? 'text-teal-700 bg-teal-100/90 animate-pulse'
-                              : 'text-stone-400 hover:text-stone-700 hover:bg-stone-100'
-                          }`}
-                          title={playingPearlId === pearl.id ? 'Stop audio' : 'Listen to pearl'}
-                          aria-label="Listen to pearl"
-                        >
-                          {playingPearlId === pearl.id ? (
-                            <Volume2 className="h-4 w-4 text-teal-700" />
-                          ) : (
-                            <VolumeX className="h-4 w-4" />
-                          )}
-                        </button>
+                      {/* Pearl Title */}
+                      <h4 className="text-base font-bold font-['Outfit'] text-slate-900 leading-snug tracking-tight">
+                        {pearl.title}
+                      </h4>
 
-                        <button
-                          type="button"
-                          onClick={() => handleCopy(pearl)}
-                          className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors cursor-pointer"
-                          title="Copy pearl to clipboard"
-                          aria-label="Copy pearl"
-                        >
-                          {copiedId === pearl.id ? (
-                            <Check className="h-4 w-4 text-emerald-600" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => onToggleBookmark(pearl.id)}
-                          className={`p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-colors cursor-pointer ${
-                            pearl.isBookmarked
-                              ? 'text-amber-500 hover:bg-amber-50'
-                              : 'text-stone-400 hover:text-stone-700 hover:bg-stone-100'
-                          }`}
-                          title={pearl.isBookmarked ? 'Remove from starred' : 'Star pearl'}
-                          aria-label={pearl.isBookmarked ? 'Unstar pearl' : 'Star pearl'}
-                        >
-                          <Star className={`h-4 w-4 ${pearl.isBookmarked ? 'fill-amber-500 text-amber-500' : ''}`} />
-                        </button>
+                      {/* High-Yield Key Box */}
+                      <div className={`p-3 rounded-2xl border text-xs sm:text-[13px] font-semibold leading-relaxed font-mono space-y-0.5 ${theme.keyBoxClass}`}>
+                        <div className={`text-[10px] font-bold uppercase tracking-wider ${theme.keyLabelClass}`}>
+                          High-Yield Takeaway
+                        </div>
+                        <div className="break-words">
+                          {pearl.highYieldKey}
+                        </div>
                       </div>
+
+                      {/* Explanation */}
+                      <p className="text-xs sm:text-[13px] text-slate-600 whitespace-pre-line leading-relaxed break-words font-normal">
+                        {pearl.explanation}
+                      </p>
                     </div>
 
-                    {/* Pearl Title */}
-                    <h4 className="font-['Outfit',_sans-serif] text-base font-bold text-stone-900 leading-snug tracking-tight">
-                      {pearl.title}
-                    </h4>
-
-                    {/* High-Yield Key Takeaway Box */}
-                    <div className={`p-3 rounded-xl border text-xs sm:text-[13px] font-semibold leading-relaxed font-mono space-y-1 ${theme.keyBoxClass}`}>
-                      <div className={`text-[10px] font-bold uppercase tracking-wider ${theme.keyLabelClass}`}>
-                        High-Yield Takeaway
+                    {/* Card Footer: Tags */}
+                    {pearl.tags && pearl.tags.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-slate-100">
+                        {pearl.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2 py-0.5 rounded-md text-[10px] font-medium font-mono bg-slate-50 text-slate-500 border border-slate-200/60"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
                       </div>
-                      <div className="break-words">
-                        {pearl.highYieldKey}
-                      </div>
-                    </div>
-
-                    {/* Supporting Clinical Explanation */}
-                    <p className="text-xs sm:text-[13px] text-stone-600 whitespace-pre-line leading-relaxed break-words font-normal">
-                      {pearl.explanation}
-                    </p>
-                  </div>
-
-                  {/* Card Footer: Tags */}
-                  {pearl.tags && pearl.tags.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1.5 pt-3 border-t border-stone-100">
-                      {pearl.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-0.5 rounded-md text-[10px] font-medium font-mono bg-stone-50 text-stone-600 border border-stone-200/60"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </section>
+                    )}
+                  </motion.article>
+                );
+              })}
+            </div>
+          )}
+        </motion.section>
+      )}
 
       {/* ═══ 6. SPACED REPETITION (SM-2) ACTIVE RECALL REVIEW MODAL ═══ */}
       <AnimatePresence>
@@ -1810,13 +1739,14 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative flex flex-col w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
+              transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+              className="relative flex flex-col w-full max-w-2xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/90 overflow-hidden"
             >
               {/* Review Header */}
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/80">
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200/70 bg-slate-50/80">
                 <div className="flex items-center gap-2.5">
                   <div className="flex items-center justify-center h-8 w-8 rounded-xl bg-amber-500 text-white shadow-xs">
-                    <Flame className="h-4 w-4" />
+                    <Flame className="h-4 w-4 fill-white" />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 font-['Outfit']">
@@ -1844,7 +1774,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-teal-50 text-teal-800 border border-teal-200">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-teal-50 text-[#006B63] border border-teal-200">
                           {duePearls[srsIndex].subjectId}
                         </span>
                         {duePearls[srsIndex].tags.slice(0, 2).map((t) => (
@@ -1872,17 +1802,17 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                       </button>
                     </div>
 
-                    <h2 className="text-xl sm:text-2xl font-bold text-slate-950 font-['Outfit'] leading-snug">
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-950 font-['Outfit'] leading-snug">
                       {duePearls[srsIndex].title}
                     </h2>
 
                     {!isSrsAnswerRevealed ? (
-                      <div className="pt-4">
+                      <div className="pt-3">
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setIsSrsAnswerRevealed(true)}
-                          className="w-full py-4 bg-teal-700 hover:bg-teal-800 text-white rounded-2xl font-bold font-['Outfit'] text-sm shadow-md shadow-teal-700/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                          className="w-full py-4 bg-[#006B63] hover:bg-[#005750] text-white rounded-2xl font-bold font-['Outfit'] text-sm shadow-md shadow-teal-900/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                         >
                           <Zap className="h-4 w-4 text-amber-300" />
                           <span>Show High-Yield Key &amp; Answer</span>
@@ -1896,7 +1826,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                       >
                         {/* High-Yield Key Box */}
                         <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-1">
-                          <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                          <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider font-mono">
                             High-Yield Takeaway
                           </span>
                           <p className="text-sm font-bold text-emerald-950 leading-relaxed font-sans">
@@ -1911,14 +1841,14 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
                         {/* Rating Row (SM-2) */}
                         <div className="pt-2 space-y-2">
-                          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider text-center">
+                          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider text-center font-mono">
                             Rate Recall Accuracy
                           </p>
                           <div className="grid grid-cols-4 gap-2">
                             <button
                               type="button"
                               onClick={() => handleSrsRate('again')}
-                              className="py-2.5 px-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-center text-xs font-bold text-rose-800 transition-colors cursor-pointer"
+                              className="py-2.5 px-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-2xl text-center text-xs font-bold text-rose-800 transition-colors cursor-pointer"
                             >
                               <div>Again</div>
                               <div className="text-[10px] font-normal text-rose-600">1 day</div>
@@ -1926,7 +1856,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                             <button
                               type="button"
                               onClick={() => handleSrsRate('hard')}
-                              className="py-2.5 px-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-center text-xs font-bold text-amber-800 transition-colors cursor-pointer"
+                              className="py-2.5 px-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-2xl text-center text-xs font-bold text-amber-800 transition-colors cursor-pointer"
                             >
                               <div>Hard</div>
                               <div className="text-[10px] font-normal text-amber-600">3 days</div>
@@ -1934,7 +1864,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                             <button
                               type="button"
                               onClick={() => handleSrsRate('good')}
-                              className="py-2.5 px-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-center text-xs font-bold text-emerald-800 transition-colors cursor-pointer"
+                              className="py-2.5 px-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-2xl text-center text-xs font-bold text-emerald-800 transition-colors cursor-pointer"
                             >
                               <div>Good</div>
                               <div className="text-[10px] font-normal text-emerald-600">7 days</div>
@@ -1942,7 +1872,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                             <button
                               type="button"
                               onClick={() => handleSrsRate('easy')}
-                              className="py-2.5 px-1 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-xl text-center text-xs font-bold text-teal-800 transition-colors cursor-pointer"
+                              className="py-2.5 px-1 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-2xl text-center text-xs font-bold text-teal-800 transition-colors cursor-pointer"
                             >
                               <div>Easy</div>
                               <div className="text-[10px] font-normal text-teal-600">14+ days</div>
