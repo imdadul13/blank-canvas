@@ -148,7 +148,7 @@ function AmbientMedicalMotif() {
 
   return (
     <div
-      className="shrink-0 flex flex-col justify-end relative px-4 pb-4 pt-2 select-none overflow-hidden max-h-[170px]"
+      className="flex-1 flex flex-col justify-end relative px-4 pb-6 pt-3 select-none overflow-hidden min-h-[240px]"
       aria-hidden="true"
     >
       {/* Seamless atmospheric gradient wash filling the lower vertical void */}
@@ -218,7 +218,7 @@ function AmbientMedicalMotif() {
         </div>
       )}
 
-      <div className="relative w-full h-[120px]">
+      <div className="relative w-full h-[200px]">
         <svg
           viewBox="0 0 240 210"
           fill="none"
@@ -490,7 +490,8 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   }, []);
 
   const isTabActiveLocal = (id: ActiveTab) => isTabActive(id, activeTab);
-  const isSecondaryActive = activeTab === 'grandtests' || activeTab === 'telegram';
+  const isSecondaryActive =
+    activeTab === 'grandtests' || activeTab === 'telegram' || activeTab === 'more';
 
   // Close more menu when clicking outside
   useEffect(() => {
@@ -508,7 +509,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
 
   return (
     <aside
-      className="hidden lg:flex flex-col justify-between w-60 xl:w-64 shrink-0 h-screen sticky top-0 bg-[#F6F6F6]/85 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.06] shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.02)] z-40 select-none font-sans overflow-y-auto overflow-x-hidden"
+      className="hidden lg:flex flex-col justify-between w-60 xl:w-64 shrink-0 h-screen sticky top-0 bg-[#F6F6F6]/85 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.06] shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.02)] z-40 select-none font-sans"
       aria-label="Desktop Navigation"
     >
       {/* ── Top: Logo & Primary Navigation ─────────────────── */}
@@ -632,7 +633,10 @@ export const SidebarDock: React.FC<NavbarProps> = ({
 
               <motion.button
                 type="button"
-                onClick={() => setIsMoreMenuOpen((prev) => !prev)}
+                onClick={() => {
+                  setActiveTab('more');
+                  setIsMoreMenuOpen((prev) => !prev);
+                }}
                 whileHover={reducedMotion ? undefined : { x: 3 }}
                 whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                 transition={{ type: 'spring', stiffness: 450, damping: 28 }}
@@ -680,14 +684,22 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   role="menu"
                   aria-label="Secondary Utilities"
                 >
-                  {/* Top Bar matching Reference B panel 4 */}
-                  <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100/80 mb-1.5">
-                    <div className="flex items-center gap-2 text-slate-700 font-semibold text-xs">
+                  {/* Top Bar: Clickable to open full Utilities Directory */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('more');
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-[#E8F5F3] border-b border-slate-100/80 mb-1.5 cursor-pointer text-left group transition-colors"
+                    title="Open Full Utilities Directory"
+                  >
+                    <div className="flex items-center gap-2 text-slate-700 group-hover:text-[#006B63] font-semibold text-xs">
                       <MoreHorizontal className="h-3.5 w-3.5 text-[#006B63]" />
-                      <span>More</span>
+                      <span>Utilities Directory</span>
                     </div>
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-                  </div>
+                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-transform" />
+                  </button>
 
                   {/* Utility Items */}
                   <div className="space-y-0.5">
@@ -1117,6 +1129,45 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             );
           })}
+
+          {/* More Tab in Mobile Floating Dock */}
+          <div className="relative">
+            <motion.button
+              type="button"
+              whileTap={reducedMotion ? undefined : { scale: 0.86 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+              onClick={() => {
+                setActiveTab('more');
+                setMobileMoreOpen(false);
+              }}
+              aria-current={activeTab === 'more' || isSecondaryActive ? 'page' : undefined}
+              className={`relative flex items-center justify-center h-10 w-11 xs:w-12 rounded-full transition-all duration-200 cursor-pointer group ${
+                activeTab === 'more' || isSecondaryActive
+                  ? 'bg-[#FA2D48]/14 border border-[#FA2D48]/25 shadow-xs text-[#FA2D48]'
+                  : 'border border-transparent text-black'
+              }`}
+              title="More Utilities"
+              aria-label="More"
+            >
+              <motion.div
+                animate={
+                  (activeTab === 'more' || isSecondaryActive) && !reducedMotion
+                    ? { scale: [1, 1.15, 1] }
+                    : undefined
+                }
+                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                className="relative z-10 flex items-center justify-center"
+              >
+                <MoreHorizontal
+                  className={`h-[21px] w-[21px] transition-all duration-150 ${
+                    activeTab === 'more' || isSecondaryActive
+                      ? 'stroke-[2.3] text-[#FA2D48]'
+                      : 'stroke-[2.1] text-black fill-transparent'
+                  }`}
+                />
+              </motion.div>
+            </motion.button>
+          </div>
         </div>
       </motion.nav>
     </>
