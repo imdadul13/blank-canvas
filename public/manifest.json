@@ -40,7 +40,7 @@
     }
   ],
   "theme_color": "#006B63",
-  "background_color": "#F6F8F8",
+  "background_color": "#FFFFFF",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "any",

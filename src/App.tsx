@@ -783,7 +783,7 @@ function AppInner() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F8F8] text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white relative">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white relative">
       {/* Desktop Left Navigation Spacer (Smoothly pushes workspace when sidebar is ON or hovered) */}
       <div
         className={`hidden lg:block shrink-0 pointer-events-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${

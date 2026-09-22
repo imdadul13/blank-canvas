@@ -1374,33 +1374,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }
 
   return (
-    <div className="relative min-h-screen font-['Plus_Jakarta_Sans'] text-slate-900 pb-16 lg:pb-12 pt-4 sm:pt-6 lg:pt-6 bg-[#F4FAF8]">
-      {/* Subtle atmospheric medical wash and neural/molecular node connections */}
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(0,107,99,0.06)_0%,rgba(14,165,233,0.03)_50%,transparent_80%)]" />
-      <div className="pointer-events-none fixed top-0 right-0 w-[550px] h-[400px] -z-10 opacity-[0.08] overflow-hidden" aria-hidden="true">
-        <svg viewBox="0 0 550 400" fill="none" className="w-full h-full stroke-[#006B63]">
-          {/* Molecular nodes */}
-          <circle cx="440" cy="60" r="5" fill="#006B63" />
-          <circle cx="360" cy="110" r="4" fill="#006B63" />
-          <circle cx="470" cy="150" r="6" fill="#006B63" />
-          <circle cx="300" cy="170" r="4" fill="#006B63" />
-          <circle cx="380" cy="220" r="5" fill="#006B63" />
-          <circle cx="480" cy="260" r="4" fill="#006B63" />
-          <circle cx="260" cy="240" r="3" fill="#006B63" />
-          <line x1="440" y1="60" x2="360" y2="110" strokeWidth="1.1" />
-          <line x1="440" y1="60" x2="470" y2="150" strokeWidth="1.1" />
-          <line x1="360" y1="110" x2="300" y2="170" strokeWidth="1.1" />
-          <line x1="360" y1="110" x2="380" y2="220" strokeWidth="1.1" />
-          <line x1="470" y1="150" x2="380" y2="220" strokeWidth="1.1" />
-          <line x1="380" y1="220" x2="480" y2="260" strokeWidth="1.1" />
-          <line x1="300" y1="170" x2="260" y2="240" strokeWidth="1.1" />
-          {/* Subtle anatomical contour curve */}
-          <path d="M 220 50 C 320 20, 480 80, 520 220 C 540 300, 460 380, 380 390" strokeWidth="1" strokeDasharray="6 4" opacity="0.6" />
-          {/* Tiny subtle ECG trace */}
-          <path d="M 320 340 L 370 340 L 376 332 L 382 350 L 388 322 L 394 358 L 400 340 L 450 340" strokeWidth="1.2" opacity="0.6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-
+    <div className="relative min-h-screen font-['Plus_Jakarta_Sans'] text-slate-900 pb-16 lg:pb-12 pt-4 sm:pt-6 lg:pt-6">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
 
         {/* ═══ 1. TOP BAR (Search, Notifications, Profile) with Dynamic Auto-Hide ═══ */}
