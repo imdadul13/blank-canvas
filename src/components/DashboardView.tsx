@@ -54,6 +54,7 @@ import {
   Eye,
   Pill,
   ShieldAlert,
+  Sparkles,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext, GrandTest, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -2594,7 +2595,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
             </motion.section>
 
-            {/* ── UP NEXT (Revision & Error Remediation OR High-Yield Daily Pearl) ── */}
+            {/* ── DAILY HIGH-YIELD RECALL / UP NEXT ── */}
             <motion.section
               initial={SECTION_ENTER(0.16, reducedMotion)}
               animate={SECTION_SHOW}
@@ -2602,10 +2603,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className="space-y-3"
             >
               <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#006B63]">
-                  <Compass className="h-4 w-4" />
+                <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-teal-500/15 to-emerald-500/10 border border-teal-200/60 flex items-center justify-center text-[#006B63] shadow-2xs">
+                  <Compass className="h-4 w-4 stroke-[2.2]" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900">
+                <h3 className="text-sm font-bold text-slate-900 font-['Outfit']">
                   {hasRevisionDue || errorsToReview ? 'Up Next' : 'Daily High-Yield Recall'}
                 </h3>
               </div>
@@ -2614,18 +2615,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   {/* Card 1: Revision */}
                   <motion.div
-                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
+                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
                     whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                     onClick={() => onNavigateTab('revision')}
-                    className="rounded-3xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 hover:bg-white/90 hover:border-emerald-300/80 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[60px]"
+                    className="relative rounded-3xl bg-gradient-to-b from-emerald-500/[0.08] via-teal-500/[0.03] to-white/95 backdrop-blur-xl border border-emerald-200/70 hover:border-emerald-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_20px_rgba(16,185,129,0.04)] hover:shadow-[0_12px_28px_rgba(16,185,129,0.12)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 transition-all duration-300 cursor-pointer group min-h-[64px] overflow-hidden"
                   >
+                    {/* Top Specular Hairline */}
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/60 to-transparent pointer-events-none" />
+
                     <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform">
-                        <CheckCircle2 className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/15 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform duration-300">
+                        <CheckCircle2 className="h-4.5 w-4.5 sm:h-5 sm:w-5 stroke-[2.2]" />
                       </div>
                       <div className="min-w-0">
-                        <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                        <span className="block text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 group-hover:text-emerald-700 transition-colors">
                           Revision
                         </span>
                         <span className="block text-[11px] sm:text-xs font-semibold text-emerald-800 mt-0.5">
@@ -2633,25 +2637,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         </span>
                       </div>
                     </div>
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/10 text-emerald-700 border border-emerald-200/50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <BookOpen className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
                     </div>
                   </motion.div>
 
                   {/* Card 2: Error Remediation */}
                   <motion.div
-                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
+                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
                     whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                     onClick={() => onNavigateTab('errors')}
-                    className="rounded-3xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(234,138,30,0.03)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 hover:bg-white/90 hover:border-amber-300/80 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[60px]"
+                    className="relative rounded-3xl bg-gradient-to-b from-amber-500/[0.08] via-orange-500/[0.03] to-white/95 backdrop-blur-xl border border-amber-200/70 hover:border-amber-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_20px_rgba(245,158,11,0.05)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.12)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 transition-all duration-300 cursor-pointer group min-h-[64px] overflow-hidden"
                   >
+                    {/* Top Specular Hairline */}
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent pointer-events-none" />
+
                     <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <RotateCcw className="h-4.5 w-4.5 sm:h-5 sm:w-5 group-hover:rotate-[-45deg] transition-transform duration-300" />
+                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/15 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                        <RotateCcw className="h-4.5 w-4.5 sm:h-5 sm:w-5 group-hover:rotate-[-45deg] transition-transform duration-300 stroke-[2.2]" />
                       </div>
                       <div className="min-w-0">
-                        <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
+                        <span className="block text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-800 transition-colors">
                           Error Remediation
                         </span>
                         <span className="block text-[11px] sm:text-xs font-semibold text-amber-800 mt-0.5">
@@ -2659,7 +2666,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         </span>
                       </div>
                     </div>
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-700 border border-amber-200/50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <FileText className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
                     </div>
                   </motion.div>
@@ -2667,19 +2674,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               ) : (
                 /* Daily High-Yield Recall Pearl (Interactive Reveal) */
                 <motion.div
-                  whileHover={reducedMotion ? undefined : { y: -2 }}
-                  className="rounded-3xl bg-gradient-to-br from-white/95 via-amber-50/20 to-teal-50/20 backdrop-blur-xl border border-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.04)] p-4 sm:p-4.5 relative overflow-hidden"
+                  whileHover={reducedMotion ? undefined : { y: -3, scale: 1.008 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 26 }}
+                  className="rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-amber-100/[0.12] to-teal-500/[0.04] backdrop-blur-2xl border border-amber-200/70 hover:border-amber-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_24px_rgba(245,158,11,0.06)] hover:shadow-[0_12px_32px_rgba(245,158,11,0.12)] p-4 sm:p-5 relative overflow-hidden transition-all duration-300 group"
                 >
-                  <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-slate-100/90">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="h-7 w-7 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
-                        <Lightbulb className="h-4 w-4" />
+                  {/* Top Specular Hairline */}
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/70 to-transparent pointer-events-none" />
+
+                  {/* Header Row: Lightbulb with Halo & Shuffle/Vault Actions */}
+                  <div className="flex items-center justify-between gap-3 pb-3 border-b border-amber-200/50">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-300/70 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                        <div className="absolute inset-0 bg-amber-400/20 rounded-2xl filter blur-xs animate-pulse" />
+                        <Lightbulb className="h-4 w-4 relative z-10 stroke-[2.3]" />
                       </div>
                       <div className="min-w-0">
-                        <span className="text-[9.5px] font-bold font-mono tracking-widest text-amber-700 uppercase block">
+                        <span className="text-[10px] font-bold font-mono tracking-wider text-amber-800 uppercase block">
                           HIGH-YIELD RECALL PEARL
                         </span>
-                        <h4 className="text-xs sm:text-[13.5px] font-bold font-['Outfit'] text-slate-900 truncate">
+                        <h4 className="text-xs sm:text-[14px] font-bold font-['Outfit'] text-slate-900 truncate">
                           {todayPearl?.name || "Beck's Triad"}
                         </h4>
                       </div>
@@ -2691,15 +2704,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           setIsPearlRevealed(false);
                           setDailyPearlIndex((p) => p + 1);
                         }}
-                        className="h-6 w-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
-                        title="Shuffle pearl"
+                        className="h-7 w-7 rounded-xl bg-white/80 hover:bg-amber-100/80 text-amber-800 border border-amber-200/70 flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95 group/shuffle"
+                        title="Next Recall Pearl"
                       >
-                        <RotateCcw className="h-3 w-3" />
+                        <RotateCcw className="h-3.5 w-3.5 group-hover/shuffle:rotate-[-60deg] transition-transform duration-300" />
                       </button>
                       <button
                         type="button"
                         onClick={() => setIsExamEveCheatSheetOpen(true)}
-                        className="text-[10.5px] font-bold text-[#006B63] hover:text-[#005750] bg-teal-50 hover:bg-teal-100/70 px-2 py-0.5 rounded-full border border-teal-200/60 cursor-pointer flex items-center gap-1 transition-colors"
+                        className="text-[11px] font-bold text-[#006B63] hover:text-[#005750] bg-teal-500/10 hover:bg-teal-500/15 px-2.5 py-1 rounded-full border border-teal-200/80 shadow-2xs cursor-pointer flex items-center gap-1 transition-all active:scale-95"
                       >
                         <span>Vault</span>
                         <ChevronRight className="h-3 w-3" />
@@ -2707,35 +2720,52 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
                   </div>
 
-                  <div className="pt-2.5">
-                    <p className="text-xs sm:text-[12.5px] font-medium text-slate-700 leading-relaxed">
-                      {todayPearl?.components}
-                    </p>
+                  {/* Body: High-Yield Components & Reveal */}
+                  <div className="pt-3 space-y-3">
+                    {/* Clinical Findings / Token Pills */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {(todayPearl?.components || '').split('+').map((part, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-semibold bg-white/85 border border-amber-200/70 text-slate-800 shadow-2xs backdrop-blur-xs"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                          <span>{part.trim()}</span>
+                        </span>
+                      ))}
+                    </div>
 
-                    <div className="mt-2.5 flex items-center justify-between gap-2 flex-wrap">
+                    {/* Bottom Action Row: Reveal / Revealed Diagnosis & NBE Badge */}
+                    <div className="flex items-center justify-between gap-2 flex-wrap pt-0.5">
                       <div className="min-w-0">
                         {isPearlRevealed ? (
-                          <motion.span
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold font-['Outfit']"
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 2 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-300 text-emerald-900 text-xs sm:text-[13px] font-bold font-['Outfit'] shadow-2xs backdrop-blur-xs"
                           >
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                            <span>{todayPearl?.diagnosis}</span>
-                          </motion.span>
+                            <div className="w-5 h-5 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-700 shrink-0">
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                            </div>
+                            <span className="tracking-tight">{todayPearl?.diagnosis}</span>
+                          </motion.div>
                         ) : (
                           <button
                             type="button"
                             onClick={() => setIsPearlRevealed(true)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 hover:bg-[#006B63] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-98"
+                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-[#006B63] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-98 group/btn relative overflow-hidden"
                           >
-                            <Eye className="h-3.5 w-3.5" />
+                            <Eye className="h-3.5 w-3.5 group-hover/btn:scale-110 transition-transform" />
                             <span>Tap to Reveal Diagnosis</span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
                           </button>
                         )}
                       </div>
-                      <span className="text-[10px] font-mono text-slate-400">
-                        Guaranteed NBE Repeat
+
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 text-amber-800 border border-amber-300/60 shadow-2xs">
+                        <Sparkles className="w-3 h-3 text-amber-500 animate-pulse" />
+                        <span>Guaranteed NBE Repeat</span>
                       </span>
                     </div>
                   </div>
