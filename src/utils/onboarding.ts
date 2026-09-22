@@ -146,12 +146,6 @@ export const MONTH_NAMES: string[] = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-/** Short month labels, index-aligned (0 = Jan). */
-export const MONTHS_SHORT: string[] = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-];
-
 /** Month of the stored exam date (0-11), or null when unset/invalid. */
 export function getExamMonth(examDate?: string | null): number | null {
   const parsed = parseLocalDate(examDate ?? '');
@@ -199,16 +193,6 @@ export function isValidExamMonthDayYear(
   const date = new Date(year, month, day);
   const today = new Date(from.getFullYear(), from.getMonth(), from.getDate());
   return date.getTime() >= today.getTime();
-}
-
-/**
- * Build a `YYYY-MM-DD` exam date from an explicit month + year. Uses the first day
- * of the selected month as a stable representative date (local-timezone-safe), so
- * the countdown is deterministic and the value round-trips through month/year cleanly.
- */
-export function buildExamDate(month: number, year: number): string {
-  const mm = String(month + 1).padStart(2, '0');
-  return `${year}-${mm}-01`;
 }
 
 /**

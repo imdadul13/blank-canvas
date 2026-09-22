@@ -14,7 +14,7 @@ import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { TOPIC_PREDICTION_SIGNALS, TopicSignalData } from '../data/topicPredictionSignals';
 
 // Default initial configurable weights
-export const DEFAULT_PREDICTION_WEIGHTS: Record<PredictionMode, PredictionWeights> = {
+const DEFAULT_PREDICTION_WEIGHTS: Record<PredictionMode, PredictionWeights> = {
   combined: {
     priorityScore: 0.20,
     subjectWeight: 0.15,
@@ -53,7 +53,7 @@ export const DEFAULT_PREDICTION_WEIGHTS: Record<PredictionMode, PredictionWeight
 /**
  * Computes prediction level category and color indicators based on 0-100 score
  */
-export function getPredictionLevel(score: number): { level: PredictionLevel; label: string } {
+function getPredictionLevel(score: number): { level: PredictionLevel; label: string } {
   if (score >= 90) return { level: 'VERY_HIGH', label: 'VERY HIGH' };
   if (score >= 80) return { level: 'HIGH', label: 'HIGH' };
   if (score >= 70) return { level: 'MODERATE', label: 'MODERATE' };
@@ -64,7 +64,7 @@ export function getPredictionLevel(score: number): { level: PredictionLevel; lab
 /**
  * Calculates preparation and revision state for a specific topic
  */
-export function getTopicPrepStatus(
+function getTopicPrepStatus(
   subjectId: string,
   topic: TopicItem,
   state: AppState
@@ -112,7 +112,7 @@ export function getTopicPrepStatus(
 /**
  * Evaluates individual raw signals (0-100) for a given topic
  */
-export function computeTopicSignals(
+function computeTopicSignals(
   subject: FMGESubject,
   topic: TopicItem,
   state: AppState,

@@ -27,6 +27,8 @@ import { CommandPaletteModal } from './components/CommandPaletteModal';
 import { IbqRapidRecallModal } from './components/IbqRapidRecallModal';
 import { FloatingAudioReviewBar } from './components/FloatingAudioReviewBar';
 import { ZenFocusRoomModal } from './components/ZenFocusRoomModal';
+import { BackToTopButton } from './components/BackToTopButton';
+import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { ErrorBoundary } from './components/error-boundary';
 import { AppSplashScreen } from './components/AppSplashScreen';
 import { AuthProvider, useAuth, DEV_AUTH_BYPASS } from './context/AuthContext';
@@ -52,6 +54,7 @@ import { FMGE_SUBJECTS } from './data/fmgeSubjects';
 import { calculateAppStats, deduplicateQuestions, deduplicateAnnouncements, saveAppState } from './utils/storage';
 import { getLocalDateKey } from './utils/date';
 import { useScrollDirection } from './hooks/useScrollDirection';
+import { resolveTimeOfDay } from './hooks/useCircadianTheme';
 
 const STUDY_BACKGROUNDS = [
   { id: 'morning', url: '/images/study-bg/study-art-morning.jpg', label: 'Morning Desk', period: 'Morning' },
@@ -76,16 +79,12 @@ function AppInner() {
     showMigrationPrompt,
   } = useAuth();
 
-  // User custom background theme or time-based auto calculation
+  // User custom background theme or time-based auto calculation (unified circadian state)
   const currentHour = new Date().getHours();
   const activeBg = useMemo(() => {
-    const theme = state.settings?.bgTheme;
-    if (theme === 'morning') return STUDY_BACKGROUNDS[0];
-    if (theme === 'sunset') return STUDY_BACKGROUNDS[1];
-    if (theme === 'night') return STUDY_BACKGROUNDS[2];
-    // auto / fallback
-    if (currentHour >= 5 && currentHour < 12) return STUDY_BACKGROUNDS[0];
-    if (currentHour >= 12 && currentHour < 18) return STUDY_BACKGROUNDS[1];
+    const resolved = resolveTimeOfDay(currentHour, state.settings?.bgTheme);
+    if (resolved === 'morning') return STUDY_BACKGROUNDS[0];
+    if (resolved === 'afternoon' || resolved === 'evening') return STUDY_BACKGROUNDS[1];
     return STUDY_BACKGROUNDS[2];
   }, [state.settings?.bgTheme, currentHour]);
 
@@ -136,6 +135,7 @@ function AppInner() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isGlobalIbqModalOpen, setIsGlobalIbqModalOpen] = useState(false);
   const [isZenFocusOpen, setIsZenFocusOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const { isVisible: isNavVisible } = useScrollDirection(12);
 
@@ -223,6 +223,22 @@ function AppInner() {
     };
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
+  // Global Keyboard Shortcuts Cheatsheet (?)
+  useEffect(() => {
+    const handleShortcutsKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || (e.target as HTMLElement)?.isContentEditable) {
+        return;
+      }
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setIsShortcutsOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleShortcutsKeyDown);
+    return () => window.removeEventListener('keydown', handleShortcutsKeyDown);
   }, []);
 
   // Onboarding flow session: the flow latches on once shown and stays mounted
@@ -1288,6 +1304,9 @@ function AppInner() {
         onOpenAiCoach={handleOpenAiCoach}
         onLaunchPractice={() => handleLaunchPracticeSession('medicine', 'med-1', 'Cardiovascular System')}
         onOpenIbqDrill={() => setIsGlobalIbqModalOpen(true)}
+        onToggleSidebar={toggleSidebar}
+        onOpenZenFocus={() => setIsZenFocusOpen(true)}
+        onOpenShortcuts={() => setIsShortcutsOpen(true)}
       />
 
       {/* Global 60s IBQ Rapid Recall Drill Modal */}
@@ -1307,6 +1326,15 @@ function AppInner() {
         state={state}
         onUpdateDailyLog={handleUpdateDailyLog}
       />
+
+      {/* Keyboard Shortcuts Cheatsheet Modal (?) */}
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
+      />
+
+      {/* Floating Back to Top Micro-Pill */}
+      <BackToTopButton threshold={350} />
     </div>
   );
 }

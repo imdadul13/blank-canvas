@@ -1,14 +1,14 @@
 import { AppState, AppSettings, FMGESubject, TopicItem, MedicalPearl, TelegramChannelConfig, TelegramMCQ, TelegramAnnouncement } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { getInitialAppState } from '../data/sampleData';
-import { INITIAL_PEARLS } from '../data/initialPearls';
 import { DEFAULT_TELEGRAM_CHANNELS, DEFAULT_TELEGRAM_ANNOUNCEMENTS } from '../data/telegramPresetData';
 import { getDaysUntilDateKey, getLocalDateKey, getNextFmgeSessionDate } from './date';
 import { calculateStudyReadiness } from './readinessEngine';
+import { getDaysRemainingToExam } from './adaptivePriorityEngine';
 
 const STORAGE_KEY = 'fmge_study_tracker_v2';
 
-export function normalizeQuestionStem(text: string): string {
+function normalizeQuestionStem(text: string): string {
   if (!text) return '';
   return text
     .toLowerCase()
@@ -201,16 +201,6 @@ export function restoreLocalSnapshot(snapshotId: string): AppState | null {
   return null;
 }
 
-export function deleteLocalSnapshot(snapshotId: string): void {
-  try {
-    const snapshots = getAvailableSnapshots();
-    const filtered = snapshots.filter((s) => s.id !== snapshotId);
-    localStorage.setItem(SNAPSHOTS_KEY, JSON.stringify(filtered));
-  } catch (err) {
-    console.error('Failed to delete local snapshot:', err);
-  }
-}
-
 let lastAutoSnapshotTimestamp = 0;
 
 export function saveAppState(state: AppState): void {
@@ -238,7 +228,7 @@ export function saveAppState(state: AppState): void {
   }
 }
 
-export function exportAppStateToJSON(state: AppState): string {
+function exportAppStateToJSON(state: AppState): string {
   return JSON.stringify(state, null, 2);
 }
 
@@ -385,12 +375,8 @@ export function calculateAppStats(state: AppState): AppStats {
   const todayStudyMinutes = todayLog?.studyMinutes || 0;
   const todayQuestionsSolved = todayLog?.questionsSolved || 0;
 
-  // Days remaining until exam
-  const configuredDate = state.settings?.examDate;
-  const targetDate = configuredDate && getDaysUntilDateKey(configuredDate) > 0
-    ? configuredDate
-    : getNextFmgeSessionDate();
-  const daysRemaining = Math.max(1, getDaysUntilDateKey(targetDate));
+  // Days remaining until exam (canonical unified calculation)
+  const daysRemaining = getDaysRemainingToExam(state);
 
   return {
     totalTopics,
@@ -420,15 +406,4 @@ export function calculateAppStats(state: AppState): AppStats {
     todayQuestionsSolved,
     daysRemaining,
   };
-}
-
-export function getAllPearls(state: AppState): MedicalPearl[] {
-  const custom = state.customPearls || [];
-  const initial = INITIAL_PEARLS;
-  const combined = [...initial, ...custom];
-  const bookmarkedSet = new Set(state.bookmarkedPearlIds || []);
-  return combined.map((p) => ({
-    ...p,
-    isBookmarked: bookmarkedSet.has(p.id) || Boolean(p.isBookmarked),
-  }));
 }

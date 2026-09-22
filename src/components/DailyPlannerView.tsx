@@ -150,13 +150,8 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
     return topPriorityTask;
   }, [activeTaskId, tasks, topPriorityTask]);
 
-  // Greeting & Date display
-  const greeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning, Doctor.';
-    if (hour < 17) return 'Good afternoon, Doctor.';
-    return 'Good evening, Doctor.';
-  }, []);
+  // Greeting & Date display (unified with circadian state)
+  const greeting = `${circadian.greeting} Doctor.`;
 
   const formattedDate = useMemo(() => {
     return new Date().toLocaleDateString('en-US', {

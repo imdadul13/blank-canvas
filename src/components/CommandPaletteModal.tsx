@@ -20,6 +20,10 @@ import {
   GraduationCap,
   Activity,
   X,
+  PanelLeft,
+  Headphones,
+  Keyboard,
+  Sparkles,
 } from 'lucide-react';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 
@@ -42,6 +46,9 @@ interface CommandPaletteModalProps {
   onOpenAiCoach?: (query?: string, subject?: string) => void;
   onLaunchPractice?: () => void;
   onOpenIbqDrill?: () => void;
+  onToggleSidebar?: () => void;
+  onOpenZenFocus?: () => void;
+  onOpenShortcuts?: () => void;
 }
 
 import { ambientAudioEngine } from '../utils/ambientAudioEngine';
@@ -54,6 +61,9 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   onOpenAiCoach,
   onLaunchPractice,
   onOpenIbqDrill,
+  onToggleSidebar,
+  onOpenZenFocus,
+  onOpenShortcuts,
 }) => {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -135,6 +145,45 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
           } else {
             onNavigateTab('aicoach');
           }
+          onClose();
+        },
+      },
+      {
+        id: 'action-toggle-sidebar',
+        category: 'Actions',
+        title: 'Toggle Desktop Sidebar (⌘B)',
+        subtitle: 'Collapse or expand navigation sidebar with hover-to-peek',
+        badge: '⌘B',
+        badgeColor: '#006B63',
+        icon: PanelLeft,
+        onSelect: () => {
+          onToggleSidebar?.();
+          onClose();
+        },
+      },
+      {
+        id: 'action-zen-focus',
+        category: 'Actions',
+        title: 'Zen Focus Room (⌘J)',
+        subtitle: 'Enter distraction-free study space with high-yield pearl and binaural timer',
+        badge: '⌘J',
+        badgeColor: '#7C3AED',
+        icon: Sparkles,
+        onSelect: () => {
+          onOpenZenFocus?.();
+          onClose();
+        },
+      },
+      {
+        id: 'action-keyboard-shortcuts',
+        category: 'Actions',
+        title: 'Keyboard Shortcuts Cheatsheet (?)',
+        subtitle: 'View all keyboard shortcuts and fast navigation hotkeys',
+        badge: '?',
+        badgeColor: '#475569',
+        icon: Keyboard,
+        onSelect: () => {
+          onOpenShortcuts?.();
           onClose();
         },
       },

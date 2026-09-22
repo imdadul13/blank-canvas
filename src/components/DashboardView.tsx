@@ -60,6 +60,7 @@ import {
   LearningContext,
   PersonalizedPlan,
 } from '../utils/personalizationEngine';
+import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { MedicalHeroVisual, MedicalSubjectCardVisual, getSubjectTelemetry } from './MedicalHeroVisual';
 import { DoctorMountainArt } from './DoctorMountainArt';
 import { TopicMasteryWorkspace } from './TopicMasteryWorkspace';
@@ -861,80 +862,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Respect prefers-reduced-motion
   const reducedMotion = useReducedMotion();
 
-  const hour = new Date().getHours();
   const themeSetting = state.settings?.bgTheme;
-  const { greeting, greetingIcon: GreetingIcon, timeOfDay } = useMemo(() => {
-    let resolvedTime: 'morning' | 'afternoon' | 'evening' | 'night' = 'morning';
-    if ((themeSetting as string) === 'morning') resolvedTime = 'morning';
-    else if ((themeSetting as string) === 'afternoon') resolvedTime = 'afternoon';
-    else if (themeSetting === 'sunset') resolvedTime = 'evening';
-    else if (themeSetting === 'night') resolvedTime = 'night';
-    else {
-      // auto / circadian based on real-time hour
-      if (hour >= 5 && hour < 12) resolvedTime = 'morning';
-      else if (hour >= 12 && hour < 17) resolvedTime = 'afternoon';
-      else if (hour >= 17 && hour < 21) resolvedTime = 'evening';
-      else resolvedTime = 'night';
-    }
-
-    switch (resolvedTime) {
-      case 'morning':
-        return { greeting: 'Good morning,', greetingIcon: Sun, timeOfDay: 'morning' as const };
-      case 'afternoon':
-        return { greeting: 'Good afternoon,', greetingIcon: Sun, timeOfDay: 'afternoon' as const };
-      case 'evening':
-        return { greeting: 'Good evening,', greetingIcon: Sunset, timeOfDay: 'evening' as const };
-      case 'night':
-      default:
-        return { greeting: 'Good evening,', greetingIcon: Moon, timeOfDay: 'night' as const };
-    }
-  }, [hour, themeSetting]);
+  const circadian = useCircadianTheme(themeSetting);
+  const { greeting, timeOfDay, Icon: GreetingIcon } = circadian;
 
   // Authentic FMGE Doctor's Creed tailored to circadian study phase
   const { creed: doctorCreed, shuffleCreed, isShuffling: isCreedShuffling } = useDoctorCreed(timeOfDay);
 
   // Dynamic header theme styling that adapts with time of day and user theme setting
   const heroTheme = useMemo(() => {
-    switch (timeOfDay) {
-      case 'morning':
-        return {
-          bannerBg: 'bg-gradient-to-br from-[#EEF9F6] via-[#F6FCFA] to-[#E5F5F0] border-[#BEE4DC]',
-          auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(45,212,191,0.22),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(253,230,138,0.20),transparent_70%)]',
-          topLight: 'from-transparent via-amber-300/40 to-transparent',
-          nameColor: 'text-[#1D1D1F]',
-          subtitleColor: 'text-[#4E7670]',
-          greetingIconColor: 'text-amber-500',
-        };
-      case 'afternoon':
-        return {
-          bannerBg: 'bg-gradient-to-br from-[#EAF7F4] via-[#F3FAF8] to-[#E0F2EC] border-[#B6E1D7]',
-          auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(14,165,233,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(45,212,191,0.20),transparent_70%)]',
-          topLight: 'from-transparent via-teal-400/40 to-transparent',
-          nameColor: 'text-[#1D1D1F]',
-          subtitleColor: 'text-[#44726A]',
-          greetingIconColor: 'text-teal-500',
-        };
-      case 'evening':
-        return {
-          bannerBg: 'bg-gradient-to-br from-[#FFF8EE] via-[#FAF9F6] to-[#E5F3EE] border-[#E8D7C2]',
-          auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(249,115,22,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(244,63,94,0.15),transparent_70%)]',
-          topLight: 'from-transparent via-orange-400/40 to-transparent',
-          nameColor: 'text-[#1D1D1F]',
-          subtitleColor: 'text-[#7C5E4E]',
-          greetingIconColor: 'text-orange-500',
-        };
-      case 'night':
-      default:
-        return {
-          bannerBg: 'bg-gradient-to-br from-[#0C2420] via-[#10302B] to-[#071916] border-[#18443D]',
-          auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(56,189,248,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(45,212,191,0.16),transparent_70%)]',
-          topLight: 'from-transparent via-cyan-400/30 to-transparent',
-          nameColor: 'text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]',
-          subtitleColor: 'text-teal-100/90',
-          greetingIconColor: 'text-cyan-400',
-        };
-    }
-  }, [timeOfDay]);
+    return {
+      bannerBg: circadian.bannerBg,
+      auraGrad: circadian.auraGrad,
+      topLight: circadian.topLight,
+      nameColor: circadian.isNight ? 'text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]' : 'text-[#1D1D1F]',
+      subtitleColor: circadian.isNight ? 'text-teal-100/90' : circadian.subtitleColor,
+      greetingIconColor: circadian.iconColor,
+    };
+  }, [circadian]);
 
   const daysRemaining = useMemo(() => getDaysRemainingToExam(state), [state]);
 

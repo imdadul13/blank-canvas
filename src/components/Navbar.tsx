@@ -660,13 +660,18 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon
-                      className={`h-[19px] w-[19px] shrink-0 transition-all duration-200 ${
-                        active
-                          ? 'text-[#006B63] fill-[#006B63]/20 stroke-[#006B63] stroke-[2.2] scale-105'
-                          : 'text-slate-400 stroke-[1.8] group-hover:text-slate-800 group-hover:stroke-slate-800 group-hover:scale-105'
-                      }`}
-                    />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <Icon
+                        className={`h-[19px] w-[19px] shrink-0 transition-all duration-200 ${
+                          active
+                            ? 'text-[#006B63] fill-[#006B63]/20 stroke-[#006B63] stroke-[2.2] scale-105'
+                            : 'text-slate-400 stroke-[1.8] group-hover:text-slate-800 group-hover:stroke-slate-800 group-hover:scale-105'
+                        }`}
+                      />
+                      {active && (
+                        <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-[#006B63] ring-1.5 ring-white" />
+                      )}
+                    </div>
                     <span>{label}</span>
                   </div>
                   {active && (
