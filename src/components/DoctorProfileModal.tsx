@@ -33,7 +33,7 @@ import {
   STUDY_PREFERENCE_LABELS,
   isValidBaselineScore,
 } from '../utils/onboarding';
-import { AppStats, downloadBackupFile, normalizeAppState } from '../utils/storage';
+import { AppStats, downloadBackupFile, normalizeAppState, saveAppState } from '../utils/storage';
 import { getNextFmgeSessionDate } from '../utils/date';
 
 interface DoctorProfileModalProps {
@@ -57,6 +57,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
     user,
     profile,
     isGuest,
+    forceSyncToCloud,
     updateProfileData,
     signOutUser,
   } = useAuth();
@@ -81,6 +82,23 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
       setSyncFeedback(null);
     }
   }, [isOpen, state.settings, profile]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   const toggleStudyPref = (pref: StudyPreferenceKey) => {
     setStudyPrefs((prev) =>
@@ -160,12 +178,19 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
     setIsSyncing(true);
     setSyncFeedback(null);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      localStorage.setItem('fmge_app_state_v1', JSON.stringify(state));
+      if (forceSyncToCloud) {
+        await forceSyncToCloud();
+      }
+      saveAppState(state);
       localStorage.setItem('fmge_last_sync_timestamp', new Date().toISOString());
-      setSyncFeedback('Cloud handshake verified. All progress synced.');
-      setTimeout(() => setSyncFeedback(null), 3000);
+      setSyncFeedback(
+        user?.email
+          ? `All progress backed up to cloud (${user.email}).`
+          : 'All records saved to verified local ledger.'
+      );
+      setTimeout(() => setSyncFeedback(null), 3500);
     } catch (err) {
+      saveAppState(state);
       setSyncFeedback('Synced to local storage.');
     } finally {
       setIsSyncing(false);

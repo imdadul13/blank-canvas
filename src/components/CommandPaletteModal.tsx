@@ -24,6 +24,9 @@ import {
   Headphones,
   Keyboard,
   Sparkles,
+  RotateCcw,
+  BarChart3,
+  Target,
 } from 'lucide-react';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 
@@ -268,7 +271,62 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         subtitle: 'Mock examination scores, percentile curves, and performance graphs',
         icon: TrendingUp,
         onSelect: () => {
-          onNavigateTab('grand-tests');
+          onNavigateTab('grandtests');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-predictor',
+        category: 'Navigation',
+        title: 'FMGE Score Predictor',
+        subtitle: 'Monte Carlo pass probability, high-yield weightage projection & weak signals',
+        icon: Target,
+        onSelect: () => {
+          onNavigateTab('predictor');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-pearls',
+        category: 'Navigation',
+        title: 'High-Yield Pearls Vault',
+        subtitle: 'Rapid clinical facts, image spotters, DOCs, and pathognomonic triad pearls',
+        icon: Award,
+        onSelect: () => {
+          onNavigateTab('pearls');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-revision',
+        category: 'Navigation',
+        title: 'Spaced Flashcards & Active Recall',
+        subtitle: 'SM-2 spaced repetition cards tailored to your weakest recall intervals',
+        icon: RotateCcw,
+        onSelect: () => {
+          onNavigateTab('revision');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-errors',
+        category: 'Navigation',
+        title: 'Mistake Notebook & Remediation',
+        subtitle: 'Review logged questions, faculty trap analysis, and misconception fixes',
+        icon: AlertTriangle,
+        onSelect: () => {
+          onNavigateTab('errors');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-progress',
+        category: 'Navigation',
+        title: 'Analytics & Readiness Matrix',
+        subtitle: 'Subject mastery radar, study time trends, and cognitive readiness telemetry',
+        icon: BarChart3,
+        onSelect: () => {
+          onNavigateTab('progress');
           onClose();
         },
       },

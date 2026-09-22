@@ -55,6 +55,7 @@ import { calculateAppStats, deduplicateQuestions, deduplicateAnnouncements, save
 import { getLocalDateKey } from './utils/date';
 import { useScrollDirection } from './hooks/useScrollDirection';
 import { resolveTimeOfDay } from './hooks/useCircadianTheme';
+import { getActiveNotificationCount } from './utils/notificationEngine';
 
 const STUDY_BACKGROUNDS = [
   { id: 'morning', url: '/images/study-bg/study-art-morning.jpg', label: 'Morning Desk', period: 'Morning' },
@@ -279,6 +280,7 @@ function AppInner() {
 
   // Compute live application statistics
   const stats = useMemo(() => calculateAppStats(state), [state]);
+  const unreadNotificationCount = useMemo(() => getActiveNotificationCount(state), [state]);
 
   // Selected subject object for detail modal
   const selectedSubject = useMemo(
@@ -803,6 +805,8 @@ function AppInner() {
         onOpenAiCoach={() => handleOpenAiCoach('strategy')}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenNotifications={() => setIsNotificationCenterOpen(true)}
+        unreadNotificationCount={unreadNotificationCount}
         onOpenCloudSync={() => setIsCloudSyncOpen(true)}
         onOpenOnboarding={handleOpenOnboarding}
         userName={profile?.displayName || state.settings.userName}
@@ -938,6 +942,7 @@ function AppInner() {
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenProfile={() => setIsProfileOpen(true)}
           onOpenNotifications={() => setIsNotificationCenterOpen(true)}
+          unreadNotificationCount={unreadNotificationCount}
           onOpenCloudSync={() => setIsCloudSyncOpen(true)}
           onOpenOnboarding={handleOpenOnboarding}
           userName={profile?.displayName || state.settings.userName}

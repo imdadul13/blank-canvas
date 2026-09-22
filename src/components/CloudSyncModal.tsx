@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
   X,
@@ -13,15 +13,17 @@ import {
   Activity,
   Clock,
 } from 'lucide-react';
-import { AppState, SyncStatus } from '../types';
 import {
   downloadBackupFile,
   normalizeAppState,
   getAvailableSnapshots,
   restoreLocalSnapshot,
   createLocalSnapshot,
+  saveAppState,
   LocalSnapshot,
 } from '../utils/storage';
+import { useAuth } from '../context/AuthContext';
+import { AppState, SyncStatus } from '../types';
 
 interface CloudSyncModalProps {
   isOpen: boolean;
@@ -38,10 +40,28 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
   syncStatus = 'synced',
   onUpdateAppState,
 }) => {
+  const { user, profile, forceSyncToCloud, isGuest } = useAuth();
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string>('Just now');
   const [syncSuccessMessage, setSyncSuccessMessage] = useState<string | null>(null);
   const [snapshots, setSnapshots] = useState<LocalSnapshot[]>(() => getAvailableSnapshots());
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -75,14 +95,20 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
     setIsSyncing(true);
     setSyncSuccessMessage(null);
     try {
-      // Simulate real cloud handshake and state persistence
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      localStorage.setItem('fmge_app_state_v1', JSON.stringify(state));
+      if (forceSyncToCloud) {
+        await forceSyncToCloud();
+      }
+      saveAppState(state);
       localStorage.setItem('fmge_last_sync_timestamp', new Date().toISOString());
       setLastSyncTime('Just now');
-      setSyncSuccessMessage('All 19 subjects and revision records backed up to cloud successfully.');
+      setSyncSuccessMessage(
+        user?.email
+          ? `All 19 subjects backed up to cloud (${user.email}).`
+          : 'All 19 subjects saved to local verified ledger and snapshot created.'
+      );
     } catch (err) {
-      setSyncSuccessMessage('Synced locally.');
+      saveAppState(state);
+      setSyncSuccessMessage('Synced to local storage snapshot.');
     } finally {
       setIsSyncing(false);
     }

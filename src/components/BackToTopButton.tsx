@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { ArrowUp } from 'lucide-react';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 
 interface BackToTopButtonProps {
   threshold?: number;
@@ -8,7 +9,18 @@ interface BackToTopButtonProps {
 
 export const BackToTopButton: React.FC<BackToTopButtonProps> = ({ threshold = 350 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const reducedMotion = useReducedMotion();
+  const { isVisible: isNavVisible } = useScrollDirection(12);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(min-width: 1024px)');
+    setIsDesktop(media.matches);
+    const listener = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, []);
 
   useEffect(() => {
     let ticking = false;
@@ -36,6 +48,12 @@ export const BackToTopButton: React.FC<BackToTopButtonProps> = ({ threshold = 35
     });
   };
 
+  const dynamicBottom = isDesktop
+    ? '1.5rem'
+    : isNavVisible
+      ? 'calc(4.75rem + env(safe-area-inset-bottom, 0px))'
+      : 'calc(1.25rem + env(safe-area-inset-bottom, 0px))';
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -48,7 +66,11 @@ export const BackToTopButton: React.FC<BackToTopButtonProps> = ({ threshold = 35
           whileHover={reducedMotion ? undefined : { scale: 1.06, y: -2 }}
           whileTap={reducedMotion ? undefined : { scale: 0.94 }}
           transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-          className="fixed bottom-20 lg:bottom-6 right-5 z-40 flex items-center gap-1.5 px-3 py-2 rounded-full bg-slate-900/90 hover:bg-slate-900 text-white shadow-[0_8px_20px_rgba(0,0,0,0.22)] backdrop-blur-md border border-slate-700/60 cursor-pointer select-none group"
+          style={{
+            bottom: dynamicBottom,
+            transition: reducedMotion ? 'none' : 'bottom 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+          className="fixed right-5 lg:right-6 z-40 flex items-center gap-1.5 px-3 py-2 rounded-full bg-slate-900/90 hover:bg-slate-900 text-white shadow-[0_8px_20px_rgba(0,0,0,0.22)] backdrop-blur-md border border-slate-700/60 cursor-pointer select-none group"
           title="Scroll back to top"
           aria-label="Scroll back to top"
         >

@@ -13,20 +13,23 @@ interface ShortcutItem {
   category: 'Global' | 'Navigation' | 'Study & Practice';
 }
 
-const SHORTCUTS: ShortcutItem[] = [
+const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+const modKey = isMac ? '⌘' : 'Ctrl';
+
+const getShortcuts = (mod: string): ShortcutItem[] => [
   {
-    keys: ['⌘', 'K'],
-    description: 'Open Command Palette (search subjects, tools, viva)',
+    keys: [mod, 'K'],
+    description: 'Open Universal Command Palette (Search & Jump)',
     category: 'Global',
   },
   {
-    keys: ['⌘', 'B'],
-    description: 'Toggle Desktop Sidebar ON / OFF',
+    keys: [mod, 'B'],
+    description: 'Toggle Desktop Navigation Sidebar ON / OFF',
     category: 'Global',
   },
   {
-    keys: ['⌘', 'J'],
-    description: 'Enter Zen Focus Room (binaural beats + timer)',
+    keys: [mod, 'J'],
+    description: 'Enter Zen Focus Room (Binaural Beats & Timer)',
     category: 'Global',
   },
   {
@@ -62,6 +65,8 @@ const SHORTCUTS: ShortcutItem[] = [
 ];
 
 export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen, onClose }) => {
+  const shortcuts = getShortcuts(modKey);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -72,8 +77,13 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ 
       }
     };
 
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -130,7 +140,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ 
           {/* Body */}
           <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
             {categories.map((cat) => {
-              const items = SHORTCUTS.filter((s) => s.category === cat);
+              const items = shortcuts.filter((s) => s.category === cat);
               return (
                 <div key={cat} className="space-y-2">
                   <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">

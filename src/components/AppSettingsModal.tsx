@@ -63,6 +63,23 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
     }
   }, [isOpen, state.settings]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const updatePreference = (updated: AppSettings) => {
@@ -688,7 +705,9 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <div className="p-2.5 rounded-xl bg-white border border-stone-200/80 text-xs">
                     <span className="text-stone-400 text-[10px] block">Progress Ledger</span>
-                    <span className="font-mono font-bold text-stone-800">~148 KB Cached</span>
+                    <span className="font-mono font-bold text-stone-800">
+                      ~{Math.round((JSON.stringify(state).length / 1024) * 10) / 10} KB Cached
+                    </span>
                   </div>
                   <div className="p-2.5 rounded-xl bg-white border border-stone-200/80 text-xs">
                     <span className="text-stone-400 text-[10px] block">Medical Syllabus</span>

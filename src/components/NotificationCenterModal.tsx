@@ -57,6 +57,23 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
     saveDismissals(dismissals);
   }, [dismissals]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   const persistDismiss = (id: string, condition: string) =>
     setDismissals((prev) => ({ ...prev, [id]: { hiddenAt: Date.now(), condition } }));
 
