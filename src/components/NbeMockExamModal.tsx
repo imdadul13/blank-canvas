@@ -13,7 +13,6 @@ import {
   Flag,
   Check,
   ShieldCheck,
-  Sparkles,
   BarChart2,
   Plus,
   ArrowRight,
@@ -353,7 +352,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
           <div className="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
             <div className="text-center space-y-2">
               <div className="inline-flex p-3 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-400/20 mb-1">
-                <Sparkles className="h-7 w-7" />
+                <Award className="h-7 w-7" />
               </div>
               <h3 className="text-lg sm:text-xl font-black text-white font-['Outfit']">
                 50-MCQ Rapid Exam Simulation

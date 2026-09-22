@@ -572,7 +572,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                         Hallmark Presentation & Triad
                       </span>
                       <p className="text-xs text-stone-700 font-normal leading-relaxed">
-                        {activeTriads ? `🎯 ${activeTriads} • ` : ''}{activeClassicPresentation}
+                        {activeTriads ? `${activeTriads} • ` : ''}{activeClassicPresentation}
                       </p>
                     </div>
 
@@ -583,7 +583,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                         Investigation of Choice (IOC) / Gold Standard
                       </span>
                       <p className="text-xs text-stone-700 font-normal leading-relaxed">
-                        🔬 {activeGoldStandard}
+                        {activeGoldStandard}
                       </p>
                     </div>
 
@@ -594,7 +594,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                         First-Line Management / Drug of Choice (DOC)
                       </span>
                       <p className="text-xs text-stone-700 font-normal leading-relaxed">
-                        💊 {activeFirstLine}
+                        {activeFirstLine}
                       </p>
                     </div>
 
@@ -605,7 +605,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                         FMGE Board Trap & Lookalike Distractor
                       </span>
                       <p className="text-xs text-rose-950 font-normal leading-relaxed">
-                        ⚠️ {activeExamTrap}
+                        {activeExamTrap}
                       </p>
                     </div>
                   </div>
@@ -883,7 +883,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
 
                       {slideDeck.slides[currentSlideIndex]?.examTrapWarning && (
                         <div className="p-3.5 rounded-xl bg-rose-50/60 border border-rose-200/70 text-xs text-rose-950 space-y-1">
-                          <span className="font-semibold text-rose-800 font-display">⚠️ High-Yield Trap:</span>
+                          <span className="font-semibold text-rose-800 font-display">High-Yield Trap:</span>
                           <p>{slideDeck.slides[currentSlideIndex].examTrapWarning}</p>
                         </div>
                       )}
@@ -947,7 +947,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                             </p>
                             {isCardFlipped && flashcardDeck.cards[currentCardIndex]?.clinicalPearl && (
                               <div className="mt-3 p-3 rounded-xl bg-amber-50/80 border border-amber-200/70 text-xs text-amber-900 font-medium">
-                                💡 Pearl: {flashcardDeck.cards[currentCardIndex].clinicalPearl}
+                                Pearl: {flashcardDeck.cards[currentCardIndex].clinicalPearl}
                               </div>
                             )}
                           </div>
@@ -989,7 +989,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                               }}
                               className="px-5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[40px] shadow-2xs active:scale-[0.98]"
                             >
-                              I Know This ✓
+                              I Know This
                             </button>
                           </div>
                         </div>
@@ -1010,7 +1010,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                             </div>
                             {card.clinicalPearl && (
                               <p className="text-xs text-amber-800 font-normal">
-                                💡 {card.clinicalPearl}
+                                {card.clinicalPearl}
                               </p>
                             )}
                           </div>
@@ -1156,7 +1156,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                               <p>{casesDeck.cases[currentCaseIndex].clinicalExplanation}</p>
                               {casesDeck.cases[currentCaseIndex].examPearl && (
                                 <p className="text-amber-800 font-medium">
-                                  💡 Pearl: {casesDeck.cases[currentCaseIndex].examPearl}
+                                  Pearl: {casesDeck.cases[currentCaseIndex].examPearl}
                                 </p>
                               )}
                             </div>
@@ -1282,7 +1282,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   <div className="p-4 rounded-xl bg-stone-50/70 border border-stone-200/80 text-xs text-stone-700 space-y-1.5">
                     {topicMetrics.repeatedErrorsCount > 0 ? (
                       <p className="text-rose-700 font-semibold">
-                        ⚠️ {topicMetrics.repeatedErrorsCount} repeated mistake(s) registered in Error Vault for this topic.
+                        {topicMetrics.repeatedErrorsCount} repeated mistake(s) registered in Error Vault for this topic.
                       </p>
                     ) : (
                       <p className="text-stone-600">
@@ -1331,8 +1331,8 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                           <strong className="font-bold text-stone-900 font-display text-sm block">
                             {p.statement}
                           </strong>
-                          {p.discriminatorTip && <p className="text-stone-500">💡 {p.discriminatorTip}</p>}
-                          {p.examTrapWarning && <p className="text-rose-600 font-medium">⚠️ Exam Trap: {p.examTrapWarning}</p>}
+                          {p.discriminatorTip && <p className="text-stone-500">{p.discriminatorTip}</p>}
+                          {p.examTrapWarning && <p className="text-rose-600 font-medium">Exam Trap: {p.examTrapWarning}</p>}
                         </div>
                       ))}
                     </div>
@@ -1396,7 +1396,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                     }}
                     className="px-5 py-2.5 rounded-xl bg-[#006B63] hover:bg-[#00554E] text-white text-xs font-semibold font-display shadow-2xs transition-colors cursor-pointer min-h-[40px] active:scale-[0.98]"
                   >
-                    Mark Mastered ✓
+                    Mark Mastered
                   </button>
                 </div>
               </div>

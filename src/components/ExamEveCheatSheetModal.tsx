@@ -7,7 +7,6 @@ import {
   Star,
   CheckCircle2,
   Pill,
-  Sparkles,
   Calculator,
   Activity,
   AlertTriangle,
@@ -176,7 +175,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
                       <span className="text-[10px] font-mono text-teal-700">{doc.subject}</span>
                     </div>
                     <div className="font-semibold text-teal-800 print:text-teal-900 bg-teal-50 print:bg-transparent p-1 rounded">
-                      👉 {doc.doc}
+                      {doc.doc}
                     </div>
                   </div>
                 ))}
@@ -202,7 +201,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
                       {triad.components}
                     </div>
                     <div className="text-[11px] font-bold text-amber-800 print:text-amber-900 bg-amber-50 print:bg-transparent px-1 py-0.5 rounded inline-block">
-                      ★ Diagnosis: {triad.diagnosis}
+                      Diagnosis: {triad.diagnosis}
                     </div>
                   </div>
                 ))}

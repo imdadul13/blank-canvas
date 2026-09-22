@@ -19,7 +19,6 @@ import {
   Zap,
   Flame,
   Layers,
-  Sparkles,
   ArrowRight,
   Headphones,
 } from 'lucide-react';
@@ -1033,7 +1032,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         >
           <div className="max-w-2xl space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200/70 text-[#006B63] text-[10.5px] font-bold font-mono uppercase tracking-wider">
-              <Sparkles className="h-3 w-3 text-[#006B63]" />
+              <Brain className="h-3 w-3 text-[#006B63]" />
               <span>Instant Clinical Synthesis</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold font-['Outfit'] text-slate-900 tracking-tight leading-snug">
@@ -1246,7 +1245,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                 aria-label="Save this topic pearl"
               >
                 <Star className={`h-3.5 w-3.5 ${isGeneratedSaved ? 'fill-white text-white' : 'fill-amber-500/20 text-amber-600'}`} />
-                <span>{isGeneratedSaved ? 'Saved to Vault ★' : 'Save to Starred'}</span>
+                <span>{isGeneratedSaved ? 'Saved to Vault' : 'Save to Starred'}</span>
               </button>
             </div>
           </header>
@@ -1325,7 +1324,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   {generatedTopic.examTraps[0].trap}
                 </div>
                 <div className="text-[11px] text-emerald-800 font-medium line-clamp-2">
-                  ✓ {generatedTopic.examTraps[0].remedy}
+                  {generatedTopic.examTraps[0].remedy}
                 </div>
               </div>
             )}

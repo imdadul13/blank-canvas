@@ -408,7 +408,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 <rect x="0" y="0" width="58" height="15" rx="3" fill="#0F172A" opacity="0.6" />
                 <rect x="1" y="1" width="56" height="13" rx="2" stroke="#F59E0B" strokeWidth="0.8" fill="none" />
                 <text x="29" y="10.5" textAnchor="middle" fill="#FDE68A" fontSize="8" fontWeight="800" fontFamily="monospace" letterSpacing="0.8">
-                  ★ 150 CUTOFF
+                  150 CUTOFF
                 </text>
               </g>
 
@@ -939,8 +939,8 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             {/* Status Filter */}
             {[
               { id: 'all', label: 'All Status' },
-              { id: 'pass', label: '✅ Pass (≥150)' },
-              { id: 'fail', label: '⚠️ Needs Boost' },
+              { id: 'pass', label: 'Pass (≥150)' },
+              { id: 'fail', label: 'Needs Boost' },
             ].map((st) => (
               <button
                 key={st.id}

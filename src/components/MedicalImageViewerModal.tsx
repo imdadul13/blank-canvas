@@ -10,7 +10,6 @@ import {
   Layers,
   CheckCircle2,
   Scan,
-  Sparkles,
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { MedicalImageAsset } from '../types';

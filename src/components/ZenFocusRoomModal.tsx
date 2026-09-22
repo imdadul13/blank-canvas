@@ -12,7 +12,7 @@ import {
   Wind,
   Zap,
   BookOpen,
-  Sparkles,
+  Compass,
   Award,
   CheckCircle2,
   Clock,
@@ -177,7 +177,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
         {/* Header Badges */}
         <div className="flex items-center gap-2 mb-6">
           <div className="px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wider uppercase font-mono flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Compass className="h-3.5 w-3.5" />
             <span>Zen Clinical Study Sanctuary</span>
           </div>
           {completedSessions > 0 && (
@@ -345,7 +345,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 className="p-2.5 rounded-xl bg-teal-500/15 border border-teal-400/20 text-xs text-teal-100 space-y-1"
               >
-                <div className="font-bold text-teal-300">★ Key Takeaway:</div>
+                <div className="font-bold text-teal-300">Key Takeaway:</div>
                 <div className="leading-relaxed">{currentPearl.highYieldKey}</div>
               </motion.div>
             ) : (

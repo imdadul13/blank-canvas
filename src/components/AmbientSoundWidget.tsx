@@ -10,7 +10,7 @@ import {
   X,
   Play,
   Pause,
-  Sparkles,
+  Headphones,
 } from 'lucide-react';
 import {
   ambientAudioEngine,
@@ -294,7 +294,7 @@ export const AmbientSoundWidget: React.FC<AmbientSoundWidgetProps> = ({
                   }}
                   className="w-full mt-2 py-1.5 px-3 rounded-2xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200/80 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-teal-700" />
+                  <Headphones className="w-3.5 h-3.5 text-teal-700" />
                   <span>Enter Zen Focus Sanctuary</span>
                 </button>
               )}

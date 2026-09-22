@@ -1074,7 +1074,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                         className="text-xs text-stone-500 flex items-center justify-between py-1 border-b border-stone-100 last:border-none"
                       >
                         <span className="line-through">{t.title}</span>
-                        <span className="font-mono text-[10px] text-emerald-700">✓ Done</span>
+                        <span className="font-mono text-[10px] text-emerald-700">Done</span>
                       </div>
                     ))}
                   </div>

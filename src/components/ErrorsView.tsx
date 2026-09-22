@@ -934,7 +934,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                             </span>
                             {err.isReviewed && (
                               <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.2 rounded-md font-semibold">
-                                ✓ Resolved
+                                Resolved
                               </span>
                             )}
                           </div>
@@ -1050,7 +1050,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                               }`}
                             >
                               <Check className="w-3.5 h-3.5" />
-                              <span>{err.isReviewed ? 'Resolved ✓' : 'Mark Resolved'}</span>
+                              <span>{err.isReviewed ? 'Resolved' : 'Mark Resolved'}</span>
                             </button>
 
                             {/* 10-MCQ Targeted Practice */}
