@@ -28,6 +28,7 @@ import {
   X,
   HelpCircle,
   TrendingUp,
+  Headphones,
 } from 'lucide-react';
 import { DailyTask, DailyStudyLog, AppState } from '../types';
 import { motion } from 'motion/react';
@@ -49,6 +50,7 @@ interface DailyPlannerViewProps {
   onLaunchPracticeSession?: (subjectId: string, topicId: string, topicName: string, subtopic?: string) => void;
   onNavigateTab?: (tab: string) => void;
   onBackToOverview?: () => void;
+  onOpenZenFocus?: () => void;
 }
 
 export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
@@ -60,6 +62,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
   onLaunchPracticeSession,
   onNavigateTab,
   onBackToOverview,
+  onOpenZenFocus,
 }) => {
   const { profile } = useAuth();
   const todayStr = getLocalDateKey();
@@ -1145,22 +1148,36 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 </div>
               </div>
 
-              {/* Settings Button */}
-              <button
-                type="button"
-                onClick={() => setShowSettings(!showSettings)}
-                className={`p-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  showSettings
-                    ? 'bg-stone-100 border-stone-300 text-stone-900 shadow-2xs'
-                    : 'bg-white border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50 shadow-2xs'
-                }`}
-                title="Timer Settings & Ambient Sound"
-              >
-                <motion.div animate={{ rotate: showSettings ? 90 : 0 }} transition={{ duration: 0.25 }}>
-                  <Settings className="w-3.5 h-3.5" />
-                </motion.div>
-                <span className="text-[11px] font-bold hidden sm:inline">Settings</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {onOpenZenFocus && (
+                  <button
+                    type="button"
+                    onClick={onOpenZenFocus}
+                    className="p-2 rounded-xl border border-teal-200/80 bg-teal-50/80 hover:bg-teal-100 text-[#006B63] text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs group"
+                    title="Enter Fullscreen Zen Study Sanctuary (⌘J)"
+                  >
+                    <Headphones className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-[11px] font-bold hidden sm:inline">Zen Sanctuary</span>
+                  </button>
+                )}
+
+                {/* Settings Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowSettings(!showSettings)}
+                  className={`p-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    showSettings
+                      ? 'bg-stone-100 border-stone-300 text-stone-900 shadow-2xs'
+                      : 'bg-white border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50 shadow-2xs'
+                  }`}
+                  title="Timer Settings & Ambient Sound"
+                >
+                  <motion.div animate={{ rotate: showSettings ? 90 : 0 }} transition={{ duration: 0.25 }}>
+                    <Settings className="w-3.5 h-3.5" />
+                  </motion.div>
+                  <span className="text-[11px] font-bold hidden sm:inline">Settings</span>
+                </button>
+              </div>
             </div>
 
             {/* Settings Accordion Panel */}
