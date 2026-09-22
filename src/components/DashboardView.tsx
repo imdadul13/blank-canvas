@@ -1036,9 +1036,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         stageLabel: `Day ${Math.max(1, 30 - daysRemaining + 1)} of 30`,
         headline: "Today's Clinical Survival Target",
         description: 'Targeted high-yield blueprint concepts to systematically secure +2 to +4 marks every day.',
-        anchorLabel: 'HY SUBJECT ANCHOR',
-        drillLabel: 'CLINICAL SPEED DRILL',
-        shieldLabel: 'MISTAKE ELIMINATION',
+        anchorLabel: 'HY ANCHOR',
+        drillLabel: 'SPEED DRILL',
+        shieldLabel: 'ERROR SHIELD',
       };
     }
     if (daysRemaining <= 60) {
@@ -1047,9 +1047,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         stageLabel: `Day ${Math.max(1, 60 - daysRemaining + 1)} of 60`,
         headline: 'Systematic High-Yield Consolidation',
         description: 'Consolidating core clinical disciplines and converting weak topic gaps into reliable strengths.',
-        anchorLabel: 'CORE SUBJECT ANCHOR',
-        drillLabel: 'VIGNETTE ACCURACY DRILL',
-        shieldLabel: 'CONCEPT GAP REMEDIATION',
+        anchorLabel: 'CORE ANCHOR',
+        drillLabel: 'VIGNETTE DRILL',
+        shieldLabel: 'GAP DEFENSE',
       };
     }
     return {
@@ -1057,9 +1057,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       stageLabel: `T-${daysRemaining} Days to Exam`,
       headline: '19-Subject Blueprint Foundation',
       description: 'Systematic syllabus coverage and high-yield question pattern calibration.',
-      anchorLabel: 'BLUEPRINT TOPIC ANCHOR',
-      drillLabel: 'TOPIC MCQS PRACTICE',
-      shieldLabel: 'BLUNDER DEFENSE SHIELD',
+      anchorLabel: 'TOPIC ANCHOR',
+      drillLabel: 'SPEED DRILL',
+      shieldLabel: 'BLUNDER SHIELD',
     };
   }, [daysRemaining]);
 
@@ -2193,40 +2193,58 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                 {/* Integrated 3 Daily Calibrated Milestones */}
                 <div>
-                  <div className="flex items-center justify-between gap-2 pb-2">
+                  <div className="flex items-center justify-between gap-2 pb-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold font-['Outfit'] bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 text-slate-800 border border-amber-500/20">
-                        <Flame className="h-3 w-3 text-amber-500 fill-amber-500 animate-pulse" />
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-['Outfit'] bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 text-slate-800 border border-amber-500/25 shadow-2xs backdrop-blur-xs">
+                        <Flame className="h-3.5 w-3.5 text-amber-500 fill-amber-500 animate-pulse" />
                         <span>{sprintPhase.headline}</span>
                       </span>
                     </div>
-                    <span className="text-[10.5px] font-mono text-slate-400 font-semibold">
-                      3 Daily Actions
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-500 font-semibold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                      <span>3 Daily Actions</span>
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                     {/* Target 1: Subject High-Yield Anchor */}
                     <motion.div
-                      whileHover={reducedMotion ? undefined : { y: -2 }}
-                      className="flex flex-col justify-between p-3 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/80 hover:border-teal-400/80 shadow-2xs transition-all group relative overflow-hidden"
+                      whileHover={reducedMotion ? undefined : { y: -3, scale: 1.012 }}
+                      whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                      className="flex flex-col justify-between p-3.5 rounded-2xl bg-gradient-to-b from-teal-500/[0.08] via-emerald-500/[0.03] to-white/95 backdrop-blur-xl border border-teal-200/70 hover:border-teal-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_4px_16px_rgba(0,107,99,0.04)] hover:shadow-[0_12px_28px_rgba(0,107,99,0.10)] transition-all group relative overflow-hidden"
                     >
+                      {/* Top Specular Hairline */}
+                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none" />
+
                       <div>
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="text-[9.5px] font-bold font-mono tracking-widest text-[#006B63] uppercase truncate">
-                            {sprintPhase.anchorLabel}
-                          </span>
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-teal-50 text-[#006B63] border border-teal-100 shrink-0">
+                        {/* Header Row: Specialty Insignia & Weightage Pill */}
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-teal-500/10 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
+                            </div>
+                            <span className="text-[10px] font-bold font-mono tracking-wider text-[#006B63] uppercase truncate">
+                              {sprintPhase.anchorLabel}
+                            </span>
+                          </div>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-teal-500/10 text-[#006B63] border border-teal-200/70 shrink-0 shadow-2xs">
                             ~{focusMarks}M
                           </span>
                         </div>
-                        <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors truncate mt-1">
-                          Study Notes &amp; Patterns
-                        </h4>
-                        <p className="text-[10.5px] text-slate-500 line-clamp-1 mt-0.5">
-                          Signs, criteria &amp; 1st-line drugs
-                        </p>
+
+                        {/* Title & Clinical Subtitle */}
+                        <div className="mt-2.5">
+                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors leading-snug truncate">
+                            Study Notes &amp; Patterns
+                          </h4>
+                          <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
+                            Signs, criteria &amp; 1st-line drugs
+                          </p>
+                        </div>
                       </div>
+
+                      {/* Action Button */}
                       <button
                         type="button"
                         onClick={() =>
@@ -2236,34 +2254,52 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             topicName: activeFocusTopic.name,
                           })
                         }
-                        className="mt-2.5 w-full py-1.5 px-2.5 rounded-xl bg-slate-900 text-white hover:bg-[#006B63] text-[11px] font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1 active:scale-98"
+                        className="mt-3 w-full py-2 px-3 rounded-xl bg-slate-900 text-white hover:bg-[#006B63] text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn relative overflow-hidden"
                       >
                         <span>Study Concepts</span>
-                        <ChevronRight className="h-3 w-3" />
+                        <ChevronRight className="h-3.5 w-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
                       </button>
                     </motion.div>
 
                     {/* Target 2: Clinical MCQ Speed Drill */}
                     <motion.div
-                      whileHover={reducedMotion ? undefined : { y: -2 }}
-                      className="flex flex-col justify-between p-3 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/80 hover:border-amber-400/80 shadow-2xs transition-all group relative overflow-hidden"
+                      whileHover={reducedMotion ? undefined : { y: -3, scale: 1.012 }}
+                      whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                      className="flex flex-col justify-between p-3.5 rounded-2xl bg-gradient-to-b from-amber-500/[0.08] via-orange-500/[0.03] to-white/95 backdrop-blur-xl border border-amber-200/70 hover:border-amber-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_4px_16px_rgba(245,158,11,0.05)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.12)] transition-all group relative overflow-hidden"
                     >
+                      {/* Top Specular Hairline */}
+                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none" />
+
                       <div>
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="text-[9.5px] font-bold font-mono tracking-widest text-amber-700 uppercase truncate">
-                            {sprintPhase.drillLabel}
-                          </span>
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200/60 shrink-0">
+                        {/* Header Row: Specialty Insignia & Speed Tag */}
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-500/10 border border-amber-200/60 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                              <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
+                            </div>
+                            <span className="text-[10px] font-bold font-mono tracking-wider text-amber-800 uppercase truncate">
+                              {sprintPhase.drillLabel}
+                            </span>
+                          </div>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-amber-500/10 text-amber-800 border border-amber-200/70 shrink-0 shadow-2xs">
                             60s / Q
                           </span>
                         </div>
-                        <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors truncate mt-1">
-                          10 Timed Vignettes
-                        </h4>
-                        <p className="text-[10.5px] text-slate-500 line-clamp-1 mt-0.5">
-                          Reflex speed &amp; pattern locks
-                        </p>
+
+                        {/* Title & Clinical Subtitle */}
+                        <div className="mt-2.5">
+                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors leading-snug truncate">
+                            10 Timed Vignettes
+                          </h4>
+                          <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
+                            Reflex speed &amp; pattern locks
+                          </p>
+                        </div>
                       </div>
+
+                      {/* Action Button */}
                       <button
                         type="button"
                         onClick={() =>
@@ -2273,41 +2309,66 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             activeFocusTopic.name
                           )
                         }
-                        className="mt-2.5 w-full py-1.5 px-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-[11px] font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1 active:scale-98"
+                        className="mt-3 w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn relative overflow-hidden"
                       >
                         <span>Start 10 MCQs</span>
-                        <Play className="h-2.5 w-2.5 fill-slate-950" />
+                        <Play className="h-3 w-3 fill-slate-950 group-hover/btn:scale-110 transition-transform" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
                       </button>
                     </motion.div>
 
                     {/* Target 3: Error Shield & Re-test */}
                     <motion.div
-                      whileHover={reducedMotion ? undefined : { y: -2 }}
-                      className="flex flex-col justify-between p-3 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/80 hover:border-rose-400/80 shadow-2xs transition-all group relative overflow-hidden"
+                      whileHover={reducedMotion ? undefined : { y: -3, scale: 1.012 }}
+                      whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                      className="flex flex-col justify-between p-3.5 rounded-2xl bg-gradient-to-b from-rose-500/[0.07] via-red-500/[0.03] to-white/95 backdrop-blur-xl border border-rose-200/70 hover:border-rose-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_4px_16px_rgba(244,63,94,0.04)] hover:shadow-[0_12px_28px_rgba(244,63,94,0.10)] transition-all group relative overflow-hidden"
                     >
+                      {/* Top Specular Hairline */}
+                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none" />
+
                       <div>
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="text-[9.5px] font-bold font-mono tracking-widest text-rose-700 uppercase truncate">
-                            {sprintPhase.shieldLabel}
-                          </span>
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/60 shrink-0">
+                        {/* Header Row: Specialty Insignia & Due Count */}
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-rose-500/10 border border-rose-200/60 text-rose-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
+                            </div>
+                            <span className="text-[10px] font-bold font-mono tracking-wider text-rose-800 uppercase truncate">
+                              {sprintPhase.shieldLabel}
+                            </span>
+                          </div>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold shrink-0 shadow-2xs ${
+                              unreviewedErrorsCount > 0
+                                ? 'bg-rose-500/15 text-rose-800 border border-rose-300'
+                                : 'bg-rose-500/10 text-rose-700 border border-rose-200/70'
+                            }`}
+                          >
                             {unreviewedErrorsCount} Due
                           </span>
                         </div>
-                        <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-rose-700 transition-colors truncate mt-1">
-                          {unreviewedErrorsCount > 0 ? `${unreviewedErrorsCount} Blunders` : 'Vault Mastered'}
-                        </h4>
-                        <p className="text-[10.5px] text-slate-500 line-clamp-1 mt-0.5">
-                          {unreviewedErrorsCount > 0 ? 'Retest to prevent lost marks' : 'Zero unreviewed blunders'}
-                        </p>
+
+                        {/* Title & Clinical Subtitle */}
+                        <div className="mt-2.5">
+                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-rose-700 transition-colors leading-snug truncate">
+                            {unreviewedErrorsCount > 0 ? `${unreviewedErrorsCount} Blunders Pending` : 'Vault Mastered'}
+                          </h4>
+                          <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
+                            {unreviewedErrorsCount > 0 ? 'Retest to prevent lost marks' : 'Zero unreviewed blunders'}
+                          </p>
+                        </div>
                       </div>
+
+                      {/* Action Button */}
                       <button
                         type="button"
                         onClick={handleLaunchErrorDrill}
-                        className="mt-2.5 w-full py-1.5 px-2.5 rounded-xl bg-slate-900 text-white hover:bg-rose-600 text-[11px] font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1 active:scale-98"
+                        className="mt-3 w-full py-2 px-3 rounded-xl bg-slate-900 text-white hover:bg-rose-600 text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn relative overflow-hidden"
                       >
                         <span>{unreviewedErrorsCount > 0 ? 'Retest Mistakes' : 'Inspect Vault'}</span>
-                        <RotateCcw className="h-3 w-3" />
+                        <RotateCcw className="h-3.5 w-3.5 group-hover/btn:rotate-[-45deg] transition-transform" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
                       </button>
                     </motion.div>
                   </div>
