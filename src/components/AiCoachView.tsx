@@ -1842,7 +1842,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       )}
 
       {/* 3. Main Clinical Consultation Workspace Card — ChatGPT/Gemini-Style Docked Layout */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] flex flex-col h-[calc(100dvh-250px)] min-h-[400px] sm:h-[calc(100vh-185px)] sm:min-h-[540px] max-h-[850px] overflow-hidden relative font-['Plus_Jakarta_Sans']">
+      <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200/90 shadow-[0_8px_30px_rgba(0,107,99,0.04)] flex flex-col h-[calc(100dvh-250px)] min-h-[400px] sm:h-[calc(100vh-185px)] sm:min-h-[540px] max-h-[850px] overflow-hidden relative font-['Plus_Jakarta_Sans']">
         {/* Scrollable Conversational Message Stream */}
         <div
           ref={scrollContainerRef}
@@ -1909,7 +1909,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                       whileHover={{ y: -3, scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleSendMessage(starter.query)}
-                      className="relative p-4 sm:p-4.5 rounded-2xl bg-white/80 backdrop-blur-md border border-white/85 hover:border-teal-300 transition-all duration-200 text-left group cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_8px_24px_rgba(0,107,99,0.06)] flex flex-col justify-between overflow-hidden"
+                      className="relative p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white backdrop-blur-md border border-slate-200/90 hover:border-teal-300 transition-all duration-200 text-left group cursor-pointer shadow-2xs hover:shadow-md flex flex-col justify-between overflow-hidden"
                     >
                       {/* Subtle hover accent shimmer */}
                       <div className="absolute top-0 left-4 right-4 h-[2px] bg-transparent group-hover:bg-gradient-to-r group-hover:from-transparent group-hover:via-teal-400 group-hover:to-transparent transition-all" />
@@ -2217,7 +2217,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       </div>
 
       {/* 4. Bottom Docked ChatGPT / Gemini Dynamic Asking Bar & Floating Cursor */}
-      <div className="relative shrink-0 border-t border-white/80 bg-white/85 backdrop-blur-xl px-3 sm:px-5 py-2 sm:py-2.5 z-20 shadow-[0_-4px_20px_rgba(0,107,99,0.03)]">
+      <div className="relative shrink-0 border-t border-slate-200/80 bg-white/90 backdrop-blur-xl px-3 sm:px-5 py-2 sm:py-2.5 z-20 shadow-[0_-4px_20px_rgba(0,107,99,0.03)]">
         {/* Soft upward gradient scrim so scrolling text fades smoothly behind the bar */}
         <div className="pointer-events-none absolute -top-7 left-0 right-0 h-7 bg-gradient-to-t from-white via-white/80 to-transparent" />
 

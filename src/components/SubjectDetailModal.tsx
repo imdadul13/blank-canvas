@@ -619,14 +619,14 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
               </div>
 
               {/* ================= 4. ADD CUSTOM TOPIC ================= */}
-              <div className="pt-4 border-t border-white/60">
-                <form onSubmit={handleAddTopic} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-3 rounded-2xl bg-white/50 backdrop-blur-md border border-white/70 shadow-2xs">
+              <div className="pt-4 border-t border-slate-100">
+                <form onSubmit={handleAddTopic} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-3 rounded-2xl bg-slate-50/70 backdrop-blur-md border border-slate-200/90 shadow-2xs">
                   <input
                     type="text"
                     placeholder="Add custom topic to syllabus..."
                     value={newTopicName}
                     onChange={(e) => setNewTopicName(e.target.value)}
-                    className="flex-1 rounded-xl border border-white/80 bg-white/80 px-4 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#006B63] min-h-[38px] shadow-2xs backdrop-blur-sm"
+                    className="flex-1 rounded-xl border border-slate-200/90 bg-white px-4 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#006B63] min-h-[38px] shadow-2xs backdrop-blur-sm"
                   />
                   <div className="flex items-center gap-2">
                     <label className="flex items-center gap-1.5 text-xs text-stone-600 px-2 cursor-pointer select-none">

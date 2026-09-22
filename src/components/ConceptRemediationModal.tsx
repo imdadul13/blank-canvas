@@ -139,7 +139,7 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        className="bg-white/88 backdrop-blur-2xl border border-white/85 rounded-3xl w-full my-auto max-w-3xl overflow-hidden shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_25px_60px_rgba(0,107,99,0.12)] text-slate-900 flex flex-col max-h-[92vh]"
+        className="bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl w-full my-auto max-w-3xl overflow-hidden shadow-2xl text-slate-900 flex flex-col max-h-[92vh]"
       >
         {/* ================= MODAL HEADER ================= */}
         <div className="p-5 sm:p-6 border-b border-stone-200/60 flex items-center justify-between bg-white/40 backdrop-blur-md shrink-0">

@@ -1028,7 +1028,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-          className="bg-white/90 backdrop-blur-xl rounded-3xl p-5 sm:p-7 border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_10px_32px_rgba(0,107,99,0.04)] space-y-4"
+          className="bg-white/90 backdrop-blur-xl rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-[0_10px_32px_rgba(0,107,99,0.04)] space-y-4"
         >
           <div className="max-w-2xl space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200/70 text-[#006B63] text-[10.5px] font-bold font-mono uppercase tracking-wider">
@@ -1181,7 +1181,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         <motion.article
           layout
           id="generated-knowledge-sheet"
-          className="bg-white/95 backdrop-blur-2xl rounded-3xl p-5 sm:p-7 md:p-8 border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_15px_40px_rgba(0,107,99,0.06)] space-y-6"
+          className="bg-white/95 backdrop-blur-2xl rounded-3xl p-5 sm:p-7 md:p-8 border border-slate-200/90 shadow-[0_15px_40px_rgba(0,107,99,0.06)] space-y-6"
         >
           {/* Header & Quick Action Buttons */}
           <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-200/60 pb-5">
@@ -1473,7 +1473,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         <motion.section
           layout
           id="master-vault"
-          className="bg-white/85 backdrop-blur-xl rounded-3xl p-5 sm:p-7 border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_10px_32px_rgba(0,107,99,0.04)] space-y-5"
+          className="bg-white/90 backdrop-blur-xl rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-[0_10px_32px_rgba(0,107,99,0.04)] space-y-5"
         >
           {/* Vault Header & Toolbar */}
           <header className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-stone-200/60 pb-4">
@@ -1647,7 +1647,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-                    className="p-5 rounded-3xl bg-white/90 backdrop-blur-md border border-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] hover:shadow-md hover:border-teal-200/80 transition-all flex flex-col justify-between space-y-3.5"
+                    className="p-5 rounded-3xl bg-white/90 backdrop-blur-md border border-slate-200/90 shadow-[0_6px_20px_rgba(0,107,99,0.03)] hover:shadow-md hover:border-teal-300 transition-all flex flex-col justify-between space-y-3.5"
                   >
                     <div className="space-y-3">
                       {/* Card Header */}
@@ -1767,7 +1767,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-              className="relative flex flex-col w-full max-w-2xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/90 overflow-hidden"
+              className="relative flex flex-col w-full max-w-2xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden"
             >
               {/* Review Header */}
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200/70 bg-slate-50/80">
