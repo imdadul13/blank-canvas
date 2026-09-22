@@ -156,7 +156,7 @@ function AmbientMedicalMotif() {
 
   return (
     <div
-      className="flex-1 flex flex-col justify-end relative px-4 pb-7 pt-4 select-none overflow-hidden min-h-[270px]"
+      className="shrink-0 flex flex-col justify-end relative px-4 pb-4 pt-2 select-none overflow-hidden max-h-[170px]"
       aria-hidden="true"
     >
       {/* Seamless atmospheric gradient wash filling the lower vertical void */}
@@ -226,7 +226,7 @@ function AmbientMedicalMotif() {
         </div>
       )}
 
-      <div className="relative w-full h-[205px]">
+      <div className="relative w-full h-[120px]">
         <svg
           viewBox="0 0 240 210"
           fill="none"
@@ -516,13 +516,13 @@ export const SidebarDock: React.FC<NavbarProps> = ({
 
   return (
     <aside
-      className="hidden lg:flex flex-col justify-between w-60 xl:w-64 shrink-0 h-screen sticky top-0 bg-[#F6F6F6]/85 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.06] shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.02)] z-40 select-none font-sans"
+      className="hidden lg:flex flex-col justify-between w-60 xl:w-64 shrink-0 h-screen sticky top-0 bg-[#F6F6F6]/85 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.06] shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.02)] z-40 select-none font-sans overflow-y-auto overflow-x-hidden"
       aria-label="Desktop Navigation"
     >
       {/* ── Top: Logo & Primary Navigation ─────────────────── */}
       <div className="flex flex-col">
         {/* Brand Header */}
-        <div className="px-4 pt-5 pb-4 border-b border-black/[0.06]">
+        <div className="px-4 pt-4 pb-3 border-b border-black/[0.06]">
           <div
             onClick={() => setActiveTab('dashboard')}
             className="cursor-pointer rounded-xl p-1 -ml-1 transition-opacity hover:opacity-85 active:opacity-70"
@@ -560,7 +560,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
         </div>
 
         {/* Primary Navigation List */}
-        <nav className="px-3 pt-3 space-y-1" aria-label="Main Navigation">
+        <nav className="px-3 pt-2.5 space-y-0.5" aria-label="Main Navigation">
           {primaryNavItems.map(({ id, label, icon: Icon }) => {
             const active = isTabActiveLocal(id);
             return (
@@ -584,7 +584,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   whileHover={reducedMotion ? undefined : { x: 2 }}
                   whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-                  className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer group ${
+                  className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2 rounded-2xl text-[13.5px] transition-colors duration-150 cursor-pointer group ${
                     active
                       ? 'text-slate-900 font-bold'
                       : 'text-slate-600 font-medium hover:text-slate-900 hover:bg-black/[0.03]'
@@ -647,10 +647,10 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 aria-expanded={isMoreMenuOpen}
                 aria-haspopup="menu"
                 aria-label="More utilities"
-                className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer group ${
+                className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2 rounded-2xl text-[13.5px] transition-colors duration-150 cursor-pointer group ${
                   isSecondaryActive || isMoreMenuOpen
                     ? 'text-[#006B63] font-bold bg-[#D8F2EC]'
-                    : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-teal-50/70'
+                    : 'text-slate-600 font-medium hover:text-slate-900 hover:bg-black/[0.03]'
                 }`}
               >
                 <div className="flex items-center gap-2.5">

@@ -684,7 +684,7 @@ function AppInner() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#FFFFFF] text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white relative">
       {/* Apple Music Dynamic Ambient Aura Mesh (Soft, diffuse, non-competing color bleed) */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
         {/* Soft top-left ambient aura (gentle teal/cyan warmth) */}
