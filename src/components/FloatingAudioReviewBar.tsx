@@ -64,44 +64,44 @@ export const FloatingAudioReviewBar: React.FC = () => {
         transition={{ type: 'spring', damping: 28, stiffness: 350 }}
         className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 z-[80] w-[92vw] max-w-lg"
       >
-        <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-white/15 shadow-2xl text-white">
-          {/* Left: Indicator & Track Info */}
+        <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-2xl bg-white/88 backdrop-blur-2xl saturate-[180%] border border-black/[0.08] shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_18px_44px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] text-slate-900 select-none">
+          {/* Left: Album-art Style Clinical Indicator & Track Info */}
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-500/20 text-teal-400 border border-teal-400/30">
-              <Headphones className="h-5 w-5" />
+            <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#00897B] to-[#004D40] text-white shadow-md shadow-teal-950/20 border border-white/20">
+              <Headphones className="h-5 w-5 stroke-[2.2]" />
               {isPlaying && (
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 ring-2 ring-white" />
                 </span>
               )}
             </div>
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-300">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#006B63]">
                   {currentItem.subjectName || 'Clinical Recall'}
                 </span>
-                <span className="text-[10px] text-slate-400 tabular-nums font-mono">
+                <span className="text-[10px] text-slate-400 tabular-nums font-mono font-medium">
                   {currentIndex + 1} of {total}
                 </span>
               </div>
-              <h4 className="text-xs sm:text-sm font-semibold text-slate-100 truncate">
+              <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 truncate tracking-tight">
                 {currentItem.title}
               </h4>
             </div>
           </div>
 
-          {/* Center/Right: Playback Controls */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          {/* Center/Right: Apple Music Tactile Playback Controls */}
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             {/* Speed Pill */}
             <button
               type="button"
               onClick={handleCycleSpeed}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-semibold text-slate-200 transition-colors cursor-pointer"
+              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-black/[0.04] hover:bg-black/[0.08] text-[11px] font-bold text-slate-700 transition-colors cursor-pointer"
               title="Change playback speed"
             >
-              <Gauge className="h-3 w-3 text-teal-400" />
+              <Gauge className="h-3 w-3 text-[#006B63]" />
               <span>{rate}x</span>
             </button>
 
@@ -110,17 +110,17 @@ export const FloatingAudioReviewBar: React.FC = () => {
               type="button"
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-black/[0.04] disabled:opacity-25 disabled:hover:bg-transparent transition-colors cursor-pointer"
               title="Previous item"
             >
-              <SkipBack className="h-4 w-4" />
+              <SkipBack className="h-4 w-4 fill-current" />
             </button>
 
-            {/* Play/Pause */}
+            {/* Play/Pause (Apple Music Signature Circle) */}
             <button
               type="button"
               onClick={handleTogglePlayPause}
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold shadow-md shadow-teal-500/25 transition-all transform active:scale-95 cursor-pointer"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 hover:bg-black text-white font-bold shadow-sm shadow-black/25 transition-all transform active:scale-95 cursor-pointer"
               title={isPaused ? 'Resume' : 'Pause'}
             >
               {isPaused ? <Play className="h-4 w-4 fill-current ml-0.5" /> : <Pause className="h-4 w-4 fill-current" />}
@@ -131,20 +131,20 @@ export const FloatingAudioReviewBar: React.FC = () => {
               type="button"
               onClick={handleNext}
               disabled={currentIndex >= total - 1}
-              className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-black/[0.04] disabled:opacity-25 disabled:hover:bg-transparent transition-colors cursor-pointer"
               title="Next item"
             >
-              <SkipForward className="h-4 w-4" />
+              <SkipForward className="h-4 w-4 fill-current" />
             </button>
 
             {/* Close */}
             <button
               type="button"
               onClick={handleClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer ml-1"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-black/[0.04] transition-colors cursor-pointer ml-0.5"
               title="Stop audio review"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4 stroke-[2.2]" />
             </button>
           </div>
         </div>

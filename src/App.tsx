@@ -684,7 +684,17 @@ function AppInner() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F3F8F8] to-[#EFF5F9] text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen bg-[#FFFFFF] text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white relative overflow-x-hidden">
+      {/* Apple Music Dynamic Ambient Aura Mesh (Soft, diffuse, non-competing color bleed) */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        {/* Soft top-left ambient aura (gentle teal/cyan warmth) */}
+        <div className="absolute -top-32 -left-20 w-[55vw] max-w-[650px] h-[500px] rounded-full bg-gradient-to-br from-teal-400/[0.10] via-emerald-300/[0.07] to-transparent blur-3xl" />
+        {/* Subtle mid-right ambient aura (gentle warm amber/rose shimmer) */}
+        <div className="absolute top-1/4 -right-32 w-[50vw] max-w-[600px] h-[520px] rounded-full bg-gradient-to-bl from-amber-300/[0.08] via-sky-200/[0.06] to-transparent blur-3xl" />
+        {/* Lower ambient grounding aura */}
+        <div className="absolute -bottom-40 left-1/3 w-[60vw] max-w-[700px] h-[450px] rounded-full bg-gradient-to-tr from-teal-200/[0.08] via-indigo-100/[0.05] to-transparent blur-3xl" />
+      </div>
+
       {/* Desktop Left Navigation Rail */}
       <SidebarDock
         activeTab={activeTab}
@@ -704,7 +714,7 @@ function AppInner() {
       />
 
       {/* Main Workspace Column */}
-      <div className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden">
+      <div className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden z-10">
         {/* Atmospheric Ambient Study Artwork Backdrop (Subtle & Non-competing) */}
         {bgOpacity > 0 && (
           <div
@@ -731,7 +741,7 @@ function AppInner() {
               initial={{ y: -30, opacity: 0, scale: 0.96 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-              className="pointer-events-auto mx-auto w-full max-w-4xl px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white/80 backdrop-blur-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_12px_36px_rgba(0,107,99,0.08)] flex items-center justify-between gap-3 text-slate-800 select-none"
+              className="pointer-events-auto mx-auto w-full max-w-4xl px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white/80 backdrop-blur-2xl saturate-[180%] border border-black/[0.06] shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_8px_24px_rgba(0,0,0,0.04)] flex items-center justify-between gap-3 text-slate-800 select-none"
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <span className="relative flex h-2.5 w-2.5 shrink-0">

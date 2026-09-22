@@ -516,13 +516,13 @@ export const SidebarDock: React.FC<NavbarProps> = ({
 
   return (
     <aside
-      className="hidden lg:flex flex-col justify-between w-60 xl:w-64 shrink-0 h-screen sticky top-0 bg-white/80 backdrop-blur-2xl border-r border-white/80 shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,107,99,0.03)] z-40 select-none font-['Plus_Jakarta_Sans']"
+      className="hidden lg:flex flex-col justify-between w-60 xl:w-64 shrink-0 h-screen sticky top-0 bg-[#F6F6F6]/85 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.06] shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.02)] z-40 select-none font-sans"
       aria-label="Desktop Navigation"
     >
       {/* ── Top: Logo & Primary Navigation ─────────────────── */}
       <div className="flex flex-col">
         {/* Brand Header */}
-        <div className="px-4 pt-5 pb-4 border-b border-white/80">
+        <div className="px-4 pt-5 pb-4 border-b border-black/[0.06]">
           <div
             onClick={() => setActiveTab('dashboard')}
             className="cursor-pointer rounded-xl p-1 -ml-1 transition-opacity hover:opacity-85 active:opacity-70"
@@ -543,7 +543,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenCloudSync}
-            className="mt-2.5 flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl bg-slate-50/90 hover:bg-teal-50/70 border border-slate-200/80 text-[11px] font-medium text-slate-600 hover:text-teal-900 transition-colors cursor-pointer group shadow-2xs"
+            className="mt-2.5 flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl bg-white/80 hover:bg-white border border-black/[0.06] text-[11px] font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer group shadow-2xs"
             title="View Cloud Sync & Auto-Snapshots"
           >
             <span className="flex items-center gap-1.5">
@@ -551,7 +551,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
-              <span className="font-semibold text-slate-800 group-hover:text-teal-950">
+              <span className="font-semibold text-slate-800 group-hover:text-slate-950">
                 {syncStatus === 'offline' ? 'Offline Ready' : 'Synced'}
               </span>
             </span>
@@ -565,37 +565,37 @@ export const SidebarDock: React.FC<NavbarProps> = ({
             const active = isTabActiveLocal(id);
             return (
               <div key={id} className="relative">
-                {/* Shared animated background pill with refined pale-mint glass treatment, subtle teal accent, soft inner highlight, and restrained glow */}
+                {/* Shared animated background pill with Apple Music elevated card highlight */}
                 {active && !reducedMotion && (
                   <motion.div
                     layoutId="sidebar-active-pill"
-                    className="absolute inset-0 rounded-2xl bg-[#D8F2EC] border border-[#BDE4DA] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.06)]"
+                    className="absolute inset-0 rounded-2xl bg-white border border-black/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]"
                     transition={EASE_SPRING}
                   />
                 )}
                 {active && reducedMotion && (
-                  <div className="absolute inset-0 rounded-2xl bg-[#D8F2EC] border border-[#BDE4DA] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.06)]" />
+                  <div className="absolute inset-0 rounded-2xl bg-white border border-black/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]" />
                 )}
 
                 <motion.button
                   type="button"
                   onClick={() => setActiveTab(id)}
                   aria-current={active ? 'page' : undefined}
-                  whileHover={reducedMotion ? undefined : { x: 3 }}
+                  whileHover={reducedMotion ? undefined : { x: 2 }}
                   whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 450, damping: 28 }}
                   className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[14px] transition-colors duration-150 cursor-pointer group ${
                     active
-                      ? 'text-[#006B63] font-bold'
-                      : 'text-slate-700 font-medium hover:text-[#006B63] hover:bg-teal-50/70'
+                      ? 'text-slate-900 font-bold'
+                      : 'text-slate-600 font-medium hover:text-slate-900 hover:bg-black/[0.03]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon
                       className={`h-[19px] w-[19px] shrink-0 transition-all duration-200 ${
                         active
-                          ? 'text-[#006B63] fill-[#006B63]/25 stroke-[#006B63] stroke-[2.2] scale-105'
-                          : 'text-slate-500 stroke-[1.8] group-hover:text-[#006B63] group-hover:stroke-[#006B63] group-hover:scale-105'
+                          ? 'text-[#006B63] fill-[#006B63]/20 stroke-[#006B63] stroke-[2.2] scale-105'
+                          : 'text-slate-400 stroke-[1.8] group-hover:text-slate-800 group-hover:stroke-slate-800 group-hover:scale-105'
                       }`}
                     />
                     <span>{label}</span>
@@ -606,7 +606,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <ChevronRight className="h-4 w-4 text-[#006B63] stroke-[2.5]" />
+                      <ChevronRight className="h-4 w-4 text-slate-400 stroke-[2.5]" />
                     </motion.div>
                   )}
                 </motion.button>
@@ -616,7 +616,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
 
           {/* Clean Separator Line */}
           <div className="pt-2 pb-1">
-            <div className="border-t border-slate-100" />
+            <div className="border-t border-black/[0.06]" />
           </div>
 
           {/* ── More Section (Interactive Card on Hover & Click) ──────────────── */}
@@ -899,7 +899,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     <>
       {/* ── Mobile Top Header ──────────────────────── */}
       <header
-        className="lg:hidden sticky top-0 z-40 bg-white/80 backdrop-blur-2xl border-b border-white/80 px-4 py-2.5 flex items-center justify-between font-['Plus_Jakarta_Sans'] shadow-[0_4px_20px_rgba(0,107,99,0.02)] transition-all"
+        className="lg:hidden sticky top-0 z-40 bg-white/85 backdrop-blur-2xl saturate-[180%] border-b border-black/[0.06] px-4 py-2.5 flex items-center justify-between font-sans shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all"
         style={{
           paddingTop: 'max(0.625rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
           paddingLeft: 'max(1rem, calc(0.75rem + env(safe-area-inset-left, 0px)))',
@@ -1000,7 +1000,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reducedMotion ? undefined : { opacity: 0, y: -6, scale: 0.96 }}
                   transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute right-0 top-[calc(100%+0.5rem)] w-64 max-w-[calc(100vw-2rem)] z-50 rounded-2xl bg-white/85 backdrop-blur-2xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_18px_48px_rgba(0,107,99,0.12)] p-2 font-['Plus_Jakarta_Sans']"
+                  className="absolute right-0 top-[calc(100%+0.5rem)] w-64 max-w-[calc(100vw-2rem)] z-50 rounded-2xl bg-white/90 backdrop-blur-2xl saturate-[180%] border border-black/[0.06] shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_18px_48px_rgba(0,0,0,0.1)] p-2 font-sans"
                   role="menu"
                   aria-label="Secondary Utilities"
                 >
@@ -1091,7 +1091,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* ── Instagram-Style iOS Floating Pill Navigation Bar with Dynamic Scroll Zoom ── */}
       <motion.nav
-        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1.25rem)] w-auto bg-white/78 backdrop-blur-2xl backdrop-saturate-150 border border-white/85 shadow-[0_12px_36px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,107,99,0.05),inset_0_1px_1.5px_rgba(255,255,255,0.95)] rounded-full px-2 py-1.5 font-['Plus_Jakarta_Sans'] select-none"
+        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1.25rem)] w-auto bg-white/85 backdrop-blur-2xl saturate-[180%] border border-black/[0.08] shadow-[0_16px_40px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04),inset_0_1px_1.5px_rgba(255,255,255,0.98)] rounded-full px-2 py-1.5 font-sans select-none"
         style={{
           bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))',
           transformOrigin: 'center bottom',
