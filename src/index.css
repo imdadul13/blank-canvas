@@ -2,13 +2,15 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --font-outfit: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-jakarta: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-newsreader: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-apple-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
+  --font-apple-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-outfit: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
+  --font-jakarta: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
+  --font-newsreader: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
+  --font-inter: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
 
   --color-terracotta: #B57B66;
   --color-terracotta-50: #FAF5F2;
@@ -29,28 +31,32 @@
   --interactive-terracotta-subtle: rgba(181, 123, 102, 0.12);
   --interactive-terracotta-glow: rgba(181, 123, 102, 0.28);
 
-  /* Apple Music Design System Tokens (Light Mode) */
+  /* Apple Design System Tokens */
   --apple-bg-base: #FFFFFF;
-  --apple-bg-secondary: #F2F2F7;
+  --apple-bg-secondary: #F5F5F7;
   --apple-bg-tertiary: #FFFFFF;
   --apple-bg-sidebar: rgba(246, 246, 246, 0.85);
   --apple-separator: rgba(60, 60, 67, 0.12);
   --apple-separator-opaque: #E5E5EA;
-  --apple-label-primary: #1C1C1E;
-  --apple-label-secondary: #8E8E93;
+  --apple-label-primary: #1D1D1F;
+  --apple-label-secondary: #6E6E73;
+  --apple-label-tertiary: #86868B;
   --apple-fill-quaternary: rgba(116, 116, 128, 0.08);
+  --apple-blue: #0071E3;
+  --apple-blue-hover: #0077ED;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   INTER SANS SERIF SYSTEM-WIDE TYPOGRAPHY ENGINE
+   APPLE SF PRO SYSTEM-WIDE TYPOGRAPHY ENGINE
    ═══════════════════════════════════════════════════════════════════════ */
 
 html {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.012em;
+  color: #1D1D1F;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -63,6 +69,7 @@ html {
 
 body {
   font-family: inherit;
+  color: #1D1D1F;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -85,22 +92,24 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Display Headings match Inter signature tracking & optical weight */
+/* Display Headings match Apple SF Pro Display signature tight negative tracking & optical weight */
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  letter-spacing: -0.022em;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: -0.028em;
+  line-height: 1.12;
+  color: #1D1D1F;
   text-rendering: optimizeLegibility;
 }
 
-/* System-wide override to redirect existing font-* classes to Inter Sans Serif */
+/* System-wide override to redirect font-* classes to Apple SF Pro Typography */
 [class*="font-['Outfit']"],
 [class*="font-['Plus_Jakarta_Sans']"],
 [class*="font-['Inter']"],
 [class*="font-['Newsreader']"],
 .font-sans,
 .font-display {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-  letter-spacing: -0.011em;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Inter", sans-serif !important;
+  letter-spacing: -0.022em;
 }
 
 /* Tabular Numbers & Monospace for Clinical Telemetry, Stats & Timers */
@@ -115,13 +124,81 @@ samp,
 pre,
 .font-mono,
 [class*="font-mono"] {
-  font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
 }
 
 /* Apple-style Form Controls Typography */
 button, input, textarea, select {
   font-family: inherit;
   letter-spacing: inherit;
+}
+
+/* Apple Typography Utility Classes */
+.apple-display {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif !important;
+  letter-spacing: -0.032em !important;
+  line-height: 1.08 !important;
+  font-weight: 700;
+  color: #1D1D1F;
+}
+
+.apple-headline {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.15 !important;
+  font-weight: 600;
+  color: #1D1D1F;
+}
+
+.apple-subhead {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif !important;
+  letter-spacing: -0.006em !important;
+  line-height: 1.38 !important;
+  font-weight: 400;
+  color: #6E6E73;
+}
+
+.apple-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", sans-serif;
+  font-weight: 500;
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+  padding: 8px 18px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-pill-btn-blue {
+  background-color: #0071E3;
+  color: #FFFFFF;
+}
+
+.apple-pill-btn-blue:hover {
+  background-color: #0077ED;
+  transform: scale(1.02);
+}
+
+.apple-pill-btn-dark {
+  background-color: #1D1D1F;
+  color: #FFFFFF;
+}
+
+.apple-pill-btn-dark:hover {
+  background-color: #000000;
+  transform: scale(1.02);
+}
+
+.apple-pill-btn-subtle {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #1D1D1F;
+}
+
+.apple-pill-btn-subtle:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  transform: scale(1.02);
 }
 
 /* iOS Safari font-size 16px minimum to prevent auto-zoom on input focus */
