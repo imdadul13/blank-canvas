@@ -1,6 +1,8 @@
 {
-  "name": "ONE SHOT FMGE",
-  "short_name": "ONE SHOT",
+  "id": "oneshot-fmge-app",
+  "name": "ONE SHOT FMGE — A Brighter Doctor Tomorrow",
+  "short_name": "ONE SHOT FMGE",
+  "description": "Clinical learning platform for FMGE aspirants — High-yield clinical recalls, subject mastery, and adaptive revision.",
   "icons": [
     {
       "src": "/favicon-32.png",
@@ -15,18 +17,22 @@
     {
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/favicon.png",
       "sizes": "1024x1024",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "theme_color": "#006B63",
   "background_color": "#FAF9F6",
   "display": "standalone",
-  "orientation": "portrait",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "categories": ["education", "medical"],
   "start_url": "/",
   "scope": "/"
 }

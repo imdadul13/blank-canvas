@@ -1168,7 +1168,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         }}
         aria-label="Mobile Navigation"
       >
-        <div className="flex items-center gap-1 xs:gap-1.5">
+        <div className="flex items-center gap-1 xs:gap-1.5 md:gap-2.5">
           {mobileNavItems.map(({ id, label, icon: Icon }) => {
             const active = isTabActiveLocal(id);
             const isFilledIcon = id === 'dashboard' || id === 'pearls';
@@ -1183,7 +1183,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setMobileMoreOpen(false);
                   }}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative flex items-center justify-center h-10 w-11 xs:w-12 rounded-full transition-all duration-200 cursor-pointer group ${
+                  className={`relative flex items-center justify-center h-10 w-11 xs:w-12 md:w-14 md:h-11 rounded-full transition-all duration-200 cursor-pointer group ${
                     active
                       ? 'bg-[#FA2D48]/14 border border-[#FA2D48]/25 shadow-xs text-[#FA2D48]'
                       : 'border border-transparent text-black'
@@ -1222,7 +1222,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setMobileMoreOpen(false);
               }}
               aria-current={activeTab === 'more' || isSecondaryActive ? 'page' : undefined}
-              className={`relative flex items-center justify-center h-10 w-11 xs:w-12 rounded-full transition-all duration-200 cursor-pointer group ${
+              className={`relative flex items-center justify-center h-10 w-11 xs:w-12 md:w-14 md:h-11 rounded-full transition-all duration-200 cursor-pointer group ${
                 activeTab === 'more' || isSecondaryActive
                   ? 'bg-[#FA2D48]/14 border border-[#FA2D48]/25 shadow-xs text-[#FA2D48]'
                   : 'border border-transparent text-black'

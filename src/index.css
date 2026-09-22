@@ -92,6 +92,23 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Remove 300ms delay & accidental zooming on rapid button taps */
+button, [role="button"], a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Prevent unwanted Safari touch callout previews on navigation icons and buttons */
+button, [role="button"], nav, header {
+  -webkit-touch-callout: none;
+}
+
+/* Native App overscroll protection for standalone PWA mode (phones & tablets) */
+@media all and (display-mode: standalone) {
+  html, body {
+    overscroll-behavior-y: none;
+  }
+}
+
 /* Display Headings match Apple SF Pro Display signature tight negative tracking & optical weight */
 h1, h2, h3, h4, h5, h6 {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;

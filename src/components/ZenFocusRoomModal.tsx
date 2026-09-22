@@ -18,7 +18,6 @@ import {
   Headphones,
   CheckCircle2,
   Sliders,
-  HeartPulse,
 } from 'lucide-react';
 import { AppState, DailyStudyLog } from '../types';
 import { ambientAudioEngine, AMBIENT_MODES, AmbientSoundMode } from '../utils/ambientAudioEngine';
@@ -150,7 +149,9 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
   // Harmonious Web Audio chime upon session completion
   const playGentleChime = () => {
     try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new AudioCtx();
       const now = ctx.currentTime;
       [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
@@ -183,7 +184,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
   const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
 
   // Orbital bead coordinates (angle in radians; start from top = -PI/2)
-  const angle = (progressRatio * 2 * Math.PI) - (Math.PI / 2);
+  const angle = progressRatio * 2 * Math.PI - Math.PI / 2;
   const beadX = 130 + radius * Math.cos(angle);
   const beadY = 130 + radius * Math.sin(angle);
 
@@ -216,18 +217,24 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
   const getAmbientModeIcon = (mode: AmbientSoundMode) => {
     switch (mode) {
       case 'rain':
-        return <CloudRain className="w-4 h-4" />;
+        return <CloudRain className="w-3.5 h-3.5 sm:w-4 sm:h-4" />;
       case 'brown':
-        return <Wind className="w-4 h-4" />;
+        return <Wind className="w-3.5 h-3.5 sm:w-4 sm:h-4" />;
       case 'gamma40':
-        return <Zap className="w-4 h-4" />;
+        return <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />;
       case 'library':
-        return <BookOpen className="w-4 h-4" />;
+        return <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />;
     }
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6 lg:p-8 bg-[#04080B]/85 backdrop-blur-3xl select-none overflow-y-auto">
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center p-2.5 xs:p-3 sm:p-6 lg:p-8 bg-[#04080B]/85 backdrop-blur-3xl select-none overflow-y-auto overscroll-contain"
+      style={{
+        paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0px))',
+        paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))',
+      }}
+    >
       {/* Background Animated Aurora Glows */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
@@ -258,11 +265,11 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
 
       {/* Main Glass Sanctuary Card Container */}
       <motion.div
-        initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92, y: 16 }}
+        initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 14 }}
         animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
-        exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92, y: 16 }}
-        transition={{ type: 'spring', stiffness: 360, damping: 28 }}
-        className="relative w-full max-w-xl bg-gradient-to-b from-slate-900/90 via-slate-950/95 to-[#060D12] border border-white/[0.14] rounded-[2.25rem] p-6 sm:p-8 shadow-[0_32px_80px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.2)] overflow-hidden flex flex-col items-center"
+        exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 14 }}
+        transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+        className="relative my-auto w-full max-w-xl md:max-w-2xl bg-gradient-to-b from-slate-900/95 via-slate-950/98 to-[#060D12] border border-white/[0.14] rounded-3xl sm:rounded-[2.25rem] p-4 xs:p-5 sm:p-7 md:p-8 shadow-[0_32px_80px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.2)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain flex flex-col items-center"
       >
         {/* Specular Top Shimmer Edge */}
         <div
@@ -271,9 +278,9 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
         />
 
         {/* Header Bar */}
-        <div className="w-full flex items-center justify-between mb-5 relative z-10">
+        <div className="w-full flex items-center justify-between mb-4 sm:mb-5 relative z-10 shrink-0">
           {/* Clinical Badge */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/25 backdrop-blur-md shadow-2xs">
+          <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-teal-500/10 border border-teal-500/25 backdrop-blur-md shadow-2xs">
             <span className="relative flex h-2 w-2">
               <span
                 className={`animate-ping absolute inline-flex h-full w-full rounded-full ${
@@ -286,19 +293,19 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                 }`}
               />
             </span>
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-teal-200 font-['Outfit'] tracking-wide">
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-teal-200 font-['Outfit'] tracking-wide">
               <Headphones className="w-3.5 h-3.5 text-teal-300" />
               <span>Zen Clinical Sanctuary</span>
             </div>
           </div>
 
           {/* Right Header Controls: Sessions Count + Close */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {completedSessions > 0 && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold font-mono shadow-2xs"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] sm:text-xs font-bold font-mono shadow-2xs"
               >
                 <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                 <span>
@@ -310,7 +317,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-2.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] text-slate-300 hover:text-white border border-white/[0.08] transition-all cursor-pointer shadow-2xs"
+              className="p-2 sm:p-2.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] text-slate-300 hover:text-white border border-white/[0.08] transition-all cursor-pointer shadow-2xs active:scale-95"
               title="Close Sanctuary (Esc)"
               aria-label="Close Sanctuary"
             >
@@ -320,7 +327,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
         </div>
 
         {/* SwiftUI-Style Duration Segmented Pill */}
-        <div className="relative p-1 rounded-2xl bg-white/[0.05] border border-white/[0.08] backdrop-blur-xl flex items-center gap-1 mb-6">
+        <div className="relative p-1 rounded-2xl bg-white/[0.05] border border-white/[0.08] backdrop-blur-xl flex items-center gap-1 mb-4 sm:mb-6 shrink-0">
           {[15, 25, 50].map((mins) => {
             const isSelected = selectedDuration === mins;
             return (
@@ -328,7 +335,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                 key={mins}
                 type="button"
                 onClick={() => handleSelectDuration(mins)}
-                className={`relative z-10 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold font-['Outfit'] transition-colors duration-200 cursor-pointer ${
+                className={`relative z-10 px-3 xs:px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold font-['Outfit'] transition-colors duration-200 cursor-pointer active:scale-95 ${
                   isSelected ? 'text-white' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -345,9 +352,12 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
           })}
         </div>
 
-        {/* Apple-Grade Circular Countdown Dial with Glowing Pulse Bead */}
-        <div className="relative flex items-center justify-center my-3">
-          <svg width="260" height="260" className="transform -rotate-90 drop-shadow-2xl">
+        {/* Apple-Grade Circular Countdown Dial with Responsive Scaling */}
+        <div className="relative flex items-center justify-center my-2 sm:my-3 shrink-0">
+          <svg
+            viewBox="0 0 260 260"
+            className="w-[195px] h-[195px] xs:w-[220px] xs:h-[220px] sm:w-[250px] sm:h-[250px] transform -rotate-90 drop-shadow-2xl"
+          >
             <defs>
               {/* Radial gradient for glowing arc */}
               <linearGradient id="zenTimerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -408,19 +418,19 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
             <motion.div
               animate={isRunning ? { scale: [1, 1.015, 1] } : { scale: 1 }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="font-['Outfit'] text-5xl sm:text-6xl font-black tracking-tight text-white tabular-nums drop-shadow-[0_4px_16px_rgba(20,184,166,0.3)]"
+              className="font-['Outfit'] text-4xl xs:text-5xl sm:text-6xl font-black tracking-tight text-white tabular-nums drop-shadow-[0_4px_16px_rgba(20,184,166,0.3)]"
             >
               {formattedTime}
             </motion.div>
 
-            <div className="flex items-center gap-1.5 mt-2">
+            <div className="flex items-center gap-1.5 mt-1.5 sm:mt-2">
               {isRunning && (
                 <span className="flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-teal-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-400" />
                 </span>
               )}
-              <span className="text-[11px] font-bold tracking-widest uppercase font-['Outfit'] text-teal-300/90">
+              <span className="text-[10px] xs:text-[11px] font-bold tracking-widest uppercase font-['Outfit'] text-teal-300/90">
                 {isRunning ? 'Deep Immersion' : 'Ready to Immerse'}
               </span>
             </div>
@@ -428,14 +438,14 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
         </div>
 
         {/* Primary Tactile Controls */}
-        <div className="flex items-center gap-3.5 mt-3 mb-6">
+        <div className="flex items-center gap-3 sm:gap-3.5 mt-2 sm:mt-3 mb-4 sm:mb-6 shrink-0">
           <motion.button
             type="button"
             whileHover={reducedMotion ? undefined : { scale: 1.03 }}
             whileTap={reducedMotion ? undefined : { scale: 0.94 }}
             transition={{ type: 'spring', stiffness: 500, damping: 25 }}
             onClick={() => setIsRunning(!isRunning)}
-            className={`flex items-center gap-2.5 px-8 py-3 rounded-2xl text-sm font-extrabold font-['Outfit'] shadow-xl transition-all cursor-pointer ${
+            className={`flex items-center gap-2 sm:gap-2.5 px-6 xs:px-7 sm:px-8 py-2.5 sm:py-3 rounded-2xl text-xs xs:text-sm font-extrabold font-['Outfit'] shadow-xl transition-all cursor-pointer ${
               isRunning
                 ? 'bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-amber-400/25'
                 : 'bg-gradient-to-r from-teal-400 via-teal-500 to-emerald-500 hover:brightness-110 text-slate-950 shadow-teal-500/30'
@@ -463,7 +473,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
               setIsRunning(false);
               setSecondsLeft(selectedDuration * 60);
             }}
-            className="p-3 rounded-2xl bg-white/[0.08] hover:bg-white/[0.14] text-slate-300 hover:text-white border border-white/[0.08] transition-colors cursor-pointer shadow-md"
+            className="p-2.5 sm:p-3 rounded-2xl bg-white/[0.08] hover:bg-white/[0.14] text-slate-300 hover:text-white border border-white/[0.08] transition-colors cursor-pointer shadow-md"
             title="Reset Timer (R)"
             aria-label="Reset Timer"
           >
@@ -472,22 +482,22 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
         </div>
 
         {/* Acoustic Atmosphere Studio Card */}
-        <div className="w-full max-w-lg p-4 rounded-2xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-md mb-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
+        <div className="w-full max-w-lg md:max-w-xl p-3.5 sm:p-4 rounded-2xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-md mb-3 sm:mb-4 shadow-sm shrink-0">
+          <div className="flex items-center justify-between mb-2.5 sm:mb-3">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-teal-500/15 text-teal-300 border border-teal-500/20">
+              <div className="p-1 sm:p-1.5 rounded-lg bg-teal-500/15 text-teal-300 border border-teal-500/20">
                 <Volume2 className="w-3.5 h-3.5" />
               </div>
-              <span className="text-xs font-bold text-slate-200 font-['Outfit'] uppercase tracking-wider">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-200 font-['Outfit'] uppercase tracking-wider">
                 Acoustic Atmosphere
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={() => setShowAudioSettings(!showAudioSettings)}
-                className="p-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 text-xs transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 text-xs transition-colors cursor-pointer active:scale-95"
                 title="Adjust Volume"
               >
                 <Sliders className="w-3 h-3" />
@@ -496,7 +506,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
               <button
                 type="button"
                 onClick={() => ambientAudioEngine.toggle()}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold font-['Outfit'] transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold font-['Outfit'] transition-all cursor-pointer active:scale-95 ${
                   isAudioActive
                     ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                     : 'bg-teal-500/20 text-teal-300 border border-teal-500/30 hover:bg-teal-500/30'
@@ -530,7 +540,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
           )}
 
           {/* 4 Mode Pills with Animated Live Equalizer Bars */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
             {AMBIENT_MODES.map((m) => {
               const active = isAudioActive && ambientMode === m.id;
               return (
@@ -538,7 +548,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                   key={m.id}
                   type="button"
                   onClick={() => handleToggleAmbientMode(m.id)}
-                  className={`relative p-2.5 rounded-xl border text-left transition-all cursor-pointer overflow-hidden ${
+                  className={`relative p-2 sm:p-2.5 rounded-xl border text-left transition-all cursor-pointer overflow-hidden active:scale-95 ${
                     active
                       ? 'bg-gradient-to-b from-teal-500/25 to-teal-900/30 border-teal-400/50 shadow-sm'
                       : 'bg-white/[0.03] hover:bg-white/[0.07] border-white/[0.06] text-slate-400 hover:text-slate-200'
@@ -582,13 +592,13 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
 
         {/* Clinical Active Recall Reflection Card */}
         {currentPearl && (
-          <div className="w-full max-w-lg p-4 rounded-2xl bg-gradient-to-br from-teal-950/40 via-slate-900/60 to-slate-950/80 border border-teal-500/25 shadow-lg relative overflow-hidden">
-            <div className="flex items-center justify-between mb-2">
+          <div className="w-full max-w-lg md:max-w-xl p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-teal-950/40 via-slate-900/60 to-slate-950/80 border border-teal-500/25 shadow-lg relative overflow-hidden shrink-0">
+            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
               <div className="flex items-center gap-1.5">
-                <span className="px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-300 font-mono text-[10px] font-bold uppercase tracking-wider border border-teal-400/20">
+                <span className="px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-300 font-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-wider border border-teal-400/20">
                   {currentPearl.subjectId}
                 </span>
-                <span className="text-[11px] font-semibold text-slate-400 font-['Outfit']">
+                <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 font-['Outfit']">
                   Active Recall Check
                 </span>
               </div>
@@ -596,14 +606,14 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
               <button
                 type="button"
                 onClick={handleNextPearl}
-                className="text-[11px] font-bold text-teal-300 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                className="text-[10px] sm:text-[11px] font-bold text-teal-300 hover:text-white flex items-center gap-1 transition-colors cursor-pointer active:scale-95"
               >
                 <span>Next Pearl</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <h4 className="text-xs sm:text-sm font-bold text-slate-100 font-['Outfit'] leading-relaxed mb-2.5">
+            <h4 className="text-xs sm:text-sm font-bold text-slate-100 font-['Outfit'] leading-relaxed mb-2 sm:mb-2.5">
               {currentPearl.title}
             </h4>
 
@@ -611,7 +621,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
               <motion.div
                 initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
                 animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                className="p-3 rounded-xl bg-teal-500/15 border border-teal-400/30 text-xs text-teal-100 space-y-1.5"
+                className="p-2.5 sm:p-3 rounded-xl bg-teal-500/15 border border-teal-400/30 text-xs text-teal-100 space-y-1.5"
               >
                 <div className="flex items-center gap-1 font-bold text-teal-300 font-['Outfit']">
                   <Sparkles className="w-3.5 h-3.5 text-teal-300" />
@@ -624,7 +634,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                 type="button"
                 whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                 onClick={() => setIsPearlRevealed(true)}
-                className="w-full py-2 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-teal-300 text-xs font-bold font-['Outfit'] text-center cursor-pointer transition-all"
+                className="w-full py-1.5 sm:py-2 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-teal-300 text-xs font-bold font-['Outfit'] text-center cursor-pointer transition-all"
               >
                 Tap to Reveal Clinical Takeaway
               </motion.button>
@@ -632,8 +642,8 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
           </div>
         )}
 
-        {/* Hotkey Reminder Footer */}
-        <div className="mt-4 flex items-center gap-3 text-[11px] text-slate-500 font-mono">
+        {/* Hotkey Reminder Footer (Desktop & External Keyboards) */}
+        <div className="mt-3 sm:mt-4 hidden sm:flex items-center gap-3 text-[11px] text-slate-500 font-mono shrink-0">
           <span>
             <kbd className="px-1.5 py-0.5 rounded bg-white/[0.08] text-slate-400 border border-white/[0.08]">
               Space
@@ -664,20 +674,20 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.85, y: -20 }}
               transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-              className="absolute inset-x-8 top-16 z-30 p-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-2xl border border-white/25 flex items-center justify-between backdrop-blur-md"
+              className="absolute inset-x-4 sm:inset-x-8 top-12 sm:top-16 z-30 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-2xl border border-white/25 flex items-center justify-between backdrop-blur-md"
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-white/20">
-                  <CheckCircle2 className="w-5 h-5 text-white" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="p-1.5 sm:p-2 rounded-xl bg-white/20">
+                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div>
-                  <h5 className="font-bold text-sm font-['Outfit']">Focus Block Completed!</h5>
-                  <p className="text-xs text-emerald-100">
+                  <h5 className="font-bold text-xs sm:text-sm font-['Outfit']">Focus Block Completed!</h5>
+                  <p className="text-[11px] sm:text-xs text-emerald-100">
                     +{selectedDuration} minutes automatically recorded to your study log.
                   </p>
                 </div>
               </div>
-              <Sparkles className="w-5 h-5 text-amber-300" />
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
             </motion.div>
           )}
         </AnimatePresence>
