@@ -610,43 +610,24 @@ export const SidebarDock: React.FC<NavbarProps> = ({
             )}
           </div>
 
-          {/* Live Sync Status & Notification Pill */}
-          <div className="mt-2.5 flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={onOpenCloudSync}
-              className="flex-1 flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-white/80 hover:bg-white border border-black/[0.06] text-[11px] font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer group shadow-2xs"
-              title="View Cloud Sync & Auto-Snapshots"
-            >
-              <span className="flex items-center gap-1.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                </span>
-                <span className="font-semibold text-slate-800 group-hover:text-slate-950">
-                  {syncStatus === 'offline' ? 'Offline' : 'Synced'}
-                </span>
+          {/* Live Sync Status Pill */}
+          <button
+            type="button"
+            onClick={onOpenCloudSync}
+            className="mt-2.5 flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl bg-white/80 hover:bg-white border border-black/[0.06] text-[11px] font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer group shadow-2xs"
+            title="View Cloud Sync & Auto-Snapshots"
+          >
+            <span className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
-              <span className="text-[10px] text-slate-400 font-mono">Snapshots</span>
-            </button>
-
-            {onOpenNotifications && (
-              <button
-                type="button"
-                onClick={onOpenNotifications}
-                className="relative h-8 w-8 rounded-xl flex items-center justify-center bg-white/80 hover:bg-white border border-black/[0.06] text-slate-500 hover:text-[#006B63] transition-colors cursor-pointer shrink-0 shadow-2xs group"
-                title={`Study Intelligence & Insights${unreadNotificationCount ? ` (${unreadNotificationCount} unread)` : ''}`}
-                aria-label="Open notifications"
-              >
-                <Bell className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
-                {unreadNotificationCount !== undefined && unreadNotificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-3.5 min-w-[14px] px-1 rounded-full bg-[#FA2D48] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
-                    {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
-                  </span>
-                )}
-              </button>
-            )}
-          </div>
+              <span className="font-semibold text-slate-800 group-hover:text-slate-950">
+                {syncStatus === 'offline' ? 'Offline Ready' : 'Synced'}
+              </span>
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono">Auto-Snapshots</span>
+          </button>
         </div>
 
         {/* Primary Navigation List */}
