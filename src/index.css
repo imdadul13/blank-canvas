@@ -1,14 +1,14 @@
-@import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-mono: "SF Mono", "SF Pro Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --font-outfit: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-jakarta: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-newsreader: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-inter: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-outfit: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-jakarta: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-newsreader: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
   --color-terracotta: #B57B66;
   --color-terracotta-50: #FAF5F2;
@@ -31,16 +31,16 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   APPLE.COM SF PRO SYSTEM-WIDE TYPOGRAPHY ENGINE
+   INTER SANS SERIF SYSTEM-WIDE TYPOGRAPHY ENGINE
    ═══════════════════════════════════════════════════════════════════════ */
 
 html {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   letter-spacing: -0.011em;
-  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   overscroll-behavior-x: none;
@@ -74,40 +74,37 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Display Headings match Apple.com SF Pro Display signature tracking & optical weight */
+/* Display Headings match Inter signature tracking & optical weight */
 h1, h2, h3, h4, h5, h6 {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   letter-spacing: -0.022em;
   text-rendering: optimizeLegibility;
 }
 
-/* System-wide override to redirect existing font-* classes to Apple SF Pro */
+/* System-wide override to redirect existing font-* classes to Inter Sans Serif */
 [class*="font-['Outfit']"],
 [class*="font-['Plus_Jakarta_Sans']"],
 [class*="font-['Inter']"],
+[class*="font-['Newsreader']"],
 .font-sans,
 .font-display {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
   letter-spacing: -0.011em;
 }
 
-/* Headings and editorial display titles use SF Pro Display with Apple's negative letter-spacing */
-[class*="font-['Newsreader']"] {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  letter-spacing: -0.024em;
+/* Tabular Numbers & Monospace for Clinical Telemetry, Stats & Timers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
-/* Apple-style Tabular Numbers & Monospace for Clinical Telemetry, Stats & Timers */
 code,
 kbd,
 samp,
 pre,
 .font-mono,
-[class*="font-mono"],
-.tabular-nums {
-  font-family: "SF Mono", "SF Pro Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
+[class*="font-mono"] {
+  font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
 }
 
 /* Apple-style Form Controls Typography */
