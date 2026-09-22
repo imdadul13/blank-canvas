@@ -820,6 +820,8 @@ function AppInner() {
                     onDeleteTask={handleDeleteTask}
                     onUpdateDailyLog={handleUpdateDailyLog}
                     onToggleTopicState={handleToggleTopicState}
+                    onLogGrandTest={handleAddGrandTest}
+                    onAddErrorItem={handleAddErrorItem}
                     activeBg={activeBg}
                     onShuffleBg={handleCycleBg}
                     onOpenProfile={() => setIsProfileOpen(true)}
@@ -1011,6 +1013,8 @@ function AppInner() {
                     onDeleteTask={handleDeleteTask}
                     onUpdateDailyLog={handleUpdateDailyLog}
                     onToggleTopicState={handleToggleTopicState}
+                    onLogGrandTest={handleAddGrandTest}
+                    onAddErrorItem={handleAddErrorItem}
                     activeBg={activeBg}
                     onShuffleBg={handleCycleBg}
                     onOpenProfile={() => setIsProfileOpen(true)}

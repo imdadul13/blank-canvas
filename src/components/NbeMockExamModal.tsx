@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { GrandTest, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
-import { fetchPracticeSessionQuestions } from '../utils/practiceSessionEngine';
+import { getVerifiedTopicQuestions } from '../utils/practiceSessionEngine';
 import { getLocalDateKey } from '../utils/date';
 
 interface NbeMockExamModalProps {
@@ -53,8 +53,9 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
 }) => {
   // Test Lifecycle: 'intro' | 'testing' | 'review'
   const [phase, setPhase] = useState<'intro' | 'testing' | 'review'>('intro');
+  const [examMode, setExamMode] = useState<50 | 150>(50);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [secondsLeft, setSecondsLeft] = useState<number>(50 * 60); // 50 minutes
+  const [secondsLeft, setSecondsLeft] = useState<number>(50 * 60);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState<boolean>(false);
   const [questions, setQuestions] = useState<MockQuestion[]>([]);
   const [addedErrorIds, setAddedErrorIds] = useState<Set<string>>(new Set());
@@ -62,37 +63,30 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
 
   const timerRef = useRef<any>(null);
 
-  // Generate 50 balanced questions from high-yield subjects on open
-  useEffect(() => {
-    if (isOpen) {
-      setPhase('intro');
-      setCurrentIndex(0);
-      setSecondsLeft(50 * 60);
-      setShowSubmitConfirm(false);
-      setAddedErrorIds(new Set());
-      setLoggedToGT(false);
+  // Dynamic generator for balanced questions from high-yield subjects
+  const generateMockQuestions = (count: 50 | 150): MockQuestion[] => {
+    const mockList: MockQuestion[] = [];
+    const subjectsToUse = count === 150
+      ? FMGE_SUBJECTS
+      : ['medicine', 'surgery', 'obg', 'psm', 'pathology', 'pharmacology', 'pediatrics', 'anatomy']
+          .map((id) => FMGE_SUBJECTS.find((s) => s.id === id))
+          .filter(Boolean);
 
-      // Select top high-yield topics
-      const mockList: MockQuestion[] = [];
-      const prioritySubjects = ['medicine', 'surgery', 'obg', 'psm', 'pathology', 'pharmacology', 'pediatrics', 'anatomy'];
-      let qIdx = 0;
-
-      for (const subId of prioritySubjects) {
-        const sub = FMGE_SUBJECTS.find((s) => s.id === subId);
+    let qIdx = 0;
+    // Iterate through subjects and topics to reach the target count
+    for (let pass = 0; pass < 3 && mockList.length < count; pass++) {
+      for (const sub of subjectsToUse) {
         if (!sub) continue;
-        for (const topic of sub.topics.slice(0, 7)) {
-          if (mockList.length >= 50) break;
-          const questionsGenerated = fetchPracticeSessionQuestions({
-            sessionId: `mock_${sub.id}_${topic.id}`,
-            source: 'daily_mission',
-            subjectId: sub.id,
-            subjectName: sub.name,
-            topicId: topic.id,
-            topicName: topic.name,
-            targetQuestionCount: 5,
-          });
-          const picked = questionsGenerated[0];
-          if (picked) {
+        for (const topic of sub.topics) {
+          if (mockList.length >= count) break;
+          const questionsGenerated = getVerifiedTopicQuestions(
+            sub.id,
+            topic.id,
+            topic.name,
+            5
+          );
+          const picked = questionsGenerated[pass % Math.max(1, questionsGenerated.length)];
+          if (picked && !mockList.some((m) => m.question === picked.question)) {
             mockList.push({
               id: `nbe_q_${qIdx + 1}`,
               index: qIdx,
@@ -100,7 +94,12 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
               subjectName: sub.name,
               topicName: topic.name,
               question: picked.question,
-              options: picked.options,
+              options: picked.options.map((o) => ({
+                optionId: o.optionId,
+                key: o.key,
+                text: o.text,
+                isCorrect: !!o.isCorrect,
+              })),
               correctAnswer: picked.correctAnswer,
               explanation: picked.explanation,
               userSelectedOption: null,
@@ -110,7 +109,20 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
           }
         }
       }
-      setQuestions(mockList);
+    }
+    return mockList;
+  };
+
+  // Generate questions on open
+  useEffect(() => {
+    if (isOpen) {
+      setPhase('intro');
+      setCurrentIndex(0);
+      setSecondsLeft(examMode * 60);
+      setShowSubmitConfirm(false);
+      setAddedErrorIds(new Set());
+      setLoggedToGT(false);
+      setQuestions(generateMockQuestions(examMode));
     }
   }, [isOpen]);
 
@@ -236,30 +248,32 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
   );
   const totalUnattempted = questions.length - totalAnswered;
 
-  // Scaled Score (50 MCQs scaled to 300 marks)
+  // Scaled Score (scaled to 300 marks)
   const scaledScore = Math.round((totalCorrect / Math.max(1, questions.length)) * 300);
   const isPassing = scaledScore >= 150;
   const accuracy = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
-  const timeSpentSeconds = 50 * 60 - secondsLeft;
+  const totalDurationSeconds = (questions.length || examMode) * 60;
+  const timeSpentSeconds = Math.max(0, totalDurationSeconds - secondsLeft);
   const avgSecondsPerQuestion = totalAnswered > 0 ? Math.round(timeSpentSeconds / totalAnswered) : 0;
 
   // Log as Grand Test
   const handleLogToGrandTests = () => {
     if (!onLogGrandTest || loggedToGT) return;
+    const multiplier = 300 / Math.max(1, questions.length);
     const gt: GrandTest = {
       id: `gt_nbe_mock_${Date.now()}`,
-      title: `NBE 50-MCQ Mini-Mock (#${new Date().toLocaleDateString()})`,
+      title: `NBE ${questions.length}-MCQ ${questions.length >= 100 ? 'Full Paper' : 'Mini-Mock'} (#${new Date().toLocaleDateString()})`,
       platform: 'Marrow',
       date: getLocalDateKey(),
       score: scaledScore,
       totalMarks: 300,
-      correctCount: totalCorrect * 6,
-      incorrectCount: totalIncorrect * 6,
-      skippedCount: totalUnattempted * 6,
+      correctCount: Math.round(totalCorrect * multiplier),
+      incorrectCount: Math.round(totalIncorrect * multiplier),
+      skippedCount: Math.round(totalUnattempted * multiplier),
       percentile: Math.min(99, Math.round(accuracy * 0.95)),
       weakSubjectIds: [],
       strongSubjectIds: [],
-      keyMistakesNotes: `NBE 50-MCQ Exam Simulation completed with ${accuracy}% accuracy (${totalCorrect}/50 correct).`,
+      keyMistakesNotes: `NBE ${questions.length}-MCQ Exam Simulation completed with ${accuracy}% accuracy (${totalCorrect}/${questions.length} correct).`,
     };
     onLogGrandTest(gt);
     setLoggedToGT(true);
@@ -302,7 +316,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
           </div>
           <div>
             <h2 className="text-xs sm:text-sm font-bold font-['Outfit'] text-white">
-              NBE Computer-Based Test Simulation (50 MCQs)
+              NBE Computer-Based Test Simulation ({questions.length} MCQs)
             </h2>
             <p className="text-[10px] text-slate-400 font-mono">
               National Board of Examinations Protocol • 1 Mark Each • No Negative Marking
@@ -355,22 +369,58 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                 <Award className="h-7 w-7" />
               </div>
               <h3 className="text-lg sm:text-xl font-black text-white font-['Outfit']">
-                50-MCQ Rapid Exam Simulation
+                {examMode}-MCQ NBE Exam Simulation
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed">
                 Test your speed, stamina, and clinical acumen under true NBE exam constraints.
               </p>
             </div>
 
+            {/* SwiftUI Segmented Mode Selector */}
+            <div className="flex p-1 rounded-2xl bg-slate-800/90 border border-slate-700/80">
+              <button
+                type="button"
+                onClick={() => {
+                  setExamMode(50);
+                  setSecondsLeft(50 * 60);
+                  setQuestions(generateMockQuestions(50));
+                }}
+                className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  examMode === 50
+                    ? 'bg-teal-500 text-slate-950 shadow-md font-extrabold'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>50 MCQs • 50 Mins</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-900/30 font-semibold">Sprint</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setExamMode(150);
+                  setSecondsLeft(150 * 60);
+                  setQuestions(generateMockQuestions(150));
+                }}
+                className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  examMode === 150
+                    ? 'bg-teal-500 text-slate-950 shadow-md font-extrabold'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>150 MCQs • 150 Mins</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-900/30 font-semibold">Paper 1/2 Stamina</span>
+              </button>
+            </div>
+
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-1">
                 <div className="text-slate-400 font-mono text-[10px]">TOTAL QUESTIONS</div>
-                <div className="text-base font-bold text-white">50 MCQs</div>
-                <div className="text-[10px] text-slate-400">Balanced high-yield mix</div>
+                <div className="text-base font-bold text-white">{examMode} MCQs</div>
+                <div className="text-[10px] text-slate-400">{examMode === 150 ? 'All 19 NBE Subjects' : 'High-Yield Core'}</div>
               </div>
               <div className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-1">
                 <div className="text-slate-400 font-mono text-[10px]">TIME ALLOTTED</div>
-                <div className="text-base font-bold text-teal-400 font-mono">50 Minutes</div>
+                <div className="text-base font-bold text-teal-400 font-mono">{examMode} Minutes</div>
                 <div className="text-[10px] text-slate-400">60s / question benchmark</div>
               </div>
             </div>
@@ -526,7 +576,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs font-bold font-mono text-slate-400 uppercase tracking-wider">
                 <span>QUESTION PALETTE</span>
-                <span>{totalAnswered}/50 ANSWERED</span>
+                <span>{totalAnswered}/{questions.length} ANSWERED</span>
               </div>
 
               {/* Grid 1 to 50 */}
@@ -593,7 +643,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
             <div className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-1.5 text-xs font-mono">
               <div className="flex justify-between text-emerald-400 font-bold">
                 <span>Total Questions Answered:</span>
-                <span>{totalAnswered} / 50</span>
+                <span>{totalAnswered} / {questions.length}</span>
               </div>
               <div className="flex justify-between text-violet-300">
                 <span>Marked for Review:</span>
@@ -636,7 +686,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                   EXAMINATION RESULTS &amp; PASS GAP
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-black text-white font-['Outfit'] mt-0.5">
-                  {totalCorrect} / 50 Correct ({accuracy}%)
+                  {totalCorrect} / {questions.length} Correct ({accuracy}%)
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
                   Projected FMGE Grand Test Score:{' '}

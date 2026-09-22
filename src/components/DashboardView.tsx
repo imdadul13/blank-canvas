@@ -39,8 +39,10 @@ import {
   Heart,
   Lightbulb,
   Share2,
+  Zap,
+  Pill,
 } from 'lucide-react';
-import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext } from '../types';
+import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext, GrandTest, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { AppStats } from '../utils/storage';
 import { ActiveTab } from './Navbar';
@@ -53,9 +55,8 @@ import { calculateStudyStreak } from '../utils/dailyMissionEngine';
 import {
   getPersonalizedDailyPlan,
   getLearningContext,
-  PersonalizedPlan,
-  PersonalizedPlanTask,
   LearningContext,
+  PersonalizedPlan,
 } from '../utils/personalizationEngine';
 import { MedicalHeroVisual, MedicalSubjectCardVisual, getSubjectTelemetry } from './MedicalHeroVisual';
 import { DoctorMountainArt } from './DoctorMountainArt';
@@ -68,6 +69,8 @@ import { AnimatedMountainInsignia } from './AnimatedMountainInsignia';
 import { ShareMilestoneModal } from './ShareMilestoneModal';
 import { PassingGapAnalyzer } from './PassingGapAnalyzer';
 import { IbqRapidRecallModal } from './IbqRapidRecallModal';
+import { ExamEveCheatSheetModal } from './ExamEveCheatSheetModal';
+import { NbeMockExamModal } from './NbeMockExamModal';
 import { AmbientSoundWidget } from './AmbientSoundWidget';
 import { getDuePearls } from '../utils/spacedRepetitionEngine';
 
@@ -97,6 +100,8 @@ interface DashboardViewProps {
     field: 'notesDone' | 'qBankDone' | 'r1Done' | 'r2Done' | 'r3Done'
   ) => void;
   onToggleMissionCompletion?: (missionId: string) => void;
+  onLogGrandTest?: (gt: GrandTest) => void;
+  onAddErrorItem?: (item: ErrorNotebookItem) => void;
   activeBg?: { id: string; url: string; label: string; period: string };
   onShuffleBg?: () => void;
   onOpenProfile?: () => void;
@@ -739,6 +744,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onUpdateDailyLog,
   onToggleTopicState,
   onToggleMissionCompletion,
+  onLogGrandTest,
+  onAddErrorItem,
   activeBg,
   onShuffleBg,
   onOpenProfile,
@@ -770,10 +777,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     topicName: string;
   } | null>(null);
 
-  // Notification center modal state
+  // High-Yield Exam Modal states
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isIbqModalOpen, setIsIbqModalOpen] = useState(false);
   const [isPassingGapModalOpen, setIsPassingGapModalOpen] = useState(false);
+  const [isExamEveCheatSheetOpen, setIsExamEveCheatSheetOpen] = useState(false);
+  const [isNbeMockOpen, setIsNbeMockOpen] = useState(false);
+
+  // Unreviewed mistakes count and retest launcher
+  const unreviewedErrorsCount = useMemo(() => {
+    return (state.errorNotebook || []).filter((e) => !e.isReviewed).length;
+  }, [state.errorNotebook]);
+
+  const handleLaunchErrorDrill = () => {
+    const targetError = state.errorNotebook?.find((e) => !e.isReviewed) || state.errorNotebook?.[0];
+    if (targetError && onLaunchPracticeSession) {
+      onLaunchPracticeSession(targetError.subjectId, 'error-retest', targetError.topic || 'Error Remediation');
+    } else {
+      onNavigateTab('errors');
+    }
+  };
 
   // Spaced Repetition Due Today Count
   const duePearlsCount = useMemo(() => {
@@ -1578,6 +1601,285 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </motion.div>
           </div>
+        </motion.div>
+
+        {/* ═══ 30-DAY HIGH-YIELD EXAM SPRINT PROTOCOL ═══ */}
+        <motion.section
+          initial={SECTION_ENTER(0.02, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="relative rounded-3xl p-4 sm:p-5 lg:p-6 bg-white/85 backdrop-blur-xl border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_10px_32px_rgba(0,107,99,0.05)] overflow-hidden transition-all"
+        >
+          {/* Subtle Ambient Radial Highlight */}
+          <div className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-gradient-to-br from-teal-400/10 via-emerald-400/5 to-transparent blur-2xl" />
+
+          {/* Top Bar with Sprint Badge & T-Minus Counter */}
+          <div className="flex items-center justify-between gap-3 flex-wrap relative z-10 pb-3 border-b border-slate-100/90">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 text-slate-800 border border-amber-500/20 shadow-2xs">
+                <Flame className="h-3.5 w-3.5 text-amber-500 fill-amber-500 animate-pulse" />
+                <span>30-DAY FINAL REVISION SPRINT</span>
+              </span>
+              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold font-mono uppercase tracking-wider border border-emerald-200/60">
+                Active Protocol
+              </span>
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/[0.04] border border-slate-200/70 text-slate-700 text-xs font-mono font-bold">
+              <span>Day {Math.max(1, 30 - Math.min(30, daysRemaining))} of 30</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-[#006B63]">T-{daysRemaining} Days</span>
+            </div>
+          </div>
+
+          {/* Today's 3 Urgent Examinee Targets */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3.5 relative z-10">
+            {/* Target 1: Subject High-Yield Anchor */}
+            <motion.div
+              whileHover={reducedMotion ? undefined : { y: -2 }}
+              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              className="flex flex-col justify-between p-3.5 sm:p-4 rounded-2xl bg-white/70 backdrop-blur-md border border-slate-200/60 hover:border-teal-300 shadow-2xs hover:shadow-md transition-all group"
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-7 w-7 rounded-xl bg-[#E3F5F1] text-[#006B63] flex items-center justify-center shadow-2xs">
+                      <BookOpen className="h-3.5 w-3.5 stroke-[2.2]" />
+                    </div>
+                    <span className="text-[10px] font-bold font-mono tracking-wider text-[#006B63] uppercase">
+                      HY SUBJECT ANCHOR
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-slate-400">
+                    ~{activeFocusSubject.weightage || 18} Marks
+                  </span>
+                </div>
+
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 group-hover:text-[#006B63] transition-colors">
+                    {activeFocusSubject.name}: {activeFocusTopic.name}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
+                    High-frequency exam blueprint concepts &amp; diagnostic criteria.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setActiveMasteryTopic({
+                    subjectId: activeFocusSubject.id,
+                    topicId: activeFocusTopic.id,
+                    topicName: activeFocusTopic.name,
+                  })
+                }
+                className="mt-3 w-full py-1.5 px-3 rounded-xl bg-slate-900 text-white hover:bg-[#006B63] text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-98"
+              >
+                <span>Study Concepts</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </motion.div>
+
+            {/* Target 2: Clinical MCQ Speed Drill */}
+            <motion.div
+              whileHover={reducedMotion ? undefined : { y: -2 }}
+              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              className="flex flex-col justify-between p-3.5 sm:p-4 rounded-2xl bg-white/70 backdrop-blur-md border border-slate-200/60 hover:border-amber-300 shadow-2xs hover:shadow-md transition-all group"
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-7 w-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-2xs border border-amber-200/40">
+                      <Zap className="h-3.5 w-3.5 stroke-[2.2]" />
+                    </div>
+                    <span className="text-[10px] font-bold font-mono tracking-wider text-amber-700 uppercase">
+                      CLINICAL SPEED DRILL
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                    60s / Q
+                  </span>
+                </div>
+
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 group-hover:text-amber-700 transition-colors">
+                    10 Timed Vignettes ({activeFocusSubject.name})
+                  </h4>
+                  <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
+                    Test pattern recognition and eliminate reading traps under time pressure.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  onLaunchPracticeSession?.(
+                    activeFocusSubject.id,
+                    activeFocusTopic.id,
+                    activeFocusTopic.name
+                  )
+                }
+                className="mt-3 w-full py-1.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-98"
+              >
+                <span>Start 10 MCQs</span>
+                <Play className="h-3 w-3 fill-slate-950" />
+              </button>
+            </motion.div>
+
+            {/* Target 3: Error Shield & Re-test */}
+            <motion.div
+              whileHover={reducedMotion ? undefined : { y: -2 }}
+              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              className="flex flex-col justify-between p-3.5 sm:p-4 rounded-2xl bg-white/70 backdrop-blur-md border border-slate-200/60 hover:border-rose-300 shadow-2xs hover:shadow-md transition-all group"
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-7 w-7 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-2xs border border-rose-200/40">
+                      <ShieldCheck className="h-3.5 w-3.5 stroke-[2.2]" />
+                    </div>
+                    <span className="text-[10px] font-bold font-mono tracking-wider text-rose-700 uppercase">
+                      MISTAKE SHIELD
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">
+                    {unreviewedErrorsCount} Pending
+                  </span>
+                </div>
+
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 group-hover:text-rose-700 transition-colors">
+                    {unreviewedErrorsCount > 0
+                      ? `${unreviewedErrorsCount} Logged Blunders to Fix`
+                      : 'Error Notebook Clean'}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
+                    {unreviewedErrorsCount > 0
+                      ? 'Re-test missed questions to ensure zero repeated errors on exam day.'
+                      : 'Great job! Keep practicing MCQs to identify new concept gaps.'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleLaunchErrorDrill}
+                className="mt-3 w-full py-1.5 px-3 rounded-xl bg-slate-900 text-white hover:bg-rose-600 text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-98"
+              >
+                <span>{unreviewedErrorsCount > 0 ? 'Retest Errors' : 'Open Error Vault'}</span>
+                <RotateCcw className="h-3 w-3" />
+              </button>
+            </motion.div>
+          </div>
+        </motion.section>
+
+        {/* ═══ HIGH-YIELD ACTION DOCK (4 SWIFTUI PILLS) ═══ */}
+        <motion.div
+          initial={SECTION_ENTER(0.03, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3"
+        >
+          {/* Action 1: IBQ Visual Reflexes */}
+          <motion.div
+            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.01 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+            onClick={() => setIsIbqModalOpen(true)}
+            className="flex items-center gap-3 p-3 sm:p-3.5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/90 hover:border-teal-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.03)] hover:bg-white/95 hover:shadow-md transition-all cursor-pointer group"
+          >
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-teal-50 to-emerald-100/70 border border-teal-200/50 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+              <Stethoscope className="h-4.5 w-4.5 stroke-[2.2]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
+                  IBQ Visual Sprint
+                </h4>
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 truncate mt-0.5">
+                ECGs, X-rays &amp; Histology (60s)
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all shrink-0" />
+          </motion.div>
+
+          {/* Action 2: Repeat Vault (PYTs) */}
+          <motion.div
+            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.01 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+            onClick={() => setIsExamEveCheatSheetOpen(true)}
+            className="flex items-center gap-3 p-3 sm:p-3.5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/90 hover:border-violet-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.03)] hover:bg-white/95 hover:shadow-md transition-all cursor-pointer group"
+          >
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-violet-50 to-purple-100/70 border border-violet-200/50 text-violet-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+              <Pill className="h-4.5 w-4.5 stroke-[2.2]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-violet-700 transition-colors truncate">
+                  Repeat Vault (PYTs)
+                </h4>
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 truncate mt-0.5">
+                12 DOCs, 8 Triads &amp; Formulas
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-violet-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+          </motion.div>
+
+          {/* Action 3: Retest Errors */}
+          <motion.div
+            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.01 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+            onClick={handleLaunchErrorDrill}
+            className="flex items-center gap-3 p-3 sm:p-3.5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/90 hover:border-amber-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.03)] hover:bg-white/95 hover:shadow-md transition-all cursor-pointer group"
+          >
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-amber-50 to-orange-100/70 border border-amber-200/50 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+              <RotateCcw className="h-4.5 w-4.5 stroke-[2.2]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors truncate">
+                  Retest Mistakes
+                </h4>
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 truncate mt-0.5">
+                {state.errorNotebook?.length || 0} blunders logged
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+          </motion.div>
+
+          {/* Action 4: NBE Exam Simulator */}
+          <motion.div
+            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.01 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+            onClick={() => setIsNbeMockOpen(true)}
+            className="flex items-center gap-3 p-3 sm:p-3.5 rounded-2xl bg-white/80 backdrop-blur-xl border border-white/90 hover:border-sky-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.03)] hover:bg-white/95 hover:shadow-md transition-all cursor-pointer group"
+          >
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-sky-50 to-cyan-100/70 border border-sky-200/50 text-sky-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+              <Award className="h-4.5 w-4.5 stroke-[2.2]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-sky-700 transition-colors truncate">
+                  NBE Simulator
+                </h4>
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 truncate mt-0.5">
+                50Q Sprint &amp; 150Q Paper
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-sky-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+          </motion.div>
         </motion.div>
 
         {/* ═══ 2. SUBJECT FILTER PILLS BAR ═══ */}
@@ -2657,6 +2959,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         isOpen={isIbqModalOpen}
         onClose={() => setIsIbqModalOpen(false)}
         onOpenAiCoach={onOpenAiCoach}
+      />
+
+      {/* High-Yield PYT Repeat Vault (12 DOCs, 8 Triads, 5 Formulas) */}
+      <ExamEveCheatSheetModal
+        isOpen={isExamEveCheatSheetOpen}
+        onClose={() => setIsExamEveCheatSheetOpen(false)}
+        state={state}
+      />
+
+      {/* Real NBE Timed Computer-Based Exam Simulation (50Q & 150Q) */}
+      <NbeMockExamModal
+        isOpen={isNbeMockOpen}
+        onClose={() => setIsNbeMockOpen(false)}
+        onLogGrandTest={onLogGrandTest}
+        onAddErrorItem={onAddErrorItem}
       />
 
       {/* 150/300 Passing Score Gap Analyzer Modal */}
