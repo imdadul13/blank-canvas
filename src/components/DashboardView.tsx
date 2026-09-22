@@ -72,7 +72,7 @@ import { AnimatedMountainInsignia } from './AnimatedMountainInsignia';
 import { ShareMilestoneModal } from './ShareMilestoneModal';
 import { PassingGapAnalyzer } from './PassingGapAnalyzer';
 import { IbqRapidRecallModal } from './IbqRapidRecallModal';
-import { ExamEveCheatSheetModal } from './ExamEveCheatSheetModal';
+import { ExamEveCheatSheetModal, HIGH_YIELD_TRIADS } from './ExamEveCheatSheetModal';
 import { NbeMockExamModal } from './NbeMockExamModal';
 import { AmbientSoundWidget } from './AmbientSoundWidget';
 import { getDuePearls } from '../utils/spacedRepetitionEngine';
@@ -133,22 +133,33 @@ function AnimatedNumber({ value, className }: { value: number; className?: strin
 
 /** Circular progress & countdown gauge for Exam Journey (Apple Fitness/Health-style) */
 function CircularCountdown({
+  value,
+  label = 'DAYS LEFT',
+  sublabel,
+  progressRatio,
+  reducedMotion,
   days,
   totalDays = 90,
-  reducedMotion,
 }: {
-  days: number;
-  totalDays?: number;
+  value?: number;
+  label?: string;
+  sublabel?: string;
+  progressRatio?: number;
   reducedMotion: boolean | null;
+  days?: number;
+  totalDays?: number;
 }) {
+  const displayVal = value !== undefined ? value : (days !== undefined ? days : 0);
   const size = 124;
   const strokeWidth = 9.5;
   const center = size / 2;
   const radius = center - strokeWidth;
   const circumference = 2 * Math.PI * radius;
-  // Progress based on total preparation cycle
-  const progressRatio = Math.min(1, Math.max(0.12, (totalDays - days) / totalDays));
-  const targetOffset = circumference * (1 - progressRatio);
+  // Progress based on total preparation cycle or custom ratio
+  const ratio = progressRatio !== undefined
+    ? Math.min(1, Math.max(0.08, progressRatio))
+    : Math.min(1, Math.max(0.12, ((totalDays || 90) - (days || 0)) / (totalDays || 90)));
+  const targetOffset = circumference * (1 - ratio);
 
   return (
     <div className="relative flex items-center justify-center shrink-0 w-28 h-28 sm:w-32 sm:h-32">
@@ -209,14 +220,19 @@ function CircularCountdown({
           transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none">
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none px-2">
         <AnimatedNumber
-          value={days}
-          className="font-black text-3xl sm:text-4xl text-slate-900 tracking-tight font-['Outfit'] tabular-nums leading-none"
+          value={displayVal}
+          className="font-black text-2xl sm:text-3xl text-slate-900 tracking-tight font-['Outfit'] tabular-nums leading-none"
         />
-        <span className="text-[9.5px] font-bold text-[#638E88] mt-1 leading-tight tracking-wider uppercase font-mono">
-          DAYS LEFT
+        <span className="text-[9px] font-bold text-[#638E88] mt-1 leading-tight tracking-wider uppercase font-mono">
+          {label}
         </span>
+        {sublabel && (
+          <span className="text-[8.5px] font-bold text-emerald-600 mt-0.5 leading-none font-mono">
+            {sublabel}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -807,6 +823,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return getDuePearls(bookmarked).length;
   }, [state.customPearls]);
 
+  // Daily High-Yield Recall Pearl (Interactive Reveal)
+  const [isPearlRevealed, setIsPearlRevealed] = useState(false);
+  const [dailyPearlIndex, setDailyPearlIndex] = useState(0);
+  const todayPearl = useMemo(
+    () => HIGH_YIELD_TRIADS[dailyPearlIndex % HIGH_YIELD_TRIADS.length],
+    [dailyPearlIndex]
+  );
+
+  // Projected Pass Trajectory & Score for Exam Journey
+  const projectedScore = useMemo(() => {
+    if (stats?.latestGTScore && stats.latestGTScore > 0) {
+      return stats.latestGTScore;
+    }
+    const totalDoneNotes = Object.values(state.topicsState || {}).filter((t) => t?.notesDone).length;
+    const testScoreBonus = Math.min(65, Math.round(totalDoneNotes * 1.8 + (stats?.overallReadinessScore || 20) * 0.4));
+    return Math.min(260, 150 + testScoreBonus);
+  }, [state.topicsState, stats]);
+
   // Unread badge reflects live visible notifications
   const hasUnread = useMemo(
     () => hasUnreadNotifications(state),
@@ -1086,7 +1120,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         a.id === selectedFilterSubjectId ? -1 : b.id === selectedFilterSubjectId ? 1 : 0
       );
     }
-    return list;
+    return [...list].sort((a, b) => (b.weightage || 0) - (a.weightage || 0));
   }, [state.subjectProgress, state.topicsState, selectedFilterSubjectId]);
 
   // Search results
@@ -1465,12 +1499,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
             {/* Left side: Doctor Circadian Greeting + Bold Name + Strategic Subtitle */}
             <div className="space-y-1 sm:space-y-1.5 max-w-xl">
-              {/* Doctor Circadian Pill */}
-              <div className="flex items-center gap-2">
+              {/* Doctor Circadian Pill & Calibrated Exam Target */}
+              <div className="flex items-center gap-2 flex-wrap">
                 <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/80' : 'text-slate-500'}`}>
                   <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.2] ${heroTheme.greetingIconColor}`} />
                   <span>{greeting}</span>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => onOpenProfile?.()}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/80 hover:bg-white active:scale-98 border border-white/90 text-slate-700 hover:text-[#006B63] transition-all text-[11px] font-mono font-bold cursor-pointer group/calib shadow-2xs"
+                  title="Calibrated to your actual exam date. Click to customize date in Profile."
+                >
+                  <span className="flex h-1.5 w-1.5 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B63] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#006B63]" />
+                  </span>
+                  <span className="text-slate-800 group-hover/calib:text-[#006B63] transition-colors">
+                    Exam: {targetExamDateFormatted}
+                  </span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-[#006B63] font-extrabold">{sprintPhase.stageLabel}</span>
+                </button>
               </div>
 
               {/* Doctor Name */}
@@ -1665,342 +1715,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </motion.div>
 
-        {/* ═══ CALIBRATED HIGH-YIELD EXAM REVISION SPRINT ═══ */}
-        <motion.section
-          initial={SECTION_ENTER(0.02, reducedMotion)}
-          animate={SECTION_SHOW}
-          transition={SECTION_TRANSITION(reducedMotion)}
-          className="relative rounded-3xl p-4 sm:p-5 lg:p-6 bg-white/85 backdrop-blur-2xl border border-white/90 shadow-[inset_0_1.5px_2px_rgba(255,255,255,1),0_16px_40px_rgba(0,107,99,0.06),0_2px_6px_rgba(0,0,0,0.02)] overflow-hidden transition-all"
-        >
-          {/* Subtle Ambient Radial Highlight & Architectural Top Shimmer */}
-          <div className="pointer-events-none absolute -top-28 -right-28 w-80 h-80 rounded-full bg-gradient-to-br from-teal-400/12 via-emerald-400/6 to-transparent blur-3xl" />
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#006B63]/30 to-transparent" />
-            <motion.div
-              animate={{ x: ['-100%', '300%'] }}
-              transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.5 }}
-              className="w-48 sm:w-72 h-full bg-gradient-to-r from-transparent via-teal-400/80 to-transparent shadow-[0_0_12px_#2dd4bf]"
-            />
-          </div>
-
-          {/* Top Bar with Sprint Badge, Dynamic Calibrated Exam Date & Target Link */}
-          <div className="flex items-center justify-between gap-3 flex-wrap relative z-10 pb-3.5 border-b border-slate-100/90">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide font-['Outfit'] bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 text-slate-800 border border-amber-500/25 shadow-2xs">
-                <Flame className="h-3.5 w-3.5 text-amber-500 fill-amber-500 animate-pulse" />
-                <span>{sprintPhase.badgeText}</span>
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-bold font-mono uppercase tracking-wider border border-emerald-200/70 shadow-2xs">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Calibrated Plan</span>
-              </span>
-            </div>
-
-            {/* Clickable Calibrated Exam Target Pill */}
-            <button
-              type="button"
-              onClick={() => onOpenProfile?.()}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/[0.04] hover:bg-slate-900/[0.08] active:scale-98 border border-slate-200/80 text-slate-700 hover:text-[#006B63] transition-all text-xs font-mono font-bold cursor-pointer group/calib shadow-2xs"
-              title="Calibrated to your actual exam date. Click to customize date in Profile."
-            >
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B63] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B63]" />
-              </span>
-              <span className="text-slate-800 group-hover/calib:text-[#006B63] transition-colors">
-                Exam: {targetExamDateFormatted}
-              </span>
-              <span className="text-slate-300">•</span>
-              <span className="text-[#006B63] font-extrabold">{sprintPhase.stageLabel}</span>
-            </button>
-          </div>
-
-          {/* Headline & Guiding Subtitle */}
-          <div className="pt-3 pb-1 relative z-10 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-            <div>
-              <h3 className="text-base sm:text-lg font-black tracking-tight font-['Outfit'] text-slate-900 leading-tight">
-                {sprintPhase.headline}
-              </h3>
-              <p className="text-xs sm:text-[12.5px] text-slate-500 font-medium leading-relaxed mt-0.5">
-                {sprintPhase.description}
-              </p>
-            </div>
-            <span className="text-[11px] font-mono text-slate-400 font-semibold shrink-0">
-              3 Daily Actions
-            </span>
-          </div>
-
-          {/* Today's 3 Urgent Calibrated Milestones */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-3 relative z-10">
-            {/* Target 1: Subject High-Yield Anchor */}
-            <motion.div
-              whileHover={reducedMotion ? undefined : { y: -2 }}
-              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-              className="flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-b from-white to-slate-50/60 backdrop-blur-md border border-slate-200/70 hover:border-teal-400/80 shadow-[0_2px_12px_rgba(0,107,99,0.03),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_12px_28px_rgba(0,107,99,0.10)] transition-all group relative overflow-hidden"
-            >
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <motion.div
-                      whileHover={{ scale: 1.12, rotate: [-4, 4, 0] }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                      className="relative h-9 w-9 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100/90 text-[#006B63] flex items-center justify-center shadow-xs border border-teal-200/60 shrink-0"
-                    >
-                      <BookOpen className="h-4.5 w-4.5 stroke-[2.3] group-hover:scale-105 transition-transform" />
-                      <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-60" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#006B63]" />
-                      </span>
-                    </motion.div>
-                    <span className="text-[10px] font-bold font-mono tracking-widest text-[#006B63] uppercase">
-                      {sprintPhase.anchorLabel}
-                    </span>
-                  </div>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-teal-50 text-[#006B63] border border-teal-100/80">
-                    ~{activeFocusSubject.weightage || 18} Marks
-                  </span>
-                </div>
-
-                <div>
-                  <h4 className="text-sm sm:text-[15px] font-extrabold font-['Outfit'] text-slate-900 line-clamp-1 group-hover:text-[#006B63] transition-colors tracking-tight">
-                    {activeFocusSubject.name}: {activeFocusTopic.name}
-                  </h4>
-                  <p className="text-[11.5px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">
-                    NBE clinical presentation, classic sign &amp; first-line intervention criteria.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setActiveMasteryTopic({
-                    subjectId: activeFocusSubject.id,
-                    topicId: activeFocusTopic.id,
-                    topicName: activeFocusTopic.name,
-                  })
-                }
-                className="mt-3.5 w-full py-2 px-3 rounded-xl bg-slate-900 text-white hover:bg-[#006B63] text-xs font-bold font-['Plus_Jakarta_Sans'] transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-98 group-hover:shadow-sm"
-              >
-                <span>Study Concepts</span>
-                <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </motion.div>
-
-            {/* Target 2: Clinical MCQ Speed Drill */}
-            <motion.div
-              whileHover={reducedMotion ? undefined : { y: -2 }}
-              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-              className="flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-b from-white to-slate-50/60 backdrop-blur-md border border-slate-200/70 hover:border-amber-400/80 shadow-[0_2px_12px_rgba(245,158,11,0.03),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.12)] transition-all group relative overflow-hidden"
-            >
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <motion.div
-                      whileHover={{ scale: 1.15, rotate: [0, -8, 8, 0] }}
-                      transition={{ type: 'spring', stiffness: 450, damping: 20 }}
-                      className="relative h-9 w-9 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/90 text-amber-700 flex items-center justify-center shadow-xs border border-amber-200/60 shrink-0"
-                    >
-                      <Zap className="h-4.5 w-4.5 stroke-[2.3] fill-amber-500/25 group-hover:scale-105 transition-transform" />
-                    </motion.div>
-                    <span className="text-[10px] font-bold font-mono tracking-widest text-amber-700 uppercase">
-                      {sprintPhase.drillLabel}
-                    </span>
-                  </div>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200/60">
-                    60s / Q
-                  </span>
-                </div>
-
-                <div>
-                  <h4 className="text-sm sm:text-[15px] font-extrabold font-['Outfit'] text-slate-900 line-clamp-1 group-hover:text-amber-700 transition-colors tracking-tight">
-                    10 Timed Vignettes ({activeFocusSubject.name})
-                  </h4>
-                  <p className="text-[11.5px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">
-                    Train reflex speed, pattern recognition, and eliminate tricky distractor traps.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  onLaunchPracticeSession?.(
-                    activeFocusSubject.id,
-                    activeFocusTopic.id,
-                    activeFocusTopic.name
-                  )
-                }
-                className="mt-3.5 w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold font-['Plus_Jakarta_Sans'] text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-98 group-hover:shadow-sm"
-              >
-                <span>Start 10 MCQs</span>
-                <Play className="h-3 w-3 fill-slate-950 group-hover:scale-110 transition-transform" />
-              </button>
-            </motion.div>
-
-            {/* Target 3: Error Shield & Re-test */}
-            <motion.div
-              whileHover={reducedMotion ? undefined : { y: -2 }}
-              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-              className="flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-b from-white to-slate-50/60 backdrop-blur-md border border-slate-200/70 hover:border-rose-400/80 shadow-[0_2px_12px_rgba(244,63,94,0.03),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_12px_28px_rgba(244,63,94,0.12)] transition-all group relative overflow-hidden"
-            >
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <motion.div
-                      whileHover={{ scale: 1.15, y: -1 }}
-                      transition={{ type: 'spring', stiffness: 450, damping: 20 }}
-                      className="relative h-9 w-9 rounded-xl bg-gradient-to-br from-rose-50 to-rose-100/90 text-rose-700 flex items-center justify-center shadow-xs border border-rose-200/60 shrink-0"
-                    >
-                      <ShieldAlert className="h-4.5 w-4.5 stroke-[2.3] group-hover:scale-105 transition-transform" />
-                      {unreviewedErrorsCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-80" />
-                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600" />
-                        </span>
-                      )}
-                    </motion.div>
-                    <span className="text-[10px] font-bold font-mono tracking-widest text-rose-700 uppercase">
-                      {sprintPhase.shieldLabel}
-                    </span>
-                  </div>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/60">
-                    {unreviewedErrorsCount} Pending
-                  </span>
-                </div>
-
-                <div>
-                  <h4 className="text-sm sm:text-[15px] font-extrabold font-['Outfit'] text-slate-900 line-clamp-1 group-hover:text-rose-700 transition-colors tracking-tight">
-                    {unreviewedErrorsCount > 0
-                      ? `${unreviewedErrorsCount} Logged Blunders to Defend`
-                      : 'Error Vault Fully Mastered'}
-                  </h4>
-                  <p className="text-[11.5px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">
-                    {unreviewedErrorsCount > 0
-                      ? 'Re-test missed questions until 100% accurate so you never lose these marks in FMGE.'
-                      : 'Zero unreviewed mistakes! Great discipline — keep testing to log any blind spots.'}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleLaunchErrorDrill}
-                className="mt-3.5 w-full py-2 px-3 rounded-xl bg-slate-900 text-white hover:bg-rose-600 text-xs font-bold font-['Plus_Jakarta_Sans'] transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-98 group-hover:shadow-sm"
-              >
-                <span>{unreviewedErrorsCount > 0 ? 'Retest Mistakes Now' : 'Inspect Error Vault'}</span>
-                <RotateCcw className="h-3.5 w-3.5 group-hover:rotate-[-45deg] transition-transform" />
-              </button>
-            </motion.div>
-          </div>
-        </motion.section>
-
-        {/* ═══ HIGH-YIELD MATERIALISTIC ACTION DOCK (4 PILLS) ═══ */}
-        <motion.div
-          initial={SECTION_ENTER(0.03, reducedMotion)}
-          animate={SECTION_SHOW}
-          transition={SECTION_TRANSITION(reducedMotion)}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5"
-        >
-          {/* Action 1: IBQ Visual Reflexes */}
-          <motion.div
-            whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            onClick={() => setIsIbqModalOpen(true)}
-            className="flex items-center gap-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-emerald-300 hover:shadow-[0_12px_28px_rgba(16,185,129,0.16)] transition-all cursor-pointer group relative overflow-hidden"
-          >
-            <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-100/80 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
-              <Stethoscope className="h-5 w-5 stroke-[2.3]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <h4 className="text-xs sm:text-[13.5px] font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
-                  IBQ Visual Sprint
-                </h4>
-              </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate mt-0.5">
-                ECGs, X-rays, Histology
-              </p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all shrink-0" />
-          </motion.div>
-
-          {/* Action 2: Repeat Vault (PYTs) */}
-          <motion.div
-            whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            onClick={() => setIsExamEveCheatSheetOpen(true)}
-            className="flex items-center gap-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-violet-300 hover:shadow-[0_12px_28px_rgba(139,92,246,0.16)] transition-all cursor-pointer group relative overflow-hidden"
-          >
-            <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-violet-50 to-purple-100/80 border border-violet-200/60 text-violet-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
-              <Pill className="h-5 w-5 stroke-[2.3]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <h4 className="text-xs sm:text-[13.5px] font-bold font-['Outfit'] text-slate-900 group-hover:text-violet-700 transition-colors truncate">
-                  Repeat Vault (PYTs)
-                </h4>
-              </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate mt-0.5">
-                12 DOCs, 8 Triads &amp; Formulas
-              </p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-violet-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-          </motion.div>
-
-          {/* Action 3: Retest Mistakes */}
-          <motion.div
-            whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            onClick={handleLaunchErrorDrill}
-            className="flex items-center gap-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-amber-300 hover:shadow-[0_12px_28px_rgba(245,158,11,0.16)] transition-all cursor-pointer group relative overflow-hidden"
-          >
-            <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-100/80 border border-amber-200/60 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
-              <RotateCcw className="h-5 w-5 stroke-[2.3]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <h4 className="text-xs sm:text-[13.5px] font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors truncate">
-                  Retest Mistakes
-                </h4>
-              </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate mt-0.5">
-                {state.errorNotebook?.length || 0} blunders logged
-              </p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-          </motion.div>
-
-          {/* Action 4: NBE Exam Simulator */}
-          <motion.div
-            whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            onClick={() => setIsNbeMockOpen(true)}
-            className="flex items-center gap-3 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-sky-300 hover:shadow-[0_12px_28px_rgba(14,165,233,0.16)] transition-all cursor-pointer group relative overflow-hidden"
-          >
-            <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-sky-50 to-cyan-100/80 border border-sky-200/60 text-sky-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
-              <Award className="h-5 w-5 stroke-[2.3]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <h4 className="text-xs sm:text-[13.5px] font-bold font-['Outfit'] text-slate-900 group-hover:text-sky-700 transition-colors truncate">
-                  NBE Simulator
-                </h4>
-              </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate mt-0.5">
-                50Q Sprint &amp; 150Q Paper
-              </p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-sky-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-          </motion.div>
-        </motion.div>
 
         {/* ═══ 2. SUBJECT FILTER PILLS BAR ═══ */}
         <motion.div
@@ -2338,13 +2052,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
               </div>
 
-              {/* ══ BOTTOM COMPARTMENT: STATUS & FEATURE HIGHLIGHTS ══ */}
-              <div className="border-t border-white/80 bg-white/60 backdrop-blur-xl px-4 sm:px-5 py-2.5 sm:py-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                  
+              {/* ══ BOTTOM COMPARTMENT: STATUS & INTEGRATED 3-STEP SPRINT PROTOCOL ══ */}
+              <div className="border-t border-white/80 bg-white/70 backdrop-blur-xl p-3.5 sm:p-5 space-y-3.5">
+                {/* Status Bar & Quick Actions */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/60">
                   {/* Circular Completion Gauge & Status Description */}
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="relative w-9 h-9 rounded-full border-[3px] border-white/90 flex items-center justify-center shrink-0 bg-white/80 backdrop-blur-md shadow-2xs">
+                    <div className="relative w-8 h-8 rounded-full border-[2.5px] border-white/90 flex items-center justify-center shrink-0 bg-white/80 backdrop-blur-md shadow-2xs">
                       {topicProgressPercent > 0 && (
                         <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 48 48">
                           <circle
@@ -2360,7 +2074,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           />
                         </svg>
                       )}
-                      <span className="text-[10px] font-bold font-mono text-slate-800">
+                      <span className="text-[9.5px] font-bold font-mono text-slate-800">
                         {topicProgressPercent}%
                       </span>
                     </div>
@@ -2400,8 +2114,226 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </button>
                   </div>
                 </div>
+
+                {/* Integrated 3 Daily Calibrated Milestones */}
+                <div>
+                  <div className="flex items-center justify-between gap-2 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold font-['Outfit'] bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 text-slate-800 border border-amber-500/20">
+                        <Flame className="h-3 w-3 text-amber-500 fill-amber-500 animate-pulse" />
+                        <span>{sprintPhase.headline}</span>
+                      </span>
+                    </div>
+                    <span className="text-[10.5px] font-mono text-slate-400 font-semibold">
+                      3 Daily Actions
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {/* Target 1: Subject High-Yield Anchor */}
+                    <motion.div
+                      whileHover={reducedMotion ? undefined : { y: -2 }}
+                      className="flex flex-col justify-between p-3 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/80 hover:border-teal-400/80 shadow-2xs transition-all group relative overflow-hidden"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[9.5px] font-bold font-mono tracking-widest text-[#006B63] uppercase truncate">
+                            {sprintPhase.anchorLabel}
+                          </span>
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-teal-50 text-[#006B63] border border-teal-100 shrink-0">
+                            ~{focusMarks}M
+                          </span>
+                        </div>
+                        <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors truncate mt-1">
+                          Study Notes &amp; Patterns
+                        </h4>
+                        <p className="text-[10.5px] text-slate-500 line-clamp-1 mt-0.5">
+                          Signs, criteria &amp; 1st-line drugs
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveMasteryTopic({
+                            subjectId: activeFocusSubject.id,
+                            topicId: activeFocusTopic.id,
+                            topicName: activeFocusTopic.name,
+                          })
+                        }
+                        className="mt-2.5 w-full py-1.5 px-2.5 rounded-xl bg-slate-900 text-white hover:bg-[#006B63] text-[11px] font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1 active:scale-98"
+                      >
+                        <span>Study Concepts</span>
+                        <ChevronRight className="h-3 w-3" />
+                      </button>
+                    </motion.div>
+
+                    {/* Target 2: Clinical MCQ Speed Drill */}
+                    <motion.div
+                      whileHover={reducedMotion ? undefined : { y: -2 }}
+                      className="flex flex-col justify-between p-3 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/80 hover:border-amber-400/80 shadow-2xs transition-all group relative overflow-hidden"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[9.5px] font-bold font-mono tracking-widest text-amber-700 uppercase truncate">
+                            {sprintPhase.drillLabel}
+                          </span>
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200/60 shrink-0">
+                            60s / Q
+                          </span>
+                        </div>
+                        <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors truncate mt-1">
+                          10 Timed Vignettes
+                        </h4>
+                        <p className="text-[10.5px] text-slate-500 line-clamp-1 mt-0.5">
+                          Reflex speed &amp; pattern locks
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onLaunchPracticeSession?.(
+                            activeFocusSubject.id,
+                            activeFocusTopic.id,
+                            activeFocusTopic.name
+                          )
+                        }
+                        className="mt-2.5 w-full py-1.5 px-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-[11px] font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1 active:scale-98"
+                      >
+                        <span>Start 10 MCQs</span>
+                        <Play className="h-2.5 w-2.5 fill-slate-950" />
+                      </button>
+                    </motion.div>
+
+                    {/* Target 3: Error Shield & Re-test */}
+                    <motion.div
+                      whileHover={reducedMotion ? undefined : { y: -2 }}
+                      className="flex flex-col justify-between p-3 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/80 hover:border-rose-400/80 shadow-2xs transition-all group relative overflow-hidden"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[9.5px] font-bold font-mono tracking-widest text-rose-700 uppercase truncate">
+                            {sprintPhase.shieldLabel}
+                          </span>
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200/60 shrink-0">
+                            {unreviewedErrorsCount} Due
+                          </span>
+                        </div>
+                        <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-rose-700 transition-colors truncate mt-1">
+                          {unreviewedErrorsCount > 0 ? `${unreviewedErrorsCount} Blunders` : 'Vault Mastered'}
+                        </h4>
+                        <p className="text-[10.5px] text-slate-500 line-clamp-1 mt-0.5">
+                          {unreviewedErrorsCount > 0 ? 'Retest to prevent lost marks' : 'Zero unreviewed blunders'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleLaunchErrorDrill}
+                        className="mt-2.5 w-full py-1.5 px-2.5 rounded-xl bg-slate-900 text-white hover:bg-rose-600 text-[11px] font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1 active:scale-98"
+                      >
+                        <span>{unreviewedErrorsCount > 0 ? 'Retest Mistakes' : 'Inspect Vault'}</span>
+                        <RotateCcw className="h-3 w-3" />
+                      </button>
+                    </motion.div>
+                  </div>
+                </div>
               </div>
             </motion.section>
+
+            {/* ═══ HIGH-YIELD MATERIALISTIC ACTION DOCK (4 PILLS) ═══ */}
+            <motion.div
+              initial={SECTION_ENTER(0.1, reducedMotion)}
+              animate={SECTION_SHOW}
+              transition={SECTION_TRANSITION(reducedMotion)}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3"
+            >
+              {/* Action 1: IBQ Visual Sprint */}
+              <motion.div
+                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
+                whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                onClick={() => setIsIbqModalOpen(true)}
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-emerald-300 hover:shadow-[0_8px_20px_rgba(16,185,129,0.14)] transition-all cursor-pointer group relative overflow-hidden"
+              >
+                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-teal-50 to-emerald-100/80 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
+                  <Stethoscope className="h-4 w-4 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
+                    IBQ Sprint
+                  </h4>
+                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
+                    ECGs &amp; Images
+                  </p>
+                </div>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all shrink-0" />
+              </motion.div>
+
+              {/* Action 2: Repeat Vault (PYTs) */}
+              <motion.div
+                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
+                whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                onClick={() => setIsExamEveCheatSheetOpen(true)}
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-violet-300 hover:shadow-[0_8px_20px_rgba(139,92,246,0.14)] transition-all cursor-pointer group relative overflow-hidden"
+              >
+                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-violet-50 to-purple-100/80 border border-violet-200/60 text-violet-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
+                  <Pill className="h-4 w-4 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 group-hover:text-violet-700 transition-colors truncate">
+                    Repeat Vault
+                  </h4>
+                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
+                    DOCs &amp; Triads
+                  </p>
+                </div>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-violet-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+              </motion.div>
+
+              {/* Action 3: Retest Mistakes */}
+              <motion.div
+                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
+                whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                onClick={handleLaunchErrorDrill}
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-amber-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.14)] transition-all cursor-pointer group relative overflow-hidden"
+              >
+                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-amber-50 to-orange-100/80 border border-amber-200/60 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
+                  <RotateCcw className="h-4 w-4 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors truncate">
+                    Retest Errors
+                  </h4>
+                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
+                    {state.errorNotebook?.length || 0} blunders
+                  </p>
+                </div>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+              </motion.div>
+
+              {/* Action 4: NBE Simulator */}
+              <motion.div
+                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
+                whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                onClick={() => setIsNbeMockOpen(true)}
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-sky-300 hover:shadow-[0_8px_20px_rgba(14,165,233,0.14)] transition-all cursor-pointer group relative overflow-hidden"
+              >
+                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-sky-50 to-cyan-100/80 border border-sky-200/60 text-sky-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
+                  <Award className="h-4 w-4 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 group-hover:text-sky-700 transition-colors truncate">
+                    NBE Simulator
+                  </h4>
+                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
+                    50Q &amp; 150Q Mock
+                  </p>
+                </div>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-sky-700 group-hover:translate-x-0.5 transition-all shrink-0" />
+              </motion.div>
+            </motion.div>
             <motion.section
               initial={SECTION_ENTER(0.12, reducedMotion)}
               animate={SECTION_SHOW}
@@ -2435,7 +2367,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Task Cards List with Inner Motion & Hover Animations */}
               <div className="bg-white/75 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)] divide-y divide-slate-100/70 overflow-hidden">
-                {dailyPlan.tasks.slice(0, 3).map((task, index) => (
+                {(todayPlanTasks.length > 0 ? todayPlanTasks : dailyPlan.tasks.slice(1, 4)).map((task, index) => (
                   <motion.div
                     key={task.id}
                     whileHover={reducedMotion ? undefined : { y: -2, scale: 1.006 }}
@@ -2479,24 +2411,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     {/* Right side: Duration + Start Button + Menu */}
                     <div className="flex items-center gap-1 sm:gap-2 shrink-0 self-center sm:self-auto">
-                      <div className="hidden sm:flex items-center gap-1 text-xs font-semibold text-slate-400 tabular-nums">
-                        <Clock className="h-3.5 w-3.5" />
+                      <div className="hidden xs:flex items-center gap-1 text-[11px] text-slate-400 font-mono">
+                        <Clock className="h-3 w-3" />
                         <span>{task.durationMinutes} min</span>
                       </div>
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.94 }}
-                        transition={{ type: 'spring', stiffness: 450, damping: 22 }}
-                        onClick={() => onLaunchPracticeSession?.(task.subjectId, task.topicId, task.topicName)}
-                        className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#006B63] hover:bg-[#005750] shadow-xs transition-all cursor-pointer min-h-[32px]"
+                        whileTap={{ scale: 0.95 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (task.activity === 'learn' || task.activity === 'mcqs') {
+                            onLaunchPracticeSession?.(task.subjectId, task.topicId, task.topicName);
+                          } else {
+                            onNavigateTab(task.activity === 'revision' ? 'revision' : 'practice');
+                          }
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#006B63] hover:bg-[#00524B] text-white shadow-2xs transition-colors cursor-pointer"
                       >
-                        <Play className="h-3 w-3 fill-white" /> Start
+                        <Play className="h-3 w-3 fill-white" />
+                        <span>Start</span>
                       </motion.button>
                       <button
                         type="button"
-                        onClick={() => onOpenAiCoach('concept', task.subjectId, task.topicName)}
-                        className="p-1 sm:p-1.5 text-slate-400 hover:text-[#006B63] rounded-lg hover:bg-teal-50 transition-colors cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleTask?.(task.id);
+                        }}
+                        className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
                         title="Options"
                       >
                         <MoreVertical className="h-4 w-4" />
@@ -2515,7 +2457,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
             </motion.section>
 
-            {/* ── UP NEXT (Revision & Error Remediation with Tactile Spring Animations) ── */}
+            {/* ── UP NEXT (Revision & Error Remediation OR High-Yield Daily Pearl) ── */}
             <motion.section
               initial={SECTION_ENTER(0.16, reducedMotion)}
               animate={SECTION_SHOW}
@@ -2526,68 +2468,142 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="h-7 w-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#006B63]">
                   <Compass className="h-4 w-4" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900">Up Next</h3>
+                <h3 className="text-sm font-bold text-slate-900">
+                  {hasRevisionDue || errorsToReview ? 'Up Next' : 'Daily High-Yield Recall'}
+                </h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-                {/* Card 1: Revision (Mint/Green Visual Identity with Spring Hover) */}
-                <motion.div
-                  whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
-                  whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  onClick={() => onNavigateTab('revision')}
-                  className="rounded-3xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 hover:bg-white/90 hover:border-emerald-300/80 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[60px]"
-                >
-                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform">
-                      <CheckCircle2 className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+              {hasRevisionDue || errorsToReview ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                  {/* Card 1: Revision */}
+                  <motion.div
+                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
+                    whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    onClick={() => onNavigateTab('revision')}
+                    className="rounded-3xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.03)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 hover:bg-white/90 hover:border-emerald-300/80 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[60px]"
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform">
+                        <CheckCircle2 className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                          Revision
+                        </span>
+                        <span className="block text-[11px] sm:text-xs font-semibold text-emerald-800 mt-0.5">
+                          {dailyPlan.revisionDueCount} items due
+                        </span>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                        Revision
-                      </span>
-                      <span className="block text-[11px] sm:text-xs font-semibold text-emerald-800 mt-0.5">
-                        {hasRevisionDue ? `${dailyPlan.revisionDueCount} items due` : "You're all caught up!"}
-                      </span>
-                      <span className="block text-[10px] text-slate-400 mt-0.5 truncate">
-                        Review when new revision items appear.
-                      </span>
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <BookOpen className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
                     </div>
-                  </div>
-                  <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <BookOpen className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-                  </div>
-                </motion.div>
+                  </motion.div>
 
-                {/* Card 2: Error Remediation (Amber/Orange Visual Identity with Spring Hover) */}
-                <motion.div
-                  whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
-                  whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  onClick={() => onNavigateTab('errors')}
-                  className="rounded-3xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(234,138,30,0.03)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 hover:bg-white/90 hover:border-amber-300/80 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[60px]"
-                >
-                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                      <RotateCcw className="h-4.5 w-4.5 sm:h-5 sm:w-5 group-hover:rotate-[-45deg] transition-transform duration-300" />
+                  {/* Card 2: Error Remediation */}
+                  <motion.div
+                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
+                    whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    onClick={() => onNavigateTab('errors')}
+                    className="rounded-3xl bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(234,138,30,0.03)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 hover:bg-white/90 hover:border-amber-300/80 hover:shadow-xs transition-all duration-200 cursor-pointer group min-h-[60px]"
+                  >
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <RotateCcw className="h-4.5 w-4.5 sm:h-5 sm:w-5 group-hover:rotate-[-45deg] transition-transform duration-300" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
+                          Error Remediation
+                        </span>
+                        <span className="block text-[11px] sm:text-xs font-semibold text-amber-800 mt-0.5">
+                          {dailyPlan.errorRemediationCount} errors to review
+                        </span>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
-                        Error Remediation
-                      </span>
-                      <span className="block text-[11px] sm:text-xs font-semibold text-amber-800 mt-0.5">
-                        {errorsToReview ? `${dailyPlan.errorRemediationCount} errors to review` : "You're all caught up!"}
-                      </span>
-                      <span className="block text-[10px] text-slate-400 mt-0.5 truncate">
-                        Review when new errors appear.
-                      </span>
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <FileText className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                    </div>
+                  </motion.div>
+                </div>
+              ) : (
+                /* Daily High-Yield Recall Pearl (Interactive Reveal) */
+                <motion.div
+                  whileHover={reducedMotion ? undefined : { y: -2 }}
+                  className="rounded-3xl bg-gradient-to-br from-white/95 via-amber-50/20 to-teal-50/20 backdrop-blur-xl border border-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.04)] p-4 sm:p-4.5 relative overflow-hidden"
+                >
+                  <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-slate-100/90">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="h-7 w-7 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                        <Lightbulb className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[9.5px] font-bold font-mono tracking-widest text-amber-700 uppercase block">
+                          HIGH-YIELD RECALL PEARL
+                        </span>
+                        <h4 className="text-xs sm:text-[13.5px] font-bold font-['Outfit'] text-slate-900 truncate">
+                          {todayPearl?.name || "Beck's Triad"}
+                        </h4>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsPearlRevealed(false);
+                          setDailyPearlIndex((p) => p + 1);
+                        }}
+                        className="h-6 w-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
+                        title="Shuffle pearl"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsExamEveCheatSheetOpen(true)}
+                        className="text-[10.5px] font-bold text-[#006B63] hover:text-[#005750] bg-teal-50 hover:bg-teal-100/70 px-2 py-0.5 rounded-full border border-teal-200/60 cursor-pointer flex items-center gap-1 transition-colors"
+                      >
+                        <span>Vault</span>
+                        <ChevronRight className="h-3 w-3" />
+                      </button>
                     </div>
                   </div>
-                  <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <FileText className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+
+                  <div className="pt-2.5">
+                    <p className="text-xs sm:text-[12.5px] font-medium text-slate-700 leading-relaxed">
+                      {todayPearl?.components}
+                    </p>
+
+                    <div className="mt-2.5 flex items-center justify-between gap-2 flex-wrap">
+                      <div className="min-w-0">
+                        {isPearlRevealed ? (
+                          <motion.span
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold font-['Outfit']"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                            <span>{todayPearl?.diagnosis}</span>
+                          </motion.span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setIsPearlRevealed(true)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 hover:bg-[#006B63] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-98"
+                          >
+                            <Sparkles className="h-3 w-3 text-amber-300" />
+                            <span>Tap to Reveal Diagnosis</span>
+                          </button>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-400">
+                        Guaranteed NBE Repeat
+                      </span>
+                    </div>
                   </div>
                 </motion.div>
-              </div>
+              )}
             </motion.section>
           </div>
 
@@ -2645,8 +2661,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="flex items-center justify-between gap-3 sm:gap-4 pt-1 relative z-10">
                 {/* Circular Gauge */}
                 <CircularCountdown
-                  days={daysRemaining}
-                  totalDays={90}
+                  value={projectedScore}
+                  label="EST. SCORE"
+                  sublabel="150 Pass"
+                  progressRatio={Math.min(1, Math.max(0.2, (projectedScore - 100) / 150))}
                   reducedMotion={reducedMotion}
                 />
 
@@ -2663,26 +2681,41 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </span>
                   </div>
 
-                  {/* Subjects */}
+                  {/* Cutoff / Pass mark */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5">
-                      <BookOpen className="h-3.5 w-3.5 text-blue-500" />
-                      <span className="text-xs text-slate-500 font-medium">Subjects</span>
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                      <span className="text-xs text-slate-500 font-medium">NBE Pass Cutoff</span>
                     </div>
-                    <span className="text-xs font-bold text-slate-900 font-['Outfit']">19</span>
+                    <span className="text-xs font-bold text-emerald-700 font-['Outfit']">
+                      150 / 300
+                    </span>
                   </div>
 
-                  {/* Preparation Elapsed */}
-                  <div className="space-y-1.5">
+                  {/* Days remaining */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5 text-teal-600" />
+                      <span className="text-xs text-slate-500 font-medium">Exam Countdown</span>
+                    </div>
+                    <span className="text-xs font-bold text-slate-900 font-['Outfit']">
+                      {daysRemaining} Days Left
+                    </span>
+                  </div>
+
+                  {/* Syllabus Coverage */}
+                  <div className="space-y-1.5 pt-0.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500 font-medium">Preparation Elapsed</span>
-                      <span className="font-bold text-slate-800 tabular-nums">~ 16%</span>
+                      <span className="text-slate-500 font-medium">Syllabus Coverage</span>
+                      <span className="font-bold text-slate-800 tabular-nums">
+                        {stats?.notesPercentage ? `${stats.notesPercentage}%` : '~ 16%'}
+                      </span>
                     </div>
                     <div className="w-full h-2 bg-[#E5F3F0] rounded-full overflow-hidden relative">
                       <motion.div
                         className="h-full bg-[#00897B] rounded-full relative overflow-hidden"
                         initial={reducedMotion ? false : { width: 0 }}
-                        whileInView={{ width: '16%' }}
+                        whileInView={{ width: `${Math.max(stats?.notesPercentage || 16, 5)}%` }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                       >
@@ -2841,7 +2874,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             <AnimatedNumber value={sub.percentage} />%
                           </span>
                           <span className="font-mono text-[10px] text-slate-400">
-                            {studyTimeApprox} • {sub.weightage}m
+                            {studyTimeApprox} • {sub.weightage} Marks
                           </span>
                           <span
                             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${visual.badge}`}
@@ -2890,36 +2923,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </button>
               </div>
             </motion.section>
-
-            {/* ── MOTIVATIONAL QUOTE CARD ── */}
-            <motion.div
-              whileHover={reducedMotion ? {} : { y: -2, scale: 1.01 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className="rounded-3xl bg-white/70 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_24px_rgba(0,107,99,0.03)] p-4 sm:p-4.5 relative overflow-hidden group hover:border-teal-300 transition-colors"
-            >
-              <div className="relative z-10 space-y-1">
-                <span className="text-3xl font-serif text-[#006B63]/40 leading-none block select-none">
-                  &ldquo;
-                </span>
-                <p className="text-sm font-extrabold text-slate-900 leading-tight">
-                  Better preparation.
-                </p>
-                <p className="text-sm font-extrabold text-[#006B63] leading-tight">
-                  A brighter tomorrow.
-                </p>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono block pt-1">
-                  ONE SHOT FMGE
-                </span>
-              </div>
-              {/* Subtle mountain graphic on bottom right with gentle parallax on hover */}
-              <div className="absolute right-2 bottom-0 pointer-events-none opacity-30 group-hover:opacity-45 transition-opacity duration-300">
-                <svg width="100" height="55" viewBox="0 0 100 55" fill="none">
-                  <path d="M10 55L45 15L60 30L90 55H10Z" fill="#0d9488" />
-                  <path d="M40 55L70 20L95 50L100 55H40Z" fill="#0284c7" />
-                </svg>
-              </div>
-            </motion.div>
-
           </div>
         </div>
 

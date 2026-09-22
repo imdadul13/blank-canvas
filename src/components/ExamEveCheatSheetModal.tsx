@@ -20,7 +20,7 @@ interface ExamEveCheatSheetModalProps {
 }
 
 // Curated high-frequency clinical DOCs for FMGE
-const HIGH_YIELD_DOCS = [
+export const HIGH_YIELD_DOCS = [
   { condition: 'Anaphylactic Shock', doc: 'Adrenaline (1:1000 IM anterolateral thigh)', subject: 'Pharmacology' },
   { condition: 'Eclampsia / Severe Pre-eclampsia', doc: 'Magnesium Sulfate (MgSO4 - Pritchard Regimen)', subject: 'OBG' },
   { condition: 'Status Epilepticus', doc: 'Lorazepam IV (0.1 mg/kg) -> Levetiracetam / Fosphenytoin', subject: 'Medicine' },
@@ -36,7 +36,7 @@ const HIGH_YIELD_DOCS = [
 ];
 
 // Curated high-frequency Diagnostic Triads for FMGE
-const HIGH_YIELD_TRIADS = [
+export const HIGH_YIELD_TRIADS = [
   { name: "Beck's Triad", components: 'Hypotension + Muffled Heart Sounds + JVD', diagnosis: 'Cardiac Tamponade' },
   { name: "Charcot's Cholangitis Triad", components: 'Jaundice + Fever with Chills + RUQ Pain', diagnosis: 'Acute Cholangitis' },
   { name: "Virchow's Triad", components: 'Endothelial Injury + Stasis of Blood Flow + Hypercoagulability', diagnosis: 'Thrombosis / DVT' },
@@ -48,7 +48,7 @@ const HIGH_YIELD_TRIADS = [
 ];
 
 // Essential Clinical Formulas
-const HIGH_YIELD_FORMULAS = [
+export const HIGH_YIELD_FORMULAS = [
   { name: 'Parkland Burn Resuscitation Formula', formula: '4 mL x Body Weight (kg) x % TBSA Burned', note: '50% in first 8 hours from burn time; 50% over next 16 hours (Ringer Lactate).' },
   { name: "Winter's Formula (Respiratory Compensation)", formula: 'Expected PaCO2 = (1.5 x [HCO3-]) + 8 ± 2', note: 'If measured PaCO2 > expected -> Concomitant Respiratory Acidosis.' },
   { name: 'Serum Anion Gap', formula: '[Na+] - ([Cl-] + [HCO3-])', note: 'Normal: 8 - 12 mEq/L. High AG in MUDPILES (Methanol, Uremia, DKA, etc.).' },
