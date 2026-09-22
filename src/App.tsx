@@ -150,6 +150,7 @@ function AppInner() {
   });
   const [isSidebarHovered, setIsSidebarHovered] = useState<boolean>(false);
   const sidebarHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const sidebarHoverIntentTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((prev) => {
@@ -168,10 +169,20 @@ function AppInner() {
       clearTimeout(sidebarHoverTimeoutRef.current);
       sidebarHoverTimeoutRef.current = null;
     }
-    setIsSidebarHovered(true);
+    if (sidebarHoverIntentTimeoutRef.current) {
+      clearTimeout(sidebarHoverIntentTimeoutRef.current);
+    }
+    // Hover intent delay: small 60ms grace prevents accidental sweeps from triggering push
+    sidebarHoverIntentTimeoutRef.current = setTimeout(() => {
+      setIsSidebarHovered(true);
+    }, 60);
   }, []);
 
   const handleSidebarHoverLeave = useCallback(() => {
+    if (sidebarHoverIntentTimeoutRef.current) {
+      clearTimeout(sidebarHoverIntentTimeoutRef.current);
+      sidebarHoverIntentTimeoutRef.current = null;
+    }
     if (sidebarHoverTimeoutRef.current) {
       clearTimeout(sidebarHoverTimeoutRef.current);
     }
@@ -183,6 +194,7 @@ function AppInner() {
   useEffect(() => {
     return () => {
       if (sidebarHoverTimeoutRef.current) clearTimeout(sidebarHoverTimeoutRef.current);
+      if (sidebarHoverIntentTimeoutRef.current) clearTimeout(sidebarHoverIntentTimeoutRef.current);
     };
   }, []);
 
@@ -759,10 +771,10 @@ function AppInner() {
         <div className="absolute -bottom-40 left-1/3 w-[60vw] max-w-[700px] h-[450px] rounded-full bg-gradient-to-tr from-teal-200/[0.08] via-indigo-100/[0.05] to-transparent blur-3xl" />
       </div>
 
-      {/* Desktop Left Navigation Spacer (Smoothly collapses workspace margin when sidebar is OFF) */}
+      {/* Desktop Left Navigation Spacer (Smoothly pushes workspace when sidebar is ON or hovered) */}
       <div
         className={`hidden lg:block shrink-0 pointer-events-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isSidebarOpen ? 'w-60 xl:w-64' : 'w-0'
+          isSidebarOpen || isSidebarHovered ? 'w-60 xl:w-64' : 'w-0'
         }`}
         aria-hidden="true"
       />
