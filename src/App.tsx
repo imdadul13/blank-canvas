@@ -869,25 +869,6 @@ function AppInner() {
 
       {/* Main Workspace Column */}
       <div className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden z-10">
-        {/* Atmospheric Ambient Study Artwork Backdrop (Subtle & Non-competing) */}
-        {bgOpacity > 0 && (
-          <div
-            key={activeBg.id}
-            className="hidden sm:block pointer-events-none fixed top-0 right-0 w-[55vw] max-w-[760px] h-[640px] z-0 transition-all duration-700 ease-in-out"
-            style={{
-              opacity: bgOpacity * 0.22,
-              backgroundImage: `url(${activeBg.url})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center top',
-              filter: 'blur(2px) saturate(0.85)',
-              maskImage:
-                'radial-gradient(ellipse 90% 85% at 90% 10%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0) 80%)',
-              WebkitMaskImage:
-                'radial-gradient(ellipse 90% 85% at 90% 10%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0) 80%)',
-            }}
-          />
-        )}
-
         {/* SwiftUI Floating Dynamic Island: Local Practice Mode Banner with Quick Exit */}
         {isGuest && (
           <motion.div

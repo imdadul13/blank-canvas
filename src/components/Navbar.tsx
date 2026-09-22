@@ -87,7 +87,7 @@ export interface MoreUtilityItem {
   icon: typeof GraduationCap;
   desc: string;
   tab?: ActiveTab;
-  action?: 'cloudsync' | 'settings' | 'onboarding' | 'notifications';
+  action?: 'cloudsync' | 'settings' | 'onboarding';
 }
 
 export const moreUtilityItems: MoreUtilityItem[] = [
@@ -104,13 +104,6 @@ export const moreUtilityItems: MoreUtilityItem[] = [
     icon: Send,
     desc: 'Curated question feeds',
     tab: 'telegram',
-  },
-  {
-    id: 'notifications',
-    label: 'Notifications',
-    icon: Bell,
-    desc: 'Alerts & revision debts',
-    action: 'notifications',
   },
   {
     id: 'onboarding',
@@ -807,9 +800,6 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                             } else if (item.action === 'cloudsync') {
                               onOpenCloudSync?.();
                               if (!isSidebarOpen) onSidebarHoverLeave?.();
-                            } else if (item.action === 'notifications') {
-                              onOpenNotifications?.();
-                              if (!isSidebarOpen) onSidebarHoverLeave?.();
                             } else if (item.action === 'onboarding') {
                               onOpenOnboarding?.();
                               if (!isSidebarOpen) onSidebarHoverLeave?.();
@@ -1091,8 +1081,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                             setActiveTab(item.tab);
                           } else if (item.action === 'cloudsync') {
                             onOpenCloudSync?.();
-                          } else if (item.action === 'notifications') {
-                            onOpenNotifications?.();
                           } else if (item.action === 'onboarding') {
                             onOpenOnboarding?.();
                           } else if (item.action === 'settings') {

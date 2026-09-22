@@ -2,13 +2,14 @@
 // Purpose: Fast application shell delivery & safe static asset caching only.
 // STRICT CONSTRAINT: Never cache user progress, authentication, telemetry, or dynamic AI endpoints.
 
-const CACHE_NAME = 'oneshot-fmge-shell-v1';
+const CACHE_NAME = 'oneshot-fmge-shell-v2';
 
 // Immutable static assets pre-cached during service worker install
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
   '/site.webmanifest',
+  '/manifest.json',
   '/favicon.svg',
   '/favicon-64.png',
   '/favicon-32.png',
