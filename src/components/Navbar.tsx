@@ -10,7 +10,6 @@ import {
   Settings,
   Settings2,
   MoreHorizontal,
-  Cloud,
   GraduationCap,
   Send,
   Bell,
@@ -103,13 +102,6 @@ export const moreUtilityItems: MoreUtilityItem[] = [
     icon: Compass,
     desc: 'Personalized FMGE roadmap',
     action: 'onboarding',
-  },
-  {
-    id: 'cloudsync',
-    label: 'Cloud Sync',
-    icon: Cloud,
-    desc: 'Backup & sync progress',
-    action: 'cloudsync',
   },
   {
     id: 'settings',
@@ -748,37 +740,6 @@ export const SidebarDock: React.FC<NavbarProps> = ({
           </div>
         </nav>
       </div>
-
-      {/* Local Practice Mode Active Card with Quick Exit */}
-      {isGuest && (
-        <div className="px-3 pb-2.5">
-          <div className="rounded-2xl p-3 bg-white/75 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.04)] space-y-2">
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="font-extrabold text-[#006B63] flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                Local Mode
-              </span>
-              <span className="text-[10px] font-mono text-stone-400 font-semibold">Offline</span>
-            </div>
-            <p className="text-[11px] text-stone-600 leading-snug">
-              Progress saved on this device. Sign in anytime to sync.
-            </p>
-            {onExitGuest && (
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ type: 'spring', stiffness: 450, damping: 24 }}
-                onClick={onExitGuest}
-                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-gradient-to-r from-[#006B63] to-[#0D9488] hover:from-[#005750] hover:to-[#08776C] text-white text-xs font-bold shadow-xs cursor-pointer transition-all"
-              >
-                <ArrowLeft className="h-3.5 w-3.5 stroke-[2.5]" />
-                <span>Exit to Sign In</span>
-              </motion.button>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* ── Bottom: Ambient Medical Signature ──────────────── */}
       <AmbientMedicalMotif />

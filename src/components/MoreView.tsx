@@ -6,7 +6,6 @@ import {
   ChevronRight,
   ArrowLeft,
   GraduationCap,
-  Cloud,
   LayoutGrid,
 } from 'lucide-react';
 import { AppState, ErrorNotebookItem, DailyTask, DailyStudyLog, MedicalPearl } from '../types';
@@ -79,14 +78,6 @@ export const MoreView: React.FC<MoreViewProps> = ({
       badge: `${state.telegramQuestions?.length || 0} Questions`,
       icon: Send,
       action: () => (onNavigateTab ? onNavigateTab('telegram') : setActiveSection('telegram')),
-    },
-    {
-      id: 'cloudsync',
-      title: 'Cloud Sync & Backup',
-      subtitle: 'Safely backup and synchronize study logs across devices.',
-      badge: 'Cloud Sync',
-      icon: Cloud,
-      action: () => onOpenCloudSync?.(),
     },
     {
       id: 'settings',
