@@ -898,7 +898,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           bannerBg: 'bg-gradient-to-br from-[#EEF9F6] via-[#F6FCFA] to-[#E5F5F0] border-[#BEE4DC]',
           auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(45,212,191,0.22),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(253,230,138,0.20),transparent_70%)]',
           topLight: 'from-transparent via-amber-300/40 to-transparent',
-          nameColor: 'bg-gradient-to-r from-[#0B2A26] via-slate-900 to-[#006B63] bg-clip-text text-transparent',
+          nameColor: 'text-[#1D1D1F]',
           subtitleColor: 'text-[#4E7670]',
           greetingIconColor: 'text-amber-500',
         };
@@ -907,7 +907,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           bannerBg: 'bg-gradient-to-br from-[#EAF7F4] via-[#F3FAF8] to-[#E0F2EC] border-[#B6E1D7]',
           auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(14,165,233,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(45,212,191,0.20),transparent_70%)]',
           topLight: 'from-transparent via-teal-400/40 to-transparent',
-          nameColor: 'bg-gradient-to-r from-[#0B2A26] via-slate-900 to-[#006B63] bg-clip-text text-transparent',
+          nameColor: 'text-[#1D1D1F]',
           subtitleColor: 'text-[#44726A]',
           greetingIconColor: 'text-teal-500',
         };
@@ -916,7 +916,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           bannerBg: 'bg-gradient-to-br from-[#FFF8EE] via-[#FAF9F6] to-[#E5F3EE] border-[#E8D7C2]',
           auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(249,115,22,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(244,63,94,0.15),transparent_70%)]',
           topLight: 'from-transparent via-orange-400/40 to-transparent',
-          nameColor: 'bg-gradient-to-r from-[#2D1B11] via-stone-900 to-[#006B63] bg-clip-text text-transparent',
+          nameColor: 'text-[#1D1D1F]',
           subtitleColor: 'text-[#7C5E4E]',
           greetingIconColor: 'text-orange-500',
         };
@@ -926,8 +926,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           bannerBg: 'bg-gradient-to-br from-[#0C2420] via-[#10302B] to-[#071916] border-[#18443D]',
           auraGrad: 'bg-[radial-gradient(ellipse_85%_65%_at_15%_18%,rgba(56,189,248,0.18),transparent_65%),radial-gradient(ellipse_75%_55%_at_85%_85%,rgba(45,212,191,0.16),transparent_70%)]',
           topLight: 'from-transparent via-cyan-400/30 to-transparent',
-          nameColor: 'bg-gradient-to-r from-white via-slate-100 to-teal-200 bg-clip-text text-transparent',
-          subtitleColor: 'text-[#87BDB5]',
+          nameColor: 'text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]',
+          subtitleColor: 'text-teal-100/90',
           greetingIconColor: 'text-cyan-400',
         };
     }
@@ -1525,7 +1525,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Doctor Name */}
               <div className="pt-0.5">
-                <h1 className={`text-2xl sm:text-4xl lg:text-[38px] font-black tracking-tight font-['Outfit'] leading-tight ${heroTheme.nameColor}`}>
+                <h1 className={`text-2xl sm:text-4xl lg:text-[38px] font-extrabold tracking-[-0.03em] leading-tight ${heroTheme.nameColor}`}>
                   {userName}
                 </h1>
                 <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic mt-1 ${heroTheme.subtitleColor}`}>
