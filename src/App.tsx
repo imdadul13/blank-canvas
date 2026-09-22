@@ -784,16 +784,6 @@ function AppInner() {
 
   return (
     <div className="min-h-screen bg-[#F6F8F8] text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white relative">
-      {/* Apple Music Dynamic Ambient Aura Mesh (Soft, diffuse, non-competing color bleed) */}
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-        {/* Soft top-left ambient aura (gentle teal/cyan warmth) */}
-        <div className="absolute -top-32 -left-20 w-[55vw] max-w-[650px] h-[500px] rounded-full bg-gradient-to-br from-teal-400/[0.10] via-emerald-300/[0.07] to-transparent blur-3xl" />
-        {/* Subtle mid-right ambient aura (gentle warm amber/rose shimmer) */}
-        <div className="absolute top-1/4 -right-32 w-[50vw] max-w-[600px] h-[520px] rounded-full bg-gradient-to-bl from-amber-300/[0.08] via-sky-200/[0.06] to-transparent blur-3xl" />
-        {/* Lower ambient grounding aura */}
-        <div className="absolute -bottom-40 left-1/3 w-[60vw] max-w-[700px] h-[450px] rounded-full bg-gradient-to-tr from-teal-200/[0.08] via-indigo-100/[0.05] to-transparent blur-3xl" />
-      </div>
-
       {/* Desktop Left Navigation Spacer (Smoothly pushes workspace when sidebar is ON or hovered) */}
       <div
         className={`hidden lg:block shrink-0 pointer-events-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
