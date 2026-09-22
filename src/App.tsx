@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { ArrowLeft, PanelLeftOpen } from 'lucide-react';
 import { Navbar, SidebarDock, ActiveTab } from './components/Navbar';
 import { motion, AnimatePresence } from 'motion/react';
 import { DashboardView } from './components/DashboardView';
@@ -138,6 +138,63 @@ function AppInner() {
   const [isZenFocusOpen, setIsZenFocusOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const { isVisible: isNavVisible } = useScrollDirection(12);
+
+  // Desktop Sidebar State: Pinned (ON) or Unpinned (OFF), with Hover-to-Peek
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('oneshot_desktop_sidebar_open');
+      return saved !== null ? saved === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
+  const [isSidebarHovered, setIsSidebarHovered] = useState<boolean>(false);
+  const sidebarHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('oneshot_desktop_sidebar_open', String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, []);
+
+  const handleSidebarHoverEnter = useCallback(() => {
+    if (sidebarHoverTimeoutRef.current) clearTimeout(sidebarHoverTimeoutRef.current);
+    setIsSidebarHovered(true);
+  }, []);
+
+  const handleSidebarHoverLeave = useCallback(() => {
+    if (sidebarHoverTimeoutRef.current) clearTimeout(sidebarHoverTimeoutRef.current);
+    sidebarHoverTimeoutRef.current = setTimeout(() => {
+      setIsSidebarHovered(false);
+    }, 220);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (sidebarHoverTimeoutRef.current) clearTimeout(sidebarHoverTimeoutRef.current);
+    };
+  }, []);
+
+  // Global Sidebar Toggle Shortcut (Cmd+B / Ctrl+B)
+  useEffect(() => {
+    const handleSidebarKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+        const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+        if (tag !== 'input' && tag !== 'textarea') {
+          e.preventDefault();
+          toggleSidebar();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleSidebarKeyDown);
+    return () => window.removeEventListener('keydown', handleSidebarKeyDown);
+  }, [toggleSidebar]);
 
   // Global Command Palette Shortcut (Cmd+K / Ctrl+K)
   useEffect(() => {
@@ -697,6 +754,14 @@ function AppInner() {
         <div className="absolute -bottom-40 left-1/3 w-[60vw] max-w-[700px] h-[450px] rounded-full bg-gradient-to-tr from-teal-200/[0.08] via-indigo-100/[0.05] to-transparent blur-3xl" />
       </div>
 
+      {/* Desktop Left Navigation Spacer (Smoothly collapses workspace margin when sidebar is OFF) */}
+      <div
+        className={`hidden lg:block shrink-0 pointer-events-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isSidebarOpen ? 'w-60 xl:w-64' : 'w-0'
+        }`}
+        aria-hidden="true"
+      />
+
       {/* Desktop Left Navigation Rail */}
       <SidebarDock
         activeTab={activeTab}
@@ -713,7 +778,50 @@ function AppInner() {
         syncStatus={syncStatus}
         isGuest={isGuest}
         onExitGuest={signOutUser}
+        isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={toggleSidebar}
+        isSidebarHovered={isSidebarHovered}
+        onSidebarHoverChange={setIsSidebarHovered}
       />
+
+      {/* Floating Sidebar Toggle & Left Edge Hover Trigger (Desktop only, active when sidebar is OFF) */}
+      {!isSidebarOpen && (
+        <>
+          {/* Left Edge Hover Trigger Zone (Invisible 14px strip along left screen edge) */}
+          <div
+            className="hidden lg:block fixed left-0 top-0 bottom-0 w-3.5 z-40 pointer-events-auto"
+            onMouseEnter={handleSidebarHoverEnter}
+            onMouseLeave={handleSidebarHoverLeave}
+            aria-hidden="true"
+          />
+
+          {/* Floating Toggle Button with Dynamic Auto-Hide on Scroll */}
+          <motion.button
+            type="button"
+            initial={{ opacity: 0, x: -16 }}
+            animate={{
+              opacity: isNavVisible ? 1 : 0,
+              x: isNavVisible ? 0 : -20,
+              y: isNavVisible ? 0 : -80,
+            }}
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            onClick={toggleSidebar}
+            onMouseEnter={handleSidebarHoverEnter}
+            onMouseLeave={handleSidebarHoverLeave}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`hidden lg:flex items-center gap-2 fixed top-3 left-3.5 z-40 h-9 px-3 rounded-xl bg-white/90 backdrop-blur-2xl border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#006B63]/40 text-slate-700 hover:text-[#006B63] transition-colors cursor-pointer select-none group ${
+              !isNavVisible ? 'pointer-events-none' : 'pointer-events-auto'
+            }`}
+            title="Turn sidebar ON (⌘B) · Hover to peek"
+            aria-label="Turn sidebar ON"
+          >
+            <PanelLeftOpen className="h-4.5 w-4.5 stroke-[2] group-hover:scale-110 transition-transform text-[#006B63]" />
+            <span className="text-xs font-bold text-slate-700 group-hover:text-[#006B63]">Sidebar</span>
+          </motion.button>
+        </>
+      )}
 
       {/* Main Workspace Column */}
       <div className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden z-10">

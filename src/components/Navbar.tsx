@@ -18,6 +18,8 @@ import {
   Compass,
   ArrowLeft,
   LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import OneShotLogo from './OneShotLogo';
 import { AppStats } from '../utils/storage';
@@ -57,6 +59,11 @@ export interface NavbarProps {
   syncStatus?: SyncStatus;
   isGuest?: boolean;
   onExitGuest?: () => void;
+  // Desktop sidebar toggle & hover props
+  isSidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
+  isSidebarHovered?: boolean;
+  onSidebarHoverChange?: (hovered: boolean) => void;
 }
 
 export const primaryNavItems = [
@@ -466,11 +473,51 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   syncStatus = 'synced',
   isGuest,
   onExitGuest,
+  isSidebarOpen = true,
+  onToggleSidebar,
+  isSidebarHovered = false,
+  onSidebarHoverChange,
 }) => {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reducedMotion = useReducedMotion();
+
+  const isVisible = isSidebarOpen || isSidebarHovered;
+
+  const handleSidebarMouseEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    onSidebarHoverChange?.(true);
+  };
+
+  const handleSidebarMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      onSidebarHoverChange?.(false);
+    }, 220);
+  };
+
+  const handleNavClick = (id: ActiveTab) => {
+    setActiveTab(id);
+    if (!isSidebarOpen) {
+      onSidebarHoverChange?.(false);
+    }
+  };
+
+  // Close hover sidebar if clicked outside when unpinned
+  useEffect(() => {
+    if (isSidebarOpen || !isSidebarHovered) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
+        onSidebarHoverChange?.(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSidebarOpen, isSidebarHovered, onSidebarHoverChange]);
 
   const handleMoreMouseEnter = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -509,28 +556,66 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   }, [isMoreMenuOpen]);
 
   return (
-    <aside
-      className="hidden lg:flex flex-col justify-between w-60 xl:w-64 shrink-0 h-screen sticky top-0 bg-[#F6F6F6]/85 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.06] shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.02)] z-40 select-none font-sans"
+    <motion.aside
+      ref={sidebarRef}
+      initial={false}
+      animate={{
+        x: isVisible ? 0 : -280,
+        opacity: isVisible ? 1 : 0,
+      }}
+      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+      onMouseEnter={handleSidebarMouseEnter}
+      onMouseLeave={handleSidebarMouseLeave}
+      className={`hidden lg:flex flex-col justify-between w-60 xl:w-64 h-screen select-none font-sans fixed inset-y-0 left-0 transition-colors duration-200 ${
+        isSidebarOpen
+          ? 'bg-[#F6F6F6]/85 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.06] shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.02)] z-40'
+          : 'bg-[#F6F6F6]/95 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.08] shadow-[0_24px_64px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.06)] z-50'
+      } ${!isVisible ? 'pointer-events-none' : 'pointer-events-auto'}`}
       aria-label="Desktop Navigation"
     >
       {/* ── Top: Logo & Primary Navigation ─────────────────── */}
       <div className="flex flex-col">
-        {/* Brand Header */}
-        <div className="px-4 pt-4 pb-3 border-b border-black/[0.06]">
-          <div
-            onClick={() => setActiveTab('dashboard')}
-            className="cursor-pointer rounded-xl p-1 -ml-1 transition-opacity hover:opacity-85 active:opacity-70"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setActiveTab('dashboard');
-              }
-            }}
-            aria-label="ONE SHOT FMGE — Go to Home"
-          >
-            <OneShotLogo variant="horizontal" showTagline={true} />
+        {/* Brand Header & Toggle */}
+        <div className="px-3.5 pt-3.5 pb-2.5 border-b border-black/[0.06]">
+          <div className="flex items-center justify-between gap-1.5">
+            <div
+              onClick={() => handleNavClick('dashboard')}
+              className="cursor-pointer rounded-xl p-1 -ml-1 transition-opacity hover:opacity-85 active:opacity-70 min-w-0"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleNavClick('dashboard');
+                }
+              }}
+              aria-label="ONE SHOT FMGE — Go to Home"
+            >
+              <OneShotLogo variant="horizontal" showTagline={true} />
+            </div>
+
+            {/* Toggle Button ON/OFF */}
+            {onToggleSidebar && (
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
+                onClick={onToggleSidebar}
+                className={`h-8 w-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
+                  isSidebarOpen
+                    ? 'text-slate-400 hover:text-slate-800 hover:bg-black/[0.05]'
+                    : 'text-[#006B63] bg-teal-50 hover:bg-teal-100/80 border border-teal-200/80 shadow-2xs'
+                }`}
+                title={isSidebarOpen ? 'Turn sidebar OFF (⌘B) · Hover to peek' : 'Pin sidebar ON (⌘B)'}
+                aria-label={isSidebarOpen ? 'Turn sidebar OFF' : 'Pin sidebar ON'}
+              >
+                {isSidebarOpen ? (
+                  <PanelLeftClose className="h-4.5 w-4.5 stroke-[1.8]" />
+                ) : (
+                  <PanelLeftOpen className="h-4.5 w-4.5 stroke-[2]" />
+                )}
+              </motion.button>
+            )}
           </div>
 
           {/* Live Sync Status Pill */}
@@ -573,7 +658,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
 
                 <motion.button
                   type="button"
-                  onClick={() => setActiveTab(id)}
+                  onClick={() => handleNavClick(id)}
                   aria-current={active ? 'page' : undefined}
                   whileHover={reducedMotion ? undefined : { x: 2 }}
                   whileTap={reducedMotion ? undefined : { scale: 0.98 }}
@@ -635,7 +720,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
               <motion.button
                 type="button"
                 onClick={() => {
-                  setActiveTab('more');
+                  handleNavClick('more');
                   setIsMoreMenuOpen((prev) => !prev);
                 }}
                 whileHover={reducedMotion ? undefined : { x: 3 }}
@@ -689,7 +774,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      setActiveTab('more');
+                      handleNavClick('more');
                       setIsMoreMenuOpen(false);
                     }}
                     className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-[#E8F5F3] border-b border-slate-100/80 mb-1.5 cursor-pointer text-left group transition-colors"
@@ -714,13 +799,16 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                           role="menuitem"
                           onClick={() => {
                             if (item.tab) {
-                              setActiveTab(item.tab);
+                              handleNavClick(item.tab);
                             } else if (item.action === 'cloudsync') {
                               onOpenCloudSync?.();
+                              if (!isSidebarOpen) onSidebarHoverChange?.(false);
                             } else if (item.action === 'onboarding') {
                               onOpenOnboarding?.();
+                              if (!isSidebarOpen) onSidebarHoverChange?.(false);
                             } else if (item.action === 'settings') {
                               onOpenSettings();
+                              if (!isSidebarOpen) onSidebarHoverChange?.(false);
                             }
                             setIsMoreMenuOpen(false);
                           }}
@@ -756,7 +844,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
 
       {/* ── Bottom: Ambient Medical Signature ──────────────── */}
       <AmbientMedicalMotif />
-    </aside>
+    </motion.aside>
   );
 };
 
