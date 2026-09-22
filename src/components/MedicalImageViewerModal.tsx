@@ -9,6 +9,8 @@ import {
   Eye,
   Layers,
   CheckCircle2,
+  Scan,
+  Sparkles,
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { MedicalImageAsset } from '../types';
@@ -37,11 +39,20 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [isHighContrast, setIsHighContrast] = useState<boolean>(false);
   const [showAnnotated, setShowAnnotated] = useState<boolean>(false);
+  const [isLoupeActive, setIsLoupeActive] = useState<boolean>(false);
+  const [isHoveringImage, setIsHoveringImage] = useState<boolean>(false);
+  const [loupePos, setLoupePos] = useState<{ x: number; y: number; relX: number; relY: number }>({
+    x: 0,
+    y: 0,
+    relX: 50,
+    relY: 50,
+  });
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const lastTouchDistanceRef = useRef<number | null>(null);
 
   const effectiveAnnotatedUrl =
@@ -191,6 +202,21 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
             <span className="hidden sm:inline">{isHighContrast ? 'Standard Contrast' : 'High Contrast'}</span>
           </button>
 
+          {/* 2.8x Diagnostic Loupe Tool */}
+          <button
+            type="button"
+            onClick={() => setIsLoupeActive(!isLoupeActive)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
+              isLoupeActive
+                ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-400 shadow-sm'
+                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+            }`}
+            title="Toggle 2.8x Diagnostic Magnifier Loupe"
+          >
+            <Scan className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">2.8x Loupe</span>
+          </button>
+
           {/* Zoom Buttons */}
           <div className="flex items-center bg-slate-800 border border-slate-700 rounded-xl p-1 text-slate-300">
             <button
@@ -261,6 +287,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
           }}
         >
           <img
+            ref={imageRef}
             src={activeSrc}
             alt={title || imageAsset?.medicalFinding || 'FMGE Medical Image'}
             referrerPolicy="no-referrer"
@@ -271,6 +298,17 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
               if (!target.src.includes('/assets/medical-images/')) {
                 target.src = '/assets/medical-images/ecg-inferior-stemi.svg';
               }
+            }}
+            onMouseEnter={() => setIsHoveringImage(true)}
+            onMouseLeave={() => setIsHoveringImage(false)}
+            onMouseMove={(e) => {
+              if (!imageRef.current) return;
+              const rect = imageRef.current.getBoundingClientRect();
+              const x = e.clientX;
+              const y = e.clientY;
+              const relX = Math.max(0, Math.min(100, ((x - rect.left) / rect.width) * 100));
+              const relY = Math.max(0, Math.min(100, ((y - rect.top) / rect.height) * 100));
+              setLoupePos({ x, y, relX, relY });
             }}
             draggable={false}
           />
@@ -307,6 +345,31 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
           </div>
         )}
       </div>
+
+      {/* Interactive 2.8x Circular Loupe Magnifier */}
+      {isLoupeActive && isHoveringImage && (
+        <div
+          className="fixed pointer-events-none z-[120] rounded-full border-2 border-emerald-400 shadow-2xl overflow-hidden"
+          style={{
+            width: 170,
+            height: 170,
+            left: loupePos.x - 85,
+            top: loupePos.y - 85,
+            backgroundImage: `url(${activeSrc})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: `${320}%`,
+            backgroundPosition: `${loupePos.relX}% ${loupePos.relY}%`,
+            boxShadow: '0 0 28px rgba(16, 185, 129, 0.4), inset 0 0 16px rgba(0,0,0,0.5)',
+          }}
+        >
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2.5 h-2.5 rounded-full border border-emerald-400 bg-emerald-400/40" />
+          </div>
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-black/80 text-[9px] font-mono font-bold text-emerald-300 tracking-wider">
+            2.8x LOUPE
+          </div>
+        </div>
+      )}
     </div>,
     document.body
   );

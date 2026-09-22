@@ -126,6 +126,93 @@ export function loadAppState(): AppState {
   return getInitialAppState();
 }
 
+export interface LocalSnapshot {
+  id: string;
+  timestamp: string;
+  label: string;
+  readinessScore: number;
+  totalGTs: number;
+  totalErrors: number;
+  totalTasks: number;
+  state: AppState;
+}
+
+const SNAPSHOTS_KEY = 'fmge_rolling_snapshots_v1';
+const MAX_SNAPSHOTS = 5;
+
+export function getAvailableSnapshots(): LocalSnapshot[] {
+  try {
+    const raw = localStorage.getItem(SNAPSHOTS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export function createLocalSnapshot(state: AppState, label?: string): LocalSnapshot | null {
+  try {
+    const existing = getAvailableSnapshots();
+    const readiness = calculateStudyReadiness(state);
+    const sanitizedState: AppState = {
+      ...state,
+      telegramChannels: [],
+      telegramQuestions: [],
+      telegramAnnouncements: [],
+      rawTelegramMessages: [],
+      canonicalQuestions: [],
+      questionSources: [],
+    };
+
+    const newSnapshot: LocalSnapshot = {
+      id: `snap_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      label: label || `Auto-Snapshot (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`,
+      readinessScore: Math.round(readiness.score ?? 50),
+      totalGTs: state.grandTests?.length || 0,
+      totalErrors: state.errorNotebook?.length || 0,
+      totalTasks: state.dailyTasks?.length || 0,
+      state: sanitizedState,
+    };
+
+    const updated = [newSnapshot, ...existing.filter((s) => s.id !== newSnapshot.id).slice(0, MAX_SNAPSHOTS - 1)];
+    localStorage.setItem(SNAPSHOTS_KEY, JSON.stringify(updated));
+    return newSnapshot;
+  } catch (err) {
+    console.error('Failed to create local snapshot:', err);
+    return null;
+  }
+}
+
+export function restoreLocalSnapshot(snapshotId: string): AppState | null {
+  try {
+    const snapshots = getAvailableSnapshots();
+    const match = snapshots.find((s) => s.id === snapshotId);
+    if (!match) return null;
+    const normalized = normalizeAppState(match.state);
+    if (normalized) {
+      saveAppState(normalized);
+      return normalized;
+    }
+  } catch (err) {
+    console.error('Failed to restore local snapshot:', err);
+  }
+  return null;
+}
+
+export function deleteLocalSnapshot(snapshotId: string): void {
+  try {
+    const snapshots = getAvailableSnapshots();
+    const filtered = snapshots.filter((s) => s.id !== snapshotId);
+    localStorage.setItem(SNAPSHOTS_KEY, JSON.stringify(filtered));
+  } catch (err) {
+    console.error('Failed to delete local snapshot:', err);
+  }
+}
+
+let lastAutoSnapshotTimestamp = 0;
+
 export function saveAppState(state: AppState): void {
   try {
     // Decouple Telegram data from localStorage: only persist study progress & user configurations
@@ -139,6 +226,13 @@ export function saveAppState(state: AppState): void {
       questionSources: [],
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizedState));
+
+    // Periodic snapshot every 20 minutes of study
+    const now = Date.now();
+    if (now - lastAutoSnapshotTimestamp > 20 * 60 * 1000) {
+      lastAutoSnapshotTimestamp = now;
+      createLocalSnapshot(sanitizedState);
+    }
   } catch (err) {
     console.error('Failed to save app state to localStorage:', err);
   }

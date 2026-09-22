@@ -1107,7 +1107,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                               <ArrowRight className="h-3 w-3" />
                             </button>
 
-                            {/* Ask AI Mentor */}
+                            {/* Explain with AI Mentor */}
                             {onOpenAiCoach && (
                               <button
                                 type="button"
@@ -1115,13 +1115,14 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                                   onOpenAiCoach(
                                     'concept',
                                     sub.id,
-                                    `${err.topic || matchedTopic.name} - ${err.questionGist}`
+                                    `FMGE Error Breakdown: "${err.questionGist}". Student Mistake: "${err.myMistake || 'Misidentified concept'}". Correct Landmark: "${err.correctConcept || conceptGap.conceptName}". Please explain why the distractor was tricky and provide a high-yield clinical memory hook.`
                                   );
                                 }}
-                                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 font-display cursor-pointer ml-1"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold cursor-pointer transition-all shadow-2xs"
+                                title="Explain this mistake with AI Medical Coach"
                               >
-                                <Stethoscope className="h-3.5 w-3.5 text-teal-700" />
-                                <span className="hidden sm:inline">Ask Mentor</span>
+                                <Brain className="h-3.5 w-3.5 text-teal-700" />
+                                <span>Explain with AI</span>
                               </button>
                             )}
 

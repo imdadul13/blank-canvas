@@ -470,6 +470,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   onOpenOnboarding,
   userName,
   photoURL,
+  syncStatus = 'synced',
   isGuest,
   onExitGuest,
 }) => {
@@ -499,24 +500,17 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   const isTabActiveLocal = (id: ActiveTab) => isTabActive(id, activeTab);
   const isSecondaryActive = activeTab === 'grandtests' || activeTab === 'telegram';
 
-  // Outside click & ESC key listener
+  // Close more menu when clicking outside
   useEffect(() => {
     if (!isMoreMenuOpen) return;
-    function handleClickOutside(e: MouseEvent) {
+    const handleClickOutside = (e: MouseEvent) => {
       if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
         setIsMoreMenuOpen(false);
       }
-    }
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        setIsMoreMenuOpen(false);
-      }
-    }
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isMoreMenuOpen]);
 
@@ -544,6 +538,25 @@ export const SidebarDock: React.FC<NavbarProps> = ({
           >
             <OneShotLogo variant="horizontal" showTagline={true} />
           </div>
+
+          {/* Live Sync Status Pill */}
+          <button
+            type="button"
+            onClick={onOpenCloudSync}
+            className="mt-2.5 flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl bg-slate-50/90 hover:bg-teal-50/70 border border-slate-200/80 text-[11px] font-medium text-slate-600 hover:text-teal-900 transition-colors cursor-pointer group shadow-2xs"
+            title="View Cloud Sync & Auto-Snapshots"
+          >
+            <span className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span className="font-semibold text-slate-800 group-hover:text-teal-950">
+                {syncStatus === 'offline' ? 'Offline Ready' : 'Synced'}
+              </span>
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono">Auto-Snapshots</span>
+          </button>
         </div>
 
         {/* Primary Navigation List */}
@@ -786,6 +799,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenOnboarding,
   userName,
   photoURL,
+  syncStatus = 'synced',
   isGuest,
   onExitGuest,
 }) => {
@@ -848,12 +862,15 @@ export const Navbar: React.FC<NavbarProps> = ({
       // Ignore micro-jitters and iOS negative bounce overscroll at top
       if (Math.abs(delta) < 4) return;
 
-      const direction = delta > 0 ? 'down' : 'up';
+      const isMobile = window.innerWidth < 1024;
+      if (!isMobile) return;
+
+      const distance = Math.min(Math.abs(delta), 100);
 
       setScrollState({
-        direction,
+        direction: delta > 0 ? 'down' : 'up',
         isScrolling: true,
-        scrolledDistance: currentScrollY,
+        scrolledDistance: distance,
       });
 
       lastScrollY.current = currentScrollY;
@@ -921,8 +938,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </div>
 
-        {/* Right Action Icons: Bell + More Utilities + Avatar */}
-        <div className="flex items-center gap-2">
+        {/* Right Action Icons: Sync Pill + Bell + More Utilities + Avatar */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {onOpenCloudSync && (
+            <button
+              type="button"
+              onClick={onOpenCloudSync}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100/90 hover:bg-teal-50 border border-slate-200/80 text-[11px] font-semibold text-slate-700 hover:text-teal-800 transition-colors cursor-pointer shadow-2xs"
+              title="Cloud Sync & Local Snapshots"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-medium hidden xs:inline">{syncStatus === 'offline' ? 'Offline' : 'Synced'}</span>
+            </button>
+          )}
           {onOpenNotifications && (
             <button
               type="button"

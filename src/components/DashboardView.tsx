@@ -100,6 +100,7 @@ interface DashboardViewProps {
   activeBg?: { id: string; url: string; label: string; period: string };
   onShuffleBg?: () => void;
   onOpenProfile?: () => void;
+  onOpenZenFocus?: () => void;
   subTab?: 'overview' | 'planner';
   onSubTabChange?: (tab: 'overview' | 'planner') => void;
 }
@@ -741,6 +742,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   activeBg,
   onShuffleBg,
   onOpenProfile,
+  onOpenZenFocus,
   subTab,
   onSubTabChange,
 }) => {
@@ -1244,7 +1246,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
 
             {/* Ambient Focus Audio Engine */}
-            <AmbientSoundWidget />
+            <AmbientSoundWidget onOpenZenFocus={onOpenZenFocus} />
 
             <button
               type="button"

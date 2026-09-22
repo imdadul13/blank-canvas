@@ -21,6 +21,7 @@ import {
   Layers,
   Sparkles,
   ArrowRight,
+  Headphones,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MedicalPearl, AppState } from '../types';
@@ -41,6 +42,7 @@ import {
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from './HeaderTabInsignia';
+import { ExamEveCheatSheetModal } from './ExamEveCheatSheetModal';
 
 // Visual theme helper for consistent, subtle content differentiation
 const getPearlVisualTheme = (pearl: MedicalPearl) => {
@@ -276,6 +278,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
   const [isSrsReviewOpen, setIsSrsReviewOpen] = useState<boolean>(false);
   const [srsIndex, setSrsIndex] = useState<number>(0);
   const [isSrsAnswerRevealed, setIsSrsAnswerRevealed] = useState<boolean>(false);
+  const [isCheatSheetModalOpen, setIsCheatSheetModalOpen] = useState<boolean>(false);
 
   // Audio Read-Aloud state
   const [playingPearlId, setPlayingPearlId] = useState<string | null>(null);
@@ -296,6 +299,18 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         `${pearl.title}. High Yield Takeaway: ${pearl.highYieldKey}. ${pearl.explanation}`
       );
     }
+  };
+
+  const handleStartCommuteAudio = () => {
+    if (filteredPearls.length === 0) return;
+    const playlistItems = filteredPearls.map((p) => ({
+      id: p.id,
+      title: p.title,
+      subtitle: p.highYieldKey,
+      text: `High Yield Takeaway: ${p.highYieldKey}. ${p.explanation}`,
+      subjectName: p.subjectId,
+    }));
+    speechEngine.playPlaylist(playlistItems, 0);
   };
 
   const handleSrsRate = (rating: SrsRating) => {
@@ -868,14 +883,27 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               </motion.button>
             )}
 
+            {/* Hands-Free Commute Audio Button */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleStartCommuteAudio}
+              className="w-full sm:w-auto px-3 py-1.5 min-h-[36px] justify-center rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border bg-teal-50/90 hover:bg-teal-100 text-teal-900 border-teal-200/80 shadow-2xs"
+              title="Listen to active pearls sequentially in hands-free commute mode"
+            >
+              <Headphones className="h-3.5 w-3.5 text-teal-700" />
+              <span>Commute Audio</span>
+            </motion.button>
+
             {/* Printable Cheat Sheet Button */}
             <motion.button
               type="button"
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
-              onClick={handlePrintCheatSheet}
+              onClick={() => setIsCheatSheetModalOpen(true)}
               className="w-full sm:w-auto px-3 py-1.5 min-h-[36px] justify-center rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border bg-white/80 hover:bg-white text-stone-700 border-teal-200/70 hover:border-teal-300 shadow-2xs"
-              title="Print or save 2-column clinical cheat sheet as PDF"
+              title="Open print-optimized 2-column clinical cheat sheet"
             >
               <Printer className="h-3.5 w-3.5 text-teal-700" />
               <span className="hidden sm:inline">Cheat Sheet</span>
@@ -1888,6 +1916,13 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           </div>
         )}
       </AnimatePresence>
+
+      {/* High-Yield Exam-Eve Printable Cheat Sheet Modal */}
+      <ExamEveCheatSheetModal
+        isOpen={isCheatSheetModalOpen}
+        onClose={() => setIsCheatSheetModalOpen(false)}
+        state={state}
+      />
     </div>
   );
 };

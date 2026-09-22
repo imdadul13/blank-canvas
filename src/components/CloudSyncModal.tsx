@@ -14,7 +14,14 @@ import {
   Clock,
 } from 'lucide-react';
 import { AppState, SyncStatus } from '../types';
-import { downloadBackupFile, normalizeAppState } from '../utils/storage';
+import {
+  downloadBackupFile,
+  normalizeAppState,
+  getAvailableSnapshots,
+  restoreLocalSnapshot,
+  createLocalSnapshot,
+  LocalSnapshot,
+} from '../utils/storage';
 
 interface CloudSyncModalProps {
   isOpen: boolean;
@@ -34,8 +41,35 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string>('Just now');
   const [syncSuccessMessage, setSyncSuccessMessage] = useState<string | null>(null);
+  const [snapshots, setSnapshots] = useState<LocalSnapshot[]>(() => getAvailableSnapshots());
 
   if (!isOpen) return null;
+
+  const handleRestoreSnapshot = (snap: LocalSnapshot) => {
+    if (
+      window.confirm(
+        `Restore local snapshot from ${new Date(snap.timestamp).toLocaleString()}? This will safely reload your study records to that point.`
+      )
+    ) {
+      const restored = restoreLocalSnapshot(snap.id);
+      if (restored && onUpdateAppState) {
+        onUpdateAppState(() => restored);
+        setSyncSuccessMessage(`Successfully restored to snapshot: ${snap.label}`);
+        setSnapshots(getAvailableSnapshots());
+      }
+    }
+  };
+
+  const handleCreateSnapshot = () => {
+    const snap = createLocalSnapshot(
+      state,
+      `Manual Checkpoint (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`
+    );
+    if (snap) {
+      setSnapshots(getAvailableSnapshots());
+      setSyncSuccessMessage('Manual study snapshot created and saved locally.');
+    }
+  };
 
   const handleForceSync = async () => {
     setIsSyncing(true);
@@ -200,6 +234,57 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
                 <p className="text-[10px] text-slate-400">Direct cloud pipeline</p>
               </div>
             </div>
+          </div>
+
+          {/* Rolling Local Snapshots (Zero Data Loss) */}
+          <div className="space-y-3 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono block">
+                LOCAL SNAPSHOTS ({snapshots.length}/5)
+              </span>
+              <button
+                type="button"
+                onClick={handleCreateSnapshot}
+                className="text-[11px] font-bold text-teal-700 hover:text-teal-900 cursor-pointer"
+              >
+                + Create Snapshot Now
+              </button>
+            </div>
+
+            {snapshots.length === 0 ? (
+              <p className="text-xs text-slate-400 italic">No automated snapshots recorded yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {snapshots.map((snap) => (
+                  <div
+                    key={snap.id}
+                    className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-slate-800 truncate">{snap.label}</div>
+                      <div className="text-[10px] text-slate-400 flex items-center gap-2 mt-0.5">
+                        <span className="font-mono">{new Date(snap.timestamp).toLocaleDateString()} {new Date(snap.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>•</span>
+                        <span>{snap.totalGTs} GTs</span>
+                        <span>•</span>
+                        <span>{snap.totalErrors} Errors</span>
+                        <span>•</span>
+                        <span className="font-semibold text-teal-700">{snap.readinessScore}% Ready</span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleRestoreSnapshot(snap)}
+                      className="px-2.5 py-1 rounded-lg bg-white hover:bg-teal-50 border border-slate-200 hover:border-teal-300 text-teal-800 font-bold text-[11px] shadow-2xs transition-colors cursor-pointer shrink-0"
+                      title="Restore app state to this snapshot"
+                    >
+                      Restore
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Offline Data Export & Import */}

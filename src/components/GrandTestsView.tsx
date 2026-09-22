@@ -33,12 +33,15 @@ import { getLocalDateKey } from '../utils/date';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from './HeaderTabInsignia';
+import { NbeMockExamModal } from './NbeMockExamModal';
+import { ErrorNotebookItem } from '../types';
 
 interface GrandTestsViewProps {
   state: AppState;
   onAddGrandTest: (gt: GrandTest) => void;
   onDeleteGrandTest: (id: string) => void;
   onNavigateTab?: (tab: string) => void;
+  onAddErrorItem?: (item: ErrorNotebookItem) => void;
 }
 
 export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
@@ -46,8 +49,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
   onAddGrandTest,
   onDeleteGrandTest,
   onNavigateTab,
+  onAddErrorItem,
 }) => {
   const [showAddGTModal, setShowAddGTModal] = useState(false);
+  const [showMockModal, setShowMockModal] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const circadian = useCircadianTheme(state.settings?.bgTheme);
 
@@ -572,6 +577,18 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           {/* Right Action: Live Circadian Phase Pill & Log GT Button */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
             <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+
+            {/* Take 50-MCQ Timed Mini-Mock */}
+            <button
+              type="button"
+              onClick={() => setShowMockModal(true)}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-98"
+              title="Launch 50-MCQ timed NBE exam simulation"
+            >
+              <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Take Mini-Mock (50Q)</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setShowAddGTModal(true)}
@@ -1589,6 +1606,14 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         </div>,
         document.body,
       )}
+
+      {/* 50-MCQ Timed NBE Examination Simulation */}
+      <NbeMockExamModal
+        isOpen={showMockModal}
+        onClose={() => setShowMockModal(false)}
+        onLogGrandTest={onAddGrandTest}
+        onAddErrorItem={onAddErrorItem}
+      />
     </div>
   );
 };

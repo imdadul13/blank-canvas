@@ -25,6 +25,8 @@ import { NotificationCenterModal } from './components/NotificationCenterModal';
 import { CloudSyncModal } from './components/CloudSyncModal';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
 import { IbqRapidRecallModal } from './components/IbqRapidRecallModal';
+import { FloatingAudioReviewBar } from './components/FloatingAudioReviewBar';
+import { ZenFocusRoomModal } from './components/ZenFocusRoomModal';
 import { ErrorBoundary } from './components/error-boundary';
 import { AppSplashScreen } from './components/AppSplashScreen';
 import { AuthProvider, useAuth, DEV_AUTH_BYPASS } from './context/AuthContext';
@@ -132,6 +134,7 @@ function AppInner() {
   const [isCloudSyncOpen, setIsCloudSyncOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isGlobalIbqModalOpen, setIsGlobalIbqModalOpen] = useState(false);
+  const [isZenFocusOpen, setIsZenFocusOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
 
   // Global Command Palette Shortcut (Cmd+K / Ctrl+K)
@@ -810,6 +813,7 @@ function AppInner() {
                     activeBg={activeBg}
                     onShuffleBg={handleCycleBg}
                     onOpenProfile={() => setIsProfileOpen(true)}
+                    onOpenZenFocus={() => setIsZenFocusOpen(true)}
                     subTab="overview"
                     onSubTabChange={(tab) => {
                       if (tab === 'overview') handleSetActiveTab('dashboard');
@@ -854,6 +858,7 @@ function AppInner() {
                     onAddGrandTest={handleAddGrandTest}
                     onDeleteGrandTest={handleDeleteGrandTest}
                     onNavigateTab={(tab) => setActiveTab(tab as any)}
+                    onAddErrorItem={handleAddErrorItem}
                   />
                 )}
 
@@ -999,6 +1004,7 @@ function AppInner() {
                     activeBg={activeBg}
                     onShuffleBg={handleCycleBg}
                     onOpenProfile={() => setIsProfileOpen(true)}
+                    onOpenZenFocus={() => setIsZenFocusOpen(true)}
                     subTab="planner"
                     onSubTabChange={(tab) => {
                       if (tab === 'overview') handleSetActiveTab('dashboard');
@@ -1138,6 +1144,17 @@ function AppInner() {
         isOpen={isGlobalIbqModalOpen}
         onClose={() => setIsGlobalIbqModalOpen(false)}
         onOpenAiCoach={handleOpenAiCoach}
+      />
+
+      {/* Global Hands-Free Audio Commute Review Player */}
+      <FloatingAudioReviewBar />
+
+      {/* Zen Clinical Study Sanctuary Modal */}
+      <ZenFocusRoomModal
+        isOpen={isZenFocusOpen}
+        onClose={() => setIsZenFocusOpen(false)}
+        state={state}
+        onUpdateDailyLog={handleUpdateDailyLog}
       />
     </div>
   );
