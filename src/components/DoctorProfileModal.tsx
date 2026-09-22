@@ -18,6 +18,8 @@ import {
   Save,
   Activity,
   ShieldCheck,
+  Shield,
+  ShieldAlert,
   GraduationCap,
   ChevronRight,
   Check,
@@ -34,7 +36,13 @@ import {
   isValidBaselineScore,
 } from '../utils/onboarding';
 import { AppStats, downloadBackupFile, normalizeAppState, saveAppState } from '../utils/storage';
-import { getNextFmgeSessionDate } from '../utils/date';
+import { getNextFmgeSessionDate, getLocalDateKey } from '../utils/date';
+import {
+  calculateProtectedStudyStreak,
+  canActivateDutyShield,
+  activateDutyShield,
+  getStreakProtectionStatus,
+} from '../utils/streakProtectionEngine';
 
 interface DoctorProfileModalProps {
   isOpen: boolean;
@@ -71,6 +79,26 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
+  const [dutyShieldFeedback, setDutyShieldFeedback] = useState<string | null>(null);
+
+  const streakStatus = useMemo(() => getStreakProtectionStatus(state), [state]);
+  const protectedStreak = useMemo(
+    () => calculateProtectedStudyStreak(state.studyLogs || {}, state.streakFreezeDates || []),
+    [state.studyLogs, state.streakFreezeDates]
+  );
+  const dutyShieldCheck = useMemo(() => canActivateDutyShield(state), [state]);
+
+  const handleActivateDutyShield = () => {
+    if (!dutyShieldCheck.allowed) {
+      setDutyShieldFeedback(dutyShieldCheck.reason || 'Cannot activate duty shield');
+      return;
+    }
+    const updated = activateDutyShield(state);
+    saveAppState(updated);
+    onImportState(updated);
+    setDutyShieldFeedback('Duty Shield activated for today. Your study streak is secured!');
+    setTimeout(() => setDutyShieldFeedback(null), 4000);
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -688,6 +716,82 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                     <p className="text-[10px] text-stone-400">Daily Pacing</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Clinical Duty Shield & Streak Protection Card */}
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-teal-500/5 via-stone-50/70 to-emerald-500/5 border border-teal-200/70 shadow-2xs space-y-3.5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-9 w-9 rounded-xl bg-teal-600/10 border border-teal-600/20 flex items-center justify-center text-[#006B63] shrink-0">
+                      <Shield className="h-4.5 w-4.5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-stone-900 tracking-tight flex items-center gap-1.5">
+                        Clinical Duty Shield
+                        {streakStatus.isActiveToday ? (
+                          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            Active Today
+                          </span>
+                        ) : (
+                          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-stone-100 text-stone-600 border border-stone-200">
+                            Standby
+                          </span>
+                        )}
+                      </h4>
+                      <p className="text-[11px] text-stone-500">
+                        Casualty shifts, night calls &amp; 24-hr rotation streak freeze
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <div className="text-sm font-extrabold text-amber-600 flex items-center justify-end gap-1 font-['Outfit']">
+                      <Flame className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                      <span>{protectedStreak}d Streak</span>
+                    </div>
+                    <span className="text-[10px] text-stone-400 font-medium">
+                      {streakStatus.availableCount} of {streakStatus.maxMonthly} Freezes Left
+                    </span>
+                  </div>
+                </div>
+
+                {/* Duty Shield Action Bar */}
+                <div className="pt-2 border-t border-stone-200/60 flex items-center justify-between gap-3">
+                  <div className="text-[11px] text-stone-600 leading-snug">
+                    {streakStatus.isActiveToday ? (
+                      <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                        <Check className="h-3.5 w-3.5" />
+                        Today&apos;s study streak is locked and protected against shift fatigue.
+                      </span>
+                    ) : (
+                      <span>
+                        On hospital duty today? Freeze your streak to prevent lapse during emergency rotations.
+                      </span>
+                    )}
+                  </div>
+
+                  {!streakStatus.isActiveToday && (
+                    <button
+                      type="button"
+                      onClick={handleActivateDutyShield}
+                      disabled={!dutyShieldCheck.allowed}
+                      className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                        dutyShieldCheck.allowed
+                          ? 'bg-[#006B63] hover:bg-[#00524C] text-white shadow-2xs hover:shadow active:scale-95'
+                          : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <Shield className="h-3.5 w-3.5" />
+                      <span>Activate Shield</span>
+                    </button>
+                  )}
+                </div>
+
+                {dutyShieldFeedback && (
+                  <div className="text-[11px] text-teal-800 bg-teal-50 border border-teal-200 rounded-lg p-2 font-medium">
+                    {dutyShieldFeedback}
+                  </div>
+                )}
               </div>
 
               {/* Study Consistency Advice */}

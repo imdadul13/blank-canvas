@@ -56,6 +56,8 @@ import { getLocalDateKey } from './utils/date';
 import { useScrollDirection } from './hooks/useScrollDirection';
 import { resolveTimeOfDay } from './hooks/useCircadianTheme';
 import { getActiveNotificationCount } from './utils/notificationEngine';
+import { recordSpacedAttempt } from './utils/spacedRepetitionEngine';
+import { AudioRecallPlayerModal } from './components/AudioRecallPlayerModal';
 
 const STUDY_BACKGROUNDS = [
   { id: 'morning', url: '/images/study-bg/study-art-morning.jpg', label: 'Morning Desk', period: 'Morning' },
@@ -137,6 +139,7 @@ function AppInner() {
   const [isGlobalIbqModalOpen, setIsGlobalIbqModalOpen] = useState(false);
   const [isZenFocusOpen, setIsZenFocusOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isAudioRecallOpen, setIsAudioRecallOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const { isVisible: isNavVisible } = useScrollDirection(12);
 
@@ -448,9 +451,11 @@ function AppInner() {
   const handleToggleErrorReviewed = (id: string) => {
     setState((prev) => ({
       ...prev,
-      errorNotebook: (prev.errorNotebook || []).map((e) =>
-        e.id === id ? { ...e, isReviewed: !e.isReviewed } : e
-      ),
+      errorNotebook: (prev.errorNotebook || []).map((e) => {
+        if (e.id !== id) return e;
+        const willBeReviewed = !e.isReviewed;
+        return recordSpacedAttempt(e, willBeReviewed);
+      }),
     }));
   };
 
@@ -984,6 +989,7 @@ function AppInner() {
                     onShuffleBg={handleCycleBg}
                     onOpenProfile={() => setIsProfileOpen(true)}
                     onOpenZenFocus={() => setIsZenFocusOpen(true)}
+                    onOpenAudioRecall={() => setIsAudioRecallOpen(true)}
                     subTab="overview"
                     onSubTabChange={(tab) => {
                       if (tab === 'overview') handleSetActiveTab('dashboard');
@@ -1177,6 +1183,7 @@ function AppInner() {
                     onShuffleBg={handleCycleBg}
                     onOpenProfile={() => setIsProfileOpen(true)}
                     onOpenZenFocus={() => setIsZenFocusOpen(true)}
+                    onOpenAudioRecall={() => setIsAudioRecallOpen(true)}
                     subTab="planner"
                     onSubTabChange={(tab) => {
                       if (tab === 'overview') handleSetActiveTab('dashboard');
@@ -1323,6 +1330,13 @@ function AppInner() {
 
       {/* Global Hands-Free Audio Commute Review Player */}
       <FloatingAudioReviewBar />
+
+      {/* Premier Hands-Free Hospital Commute Audio Recall Modal */}
+      <AudioRecallPlayerModal
+        isOpen={isAudioRecallOpen}
+        onClose={() => setIsAudioRecallOpen(false)}
+        state={state}
+      />
 
       {/* Zen Clinical Study Sanctuary Modal */}
       <ZenFocusRoomModal

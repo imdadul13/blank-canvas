@@ -42,6 +42,11 @@ import {
   generateConceptRemediationPackage,
   ConceptRemediationPackage,
 } from '../utils/errorRemediationEngine';
+import {
+  getSpacedErrorsSummary,
+  formatSpacedIntervalBadge,
+  isSpacedErrorDue,
+} from '../utils/spacedRepetitionEngine';
 
 export type MistakeType =
   | 'Concept Gap'
@@ -294,7 +299,8 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
   } | null>(null);
 
   // Filter & Navigation States
-  const [mainFilterTab, setMainFilterTab] = useState<'all' | 'subject' | 'system' | 'type'>('all');
+  const [mainFilterTab, setMainFilterTab] = useState<'all' | 'spaced' | 'subject' | 'system' | 'type'>('all');
+  const [selectedSpacedStage, setSelectedSpacedStage] = useState<'all' | 'due' | 'learning' | 'reviewing' | 'mastered'>('all');
   const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('all');
   const [selectedSystemFilter, setSelectedSystemFilter] = useState<string>('all');
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>('all');
@@ -314,6 +320,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
   });
 
   const errors = useMemo(() => state.errorNotebook || [], [state.errorNotebook]);
+  const spacedSummary = useMemo(() => getSpacedErrorsSummary(errors), [errors]);
 
   // Summary Metrics
   const metrics = useMemo(() => {
@@ -387,7 +394,12 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
   const filteredErrors = useMemo(() => {
     return errors.filter((err) => {
       // Main filter tabs
-      if (mainFilterTab === 'subject') {
+      if (mainFilterTab === 'spaced') {
+        if (selectedSpacedStage === 'due' && !isSpacedErrorDue(err)) return false;
+        if (selectedSpacedStage === 'learning' && (err.spacedStage !== 'learning' || isSpacedErrorDue(err))) return false;
+        if (selectedSpacedStage === 'reviewing' && (err.spacedStage !== 'reviewing' || isSpacedErrorDue(err))) return false;
+        if (selectedSpacedStage === 'mastered' && (err.spacedStage !== 'mastered' || isSpacedErrorDue(err))) return false;
+      } else if (mainFilterTab === 'subject') {
         if (selectedSubjectFilter !== 'all' && err.subjectId !== selectedSubjectFilter) return false;
       } else if (mainFilterTab === 'system') {
         if (selectedSystemFilter !== 'all') {
@@ -418,6 +430,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
   }, [
     errors,
     mainFilterTab,
+    selectedSpacedStage,
     selectedSubjectFilter,
     selectedSystemFilter,
     selectedTypeFilter,
@@ -669,6 +682,11 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
                 {[
                   { id: 'all', desktop: 'All Errors', mobile: 'All' },
+                  {
+                    id: 'spaced',
+                    desktop: `Spaced Ladder (${spacedSummary.dueCount} Due)`,
+                    mobile: `Spaced (${spacedSummary.dueCount})`,
+                  },
                   { id: 'subject', desktop: 'By Subject', mobile: 'Subject' },
                   { id: 'system', desktop: 'By System', mobile: 'System' },
                   { id: 'type', desktop: 'By Mistake Type', mobile: 'Type' },
@@ -718,6 +736,38 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
             </div>
 
             {/* Secondary Filter Sub-pills */}
+            {mainFilterTab === 'spaced' && (
+              <div className="flex items-center gap-2 pt-1 border-t border-slate-100 text-xs overflow-x-auto pb-1 scrollbar-none">
+                <span className="text-[11px] font-mono uppercase text-slate-400 mr-1">Stage:</span>
+                {[
+                  { id: 'all', label: `All (${spacedSummary.totalCount})` },
+                  { id: 'due', label: `Due Today (${spacedSummary.dueCount})` },
+                  { id: 'learning', label: `In Learning (${spacedSummary.learningCount})` },
+                  { id: 'reviewing', label: `Lock-in (${spacedSummary.reviewingCount})` },
+                  { id: 'mastered', label: `Mastered (${spacedSummary.masteredCount})` },
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedSpacedStage(s.id as any);
+                      setVisibleCount(5);
+                    }}
+                    className={`px-2.5 py-0.5 rounded-md text-xs font-medium cursor-pointer transition-colors whitespace-nowrap ${
+                      selectedSpacedStage === s.id
+                        ? s.id === 'due'
+                          ? 'bg-rose-500 text-white font-bold'
+                          : 'bg-slate-900 text-white font-semibold'
+                        : s.id === 'due' && spacedSummary.dueCount > 0
+                        ? 'bg-rose-50 text-rose-700 font-bold border border-rose-200'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            )}
             {mainFilterTab === 'all' && (
               <div className="flex items-center gap-2 pt-1 border-t border-slate-100 text-xs">
                 <span className="text-[11px] font-mono uppercase text-slate-400 mr-1">Status:</span>
@@ -932,8 +982,16 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                             <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold">
                               {sub.name}
                             </span>
+                            {(() => {
+                              const badge = formatSpacedIntervalBadge(err);
+                              return (
+                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold border ${badge.className}`}>
+                                  {badge.label}
+                                </span>
+                              );
+                            })()}
                             {err.isReviewed && (
-                              <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.2 rounded-md font-semibold">
+                              <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md font-semibold">
                                 Resolved
                               </span>
                             )}

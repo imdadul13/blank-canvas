@@ -123,6 +123,13 @@ export interface ErrorNotebookItem {
   imageUrl?: string;
   imageCategory?: MedicalImageCategory;
   imageAsset?: MedicalImageAsset;
+  /** Spaced Repetition (FSRS / SM-2) Calibrated Metadata */
+  repetitionIntervalDays?: number;
+  repetitionCount?: number;
+  easeFactor?: number;
+  nextReviewDueDate?: string;
+  lastReviewedDate?: string;
+  spacedStage?: 'due' | 'learning' | 'reviewing' | 'mastered';
 }
 
 export interface DailyTask {
@@ -1052,6 +1059,17 @@ export interface AppState {
   videoInteractions?: VideoInteraction[];
   /** Topic mastery learning package state (video, flashcards, slides, MCQs, revision schedule) */
   topicMasteryPackages?: Record<string, TopicMasteryLearningPackage>;
+  /** Hospital duty / Clinical duty streak freezes available (default up to 2/month) */
+  streakFreezesAvailable?: number;
+  /** Dates when streak freeze shield was active (ISO strings YYYY-MM-DD) */
+  streakFreezeDates?: string[];
+  /** Audio commute recall playback settings */
+  audioRecallConfig?: {
+    playbackRate?: number;
+    pauseDurationSeconds?: number;
+    autoAdvance?: boolean;
+    lastTriadIndex?: number;
+  };
 }
 
 // =================== FMGE PREDICTION ENGINE TYPES ===================

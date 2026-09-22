@@ -10,11 +10,15 @@ import {
   Layers,
   CheckCircle2,
   Scan,
+  Activity,
+  MoveHorizontal,
+  Crosshair,
+  Sparkles,
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { MedicalImageAsset } from '../types';
 
-interface MedicalImageViewerModalProps {
+export interface MedicalImageViewerModalProps {
   isOpen: boolean;
   onClose: () => void;
   imageUrl: string;
@@ -37,8 +41,19 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
 }) => {
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [isHighContrast, setIsHighContrast] = useState<boolean>(false);
+  const [isInvertedXray, setIsInvertedXray] = useState<boolean>(false);
   const [showAnnotated, setShowAnnotated] = useState<boolean>(false);
   const [isLoupeActive, setIsLoupeActive] = useState<boolean>(false);
+  const [isCaliperActive, setIsCaliperActive] = useState<boolean>(false);
+  const [showHotspots, setShowHotspots] = useState<boolean>(false);
+  const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
+
+  // Caliper state (coordinates relative to container)
+  const [caliperStart, setCaliperStart] = useState<{ x: number; y: number }>({ x: 260, y: 320 });
+  const [caliperEnd, setCaliperEnd] = useState<{ x: number; y: number }>({ x: 380, y: 320 });
+  const [draggingHandle, setDraggingHandle] = useState<'start' | 'end' | 'both' | null>(null);
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
   const [isHoveringImage, setIsHoveringImage] = useState<boolean>(false);
   const [loupePos, setLoupePos] = useState<{ x: number; y: number; relX: number; relY: number }>({
     x: 0,
@@ -68,7 +83,12 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
       setZoomLevel(1);
       setPosition({ x: 0, y: 0 });
       setIsHighContrast(false);
+      setIsInvertedXray(false);
       setShowAnnotated(false);
+      setIsLoupeActive(false);
+      setIsCaliperActive(false);
+      setShowHotspots(false);
+      setActiveHotspot(null);
     }
   }, [isOpen, imageUrl]);
 
@@ -95,13 +115,62 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
 
   if (!isOpen || !imageUrl) return null;
 
+  // Caliper Calculation: 25 mm/s paper speed standard.
+  // 1 mm small square = 0.04s = 40 ms.
+  // Assuming a baseline calibration of ~2.5 ms per screen pixel at 1x zoom
+  const caliperPx = Math.abs(caliperEnd.x - caliperStart.x);
+  const caliperMs = Math.round(caliperPx * 2.2);
+  const caliperMm = Math.round(caliperPx / 4.5);
+
+  let caliperInterpretation = 'Calipers Ready';
+  let caliperColor = 'text-cyan-300';
+  if (caliperMs >= 60 && caliperMs <= 110) {
+    caliperInterpretation = 'Normal QRS Duration (60-110 ms)';
+    caliperColor = 'text-emerald-400';
+  } else if (caliperMs > 110 && caliperMs <= 140) {
+    caliperInterpretation = 'Borderline / Broad QRS (Possible Bundle Branch Block)';
+    caliperColor = 'text-amber-400';
+  } else if (caliperMs >= 120 && caliperMs <= 200) {
+    caliperInterpretation = 'Normal PR Interval (120-200 ms: 3-5 small boxes)';
+    caliperColor = 'text-emerald-400';
+  } else if (caliperMs > 200 && caliperMs <= 320) {
+    caliperInterpretation = 'Prolonged PR Interval (1st Degree AV Block if >200ms)';
+    caliperColor = 'text-rose-400';
+  } else if (caliperMs >= 350 && caliperMs <= 460) {
+    caliperInterpretation = 'Normal QTc Window (approx 360-440 ms)';
+    caliperColor = 'text-teal-400';
+  } else if (caliperMs > 460) {
+    caliperInterpretation = 'Prolonged QT Interval (Risk of Torsades de Pointes)';
+    caliperColor = 'text-rose-400';
+  }
+
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (zoomLevel <= 1) return;
+    if (draggingHandle) return;
+    if (zoomLevel <= 1 && !isCaliperActive) return;
+    if (isCaliperActive) return;
     setIsDragging(true);
     setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (draggingHandle && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const currentX = e.clientX - rect.left;
+      const currentY = e.clientY - rect.top;
+
+      if (draggingHandle === 'start') {
+        setCaliperStart({ x: Math.max(20, Math.min(rect.width - 20, currentX)), y: caliperStart.y });
+      } else if (draggingHandle === 'end') {
+        setCaliperEnd({ x: Math.max(20, Math.min(rect.width - 20, currentX)), y: caliperEnd.y });
+      } else if (draggingHandle === 'both') {
+        const dx = currentX - dragOffset.x;
+        const width = caliperEnd.x - caliperStart.x;
+        setCaliperStart({ x: currentX, y: currentY });
+        setCaliperEnd({ x: currentX + width, y: currentY });
+      }
+      return;
+    }
+
     if (!isDragging) return;
     setPosition({
       x: e.clientX - dragStart.x,
@@ -111,6 +180,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setDraggingHandle(null);
   };
 
   // Wheel zoom
@@ -137,11 +207,17 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
 
   const handleTouchEnd = () => {
     lastTouchDistanceRef.current = null;
+    setDraggingHandle(null);
   };
 
   const displayCategory = imageAsset?.imageCategory
     ? imageAsset.imageCategory.toUpperCase()
     : 'CLINICAL IMAGE';
+
+  // Compute filter styling
+  let imageFilter = 'none';
+  if (isHighContrast) imageFilter = 'contrast(170%) brightness(105%)';
+  if (isInvertedXray) imageFilter = 'invert(100%) hue-rotate(180%) contrast(150%)';
 
   return createPortal(
     <div
@@ -152,9 +228,9 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
       onTouchEnd={handleTouchEnd}
     >
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-900/90 border-b border-slate-800 text-white shrink-0">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-3 bg-slate-900/90 border-b border-white/10 text-white shrink-0">
         <div className="flex items-center gap-3">
-          <span className="px-2.5 py-1 rounded-full bg-sky-500/20 border border-sky-400/30 text-sky-300 text-[10px] sm:text-[11px] font-bold tracking-wider font-mono">
+          <span className="px-2.5 py-1 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-[10px] sm:text-[11px] font-bold tracking-wider font-mono">
             {displayCategory}
           </span>
           <div>
@@ -169,22 +245,50 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
 
         {/* Toolbar Controls */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Annotated Breakdown Toggle (Available if annotated version exists) */}
-          {effectiveAnnotatedUrl && (
-            <button
-              type="button"
-              onClick={() => setShowAnnotated(!showAnnotated)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
-                showAnnotated
-                  ? 'bg-sky-500 text-white border-sky-400 shadow-sm'
-                  : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
-              }`}
-              title="Toggle Diagnostic Annotations on/off"
-            >
-              <Eye className="w-3.5 h-3.5 text-sky-300" />
-              <span>{showAnnotated ? 'Hide Annotations' : 'Show Annotations'}</span>
-            </button>
-          )}
+          {/* ECG Caliper Tool Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsCaliperActive(!isCaliperActive)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
+              isCaliperActive
+                ? 'bg-cyan-500 text-slate-950 font-bold border-cyan-400 shadow-md shadow-cyan-500/20'
+                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+            }`}
+            title="Draggable Digital ECG Calipers (ms / mm measure)"
+          >
+            <Activity className="w-3.5 h-3.5" />
+            <span>ECG Calipers</span>
+          </button>
+
+          {/* Pathology Hotspots Toggle */}
+          <button
+            type="button"
+            onClick={() => setShowHotspots(!showHotspots)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
+              showHotspots
+                ? 'bg-amber-500 text-slate-950 font-bold border-amber-400 shadow-sm'
+                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+            }`}
+            title="Highlight Pathognomonic Areas"
+          >
+            <Crosshair className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Pathology Hotspots</span>
+          </button>
+
+          {/* Invert X-Ray / Bone Window */}
+          <button
+            type="button"
+            onClick={() => setIsInvertedXray(!isInvertedXray)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
+              isInvertedXray
+                ? 'bg-indigo-500 text-white border-indigo-400 shadow-sm'
+                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+            }`}
+            title="Invert Grayscale (Radiography Bone Window)"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{isInvertedXray ? 'Standard' : 'Bone Window'}</span>
+          </button>
 
           {/* High Contrast Toggle */}
           <button
@@ -198,7 +302,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
             title="Toggle High Contrast for ECG / Radiology inspection"
           >
             <Layers className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{isHighContrast ? 'Standard Contrast' : 'High Contrast'}</span>
+            <span className="hidden sm:inline">{isHighContrast ? 'Normal Contrast' : 'High Contrast'}</span>
           </button>
 
           {/* 2.8x Diagnostic Loupe Tool */}
@@ -266,7 +370,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
         ref={containerRef}
         onWheel={handleWheel}
         className={`flex-1 overflow-hidden relative flex items-center justify-center p-4 sm:p-6 ${
-          zoomLevel > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+          zoomLevel > 1 && !isCaliperActive ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
         }`}
         onMouseDown={handleMouseDown}
         onDoubleClick={() => {
@@ -279,10 +383,10 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
         }}
       >
         <div
-          className="transition-transform duration-100 ease-out origin-center"
+          className="relative transition-transform duration-100 ease-out origin-center"
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${zoomLevel})`,
-            filter: isHighContrast ? 'contrast(160%) brightness(105%)' : 'none',
+            filter: imageFilter,
           }}
         >
           <img
@@ -311,16 +415,156 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
             }}
             draggable={false}
           />
+
+          {/* Interactive Pathology Hotspot Pins */}
+          {showHotspots && (
+            <>
+              <div
+                className="absolute top-[40%] left-[45%] z-20 group cursor-pointer"
+                onClick={() => setActiveHotspot('Primary Pathognomonic Lesion: Hallmark diagnostic pattern')}
+              >
+                <div className="relative flex items-center justify-center">
+                  <span className="animate-ping absolute inline-flex h-7 w-7 rounded-full bg-amber-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-5 w-5 bg-amber-500 border-2 border-white items-center justify-center shadow-lg">
+                    <Crosshair className="w-3 h-3 text-slate-950 font-bold" />
+                  </span>
+                </div>
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-7 hidden group-hover:block bg-black/90 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-amber-400/40 whitespace-nowrap shadow-xl">
+                  Primary Pathognomonic Finding
+                </div>
+              </div>
+
+              <div
+                className="absolute top-[60%] left-[55%] z-20 group cursor-pointer"
+                onClick={() => setActiveHotspot('Secondary Diagnostic Sign: Classical reciprocal change')}
+              >
+                <div className="relative flex items-center justify-center">
+                  <span className="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-teal-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-4 w-4 bg-teal-400 border-2 border-white items-center justify-center shadow-lg" />
+                </div>
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-6 hidden group-hover:block bg-black/90 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-teal-400/40 whitespace-nowrap shadow-xl">
+                  Secondary Associated Sign
+                </div>
+              </div>
+            </>
+          )}
         </div>
+
+        {/* Digital ECG Calipers Overlay */}
+        {isCaliperActive && (
+          <div className="absolute inset-0 pointer-events-none z-30">
+            <svg className="w-full h-full">
+              {/* Horizontal Connecting Bracket Line */}
+              <line
+                x1={caliperStart.x}
+                y1={caliperStart.y}
+                x2={caliperEnd.x}
+                y2={caliperEnd.y}
+                stroke="#06b6d4"
+                strokeWidth="2.5"
+                strokeDasharray="4 2"
+              />
+
+              {/* Left Caliper Needle */}
+              <line
+                x1={caliperStart.x}
+                y1={caliperStart.y - 70}
+                x2={caliperStart.x}
+                y2={caliperStart.y + 70}
+                stroke="#06b6d4"
+                strokeWidth="2"
+              />
+
+              {/* Right Caliper Needle */}
+              <line
+                x1={caliperEnd.x}
+                y1={caliperEnd.y - 70}
+                x2={caliperEnd.x}
+                y2={caliperEnd.y + 70}
+                stroke="#06b6d4"
+                strokeWidth="2"
+              />
+            </svg>
+
+            {/* Draggable Left Handle */}
+            <div
+              className="absolute pointer-events-auto cursor-ew-resize -translate-x-1/2 -translate-y-1/2"
+              style={{ left: caliperStart.x, top: caliperStart.y }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                setDraggingHandle('start');
+              }}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                setDraggingHandle('start');
+              }}
+            >
+              <div className="h-8 w-8 rounded-full bg-cyan-500/80 border-2 border-white shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform">
+                <MoveHorizontal className="h-3.5 w-3.5 text-slate-950 font-bold" />
+              </div>
+            </div>
+
+            {/* Draggable Right Handle */}
+            <div
+              className="absolute pointer-events-auto cursor-ew-resize -translate-x-1/2 -translate-y-1/2"
+              style={{ left: caliperEnd.x, top: caliperEnd.y }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                setDraggingHandle('end');
+              }}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                setDraggingHandle('end');
+              }}
+            >
+              <div className="h-8 w-8 rounded-full bg-cyan-500/80 border-2 border-white shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform">
+                <MoveHorizontal className="h-3.5 w-3.5 text-slate-950 font-bold" />
+              </div>
+            </div>
+
+            {/* Caliper Floating HUD Banner */}
+            <div
+              className="absolute pointer-events-auto -translate-x-1/2 bg-slate-900/90 border border-cyan-400/50 rounded-2xl px-4 py-2 text-white shadow-2xl backdrop-blur-md flex items-center gap-3"
+              style={{
+                left: (caliperStart.x + caliperEnd.x) / 2,
+                top: Math.min(caliperStart.y, caliperEnd.y) - 60,
+              }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                if (containerRef.current) {
+                  const rect = containerRef.current.getBoundingClientRect();
+                  setDragOffset({ x: e.clientX - rect.left - caliperStart.x, y: e.clientY - rect.top - caliperStart.y });
+                  setDraggingHandle('both');
+                }
+              }}
+            >
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-base font-black text-cyan-300">
+                    {caliperMs} ms
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    ({caliperMm} mm / small squares)
+                  </span>
+                </div>
+                <span className={`text-[11px] font-semibold ${caliperColor}`}>
+                  {caliperInterpretation}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Bottom Info Banner */}
       <div className="bg-slate-900/90 border-t border-slate-800 px-4 sm:px-6 py-3 text-xs text-slate-300 flex flex-col md:flex-row md:items-center justify-between gap-2.5 shrink-0">
         <div className="flex items-start md:items-center gap-2">
-          <Eye className="w-4 h-4 text-sky-400 shrink-0 mt-0.5 md:mt-0" />
+          <Eye className="w-4 h-4 text-teal-400 shrink-0 mt-0.5 md:mt-0" />
           <div>
             <span className="font-bold text-white font-['Outfit'] mr-1">Visual Clue:</span>
-            <span>{whatToLookFor || imageAsset?.whatToLookFor || 'Observe morphological patterns and clinical signs carefully.'}</span>
+            <span>
+              {activeHotspot || whatToLookFor || imageAsset?.whatToLookFor || 'Observe morphological patterns and clinical signs carefully.'}
+            </span>
           </div>
         </div>
 
@@ -335,7 +579,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
                 href={imageAsset.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sky-400 hover:underline flex items-center gap-1"
+                className="text-teal-400 hover:underline flex items-center gap-1"
               >
                 <span>{imageAsset.sourceName || 'Source Archive'}</span>
                 <ExternalLink className="w-3 h-3" />
@@ -373,3 +617,5 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
     document.body
   );
 };
+
+export const InteractiveImageLightboxModal = MedicalImageViewerModal;

@@ -55,6 +55,7 @@ import {
   Pill,
   ShieldAlert,
   Sparkles,
+  Headphones,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext, GrandTest, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -67,6 +68,8 @@ import {
 } from '../utils/adaptivePriorityEngine';
 import { getNextFmgeSessionDate } from '../utils/date';
 import { calculateStudyStreak } from '../utils/dailyMissionEngine';
+import { calculateProtectedStudyStreak } from '../utils/streakProtectionEngine';
+import { isSpacedErrorDue } from '../utils/spacedRepetitionEngine';
 import {
   getPersonalizedDailyPlan,
   getLearningContext,
@@ -123,6 +126,7 @@ interface DashboardViewProps {
   onShuffleBg?: () => void;
   onOpenProfile?: () => void;
   onOpenZenFocus?: () => void;
+  onOpenAudioRecall?: () => void;
   subTab?: 'overview' | 'planner';
   onSubTabChange?: (tab: 'overview' | 'planner') => void;
 }
@@ -892,6 +896,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onShuffleBg,
   onOpenProfile,
   onOpenZenFocus,
+  onOpenAudioRecall,
   subTab,
   onSubTabChange,
 }) => {
@@ -926,9 +931,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [isExamEveCheatSheetOpen, setIsExamEveCheatSheetOpen] = useState(false);
   const [isNbeMockOpen, setIsNbeMockOpen] = useState(false);
 
-  // Unreviewed mistakes count and retest launcher
+  // Spaced Repetition Due Mistakes count and retest launcher
   const unreviewedErrorsCount = useMemo(() => {
-    return (state.errorNotebook || []).filter((e) => !e.isReviewed).length;
+    return (state.errorNotebook || []).filter((e) => isSpacedErrorDue(e)).length;
   }, [state.errorNotebook]);
 
   const handleLaunchErrorDrill = () => {
@@ -1222,10 +1227,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const focusMinutes = adaptiveRecommendation.allocatedMinutes || nextActionTask?.durationMinutes || 30;
   const focusMarks = adaptiveRecommendation.weightage || activeFocusSubject.weightage;
 
-  // Real consecutive study streak from study logs
+  // Protected study streak bridging hospital duties & rest days
   const currentStreak = useMemo(
-    () => calculateStudyStreak(state.studyLogs),
-    [state.studyLogs]
+    () => calculateProtectedStudyStreak(state.studyLogs, state.streakFreezeDates),
+    [state.studyLogs, state.streakFreezeDates]
   );
 
   // Active topic completion calculations for the circular gauge & status
@@ -2377,12 +2382,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </motion.section>
 
-            {/* ═══ HIGH-YIELD MATERIALISTIC ACTION DOCK (4 PILLS) ═══ */}
+            {/* ═══ HIGH-YIELD MATERIALISTIC ACTION DOCK (5 PILLS) ═══ */}
             <motion.div
               initial={SECTION_ENTER(0.1, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3"
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3"
             >
               {/* Action 1: IBQ Visual Sprint */}
               <motion.div
@@ -2428,7 +2433,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-violet-700 group-hover:translate-x-0.5 transition-all shrink-0" />
               </motion.div>
 
-              {/* Action 3: Retest Mistakes */}
+              {/* Action 3: Hands-Free Audio Recall Commute */}
+              <motion.div
+                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
+                whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                onClick={() => onOpenAudioRecall?.()}
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-white/95 to-slate-50/85 backdrop-blur-2xl border border-white/95 shadow-[0_4px_16px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)] hover:border-teal-300 hover:shadow-[0_8px_20px_rgba(20,184,166,0.14)] transition-all cursor-pointer group relative overflow-hidden"
+              >
+                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-br from-teal-50 to-cyan-100/80 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-108 group-hover:rotate-[-3deg] transition-all">
+                  <Headphones className="h-4 w-4 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1">
+                    <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
+                      Audio Recall
+                    </h4>
+                    <span className="px-1.5 py-0.2 rounded-full bg-teal-500/15 text-[8.5px] font-mono font-bold text-teal-800 border border-teal-300/40">
+                      PRO
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
+                    Hospital Commute
+                  </p>
+                </div>
+                <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all shrink-0" />
+              </motion.div>
+
+              {/* Action 4: Retest Mistakes */}
               <motion.div
                 whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
                 whileTap={reducedMotion ? undefined : { scale: 0.97 }}
@@ -2444,13 +2476,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     Retest Errors
                   </h4>
                   <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
-                    {state.errorNotebook?.length || 0} blunders
+                    {unreviewedErrorsCount} due mistakes
                   </p>
                 </div>
                 <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all shrink-0" />
               </motion.div>
 
-              {/* Action 4: NBE Simulator */}
+              {/* Action 5: NBE Simulator */}
               <motion.div
                 whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
                 whileTap={reducedMotion ? undefined : { scale: 0.97 }}
@@ -2466,7 +2498,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     NBE Simulator
                   </h4>
                   <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
-                    50Q &amp; 150Q Mock
+                    TCS iON Skin
                   </p>
                 </div>
                 <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-sky-700 group-hover:translate-x-0.5 transition-all shrink-0" />
