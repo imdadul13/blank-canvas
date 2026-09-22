@@ -23,6 +23,7 @@ import OneShotLogo from './OneShotLogo';
 import { AppStats } from '../utils/storage';
 import { SyncStatus } from '../types';
 import { EASE_SPRING } from '../utils/motionTokens';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 
 export type ActiveTab =
   | 'dashboard'
@@ -787,6 +788,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isSecondaryActive =
     activeTab === 'grandtests' || activeTab === 'telegram' || activeTab === 'more';
   const reducedMotion = useReducedMotion();
+  const { isVisible: isNavVisible } = useScrollDirection(12);
 
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const mobileMoreRef = useRef<HTMLDivElement>(null);
@@ -870,8 +872,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      {/* ── Mobile Top Header ──────────────────────── */}
-      <header
+      {/* ── Mobile Top Header with Dynamic Auto-Hide ── */}
+      <motion.header
+        initial={false}
+        animate={{
+          y: isNavVisible ? 0 : -90,
+          opacity: isNavVisible ? 1 : 0,
+        }}
+        transition={{ type: 'spring', stiffness: 440, damping: 28 }}
         className="lg:hidden sticky top-0 z-40 bg-white/85 backdrop-blur-2xl saturate-[180%] border-b border-black/[0.06] px-4 py-2.5 flex items-center justify-between font-sans shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all"
         style={{
           paddingTop: 'max(0.625rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
@@ -1060,9 +1068,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </button>
         </div>
-      </header>
+      </motion.header>
 
-      {/* ── Instagram-Style iOS Floating Pill Navigation Bar with Dynamic Scroll Zoom ── */}
+      {/* ── Dynamic Floating Pill Navigation Bar with Auto-Hide on Scroll ── */}
       <motion.nav
         className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1.25rem)] w-auto bg-white/85 backdrop-blur-2xl saturate-[180%] border border-black/[0.08] shadow-[0_16px_40px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04),inset_0_1px_1.5px_rgba(255,255,255,0.98)] rounded-full px-2 py-1.5 font-sans select-none"
         style={{
@@ -1072,18 +1080,17 @@ export const Navbar: React.FC<NavbarProps> = ({
         initial={false}
         animate={
           reducedMotion
-            ? { scale: 1, y: 0, opacity: 1 }
-            : scrollState.direction === 'down' && scrollState.isScrolling && scrollState.scrolledDistance > 30
-            ? { scale: 0.90, y: 8, opacity: 0.88 }
-            : scrollState.direction === 'up' && scrollState.isScrolling
-            ? { scale: 1.03, y: 0, opacity: 1 }
-            : { scale: 1, y: 0, opacity: 1 }
+            ? { y: isNavVisible ? 0 : 100, opacity: isNavVisible ? 1 : 0 }
+            : {
+                y: isNavVisible ? 0 : 100,
+                opacity: isNavVisible ? 1 : 0,
+                scale: isNavVisible ? 1 : 0.9,
+              }
         }
         transition={{
           type: 'spring',
           stiffness: 440,
-          damping: 24,
-          mass: 0.75,
+          damping: 28,
         }}
         aria-label="Mobile Navigation"
       >

@@ -73,6 +73,7 @@ import { PassingGapAnalyzer } from './PassingGapAnalyzer';
 import { IbqRapidRecallModal } from './IbqRapidRecallModal';
 import { ExamEveCheatSheetModal, HIGH_YIELD_TRIADS } from './ExamEveCheatSheetModal';
 import { NbeMockExamModal } from './NbeMockExamModal';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 import { AmbientSoundWidget } from './AmbientSoundWidget';
 import { getDuePearls } from '../utils/spacedRepetitionEngine';
 
@@ -854,6 +855,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Filter scroll ref for subject pills
   const filterScrollRef = useRef<HTMLDivElement>(null);
 
+  // Dynamic scroll-aware auto-hide state for navigation and headers
+  const { isVisible: isHeaderVisible, scrollY, isAtTop } = useScrollDirection(12);
+
   // Respect prefers-reduced-motion
   const reducedMotion = useReducedMotion();
 
@@ -1327,74 +1331,88 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
 
-        {/* ═══ 1. TOP BAR (Search, Notifications, Profile) ═══ */}
-        <div className="flex items-center justify-between gap-2 sm:gap-4">
-          {/* Search topics input */}
-          <div className="relative flex-1 w-full lg:max-w-xl">
-            <Search className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setIsSearchOpen(true);
-              }}
-              onFocus={() => setIsSearchOpen(true)}
-              placeholder="Search topics, subjects, questions..."
-              aria-label="Search topics"
-              className="w-full pl-9 sm:pl-10 pr-8 sm:pr-14 h-10 sm:h-11 rounded-full bg-white/75 backdrop-blur-xl border border-white/80 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] focus:bg-white/95 focus:outline-none focus:border-[#006B63]/40 focus:ring-2 focus:ring-[#006B63]/10 transition-all"
-            />
-            {searchQuery ? (
-              <button
-                type="button"
-                onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }}
-                className="absolute right-2.5 sm:right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
-                aria-label="Clear search"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            ) : (
-              <span className="hidden sm:inline-flex absolute right-3.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-white/80 border border-slate-200/50 text-[10px] font-mono text-slate-400 font-medium">
-                ⌘ K
-              </span>
-            )}
-          </div>
-
-          {/* Right Action Controls: Focus Audio Engine + Notification Bell + Doctor Avatar */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-
-            {/* Ambient Focus Audio Engine */}
-            <AmbientSoundWidget onOpenZenFocus={onOpenZenFocus} />
-
-            <button
-              type="button"
-              onClick={() => setIsNotificationCenterOpen(true)}
-              className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] text-slate-600 cursor-pointer hover:bg-white/95 hover:text-[#006B63] hover:border-teal-300 transition-all shrink-0"
-              title="View Study Notifications"
-              aria-label="View Study Notifications"
-            >
-              <Bell className="h-4.5 w-4.5 stroke-[1.8]" />
-              {hasUnread && (
-                <span className="absolute top-2 right-2 flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500" />
+        {/* ═══ 1. TOP BAR (Search, Notifications, Profile) with Dynamic Auto-Hide ═══ */}
+        <motion.div
+          initial={false}
+          animate={{
+            y: isHeaderVisible || isAtTop ? 0 : -80,
+            opacity: isHeaderVisible || isAtTop ? 1 : 0,
+          }}
+          transition={{ type: 'spring', stiffness: 450, damping: 28 }}
+          className={`sticky top-0 z-30 py-2 sm:py-2.5 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
+            scrollY > 30
+              ? 'bg-white/85 backdrop-blur-2xl border-b border-slate-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.03)]'
+              : 'bg-transparent'
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2 sm:gap-4 max-w-7xl mx-auto">
+            {/* Search topics input */}
+            <div className="relative flex-1 w-full lg:max-w-xl">
+              <Search className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setIsSearchOpen(true);
+                }}
+                onFocus={() => setIsSearchOpen(true)}
+                placeholder="Search topics, subjects, questions..."
+                aria-label="Search topics"
+                className="w-full pl-9 sm:pl-10 pr-8 sm:pr-14 h-10 sm:h-11 rounded-full bg-white/75 backdrop-blur-xl border border-white/80 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] focus:bg-white/95 focus:outline-none focus:border-[#006B63]/40 focus:ring-2 focus:ring-[#006B63]/10 transition-all"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }}
+                  className="absolute right-2.5 sm:right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                  aria-label="Clear search"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              ) : (
+                <span className="hidden sm:inline-flex absolute right-3.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-white/80 border border-slate-200/50 text-[10px] font-mono text-slate-400 font-medium">
+                  ⌘ K
                 </span>
               )}
-            </button>
+            </div>
 
-            <button
-              type="button"
-              onClick={onOpenProfile}
-              className="hidden sm:flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:bg-white/95 hover:border-teal-300 transition-all cursor-pointer group"
-              title="Doctor Profile & Blueprint"
-            >
-              <div className="h-8 w-8 rounded-full bg-[#2A2322] text-white flex items-center justify-center font-['Outfit'] font-bold text-xs shrink-0 ring-2 ring-slate-900/10">
-                {initials}
-              </div>
-              <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] transition-colors" />
-            </button>
+            {/* Right Action Controls: Focus Audio Engine + Notification Bell + Doctor Avatar */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+
+              {/* Ambient Focus Audio Engine */}
+              <AmbientSoundWidget onOpenZenFocus={onOpenZenFocus} />
+
+              <button
+                type="button"
+                onClick={() => setIsNotificationCenterOpen(true)}
+                className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] text-slate-600 cursor-pointer hover:bg-white/95 hover:text-[#006B63] hover:border-teal-300 transition-all shrink-0"
+                title="View Study Notifications"
+                aria-label="View Study Notifications"
+              >
+                <Bell className="h-4.5 w-4.5 stroke-[1.8]" />
+                {hasUnread && (
+                  <span className="absolute top-2 right-2 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500" />
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenProfile}
+                className="hidden sm:flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-white/80 backdrop-blur-xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,107,99,0.03)] hover:bg-white/95 hover:border-teal-300 transition-all cursor-pointer group"
+                title="Doctor Profile & Blueprint"
+              >
+                <div className="h-8 w-8 rounded-full bg-[#2A2322] text-white flex items-center justify-center font-['Outfit'] font-bold text-xs shrink-0 ring-2 ring-slate-900/10">
+                  {initials}
+                </div>
+                <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] transition-colors" />
+              </button>
+            </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Live Search Autocomplete Popup */}
         <AnimatePresence>
@@ -1699,54 +1717,63 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </motion.div>
 
 
-        {/* ═══ 2. SUBJECT FILTER PILLS BAR ═══ */}
+        {/* ═══ 2. SUBJECT FILTER PILLS BAR with Dynamic Auto-Hide ═══ */}
         <motion.div
-          initial={SECTION_ENTER(0.04, reducedMotion)}
-          animate={SECTION_SHOW}
-          transition={SECTION_TRANSITION(reducedMotion)}
-          className="relative flex items-center"
+          initial={false}
+          animate={{
+            y: isHeaderVisible || isAtTop || scrollY <= 260 ? 0 : -100,
+            opacity: isHeaderVisible || isAtTop || scrollY <= 260 ? 1 : 0,
+          }}
+          transition={{ type: 'spring', stiffness: 450, damping: 28 }}
+          className={`sticky top-[54px] sm:top-[58px] z-20 py-2 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
+            scrollY > 260
+              ? 'bg-white/85 backdrop-blur-2xl border-b border-slate-200/50 shadow-xs'
+              : 'bg-transparent'
+          } ${isHeaderVisible || isAtTop || scrollY <= 260 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
-          <div
-            ref={filterScrollRef}
-            className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none select-none snap-x w-full pr-2 sm:pr-10 [mask-image:linear-gradient(to_right,black_92%,transparent_100%)]"
-          >
-            {[{ id: 'all', name: 'All Subjects (19)' }, ...FMGE_SUBJECTS.map((s) => ({ id: s.id, name: s.name }))].map((f) => {
-              const active = selectedFilterSubjectId === f.id;
-              return (
-                <motion.button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setSelectedFilterSubjectId(f.id)}
-                  whileHover={reducedMotion ? undefined : { scale: 1.03 }}
-                  whileTap={reducedMotion ? undefined : { scale: 0.96 }}
-                  aria-pressed={active}
-                  className={`relative snap-start inline-flex items-center px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[34px] ${
-                    active
-                      ? 'text-white'
-                      : 'text-slate-600 hover:text-[#006B63] bg-white/75 backdrop-blur-md border border-white/80 hover:border-teal-300 hover:bg-white/90 shadow-2xs'
-                  }`}
-                >
-                  {active && (
-                    <motion.span
-                      layoutId="dashboard-subject-filter-pill"
-                      transition={SPRING(reducedMotion)}
-                      className="absolute inset-0 rounded-full bg-[#006B63] shadow-xs"
-                    />
-                  )}
-                  <span className="relative z-10">{f.name}</span>
-                </motion.button>
-              );
-            })}
+          <div className="relative flex items-center max-w-7xl mx-auto">
+            <div
+              ref={filterScrollRef}
+              className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none select-none snap-x w-full pr-2 sm:pr-10 [mask-image:linear-gradient(to_right,black_92%,transparent_100%)]"
+            >
+              {[{ id: 'all', name: 'All Subjects (19)' }, ...FMGE_SUBJECTS.map((s) => ({ id: s.id, name: s.name }))].map((f) => {
+                const active = selectedFilterSubjectId === f.id;
+                return (
+                  <motion.button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setSelectedFilterSubjectId(f.id)}
+                    whileHover={reducedMotion ? undefined : { scale: 1.03 }}
+                    whileTap={reducedMotion ? undefined : { scale: 0.96 }}
+                    aria-pressed={active}
+                    className={`relative snap-start inline-flex items-center px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[34px] ${
+                      active
+                        ? 'text-white'
+                        : 'text-slate-600 hover:text-[#006B63] bg-white/75 backdrop-blur-md border border-white/80 hover:border-teal-300 hover:bg-white/90 shadow-2xs'
+                    }`}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="dashboard-subject-filter-pill"
+                        transition={SPRING(reducedMotion)}
+                        className="absolute inset-0 rounded-full bg-[#006B63] shadow-xs"
+                      />
+                    )}
+                    <span className="relative z-10">{f.name}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+            {/* Scroll arrow on desktop */}
+            <button
+              type="button"
+              onClick={scrollPillsRight}
+              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/85 backdrop-blur-md border border-white/85 shadow-sm text-slate-500 hover:text-[#006B63] hover:border-teal-300 items-center justify-center cursor-pointer transition-colors"
+              title="Scroll subjects right"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
-          {/* Scroll arrow on desktop */}
-          <button
-            type="button"
-            onClick={scrollPillsRight}
-            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/85 backdrop-blur-md border border-white/85 shadow-sm text-slate-500 hover:text-[#006B63] hover:border-teal-300 items-center justify-center cursor-pointer transition-colors"
-            title="Scroll subjects right"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
         </motion.div>
 
         {/* ═══ 4. TWO-COLUMN DESKTOP LAYOUT (LEFT & RIGHT) ═══ */}

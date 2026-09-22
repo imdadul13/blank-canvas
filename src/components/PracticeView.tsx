@@ -17,6 +17,7 @@ import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from './HeaderTabInsignia';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 
 interface PracticeViewProps {
   state: AppState;
@@ -37,6 +38,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
   onLaunchPracticeSession,
 }) => {
   const circadian = useCircadianTheme(state?.settings?.bgTheme);
+  const { isVisible: isHeaderVisible, scrollY, isAtTop } = useScrollDirection(12);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('medicine');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -320,8 +322,20 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         </div>
       </motion.header>
 
-      {/* ================= SUBJECT NAVIGATION & CONTROLS ================= */}
-      <div className="space-y-4">
+      {/* ================= SUBJECT NAVIGATION & CONTROLS with Dynamic Auto-Hide ================= */}
+      <motion.div
+        initial={false}
+        animate={{
+          y: isHeaderVisible || isAtTop || scrollY <= 240 ? 0 : -90,
+          opacity: isHeaderVisible || isAtTop || scrollY <= 240 ? 1 : 0,
+        }}
+        transition={{ type: 'spring', stiffness: 450, damping: 28 }}
+        className={`sticky top-0 z-20 py-2.5 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 space-y-3 transition-colors duration-200 ${
+          scrollY > 240
+            ? 'bg-white/85 backdrop-blur-2xl border-b border-stone-200/60 shadow-xs'
+            : 'bg-transparent'
+        } ${isHeaderVisible || isAtTop || scrollY <= 240 ? 'pointer-events-auto' : 'pointer-events-none'}`}
+      >
         {/* Horizontal Subject Scrollbar */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
           <button
@@ -397,7 +411,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             <ChevronDown className="w-4 h-4 text-[#66716F] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* ================= TOPICS & DRILLS CONTAINER ================= */}
       <div className="clinical-card p-5 sm:p-7 lg:p-8 space-y-4 sm:space-y-6 bg-white/80 backdrop-blur-xl rounded-3xl border border-white/85 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_8px_30px_rgba(0,107,99,0.04)]">

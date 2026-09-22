@@ -51,6 +51,7 @@ import {
 import { FMGE_SUBJECTS } from './data/fmgeSubjects';
 import { calculateAppStats, deduplicateQuestions, deduplicateAnnouncements, saveAppState } from './utils/storage';
 import { getLocalDateKey } from './utils/date';
+import { useScrollDirection } from './hooks/useScrollDirection';
 
 const STUDY_BACKGROUNDS = [
   { id: 'morning', url: '/images/study-bg/study-art-morning.jpg', label: 'Morning Desk', period: 'Morning' },
@@ -136,6 +137,7 @@ function AppInner() {
   const [isGlobalIbqModalOpen, setIsGlobalIbqModalOpen] = useState(false);
   const [isZenFocusOpen, setIsZenFocusOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
+  const { isVisible: isNavVisible } = useScrollDirection(12);
 
   // Global Command Palette Shortcut (Cmd+K / Ctrl+K)
   useEffect(() => {
@@ -736,7 +738,15 @@ function AppInner() {
 
         {/* SwiftUI Floating Dynamic Island: Local Practice Mode Banner with Quick Exit */}
         {isGuest && (
-          <div className="hidden sm:block sticky top-2 sm:top-3 z-30 px-3 sm:px-6 pt-1 pointer-events-none">
+          <motion.div
+            initial={false}
+            animate={{
+              y: isNavVisible ? 0 : -80,
+              opacity: isNavVisible ? 1 : 0,
+            }}
+            transition={{ type: 'spring', stiffness: 450, damping: 28 }}
+            className="hidden sm:block sticky top-2 sm:top-3 z-30 px-3 sm:px-6 pt-1 pointer-events-none"
+          >
             <motion.div
               initial={{ y: -30, opacity: 0, scale: 0.96 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -773,7 +783,7 @@ function AppInner() {
                 </motion.button>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
 
         {/* Mobile Top Navbar & Bottom Bar */}
