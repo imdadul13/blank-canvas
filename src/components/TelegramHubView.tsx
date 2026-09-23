@@ -402,7 +402,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           const dupes = d.duplicatesMerged ?? data.duplicatesMergedCount ?? 0;
           const curated = d.curatedItems ?? data.curatedCount ?? data.newQuestionsCount ?? 0;
           setSyncBannerNotice(
-            `✓ Sync complete — ${scanned} messages scanned • ${newMsg} new • ${promo} filtered • ${dupes} duplicates merged • ${curated} high-yield items added`
+            `Sync complete — ${scanned} messages scanned • ${newMsg} new • ${promo} filtered • ${dupes} duplicates merged • ${curated} high-yield items added`
           );
           await fetchFeed(1);
           await fetchStatus();
@@ -423,12 +423,12 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
   const handleReEnrichWithGemini = async () => {
     setIsReEnriching(true);
-    setSyncBannerNotice("🧠 Gemini AI is verifying clinical questions, option distractors, and exam pearls...");
+    setSyncBannerNotice("Gemini AI is verifying clinical questions, option distractors, and exam pearls...");
     try {
       const res = await fetch("/api/telegram/cloud/re-enrich", { method: "POST" });
       const data = await res.json();
       if (data.success) {
-        setSyncBannerNotice(`🎉 Gemini verified & updated ${data.enrichedCount || 0} questions & exam pearls!`);
+        setSyncBannerNotice(`Gemini verified & updated ${data.enrichedCount || 0} questions & exam pearls!`);
         confetti({ particleCount: 50, spread: 70, origin: { y: 0.25 } });
         fetchFeed();
       } else {
@@ -1804,7 +1804,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     : "ONE SHOT Curated Knowledge Bank"}
                 </span>
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-[#00685f]/10 text-[#00685f] border border-[#00685f]/20">
-                  {highYieldOnly ? "🔥 HIGH YIELD ONLY" : "HIGH YIELD ≥ 75"}
+                  {highYieldOnly ? "HIGH YIELD ONLY" : "HIGH YIELD ≥ 75"}
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-slate-600 font-mono font-bold">
                   {filteredCuratedItems.length} {filteredCuratedItems.length === 1 ? "Item" : "Items"}
@@ -2388,7 +2388,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                           ? "bg-amber-100 text-amber-900 border border-amber-300"
                           : "bg-emerald-100 text-emerald-900 border border-emerald-300"
                       }`}>
-                        {isTrap ? "⚠️ DISPUTED TRAP / CONFLICT" : "✓ AI VERIFIED & AGREED"}
+                        {isTrap ? "DISPUTED TRAP / CONFLICT" : "AI VERIFIED & AGREED"}
                       </span>
                       {q && (
                         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-['Outfit'] bg-slate-100 text-slate-700 border border-slate-200">
@@ -2397,7 +2397,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                       )}
                     </div>
                     <span className="text-xs font-mono text-slate-500">
-                      Telegram: <strong className="text-slate-900">Option {cc.originalAnswer}</strong> ➔ Gemini AI: <strong className="text-purple-700">Option {cc.aiAnswer}</strong>
+                      Telegram: <strong className="text-slate-900">Option {cc.originalAnswer}</strong> &rarr; Gemini AI: <strong className="text-purple-700">Option {cc.aiAnswer}</strong>
                     </span>
                   </div>
 
@@ -2762,7 +2762,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     </label>
                     {livePhoneValidation?.isValid && (
                       <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                        ✓ {livePhoneValidation.countryCode} {livePhoneValidation.nationalNumber ? `(${livePhoneValidation.nationalNumber.length} digits)` : ""}
+                        {livePhoneValidation.countryCode} {livePhoneValidation.nationalNumber ? `(${livePhoneValidation.nationalNumber.length} digits)` : ""}
                       </span>
                     )}
                   </div>

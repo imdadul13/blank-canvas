@@ -707,7 +707,10 @@ export const MentorHistoryDrawer: React.FC<MentorHistoryDrawerProps> = ({
                       {starredCount > 0 && (
                         <>
                           <span className="text-slate-300 dark:text-slate-600">·</span>
-                          <span className="text-amber-600 dark:text-amber-400 font-bold">★ {starredCount}</span>
+                          <span className="text-amber-600 dark:text-amber-400 font-bold inline-flex items-center gap-0.5">
+                            <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                            {starredCount}
+                          </span>
                         </>
                       )}
                     </span>

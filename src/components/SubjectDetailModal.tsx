@@ -16,7 +16,7 @@ import {
   RotateCcw,
   Award,
 } from 'lucide-react';
-import { SubjectAppleIcon } from './SubjectAppleIcon';
+import { SubjectAppleIcon, getSubjectVisualTheme } from './SubjectAppleIcon';
 import {
   FMGESubject,
   TopicItem,
@@ -128,37 +128,53 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
   });
 
   const currentConfidence: ConfidenceLevel = progress?.confidence || 'not-started';
+  const subjectTheme = getSubjectVisualTheme(subject.id);
 
   return createPortal(
     <>
-      <div className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-md overflow-y-auto font-sans text-stone-900 animate-in fade-in duration-200">
+      <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md overflow-y-auto font-sans text-slate-900 animate-in fade-in duration-200">
         <div className="flex min-h-full items-center justify-center p-2 sm:p-4 md:p-6">
           <div className="bg-[#F8FAFA] backdrop-blur-2xl rounded-3xl max-w-4xl w-full my-auto max-h-[92vh] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80 overflow-hidden">
             {/* ================= 1. WORKSPACE HEADER & NAVIGATION HIERARCHY ================= */}
-            <div className="p-3.5 sm:p-6 border-b border-slate-200/80 bg-white/80 backdrop-blur-md space-y-4">
+            <div className="relative overflow-hidden p-4 sm:p-6 border-b border-slate-200/80 bg-gradient-to-br from-white via-white to-slate-50/70 backdrop-blur-md space-y-4">
+              {/* Subtle Subject Light Leak */}
+              <div
+                className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl opacity-20 pointer-events-none"
+                style={{ backgroundColor: subjectTheme.color }}
+              />
+
               {/* Navigation Location Bar: Study → Subject */}
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-3 relative z-10">
                 <nav className="flex items-center gap-1.5 text-xs font-mono flex-wrap">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="inline-flex items-center gap-1 text-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" />
                     <span>STUDY</span>
                   </button>
-                  <span className="text-stone-300">/</span>
-                  <span className="font-semibold text-stone-900 uppercase">{subject.name}</span>
-                  <span className="text-stone-300">·</span>
-                  <span className="text-stone-500">{subject.weightage} MARKS</span>
-                  <span className="text-stone-300">·</span>
-                  <span className="text-stone-500">NBE BLUEPRINT</span>
+                  <span className="text-slate-300">/</span>
+                  <span className="font-bold text-slate-900 uppercase">{subject.name}</span>
+                  <span className="text-slate-300">·</span>
+                  <span
+                    className="px-2 py-0.2 rounded-full font-bold text-[10px] uppercase border"
+                    style={{
+                      backgroundColor: `${subjectTheme.color}15`,
+                      color: subjectTheme.color,
+                      borderColor: `${subjectTheme.color}35`,
+                    }}
+                  >
+                    {subject.weightage} MARKS
+                  </span>
+                  <span className="text-slate-300">·</span>
+                  <span className="text-slate-400">NBE BLUEPRINT</span>
                 </nav>
 
                 <button
                   onClick={onClose}
                   type="button"
-                  className="p-1.5 text-stone-500 hover:text-stone-900 rounded-full bg-white hover:bg-slate-100 border border-slate-200/80 transition-colors cursor-pointer shadow-2xs"
+                  className="p-1.5 text-slate-500 hover:text-slate-900 rounded-full bg-white hover:bg-slate-100 border border-slate-200/90 transition-colors cursor-pointer shadow-2xs"
                   aria-label="Close"
                 >
                   <X className="h-5 w-5" />
@@ -166,20 +182,23 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
               </div>
 
               {/* Subject Title & Clinical Scope */}
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 relative z-10">
                 <div className="space-y-1.5 flex-1 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap">
                     <SubjectAppleIcon subjectId={subject.id} size="md" className="shrink-0" />
                     <div className="flex items-center gap-2 flex-wrap min-w-0">
-                      <h2 className="text-2xl sm:text-3xl font-bold font-display tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-[#006B63] bg-clip-text text-transparent">
+                      <h2 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight text-slate-950">
                         {subject.name}
                       </h2>
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#006B63] text-white text-[10px] font-mono font-medium shadow-2xs">
+                      <span
+                        className="px-2.5 py-0.5 rounded-full text-white text-[10.5px] font-mono font-bold shadow-xs"
+                        style={{ backgroundColor: subjectTheme.color }}
+                      >
                         {completionPct}% COMPLETE
                       </span>
                     </div>
                   </div>
-                  <p className="text-xs sm:text-sm text-stone-600 max-w-2xl leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
                     {subject.highYieldTips || subject.description}
                   </p>
                 </div>
@@ -196,17 +215,17 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                         autoDeepen: true,
                       })
                     }
-                    className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-stone-900 border border-slate-200/80 hover:border-indigo-300 text-xs font-semibold font-display transition-all cursor-pointer shadow-2xs shrink-0 group"
+                    className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white hover:bg-slate-50 text-slate-900 border border-slate-200/90 hover:border-indigo-300 text-xs font-semibold font-display transition-all cursor-pointer shadow-xs shrink-0 group"
                     title="Comprehensive Gemini-powered study pack"
                   >
-                    <div className="w-5 h-5 rounded-md bg-indigo-50/80 text-indigo-700 flex items-center justify-center shrink-0 group-hover:bg-indigo-100 transition-colors">
-                      <Brain className="h-3 w-3" />
+                    <div className="w-6 h-6 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <Brain className="h-3.5 w-3.5" />
                     </div>
                     <div className="text-left">
-                      <div className="text-[9px] font-mono font-semibold uppercase tracking-wider text-indigo-700 leading-none">
+                      <div className="text-[9px] font-mono font-bold uppercase tracking-wider text-indigo-700 leading-none">
                         Deep Study
                       </div>
-                      <div className="text-xs font-bold font-display text-stone-900">
+                      <div className="text-xs font-bold font-display text-slate-900">
                         Deepen High-Yield
                       </div>
                     </div>
@@ -214,60 +233,63 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                 )}
               </div>
 
-              {/* Subject Progress & Mastery Bar */}
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/80 space-y-3 shadow-xs">
+              {/* Subject Progress & Mastery Bar — Apple Bento Container */}
+              <div className="p-4 rounded-2xl sm:rounded-3xl bg-white/95 border border-slate-200/90 space-y-3.5 shadow-xs relative z-10">
                 {/* Progress track */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-stone-700 font-display">
+                    <span className="font-bold text-slate-800 font-display">
                       Syllabus Mastery Progress
                     </span>
-                    <span className="font-mono font-bold text-stone-900">
+                    <span className="font-mono font-bold text-slate-900">
                       {notesCount} of {allTopics.length} topics covered ({completionPct}%)
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-stone-200/70 overflow-hidden">
+                  <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden p-0.5">
                     <div
-                      className="h-full bg-[#006B63] rounded-full transition-all duration-300"
-                      style={{ width: `${completionPct}%` }}
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${completionPct}%`,
+                        backgroundColor: subjectTheme.color,
+                      }}
                     />
                   </div>
                 </div>
 
                 {/* Sub-Metrics & Confidence Level Selector */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-stone-200/60 text-xs text-stone-600">
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 text-xs text-slate-600">
                   <div className="flex items-center gap-4 flex-wrap">
                     <span className="flex items-center gap-1.5">
-                      <FileText className="h-3.5 w-3.5 text-stone-500" />
-                      <span>Notes: <strong>{notesCount}/{allTopics.length}</strong></span>
+                      <FileText className="h-3.5 w-3.5 text-slate-500" />
+                      <span>Notes: <strong className="text-slate-900">{notesCount}/{allTopics.length}</strong></span>
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <Layers className="h-3.5 w-3.5 text-stone-500" />
-                      <span>QBank: <strong>{qBankCount}/{allTopics.length}</strong></span>
+                      <Layers className="h-3.5 w-3.5 text-slate-500" />
+                      <span>QBank: <strong className="text-slate-900">{qBankCount}/{allTopics.length}</strong></span>
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Award className="h-3.5 w-3.5 text-amber-500" />
-                      <span>High-Yield: <strong>{highYieldTopics.length}</strong></span>
+                      <span>High-Yield: <strong className="text-slate-900">{highYieldTopics.length}</strong></span>
                     </span>
                   </div>
 
                   {/* Confidence Rating Selector */}
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] font-mono uppercase text-stone-400">Confidence:</span>
+                    <span className="text-[11px] font-mono uppercase text-slate-400 font-semibold">Confidence:</span>
                     {[
-                      { id: 'low' as ConfidenceLevel, label: 'Low', activeClass: 'bg-rose-100 text-rose-800 border-rose-300' },
-                      { id: 'moderate' as ConfidenceLevel, label: 'Moderate', activeClass: 'bg-amber-100 text-amber-800 border-amber-300' },
-                      { id: 'strong' as ConfidenceLevel, label: 'Strong', activeClass: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-                      { id: 'mastered' as ConfidenceLevel, label: 'Mastered', activeClass: 'bg-[#006B63] text-white border-[#006B63]' },
+                      { id: 'low' as ConfidenceLevel, label: 'Low', activeClass: 'bg-rose-50 text-rose-800 border-rose-200' },
+                      { id: 'moderate' as ConfidenceLevel, label: 'Moderate', activeClass: 'bg-amber-50 text-amber-800 border-amber-200' },
+                      { id: 'strong' as ConfidenceLevel, label: 'Strong', activeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+                      { id: 'mastered' as ConfidenceLevel, label: 'Mastered', activeClass: 'bg-slate-900 text-white border-slate-900' },
                     ].map((opt) => (
                       <button
                         key={opt.id}
                         type="button"
                         onClick={() => onUpdateConfidence(subject.id, opt.id)}
-                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase transition-all cursor-pointer ${
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase transition-all cursor-pointer border ${
                           currentConfidence === opt.id
                             ? `${opt.activeClass} shadow-2xs`
-                            : 'bg-white text-stone-500 hover:text-stone-800 border border-stone-200'
+                            : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200/90'
                         }`}
                       >
                         {opt.label}

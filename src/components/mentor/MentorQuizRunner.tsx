@@ -338,13 +338,13 @@ export const MentorQuizRunner: React.FC<MentorQuizRunnerProps> = ({
 
                         {/* Takeaway / Mnemonic / Trap */}
                         {q.trap && (
-                          <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs font-medium">
-                            ⚠️ <strong>Exam Trap:</strong> {q.trap}
+                          <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs font-medium flex items-start gap-1.5">
+                            <span className="font-bold text-amber-800">Exam Trap:</span> {q.trap}
                           </div>
                         )}
                         {q.mnemonic && (
-                          <div className="p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-950 text-xs font-medium">
-                            🧠 <strong>Memory Hook:</strong> {q.mnemonic}
+                          <div className="p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-950 text-xs font-medium flex items-start gap-1.5">
+                            <span className="font-bold text-purple-800">Memory Hook:</span> {q.mnemonic}
                           </div>
                         )}
                       </div>

@@ -494,19 +494,22 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       {/* 4. Top Dashboard Section: Predicted Score Hero & Score Breakdown (2 Columns) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (col-span-7): Predicted FMGE Score Hero */}
-        <div className="lg:col-span-7 bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-[0_4px_24px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-6">
+        <div className="relative overflow-hidden lg:col-span-7 bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-emerald-200/80 shadow-[0_4px_24px_rgba(16,185,129,0.06)] flex flex-col justify-between space-y-6 before:absolute before:inset-0 before:bg-gradient-to-tr before:from-emerald-500/[0.04] before:via-white/0 before:to-teal-500/[0.04] before:pointer-events-none">
           {/* Header */}
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-50 text-[#00685f] shadow-2xs">
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-xs shadow-emerald-500/25">
               <BookOpen className="w-5 h-5" />
             </div>
-            <h2 className="text-base font-bold text-slate-900">
-              Predicted FMGE Score
-            </h2>
+            <div>
+              <h2 className="text-base font-bold text-slate-900 font-['Outfit']">
+                Predicted FMGE Score
+              </h2>
+              <p className="text-xs text-slate-500">Live calibration against 300 marks baseline</p>
+            </div>
           </div>
 
           {/* Central Score Display: Circular Gauge + Status & Description */}
-          <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 py-2">
+          <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 py-2">
             {/* Circular Score Gauge */}
             <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 128 128">
@@ -516,7 +519,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                   cy="64"
                   r={gaugeRadius}
                   fill="none"
-                  stroke="#EAEFEA"
+                  stroke="#F1F5F9"
                   strokeWidth="10"
                 />
                 {/* Progress arc */}
@@ -525,7 +528,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                   cy="64"
                   r={gaugeRadius}
                   fill="none"
-                  stroke="#00685f"
+                  stroke="#10b981"
                   strokeWidth="10"
                   strokeLinecap="round"
                   strokeDasharray={gaugeCircumference}
@@ -555,47 +558,53 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
             </div>
           </div>
 
-          {/* Bottom Metrics Row (3 compact tiles: Confidence, Likely Range, vs. Last) */}
-          <div className="grid grid-cols-3 gap-2.5 sm:gap-4 pt-2 border-t border-slate-100">
+          {/* Bottom Metrics Row (3 compact Apple Bento tiles: Confidence, Likely Range, vs. Last) */}
+          <div className="relative z-10 grid grid-cols-3 gap-2.5 sm:gap-4 pt-2 border-t border-slate-100">
             {/* Confidence Level */}
-            <div className="bg-slate-50/70 p-3 sm:p-3.5 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+            <div className="bg-gradient-to-tr from-sky-500/[0.06] via-white to-indigo-500/[0.02] p-3 sm:p-3.5 rounded-2xl border border-sky-200/80 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 mb-1">
-                <ShieldCheck className="w-4 h-4 text-[#00685f] shrink-0" />
-                <span className="truncate">Confidence</span>
+                <div className="flex items-center justify-center h-6 w-6 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-2xs shrink-0">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                </div>
+                <span className="truncate font-bold">Confidence</span>
               </div>
               <div className="text-base sm:text-lg font-extrabold font-mono text-slate-900">
                 {confidenceLevel}%
               </div>
-              <span className="text-[10px] text-slate-400 hidden sm:block">Confidence Level</span>
+              <span className="text-[10px] text-slate-400 hidden sm:block">Model Precision</span>
             </div>
 
             {/* Likely Score Range */}
-            <div className="bg-slate-50/70 p-3 sm:p-3.5 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+            <div className="bg-gradient-to-tr from-purple-500/[0.06] via-white to-pink-500/[0.02] p-3 sm:p-3.5 rounded-2xl border border-purple-200/80 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 mb-1">
-                <BarChart2 className="w-4 h-4 text-sky-600 shrink-0" />
-                <span className="truncate">Likely Range</span>
+                <div className="flex items-center justify-center h-6 w-6 rounded-lg bg-gradient-to-tr from-purple-500 to-pink-600 text-white shadow-2xs shrink-0">
+                  <BarChart2 className="w-3.5 h-3.5" />
+                </div>
+                <span className="truncate font-bold">Likely Range</span>
               </div>
               <div className="text-base sm:text-lg font-extrabold font-mono text-slate-900 whitespace-nowrap">
                 {scoreRangeLow} – {scoreRangeHigh}
               </div>
-              <span className="text-[10px] text-slate-400 hidden sm:block">Likely Score Range</span>
+              <span className="text-[10px] text-slate-400 hidden sm:block">95% Interval</span>
             </div>
 
             {/* vs. Last Prediction */}
-            <div className="bg-slate-50/70 p-3 sm:p-3.5 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+            <div className="bg-gradient-to-tr from-emerald-500/[0.06] via-white to-teal-500/[0.02] p-3 sm:p-3.5 rounded-2xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 mb-1">
-                <TrendingUp className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span className="truncate">vs. Last</span>
+                <div className="flex items-center justify-center h-6 w-6 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-2xs shrink-0">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                </div>
+                <span className="truncate font-bold">Delta</span>
               </div>
               <div className="text-base sm:text-lg font-extrabold font-mono text-emerald-700">
                 +{scoreDelta}
               </div>
-              <span className="text-[10px] text-slate-400 hidden sm:block">vs. Last Prediction</span>
+              <span className="text-[10px] text-slate-400 hidden sm:block">vs. Baseline</span>
             </div>
           </div>
 
           {/* Footer Metadata */}
-          <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+          <div className="relative z-10 flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
             <div className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-slate-400" />
               <span>Last updated: {formattedToday}</span>
@@ -605,15 +614,15 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
         </div>
 
         {/* Right Column (col-span-5): Score Breakdown by Subject Group */}
-        <div className="lg:col-span-5 bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-[0_4px_24px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-4">
+        <div className="relative overflow-hidden lg:col-span-5 bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-teal-200/80 shadow-[0_4px_24px_rgba(13,148,136,0.06)] flex flex-col justify-between space-y-4 before:absolute before:inset-0 before:bg-gradient-to-tr before:from-teal-500/[0.04] before:via-white/0 before:to-sky-500/[0.03] before:pointer-events-none">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-teal-50 text-[#00685f] shadow-2xs">
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-600 text-white shadow-xs shadow-teal-500/25">
                 <PieChart className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-slate-900">
+                <h2 className="text-base font-bold text-slate-900 font-['Outfit']">
                   Score Breakdown
                 </h2>
                 <p className="text-xs text-slate-500">
@@ -654,15 +663,15 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       {/* 5. Middle Dashboard Section: Biggest Risks & Strategic Actions (2 Columns) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Card: Biggest Risks */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-[0_4px_24px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-4">
+        <div className="relative overflow-hidden bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-rose-200/80 shadow-[0_4px_24px_rgba(244,63,94,0.06)] flex flex-col justify-between space-y-4 before:absolute before:inset-0 before:bg-gradient-to-tr before:from-rose-500/[0.04] before:via-white/0 before:to-pink-500/[0.03] before:pointer-events-none">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-rose-50 text-rose-600 shadow-2xs">
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-600 text-white shadow-xs shadow-rose-500/25">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-slate-900">
+                <h2 className="text-base font-bold text-slate-900 font-['Outfit']">
                   Biggest Risks
                 </h2>
                 <p className="text-xs text-slate-500">
@@ -681,12 +690,12 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
           </div>
 
           {/* Ranked Risks List */}
-          <div className="space-y-2.5 divide-y divide-slate-100">
+          <div className="relative z-10 space-y-2.5 divide-y divide-slate-100">
             {displayedRisks.map((item, idx) => (
               <div
                 key={item.topicId}
                 onClick={() => handleOpenModal(item)}
-                className="pt-2.5 first:pt-0 flex items-center justify-between gap-3 cursor-pointer group hover:bg-slate-50/60 p-2 rounded-xl transition-all"
+                className="pt-2.5 first:pt-0 flex items-center justify-between gap-3 cursor-pointer group hover:bg-rose-50/40 p-2 rounded-xl transition-all"
               >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   {/* Rank number badge */}
@@ -717,20 +726,20 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
           </div>
 
           {/* Bottom Footnote */}
-          <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+          <div className="relative z-10 text-[11px] text-slate-400 pt-2 border-t border-slate-100">
             Click any risk topic to view full concept diagnosis & AI strategy.
           </div>
         </div>
 
         {/* Right Card: Strategic Actions */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-[0_4px_24px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-4">
+        <div className="relative overflow-hidden bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-amber-200/80 shadow-[0_4px_24px_rgba(245,158,11,0.06)] flex flex-col justify-between space-y-4 before:absolute before:inset-0 before:bg-gradient-to-tr before:from-amber-500/[0.04] before:via-white/0 before:to-orange-500/[0.03] before:pointer-events-none">
           {/* Header */}
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-50 text-amber-600 shadow-2xs">
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white shadow-xs shadow-amber-500/25">
               <Activity className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-base font-bold text-slate-900 font-['Outfit']">
                 Strategic Actions
               </h2>
               <p className="text-xs text-slate-500">
@@ -740,14 +749,14 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
           </div>
 
           {/* 3 Strategic Action Cards */}
-          <div className="space-y-3">
+          <div className="relative z-10 space-y-3">
             {/* Action 1: Revise High-Risk Topics */}
             <div
               onClick={handleAddAllTodaysToPlanner}
-              className="p-4 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/90 hover:border-emerald-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
+              className="p-4 rounded-2xl bg-gradient-to-tr from-emerald-500/[0.04] via-white to-teal-500/[0.02] hover:bg-white border border-emerald-200/70 hover:border-emerald-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
             >
               <div className="flex items-center gap-3.5">
-                <div className="p-3 rounded-2xl bg-emerald-50 text-[#00685f] group-hover:scale-105 transition-transform shadow-2xs">
+                <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-2xs group-hover:scale-105 transition-transform">
                   <BookOpen className="w-5 h-5" />
                 </div>
                 <div>
@@ -771,10 +780,10 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                   onLaunchPracticeSession('all', undefined, 'FMGE Full Grand Test Mock', undefined, 'predictor_grand_test');
                 }
               }}
-              className="p-4 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/90 hover:border-teal-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
+              className="p-4 rounded-2xl bg-gradient-to-tr from-teal-500/[0.04] via-white to-sky-500/[0.02] hover:bg-white border border-teal-200/70 hover:border-teal-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
             >
               <div className="flex items-center gap-3.5">
-                <div className="p-3 rounded-2xl bg-teal-50 text-[#00685f] group-hover:scale-105 transition-transform shadow-2xs">
+                <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-600 text-white shadow-2xs group-hover:scale-105 transition-transform">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
@@ -798,10 +807,10 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                 const errTab = document.querySelector('[data-tab="errors"]') as HTMLElement;
                 if (errTab) errTab.click();
               }}
-              className="p-4 rounded-2xl bg-slate-50/70 hover:bg-white border border-slate-200/90 hover:border-purple-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
+              className="p-4 rounded-2xl bg-gradient-to-tr from-purple-500/[0.04] via-white to-pink-500/[0.02] hover:bg-white border border-purple-200/70 hover:border-purple-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
             >
               <div className="flex items-center gap-3.5">
-                <div className="p-3 rounded-2xl bg-purple-50 text-purple-600 group-hover:scale-105 transition-transform shadow-2xs">
+                <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-600 text-white shadow-2xs group-hover:scale-105 transition-transform">
                   <RotateCcw className="w-5 h-5" />
                 </div>
                 <div>
@@ -820,7 +829,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
           </div>
 
           {/* Bottom Footnote */}
-          <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+          <div className="relative z-10 text-[11px] text-slate-400 pt-2 border-t border-slate-100">
             Recommended actions adapt automatically to your latest activity.
           </div>
         </div>

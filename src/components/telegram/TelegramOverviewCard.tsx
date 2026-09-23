@@ -20,11 +20,11 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
   const tips = counts?.clinicalTips ?? 0;
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-teal-100/90 bg-gradient-to-br from-white via-white to-teal-50/30 p-4 sm:p-5 shadow-2xs">
+    <div className="rounded-2xl sm:rounded-3xl border border-teal-200/80 bg-gradient-to-br from-teal-500/[0.04] via-white to-emerald-500/[0.02] p-4 sm:p-5 shadow-2xs">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-5">
         {/* Left: ONE SHOT CURATED Branding */}
         <div className="flex items-start sm:items-center gap-3 sm:gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-[#00685f]/10 text-[#00685f] flex items-center justify-center border border-[#00685f]/20 shadow-2xs shrink-0 mt-0.5 sm:mt-0">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-600 text-white shadow-xs shadow-teal-500/25 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
             <Award className="w-5 h-5 stroke-[2.2]" />
           </div>
           <div>

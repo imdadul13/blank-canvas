@@ -189,7 +189,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
           {/* Header */}
           <div className="relative flex items-center justify-between pb-3 border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500/20 to-emerald-500/20 text-teal-300 border border-teal-400/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]">
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white shadow-xs shadow-purple-500/25 flex items-center justify-center shrink-0">
                 <Headphones className="h-5 w-5 animate-pulse" />
               </div>
               <div>
@@ -197,7 +197,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
                   <h3 className="text-base sm:text-lg font-black tracking-tight text-white font-['Outfit']">
                     Hands-Free Hospital Commute Audio Recall
                   </h3>
-                  <span className="px-2 py-0.5 rounded-full bg-teal-500/20 border border-teal-400/30 text-[10px] font-bold text-teal-300 uppercase tracking-wider font-mono">
+                  <span className="px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-400/30 text-[10px] font-bold text-purple-300 uppercase tracking-wider font-mono">
                     PRO
                   </span>
                 </div>

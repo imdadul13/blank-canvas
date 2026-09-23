@@ -1997,7 +1997,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {/* Left Column: Eyebrow pills, two-tone title, subtopics, meta chips, and CTA buttons */}
                   <div className="flex-1 space-y-2.5 sm:space-y-3 min-w-0">
                     
-                    {/* Eyebrow Pills: [🎯 TODAY'S FOCUS] and Dynamic Subject Pill */}
+                    {/* Eyebrow Pills: [TODAY'S FOCUS] and Dynamic Subject Pill */}
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-wider bg-white/95 backdrop-blur-md text-slate-700 border border-slate-200/90 shadow-2xs">
                         <Target className="w-3 h-3" style={{ color: focusTheme.ecgStrokeStart }} />

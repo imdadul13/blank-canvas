@@ -497,8 +497,8 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
           )}
 
           {/* ================= 6-STEP ROADMAP RAIL ================= */}
-          <div ref={stageRailRef} className="bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-3 sm:px-6 py-2 overflow-x-auto scrollbar-none">
-            <div className="flex items-center justify-start min-w-max gap-1.5">
+          <div ref={stageRailRef} className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3 sm:px-6 py-2.5 overflow-x-auto scrollbar-none">
+            <div className="flex items-center justify-start min-w-max gap-1 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60">
               {STEPS.map((step, idx) => {
                 const isActive = activeStep === step.id;
                 const isPast = STEPS.findIndex((s) => s.id === activeStep) > idx;
@@ -512,12 +512,12 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                     whileTap={{ scale: 0.96 }}
                     transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                     onClick={() => setActiveStep(step.id)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold font-display transition-all cursor-pointer min-h-[34px] ${
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold font-display transition-all cursor-pointer min-h-[34px] ${
                       isActive
-                        ? 'bg-stone-900 text-white shadow-2xs'
+                        ? 'bg-white text-slate-950 font-bold shadow-xs border border-slate-200/60'
                         : isPast
-                        ? 'text-stone-800 bg-stone-200/70 hover:bg-stone-200'
-                        : 'text-stone-500 hover:text-stone-800 hover:bg-stone-100'
+                        ? 'text-slate-800 bg-white/40 hover:bg-white/80'
+                        : 'text-slate-500 hover:text-slate-900 hover:bg-white/50'
                     }`}
                   >
                     <span className="font-mono text-[10px] opacity-75">{step.num}</span>
@@ -535,12 +535,12 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
             {activeStep === 'learn' && (
               <div className="space-y-7">
                 {/* 1. HIGH YIELD RAPID REVISION MASTER CARD */}
-                <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-5">
-                  <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="p-1.5 rounded-lg bg-stone-900 text-white shadow-2xs">
-                        <Award className="h-4 w-4 text-amber-400" />
-                      </span>
+                <div className="relative overflow-hidden p-5 sm:p-6 rounded-3xl bg-white border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-5 before:absolute before:inset-0 before:bg-gradient-to-tr before:from-amber-500/[0.03] before:via-white/0 before:to-sky-500/[0.02] before:pointer-events-none">
+                  <div className="relative z-10 flex items-center justify-between border-b border-stone-100 pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white shadow-xs shadow-amber-500/25">
+                        <Award className="h-5 w-5" />
+                      </div>
                       <div>
                         <h3 className="text-base font-bold font-display text-stone-900">
                           Rapid Revision Clinical Blueprint
@@ -548,7 +548,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                         <p className="text-xs text-stone-500">Board-tested discriminators, gold-standard tests, and DOC</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono uppercase font-semibold text-stone-600 bg-stone-50 px-2.5 py-1 rounded-md border border-stone-200">
+                    <span className="text-[10px] font-mono uppercase font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                       FMGE High Yield
                     </span>
                   </div>

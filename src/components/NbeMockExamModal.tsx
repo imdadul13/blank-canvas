@@ -1002,7 +1002,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                   disabled={loggedToGT}
                   className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold text-xs shadow-md transition-all cursor-pointer"
                 >
-                  {loggedToGT ? '✓ Logged to Grand Tests' : 'Save to Grand Test Ledger'}
+                  {loggedToGT ? 'Logged to Grand Tests' : 'Save to Grand Test Ledger'}
                 </button>
               </div>
             )}
@@ -1055,7 +1055,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                           disabled={isAdded}
                           className="px-2 py-0.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-400/30 text-[10px] font-bold cursor-pointer disabled:opacity-40"
                         >
-                          {isAdded ? '✓ Added' : '+ Add to Errors'}
+                          {isAdded ? 'Added' : '+ Add to Errors'}
                         </button>
                       )}
                     </div>
@@ -1070,8 +1070,11 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                     <div className="text-teal-300">
                       Correct answer: <span className="font-bold">{q.correctAnswer}</span>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-300 leading-relaxed mt-1">
-                      💡 <strong>Clinical Takeaway:</strong> {q.explanation}
+                    <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-300 leading-relaxed mt-1 flex items-start gap-1.5">
+                      <span className="text-amber-400 mt-0.5 shrink-0 font-bold text-xs">Takeaway:</span>
+                      <div>
+                        <strong>Clinical Insight:</strong> {q.explanation}
+                      </div>
                     </div>
                   </div>
                 </div>

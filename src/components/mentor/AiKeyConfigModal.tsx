@@ -92,7 +92,7 @@ export const AiKeyConfigModal: React.FC<AiKeyConfigModalProps> = ({
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setVerifySuccess('✓ Gemini API connected & verified successfully!');
+        setVerifySuccess('Gemini API connected & verified successfully!');
         setApiKeyInput('');
         await fetchStatus(true);
         if (onKeyConfigured) onKeyConfigured();

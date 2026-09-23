@@ -161,7 +161,7 @@ export function createDefaultGreetingMessage(): ChatMessage {
   return {
     id: 'msg-welcome',
     role: 'assistant',
-    content: `👋 Hello Doctor! I am your **FMGE AI Study Coach**.
+    content: `Hello Doctor! I am your **FMGE AI Study Coach**.
 
 I am grounded in high-yield NMC examination patterns and tailored to your live study tracker data.
 
@@ -418,9 +418,9 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
     targetSession.messages.forEach((m) => {
       if (m.role === 'user') {
-        note += `### 🧑‍⚕️ Clinical Inquiry\n${cleanTextForClipboard(m.content)}\n\n`;
+        note += `### Clinical Inquiry\n${cleanTextForClipboard(m.content)}\n\n`;
       } else if (m.role === 'assistant') {
-        note += `### 🎓 Clinical Faculty Guidance\n${m.content}\n\n---\n\n`;
+        note += `### Clinical Faculty Guidance\n${m.content}\n\n---\n\n`;
       }
     });
 
@@ -1044,7 +1044,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     if (lastQ && (lowerText.includes('other options') || lowerText.includes('why wrong') || lowerText.includes('why incorrect') || lowerText.includes('distractor') || lowerText.includes('why the other') || lowerText.includes('why others'))) {
       const qCorrectKey = lastQ.correctKey || (lastQ as any).correctAnswer || 'A';
       const db = lastQ.distractorBreakdown || lastQ.distractorExplanations || {};
-      let distractorContent = `### 🔍 Detailed Analysis: Why Other Options Are Wrong\n\n`;
+      let distractorContent = `### Detailed Analysis: Why Other Options Are Wrong\n\n`;
       distractorContent += `**Clinical Question:** ${lastQ.question}\n\n`;
       distractorContent += `**Correct Answer:** Option ${qCorrectKey} (${lastQ.options.find(o => o.key === qCorrectKey)?.text || ''})\n\n`;
       distractorContent += `---\n\n`;
@@ -1053,21 +1053,21 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       if (incorrectOpts.length > 0) {
         incorrectOpts.forEach(opt => {
           const reason = db[opt.key] || `Option ${opt.key} is not the primary diagnostic or therapeutic choice for this presentation.`;
-          distractorContent += `#### ❌ Option ${opt.key}: ${opt.text}\n`;
+          distractorContent += `#### Option ${opt.key}: ${opt.text}\n`;
           distractorContent += `**Why it is incorrect:** ${reason}\n\n`;
         });
       } else if (Object.keys(db).length > 0) {
         Object.entries(db).forEach(([k, exp]) => {
-          distractorContent += `#### ❌ Option ${k}\n`;
+          distractorContent += `#### Option ${k}\n`;
           distractorContent += `**Why it is incorrect:** ${exp}\n\n`;
         });
       }
 
       if (lastQ.fmgeTakeaway) {
-        distractorContent += `> 💡 **FMGE High-Yield Takeaway:** ${lastQ.fmgeTakeaway}\n\n`;
+        distractorContent += `> **FMGE High-Yield Takeaway:** ${lastQ.fmgeTakeaway}\n\n`;
       }
       if (lastQ.memoryHook) {
-        distractorContent += `🧠 **Memory Hook:** ${lastQ.memoryHook}`;
+        distractorContent += `**Memory Hook:** ${lastQ.memoryHook}`;
       }
 
       const assistantMessage: ChatMessage = {
@@ -1089,14 +1089,14 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     if (lastQ && (lowerText.includes('why is this answer correct') || lowerText.includes('why is it correct') || lowerText.includes('why correct') || lowerText.includes('explain correct answer'))) {
       const qCorrectKey = lastQ.correctKey || (lastQ as any).correctAnswer || 'A';
       const correctOptText = lastQ.options.find(o => o.key === qCorrectKey)?.text || '';
-      let correctContent = `### ✅ Why Option ${qCorrectKey} is Correct\n\n`;
+      let correctContent = `### Why Option ${qCorrectKey} is Correct\n\n`;
       correctContent += `**Correct Option ${qCorrectKey}:** ${correctOptText}\n\n`;
       correctContent += `**Clinical Explanation:**\n${lastQ.explanation}\n\n`;
       if (lastQ.fmgeTakeaway) {
-        correctContent += `> 💡 **FMGE High-Yield Takeaway:** ${lastQ.fmgeTakeaway}\n\n`;
+        correctContent += `> **FMGE High-Yield Takeaway:** ${lastQ.fmgeTakeaway}\n\n`;
       }
       if (lastQ.memoryHook) {
-        correctContent += `🧠 **Memory Hook:** ${lastQ.memoryHook}`;
+        correctContent += `**Memory Hook:** ${lastQ.memoryHook}`;
       }
 
       const assistantMessage: ChatMessage = {
@@ -1354,7 +1354,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         data?.reply ||
         (singleQuizPayload
           ? `Here is an authentic clinical MCQ on **${singleQuizPayload.subject}** (${singleQuizPayload.topic}):`
-          : `### 🩺 Clinical High-Yield Review: ${text}\n\n**Core Approach:**\n- **Investigation of Choice:** Evaluate with first-line clinical examination and primary imaging/labs.\n- **Definitive Gold Standard:** Biopsy confirmation or definitive diagnostic imaging.\n- **Drug of Choice / Protocol:** Standard evidence-based guidelines for FMGE.\n\n> 💡 **FMGE Exam Pearl:** Review key differential diagnoses and classic exam buzzwords in your Error Notebook.`);
+          : `### Clinical High-Yield Review: ${text}\n\n**Core Approach:**\n- **Investigation of Choice:** Evaluate with first-line clinical examination and primary imaging/labs.\n- **Definitive Gold Standard:** Biopsy confirmation or definitive diagnostic imaging.\n- **Drug of Choice / Protocol:** Standard evidence-based guidelines for FMGE.\n\n> **FMGE Exam Pearl:** Review key differential diagnoses and classic exam buzzwords in your Error Notebook.`);
 
       let finalQuiz = singleQuizPayload;
       if (!finalQuiz && replyText) {

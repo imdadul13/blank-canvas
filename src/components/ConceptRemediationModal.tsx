@@ -373,8 +373,8 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
                 </p>
 
                 {isCardFlipped && flashcards[currentCardIdx].clinicalPearl && (
-                  <p className="text-xs text-sky-700 font-medium max-w-md pt-2 border-t border-slate-100">
-                    💡 {flashcards[currentCardIdx].clinicalPearl}
+                  <p className="text-xs text-sky-700 font-medium max-w-md pt-2 border-t border-slate-100 flex items-start gap-1">
+                    <span className="font-bold text-sky-900">Pearl:</span> {flashcards[currentCardIdx].clinicalPearl}
                   </p>
                 )}
               </div>
@@ -475,8 +475,9 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
               {isCaseSubmitted && (
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
                   <span className="font-bold text-slate-900 block text-[10px] uppercase font-['Outfit']">Clinical Breakdown &amp; Pearl:</span>
-                  <p className="text-slate-700 leading-relaxed">{clinicalCase.clinicalExplanation}</p>
-                  <p className="text-sky-800 font-semibold text-[11px] pt-1">💡 {clinicalCase.examPearl}</p>
+                  <p className="text-sky-800 font-semibold text-[11px] pt-1 flex items-start gap-1">
+                    <span className="font-bold text-sky-950">Exam Pearl:</span> {clinicalCase.examPearl}
+                  </p>
                 </div>
               )}
 

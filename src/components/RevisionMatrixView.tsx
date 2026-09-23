@@ -275,22 +275,22 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
         </div>
       </div>
 
-      {/* ================= 3. THE 3 REVISION PHASE CARDS ================= */}
+      {/* ================= 3. THE 3 REVISION PHASE CARDS (Apple Bento Style) ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Card 1: R1 Foundation */}
-        <div className="rounded-2xl border border-slate-200/90 bg-white/90 backdrop-blur-xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex items-center justify-between gap-3 hover:border-teal-300 transition-all">
+        {/* Card 1: R1 Foundation — Deep Teal & Cyan */}
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-teal-200/80 bg-gradient-to-br from-teal-500/[0.08] via-white to-cyan-500/[0.03] backdrop-blur-xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(13,148,136,0.06)] hover:shadow-[0_8px_25px_rgba(13,148,136,0.14)] hover:border-teal-300 flex items-center justify-between gap-3 transition-all group">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-teal-500/25">
               <BookOpen className="h-5 w-5" />
             </div>
             <div className="min-w-0 space-y-0.5">
-              <h3 className="font-display font-bold text-slate-900 text-base leading-tight truncate">
+              <h3 className="font-display font-extrabold text-slate-900 text-base leading-tight truncate">
                 R1 Foundation
               </h3>
               <p className="text-xs text-slate-500 truncate">
                 Build strong concepts
               </p>
-              <div className="font-mono text-xs font-semibold text-slate-600 pt-0.5">
+              <div className="font-mono text-xs font-semibold text-teal-800 pt-0.5">
                 {stats.completedR1Topics} <span className="font-normal text-slate-400">/ {stats.totalTopics} topics</span>
               </div>
             </div>
@@ -298,24 +298,25 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
           <CircularProgressGauge
             percentage={stats.r1Percentage}
             size={52}
-            strokeColor="#006B63"
+            strokeColor="#0D9488"
+            trackColor="#CCFBF1"
           />
         </div>
 
-        {/* Card 2: R2 Rapid Review */}
-        <div className="rounded-2xl border border-slate-200/90 bg-white/90 backdrop-blur-xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex items-center justify-between gap-3 hover:border-amber-300 transition-all">
+        {/* Card 2: R2 Rapid Review — Radiant Amber & Orange */}
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.03] backdrop-blur-xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(245,158,11,0.06)] hover:shadow-[0_8px_25px_rgba(245,158,11,0.14)] hover:border-amber-300 flex items-center justify-between gap-3 transition-all group">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-amber-500/25">
               <RotateCcw className="h-5 w-5" />
             </div>
             <div className="min-w-0 space-y-0.5">
-              <h3 className="font-display font-bold text-slate-900 text-base leading-tight truncate">
+              <h3 className="font-display font-extrabold text-slate-900 text-base leading-tight truncate">
                 R2 Rapid Review
               </h3>
               <p className="text-xs text-slate-500 truncate">
                 Active recall &amp; practice
               </p>
-              <div className="font-mono text-xs font-semibold text-slate-600 pt-0.5">
+              <div className="font-mono text-xs font-semibold text-amber-800 pt-0.5">
                 {stats.completedR2Topics} <span className="font-normal text-slate-400">/ {stats.totalTopics} topics</span>
               </div>
             </div>
@@ -324,23 +325,24 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
             percentage={stats.r2Percentage}
             size={52}
             strokeColor="#D97706"
+            trackColor="#FEF3C7"
           />
         </div>
 
-        {/* Card 3: R3 Final Sprint */}
-        <div className="rounded-2xl border border-slate-200/90 bg-white/90 backdrop-blur-xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex items-center justify-between gap-3 hover:border-rose-300 transition-all">
+        {/* Card 3: R3 Final Sprint — Coral Rose */}
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-rose-200/80 bg-gradient-to-br from-rose-500/[0.08] via-white to-red-500/[0.03] backdrop-blur-xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(244,63,94,0.06)] hover:shadow-[0_8px_25px_rgba(244,63,94,0.14)] hover:border-rose-300 flex items-center justify-between gap-3 transition-all group">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/60 text-rose-600 flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500 to-red-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-rose-500/25">
               <Target className="h-5 w-5" />
             </div>
             <div className="min-w-0 space-y-0.5">
-              <h3 className="font-display font-bold text-slate-900 text-base leading-tight truncate">
+              <h3 className="font-display font-extrabold text-slate-900 text-base leading-tight truncate">
                 R3 Final Sprint
               </h3>
               <p className="text-xs text-slate-500 truncate">
                 High-yield revision
               </p>
-              <div className="font-mono text-xs font-semibold text-slate-600 pt-0.5">
+              <div className="font-mono text-xs font-semibold text-rose-800 pt-0.5">
                 {stats.completedR3Topics} <span className="font-normal text-slate-400">/ {stats.totalTopics} topics</span>
               </div>
             </div>
@@ -349,6 +351,7 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
             percentage={stats.r3Percentage}
             size={52}
             strokeColor="#E11D48"
+            trackColor="#FFE4E6"
           />
         </div>
       </div>

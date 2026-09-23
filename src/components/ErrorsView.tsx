@@ -600,73 +600,73 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
         </div>
       </div>
 
-      {/* ================= 3. 4-METRIC TILES ROW ================= */}
+      {/* ================= 3. 4-METRIC TILES ROW (Apple Bento Style) ================= */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Total Errors */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-teal-300 transition-all space-y-3">
+        {/* Total Errors — Coral Rose */}
+        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-rose-500/[0.08] via-white to-red-500/[0.03] backdrop-blur-xl border border-rose-200/80 shadow-[0_4px_20px_rgba(244,63,94,0.06)] hover:shadow-[0_8px_25px_rgba(244,63,94,0.14)] hover:border-rose-300 transition-all space-y-3 group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Total Errors</span>
-            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shadow-2xs">
+            <span className="text-xs font-bold text-rose-800 uppercase tracking-wider font-mono">Total Errors</span>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-red-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
               <FileText className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <p className="text-2xl sm:text-3xl font-bold font-display text-slate-900 leading-none">
+            <p className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900 leading-none">
               {metrics.total}
             </p>
-            <p className="text-xs text-slate-500 mt-1">Questions to review</p>
+            <p className="text-xs text-slate-500 mt-1 font-mono">Questions to review</p>
           </div>
         </div>
 
-        {/* Resolved */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-teal-300 transition-all space-y-3">
+        {/* Resolved — Mint Emerald */}
+        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.03] backdrop-blur-xl border border-emerald-200/80 shadow-[0_4px_20px_rgba(16,185,129,0.06)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.14)] hover:border-emerald-300 transition-all space-y-3 group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Resolved</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shadow-2xs">
+            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider font-mono">Resolved</span>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <p className="text-2xl sm:text-3xl font-bold font-display text-slate-900 leading-none">
+            <p className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900 leading-none">
               {metrics.reviewed}
             </p>
-            <p className="text-xs text-emerald-700 font-medium mt-1">
+            <p className="text-xs text-emerald-800 font-bold mt-1 font-mono">
               {metrics.pct}% cleared
             </p>
           </div>
         </div>
 
-        {/* Pending */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-teal-300 transition-all space-y-3">
+        {/* Pending — Radiant Amber */}
+        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.03] backdrop-blur-xl border border-amber-200/80 shadow-[0_4px_20px_rgba(245,158,11,0.06)] hover:shadow-[0_8px_25px_rgba(245,158,11,0.14)] hover:border-amber-300 transition-all space-y-3 group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Pending</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shadow-2xs">
+            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider font-mono">Pending</span>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
               <Clock className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <p className="text-2xl sm:text-3xl font-bold font-display text-slate-900 leading-none">
+            <p className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900 leading-none">
               {metrics.unreviewed}
             </p>
-            <p className="text-xs text-amber-700 font-medium mt-1">
-              {metrics.total > 0 ? `${100 - metrics.pct}% remaining` : 'No backlog'}
+            <p className="text-xs text-amber-800 font-bold mt-1 font-mono">
+              {metrics.total > 0 ? `${100 - metrics.pct}% backlog` : 'Clean slate'}
             </p>
           </div>
         </div>
 
-        {/* Accuracy Gain */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-teal-300 transition-all space-y-3">
+        {/* Accuracy Gain — Sapphire Ultramarine */}
+        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/[0.08] via-white to-cyan-500/[0.03] backdrop-blur-xl border border-blue-200/80 shadow-[0_4px_20px_rgba(59,130,246,0.06)] hover:shadow-[0_8px_25px_rgba(59,130,246,0.14)] hover:border-blue-300 transition-all space-y-3 group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Accuracy Gain</span>
-            <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center shadow-2xs">
+            <span className="text-xs font-bold text-blue-800 uppercase tracking-wider font-mono">Est. Gain</span>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
               <Target className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <p className="text-2xl sm:text-3xl font-bold font-display text-slate-900 leading-none">
+            <p className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900 leading-none">
               +{metrics.accuracyGain}%
             </p>
-            <p className="text-xs text-slate-500 mt-1">After review</p>
+            <p className="text-xs text-blue-700 font-medium mt-1 font-mono">After review</p>
           </div>
         </div>
       </div>

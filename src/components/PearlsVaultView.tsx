@@ -200,7 +200,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
       subjectId: item.subjectId,
       title: item.mnemonic.title,
       highYieldKey: `${item.mnemonic.acronym} • ${item.drugOfChoice.firstLineDrug}`,
-      explanation: item.mnemonic.breakdown.map((b) => `• ${b.letter}: ${b.meaning} - ${b.clinicalNote}`).join('\n') + `\n\n📌 Triad: ${item.diagnosticTriad.components.join(' · ')}`,
+      explanation: item.mnemonic.breakdown.map((b) => `• ${b.letter}: ${b.meaning} - ${b.clinicalNote}`).join('\n') + `\n\nTriad: ${item.diagnosticTriad.components.join(' · ')}`,
       tags: ['Mnemonic', 'DOC', 'High-Yield'],
       isHighYield: true,
     }));
@@ -387,7 +387,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
   };
 
   const handleCopyGenerated = () => {
-    const text = `🧠 ${generatedTopic.mnemonic.title} (${generatedTopic.mnemonic.acronym})\n\n${generatedTopic.mnemonic.breakdown.map((b) => `• [${b.letter}] ${b.meaning}: ${b.clinicalNote}`).join('\n')}\n\n💊 Drug of Choice: ${generatedTopic.drugOfChoice.firstLineDrug}\nMechanism: ${generatedTopic.drugOfChoice.mechanism}\n\n🔍 Diagnostic Triad:\n${generatedTopic.diagnosticTriad.components.map((c) => `• ${c}`).join('\n')}\nSign: ${generatedTopic.diagnosticTriad.pathognomonicSign}\n\n⚠️ Exam Traps:\n${generatedTopic.examTraps.map((t) => `• Trap: ${t.trap} -> ${t.remedy}`).join('\n')}\n\n🎯 1-Line Key: ${generatedTopic.oneLineTakeaway}`;
+    const text = `[Mnemonic] ${generatedTopic.mnemonic.title} (${generatedTopic.mnemonic.acronym})\n\n${generatedTopic.mnemonic.breakdown.map((b) => `• [${b.letter}] ${b.meaning}: ${b.clinicalNote}`).join('\n')}\n\n[Drug of Choice] ${generatedTopic.drugOfChoice.firstLineDrug}\nMechanism: ${generatedTopic.drugOfChoice.mechanism}\n\n[Diagnostic Triad]\n${generatedTopic.diagnosticTriad.components.map((c) => `• ${c}`).join('\n')}\nSign: ${generatedTopic.diagnosticTriad.pathognomonicSign}\n\n[Exam Traps]\n${generatedTopic.examTraps.map((t) => `• Trap: ${t.trap} -> ${t.remedy}`).join('\n')}\n\n[Key Anchor] ${generatedTopic.oneLineTakeaway}`;
     navigator.clipboard.writeText(text);
     setCopiedId('generated');
     setTimeout(() => setCopiedId(null), 2000);
@@ -1267,64 +1267,92 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             </div>
           )}
 
-          {/* 4 Key Points at a Glance */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* 4 Key Points at a Glance — Apple Bento Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* Point 01: DOC */}
             {generatedTopic.drugOfChoice?.firstLineDrug && (
-              <div className="bg-emerald-50/50 rounded-2xl p-4 border border-emerald-200/70 space-y-1">
-                <div className="text-[10px] font-bold font-mono uppercase text-emerald-800">
-                  Point 01 • Therapeutic DOC
+              <div className="relative overflow-hidden bg-gradient-to-tr from-emerald-500/[0.06] via-white to-teal-500/[0.02] rounded-3xl p-4 sm:p-5 border border-emerald-200/80 shadow-2xs space-y-2 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold font-mono uppercase text-emerald-800">
+                    Point 01 • DOC
+                  </span>
+                  <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-2xs">
+                    <Pill className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-emerald-950 leading-snug">
-                  {generatedTopic.drugOfChoice.firstLineDrug}
-                </div>
-                <div className="text-[11px] text-emerald-800/80 line-clamp-2">
-                  {generatedTopic.drugOfChoice.condition || 'First-line protocol'}
+                <div>
+                  <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-emerald-950 leading-snug">
+                    {generatedTopic.drugOfChoice.firstLineDrug}
+                  </div>
+                  <div className="text-[11px] text-emerald-800/80 line-clamp-2 mt-0.5">
+                    {generatedTopic.drugOfChoice.condition || 'First-line protocol'}
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Point 02: Hallmark / Sign */}
             {generatedTopic.diagnosticTriad?.pathognomonicSign && (
-              <div className="bg-purple-50/50 rounded-2xl p-4 border border-purple-200/70 space-y-1">
-                <div className="text-[10px] font-bold font-mono uppercase text-purple-800">
-                  Point 02 • Diagnostic Sign
+              <div className="relative overflow-hidden bg-gradient-to-tr from-purple-500/[0.06] via-white to-pink-500/[0.02] rounded-3xl p-4 sm:p-5 border border-purple-200/80 shadow-2xs space-y-2 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold font-mono uppercase text-purple-800">
+                    Point 02 • Hallmark
+                  </span>
+                  <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-600 text-white shadow-2xs">
+                    <Activity className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-purple-950 leading-snug">
-                  {generatedTopic.diagnosticTriad.pathognomonicSign}
-                </div>
-                <div className="text-[11px] text-purple-800/80">
-                  Pathognomonic hallmark
+                <div>
+                  <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-purple-950 leading-snug">
+                    {generatedTopic.diagnosticTriad.pathognomonicSign}
+                  </div>
+                  <div className="text-[11px] text-purple-800/80 mt-0.5">
+                    Pathognomonic hallmark
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Point 03: Clinical Presentation / Triad */}
             {generatedTopic.diagnosticTriad?.triadName && (
-              <div className="bg-sky-50/50 rounded-2xl p-4 border border-sky-200/70 space-y-1">
-                <div className="text-[10px] font-bold font-mono uppercase text-sky-800">
-                  Point 03 • Triad / Syndrome
+              <div className="relative overflow-hidden bg-gradient-to-tr from-sky-500/[0.06] via-white to-blue-500/[0.02] rounded-3xl p-4 sm:p-5 border border-sky-200/80 shadow-2xs space-y-2 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold font-mono uppercase text-sky-800">
+                    Point 03 • Triad
+                  </span>
+                  <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-2xs">
+                    <Scale className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-sky-950 leading-snug">
-                  {generatedTopic.diagnosticTriad.triadName}
-                </div>
-                <div className="text-[11px] text-sky-800/80">
-                  {generatedTopic.diagnosticTriad.components?.length || 3} Cardinal findings
+                <div>
+                  <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-sky-950 leading-snug">
+                    {generatedTopic.diagnosticTriad.triadName}
+                  </div>
+                  <div className="text-[11px] text-sky-800/80 mt-0.5">
+                    {generatedTopic.diagnosticTriad.components?.length || 3} Cardinal findings
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Point 04: Top Trap Rule */}
             {generatedTopic.examTraps && generatedTopic.examTraps.length > 0 && (
-              <div className="bg-amber-50/50 rounded-2xl p-4 border border-amber-200/70 space-y-1">
-                <div className="text-[10px] font-bold font-mono uppercase text-amber-800">
-                  Point 04 • Examiner Trap
+              <div className="relative overflow-hidden bg-gradient-to-tr from-amber-500/[0.06] via-white to-orange-500/[0.02] rounded-3xl p-4 sm:p-5 border border-amber-200/80 shadow-2xs space-y-2 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold font-mono uppercase text-amber-800">
+                    Point 04 • Exam Trap
+                  </span>
+                  <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white shadow-2xs">
+                    <AlertTriangle className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 leading-snug">
-                  {generatedTopic.examTraps[0].trap}
-                </div>
-                <div className="text-[11px] text-emerald-800 font-medium line-clamp-2">
-                  {generatedTopic.examTraps[0].remedy}
+                <div>
+                  <div className="text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 leading-snug">
+                    {generatedTopic.examTraps[0].trap}
+                  </div>
+                  <div className="text-[11px] text-emerald-800 font-medium line-clamp-2 mt-0.5">
+                    {generatedTopic.examTraps[0].remedy}
+                  </div>
                 </div>
               </div>
             )}

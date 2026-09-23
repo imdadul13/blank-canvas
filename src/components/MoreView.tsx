@@ -159,34 +159,43 @@ export const MoreView: React.FC<MoreViewProps> = ({
 
           {/* Directory of Hub Items */}
           <div className="divide-y divide-slate-100 overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,107,99,0.04)]">
-            {utilityItems.map(({ id, title, subtitle, badge, icon: Icon, action }) => (
-              <div
-                key={id}
-                onClick={action}
-                className="p-5 hover:bg-slate-50/80 transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
-              >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="h-11 w-11 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-800 shrink-0 group-hover:bg-[#006B63]/10 group-hover:text-[#006B63] transition-colors shadow-2xs">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-0.5 min-w-0">
-                    <h3 className="text-base font-semibold font-display text-slate-900 group-hover:text-[#006B63] transition-colors">
-                      {title}
-                    </h3>
-                    <p className="text-xs text-slate-500 line-clamp-1">
-                      {subtitle}
-                    </p>
-                  </div>
-                </div>
+            {utilityItems.map(({ id, title, subtitle, badge, icon: Icon, action }) => {
+              const squircleClass =
+                id === 'grandtests'
+                  ? 'bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-xs shadow-sky-500/25'
+                  : id === 'telegram'
+                  ? 'bg-gradient-to-tr from-blue-400 to-sky-600 text-white shadow-xs shadow-blue-500/25'
+                  : 'bg-gradient-to-tr from-slate-600 to-slate-800 text-white shadow-xs shadow-slate-600/25';
 
-                <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end">
-                  <span className="px-3 py-1 rounded-full bg-slate-100/90 border border-slate-200/80 text-slate-700 text-xs font-mono font-semibold shadow-2xs">
-                    {badge}
-                  </span>
-                  <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all" />
+              return (
+                <div
+                  key={id}
+                  onClick={action}
+                  className="p-5 hover:bg-slate-50/80 transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+                >
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className={`h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${squircleClass}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="space-y-0.5 min-w-0">
+                      <h3 className="text-base font-semibold font-display text-slate-900 group-hover:text-[#006B63] transition-colors">
+                        {title}
+                      </h3>
+                      <p className="text-xs text-slate-500 line-clamp-1">
+                        {subtitle}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end">
+                    <span className="px-3 py-1 rounded-full bg-slate-100/90 border border-slate-200/80 text-slate-700 text-xs font-mono font-semibold shadow-2xs">
+                      {badge}
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all" />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* ================= HIGH-YIELD CLINICAL TOOLS LAUNCHPAD ================= */}
@@ -201,13 +210,13 @@ export const MoreView: React.FC<MoreViewProps> = ({
               <motion.div
                 whileHover={{ y: -2 }}
                 onClick={() => onOpenAiCoach?.('concept')}
-                className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-slate-200/80 shadow-[0_4px_18px_rgba(0,107,99,0.03)] hover:border-teal-400 hover:shadow-[0_8px_24px_rgba(0,107,99,0.08)] transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
+                className="relative overflow-hidden p-4 sm:p-5 rounded-3xl bg-gradient-to-tr from-teal-500/[0.06] via-white to-emerald-500/[0.02] border border-teal-200/80 shadow-[0_4px_18px_rgba(13,148,136,0.04)] hover:shadow-[0_8px_24px_rgba(13,148,136,0.12)] transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200/70 text-[#006B63] flex items-center justify-center shadow-2xs group-hover:bg-[#006B63] group-hover:text-white transition-colors">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-600 text-white flex items-center justify-center shadow-xs shadow-teal-500/25 group-hover:scale-105 transition-transform">
                     <Brain className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200/70">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200/80">
                     AI TUTOR
                   </span>
                 </div>
@@ -225,18 +234,18 @@ export const MoreView: React.FC<MoreViewProps> = ({
               <motion.div
                 whileHover={{ y: -2 }}
                 onClick={() => onOpenProfile?.()}
-                className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-slate-200/80 shadow-[0_4px_18px_rgba(0,107,99,0.03)] hover:border-teal-400 hover:shadow-[0_8px_24px_rgba(0,107,99,0.08)] transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
+                className="relative overflow-hidden p-4 sm:p-5 rounded-3xl bg-gradient-to-tr from-indigo-500/[0.06] via-white to-purple-500/[0.02] border border-indigo-200/80 shadow-[0_4px_18px_rgba(99,102,241,0.04)] hover:shadow-[0_8px_24px_rgba(99,102,241,0.12)] transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200/70 text-indigo-700 flex items-center justify-center shadow-2xs group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-xs shadow-indigo-500/25 group-hover:scale-105 transition-transform">
                     <User className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200/70">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200/80">
                     CANDIDATE
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <h4 className="text-sm font-bold font-display text-slate-900 group-hover:text-[#006B63] transition-colors">
+                  <h4 className="text-sm font-bold font-display text-slate-900 group-hover:text-indigo-600 transition-colors">
                     Doctor Profile & Target
                   </h4>
                   <p className="text-xs text-slate-500 line-clamp-2">
@@ -249,18 +258,18 @@ export const MoreView: React.FC<MoreViewProps> = ({
               <motion.div
                 whileHover={{ y: -2 }}
                 onClick={() => onOpenCloudSync?.()}
-                className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-slate-200/80 shadow-[0_4px_18px_rgba(0,107,99,0.03)] hover:border-teal-400 hover:shadow-[0_8px_24px_rgba(0,107,99,0.08)] transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
+                className="relative overflow-hidden p-4 sm:p-5 rounded-3xl bg-gradient-to-tr from-sky-500/[0.06] via-white to-blue-500/[0.02] border border-sky-200/80 shadow-[0_4px_18px_rgba(14,165,233,0.04)] hover:shadow-[0_8px_24px_rgba(14,165,233,0.12)] transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200/70 text-sky-700 flex items-center justify-center shadow-2xs group-hover:bg-sky-600 group-hover:text-white transition-colors">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center shadow-xs shadow-sky-500/25 group-hover:scale-105 transition-transform">
                     <Cloud className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200/70">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200/80">
                     SYNC VAULT
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <h4 className="text-sm font-bold font-display text-slate-900 group-hover:text-[#006B63] transition-colors">
+                  <h4 className="text-sm font-bold font-display text-slate-900 group-hover:text-sky-600 transition-colors">
                     Encrypted Cloud Sync
                   </h4>
                   <p className="text-xs text-slate-500 line-clamp-2">
@@ -273,18 +282,18 @@ export const MoreView: React.FC<MoreViewProps> = ({
               <motion.div
                 whileHover={{ y: -2 }}
                 onClick={() => onOpenSettings()}
-                className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-slate-200/80 shadow-[0_4px_18px_rgba(0,107,99,0.03)] hover:border-teal-400 hover:shadow-[0_8px_24px_rgba(0,107,99,0.08)] transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
+                className="relative overflow-hidden p-4 sm:p-5 rounded-3xl bg-gradient-to-tr from-amber-500/[0.06] via-white to-orange-500/[0.02] border border-amber-200/80 shadow-[0_4px_18px_rgba(245,158,11,0.04)] hover:shadow-[0_8px_24px_rgba(245,158,11,0.12)] transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-700 flex items-center justify-center shadow-2xs group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-xs shadow-amber-500/25 group-hover:scale-105 transition-transform">
                     <Settings className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/70">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80">
                     SYSTEM
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <h4 className="text-sm font-bold font-display text-slate-900 group-hover:text-[#006B63] transition-colors">
+                  <h4 className="text-sm font-bold font-display text-slate-900 group-hover:text-amber-600 transition-colors">
                     App Preferences & Theme
                   </h4>
                   <p className="text-xs text-slate-500 line-clamp-2">

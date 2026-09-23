@@ -305,7 +305,7 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
                     <div className="p-3 rounded-xl bg-teal-50/60 border border-teal-200/80 text-[11px] text-teal-950 leading-relaxed mt-2.5 space-y-1.5 animate-fadeIn">
                       <div>
                         <span className="font-bold text-[#00685f] block mb-0.5">
-                          ✓ Correct Answer: Option {correctAnswer || "A"}
+                          Correct Answer: Option {correctAnswer || "A"}
                         </span>
                         <p className="text-slate-700">{explanation}</p>
                       </div>

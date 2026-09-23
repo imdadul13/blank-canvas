@@ -509,30 +509,30 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                 </p>
               </div>
 
-              {/* 2. PRIMARY ACCURACY & PERFORMANCE HERO CARD */}
-              <div className="p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-white border border-[#DCE4E1] shadow-2xs space-y-4">
+              {/* 2. PRIMARY ACCURACY & PERFORMANCE HERO CARD (Apple Health Aura) */}
+              <div className="relative overflow-hidden p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-teal-500/[0.08] via-white to-cyan-500/[0.03] border border-teal-200/80 shadow-[0_4px_24px_rgba(13,148,136,0.06)] space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A5553] block">
+                    <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-teal-800 block">
                       OVERALL DRILL ACCURACY
                     </span>
                     <div className="flex items-baseline gap-3 mt-1.5 flex-wrap">
-                      <span className="font-['Outfit'] text-4xl sm:text-5xl font-bold text-[#006B63] leading-none">
+                      <span className="font-['Outfit'] text-4xl sm:text-5xl font-extrabold text-slate-950 leading-none">
                         {sessionSummary.accuracy}%
                       </span>
-                      <span className="text-xs sm:text-sm text-[#66716F]">
-                        <strong className="text-[#121E1B] font-semibold">{sessionSummary.correctCount}</strong> of{' '}
-                        <strong className="text-[#121E1B] font-semibold">{sessionSummary.totalQuestions}</strong> questions answered correctly
+                      <span className="text-xs sm:text-sm text-slate-600">
+                        <strong className="text-slate-900 font-bold">{sessionSummary.correctCount}</strong> of{' '}
+                        <strong className="text-slate-900 font-bold">{sessionSummary.totalQuestions}</strong> questions answered correctly
                       </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
                     <span
-                      className={`font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl border ${
+                      className={`font-mono text-[10.5px] font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full border shadow-2xs ${
                         sessionSummary.accuracy >= 70
-                          ? 'bg-[#E8F5F1] text-[#006B63] border-[#006B63]/25'
-                          : 'bg-[#FFFBEB] text-[#92400E] border-amber-200'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : 'bg-amber-50 text-amber-800 border-amber-200'
                       }`}
                     >
                       {sessionSummary.accuracy >= 80
@@ -544,22 +544,24 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                   </div>
                 </div>
 
-                {/* 10-Question Segmented Question Strip */}
-                <div className="pt-3 border-t border-[#F0F3F2]">
-                  <div className="flex items-center justify-between text-[11px] font-mono text-[#66716F] mb-2">
+                {/* 10-Question Segmented Capsule Strip */}
+                <div className="pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 mb-2 font-semibold">
                     <span>Question Breakdown</span>
                     <span>
                       {sessionSummary.correctCount} Correct · {sessionSummary.incorrectCount} Missed / Skipped
                     </span>
                   </div>
-                  <div className="grid grid-cols-10 gap-1 sm:gap-1.5 h-2.5 sm:h-3">
+                  <div className="grid grid-cols-10 gap-1.5 h-3">
                     {sessionSummary.questions.map((_, idx) => {
                       const isAnsCorrect = sessionSummary.userAnswers[idx]?.isCorrect;
                       return (
                         <div
                           key={idx}
-                          className={`h-full rounded-xs sm:rounded-sm transition-all ${
-                            isAnsCorrect ? 'bg-[#006B63]' : 'bg-rose-500'
+                          className={`h-full rounded-full transition-all shadow-2xs ${
+                            isAnsCorrect
+                              ? 'bg-gradient-to-r from-emerald-500 to-teal-600'
+                              : 'bg-gradient-to-r from-rose-500 to-red-600'
                           }`}
                           title={`Question ${idx + 1}: ${isAnsCorrect ? 'Correct' : 'Incorrect / Skipped'}`}
                         />
@@ -569,53 +571,59 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                 </div>
               </div>
 
-              {/* 3. SUPPORTING METRICS TILES */}
+              {/* 3. SUPPORTING METRICS TILES (Apple Bento Trio) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                {/* Questions Completed */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#DCE4E1] shadow-2xs space-y-1.5">
-                  <div className="flex items-center justify-between text-[#66716F]">
-                    <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A5553]">
+                {/* Questions Completed — Sapphire Ultramarine */}
+                <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/[0.08] via-white to-cyan-500/[0.03] border border-blue-200/80 shadow-[0_4px_20px_rgba(59,130,246,0.06)] hover:shadow-[0_8px_25px_rgba(59,130,246,0.14)] hover:border-blue-300 transition-all space-y-2 group">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-blue-800">
                       Questions Completed
                     </span>
-                    <CheckCircle2 className="w-4 h-4 text-[#006B63]" />
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <CheckCircle2 className="w-4 h-4" />
+                    </div>
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold font-['Outfit'] text-[#121E1B]">
+                  <div className="text-xl sm:text-2xl font-extrabold font-['Outfit'] text-slate-900 leading-tight">
                     {sessionSummary.totalQuestions} Questions
                   </div>
-                  <p className="text-[11px] sm:text-xs text-[#66716F]">
+                  <p className="text-[11px] sm:text-xs text-slate-500">
                     {sessionSummary.correctCount} correct · {sessionSummary.incorrectCount} missed
                   </p>
                 </div>
 
-                {/* Pace / Response Time */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#DCE4E1] shadow-2xs space-y-1.5">
-                  <div className="flex items-center justify-between text-[#66716F]">
-                    <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A5553]">
+                {/* Pace / Response Time — Radiant Amber */}
+                <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.03] border border-amber-200/80 shadow-[0_4px_20px_rgba(245,158,11,0.06)] hover:shadow-[0_8px_25px_rgba(245,158,11,0.14)] hover:border-amber-300 transition-all space-y-2 group">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-800">
                       Average Response Pace
                     </span>
-                    <Clock className="w-4 h-4 text-[#006B63]" />
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <Clock className="w-4 h-4" />
+                    </div>
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold font-['Outfit'] text-[#121E1B]">
-                    {sessionSummary.averageTimeSeconds}s <span className="text-xs font-normal text-[#66716F]">/ question</span>
+                  <div className="text-xl sm:text-2xl font-extrabold font-['Outfit'] text-slate-900 leading-tight">
+                    {sessionSummary.averageTimeSeconds}s <span className="text-xs font-normal text-slate-500">/ question</span>
                   </div>
-                  <p className="text-[11px] sm:text-xs text-[#66716F]">
+                  <p className="text-[11px] sm:text-xs text-slate-500">
                     Total elapsed time: {formatSeconds(sessionSummary.totalTimeSeconds)}
                   </p>
                 </div>
 
-                {/* FMGE Benchmark Status */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#DCE4E1] shadow-2xs space-y-1.5">
-                  <div className="flex items-center justify-between text-[#66716F]">
-                    <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#4A5553]">
+                {/* FMGE Benchmark Status — Mint Emerald */}
+                <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.03] border border-emerald-200/80 shadow-[0_4px_20px_rgba(16,185,129,0.06)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.14)] hover:border-emerald-300 transition-all space-y-2 group">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-800">
                       FMGE Target
                     </span>
-                    <Award className="w-4 h-4 text-[#006B63]" />
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <Award className="w-4 h-4" />
+                    </div>
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold font-['Outfit'] text-[#121E1B]">
+                  <div className="text-xl sm:text-2xl font-extrabold font-['Outfit'] text-slate-900 leading-tight">
                     {sessionSummary.accuracy >= 70 ? 'Target Met' : 'Review Suggested'}
                   </div>
-                  <p className="text-[11px] sm:text-xs text-[#66716F]">
-                    {sessionSummary.accuracy >= 70 ? '≥70% clinical pass standard' : 'Target threshold: 70% accuracy'}
+                  <p className="text-[11px] sm:text-xs text-slate-500">
+                    {sessionSummary.accuracy >= 70 ? 'Pass benchmark satisfied' : 'Target threshold: 70% accuracy'}
                   </p>
                 </div>
               </div>

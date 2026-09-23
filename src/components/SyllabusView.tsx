@@ -525,17 +525,17 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
       {currentSubTab === 'curriculum' ? (
         <>
 
-      {/* ================= 4 METRIC CARDS ROW ================= */}
+      {/* ================= 4 METRIC CARDS ROW (Apple Bento Style) ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1: Circular Gauge Progress */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-slate-300 hover:shadow-[0_8px_28px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
+        {/* Metric 1: Circular Gauge Progress — Sapphire Ultramarine */}
+        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/[0.07] via-white to-cyan-500/[0.03] backdrop-blur-xl border border-blue-200/80 shadow-[0_4px_20px_rgba(59,130,246,0.06)] hover:shadow-[0_8px_25px_rgba(59,130,246,0.14)] hover:border-blue-300 transition-all flex items-center gap-4 group">
           <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 76 76">
               <circle
                 cx="38"
                 cy="38"
                 r={radius}
-                className="text-stone-100"
+                className="text-blue-100"
                 strokeWidth="6"
                 stroke="currentColor"
                 fill="transparent"
@@ -544,7 +544,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 cx="38"
                 cy="38"
                 r={radius}
-                className="text-[#006B63]"
+                className="text-blue-600"
                 strokeWidth="6"
                 strokeDasharray={circumference}
                 initial={{ strokeDashoffset: circumference }}
@@ -555,73 +555,73 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 fill="transparent"
               />
             </svg>
-            <span className="absolute font-display font-bold text-sm text-stone-900">
+            <span className="absolute font-display font-extrabold text-sm text-blue-950 font-mono">
               {overallStats.percentage}%
             </span>
           </div>
 
           <div className="min-w-0 space-y-0.5">
-            <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-wider font-mono">
+            <h4 className="text-[10px] font-bold text-blue-700 uppercase tracking-wider font-mono">
               Curriculum Completed
             </h4>
-            <div className="text-base sm:text-lg font-bold font-display text-stone-900">
+            <div className="text-base sm:text-lg font-extrabold font-display text-slate-900">
               {overallStats.completedNotes} / {overallStats.totalTopics}
             </div>
-            <p className="text-[11px] text-stone-400 truncate">
-              {overallStats.completedSubjectsCount} / 19 subjects mastered
+            <p className="text-[11px] text-slate-500 truncate">
+              {overallStats.completedSubjectsCount} / 19 subjects covered
             </p>
           </div>
         </div>
 
-        {/* Metric 2: Total Subjects */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-slate-300 hover:shadow-[0_8px_28px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
-          <div className="p-3.5 rounded-2xl bg-sky-50/80 text-sky-700 border border-sky-100 shrink-0">
+        {/* Metric 2: Total Subjects — Iris Violet */}
+        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-violet-500/[0.07] via-white to-purple-500/[0.03] backdrop-blur-xl border border-violet-200/80 shadow-[0_4px_20px_rgba(139,92,246,0.06)] hover:shadow-[0_8px_25px_rgba(139,92,246,0.14)] hover:border-violet-300 transition-all flex items-center gap-4 group">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-500 to-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-violet-500/25">
             <BookOpen className="h-5 w-5" />
           </div>
           <div className="min-w-0 space-y-0.5">
-            <div className="text-2xl font-bold font-display text-stone-900">
+            <div className="text-2xl font-extrabold font-display text-slate-900 leading-tight">
               19
             </div>
-            <h4 className="text-xs font-semibold text-stone-700 font-display">
+            <h4 className="text-xs font-bold text-violet-900 font-display">
               Total Subjects
             </h4>
-            <p className="text-[11px] text-stone-400 truncate">
-              FMGE syllabus
+            <p className="text-[11px] text-slate-500 truncate">
+              FMGE core blueprint
             </p>
           </div>
         </div>
 
-        {/* Metric 3: Estimated Study Hours */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-slate-300 hover:shadow-[0_8px_28px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
-          <div className="p-3.5 rounded-2xl bg-amber-50/80 text-amber-700 border border-amber-100 shrink-0">
+        {/* Metric 3: Estimated Study Hours — Radiant Amber */}
+        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/[0.07] via-white to-orange-500/[0.03] backdrop-blur-xl border border-amber-200/80 shadow-[0_4px_20px_rgba(245,158,11,0.06)] hover:shadow-[0_8px_25px_rgba(245,158,11,0.14)] hover:border-amber-300 transition-all flex items-center gap-4 group">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-amber-500/25">
             <Clock className="h-5 w-5" />
           </div>
           <div className="min-w-0 space-y-0.5">
-            <div className="text-2xl font-bold font-display text-stone-900">
-              ~ 480
+            <div className="text-2xl font-extrabold font-display text-slate-900 leading-tight">
+              ~ 480h
             </div>
-            <h4 className="text-xs font-semibold text-stone-700 font-display">
+            <h4 className="text-xs font-bold text-amber-900 font-display">
               Estimated Study Hours
             </h4>
-            <p className="text-[11px] text-stone-400 truncate">
-              Personalized plan
+            <p className="text-[11px] text-slate-500 truncate">
+              Personalized pacing
             </p>
           </div>
         </div>
 
-        {/* Metric 4: Target Score */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] hover:border-slate-300 hover:shadow-[0_8px_28px_rgba(0,107,99,0.08)] transition-all flex items-center gap-4">
-          <div className="p-3.5 rounded-2xl bg-emerald-50/80 text-emerald-700 border border-emerald-100 shrink-0">
+        {/* Metric 4: Target Score — Mint Emerald */}
+        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500/[0.07] via-white to-teal-500/[0.03] backdrop-blur-xl border border-emerald-200/80 shadow-[0_4px_20px_rgba(16,185,129,0.06)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.14)] hover:border-emerald-300 transition-all flex items-center gap-4 group">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/25">
             <Target className="h-5 w-5" />
           </div>
           <div className="min-w-0 space-y-0.5">
-            <div className="text-2xl font-bold font-display text-stone-900">
+            <div className="text-2xl font-extrabold font-display text-slate-900 leading-tight">
               {state.settings?.targetScore || 200}+
             </div>
-            <h4 className="text-xs font-semibold text-stone-700 font-display">
+            <h4 className="text-xs font-bold text-emerald-900 font-display">
               Target Score
             </h4>
-            <p className="text-[11px] text-stone-400 truncate">
+            <p className="text-[11px] text-slate-500 truncate">
               Qualify with confidence
             </p>
           </div>
@@ -747,6 +747,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 allTopics[0];
 
               const visual = getSubjectVisual(sub.id, sub.color);
+              const appleTheme = getSubjectVisualTheme(sub.id);
               const IconComponent = visual.icon;
 
               // Preview of high-yield topics
@@ -762,76 +763,84 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                   whileTap={{ scale: 0.985 }}
                   transition={{ type: 'spring', stiffness: 420, damping: 26 }}
                   onClick={() => onSelectSubject(sub.id)}
-                  className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-[0_4px_16px_rgba(0,107,99,0.03)] hover:shadow-[0_10px_28px_rgba(0,107,99,0.08)] hover:border-teal-400 transition-all cursor-pointer group flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                  className={`relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-white via-white to-slate-50/60 backdrop-blur-xl border border-slate-200/80 hover:${appleTheme.border} shadow-[0_4px_16px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.08)] transition-all cursor-pointer group flex flex-col lg:flex-row lg:items-center justify-between gap-4`}
                 >
+                  {/* Subject Theme Aura Light Leak on Hover */}
+                  <div
+                    className="absolute -top-12 -right-12 w-48 h-48 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none"
+                    style={{ backgroundColor: visual.color }}
+                  />
+
                   {/* Left: Icon & Subject Metadata */}
-                  <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                  <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1 relative z-10">
                     <motion.div
-                      whileHover={{ scale: 1.12, rotate: [-2, 2, 0] }}
+                      whileHover={{ scale: 1.1, rotate: [-2, 2, 0] }}
                       transition={{ type: 'spring', stiffness: 450, damping: 20 }}
+                      className="shrink-0"
                     >
                       <SubjectAppleIcon subjectId={sub.id} size="lg" className="shrink-0" />
                     </motion.div>
 
                     <div className="min-w-0 space-y-1 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-base font-bold font-display text-stone-900 group-hover:text-[#006B63] transition-colors truncate">
+                        <h3 className="text-base sm:text-lg font-extrabold font-display text-slate-900 group-hover:text-slate-950 transition-colors truncate">
                           {sub.name}
                         </h3>
-                        {/* Mobile Marks Badge */}
-                        <span className="lg:hidden px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 text-[10px] font-mono font-semibold">
-                          {sub.weightage}M
+                        {/* Marks Pill */}
+                        <span
+                          className="px-2.5 py-0.5 rounded-full text-[10.5px] font-mono font-bold uppercase tracking-wider border shadow-2xs"
+                          style={{
+                            backgroundColor: `${visual.color}12`,
+                            color: visual.color,
+                            borderColor: `${visual.color}35`,
+                          }}
+                        >
+                          {sub.weightage} Marks
                         </span>
                       </div>
 
-                      <p className="text-xs text-stone-500 line-clamp-1 max-w-xl">
+                      <p className="text-xs text-slate-500 line-clamp-1 max-w-xl">
                         {topicPreview || sub.description}
                       </p>
                     </div>
                   </div>
 
                   {/* Right: Progress, Marks, Next Topic & Open CTA */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6 shrink-0 justify-between pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-100">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6 shrink-0 justify-between pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 relative z-10">
                     {/* Progress rail */}
                     <div className="w-full sm:w-36 space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] font-mono text-stone-500">
-                        <span>{notesDoneCount} / {allTopics.length}</span>
-                        <span className="font-semibold text-stone-900">{pct}%</span>
+                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
+                        <span>{notesDoneCount} / {allTopics.length} covered</span>
+                        <span className="font-extrabold text-slate-900">{pct}%</span>
                       </div>
-                      <div className="h-1.5 w-full bg-stone-100 rounded-full overflow-hidden">
+                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5">
                         <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${Math.max(pct > 0 ? 6 : 0, pct)}%` }}
+                          animate={{ width: `${Math.max(pct > 0 ? 8 : 0, pct)}%` }}
                           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                          className="h-full rounded-full bg-[#006B63]"
+                          className="h-full rounded-full transition-all"
+                          style={{ backgroundColor: visual.color }}
                         />
                       </div>
-                    </div>
-
-                    {/* Marks Badge (Desktop) */}
-                    <div className="hidden lg:block shrink-0">
-                      <span className="px-3 py-1 rounded-full bg-stone-100 text-stone-700 text-xs font-mono font-semibold border border-stone-200/60 whitespace-nowrap">
-                        {sub.weightage} Marks
-                      </span>
                     </div>
 
                     {/* Priority / High-Yield Pill */}
                     <div className="hidden sm:block shrink-0">
                       {visual.badgeType === 'high' && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50/80 text-rose-700 border border-rose-200/60 text-xs font-semibold whitespace-nowrap">
-                          <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                          High-yield
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50/90 text-rose-700 border border-rose-200/80 text-xs font-semibold whitespace-nowrap shadow-2xs">
+                          <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
+                          High-Yield
                         </span>
                       )}
                       {visual.badgeType === 'important' && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50/80 text-sky-700 border border-sky-200/60 text-xs font-semibold whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50/90 text-sky-700 border border-sky-200/80 text-xs font-semibold whitespace-nowrap shadow-2xs">
                           <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
                           Important
                         </span>
                       )}
                       {visual.badgeType === 'core' && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-700 border border-stone-200/60 text-xs font-semibold whitespace-nowrap">
-                          <span className="h-1.5 w-1.5 rounded-full bg-stone-400" />
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80 text-xs font-semibold whitespace-nowrap shadow-2xs">
+                          <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
                           Core
                         </span>
                       )}
@@ -840,14 +849,20 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                     {/* Next Topic Pointer */}
                     {nextTopic && (
                       <div className="hidden xl:flex items-center gap-2 max-w-[170px] min-w-0 text-left shrink-0">
-                        <div className="p-1.5 rounded-lg bg-teal-50/80 text-[#006B63] shrink-0">
+                        <div
+                          className="p-1.5 rounded-xl shrink-0 shadow-2xs"
+                          style={{
+                            backgroundColor: `${visual.color}15`,
+                            color: visual.color,
+                          }}
+                        >
                           <BookOpen className="h-3.5 w-3.5" />
                         </div>
                         <div className="min-w-0">
-                          <div className="text-[10px] font-mono text-stone-400 uppercase tracking-wider leading-none">
+                          <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider leading-none">
                             Next topic
                           </div>
-                          <div className="text-xs font-semibold text-stone-800 truncate font-display">
+                          <div className="text-xs font-semibold text-slate-800 truncate font-display">
                             {nextTopic.name}
                           </div>
                         </div>
@@ -864,7 +879,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                         e.stopPropagation();
                         onSelectSubject(sub.id);
                       }}
-                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#006B63] hover:bg-[#00554E] text-white text-xs font-semibold font-display shadow-xs transition-all cursor-pointer shrink-0 min-h-[40px] sm:min-h-[36px]"
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-slate-950 hover:bg-[#006B63] text-white text-xs font-semibold font-display shadow-xs transition-all cursor-pointer shrink-0 min-h-[40px] sm:min-h-[36px]"
                     >
                       <span>Study</span>
                       <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />

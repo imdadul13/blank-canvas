@@ -37,7 +37,7 @@ const CLINICAL_KNOWLEDGE_MAP: Record<string, ClinicalEnrichment> = {
     highYieldPearl:
       'FMGE PEARL: IV Adenosine (6 mg rapid IV push via large antecubital vein followed by 20 mL saline flush; repeat with 12 mg if needed) is the 1st-line drug of choice for acute termination of stable narrow-complex PSVT. It causes transient AV node conduction block (half-life < 10 seconds). Always warn the patient of transient chest pressure and flushing.',
     mnemonic:
-      '🧠 "ABCDE" of SVT Management: A = Adenosine (1st-line acute) | B = Beta-blockers (2nd-line) | C = Calcium channel blockers (Verapamil/Diltiazem) | D = Digoxin (delayed onset, rate control) | E = Electrical cardioversion (if hemodynamically unstable).',
+      '"ABCDE" of SVT Management: A = Adenosine (1st-line acute) | B = Beta-blockers (2nd-line) | C = Calcium channel blockers (Verapamil/Diltiazem) | D = Digoxin (delayed onset, rate control) | E = Electrical cardioversion (if hemodynamically unstable).',
   },
 
   // 2. Eye Oscillations / Nystagmus
@@ -59,7 +59,7 @@ const CLINICAL_KNOWLEDGE_MAP: Record<string, ClinicalEnrichment> = {
     highYieldPearl:
       'FMGE PEARL: Jerk nystagmus is named after the direction of the fast corrective phase (e.g. right-beating). In peripheral vestibular lesions (e.g. vestibular neuritis), nystagmus beats away from the lesion and is suppressed by visual fixation (Frenzel glasses).',
     mnemonic:
-      '🧠 "COWS" for Caloric Testing Nystagmus: Cold = Opposite side fast phase | Warm = Same side fast phase.',
+      '"COWS" for Caloric Testing Nystagmus: Cold = Opposite side fast phase | Warm = Same side fast phase.',
   },
 
   // 3. Acute Pancreatitis
@@ -81,7 +81,7 @@ const CLINICAL_KNOWLEDGE_MAP: Record<string, ClinicalEnrichment> = {
     highYieldPearl:
       'FMGE PEARL: Serum Lipase is the most sensitive and specific biomarker for acute pancreatitis (remains elevated 8-14 days vs 3-5 days for amylase). Contrast-enhanced CT (CECT) after 72 hours is the gold standard to evaluate pancreatic necrosis (Balthazar score).',
     mnemonic:
-      '🧠 "I GET SMASHED" Etiologies: Idiopathic | Gallstones (most common) | Ethanol | Trauma | Steroids | Mumps | Autoimmune | Scorpion sting | Hypertriglyceridemia/Hypercalcemia | ERCP | Drugs (Azathioprine, Furosemide).',
+      '"I GET SMASHED" Etiologies: Idiopathic | Gallstones (most common) | Ethanol | Trauma | Steroids | Mumps | Autoimmune | Scorpion sting | Hypertriglyceridemia/Hypercalcemia | ERCP | Drugs (Azathioprine, Furosemide).',
   },
 
   // 4. Magnesium Toxicity / Eclampsia
@@ -103,7 +103,7 @@ const CLINICAL_KNOWLEDGE_MAP: Record<string, ClinicalEnrichment> = {
     highYieldPearl:
       'FMGE PEARL: The earliest clinical indicator of hypermagnesemia is loss of deep tendon (patellar) reflexes (occurs at 8-10 mEq/L). Immediate management: Stop MgSO4 infusion and administer 10 mL of 10% Calcium Gluconate IV slow push over 10 minutes.',
     mnemonic:
-      '🧠 "BURP" Monitoring for MgSO4: B = Blood pressure | U = Urine output (>30 mL/hr) | R = Respiratory rate (>12/min) | P = Patellar reflex (must be present).',
+      '"BURP" Monitoring for MgSO4: B = Blood pressure | U = Urine output (>30 mL/hr) | R = Respiratory rate (>12/min) | P = Patellar reflex (must be present).',
   },
 
   // 5. Complete Heart Block (3rd Degree AV Block)
@@ -125,7 +125,7 @@ const CLINICAL_KNOWLEDGE_MAP: Record<string, ClinicalEnrichment> = {
     highYieldPearl:
       'FMGE PEARL: Complete (3rd Degree) Heart Block exhibits independent P waves (atrial rate 60-100 bpm) and QRS complexes (ventricular rate 30-40 bpm). Key clinical sign: Cannon "a" waves in the jugular venous pulse (right atrium contracting against a closed tricuspid valve). Definitive treatment is a Permanent Pacemaker (PPM).',
     mnemonic:
-      '🧠 "Cannon A in JVP": A = Atrium contracting against closed tricuspid valve (Complete Heart Block, VTach, Premature Ventricular Contractions).',
+      '"Cannon A in JVP": A = Atrium contracting against closed tricuspid valve (Complete Heart Block, VTach, Premature Ventricular Contractions).',
   },
 };
 
@@ -191,7 +191,7 @@ export function enrichClinicalQuestion(q: {
   const mnemonic =
     q.mnemonic ||
     matched?.mnemonic ||
-    `🧠 Exam Memory Hook: Remember the primary clinical hallmark of Option (${correctKey}) to quickly rule out distractor options under exam pressure.`;
+    `Exam Memory Hook: Remember the primary clinical hallmark of Option (${correctKey}) to quickly rule out distractor options under exam pressure.`;
 
   return {
     whyOtherOptionsAreWrong,

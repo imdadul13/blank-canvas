@@ -42,11 +42,11 @@ export const ShareMilestoneModal: React.FC<ShareMilestoneModalProps> = ({
   const streak = Math.max(1, calculateStudyStreak(state.studyLogs));
   const appUrl = typeof window !== 'undefined' ? window.location.origin : 'https://oneshot-fmge-web.onrender.com';
 
-  const shareText = `🩺 ${userName}'s FMGE Study Milestone:
-🔥 ${streak}-Day Continuous Study Streak
-🎯 Target Score: ${targetScore}+ / 300
-⏳ ${daysRemaining} Days to NBE FMGE Exam
-Questions Mastered Today: ${solvedToday}
+  const shareText = `${userName}'s FMGE Study Milestone:
+• ${streak}-Day Continuous Study Streak
+• Target Score: ${targetScore}+ / 300
+• ${daysRemaining} Days to NBE FMGE Exam
+• Questions Mastered Today: ${solvedToday}
 
 Practicing high-yield clinical vignettes on One Shot FMGE:
 ${appUrl}`;
