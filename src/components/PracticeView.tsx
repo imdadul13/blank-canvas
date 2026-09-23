@@ -10,6 +10,9 @@ import {
   Stethoscope,
   X,
   CheckCircle2,
+  Zap,
+  BarChart3,
+  Brain,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AppState, ErrorNotebookItem, DailyTask } from '../types';
@@ -17,6 +20,8 @@ import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from './HeaderTabInsignia';
+import { CircadianFocusDropdown } from './CircadianFocusDropdown';
+import { HeaderGlassIcon } from './HeaderGlassIcon';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 
 interface PracticeViewProps {
@@ -289,35 +294,92 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           </div>
         </div>
 
-        {/* Content Layout with Original Previous Texts */}
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 max-w-2xl">
-            <HeaderTabInsignia tab="practice" circadian={circadian} />
+        {/* Bento Content Layout matching practice-vignettes-banner.png */}
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-1">
+          {/* Left Column: Glass Icon, Eyebrow, Two-Tone Title, Badges, Subtitle & Feature Pills */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl">
+            <HeaderGlassIcon
+              icon={Stethoscope}
+              isNight={circadian.isNight}
+            />
 
-            <div className="space-y-1 min-w-0">
-              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
-                <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${
-                  circadian.isNight
-                    ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'
-                    : 'bg-gradient-to-r from-slate-950 via-sky-950 to-blue-800'
-                }`}>
-                  CLINICAL VIGNETTES &amp; DRILLS
+            <div className="space-y-2 min-w-0">
+              {/* Eyebrow */}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300/90">
+                  PRACTICE • LEARN • MASTER
+                </span>
+              </div>
+
+              {/* Two-Tone Title & Badge */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
+                  <span className="text-[#005B54] dark:text-teal-400">CLINICAL </span>
+                  <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>VIGNETTES &amp; DRILLS</span>
                 </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase shadow-2xs shrink-0 border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                   <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-sky-500'}`} />
                   Practice Engine · 10 MCQs
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
-                10-MCQ clinical drills with instant distractor breakdowns &amp; recall testing.
+              {/* Subtitle */}
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
+                10-MCQ clinical drills with instant distractor breakdowns &amp; active recall.
               </p>
+
+              {/* Feature Pills */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border ${
+                  circadian.isNight
+                    ? 'bg-slate-800/70 border-slate-700/80 text-cyan-300'
+                    : 'bg-white/80 border-stone-200/80 text-teal-800 shadow-2xs'
+                }`}>
+                  <Zap className="w-3.5 h-3.5 text-amber-500" />
+                  Active Recall
+                </span>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border ${
+                  circadian.isNight
+                    ? 'bg-slate-800/70 border-slate-700/80 text-teal-300'
+                    : 'bg-white/80 border-stone-200/80 text-teal-800 shadow-2xs'
+                }`}>
+                  <BarChart3 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                  Performance Insights
+                </span>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border ${
+                  circadian.isNight
+                    ? 'bg-slate-800/70 border-slate-700/80 text-emerald-300'
+                    : 'bg-white/80 border-stone-200/80 text-emerald-800 shadow-2xs'
+                }`}>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  Exam-Ready
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Right Action: Live Circadian Phase Pill */}
-          <div className="flex items-center gap-2 self-start md:self-center shrink-0">
-            <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+          {/* Right Column: Circadian Dropdown & Telemetry Bento Stack */}
+          <div className="flex flex-row lg:flex-col items-start lg:items-end justify-between sm:justify-end gap-3 shrink-0 pt-2 lg:pt-0">
+            <CircadianFocusDropdown circadian={circadian} />
+
+            <div className={`flex items-center gap-3 px-3.5 py-1.5 rounded-xl border text-xs font-mono backdrop-blur-md ${
+              circadian.isNight
+                ? 'bg-slate-900/60 border-slate-800 text-slate-300'
+                : 'bg-white/70 border-stone-200/80 text-slate-700 shadow-2xs'
+            }`}>
+              <div className="flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5 text-[#005B54] dark:text-teal-400" />
+                <span className="font-semibold">{displayedTopics.length}</span>
+                <span className="text-slate-400">Drill Topics</span>
+              </div>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <div className="flex items-center gap-1.5">
+                <Brain className="w-3.5 h-3.5 text-amber-500" />
+                <span className="font-semibold text-amber-600 dark:text-amber-400">
+                  {displayedTopics.filter((t) => t.isHighYield).length} High-Yield
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </motion.header>

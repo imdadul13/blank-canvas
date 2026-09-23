@@ -40,6 +40,8 @@ import { calculateStudyStreak } from '../utils/dailyMissionEngine';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from './HeaderTabInsignia';
+import { CircadianFocusDropdown } from './CircadianFocusDropdown';
+import { HeaderGlassIcon } from './HeaderGlassIcon';
 
 interface DailyPlannerViewProps {
   state: AppState;
@@ -618,10 +620,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           </div>
         </div>
 
-        {/* Foreground Content — Minimal & Premium Editorial Layout */}
-        <div className="relative z-10 flex flex-col gap-3 sm:gap-3.5">
-          {/* Top Eyebrow & Status Cluster */}
-          <div className="flex flex-wrap items-center justify-between gap-2">
+        {/* Foreground Content — Bento Apple Glass Layout matching daily-focus-banner.png */}
+        <div className="relative z-10 flex flex-col gap-3.5">
+          {/* Top Row: Eyebrow + Circadian Dropdown & Quick Metadata */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs font-semibold font-mono tracking-wider">
               {onBackToOverview ? (
                 <button
@@ -659,7 +661,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
             {/* Quick Metadata Cluster */}
             <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-              <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+              <CircadianFocusDropdown circadian={circadian} />
 
               {/* Today's Date */}
               <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold shadow-2xs backdrop-blur-xs border ${
@@ -667,7 +669,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   ? 'bg-slate-900/80 border-sky-800/60 text-slate-200'
                   : 'bg-white/90 border-stone-200/80 text-slate-700'
               }`}>
-                <Calendar className={`w-3 h-3 ${circadian.isNight ? 'text-cyan-400' : 'text-[#00685F]'}`} />
+                <Calendar className={`w-3.5 h-3.5 ${circadian.isNight ? 'text-cyan-400' : 'text-[#00685F]'}`} />
                 <span>{formattedDate}</span>
               </div>
 
@@ -677,44 +679,48 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   ? 'bg-orange-950/70 border-orange-800/60 text-orange-300'
                   : 'bg-orange-50/90 border-orange-200/80 text-orange-700'
               }`}>
-                <Flame className="w-3 h-3 text-orange-500 fill-orange-500" />
+                <Flame className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
                 <span>{streakDays}d</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 max-w-2xl">
-            {/* Main Title & Subtitle + Sidely Aligned Top Words */}
-            <HeaderTabInsignia tab="daily" circadian={circadian} />
+          {/* Center Row: Glass Icon, Two-Tone Title, Badge & Subtitle */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl">
+            <HeaderGlassIcon
+              icon={Calendar}
+              isNight={circadian.isNight}
+            />
 
-            <div className="space-y-1 min-w-0">
-              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
-                <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${
-                  circadian.isNight
-                    ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'
-                    : 'bg-gradient-to-r from-stone-950 via-stone-800 to-teal-800'
-                }`}>
-                  TODAY’S PLAN &amp; FOCUS
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-snug">
+                  <span className="text-[#005B54] dark:text-teal-400">TODAY’S PLAN </span>
+                  <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>&amp; FOCUS</span>
                 </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase shadow-2xs shrink-0 border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                   <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-teal-500'}`} />
                   Daily Planner · Clinical Schedule
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
                 Focus on high-yield mastery. One intentional milestone at a time.
               </p>
             </div>
           </div>
 
-          {/* Minimal Integrated Telemetry Strip */}
-          <div className={`flex flex-wrap items-center gap-3 sm:gap-6 pt-2 border-t text-xs ${
+          {/* Bottom Row: Minimal Integrated Bento Telemetry Strip */}
+          <div className={`flex flex-wrap items-center gap-3 sm:gap-6 pt-2.5 border-t text-xs ${
             circadian.isNight ? 'border-sky-800/40' : 'border-stone-200/60'
           }`}>
             {/* Planned / Progress */}
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-teal-50 text-[#00685F] flex items-center justify-center shrink-0 border border-teal-100/80">
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
+                circadian.isNight
+                  ? 'bg-slate-800/80 border-slate-700 text-teal-300'
+                  : 'bg-teal-50 text-[#00685F] border-teal-100/80'
+              }`}>
                 <BookmarkCheck className="w-3.5 h-3.5" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
@@ -728,7 +734,11 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
             {/* Study Time */}
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-100/80">
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
+                circadian.isNight
+                  ? 'bg-slate-800/80 border-slate-700 text-amber-300'
+                  : 'bg-amber-50 text-amber-700 border-amber-100/80'
+              }`}>
                 <Clock className="w-3.5 h-3.5" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
@@ -742,7 +752,11 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
             {/* Goal % */}
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100/80">
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
+                circadian.isNight
+                  ? 'bg-slate-800/80 border-slate-700 text-emerald-300'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-100/80'
+              }`}>
                 <Target className="w-3.5 h-3.5" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">

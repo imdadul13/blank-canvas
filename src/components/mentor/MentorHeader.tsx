@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { Target, History, Plus, Stethoscope } from 'lucide-react';
+import { Target, History, Plus, Stethoscope, GraduationCap } from 'lucide-react';
 import { useCircadianTheme } from '../../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from '../CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from '../HeaderTabInsignia';
+import { CircadianFocusDropdown } from '../CircadianFocusDropdown';
+import { HeaderGlassIcon } from '../HeaderGlassIcon';
 
 interface MentorHeaderProps {
   daysRemaining?: number | null;
@@ -267,22 +269,31 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
         </div>
       </div>
 
-      {/* Content Layout Matching Editorial Design System */}
+      {/* Content Layout Matching faculty-mentor-banner.png */}
       <div className="relative z-10 space-y-2.5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex items-center gap-3 sm:gap-3.5 max-w-2xl">
-            {/* Minimal Animated Insignia */}
-            <HeaderTabInsignia tab="mentor" circadian={circadian} />
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl min-w-0">
+            <HeaderGlassIcon
+              icon={GraduationCap}
+              isNight={circadian.isNight}
+            />
 
-            <div className="space-y-1 min-w-0">
-              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
-                <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${circadian.isNight ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200' : circadian.titleGrad}`}>
-                  FACULTY MENTOR
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300/90">
+                  GUIDE • LEARN • IMPROVE • SUCCEED
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
+                  <span className="text-[#005B54] dark:text-teal-400">FACULTY </span>
+                  <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>MENTOR</span>
                 </h1>
                 <button
                   type="button"
                   onClick={onOpenKeyConfig}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border shadow-2xs shrink-0 cursor-pointer hover:opacity-90 transition-all ${
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs shrink-0 cursor-pointer hover:opacity-90 transition-all ${
                     isAiConfigured === false
                       ? 'bg-amber-500/10 border-amber-400/40 text-amber-700 dark:text-amber-300'
                       : `${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`
@@ -294,88 +305,90 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
                 </button>
               </div>
 
-              <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.subtitleColor}`}>
                 High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted remediation.
               </p>
             </div>
           </div>
 
-          {/* Right Action Controls: CircadianPill, Target Days Badge, History Drawer Trigger, New Chat Action */}
-          <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap pt-1 md:pt-0 shrink-0">
-            <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+          {/* Right Action Controls: Circadian Focus Dropdown, Days to FMGE, History, New Chat */}
+          <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between sm:justify-end gap-2.5 shrink-0">
+            <CircadianFocusDropdown circadian={circadian} />
 
-            {/* Days to FMGE Target Badge (Settings-driven, non-alarming) */}
-            <div
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl border shadow-2xs backdrop-blur-sm shrink-0 transition-all ${
-                circadian.isNight
-                  ? 'bg-slate-800/80 border-slate-700/80 text-white'
-                  : 'bg-white/90 border-stone-200/80'
-              }`}
-            >
-              <div className="h-7 w-7 rounded-xl bg-teal-500/10 text-[#00685F] flex items-center justify-center shrink-0">
-                <Target className="h-3.5 w-3.5" />
-              </div>
-              <div className="leading-tight text-left">
-                <span
-                  className={`text-xs sm:text-sm font-extrabold font-['Outfit'] tabular-nums ${
-                    circadian.isNight ? 'text-white' : 'text-stone-900'
-                  }`}
-                >
-                  {countdownText}
-                </span>
-                <span
-                  className={`text-[10px] sm:text-[11px] font-medium ml-1 ${
-                    circadian.isNight ? 'text-slate-400' : 'text-stone-500'
-                  }`}
-                >
-                  {countdownSub}
-                </span>
-              </div>
-            </div>
-
-            {/* Purposeful Golden Hour High-Yield Pill */}
-            {isGoldenHourMode && (
+            <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
+              {/* Days to FMGE Target Badge (Settings-driven, non-alarming) */}
               <div
-                className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-2xl bg-amber-500/10 border border-amber-400/40 text-amber-800 dark:text-amber-300 text-[10.5px] font-bold font-mono tracking-wider uppercase shrink-0"
-                title="Golden Hour mode prioritizes high-yield clinical traps, rapid revision, and exam-pattern MCQs"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border shadow-2xs backdrop-blur-sm shrink-0 transition-all ${
+                  circadian.isNight
+                    ? 'bg-slate-800/80 border-slate-700/80 text-white'
+                    : 'bg-white/90 border-stone-200/80'
+                }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                <span>High-Yield Active</span>
+                <div className="h-6 w-6 rounded-lg bg-teal-500/10 text-[#00685F] flex items-center justify-center shrink-0">
+                  <Target className="h-3.5 w-3.5" />
+                </div>
+                <div className="leading-tight text-left">
+                  <span
+                    className={`text-xs sm:text-sm font-extrabold font-['Outfit'] tabular-nums ${
+                      circadian.isNight ? 'text-white' : 'text-stone-900'
+                    }`}
+                  >
+                    {countdownText}
+                  </span>
+                  <span
+                    className={`text-[10px] sm:text-[11px] font-medium ml-1 ${
+                      circadian.isNight ? 'text-slate-400' : 'text-stone-500'
+                    }`}
+                  >
+                    {countdownSub}
+                  </span>
+                </div>
               </div>
-            )}
 
-            {/* Saved History Trigger Button */}
-            <motion.button
-              type="button"
-              whileHover={reducedMotion ? undefined : { scale: 1.02, y: -1 }}
-              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              onClick={onOpenHistory}
-              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border text-xs sm:text-sm font-semibold shadow-2xs hover:shadow-xs transition-all cursor-pointer backdrop-blur-sm group shrink-0 ${
-                circadian.isNight
-                  ? 'bg-slate-800/80 hover:bg-slate-700 border-slate-700/80 text-slate-200 hover:text-white'
-                  : 'bg-white/90 hover:bg-teal-50/70 border-stone-200/80 hover:border-teal-300 text-stone-700 hover:text-[#006B63]'
-              }`}
-              title="Open saved consultations history"
-            >
-              <History className={`h-3.5 sm:h-4 w-3.5 sm:w-4 transition-transform group-hover:rotate-[-20deg] ${circadian.isNight ? 'text-slate-400 group-hover:text-cyan-300' : 'text-stone-500 group-hover:text-[#006B63]'}`} />
-              <span className="whitespace-nowrap">History</span>
-              <span className={`px-1.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold border ${circadian.isNight ? 'bg-teal-950/70 text-teal-300 border-teal-800/80' : 'bg-teal-50 text-[#00685F] border-teal-200/60'}`}>
-                {sessionsCount}
-              </span>
-            </motion.button>
+              {/* Purposeful Golden Hour High-Yield Pill */}
+              {isGoldenHourMode && (
+                <div
+                  className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-400/40 text-amber-800 dark:text-amber-300 text-[10.5px] font-bold font-mono tracking-wider uppercase shrink-0"
+                  title="Golden Hour mode prioritizes high-yield clinical traps, rapid revision, and exam-pattern MCQs"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  <span>High-Yield Active</span>
+                </div>
+              )}
 
-            {/* New Chat Action Button */}
-            <motion.button
-              type="button"
-              whileHover={reducedMotion ? undefined : { scale: 1.02, y: -1 }}
-              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              onClick={onNewSession}
-              className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-[#00685F] hover:bg-[#00554E] hover:shadow-md active:scale-97 text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer group shrink-0"
-              title="Start a new consultation session"
-            >
-              <Plus className="h-3.5 sm:h-4 w-3.5 sm:w-4 group-hover:rotate-90 transition-transform duration-200" />
-              <span className="whitespace-nowrap">New Chat</span>
-            </motion.button>
+              {/* Saved History Trigger Button */}
+              <motion.button
+                type="button"
+                whileHover={reducedMotion ? undefined : { scale: 1.02, y: -1 }}
+                whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                onClick={onOpenHistory}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-2xs hover:shadow-xs transition-all cursor-pointer backdrop-blur-sm group shrink-0 ${
+                  circadian.isNight
+                    ? 'bg-slate-800/80 hover:bg-slate-700 border-slate-700/80 text-slate-200 hover:text-white'
+                    : 'bg-white/90 hover:bg-teal-50/70 border-stone-200/80 hover:border-teal-300 text-stone-700 hover:text-[#006B63]'
+                }`}
+                title="Open saved consultations history"
+              >
+                <History className={`h-3.5 w-3.5 transition-transform group-hover:rotate-[-20deg] ${circadian.isNight ? 'text-slate-400 group-hover:text-cyan-300' : 'text-stone-500 group-hover:text-[#006B63]'}`} />
+                <span className="whitespace-nowrap">History</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${circadian.isNight ? 'bg-teal-950/70 text-teal-300 border-teal-800/80' : 'bg-teal-50 text-[#00685F] border-teal-200/60'}`}>
+                  {sessionsCount}
+                </span>
+              </motion.button>
+
+              {/* New Chat Action Button */}
+              <motion.button
+                type="button"
+                whileHover={reducedMotion ? undefined : { scale: 1.02, y: -1 }}
+                whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                onClick={onNewSession}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#00685F] hover:bg-[#00554E] hover:shadow-md active:scale-97 text-white text-xs font-bold shadow-xs transition-all cursor-pointer group shrink-0"
+                title="Start a new consultation session"
+              >
+                <Plus className="h-3.5 w-3.5 group-hover:rotate-90 transition-transform duration-200" />
+                <span className="whitespace-nowrap">New Chat</span>
+              </motion.button>
+            </div>
           </div>
         </div>
       </div>

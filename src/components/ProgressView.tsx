@@ -46,6 +46,8 @@ import { ErrorsView } from './ErrorsView';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from './HeaderTabInsignia';
+import { CircadianFocusDropdown } from './CircadianFocusDropdown';
+import { HeaderGlassIcon } from './HeaderGlassIcon';
 import { FmgePredictorView } from './FmgePredictorView';
 
 interface ProgressViewProps {
@@ -397,42 +399,48 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           </div>
         </div>
 
-        {/* Main Content Layout */}
+        {/* Main Content Layout matching performance-diagnostics-banner.png */}
         <div className="relative z-10 space-y-2.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 max-w-2xl">
-              <HeaderTabInsignia tab="progress" circadian={circadian} />
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 min-w-0 max-w-3xl">
+              <HeaderGlassIcon
+                icon={BarChart3}
+                isNight={circadian.isNight}
+              />
 
-              <div className="space-y-1 min-w-0">
-                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
-                  <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${
-                    circadian.isNight
-                      ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'
-                      : 'bg-gradient-to-r from-slate-950 via-indigo-950 to-indigo-800'
-                  }`}>
-                    PERFORMANCE &amp; DIAGNOSTICS
+              <div className="space-y-1.5 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-indigo-700 dark:text-indigo-300/90">
+                    ANALYZE • IDENTIFY • IMPROVE
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
+                    <span className="text-[#005B54] dark:text-teal-400">PERFORMANCE </span>
+                    <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>&amp; DIAGNOSTICS</span>
                   </h1>
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase shadow-2xs shrink-0 border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                     <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-indigo-500'}`} />
                     Diagnostic Engine
                   </span>
                 </div>
 
-                <p className={`text-xs sm:text-sm leading-normal font-sans line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
+                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
                   Know exactly where you stand. Diagnose preparation depth, clinical solving accuracy, and high-yield retention.
                 </p>
               </div>
             </div>
 
-            {/* Live Circadian Phase Pill & Date Badge */}
-            <div className="flex items-center gap-2 self-start sm:self-center shrink-0 flex-wrap sm:flex-nowrap">
-              <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
-              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono shadow-2xs backdrop-blur-md shrink-0 border ${
+            {/* Live Circadian Phase Dropdown & Date Badge */}
+            <div className="flex items-center gap-2 self-start lg:self-center shrink-0 flex-wrap sm:flex-nowrap">
+              <CircadianFocusDropdown circadian={circadian} />
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono shadow-2xs backdrop-blur-md shrink-0 border ${
                 circadian.isNight
                   ? 'bg-slate-900/80 border-sky-800/60 text-cyan-200'
-                  : 'bg-gradient-to-r from-white/95 via-violet-50/40 to-white/95 border-violet-100/90 text-stone-600'
+                  : 'bg-white/90 border-stone-200/80 text-stone-600'
               }`}>
-                <Calendar className={`w-3 h-3 ${circadian.isNight ? 'text-cyan-400' : 'text-[#4338CA]'}`} />
+                <Calendar className={`w-3.5 h-3.5 ${circadian.isNight ? 'text-cyan-400' : 'text-[#4338CA]'}`} />
                 <span>Updated: {formattedToday}</span>
               </div>
             </div>

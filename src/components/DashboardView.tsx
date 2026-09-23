@@ -77,6 +77,7 @@ import {
   PersonalizedPlan,
 } from '../utils/personalizationEngine';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
+import { CircadianFocusDropdown } from './CircadianFocusDropdown';
 import { MedicalHeroVisual, MedicalSubjectCardVisual, getSubjectTelemetry } from './MedicalHeroVisual';
 import { DoctorMountainArt } from './DoctorMountainArt';
 import { TopicMasteryWorkspace } from './TopicMasteryWorkspace';
@@ -1570,10 +1571,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
               </div>
 
-              {/* Doctor Name */}
+              {/* Doctor Name - Two-Tone Display matching dashboard-banner.png */}
               <div className="pt-0.5">
                 <h1 className={`text-2xl sm:text-4xl lg:text-[38px] font-extrabold tracking-[-0.03em] leading-tight ${heroTheme.nameColor}`}>
-                  {userName}
+                  {userName.startsWith('Dr.') ? (
+                    <>
+                      <span className="text-[#005B54] dark:text-teal-400">Dr. </span>
+                      <span>{userName.replace(/^Dr\.\s*/, '')}</span>
+                    </>
+                  ) : (
+                    userName
+                  )}
                 </h1>
                 <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic mt-1 ${heroTheme.subtitleColor}`}>
                   &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
@@ -1597,55 +1605,59 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
 
-            {/* Right side: Doctor's Mountain Creed Floating Badge with Dynamic Motivation */}
-            <motion.div
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 20 }}
-              onClick={shuffleCreed}
-              title="Click to shuffle motivation"
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') shuffleCreed();
-              }}
-              className={`hidden md:flex items-center gap-3.5 rounded-2xl px-4 py-2.5 cursor-pointer select-none transition-all duration-300 group ${
-                timeOfDay === 'night'
-                  ? 'bg-sky-950/80 backdrop-blur-xl border border-cyan-500/30 shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:border-cyan-400/60'
-                  : 'bg-white/90 backdrop-blur-xl border border-teal-200/60 shadow-xs hover:bg-white hover:border-[#006B63]/40 hover:shadow-md'
-              }`}
-            >
-              <div className="h-8 w-12 shrink-0 relative flex items-center justify-center">
-                <AnimatedMountainInsignia
-                  phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
-                  creedId={doctorCreed.id}
-                  className="w-full h-full"
-                />
-              </div>
-              <div className="text-right space-y-0.5 min-w-[200px] max-w-[290px]">
-                <p className={`text-xs font-bold italic transition-colors line-clamp-2 ${
+            {/* Right side: Circadian Focus Dropdown & Doctor's Mountain Creed Badge */}
+            <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row items-start sm:items-center md:items-end lg:items-center gap-2.5">
+              <CircadianFocusDropdown circadian={circadian} />
+
+              <motion.div
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+                onClick={shuffleCreed}
+                title="Click to shuffle motivation"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') shuffleCreed();
+                }}
+                className={`hidden md:flex items-center gap-3.5 rounded-2xl px-4 py-2.5 cursor-pointer select-none transition-all duration-300 group ${
                   timeOfDay === 'night'
-                    ? 'text-cyan-100 group-hover:text-cyan-200'
-                    : 'text-[#0D3833] group-hover:text-[#006B63]'
-                }`}>
-                  &ldquo;{doctorCreed.quote}&rdquo;
-                </p>
-                <div className="flex items-center justify-end gap-1.5">
-                  <span className={`text-[9.5px] font-mono font-bold uppercase tracking-wider ${
-                    timeOfDay === 'night' ? 'text-cyan-400' : 'text-[#5B948C]'
-                  }`}>
-                    {doctorCreed.tagline}
-                  </span>
-                  <RotateCcw
-                    className={`h-2.5 w-2.5 opacity-60 group-hover:opacity-100 transition-all duration-500 ${
-                      isCreedShuffling ? 'rotate-180' : 'group-hover:-rotate-90'
-                    } ${
-                      timeOfDay === 'night' ? 'text-cyan-300' : 'text-[#5B948C] group-hover:text-[#006B63]'
-                    }`}
+                    ? 'bg-sky-950/80 backdrop-blur-xl border border-cyan-500/30 shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:border-cyan-400/60'
+                    : 'bg-white/90 backdrop-blur-xl border border-teal-200/60 shadow-xs hover:bg-white hover:border-[#006B63]/40 hover:shadow-md'
+                }`}
+              >
+                <div className="h-8 w-12 shrink-0 relative flex items-center justify-center">
+                  <AnimatedMountainInsignia
+                    phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
+                    creedId={doctorCreed.id}
+                    className="w-full h-full"
                   />
                 </div>
-              </div>
-            </motion.div>
+                <div className="text-right space-y-0.5 min-w-[200px] max-w-[280px]">
+                  <p className={`text-xs font-bold italic transition-colors line-clamp-2 ${
+                    timeOfDay === 'night'
+                      ? 'text-cyan-100 group-hover:text-cyan-200'
+                      : 'text-[#0D3833] group-hover:text-[#006B63]'
+                  }`}>
+                    &ldquo;{doctorCreed.quote}&rdquo;
+                  </p>
+                  <div className="flex items-center justify-end gap-1.5">
+                    <span className={`text-[9.5px] font-mono font-bold uppercase tracking-wider ${
+                      timeOfDay === 'night' ? 'text-cyan-400' : 'text-[#5B948C]'
+                    }`}>
+                      {doctorCreed.tagline}
+                    </span>
+                    <RotateCcw
+                      className={`h-2.5 w-2.5 opacity-60 group-hover:opacity-100 transition-all duration-500 ${
+                        isCreedShuffling ? 'rotate-180' : 'group-hover:-rotate-90'
+                      } ${
+                        timeOfDay === 'night' ? 'text-cyan-300' : 'text-[#5B948C] group-hover:text-[#006B63]'
+                      }`}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
 
           {/* 4 Stat Cards Row with Staggered Motion and Micro-Interactions */}
@@ -1678,6 +1690,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   days to FMGE
                 </span>
               </div>
+              <ChevronRight className="w-3.5 h-3.5 text-amber-400 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block" />
             </motion.div>
 
             {/* Card 2: Target Score — Apple Ultramarine / Sapphire */}
@@ -1705,6 +1718,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   Target Score
                 </span>
               </div>
+              <ChevronRight className="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block" />
             </motion.div>
 
             {/* Card 3: Subjects count — Apple Violet / Iris */}
@@ -1731,6 +1745,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   Subjects
                 </span>
               </div>
+              <ChevronRight className="w-3.5 h-3.5 text-violet-400 group-hover:text-violet-600 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block" />
             </motion.div>
 
             {/* Card 4: Study Streak — Apple Emerald / Mint */}
@@ -1758,6 +1773,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   Study Streak
                 </span>
               </div>
+              <ChevronRight className="w-3.5 h-3.5 text-emerald-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block" />
             </motion.div>
           </div>
         </motion.div>

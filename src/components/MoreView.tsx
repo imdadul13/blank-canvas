@@ -26,6 +26,8 @@ import { ActiveTab } from './Navbar';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from './HeaderTabInsignia';
+import { CircadianFocusDropdown } from './CircadianFocusDropdown';
+import { HeaderGlassIcon } from './HeaderGlassIcon';
 
 interface MoreViewProps {
   state: AppState;
@@ -129,30 +131,39 @@ export const MoreView: React.FC<MoreViewProps> = ({
           >
             <CircadianHeaderAtmosphere circadian={circadian} />
 
-            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-3 sm:gap-3.5 max-w-2xl">
-                {/* Minimal Animated Insignia */}
-                <HeaderTabInsignia tab="more" circadian={circadian} />
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl min-w-0">
+                <HeaderGlassIcon
+                  icon={LayoutGrid}
+                  isNight={circadian.isNight}
+                />
 
-                <div className="space-y-1 min-w-0">
-                  <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
-                    <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase font-['Outfit'] tracking-tight leading-snug bg-clip-text text-transparent shrink-0 ${circadian.isNight ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200' : circadian.titleGrad}`}>
-                      CLINICAL UTILITIES &amp; SERVICES
+                <div className="space-y-1.5 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300/90">
+                      TOOLS • CONFIGURE • OPTIMIZE
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                    <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
+                      <span className="text-[#005B54] dark:text-teal-400">CLINICAL </span>
+                      <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>UTILITIES &amp; SERVICES</span>
                     </h1>
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border shadow-2xs shrink-0 ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                       <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse" />
                       System Directory
                     </span>
                   </div>
 
-                  <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
+                  <p className={`text-xs sm:text-sm leading-relaxed ${circadian.subtitleColor}`}>
                     Grand test mock exams, Telegram clinical feed, cloud telemetry synchronization, and application preferences.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
-                <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+              <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
+                <CircadianFocusDropdown circadian={circadian} />
               </div>
             </div>
           </motion.header>

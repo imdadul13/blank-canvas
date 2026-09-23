@@ -71,6 +71,8 @@ import { TelegramStatusCards } from "./telegram/TelegramStatusCards";
 import { useCircadianTheme } from "../hooks/useCircadianTheme";
 import { CircadianHeaderAtmosphere, CircadianPill } from "./CircadianHeaderAtmosphere";
 import { HeaderTabInsignia } from "./HeaderTabInsignia";
+import { CircadianFocusDropdown } from "./CircadianFocusDropdown";
+import { HeaderGlassIcon } from "./HeaderGlassIcon";
 import { TelegramOverviewCard } from "./telegram/TelegramOverviewCard";
 import { TelegramSubjectCollections } from "./telegram/TelegramSubjectCollections";
 import { TelegramQuickActions } from "./telegram/TelegramQuickActions";
@@ -1415,28 +1417,38 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           </div>
         </div>
 
-          {/* Header Content Body */}
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div className="flex items-center gap-3 sm:gap-3.5 max-w-2xl">
-              <HeaderTabInsignia tab="telegram" circadian={circadian} />
+          {/* Header Content Body matching telegram-hub-banner.png */}
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl min-w-0">
+              <HeaderGlassIcon
+                icon={Send}
+                isNight={circadian.isNight}
+              />
 
               <div className="space-y-1.5 min-w-0">
-                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
-                  <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${circadian.isNight ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200' : circadian.titleGrad}`}>
-                    TELEGRAM KNOWLEDGE BANK
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-sky-700 dark:text-sky-300/90">
+                    CONNECT • CURATE • REVISE
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
+                    <span className="text-[#005B54] dark:text-teal-400">TELEGRAM </span>
+                    <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>KNOWLEDGE BANK</span>
                   </h1>
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border shadow-2xs shrink-0 ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                     <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
                     ONE SHOT CURATED
                   </span>
                 </div>
 
-                <p className={`text-xs sm:text-sm leading-relaxed font-normal max-w-xl line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
+                <p className={`text-xs sm:text-sm leading-relaxed max-w-xl ${circadian.subtitleColor}`}>
                   High-yield FMGE content, intelligently curated from your verified sources.
                 </p>
 
                 {/* Quick Metrics Bar */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
                   <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
                     <span className="text-slate-400">Curated:</span>
                     <span className={`font-bold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{curatedCounts.totalCurated || curatedItems.length}</span>
@@ -1461,11 +1473,11 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               </div>
             </div>
 
-            {/* Right Action & Editorial Quote Card */}
-            <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end gap-2 shrink-0">
-              <div className="flex items-center gap-2">
-                <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
+            {/* Right Action Controls & Focus Dropdown */}
+            <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between sm:justify-end gap-2.5 shrink-0">
+              <CircadianFocusDropdown circadian={circadian} />
 
+              <div className="flex flex-wrap items-center gap-2">
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold font-mono border shadow-2xs ${circadian.isNight ? 'bg-teal-950/70 text-teal-300 border-teal-800/80' : 'bg-teal-50 text-teal-800 border-teal-200'}`}>
                   <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-teal-500'}`} />
                   {isConnected ? 'MTProto Synced' : 'Feed Active'}
@@ -1498,9 +1510,11 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 )}
               </div>
 
-              <div className="bg-white/85 border border-teal-200/70 rounded-xl px-3 py-1.5 flex items-center gap-2 max-w-sm shadow-2xs">
-                <span className="text-xs font-serif text-[#006B63] font-bold select-none shrink-0">“</span>
-                <p className="text-[11px] text-slate-700 font-medium leading-tight">
+              <div className={`border rounded-xl px-3 py-1 flex items-center gap-2 max-w-sm shadow-2xs ${
+                circadian.isNight ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-white/85 border-teal-200/70 text-slate-700'
+              }`}>
+                <span className="text-xs font-serif text-[#006B63] dark:text-teal-400 font-bold select-none shrink-0">“</span>
+                <p className="text-[11px] font-medium leading-tight">
                   Good resources stay with you.
                 </p>
               </div>

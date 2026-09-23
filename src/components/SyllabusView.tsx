@@ -28,6 +28,8 @@ import {
   CheckCircle2,
   Compass,
   RotateCw,
+  Layers,
+  BarChart3,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AppState, SubjectPhase, ConfidenceLevel } from '../types';
@@ -39,6 +41,8 @@ import { AppStats, calculateAppStats } from '../utils/storage';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from './HeaderTabInsignia';
+import { CircadianFocusDropdown } from './CircadianFocusDropdown';
+import { HeaderGlassIcon } from './HeaderGlassIcon';
 
 interface SyllabusViewProps {
   state: AppState;
@@ -174,349 +178,257 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         currentSubTab === 'revision' ? 'pb-28 sm:pb-20' : 'pb-20'
       }`}
     >
-      {/* ================= 1. STUDY EDITORIAL HEADER CARD ================= */}
+      {/* ================= 1. STUDY EDITORIAL HEADER CARD (Apple Glass Bento) ================= */}
       <motion.header
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative overflow-hidden rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
+        className={`relative overflow-hidden rounded-[28px] sm:rounded-[32px] border p-4 sm:p-6 shadow-sm transition-colors duration-700 ${
+          circadian.isNight
+            ? 'bg-gradient-to-r from-[#0B1523] via-[#0F1E32] to-[#0A1829] border-sky-800/60 shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
+            : 'bg-gradient-to-r from-amber-50/50 via-white to-teal-50/40 border-stone-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.03)]'
+        }`}
       >
-        {/* Dynamic Animated Circadian Time-of-Day Atmosphere & 2px Shimmer Track */}
         <CircadianHeaderAtmosphere circadian={circadian} />
 
-        {/* Botanical Tree of Knowledge & Architectural Study Blueprint Background */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-
-          {/* Subtle Curriculum Blueprint Grid */}
-          <svg
-            className="absolute inset-0 h-full w-full opacity-[0.04] text-teal-950 pointer-events-none select-none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+        {/* Scenic mountain & sunrise backdrop on far right */}
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-72 sm:w-96 overflow-hidden select-none opacity-40 sm:opacity-60 dark:opacity-20" aria-hidden="true">
+          <svg viewBox="0 0 380 160" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
             <defs>
-              <pattern id="study-blueprint-grid" width="28" height="28" patternUnits="userSpaceOnUse">
-                <path d="M 28 0 L 0 0 0 28" fill="none" stroke="currentColor" strokeWidth="0.75" />
-                <circle cx="28" cy="28" r="0.75" fill="currentColor" opacity="0.6" />
-              </pattern>
+              <radialGradient id="syl-sun-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#FDE68A" stopOpacity="0.8" />
+                <stop offset="60%" stopColor="#F59E0B" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+              </radialGradient>
+              <linearGradient id="syl-mount-front" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#006B63" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#004D40" stopOpacity="0.45" />
+              </linearGradient>
+              <linearGradient id="syl-mount-back" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="#0F766E" stopOpacity="0.25" />
+              </linearGradient>
             </defs>
-            <rect width="100%" height="100%" fill="url(#study-blueprint-grid)" />
+            <circle cx="280" cy="85" r="45" fill="url(#syl-sun-glow)" />
+            <path d="M 80 160 Q 180 80 290 120 T 380 160 Z" fill="url(#syl-mount-back)" />
+            <path d="M 160 160 Q 250 95 380 130 L 380 160 Z" fill="url(#syl-mount-front)" />
           </svg>
-
-          {/* Premium Botanical Tree of Knowledge & Architectural Study Codex Artwork */}
-          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[480px] overflow-hidden opacity-40 sm:opacity-55 md:opacity-[0.65] select-none pointer-events-none block">
-            <svg viewBox="0 0 480 140" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
-              <defs>
-                <linearGradient id="codex-desk-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#004D40" stopOpacity="0" />
-                  <stop offset="30%" stopColor="#004D40" stopOpacity="0.25" />
-                  <stop offset="70%" stopColor="#00695C" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#004D40" stopOpacity="0.15" />
-                </linearGradient>
-                <linearGradient id="codex-page-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#E8F5E9" stopOpacity="0.95" />
-                  <stop offset="50%" stopColor="#C8E6C9" stopOpacity="0.85" />
-                  <stop offset="100%" stopColor="#A5D6A7" stopOpacity="0.75" />
-                </linearGradient>
-                <linearGradient id="codex-cover-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#00695C" />
-                  <stop offset="100%" stopColor="#004D40" />
-                </linearGradient>
-                <linearGradient id="botanical-branch-grad" x1="0%" y1="100%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#004D40" stopOpacity="0.9" />
-                  <stop offset="60%" stopColor="#00796B" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#26A69A" stopOpacity="0.7" />
-                </linearGradient>
-                <linearGradient id="botanical-leaf-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#81C784" />
-                  <stop offset="50%" stopColor="#4CAF50" />
-                  <stop offset="100%" stopColor="#2E7D32" />
-                </linearGradient>
-                <radialGradient id="codex-halo-glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#6EE7B7" stopOpacity="0.45" />
-                  <stop offset="60%" stopColor="#10B981" stopOpacity="0.15" />
-                  <stop offset="100%" stopColor="#00685F" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Ambient Wisdom Halo Aura */}
-              <motion.circle
-                cx="370"
-                cy="68"
-                r="65"
-                fill="url(#codex-halo-glow)"
-                animate={{ scale: [1, 1.15, 1], opacity: [0.35, 0.6, 0.35] }}
-                transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-              />
-
-              {/* Study Desk Base Silhouette */}
-              <path
-                d="M 230 135 Q 360 132 480 135 L 480 140 L 230 140 Z"
-                fill="url(#codex-desk-grad)"
-              />
-
-              {/* ═══ 1. OPEN MEDICAL CODEX / LEATHER-BOUND FOLIO ═══ */}
-              <g transform="translate(370, 95)">
-                {/* Book Base / Leather Cover Trim */}
-                <path
-                  d="M -75 22 C -40 28, -10 24, 0 32 C 10 24, 40 28, 75 22 C 73 26, 40 32, 0 36 C -40 32, -73 26, -75 22 Z"
-                  fill="url(#codex-cover-grad)"
-                  opacity="0.85"
-                />
-
-                {/* Left Folio Page Stack */}
-                <path
-                  d="M -72 20 C -42 25, -12 21, 0 29 L 0 6 C -12 -1, -42 3, -72 -2 Z"
-                  fill="url(#codex-page-grad)"
-                  stroke="#81C784"
-                  strokeWidth="0.8"
-                />
-
-                {/* Right Folio Page Stack */}
-                <path
-                  d="M 0 29 C 12 21, 42 25, 72 20 L 72 -2 C 42 3, 12 -1, 0 6 Z"
-                  fill="url(#codex-page-grad)"
-                  stroke="#81C784"
-                  strokeWidth="0.8"
-                />
-
-                {/* Turning Upper Leaf (Gentle Page Sway Animation) */}
-                <motion.path
-                  d="M 0 6 C 14 -3, 44 0, 70 -5 L 70 17 C 44 22, 14 19, 0 27 Z"
-                  fill="#FFFFFF"
-                  fillOpacity="0.7"
-                  stroke="#A5D6A7"
-                  strokeWidth="0.8"
-                  animate={{ y: [0, -2.5, 0], rotate: [0, 1.2, 0] }}
-                  transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-                />
-
-                {/* Text Line Mockups on Open Folio */}
-                <g stroke="#004D40" strokeOpacity="0.25" strokeWidth="0.9" strokeLinecap="round">
-                  <line x1="-60" y1="5" x2="-14" y2="7" />
-                  <line x1="-60" y1="10" x2="-20" y2="12" />
-                  <line x1="-60" y1="15" x2="-16" y2="17" />
-                  <line x1="-60" y1="20" x2="-26" y2="22" />
-
-                  <line x1="14" y1="7" x2="60" y2="5" />
-                  <line x1="14" y1="12" x2="56" y2="10" />
-                  <line x1="14" y1="17" x2="58" y2="15" />
-                  <line x1="14" y1="22" x2="48" y2="20" />
-                </g>
-
-                {/* Book Spine Center Marker */}
-                <line x1="0" y1="4" x2="0" y2="33" stroke="#004D40" strokeWidth="1.8" strokeLinecap="round" />
-
-                {/* Flowing Silk Bookmark Ribbon */}
-                <motion.path
-                  d="M 0 29 Q 12 45 8 60 Q 6 56 4 58 Q 2 45 0 29"
-                  fill="#00796B"
-                  animate={{ rotate: [-2, 4, -2] }}
-                  transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
-                />
-              </g>
-
-              {/* ═══ 2. BOTANICAL ROD OF ASCLEPIUS & TREE OF KNOWLEDGE ═══ */}
-              <g transform="translate(370, 96)">
-                {/* Main Botanical Trunk Rising from Codex Spine */}
-                <path
-                  d="M 0 5 Q -6 -25 0 -55 Q 5 -75 0 -92"
-                  stroke="url(#botanical-branch-grad)"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-
-                {/* Primary Left Branch */}
-                <path
-                  d="M -2 -32 Q -25 -42 -42 -50"
-                  stroke="url(#botanical-branch-grad)"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-
-                {/* Secondary Left Sub-branch */}
-                <path
-                  d="M -18 -38 Q -32 -55 -40 -68"
-                  stroke="url(#botanical-branch-grad)"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-
-                {/* Primary Right Branch */}
-                <path
-                  d="M 1 -38 Q 24 -46 44 -56"
-                  stroke="url(#botanical-branch-grad)"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-
-                {/* Secondary Right Sub-branch */}
-                <path
-                  d="M 16 -43 Q 32 -60 42 -72"
-                  stroke="url(#botanical-branch-grad)"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-
-                {/* Botanical Laurel Leaves with Gentle Sway */}
-                <motion.g
-                  animate={{ rotate: [-1.5, 1.5, -1.5] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  {/* Left Leaves */}
-                  <path d="M -42 -50 Q -52 -55 -55 -48 Q -48 -42 -42 -50 Z" fill="url(#botanical-leaf-grad)" />
-                  <path d="M -28 -40 Q -36 -46 -39 -39 Q -32 -33 -28 -40 Z" fill="url(#botanical-leaf-grad)" />
-                  <path d="M -40 -68 Q -50 -75 -52 -67 Q -44 -60 -40 -68 Z" fill="url(#botanical-leaf-grad)" />
-                  <path d="M -25 -52 Q -32 -60 -36 -54 Q -29 -47 -25 -52 Z" fill="url(#botanical-leaf-grad)" />
-
-                  {/* Right Leaves */}
-                  <path d="M 44 -56 Q 54 -62 57 -55 Q 50 -48 44 -56 Z" fill="url(#botanical-leaf-grad)" />
-                  <path d="M 30 -44 Q 38 -50 42 -43 Q 34 -37 30 -44 Z" fill="url(#botanical-leaf-grad)" />
-                  <path d="M 42 -72 Q 52 -80 55 -72 Q 47 -65 42 -72 Z" fill="url(#botanical-leaf-grad)" />
-                  <path d="M 26 -56 Q 34 -64 38 -57 Q 31 -50 26 -56 Z" fill="url(#botanical-leaf-grad)" />
-
-                  {/* Crown Sprout Leaves at Top */}
-                  <path d="M 0 -92 Q -6 -104 0 -107 Q 6 -104 0 -92 Z" fill="url(#botanical-leaf-grad)" />
-                  <path d="M 0 -92 Q -12 -98 -10 -90 Q 0 -88 0 -92 Z" fill="url(#botanical-leaf-grad)" />
-                  <path d="M 0 -92 Q 12 -98 10 -90 Q 0 -88 0 -92 Z" fill="url(#botanical-leaf-grad)" />
-                </motion.g>
-
-                {/* Luminous Knowledge Fruit / Blossom Nodes (Representing Subject Milestones) */}
-                <g>
-                  <circle cx="-42" cy="-50" r="2.5" fill="#34D399" />
-                  <circle cx="44" cy="-56" r="2.5" fill="#34D399" />
-                  <circle cx="-40" cy="-68" r="2.5" fill="#34D399" />
-                  <circle cx="42" cy="-72" r="2.5" fill="#34D399" />
-                  <circle cx="0" cy="-92" r="3.2" fill="#6EE7B7" />
-                  <motion.circle
-                    cx="0"
-                    cy="-92"
-                    r="6.5"
-                    stroke="#34D399"
-                    strokeWidth="1.2"
-                    fill="none"
-                    animate={{ scale: [1, 1.8], opacity: [0.8, 0] }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut' }}
-                  />
-                </g>
-              </g>
-
-              {/* ═══ 3. FLOATING MEDICINAL LEAF / WISDOM PARTICLES ═══ */}
-              <motion.path
-                d="M 290 40 Q 296 35 300 40 Q 295 46 290 40 Z"
-                fill="url(#botanical-leaf-grad)"
-                opacity="0.75"
-                animate={{
-                  y: [0, 25, 0],
-                  x: [0, -12, 0],
-                  rotate: [0, 22, 0],
-                }}
-                transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <motion.path
-                d="M 435 30 Q 442 24 446 30 Q 440 37 435 30 Z"
-                fill="url(#botanical-leaf-grad)"
-                opacity="0.65"
-                animate={{
-                  y: [0, 30, 0],
-                  x: [0, 10, 0],
-                  rotate: [0, -25, 0],
-                }}
-                transition={{ duration: 8.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-              />
-              <motion.circle
-                cx="320"
-                cy="60"
-                r="1.8"
-                fill="#34D399"
-                animate={{ opacity: [0.2, 0.8, 0.2], y: [0, -10, 0] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <motion.circle
-                cx="420"
-                cy="85"
-                r="1.5"
-                fill="#6EE7B7"
-                animate={{ opacity: [0.1, 0.7, 0.1], y: [0, -8, 0] }}
-                transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
-              />
-            </svg>
-          </div>
         </div>
 
-        {/* Content Layout with Original Previous Texts */}
-        <div className="relative z-10 space-y-2.5">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 max-w-2xl">
-              <HeaderTabInsignia tab="syllabus" circadian={circadian} />
+        {/* Main 3-Column Bento Grid Layout */}
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          {/* ═══ COLUMN 1: BRAND LOCKUP, TITLE, SUBTITLE & NAVIGATION TABS ═══ */}
+          <div className="space-y-4 max-w-xl min-w-0">
+            {/* Header Icon + Spaced Eyebrow + Two-Tone Title */}
+            <div className="flex items-start gap-3.5">
+              <HeaderGlassIcon icon={BookOpen} isNight={circadian.isNight} />
 
               <div className="space-y-1 min-w-0">
-                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
-                  <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase tracking-tight font-['Outfit'] leading-snug bg-clip-text text-transparent shrink-0 ${
-                    circadian.isNight
-                      ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200'
-                      : 'bg-gradient-to-r from-[#003830] via-[#008779] via-35% to-[#10B981]'
-                  }`}>
-                    YOUR STUDY PLAN
-                  </h1>
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase shadow-2xs shrink-0 border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-emerald-500 shadow-[0_0_6px_#10b981]'}`} />
-                    Curriculum · 19 Subjects
-                  </span>
+                <div className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-slate-400 dark:text-slate-500">
+                  STUDY PLAN
                 </div>
 
-                <p className={`text-xs sm:text-sm leading-normal line-clamp-1 sm:line-clamp-none ${circadian.subtitleColor}`}>
-                  Master the 19 subjects. Step by step.
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                  <h1 className="text-2xl sm:text-[28px] font-extrabold tracking-tight font-display leading-tight">
+                    <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>Your Study </span>
+                    <span className="text-[#008378] dark:text-teal-400">Plan</span>
+                  </h1>
+
+                  {/* Dual Badges matching reference */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-teal-50 dark:bg-teal-950/70 text-[#006B63] dark:text-teal-300 border border-teal-200/80 dark:border-teal-800 shadow-2xs">
+                      <Layers className="w-3 h-3 text-[#006B63] dark:text-teal-300" />
+                      <span>CURRICULUM 19 SUBJECTS</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 shadow-2xs">
+                      <BarChart3 className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                      <span>FMGE FOCUSED</span>
+                    </span>
+                  </div>
+                </div>
+
+                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
+                  Master the 19 subjects. Step by step. A better doctor, one day at a time.
                 </p>
               </div>
             </div>
 
-            {/* Right Side: Live Circadian Phase Pill with Cycle Action */}
-            <div className="flex items-center gap-2 self-start md:self-center shrink-0">
-              <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
-            </div>
-          </div>
-
-          {/* Secondary Sub-Tab Switcher Dock */}
-          <div className={`flex flex-wrap items-center justify-between gap-2 pt-2 border-t ${circadian.isNight ? 'border-sky-800/40' : 'border-stone-200/70'}`}>
-            <div className={`inline-flex p-0.5 backdrop-blur-md rounded-xl shadow-2xs border ${circadian.isNight ? 'bg-slate-900/80 border-sky-800/60' : 'bg-white/85 border-stone-200/80'}`}>
+            {/* Interactive Navigation Pills (Curriculum -> & Revision Matrix) */}
+            <div className="flex items-center gap-2.5 pt-1">
               <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={() => handleSubTabChange('curriculum')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm cursor-pointer ${
                   currentSubTab === 'curriculum'
-                    ? 'bg-[#006B63] text-white shadow-xs font-bold'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-teal-50/50'
+                    ? 'bg-[#005B54] text-white hover:bg-[#004D47] shadow-teal-900/15'
+                    : circadian.isNight
+                    ? 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                    : 'bg-white/90 text-slate-700 hover:bg-stone-50 border border-stone-200/80'
                 }`}
               >
-                <BookOpen className="w-3.5 h-3.5" />
+                <BookOpen className="w-4 h-4" />
                 <span>Curriculum</span>
+                <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
               </motion.button>
 
               <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={() => handleSubTabChange('revision')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'revision'
-                    ? 'bg-[#006B63] text-white shadow-xs font-bold'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-teal-50/50'
+                    ? 'bg-[#005B54] text-white hover:bg-[#004D47] shadow-teal-900/15'
+                    : circadian.isNight
+                    ? 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                    : 'bg-white/90 text-slate-700 hover:bg-stone-50 border border-stone-200/80'
                 }`}
               >
-                <RotateCw className="w-3.5 h-3.5" />
+                <RotateCw className="w-4 h-4" />
                 <span>Revision Matrix</span>
               </motion.button>
             </div>
 
-            <div className="text-xs font-mono text-stone-500 hidden sm:flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>19 Subjects · {overallStats.percentage}% Completed</span>
+            {/* Micro-footer */}
+            <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-slate-400 dark:text-slate-500 flex items-center gap-2 pt-0.5">
+              <span>LEARN</span>
+              <span>•</span>
+              <span>PRACTICE</span>
+              <span>•</span>
+              <span>TRACK</span>
+              <span>•</span>
+              <span>IMPROVE</span>
+            </div>
+          </div>
+
+          {/* ═══ COLUMN 2: CIRCULAR MASTERY GAUGE & STATISTIC STACK ═══ */}
+          <div className="flex items-center gap-6 sm:gap-8 justify-between sm:justify-start lg:justify-center border-t sm:border-t-0 pt-4 sm:pt-0 border-stone-200/60 dark:border-slate-800">
+            {/* Circular Gauge */}
+            <div className="flex flex-col items-center shrink-0">
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+                <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    className={`fill-none ${circadian.isNight ? 'text-slate-800' : 'text-slate-100'}`}
+                  />
+                  <motion.circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke="#10B981"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    className="fill-none"
+                    initial={{ strokeDashoffset: 2 * Math.PI * 40 }}
+                    animate={{ strokeDashoffset: 2 * Math.PI * 40 * (1 - overallStats.percentage / 100) }}
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                    style={{ strokeDasharray: 2 * Math.PI * 40 }}
+                  />
+                </svg>
+
+                {/* Center Percentage */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span className={`text-xl sm:text-2xl font-extrabold font-mono tracking-tight ${
+                    circadian.isNight ? 'text-white' : 'text-slate-900'
+                  }`}>
+                    {overallStats.percentage}%
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                    Completed
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-2 text-center">
+                <span className={`text-xs font-mono font-medium ${circadian.isNight ? 'text-slate-400' : 'text-slate-500'}`}>
+                  {overallStats.completedSubjectsCount} / {overallStats.totalSubjects} subjects
+                </span>
+                <div className="w-20 h-1 rounded-full bg-slate-200 dark:bg-slate-800 mt-1 mx-auto overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    style={{ width: `${overallStats.percentage}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 3-Row Telemetry Stack with Chevron Arrows */}
+            <div className="space-y-2.5 min-w-[150px] sm:min-w-[170px]">
+              <div className="flex items-center justify-between gap-3 p-1.5 rounded-xl transition-colors">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    circadian.isNight ? 'bg-sky-950/70 text-cyan-400' : 'bg-teal-50 text-[#006B63]'
+                  }`}>
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className={`text-sm font-extrabold font-mono leading-none ${
+                      circadian.isNight ? 'text-white' : 'text-slate-900'
+                    }`}>
+                      {overallStats.totalSubjects}
+                    </div>
+                    <div className="text-[11px] text-slate-400">Total Subjects</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 opacity-60" />
+              </div>
+
+              <div className="flex items-center justify-between gap-3 p-1.5 rounded-xl transition-colors">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className={`text-sm font-extrabold font-mono leading-none ${
+                      circadian.isNight ? 'text-white' : 'text-slate-900'
+                    }`}>
+                      {overallStats.completedSubjectsCount}
+                    </div>
+                    <div className="text-[11px] text-slate-400">Subjects Mastered</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 opacity-60" />
+              </div>
+
+              <div className="flex items-center justify-between gap-3 p-1.5 rounded-xl transition-colors">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+                    <Target className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className={`text-sm font-extrabold font-mono leading-none ${
+                      circadian.isNight ? 'text-white' : 'text-slate-900'
+                    }`}>
+                      {state.settings?.targetScore || 200}+
+                    </div>
+                    <div className="text-[11px] text-slate-400">Target Score</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400 opacity-60" />
+              </div>
+            </div>
+          </div>
+
+          {/* ═══ COLUMN 3: CIRCADIAN SELECTOR & EDITORIAL QUOTE ═══ */}
+          <div className="flex lg:flex-col justify-between items-end text-right min-w-[200px] max-w-[240px] border-t lg:border-t-0 lg:border-l border-stone-200/60 dark:border-slate-800 pt-3 lg:pt-0 lg:pl-4 self-stretch">
+            <CircadianFocusDropdown circadian={circadian} />
+
+            <div className="space-y-1.5 my-auto hidden lg:block">
+              <p className={`text-sm font-serif italic leading-snug ${
+                circadian.isNight ? 'text-slate-300' : 'text-slate-700'
+              }`}>
+                &ldquo;Small steps make big doctors.&rdquo;
+              </p>
+              <div className="w-8 h-0.5 bg-teal-500/40 ml-auto rounded-full" />
+              <div className="text-[9px] font-mono font-bold tracking-widest text-slate-400 uppercase">
+                DISCIPLINE TODAY · DOCTOR TOMORROW
+              </div>
             </div>
           </div>
         </div>

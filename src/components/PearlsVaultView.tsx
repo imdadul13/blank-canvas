@@ -21,6 +21,7 @@ import {
   Layers,
   ArrowRight,
   Headphones,
+  Lightbulb,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MedicalPearl, AppState } from '../types';
@@ -41,6 +42,8 @@ import {
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from './HeaderTabInsignia';
+import { CircadianFocusDropdown } from './CircadianFocusDropdown';
+import { HeaderGlassIcon } from './HeaderGlassIcon';
 import { ExamEveCheatSheetModal } from './ExamEveCheatSheetModal';
 
 // Visual theme helper for consistent, subtle content differentiation
@@ -839,98 +842,114 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           </div>
         </div>
 
-        {/* Header Main Content */}
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex items-center gap-3 sm:gap-3.5 max-w-2xl min-w-0">
-            <HeaderTabInsignia tab="pearls" circadian={circadian} />
+        {/* Header Main Content matching knowledge-pearls-banner.png */}
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl min-w-0">
+            <HeaderGlassIcon
+              icon={Lightbulb}
+              isNight={circadian.isNight}
+              badgeDotColor="bg-amber-400"
+            />
 
-            <div className="space-y-1 min-w-0">
-              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
-                <h1 className={`text-lg sm:text-xl lg:text-[23px] font-extrabold uppercase font-['Outfit'] tracking-tight ${circadian.isNight ? 'bg-gradient-to-r from-white via-slate-100 to-cyan-200' : circadian.titleGrad} bg-clip-text text-transparent leading-snug shrink-0`}>
-                  KNOWLEDGE &amp; PEARLS
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-amber-700 dark:text-amber-300/90">
+                  LEARN • CONNECT • APPLY
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
+                  <span className="text-[#005B54] dark:text-teal-400">KNOWLEDGE </span>
+                  <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>&amp; PEARLS</span>
                 </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText} shadow-2xs shrink-0`}>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText} shadow-2xs`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                   Clinical Synthesis
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm ${circadian.subtitleColor} leading-normal max-w-xl line-clamp-1 sm:line-clamp-none`}>
+              <p className={`text-xs sm:text-sm ${circadian.subtitleColor} leading-relaxed max-w-xl`}>
                 Clinical mnemonics, Drugs of Choice (DOC), diagnostic triads, and exam traps.
               </p>
+
+              {/* Action and Filter Pills */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {/* Spaced Repetition Due Today Review Button */}
+                {duePearls.length > 0 && (
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      setSrsIndex(0);
+                      setIsSrsAnswerRevealed(false);
+                      setIsSrsReviewOpen(true);
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs"
+                  >
+                    <Flame className="h-3.5 w-3.5 fill-white text-white animate-pulse" />
+                    <span>Review Due ({duePearls.length})</span>
+                  </motion.button>
+                )}
+
+                {/* Hands-Free Commute Audio Button */}
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleStartCommuteAudio}
+                  className="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border bg-teal-50/90 hover:bg-teal-100 text-teal-900 border-teal-200/80 shadow-2xs"
+                  title="Listen to active pearls sequentially in hands-free commute mode"
+                >
+                  <Headphones className="h-3.5 w-3.5 text-teal-700" />
+                  <span>Commute Audio</span>
+                </motion.button>
+
+                {/* Printable Cheat Sheet Button */}
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsCheatSheetModalOpen(true)}
+                  className="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border bg-white/80 hover:bg-white text-stone-700 border-teal-200/70 hover:border-teal-300 shadow-2xs"
+                  title="Open print-optimized 2-column clinical cheat sheet"
+                >
+                  <Printer className="h-3.5 w-3.5 text-teal-700" />
+                  <span>Cheat Sheet</span>
+                </motion.button>
+
+                {/* Starred Filter Button */}
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                  onClick={() => {
+                    setBookmarkedOnly(!bookmarkedOnly);
+                    const vaultEl = document.getElementById('master-vault');
+                    if (vaultEl && !bookmarkedOnly) {
+                      vaultEl.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs backdrop-blur-sm ${
+                    bookmarkedOnly
+                      ? 'bg-amber-500 text-white border-amber-600 shadow-amber-500/20 shadow-xs'
+                      : circadian.isNight
+                        ? 'bg-slate-800/80 hover:bg-slate-700/90 text-slate-200 border-slate-700/80 hover:border-slate-600'
+                        : 'bg-white/80 hover:bg-white text-stone-700 border-teal-200/70 hover:border-teal-300'
+                  }`}
+                >
+                  <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-white text-white' : 'fill-amber-500/20 text-amber-500'}`} />
+                  <span>Starred ({bookmarkedCount})</span>
+                </motion.button>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-start md:self-center shrink-0">
-            <CircadianPill circadian={circadian} onCycle={circadian.cycleTheme} />
-
-            {/* Spaced Repetition Due Today Review Button */}
-            {duePearls.length > 0 && (
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.02, y: -1 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setSrsIndex(0);
-                  setIsSrsAnswerRevealed(false);
-                  setIsSrsReviewOpen(true);
-                }}
-                className="w-full sm:w-auto px-3 py-1.5 min-h-[36px] justify-center rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs"
-              >
-                <Flame className="h-3.5 w-3.5 fill-white text-white animate-pulse" />
-                <span>Review Due ({duePearls.length})</span>
-              </motion.button>
-            )}
-
-            {/* Hands-Free Commute Audio Button */}
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleStartCommuteAudio}
-              className="w-full sm:w-auto px-3 py-1.5 min-h-[36px] justify-center rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border bg-teal-50/90 hover:bg-teal-100 text-teal-900 border-teal-200/80 shadow-2xs"
-              title="Listen to active pearls sequentially in hands-free commute mode"
-            >
-              <Headphones className="h-3.5 w-3.5 text-teal-700" />
-              <span>Commute Audio</span>
-            </motion.button>
-
-            {/* Printable Cheat Sheet Button */}
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsCheatSheetModalOpen(true)}
-              className="w-full sm:w-auto px-3 py-1.5 min-h-[36px] justify-center rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border bg-white/80 hover:bg-white text-stone-700 border-teal-200/70 hover:border-teal-300 shadow-2xs"
-              title="Open print-optimized 2-column clinical cheat sheet"
-            >
-              <Printer className="h-3.5 w-3.5 text-teal-700" />
-              <span className="hidden sm:inline">Cheat Sheet</span>
-            </motion.button>
-
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              onClick={() => {
-                setBookmarkedOnly(!bookmarkedOnly);
-                const vaultEl = document.getElementById('master-vault');
-                if (vaultEl && !bookmarkedOnly) {
-                  vaultEl.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-              className={`w-full sm:w-auto px-3.5 py-1.5 min-h-[36px] justify-center rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs backdrop-blur-sm ${
-                bookmarkedOnly
-                  ? 'bg-amber-500 text-white border-amber-600 shadow-amber-500/20 shadow-xs'
-                  : circadian.isNight
-                    ? 'bg-slate-800/80 hover:bg-slate-700/90 text-slate-200 border-slate-700/80 hover:border-slate-600'
-                    : 'bg-white/80 hover:bg-white text-stone-700 border-teal-200/70 hover:border-teal-300'
-              }`}
-            >
-              <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-white text-white' : 'fill-amber-500/20 text-amber-500'}`} />
-              <span>Starred ({bookmarkedCount})</span>
-            </motion.button>
+          {/* Right Action: Circadian Dropdown */}
+          <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
+            <CircadianFocusDropdown circadian={circadian} />
           </div>
         </div>
       </motion.header>

@@ -29,6 +29,8 @@ export interface CircadianTheme {
   accentText: string;
   isNight: boolean;
   cycleTheme: () => void;
+  setTheme: (theme: TimeOfDay | 'auto') => void;
+  themeSetting?: string;
 }
 
 export function resolveTimeOfDay(hour: number, themeSetting?: string): TimeOfDay {
@@ -53,7 +55,12 @@ export function resolveTimeOfDay(hour: number, themeSetting?: string): TimeOfDay
   return 'night';
 }
 
-export function getCircadianTheme(timeOfDay: TimeOfDay, cycleTheme: () => void): CircadianTheme {
+export function getCircadianTheme(
+  timeOfDay: TimeOfDay,
+  cycleTheme: () => void,
+  setTheme: (theme: TimeOfDay | 'auto') => void = () => {},
+  themeSetting?: string
+): CircadianTheme {
   switch (timeOfDay) {
     case 'morning':
       return {
@@ -82,6 +89,8 @@ export function getCircadianTheme(timeOfDay: TimeOfDay, cycleTheme: () => void):
         accentText: 'text-amber-700',
         isNight: false,
         cycleTheme,
+        setTheme,
+        themeSetting,
       };
 
     case 'afternoon':
@@ -111,6 +120,8 @@ export function getCircadianTheme(timeOfDay: TimeOfDay, cycleTheme: () => void):
         accentText: 'text-teal-700',
         isNight: false,
         cycleTheme,
+        setTheme,
+        themeSetting,
       };
 
     case 'evening':
@@ -140,6 +151,8 @@ export function getCircadianTheme(timeOfDay: TimeOfDay, cycleTheme: () => void):
         accentText: 'text-orange-700',
         isNight: false,
         cycleTheme,
+        setTheme,
+        themeSetting,
       };
 
     case 'night':
@@ -170,6 +183,8 @@ export function getCircadianTheme(timeOfDay: TimeOfDay, cycleTheme: () => void):
         accentText: 'text-cyan-300',
         isNight: true,
         cycleTheme,
+        setTheme,
+        themeSetting,
       };
   }
 }
@@ -223,5 +238,22 @@ export function useCircadianTheme(themeSetting?: string): CircadianTheme {
     setOverride(nextTheme);
   }, [timeOfDay]);
 
-  return useMemo(() => getCircadianTheme(timeOfDay, cycleTheme), [timeOfDay, cycleTheme]);
+  const setTheme = useCallback((nextTheme: TimeOfDay | 'auto') => {
+    if (typeof window !== 'undefined') {
+      if (nextTheme === 'auto') {
+        localStorage.removeItem('fmge_circadian_override');
+        window.dispatchEvent(new CustomEvent('circadian-theme-change', { detail: null }));
+        setOverride(null);
+      } else {
+        localStorage.setItem('fmge_circadian_override', nextTheme);
+        window.dispatchEvent(new CustomEvent('circadian-theme-change', { detail: nextTheme }));
+        setOverride(nextTheme);
+      }
+    }
+  }, []);
+
+  return useMemo(
+    () => getCircadianTheme(timeOfDay, cycleTheme, setTheme, themeSetting || (override ? override : 'auto')),
+    [timeOfDay, cycleTheme, setTheme, themeSetting, override]
+  );
 }
