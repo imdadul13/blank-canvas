@@ -603,19 +603,19 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
       {/* 3. Primary Actions & Benchmark Bar: Clear NBE benchmark card (300 questions / 150 pass mark) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Card: NBE 300-Question / 150-Pass Mark Benchmark Blueprint */}
-        <div className="lg:col-span-8 bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-[0_8px_30px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-6">
+        {/* Left Card: NBE 300-Question / 150-Pass Mark Benchmark Blueprint — Apple Teal/Emerald Aura */}
+        <div className="lg:col-span-8 bg-gradient-to-br from-teal-500/[0.05] via-white to-emerald-500/[0.02] backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-teal-200/80 shadow-[0_8px_30px_rgba(0,107,99,0.06)] flex flex-col justify-between space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-emerald-50 text-[#00685f] shadow-2xs">
-                <GraduationCap className="w-6 h-6" />
+              <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-[#00685f] to-teal-500 text-white flex items-center justify-center shadow-xs shadow-teal-500/25">
+                <GraduationCap className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-base font-bold text-slate-900">
                     NBE Examination Benchmark
                   </h2>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#00685f] text-white text-[10px] font-mono font-bold shadow-2xs">
+                  <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#00685f] to-teal-600 text-white text-[10px] font-mono font-bold shadow-2xs">
                     OFFICIAL SCHEME
                   </span>
                 </div>
@@ -629,31 +629,31 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             <button
               type="button"
               onClick={() => setShowAddGTModal(true)}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00685f] hover:bg-[#005049] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer shrink-0"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#00685f] to-teal-700 hover:from-[#005049] hover:to-teal-800 text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Log Grand Test</span>
             </button>
           </div>
 
-          {/* Scheme Breakdown Grid (3 Pillars: Total Qs, Pass Mark, No Negative Marking) */}
+          {/* Scheme Breakdown Grid (3 Pillars: Total Qs, Pass Mark, No Negative Marking) — Apple Vibrant Bento */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            {/* 300 Questions */}
-            <div className="p-4 rounded-2xl bg-slate-50/70 backdrop-blur-sm border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-              <div className="text-[11px] font-mono uppercase font-bold text-slate-500 mb-1 flex items-center justify-between">
+            {/* 300 Questions — Apple Ultramarine */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/[0.08] via-white to-cyan-500/[0.04] backdrop-blur-sm border border-blue-200/80 shadow-[0_4px_16px_rgba(59,130,246,0.06)] flex flex-col justify-between">
+              <div className="text-[11px] font-mono uppercase font-bold text-blue-800 mb-1 flex items-center justify-between">
                 <span>Format</span>
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                <Clock className="w-3.5 h-3.5 text-blue-600" />
               </div>
               <div className="text-2xl font-extrabold font-mono text-slate-900">
-                300 <span className="text-xs font-normal text-slate-500 font-sans">Questions</span>
+                300 <span className="text-xs font-normal text-blue-800 font-sans">Questions</span>
               </div>
-              <div className="text-[11px] text-slate-500 mt-1">
+              <div className="text-[11px] text-blue-900/70 mt-1">
                 Paper 1 (150 Qs) + Paper 2 (150 Qs)
               </div>
             </div>
 
-            {/* 150 Pass Mark */}
-            <div className="p-4 rounded-2xl bg-emerald-50/70 backdrop-blur-sm border border-emerald-200/80 shadow-2xs flex flex-col justify-between">
+            {/* 150 Pass Mark — Apple Mint / Emerald */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.04] backdrop-blur-sm border border-emerald-200/80 shadow-[0_4px_16px_rgba(16,185,129,0.06)] flex flex-col justify-between">
               <div className="text-[11px] font-mono uppercase font-bold text-emerald-800 mb-1 flex items-center justify-between">
                 <span>Pass Benchmark</span>
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
@@ -666,16 +666,16 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               </div>
             </div>
 
-            {/* Timing & Discipline */}
-            <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 flex flex-col justify-between">
-              <div className="text-[11px] font-mono uppercase font-bold text-slate-500 mb-1 flex items-center justify-between">
+            {/* Timing & Discipline — Apple Amber */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.04] backdrop-blur-sm border border-amber-200/80 shadow-[0_4px_16px_rgba(245,158,11,0.06)] flex flex-col justify-between">
+              <div className="text-[11px] font-mono uppercase font-bold text-amber-800 mb-1 flex items-center justify-between">
                 <span>Stamina Target</span>
-                <Layers className="w-3.5 h-3.5 text-slate-400" />
+                <Layers className="w-3.5 h-3.5 text-amber-600" />
               </div>
               <div className="text-2xl font-extrabold font-mono text-slate-900">
-                300 <span className="text-xs font-normal text-slate-500 font-sans">Minutes</span>
+                300 <span className="text-xs font-normal text-amber-800 font-sans">Minutes</span>
               </div>
-              <div className="text-[11px] text-slate-500 mt-1">
+              <div className="text-[11px] text-amber-900/70 mt-1">
                 2.5 hours Paper 1 • 2.5 hours Paper 2
               </div>
             </div>
@@ -723,18 +723,21 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           </div>
         </div>
 
-        {/* Right Card: Student Mock Portfolio Summary */}
-        <div className="lg:col-span-4 bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-[0_8px_30px_rgba(0,107,99,0.04)] flex flex-col justify-between space-y-4">
+        {/* Right Card: Student Mock Portfolio Summary — Apple Iris/Indigo */}
+        <div className="lg:col-span-4 bg-gradient-to-br from-indigo-500/[0.05] via-white to-blue-500/[0.02] backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-indigo-200/80 shadow-[0_8px_30px_rgba(99,102,241,0.06)] flex flex-col justify-between space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-teal-50 text-[#00685f] shadow-2xs">
+              <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-blue-600 text-white flex items-center justify-center shadow-xs shadow-indigo-500/20">
                 <BarChart3 className="w-5 h-5" />
               </div>
-              <h2 className="text-base font-bold text-slate-900">
-                Mock Performance
-              </h2>
+              <div>
+                <h2 className="text-base font-bold text-slate-900">
+                  Mock Performance
+                </h2>
+                <p className="text-[10px] text-indigo-800/80 font-medium">Full Simulator Record</p>
+              </div>
             </div>
-            <span className="text-xs font-mono font-bold text-slate-500">
+            <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-200/60">
               {stats.totalTests} {stats.totalTests === 1 ? 'MOCK' : 'MOCKS'}
             </span>
           </div>
@@ -742,16 +745,16 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           {stats.totalTests > 0 ? (
             <div className="space-y-3.5">
               {/* Latest Score Tile */}
-              <div className="p-3.5 rounded-2xl bg-slate-50/70 backdrop-blur-sm border border-slate-200/90 shadow-2xs flex items-center justify-between">
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-indigo-500/[0.08] via-white to-blue-500/[0.04] backdrop-blur-sm border border-indigo-200/80 shadow-2xs flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-mono uppercase font-bold text-slate-500 block">
+                  <span className="text-[10px] font-mono uppercase font-bold text-indigo-700 block">
                     Latest Mock Result
                   </span>
                   <div className="flex items-baseline gap-1.5 mt-0.5">
                     <span className="text-2xl font-extrabold font-mono text-slate-900">
                       {stats.latestScore}
                     </span>
-                    <span className="text-xs text-slate-400 font-mono">/ 300</span>
+                    <span className="text-xs text-indigo-600/70 font-mono">/ 300</span>
                   </div>
                 </div>
                 <span
@@ -767,7 +770,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
               {/* 2x2 Grid: Highest, Average, Clearance Rate, Delta */}
               <div className="grid grid-cols-2 gap-2.5">
-                <div className="p-3 rounded-xl bg-slate-50/70 backdrop-blur-sm border border-slate-200/90 shadow-2xs">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.03] backdrop-blur-sm border border-emerald-200/80 shadow-2xs">
                   <span className="text-[10px] font-mono uppercase text-slate-400 block">
                     Highest Mock
                   </span>
