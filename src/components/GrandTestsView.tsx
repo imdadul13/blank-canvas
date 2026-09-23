@@ -320,13 +320,15 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative overflow-hidden rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
+        className={`relative rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-4 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
       >
-        {/* Dynamic Circadian Ambient Mock Exam Atmosphere & 2px Shimmer Track */}
-        <CircadianHeaderAtmosphere circadian={circadian} />
+        {/* Background Atmosphere & Mountain Colonnade (isolated so dropdown never clips) */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
+          {/* Dynamic Circadian Ambient Mock Exam Atmosphere & 2px Shimmer Track */}
+          <CircadianHeaderAtmosphere circadian={circadian} />
 
-        {/* Dynamic Animated Ambient Effects */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          {/* Dynamic Animated Ambient Effects */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {/* Subtle Coordinate Grid */}
           <svg
             className="absolute inset-0 h-full w-full opacity-[0.035] text-teal-950 pointer-events-none select-none"
@@ -516,66 +518,75 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             </svg>
           </div>
         </div>
+        </div>
+
+        {/* Top Utility Bar: Eyebrow + Live Circadian Focus Dropdown */}
+        <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/70">
+          <div className="flex items-center gap-2">
+            <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300">
+              PRACTICE • SIMULATE • IMPROVE
+            </span>
+            <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
+            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">
+              300-QUESTION NBE SIMULATION
+            </span>
+          </div>
+          <CircadianFocusDropdown circadian={circadian} />
+        </div>
 
         {/* Header Content Body matching grand-tests-banner.png */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-start gap-4 min-w-0 max-w-3xl">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-3">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 min-w-0 max-w-3xl">
             <HeaderGlassIcon
               icon={Target}
               isNight={circadian.isNight}
             />
 
             <div className="space-y-1.5 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-indigo-700 dark:text-teal-300/90">
-                  PRACTICE • SIMULATE • IMPROVE
-                </span>
-              </div>
-
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
                   <span className="text-[#005B54] dark:text-teal-400">GRAND TESTS </span>
                   <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>&amp; MOCKS</span>
                 </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                   <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-indigo-500'}`} />
                   NBE Simulation · 300 Questions
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
                 Simulate 300-Q NBE exams &amp; track your trajectory past the 150-mark cutoff.
               </p>
 
               {/* Quick Metrics Bar */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
+              <div className="flex flex-wrap items-center gap-2 pt-0.5">
                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/85 border-slate-200/80 text-slate-700'
+                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'
                 }`}>
-                  <span className={circadian.isNight ? 'text-sky-300/70' : 'text-slate-400'}>Tests:</span>
-                  <span className={`font-bold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{stats.totalTests}</span>
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Tests:</span>
+                  <span className={`font-extrabold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{stats.totalTests}</span>
                 </div>
                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/85 border-slate-200/80 text-slate-700'
+                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'
                 }`}>
-                  <span className={circadian.isNight ? 'text-sky-300/70' : 'text-slate-400'}>Latest:</span>
-                  <span className={`font-bold ${stats.latestPassed ? 'text-emerald-400' : stats.latestScore > 0 ? (circadian.isNight ? 'text-amber-300' : 'text-amber-700') : (circadian.isNight ? 'text-white' : 'text-slate-900')}`}>
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Latest:</span>
+                  <span className={`font-extrabold ${stats.latestPassed ? 'text-emerald-500' : stats.latestScore > 0 ? (circadian.isNight ? 'text-amber-300' : 'text-amber-700') : (circadian.isNight ? 'text-white' : 'text-slate-900')}`}>
                     {stats.latestScore > 0 ? `${stats.latestScore}/300` : 'None'}
                   </span>
                 </div>
                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/85 border-slate-200/80 text-slate-700'
+                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'
                 }`}>
-                  <span className={circadian.isNight ? 'text-sky-300/70' : 'text-slate-400'}>Peak:</span>
-                  <span className={`font-bold ${circadian.isNight ? 'text-cyan-300' : 'text-teal-700'}`}>
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Peak:</span>
+                  <span className={`font-extrabold ${circadian.isNight ? 'text-cyan-300' : 'text-teal-700'}`}>
                     {stats.highestScore > 0 ? `${stats.highestScore}/300` : '-'}
                   </span>
                 </div>
                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/85 border-slate-200/80 text-slate-700'
+                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'
                 }`}>
-                  <span className={circadian.isNight ? 'text-sky-300/70' : 'text-slate-400'}>Pass Rate:</span>
-                  <span className="font-bold text-emerald-400">
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Pass Rate:</span>
+                  <span className="font-extrabold text-emerald-500">
                     {stats.clearanceRate}%
                   </span>
                 </div>
@@ -587,31 +598,31 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             </div>
           </div>
 
-          {/* Right Action: Circadian Dropdown & Action Buttons */}
-          <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between sm:justify-end gap-2.5 shrink-0">
-            <CircadianFocusDropdown circadian={circadian} />
+          {/* Right Action: Action Buttons with tactile Apple spring physics */}
+          <div className="flex items-center gap-2.5 shrink-0 self-start lg:self-center">
+            {/* Take 50-MCQ Timed Mini-Mock */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              type="button"
+              onClick={() => setShowMockModal(true)}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold shadow-sm hover:shadow-md transition-all cursor-pointer"
+              title="Launch 50-MCQ timed NBE exam simulation"
+            >
+              <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Take Mini-Mock (50Q)</span>
+            </motion.button>
 
-            <div className="flex items-center gap-2">
-              {/* Take 50-MCQ Timed Mini-Mock */}
-              <button
-                type="button"
-                onClick={() => setShowMockModal(true)}
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-98"
-                title="Launch 50-MCQ timed NBE exam simulation"
-              >
-                <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Take Mini-Mock (50Q)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowAddGTModal(true)}
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer active:scale-98"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Log Grand Test</span>
-              </button>
-            </div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              type="button"
+              onClick={() => setShowAddGTModal(true)}
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Log Grand Test</span>
+            </motion.button>
           </div>
         </div>
       </motion.header>

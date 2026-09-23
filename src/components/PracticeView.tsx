@@ -104,13 +104,15 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative overflow-hidden rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
+        className={`relative rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-4 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
       >
-        {/* Dynamic Circadian Ambient Clinical Atmosphere & 2px Shimmer Track */}
-        <CircadianHeaderAtmosphere circadian={circadian} />
+        {/* Background Atmosphere & Stethoscope Art (isolated so dropdown never clips) */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
+          {/* Dynamic Circadian Ambient Clinical Atmosphere & 2px Shimmer Track */}
+          <CircadianHeaderAtmosphere circadian={circadian} />
 
-        {/* Clinical Calibration Pattern Background */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          {/* Clinical Calibration Pattern Background */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
           {/* Subtle Precision Clinical Calibration Dot & Cross Pattern */}
           <svg
@@ -293,63 +295,71 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             </svg>
           </div>
         </div>
+        </div>
+
+        {/* Top Utility Bar: Eyebrow + Live Circadian Focus Dropdown */}
+        <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/70">
+          <div className="flex items-center gap-2">
+            <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300">
+              PRACTICE • LEARN • MASTER
+            </span>
+            <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
+            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">
+              10-MCQ CLINICAL DRILLS
+            </span>
+          </div>
+          <CircadianFocusDropdown circadian={circadian} />
+        </div>
 
         {/* Bento Content Layout matching practice-vignettes-banner.png */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 py-1">
-          {/* Left Column: Glass Icon, Eyebrow, Two-Tone Title, Badges, Subtitle & Feature Pills */}
-          <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-3">
+          {/* Left Column: Glass Icon, Two-Tone Title, Badges, Subtitle & Feature Pills */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 max-w-3xl min-w-0">
             <HeaderGlassIcon
               icon={Stethoscope}
               isNight={circadian.isNight}
             />
 
-            <div className="space-y-2 min-w-0">
-              {/* Eyebrow */}
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300/90">
-                  PRACTICE • LEARN • MASTER
-                </span>
-              </div>
-
+            <div className="space-y-1.5 min-w-0">
               {/* Two-Tone Title & Badge */}
               <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
                   <span className="text-[#005B54] dark:text-teal-400">CLINICAL </span>
                   <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>VIGNETTES &amp; DRILLS</span>
                 </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                   <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-sky-500'}`} />
                   Practice Engine · 10 MCQs
                 </span>
               </div>
 
               {/* Subtitle */}
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
                 10-MCQ clinical drills with instant distractor breakdowns &amp; active recall.
               </p>
 
               {/* Feature Pills */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
+              <div className="flex flex-wrap items-center gap-2 pt-0.5">
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border ${
                   circadian.isNight
-                    ? 'bg-slate-800/70 border-slate-700/80 text-cyan-300'
-                    : 'bg-white/80 border-stone-200/80 text-teal-800 shadow-2xs'
+                    ? 'bg-slate-800/80 border-slate-700/80 text-cyan-300'
+                    : 'bg-white/85 border-stone-200/80 text-teal-800 shadow-2xs'
                 }`}>
                   <Zap className="w-3.5 h-3.5 text-amber-500" />
                   Active Recall
                 </span>
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border ${
                   circadian.isNight
-                    ? 'bg-slate-800/70 border-slate-700/80 text-teal-300'
-                    : 'bg-white/80 border-stone-200/80 text-teal-800 shadow-2xs'
+                    ? 'bg-slate-800/80 border-slate-700/80 text-teal-300'
+                    : 'bg-white/85 border-stone-200/80 text-teal-800 shadow-2xs'
                 }`}>
                   <BarChart3 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                   Performance Insights
                 </span>
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border ${
                   circadian.isNight
-                    ? 'bg-slate-800/70 border-slate-700/80 text-emerald-300'
-                    : 'bg-white/80 border-stone-200/80 text-emerald-800 shadow-2xs'
+                    ? 'bg-slate-800/80 border-slate-700/80 text-emerald-300'
+                    : 'bg-white/85 border-stone-200/80 text-emerald-800 shadow-2xs'
                 }`}>
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   Exam-Ready
@@ -358,26 +368,25 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             </div>
           </div>
 
-          {/* Right Column: Circadian Dropdown & Telemetry Bento Stack */}
-          <div className="flex flex-row lg:flex-col items-start lg:items-end justify-between sm:justify-end gap-3 shrink-0 pt-2 lg:pt-0">
-            <CircadianFocusDropdown circadian={circadian} />
-
-            <div className={`flex items-center gap-3 px-3.5 py-1.5 rounded-xl border text-xs font-mono backdrop-blur-md ${
+          {/* Right Column: Telemetry Bento Capsule */}
+          <div className="shrink-0 self-start lg:self-center">
+            <div className={`flex items-center gap-3.5 px-4 py-2 rounded-2xl border text-xs font-mono backdrop-blur-md ${
               circadian.isNight
-                ? 'bg-slate-900/60 border-slate-800 text-slate-300'
-                : 'bg-white/70 border-stone-200/80 text-slate-700 shadow-2xs'
+                ? 'bg-slate-900/80 border-slate-800 text-slate-200 shadow-xs'
+                : 'bg-white/85 border-stone-200/90 text-slate-700 shadow-2xs'
             }`}>
-              <div className="flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-[#005B54] dark:text-teal-400" />
-                <span className="font-semibold">{displayedTopics.length}</span>
-                <span className="text-slate-400">Drill Topics</span>
+              <div className="flex items-center gap-2">
+                <Target className="w-3.5 h-3.5 text-[#005B54] dark:text-teal-400 shrink-0" />
+                <span className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-[13px]">{displayedTopics.length}</span>
+                <span className="text-slate-600 dark:text-slate-300 text-[11px] font-medium font-sans">Drill Topics</span>
               </div>
               <span className="text-slate-300 dark:text-slate-700">•</span>
-              <div className="flex items-center gap-1.5">
-                <Brain className="w-3.5 h-3.5 text-amber-500" />
-                <span className="font-semibold text-amber-600 dark:text-amber-400">
-                  {displayedTopics.filter((t) => t.isHighYield).length} High-Yield
+              <div className="flex items-center gap-2">
+                <Brain className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span className="font-extrabold text-amber-600 dark:text-amber-400 text-xs sm:text-[13px]">
+                  {displayedTopics.filter((t) => t.isHighYield).length}
                 </span>
+                <span className="text-amber-700 dark:text-amber-300 text-[11px] font-medium font-sans">High-Yield</span>
               </div>
             </div>
           </div>

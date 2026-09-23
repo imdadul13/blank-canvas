@@ -400,13 +400,15 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative overflow-hidden rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
+        className={`relative rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
       >
-        {/* Dynamic Circadian Ambient Schedule Atmosphere & 2px Shimmer Track */}
-        <CircadianHeaderAtmosphere circadian={circadian} />
+        {/* Background Atmosphere (isolated with overflow-hidden so dropdown never clips) */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
+          {/* Dynamic Circadian Ambient Schedule Atmosphere & 2px Shimmer Track */}
+          <CircadianHeaderAtmosphere circadian={circadian} />
 
-        {/* Dynamic Animated Ambient Effects */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          {/* Dynamic Animated Ambient Effects */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
           {/* Subtle Coordinate Grid */}
           <svg
@@ -619,6 +621,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             </svg>
           </div>
         </div>
+        </div>
 
         {/* Foreground Content — Bento Apple Glass Layout matching daily-focus-banner.png */}
         <div className="relative z-10 flex flex-col gap-3.5">
@@ -640,7 +643,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <span>Dashboard</span>
                 </button>
               ) : (
-                <span className="text-stone-500 uppercase text-[11px]">PLANNER</span>
+                <span className="text-slate-600 dark:text-slate-400 font-mono font-bold uppercase text-[11px]">PLANNER</span>
               )}
               <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
               <span className={`font-bold uppercase text-[11px] flex items-center gap-1.5 ${
@@ -653,7 +656,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               </span>
               <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-stone-300'}`}>•</span>
               <span className={`font-sans text-xs hidden sm:inline normal-case font-medium ${
-                circadian.isNight ? 'text-slate-300' : 'text-stone-500'
+                circadian.isNight ? 'text-slate-300' : 'text-slate-600'
               }`}>
                 {greeting}
               </span>
@@ -694,17 +697,17 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
             <div className="space-y-1.5 min-w-0">
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-snug">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-snug">
                   <span className="text-[#005B54] dark:text-teal-400">TODAY’S PLAN </span>
                   <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>&amp; FOCUS</span>
                 </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                   <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-teal-500'}`} />
                   Daily Planner · Clinical Schedule
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
                 Focus on high-yield mastery. One intentional milestone at a time.
               </p>
             </div>
@@ -724,7 +727,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <BookmarkCheck className="w-3.5 h-3.5" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className={`text-[11px] font-sans ${circadian.isNight ? 'text-slate-400' : 'text-stone-400'}`}>Tasks:</span>
+                <span className={`text-[11px] font-sans font-medium ${circadian.isNight ? 'text-slate-400' : 'text-slate-600'}`}>Tasks:</span>
                 <span className={`font-bold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{completedTaskCount}/{totalTaskCount}</span>
                 <span className={`font-medium text-[11px] ${circadian.isNight ? 'text-cyan-400' : 'text-teal-700'}`}>({progressPercent}%)</span>
               </div>
@@ -742,9 +745,9 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <Clock className="w-3.5 h-3.5" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className={`text-[11px] font-sans ${circadian.isNight ? 'text-slate-400' : 'text-stone-400'}`}>Focus Time:</span>
+                <span className={`text-[11px] font-sans font-medium ${circadian.isNight ? 'text-slate-400' : 'text-slate-600'}`}>Focus Time:</span>
                 <span className={`font-bold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{studyTimeFormatted}</span>
-                <span className={`text-[11px] ${circadian.isNight ? 'text-slate-400' : 'text-stone-400'}`}>/ {dailyGoalHours}h</span>
+                <span className={`text-[11px] font-sans ${circadian.isNight ? 'text-slate-400' : 'text-slate-500'}`}>/ {dailyGoalHours}h</span>
               </div>
             </div>
 
@@ -760,7 +763,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <Target className="w-3.5 h-3.5" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className={`text-[11px] font-sans ${circadian.isNight ? 'text-slate-400' : 'text-stone-400'}`}>Daily Goal:</span>
+                <span className={`text-[11px] font-sans font-medium ${circadian.isNight ? 'text-slate-400' : 'text-slate-600'}`}>Daily Goal:</span>
                 <span className={`font-bold text-xs sm:text-[13px] ${circadian.isNight ? 'text-emerald-400' : 'text-emerald-700'}`}>{dailyGoalPercent}%</span>
               </div>
             </div>

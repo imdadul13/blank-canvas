@@ -1535,129 +1535,132 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion)}
-          className={`rounded-3xl border border-teal-200/60 shadow-[0_8px_32px_rgba(0,107,99,0.05)] backdrop-blur-xl p-3.5 sm:p-4.5 lg:p-5 relative overflow-hidden transition-colors duration-700 ${heroTheme.bannerBg}`}
+          className={`rounded-3xl border border-teal-200/60 shadow-[0_8px_32px_rgba(0,107,99,0.05)] backdrop-blur-xl p-4 sm:p-5 relative transition-colors duration-700 ${heroTheme.bannerBg}`}
         >
-          {/* Subtle Ambient Radial Aura Mesh */}
-          <div
-            aria-hidden="true"
-            className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${heroTheme.auraGrad}`}
-          />
+          {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so dropdown popover never clips) */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
+            {/* Subtle Ambient Radial Aura Mesh */}
+            <div
+              className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${heroTheme.auraGrad}`}
+            />
 
-          {/* Precision Architectural Top Light Line */}
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
-            <div className={`absolute inset-0 bg-gradient-to-r ${heroTheme.topLight}`} />
-            <motion.div
-              animate={{ x: ['-100%', '300%'] }}
-              transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
-              className="w-52 sm:w-80 h-full bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_16px_#2dd4bf]"
+            {/* Precision Architectural Top Light Line */}
+            <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
+              <div className={`absolute inset-0 bg-gradient-to-r ${heroTheme.topLight}`} />
+              <motion.div
+                animate={{ x: ['-100%', '300%'] }}
+                transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
+                className="w-52 sm:w-80 h-full bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_16px_#2dd4bf]"
+              />
+            </div>
+
+            {/* Mountain Scenery with Birds & Celestial Sun/Moon Atmosphere */}
+            <DoctorMountainArt
+              variant="backdrop"
+              forceTimeOfDay={timeOfDay}
+              className="transition-opacity duration-700 opacity-40 sm:opacity-50 md:opacity-[0.62]"
             />
           </div>
 
-          {/* Mountain Scenery with Birds & Celestial Sun/Moon Atmosphere */}
-          <DoctorMountainArt
-            variant="backdrop"
-            forceTimeOfDay={timeOfDay}
-            className="transition-opacity duration-700 opacity-40 sm:opacity-50 md:opacity-[0.62]"
-          />
-
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
-            {/* Left side: Doctor Circadian Greeting + Bold Name + Strategic Subtitle */}
-            <div className="space-y-1 sm:space-y-1.5 max-w-xl">
-              {/* Doctor Circadian Greeting */}
-              <div className="flex items-center gap-2">
-                <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/90' : 'text-slate-500'}`}>
-                  <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.2] ${heroTheme.greetingIconColor}`} />
-                  <span>{greeting}</span>
-                </div>
+          {/* Top Utility Bar: Greeting Badge + Circadian Focus Dropdown */}
+          <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/60">
+            <div className="flex items-center gap-2">
+              <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/90' : 'text-slate-600'}`}>
+                <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.2] ${heroTheme.greetingIconColor}`} />
+                <span>{greeting}</span>
               </div>
-
-              {/* Doctor Name - Two-Tone Display matching dashboard-banner.png */}
-              <div className="pt-0.5">
-                <h1 className={`text-2xl sm:text-4xl lg:text-[38px] font-extrabold tracking-[-0.03em] leading-tight ${heroTheme.nameColor}`}>
-                  {userName.startsWith('Dr.') ? (
-                    <>
-                      <span className="text-[#005B54] dark:text-teal-400">Dr. </span>
-                      <span>{userName.replace(/^Dr\.\s*/, '')}</span>
-                    </>
-                  ) : (
-                    userName
-                  )}
-                </h1>
-                <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic mt-1 ${heroTheme.subtitleColor}`}>
-                  &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
-                </p>
-                <div
-                  className="md:hidden flex items-center gap-2.5 mt-1.5 cursor-pointer active:scale-98 transition-transform"
-                  onClick={shuffleCreed}
-                  title="Tap to shuffle motivation"
-                >
-                  <div className="h-6 w-9 shrink-0">
-                    <AnimatedMountainInsignia
-                      phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
-                      creedId={doctorCreed.id}
-                      className="w-full h-full"
-                    />
-                  </div>
-                  <p className={`text-xs leading-relaxed italic ${heroTheme.subtitleColor}`}>
-                    &ldquo;{doctorCreed.quote}&rdquo;
-                  </p>
-                </div>
-              </div>
+              <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
+              <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">
+                CLINICAL MASTERY DASHBOARD
+              </span>
             </div>
+            <CircadianFocusDropdown circadian={circadian} />
+          </div>
 
-            {/* Right side: Circadian Focus Dropdown & Doctor's Mountain Creed Badge */}
-            <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row items-start sm:items-center md:items-end lg:items-center gap-2.5">
-              <CircadianFocusDropdown circadian={circadian} />
-
-              <motion.div
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+          {/* Main Hero Content Area: Doctor Name & Interactive Creed Badge */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-3 relative z-10">
+            {/* Left side: Doctor Name + Strategic Subtitle */}
+            <div className="space-y-1 sm:space-y-1.5 max-w-xl">
+              <h1 className={`text-2xl sm:text-3xl lg:text-[34px] font-extrabold tracking-[-0.03em] leading-tight ${heroTheme.nameColor}`}>
+                {userName.startsWith('Dr.') ? (
+                  <>
+                    <span className="text-[#005B54] dark:text-teal-400">Dr. </span>
+                    <span>{userName.replace(/^Dr\.\s*/, '')}</span>
+                  </>
+                ) : (
+                  userName
+                )}
+              </h1>
+              <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic ${heroTheme.subtitleColor}`}>
+                &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
+              </p>
+              <div
+                className="md:hidden flex items-center gap-2.5 mt-1.5 cursor-pointer active:scale-98 transition-transform"
                 onClick={shuffleCreed}
-                title="Click to shuffle motivation"
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') shuffleCreed();
-                }}
-                className={`hidden md:flex items-center gap-3.5 rounded-2xl px-4 py-2.5 cursor-pointer select-none transition-all duration-300 group ${
-                  timeOfDay === 'night'
-                    ? 'bg-sky-950/80 backdrop-blur-xl border border-cyan-500/30 shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:border-cyan-400/60'
-                    : 'bg-white/90 backdrop-blur-xl border border-teal-200/60 shadow-xs hover:bg-white hover:border-[#006B63]/40 hover:shadow-md'
-                }`}
+                title="Tap to shuffle motivation"
               >
-                <div className="h-8 w-12 shrink-0 relative flex items-center justify-center">
+                <div className="h-6 w-9 shrink-0">
                   <AnimatedMountainInsignia
                     phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
                     creedId={doctorCreed.id}
                     className="w-full h-full"
                   />
                 </div>
-                <div className="text-right space-y-0.5 min-w-[200px] max-w-[280px]">
-                  <p className={`text-xs font-bold italic transition-colors line-clamp-2 ${
-                    timeOfDay === 'night'
-                      ? 'text-cyan-100 group-hover:text-cyan-200'
-                      : 'text-[#0D3833] group-hover:text-[#006B63]'
-                  }`}>
-                    &ldquo;{doctorCreed.quote}&rdquo;
-                  </p>
-                  <div className="flex items-center justify-end gap-1.5">
-                    <span className={`text-[9.5px] font-mono font-bold uppercase tracking-wider ${
-                      timeOfDay === 'night' ? 'text-cyan-400' : 'text-[#5B948C]'
-                    }`}>
-                      {doctorCreed.tagline}
-                    </span>
-                    <RotateCcw
-                      className={`h-2.5 w-2.5 opacity-60 group-hover:opacity-100 transition-all duration-500 ${
-                        isCreedShuffling ? 'rotate-180' : 'group-hover:-rotate-90'
-                      } ${
-                        timeOfDay === 'night' ? 'text-cyan-300' : 'text-[#5B948C] group-hover:text-[#006B63]'
-                      }`}
-                    />
-                  </div>
-                </div>
-              </motion.div>
+                <p className={`text-xs leading-relaxed italic ${heroTheme.subtitleColor}`}>
+                  &ldquo;{doctorCreed.quote}&rdquo;
+                </p>
+              </div>
             </div>
+
+            {/* Right side: Doctor's Mountain Creed Badge */}
+            <motion.div
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+              onClick={shuffleCreed}
+              title="Click to shuffle motivation"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') shuffleCreed();
+              }}
+              className={`hidden md:flex items-center gap-3.5 rounded-2xl px-4 py-2.5 cursor-pointer select-none transition-all duration-300 group shrink-0 ${
+                timeOfDay === 'night'
+                  ? 'bg-sky-950/80 backdrop-blur-xl border border-cyan-500/30 shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:border-cyan-400/60'
+                  : 'bg-white/90 backdrop-blur-xl border border-teal-200/60 shadow-xs hover:bg-white hover:border-[#006B63]/40 hover:shadow-md'
+              }`}
+            >
+              <div className="h-8 w-12 shrink-0 relative flex items-center justify-center">
+                <AnimatedMountainInsignia
+                  phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
+                  creedId={doctorCreed.id}
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="text-right space-y-0.5 min-w-[180px] max-w-[260px]">
+                <p className={`text-xs font-bold italic transition-colors line-clamp-2 ${
+                  timeOfDay === 'night'
+                    ? 'text-cyan-100 group-hover:text-cyan-200'
+                    : 'text-[#0D3833] group-hover:text-[#006B63]'
+                }`}>
+                  &ldquo;{doctorCreed.quote}&rdquo;
+                </p>
+                <div className="flex items-center justify-end gap-1.5">
+                  <span className={`text-[9.5px] font-mono font-bold uppercase tracking-wider ${
+                    timeOfDay === 'night' ? 'text-cyan-400' : 'text-[#5B948C]'
+                  }`}>
+                    {doctorCreed.tagline}
+                  </span>
+                  <RotateCcw
+                    className={`h-2.5 w-2.5 opacity-60 group-hover:opacity-100 transition-all duration-500 ${
+                      isCreedShuffling ? 'rotate-180' : 'group-hover:-rotate-90'
+                    } ${
+                      timeOfDay === 'night' ? 'text-cyan-300' : 'text-[#5B948C] group-hover:text-[#006B63]'
+                    }`}
+                  />
+                </div>
+              </div>
+            </motion.div>
           </div>
 
           {/* 4 Stat Cards Row with Staggered Motion and Micro-Interactions */}

@@ -244,12 +244,14 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 space-y-5 sm:space-y-6 text-[#121E1B] font-sans antialiased">
       {/* ================= 1. PERFORMANCE HEADER CARD & SECONDARY SWITCHER ================= */}
-      <header className={`relative overflow-hidden rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}>
-        {/* Dynamic Circadian Ambient Diagnostics Atmosphere & 2px Shimmer Track */}
-        <CircadianHeaderAtmosphere circadian={circadian} />
+      <header className={`relative rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}>
+        {/* Background Atmosphere & Lighthouse Art (isolated with overflow-hidden so dropdown never clips) */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
+          {/* Dynamic Circadian Ambient Diagnostics Atmosphere & 2px Shimmer Track */}
+          <CircadianHeaderAtmosphere circadian={circadian} />
 
-        {/* High-Tech Diagnostic Data Matrix Background */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          {/* High-Tech Diagnostic Data Matrix Background */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
           {/* High-Tech Diagnostic Data Dot Matrix Backdrop */}
           <svg
@@ -398,6 +400,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             </svg>
           </div>
         </div>
+        </div>
 
         {/* Main Content Layout matching performance-diagnostics-banner.png */}
         <div className="relative z-10 space-y-2.5">
@@ -410,23 +413,23 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-indigo-700 dark:text-indigo-300/90">
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-indigo-700 dark:text-indigo-300">
                     ANALYZE • IDENTIFY • IMPROVE
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
                     <span className="text-[#005B54] dark:text-teal-400">PERFORMANCE </span>
                     <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>&amp; DIAGNOSTICS</span>
                   </h1>
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                     <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-indigo-500'}`} />
                     Diagnostic Engine
                   </span>
                 </div>
 
-                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
+                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
                   Know exactly where you stand. Diagnose preparation depth, clinical solving accuracy, and high-yield retention.
                 </p>
               </div>
@@ -438,7 +441,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono shadow-2xs backdrop-blur-md shrink-0 border ${
                 circadian.isNight
                   ? 'bg-slate-900/80 border-sky-800/60 text-cyan-200'
-                  : 'bg-white/90 border-stone-200/80 text-stone-600'
+                  : 'bg-white/90 border-stone-200/80 text-slate-700'
               }`}>
                 <Calendar className={`w-3.5 h-3.5 ${circadian.isNight ? 'text-cyan-400' : 'text-[#4338CA]'}`} />
                 <span>Updated: {formattedToday}</span>
@@ -457,7 +460,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   currentSubTab === 'overview'
                     ? 'bg-gradient-to-r from-slate-950 via-slate-900 to-[#006B63] text-white shadow-xs font-bold'
-                    : 'text-stone-600 hover:text-[#006B63] hover:bg-teal-50/70'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-[#006B63] hover:bg-teal-50/70'
                 }`}
               >
                 <BarChart3 className={`w-3.5 h-3.5 ${currentSubTab === 'overview' ? 'text-teal-200' : 'text-[#00685f]'}`} />
@@ -472,7 +475,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   currentSubTab === 'errors'
                     ? 'bg-gradient-to-r from-slate-950 via-slate-900 to-[#006B63] text-white shadow-xs font-bold'
-                    : 'text-stone-600 hover:text-[#006B63] hover:bg-teal-50/70'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-[#006B63] hover:bg-teal-50/70'
                 }`}
               >
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />

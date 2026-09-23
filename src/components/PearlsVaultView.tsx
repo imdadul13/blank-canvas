@@ -403,11 +403,13 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative overflow-hidden rounded-3xl border p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
+        className={`relative rounded-3xl border p-4 sm:px-6 sm:py-4 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
       >
-        <CircadianHeaderAtmosphere circadian={circadian} />
-        {/* Dynamic Animated Ambient Knowledge & Synapse Background Effects */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        {/* Background Atmosphere & Pearl Reliquary Art (isolated so dropdown never clips) */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
+          <CircadianHeaderAtmosphere circadian={circadian} />
+          {/* Dynamic Animated Ambient Knowledge & Synapse Background Effects */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
           {/* Soft glowing corner radial gradient orbs with breathing motion */}
           <motion.div
@@ -841,10 +843,25 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             </svg>
           </div>
         </div>
+        </div>
+
+        {/* Top Utility Bar: Eyebrow + Live Circadian Focus Dropdown */}
+        <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/70">
+          <div className="flex items-center gap-2">
+            <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-amber-700 dark:text-amber-300">
+              LEARN • CONNECT • APPLY
+            </span>
+            <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
+            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">
+              CLINICAL PEARLS VAULT
+            </span>
+          </div>
+          <CircadianFocusDropdown circadian={circadian} />
+        </div>
 
         {/* Header Main Content matching knowledge-pearls-banner.png */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl min-w-0">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-3">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 max-w-3xl min-w-0">
             <HeaderGlassIcon
               icon={Lightbulb}
               isNight={circadian.isNight}
@@ -852,24 +869,18 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             />
 
             <div className="space-y-1.5 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-amber-700 dark:text-amber-300/90">
-                  LEARN • CONNECT • APPLY
-                </span>
-              </div>
-
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
                   <span className="text-[#005B54] dark:text-teal-400">KNOWLEDGE </span>
                   <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>&amp; PEARLS</span>
                 </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText} shadow-2xs`}>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText} shadow-2xs`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                   Clinical Synthesis
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm ${circadian.subtitleColor} leading-relaxed max-w-xl`}>
+              <p className={`text-xs sm:text-sm ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'} leading-relaxed max-w-xl`}>
                 Clinical mnemonics, Drugs of Choice (DOC), diagnostic triads, and exam traps.
               </p>
 
@@ -899,10 +910,14 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   whileHover={{ scale: 1.02, y: -1 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleStartCommuteAudio}
-                  className="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border bg-teal-50/90 hover:bg-teal-100 text-teal-900 border-teal-200/80 shadow-2xs"
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs ${
+                    circadian.isNight
+                      ? 'bg-teal-950/70 hover:bg-teal-900/80 text-teal-200 border-teal-800/80'
+                      : 'bg-teal-50/90 hover:bg-teal-100 text-teal-900 border-teal-200/80'
+                  }`}
                   title="Listen to active pearls sequentially in hands-free commute mode"
                 >
-                  <Headphones className="h-3.5 w-3.5 text-teal-700" />
+                  <Headphones className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
                   <span>Commute Audio</span>
                 </motion.button>
 
@@ -912,10 +927,14 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   whileHover={{ scale: 1.02, y: -1 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setIsCheatSheetModalOpen(true)}
-                  className="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border bg-white/80 hover:bg-white text-stone-700 border-teal-200/70 hover:border-teal-300 shadow-2xs"
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs ${
+                    circadian.isNight
+                      ? 'bg-slate-800/80 hover:bg-slate-700 text-slate-200 border-slate-700/80'
+                      : 'bg-white/90 hover:bg-white text-slate-700 border-stone-200/80 hover:border-teal-300'
+                  }`}
                   title="Open print-optimized 2-column clinical cheat sheet"
                 >
-                  <Printer className="h-3.5 w-3.5 text-teal-700" />
+                  <Printer className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
                   <span>Cheat Sheet</span>
                 </motion.button>
 
@@ -937,7 +956,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                       ? 'bg-amber-500 text-white border-amber-600 shadow-amber-500/20 shadow-xs'
                       : circadian.isNight
                         ? 'bg-slate-800/80 hover:bg-slate-700/90 text-slate-200 border-slate-700/80 hover:border-slate-600'
-                        : 'bg-white/80 hover:bg-white text-stone-700 border-teal-200/70 hover:border-teal-300'
+                        : 'bg-white/90 hover:bg-white text-slate-700 border-stone-200/80 hover:border-teal-300'
                   }`}
                 >
                   <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-white text-white' : 'fill-amber-500/20 text-amber-500'}`} />
@@ -945,11 +964,6 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                 </motion.button>
               </div>
             </div>
-          </div>
-
-          {/* Right Action: Circadian Dropdown */}
-          <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
-            <CircadianFocusDropdown circadian={circadian} />
           </div>
         </div>
       </motion.header>

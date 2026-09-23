@@ -1188,13 +1188,15 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          className={`relative overflow-hidden rounded-3xl border p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
+          className={`relative rounded-3xl border p-4 sm:px-6 sm:py-4 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
         >
-          <CircadianHeaderAtmosphere circadian={circadian} />
-          {/* Dynamic Animated Ambient Effects */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-            {/* Luminous system theme top border shimmer track */}
-            <div className="absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
+          {/* Background Atmosphere & Satellite Dish Artwork (isolated so dropdown never clips) */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
+            <CircadianHeaderAtmosphere circadian={circadian} />
+            {/* Dynamic Animated Ambient Effects */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              {/* Luminous system theme top border shimmer track */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-sky-500/25 to-transparent" />
               <motion.div
                 animate={{ x: ['-100%', '300%'] }}
@@ -1416,111 +1418,111 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             </svg>
           </div>
         </div>
+        </div>
 
-          {/* Header Content Body matching telegram-hub-banner.png */}
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl min-w-0">
-              <HeaderGlassIcon
-                icon={Send}
-                isNight={circadian.isNight}
-              />
+        {/* Top Utility Bar: Eyebrow + MTProto Status + Circadian Focus Dropdown */}
+        <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/70">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-sky-700 dark:text-sky-300">
+              TELEGRAM CLINICAL HUB
+            </span>
+            <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border shadow-2xs ${circadian.isNight ? 'bg-teal-950/70 text-teal-300 border-teal-800/80' : 'bg-teal-50 text-teal-800 border-teal-200'}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-teal-500'}`} />
+              {isConnected ? 'MTProto Synced' : 'Feed Active'}
+            </span>
+          </div>
+          <CircadianFocusDropdown circadian={circadian} />
+        </div>
 
-              <div className="space-y-1.5 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-sky-700 dark:text-sky-300/90">
-                    CONNECT • CURATE • REVISE
-                  </span>
-                </div>
+        {/* Header Content Body matching telegram-hub-banner.png */}
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-3">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 max-w-3xl min-w-0">
+            <HeaderGlassIcon
+              icon={Send}
+              isNight={circadian.isNight}
+            />
 
-                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
-                    <span className="text-[#005B54] dark:text-teal-400">TELEGRAM </span>
-                    <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>KNOWLEDGE BANK</span>
-                  </h1>
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                    ONE SHOT CURATED
-                  </span>
-                </div>
-
-                <p className={`text-xs sm:text-sm leading-relaxed max-w-xl ${circadian.subtitleColor}`}>
-                  High-yield FMGE content, intelligently curated from your verified sources.
-                </p>
-
-                {/* Quick Metrics Bar */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
-                    <span className="text-slate-400">Curated:</span>
-                    <span className={`font-bold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{curatedCounts.totalCurated || curatedItems.length}</span>
-                  </div>
-                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
-                    <span className="text-slate-400">Pearls:</span>
-                    <span className={`font-bold ${circadian.isNight ? 'text-amber-300' : 'text-amber-700'}`}>{curatedCounts.examPearls}</span>
-                  </div>
-                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
-                    <span className="text-slate-400">Questions:</span>
-                    <span className={`font-bold ${circadian.isNight ? 'text-sky-300' : 'text-sky-700'}`}>{curatedCounts.questions}</span>
-                  </div>
-                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
-                    <span className="text-slate-400">Spotters:</span>
-                    <span className={`font-bold ${circadian.isNight ? 'text-teal-300' : 'text-teal-700'}`}>{curatedCounts.imageSpotters}</span>
-                  </div>
-                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-300' : 'bg-white/85 border-slate-200/80 text-slate-700'}`}>
-                    <span className="text-slate-400">Saved:</span>
-                    <span className={`font-bold ${circadian.isNight ? 'text-emerald-300' : 'text-emerald-700'}`}>{savedItems.length}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Action Controls & Focus Dropdown */}
-            <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between sm:justify-end gap-2.5 shrink-0">
-              <CircadianFocusDropdown circadian={circadian} />
-
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold font-mono border shadow-2xs ${circadian.isNight ? 'bg-teal-950/70 text-teal-300 border-teal-800/80' : 'bg-teal-50 text-teal-800 border-teal-200'}`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-teal-500'}`} />
-                  {isConnected ? 'MTProto Synced' : 'Feed Active'}
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
+                  <span className="text-[#005B54] dark:text-teal-400">TELEGRAM </span>
+                  <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>KNOWLEDGE BANK</span>
+                </h1>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                  ONE SHOT CURATED
                 </span>
-
-                <button
-                  type="button"
-                  onClick={handleManualSyncNow}
-                  disabled={isManualSyncing}
-                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer active:scale-98 disabled:opacity-50"
-                >
-                  <RefreshCw className={`w-3 h-3 ${isManualSyncing ? 'animate-spin' : ''}`} />
-                  <span>{isManualSyncing ? 'Syncing...' : 'Sync Feed'}</span>
-                </button>
-
-                {!isConnected && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAuthMethod('qr');
-                      setAuthStep('phone');
-                      setAuthError(null);
-                      setIsConnectModalOpen(true);
-                    }}
-                    className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-white border border-teal-200 text-[#006B63] hover:bg-teal-50 text-xs font-bold shadow-2xs transition-all cursor-pointer"
-                  >
-                    <QrCode className="w-3 h-3" />
-                    <span>Connect MTProto</span>
-                  </button>
-                )}
               </div>
 
-              <div className={`border rounded-xl px-3 py-1 flex items-center gap-2 max-w-sm shadow-2xs ${
-                circadian.isNight ? 'bg-slate-900/60 border-slate-800 text-slate-300' : 'bg-white/85 border-teal-200/70 text-slate-700'
-              }`}>
-                <span className="text-xs font-serif text-[#006B63] dark:text-teal-400 font-bold select-none shrink-0">“</span>
-                <p className="text-[11px] font-medium leading-tight">
-                  Good resources stay with you.
-                </p>
+              <p className={`text-xs sm:text-sm leading-relaxed max-w-xl ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
+                High-yield FMGE content, intelligently curated from your verified sources.
+              </p>
+
+              {/* Quick Metrics Bar */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'}`}>
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Curated:</span>
+                  <span className={`font-extrabold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{curatedCounts.totalCurated || curatedItems.length}</span>
+                </div>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'}`}>
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Pearls:</span>
+                  <span className="font-extrabold text-amber-500">{curatedCounts.examPearls}</span>
+                </div>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'}`}>
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Questions:</span>
+                  <span className="font-extrabold text-sky-500">{curatedCounts.questions}</span>
+                </div>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'}`}>
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Spotters:</span>
+                  <span className="font-extrabold text-teal-500">{curatedCounts.imageSpotters}</span>
+                </div>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'}`}>
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Saved:</span>
+                  <span className="font-extrabold text-emerald-500">{savedItems.length}</span>
+                </div>
               </div>
             </div>
           </div>
-        </motion.header>
+
+          {/* Right Action Controls: Sync Feed & Connect MTProto in single row */}
+          <div className="flex items-center gap-2.5 shrink-0 self-start lg:self-center">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              type="button"
+              onClick={handleManualSyncNow}
+              disabled={isManualSyncing}
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isManualSyncing ? 'animate-spin' : ''}`} />
+              <span>{isManualSyncing ? 'Syncing...' : 'Sync Feed'}</span>
+            </motion.button>
+
+            {!isConnected && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                type="button"
+                onClick={() => {
+                  setAuthMethod('qr');
+                  setAuthStep('phone');
+                  setAuthError(null);
+                  setIsConnectModalOpen(true);
+                }}
+                className={`inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold shadow-2xs transition-all cursor-pointer ${
+                  circadian.isNight
+                    ? 'bg-slate-800/80 hover:bg-slate-700 border-slate-700/80 text-slate-200 hover:text-white'
+                    : 'bg-white hover:bg-stone-50 border-stone-200/90 text-slate-700'
+                }`}
+              >
+                <QrCode className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <span>Connect MTProto</span>
+              </motion.button>
+            )}
+          </div>
+        </div>
+      </motion.header>
       </div>
 
       {/* ========================================================================= */}

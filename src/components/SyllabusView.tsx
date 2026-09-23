@@ -183,94 +183,106 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative overflow-hidden rounded-[28px] sm:rounded-[32px] border p-4 sm:p-6 shadow-sm transition-colors duration-700 ${
+        className={`relative rounded-[28px] sm:rounded-[32px] border p-4 sm:p-5 lg:p-5.5 shadow-sm transition-colors duration-700 ${
           circadian.isNight
             ? 'bg-gradient-to-r from-[#0B1523] via-[#0F1E32] to-[#0A1829] border-sky-800/60 shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
             : 'bg-gradient-to-r from-amber-50/50 via-white to-teal-50/40 border-stone-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.03)]'
         }`}
       >
-        <CircadianHeaderAtmosphere circadian={circadian} />
+        {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so popover never clips) */}
+        <div className="absolute inset-0 overflow-hidden rounded-[28px] sm:rounded-[32px] pointer-events-none select-none" aria-hidden="true">
+          <CircadianHeaderAtmosphere circadian={circadian} />
 
-        {/* Scenic mountain & sunrise backdrop on far right */}
-        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-72 sm:w-96 overflow-hidden select-none opacity-40 sm:opacity-60 dark:opacity-20" aria-hidden="true">
-          <svg viewBox="0 0 380 160" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
-            <defs>
-              <radialGradient id="syl-sun-glow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#FDE68A" stopOpacity="0.8" />
-                <stop offset="60%" stopColor="#F59E0B" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
-              </radialGradient>
-              <linearGradient id="syl-mount-front" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#006B63" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="#004D40" stopOpacity="0.45" />
-              </linearGradient>
-              <linearGradient id="syl-mount-back" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#0F766E" stopOpacity="0.25" />
-              </linearGradient>
-            </defs>
-            <circle cx="280" cy="85" r="45" fill="url(#syl-sun-glow)" />
-            <path d="M 80 160 Q 180 80 290 120 T 380 160 Z" fill="url(#syl-mount-back)" />
-            <path d="M 160 160 Q 250 95 380 130 L 380 160 Z" fill="url(#syl-mount-front)" />
-          </svg>
+          {/* Scenic mountain & sunrise backdrop on far right */}
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-72 sm:w-96 select-none opacity-40 sm:opacity-60 dark:opacity-20">
+            <svg viewBox="0 0 380 160" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
+              <defs>
+                <radialGradient id="syl-sun-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#FDE68A" stopOpacity="0.8" />
+                  <stop offset="60%" stopColor="#F59E0B" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+                </radialGradient>
+                <linearGradient id="syl-mount-front" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#006B63" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#004D40" stopOpacity="0.45" />
+                </linearGradient>
+                <linearGradient id="syl-mount-back" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.15" />
+                  <stop offset="100%" stopColor="#0F766E" stopOpacity="0.25" />
+                </linearGradient>
+              </defs>
+              <circle cx="280" cy="85" r="45" fill="url(#syl-sun-glow)" />
+              <path d="M 80 160 Q 180 80 290 120 T 380 160 Z" fill="url(#syl-mount-back)" />
+              <path d="M 160 160 Q 250 95 380 130 L 380 160 Z" fill="url(#syl-mount-front)" />
+            </svg>
+          </div>
         </div>
 
-        {/* Main 3-Column Bento Grid Layout */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          {/* ═══ COLUMN 1: BRAND LOCKUP, TITLE, SUBTITLE & NAVIGATION TABS ═══ */}
-          <div className="space-y-4 max-w-xl min-w-0">
-            {/* Header Icon + Spaced Eyebrow + Two-Tone Title */}
+        {/* Top Utility Strip: Eyebrow + Live Circadian Focus Dropdown */}
+        <div className="relative z-20 flex items-center justify-between gap-3 pb-3 border-b border-stone-200/60 dark:border-slate-800/70">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300">
+              STUDY PLAN • CURRICULUM
+            </span>
+            <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
+            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">
+              DISCIPLINE TODAY · DOCTOR TOMORROW
+            </span>
+          </div>
+          <CircadianFocusDropdown circadian={circadian} />
+        </div>
+
+        {/* Main 2-Section Balanced Bento Layout */}
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 pt-3.5 items-center">
+          {/* ═══ LEFT SECTION: BRAND LOCKUP, TITLE, BADGES, SUBTITLE & TABS (Cols 1-7) ═══ */}
+          <div className="lg:col-span-7 space-y-3 min-w-0">
             <div className="flex items-start gap-3.5">
               <HeaderGlassIcon icon={BookOpen} isNight={circadian.isNight} />
 
               <div className="space-y-1 min-w-0">
-                <div className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-slate-400 dark:text-slate-500">
-                  STUDY PLAN
-                </div>
-
-                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                  <h1 className="text-2xl sm:text-[28px] font-extrabold tracking-tight font-display leading-tight">
+                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
                     <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>Your Study </span>
-                    <span className="text-[#008378] dark:text-teal-400">Plan</span>
+                    <span className="text-[#00685F] dark:text-teal-400">Plan</span>
                   </h1>
 
-                  {/* Dual Badges matching reference */}
+                  {/* Dual Badges with High-Contrast Crisp Borders */}
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-teal-50 dark:bg-teal-950/70 text-[#006B63] dark:text-teal-300 border border-teal-200/80 dark:border-teal-800 shadow-2xs">
-                      <Layers className="w-3 h-3 text-[#006B63] dark:text-teal-300" />
-                      <span>CURRICULUM 19 SUBJECTS</span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-teal-50 dark:bg-teal-950/70 text-[#00685F] dark:text-teal-300 border border-teal-200/80 dark:border-teal-800 shadow-2xs">
+                      <Layers className="w-3 h-3 text-[#00685F] dark:text-teal-300" />
+                      <span>19 Subjects</span>
                     </span>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 shadow-2xs">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 shadow-2xs">
                       <BarChart3 className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                      <span>FMGE FOCUSED</span>
+                      <span>FMGE Blueprint</span>
                     </span>
                   </div>
                 </div>
 
-                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
-                  Master the 19 subjects. Step by step. A better doctor, one day at a time.
+                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
+                  Master the 19 subjects systematically. Clinical depth, step by step.
                 </p>
               </div>
             </div>
 
-            {/* Interactive Navigation Pills (Curriculum -> & Revision Matrix) */}
-            <div className="flex items-center gap-2.5 pt-1">
+            {/* Interactive Navigation Switcher Pills */}
+            <div className="flex items-center gap-2.5 pt-0.5">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={() => handleSubTabChange('curriculum')}
-                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm cursor-pointer ${
+                className={`inline-flex items-center gap-2 px-4.5 py-2 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer ${
                   currentSubTab === 'curriculum'
                     ? 'bg-[#005B54] text-white hover:bg-[#004D47] shadow-teal-900/15'
                     : circadian.isNight
-                    ? 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700'
-                    : 'bg-white/90 text-slate-700 hover:bg-stone-50 border border-stone-200/80'
+                    ? 'bg-slate-800/90 text-slate-200 hover:bg-slate-700 border border-slate-700'
+                    : 'bg-white/95 text-slate-700 hover:bg-stone-50 border border-stone-200/80'
                 }`}
               >
-                <BookOpen className="w-4 h-4" />
+                <BookOpen className="w-3.5 h-3.5" />
                 <span>Curriculum</span>
-                <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                <ArrowRight className="w-3 h-3 stroke-[2.5]" />
               </motion.button>
 
               <motion.button
@@ -278,156 +290,119 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={() => handleSubTabChange('revision')}
-                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-2 px-4.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'revision'
                     ? 'bg-[#005B54] text-white hover:bg-[#004D47] shadow-teal-900/15'
                     : circadian.isNight
-                    ? 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700'
-                    : 'bg-white/90 text-slate-700 hover:bg-stone-50 border border-stone-200/80'
+                    ? 'bg-slate-800/90 text-slate-200 hover:bg-slate-700 border border-slate-700'
+                    : 'bg-white/95 text-slate-700 hover:bg-stone-50 border border-stone-200/80'
                 }`}
               >
-                <RotateCw className="w-4 h-4" />
+                <RotateCw className="w-3.5 h-3.5" />
                 <span>Revision Matrix</span>
               </motion.button>
             </div>
-
-            {/* Micro-footer */}
-            <div className="text-[10px] font-mono tracking-[0.16em] uppercase text-slate-400 dark:text-slate-500 flex items-center gap-2 pt-0.5">
-              <span>LEARN</span>
-              <span>•</span>
-              <span>PRACTICE</span>
-              <span>•</span>
-              <span>TRACK</span>
-              <span>•</span>
-              <span>IMPROVE</span>
-            </div>
           </div>
 
-          {/* ═══ COLUMN 2: CIRCULAR MASTERY GAUGE & STATISTIC STACK ═══ */}
-          <div className="flex items-center gap-6 sm:gap-8 justify-between sm:justify-start lg:justify-center border-t sm:border-t-0 pt-4 sm:pt-0 border-stone-200/60 dark:border-slate-800">
-            {/* Circular Gauge */}
-            <div className="flex flex-col items-center shrink-0">
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
-                <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    stroke="currentColor"
-                    strokeWidth="8"
-                    className={`fill-none ${circadian.isNight ? 'text-slate-800' : 'text-slate-100'}`}
-                  />
-                  <motion.circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    stroke="#10B981"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                    className="fill-none"
-                    initial={{ strokeDashoffset: 2 * Math.PI * 40 }}
-                    animate={{ strokeDashoffset: 2 * Math.PI * 40 * (1 - overallStats.percentage / 100) }}
-                    transition={{ duration: 1.2, ease: 'easeOut' }}
-                    style={{ strokeDasharray: 2 * Math.PI * 40 }}
-                  />
-                </svg>
+          {/* ═══ RIGHT SECTION: INTEGRATED APPLE BENTO TELEMETRY CARD (Cols 8-12) ═══ */}
+          <div className="lg:col-span-5">
+            <div className={`p-3.5 sm:p-4 rounded-2xl border backdrop-blur-xl transition-all shadow-xs ${
+              circadian.isNight
+                ? 'bg-slate-900/75 border-slate-800 text-slate-200'
+                : 'bg-white/80 border-stone-200/90 text-slate-800 shadow-[0_2px_12px_rgba(0,107,99,0.04)]'
+            }`}>
+              <div className="flex items-center justify-between gap-4">
+                {/* Circular Mastery Gauge */}
+                <div className="flex flex-col items-center shrink-0">
+                  <div className="relative w-20 h-20 sm:w-22 sm:h-22 flex items-center justify-center">
+                    <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="38"
+                        stroke="currentColor"
+                        strokeWidth="7"
+                        className={`fill-none ${circadian.isNight ? 'text-slate-800' : 'text-slate-100'}`}
+                      />
+                      <motion.circle
+                        cx="50"
+                        cy="50"
+                        r="38"
+                        stroke="#10B981"
+                        strokeWidth="7"
+                        strokeLinecap="round"
+                        className="fill-none"
+                        initial={{ strokeDashoffset: 2 * Math.PI * 38 }}
+                        animate={{ strokeDashoffset: 2 * Math.PI * 38 * (1 - overallStats.percentage / 100) }}
+                        transition={{ duration: 1.2, ease: 'easeOut' }}
+                        style={{ strokeDasharray: 2 * Math.PI * 38 }}
+                      />
+                    </svg>
 
-                {/* Center Percentage */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className={`text-xl sm:text-2xl font-extrabold font-mono tracking-tight ${
-                    circadian.isNight ? 'text-white' : 'text-slate-900'
-                  }`}>
-                    {overallStats.percentage}%
-                  </span>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                    Completed
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-2 text-center">
-                <span className={`text-xs font-mono font-medium ${circadian.isNight ? 'text-slate-400' : 'text-slate-500'}`}>
-                  {overallStats.completedSubjectsCount} / {overallStats.totalSubjects} subjects
-                </span>
-                <div className="w-20 h-1 rounded-full bg-slate-200 dark:bg-slate-800 mt-1 mx-auto overflow-hidden">
-                  <div
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                    style={{ width: `${overallStats.percentage}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 3-Row Telemetry Stack with Chevron Arrows */}
-            <div className="space-y-2.5 min-w-[150px] sm:min-w-[170px]">
-              <div className="flex items-center justify-between gap-3 p-1.5 rounded-xl transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    circadian.isNight ? 'bg-sky-950/70 text-cyan-400' : 'bg-teal-50 text-[#006B63]'
-                  }`}>
-                    <BookOpen className="w-4 h-4" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                      <span className={`text-lg sm:text-xl font-extrabold font-mono tracking-tight leading-none ${
+                        circadian.isNight ? 'text-white' : 'text-slate-900'
+                      }`}>
+                        {overallStats.percentage}%
+                      </span>
+                      <span className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
+                        Completed
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <div className={`text-sm font-extrabold font-mono leading-none ${
-                      circadian.isNight ? 'text-white' : 'text-slate-900'
-                    }`}>
+                  <span className={`text-[11px] font-mono font-medium mt-1 ${circadian.isNight ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {overallStats.completedSubjectsCount}/{overallStats.totalSubjects} subjects
+                  </span>
+                </div>
+
+                {/* 3-Row Compact Telemetry Stack */}
+                <div className="flex-1 space-y-1.5 min-w-0">
+                  <div className={`flex items-center justify-between p-1.5 rounded-lg border transition-colors ${
+                    circadian.isNight ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50/80 border-slate-200/60'
+                  }`}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <BookOpen className="w-3.5 h-3.5 text-[#00685F] dark:text-teal-400 shrink-0" />
+                      <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">Total Subjects</span>
+                    </div>
+                    <span className="text-xs font-mono font-extrabold text-slate-900 dark:text-white shrink-0 ml-2">
                       {overallStats.totalSubjects}
-                    </div>
-                    <div className="text-[11px] text-slate-400">Total Subjects</div>
+                    </span>
                   </div>
-                </div>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400 opacity-60" />
-              </div>
 
-              <div className="flex items-center justify-between gap-3 p-1.5 rounded-xl transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className={`text-sm font-extrabold font-mono leading-none ${
-                      circadian.isNight ? 'text-white' : 'text-slate-900'
-                    }`}>
+                  <div className={`flex items-center justify-between p-1.5 rounded-lg border transition-colors ${
+                    circadian.isNight ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50/80 border-slate-200/60'
+                  }`}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">Mastered</span>
+                    </div>
+                    <span className="text-xs font-mono font-extrabold text-emerald-600 dark:text-emerald-400 shrink-0 ml-2">
                       {overallStats.completedSubjectsCount}
-                    </div>
-                    <div className="text-[11px] text-slate-400">Subjects Mastered</div>
+                    </span>
                   </div>
-                </div>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400 opacity-60" />
-              </div>
 
-              <div className="flex items-center justify-between gap-3 p-1.5 rounded-xl transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
-                    <Target className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className={`text-sm font-extrabold font-mono leading-none ${
-                      circadian.isNight ? 'text-white' : 'text-slate-900'
-                    }`}>
+                  <div className={`flex items-center justify-between p-1.5 rounded-lg border transition-colors ${
+                    circadian.isNight ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50/80 border-slate-200/60'
+                  }`}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Target className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+                      <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">Target Score</span>
+                    </div>
+                    <span className="text-xs font-mono font-extrabold text-slate-900 dark:text-white shrink-0 ml-2">
                       {state.settings?.targetScore || 200}+
-                    </div>
-                    <div className="text-[11px] text-slate-400">Target Score</div>
+                    </span>
                   </div>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400 opacity-60" />
               </div>
-            </div>
-          </div>
 
-          {/* ═══ COLUMN 3: CIRCADIAN SELECTOR & EDITORIAL QUOTE ═══ */}
-          <div className="flex lg:flex-col justify-between items-end text-right min-w-[200px] max-w-[240px] border-t lg:border-t-0 lg:border-l border-stone-200/60 dark:border-slate-800 pt-3 lg:pt-0 lg:pl-4 self-stretch">
-            <CircadianFocusDropdown circadian={circadian} />
-
-            <div className="space-y-1.5 my-auto hidden lg:block">
-              <p className={`text-sm font-serif italic leading-snug ${
-                circadian.isNight ? 'text-slate-300' : 'text-slate-700'
-              }`}>
-                &ldquo;Small steps make big doctors.&rdquo;
-              </p>
-              <div className="w-8 h-0.5 bg-teal-500/40 ml-auto rounded-full" />
-              <div className="text-[9px] font-mono font-bold tracking-widest text-slate-400 uppercase">
-                DISCIPLINE TODAY · DOCTOR TOMORROW
+              {/* Micro-Quote Footer inside Bento Card */}
+              <div className="mt-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[10px]">
+                <p className="italic text-slate-500 dark:text-slate-400 truncate">
+                  &ldquo;Small steps make big doctors.&rdquo;
+                </p>
+                <span className="font-mono font-bold text-teal-600 dark:text-teal-400 tracking-wider shrink-0 ml-2">
+                  FMGE 2026
+                </span>
               </div>
             </div>
           </div>

@@ -127,43 +127,48 @@ export const MoreView: React.FC<MoreViewProps> = ({
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative overflow-hidden rounded-3xl border p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
+            className={`relative rounded-3xl border p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
           >
             <CircadianHeaderAtmosphere circadian={circadian} />
 
-            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl min-w-0">
-                <HeaderGlassIcon
-                  icon={LayoutGrid}
-                  isNight={circadian.isNight}
-                />
+            <div className="relative z-10 space-y-3">
+              {/* Top Utility Row */}
+              <div className="flex items-center justify-between gap-2 border-b border-black/5 dark:border-white/5 pb-2.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300/90">
+                    TOOLS • CONFIGURE • OPTIMIZE
+                  </span>
+                  <span className="text-slate-300 dark:text-slate-600 hidden sm:inline">|</span>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    System Directory
+                  </span>
+                </div>
 
-                <div className="space-y-1.5 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300/90">
-                      TOOLS • CONFIGURE • OPTIMIZE
-                    </span>
-                  </div>
+                <div className="shrink-0">
+                  <CircadianFocusDropdown circadian={circadian} />
+                </div>
+              </div>
 
-                  <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+              {/* Main Header Content */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-4 min-w-0">
+                  <HeaderGlassIcon
+                    icon={LayoutGrid}
+                    isNight={circadian.isNight}
+                  />
+
+                  <div className="space-y-1 min-w-0">
                     <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
                       <span className="text-[#005B54] dark:text-teal-400">CLINICAL </span>
                       <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>UTILITIES &amp; SERVICES</span>
                     </h1>
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse" />
-                      System Directory
-                    </span>
+
+                    <p className={`text-xs sm:text-sm leading-relaxed ${circadian.subtitleColor}`}>
+                      Grand test mock exams, Telegram clinical feed, cloud telemetry synchronization, and application preferences.
+                    </p>
                   </div>
-
-                  <p className={`text-xs sm:text-sm leading-relaxed ${circadian.subtitleColor}`}>
-                    Grand test mock exams, Telegram clinical feed, cloud telemetry synchronization, and application preferences.
-                  </p>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
-                <CircadianFocusDropdown circadian={circadian} />
               </div>
             </div>
           </motion.header>
