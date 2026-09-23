@@ -1386,7 +1386,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             opacity: isHeaderVisible || isAtTop ? 1 : 0,
           }}
           transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-          className={`sticky top-0 z-30 py-2 sm:py-2.5 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
+          className={`sticky top-0 z-50 py-2 sm:py-2.5 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
             scrollY > 30
               ? 'bg-white/90 backdrop-blur-2xl border-b border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)]'
               : 'bg-transparent'
@@ -1425,7 +1425,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Right Action Controls: Focus Audio Engine + Notification Bell + Doctor Avatar */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 relative z-50">
 
               {/* Ambient Focus Audio Engine */}
               <AmbientSoundWidget onOpenZenFocus={onOpenZenFocus} />
@@ -1469,7 +1469,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_20px_50px_rgba(0,107,99,0.12)] p-4 space-y-2 z-30"
+              className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_20px_50px_rgba(0,107,99,0.12)] p-4 space-y-2 relative z-50"
             >
               <div className="flex items-center justify-between pb-2 border-b border-slate-100/80">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
@@ -1535,7 +1535,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion, 0)}
-          className={`rounded-3xl border backdrop-blur-2xl p-4 sm:p-5 relative z-30 transition-all duration-700 mb-5 sm:mb-7 ${heroTheme.bannerBg}`}
+          className={`rounded-3xl border backdrop-blur-2xl p-4 sm:p-5 relative z-10 transition-all duration-700 mb-5 sm:mb-7 ${heroTheme.bannerBg}`}
         >
           {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so dropdown popover never clips) */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">

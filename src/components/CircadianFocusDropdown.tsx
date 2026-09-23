@@ -92,25 +92,17 @@ export const CircadianFocusDropdown: React.FC<CircadianFocusDropdownProps> = ({
 
       <AnimatePresence>
         {isOpen && (
-          <>
-            {/* Transparent backdrop shield to safely isolate popover and prevent unwanted clicks */}
-            <div
-              className="fixed inset-0 z-40 bg-black/10 dark:bg-black/40 backdrop-blur-[1px]"
-              onClick={() => setIsOpen(false)}
-              aria-hidden="true"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, y: -6, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-              className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-1.5 w-64 rounded-2xl p-1.5 z-50 backdrop-blur-2xl shadow-[0_16px_48px_rgba(0,0,0,0.25)] border ${
-                circadian.isNight
-                  ? 'bg-slate-900/98 border-slate-700 text-slate-100 ring-1 ring-sky-500/30'
-                  : 'bg-white/98 border-slate-200/90 text-slate-900 ring-1 ring-teal-500/15'
-              }`}
-            >
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-1.5 w-64 rounded-2xl p-1.5 z-50 backdrop-blur-2xl border ${
+              circadian.isNight
+                ? 'bg-slate-900/98 border-slate-700 text-slate-100 ring-1 ring-sky-500/30 shadow-[0_20px_50px_rgba(0,0,0,0.6)]'
+                : 'bg-white/98 border-slate-200/90 text-slate-900 ring-1 ring-teal-500/15 shadow-[0_16px_36px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)]'
+            }`}
+          >
               <div className={`px-2.5 py-1 mb-1 text-[10px] font-mono font-black uppercase tracking-wider border-b flex items-center justify-between ${
                 circadian.isNight ? 'text-slate-300 border-slate-800' : 'text-slate-600 border-slate-200/80'
               }`}>
@@ -179,7 +171,6 @@ export const CircadianFocusDropdown: React.FC<CircadianFocusDropdownProps> = ({
                 })}
               </div>
             </motion.div>
-          </>
         )}
       </AnimatePresence>
     </div>
