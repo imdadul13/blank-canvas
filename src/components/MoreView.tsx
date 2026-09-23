@@ -133,12 +133,16 @@ export const MoreView: React.FC<MoreViewProps> = ({
 
             <div className="relative z-10 space-y-3">
               {/* Top Utility Row */}
-              <div className="flex items-center justify-between gap-2 border-b border-black/5 dark:border-white/5 pb-2.5">
+              <div className={`flex items-center justify-between gap-2 pb-2.5 border-b ${
+                circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
+              }`}>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300/90">
+                  <span className={`text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase ${
+                    circadian.isNight ? 'text-teal-300' : 'text-teal-700'
+                  }`}>
                     TOOLS • CONFIGURE • OPTIMIZE
                   </span>
-                  <span className="text-slate-300 dark:text-slate-600 hidden sm:inline">|</span>
+                  <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-slate-300'}`}>|</span>
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     System Directory

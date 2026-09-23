@@ -270,14 +270,20 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
             </div>
 
             {/* Apple SwiftUI Segmented Subtab Switcher */}
-            <div className="inline-flex p-1 rounded-full bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
+            <div className={`inline-flex p-1 rounded-full border shadow-2xs ${
+              circadian.isNight
+                ? 'bg-slate-900/90 border-slate-700/80'
+                : 'bg-slate-100/90 border-slate-200/80'
+            }`}>
               <button
                 type="button"
                 onClick={() => handleSubTabChange('curriculum')}
                 className={`relative inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                   currentSubTab === 'curriculum'
                     ? 'text-white'
-                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                    : circadian.isNight
+                    ? 'text-slate-300 hover:text-white'
+                    : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
                 {currentSubTab === 'curriculum' && (
@@ -297,7 +303,9 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 className={`relative inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                   currentSubTab === 'revision'
                     ? 'text-white'
-                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                    : circadian.isNight
+                    ? 'text-slate-300 hover:text-white'
+                    : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
                 {currentSubTab === 'revision' && (
@@ -354,7 +362,9 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                       }`}>
                         {overallStats.percentage}%
                       </span>
-                      <span className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
+                      <span className={`text-[9px] font-semibold uppercase tracking-wider mt-0.5 ${
+                        circadian.isNight ? 'text-slate-400' : 'text-slate-500'
+                      }`}>
                         Completed
                       </span>
                     </div>
@@ -372,10 +382,14 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                       : 'bg-teal-500/[0.06] border-teal-200/70'
                   }`}>
                     <div className="flex items-center gap-2 min-w-0">
-                      <BookOpen className="w-3.5 h-3.5 text-[#00685F] dark:text-teal-400 shrink-0" />
-                      <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">Total Subjects</span>
+                      <BookOpen className={`w-3.5 h-3.5 shrink-0 ${circadian.isNight ? 'text-teal-300' : 'text-[#00685F]'}`} />
+                      <span className={`text-[11px] font-semibold truncate ${
+                        circadian.isNight ? 'text-slate-200' : 'text-slate-700'
+                      }`}>Total Subjects</span>
                     </div>
-                    <span className="text-xs font-mono font-extrabold text-slate-900 dark:text-white shrink-0 ml-2">
+                    <span className={`text-xs font-mono font-extrabold shrink-0 ml-2 ${
+                      circadian.isNight ? 'text-white' : 'text-slate-900'
+                    }`}>
                       {overallStats.totalSubjects}
                     </span>
                   </div>
@@ -386,10 +400,14 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                       : 'bg-emerald-500/[0.06] border-emerald-200/70'
                   }`}>
                     <div className="flex items-center gap-2 min-w-0">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">Mastered</span>
+                      <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${circadian.isNight ? 'text-emerald-300' : 'text-emerald-600'}`} />
+                      <span className={`text-[11px] font-semibold truncate ${
+                        circadian.isNight ? 'text-slate-200' : 'text-slate-700'
+                      }`}>Mastered</span>
                     </div>
-                    <span className="text-xs font-mono font-extrabold text-emerald-700 dark:text-emerald-400 shrink-0 ml-2">
+                    <span className={`text-xs font-mono font-extrabold shrink-0 ml-2 ${
+                      circadian.isNight ? 'text-emerald-300' : 'text-emerald-700'
+                    }`}>
                       {overallStats.completedSubjectsCount}
                     </span>
                   </div>
@@ -400,10 +418,14 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                       : 'bg-sky-500/[0.06] border-sky-200/70'
                   }`}>
                     <div className="flex items-center gap-2 min-w-0">
-                      <Target className="w-3.5 h-3.5 text-sky-600 dark:text-cyan-400 shrink-0" />
-                      <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">Target Score</span>
+                      <Target className={`w-3.5 h-3.5 shrink-0 ${circadian.isNight ? 'text-cyan-300' : 'text-sky-600'}`} />
+                      <span className={`text-[11px] font-semibold truncate ${
+                        circadian.isNight ? 'text-slate-200' : 'text-slate-700'
+                      }`}>Target Score</span>
                     </div>
-                    <span className="text-xs font-mono font-extrabold text-slate-900 dark:text-white shrink-0 ml-2">
+                    <span className={`text-xs font-mono font-extrabold shrink-0 ml-2 ${
+                      circadian.isNight ? 'text-white' : 'text-slate-900'
+                    }`}>
                       {state.settings?.targetScore || 200}+
                     </span>
                   </div>
@@ -411,11 +433,17 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
               </div>
 
               {/* Micro-Quote Footer inside Bento Card */}
-              <div className="mt-2.5 pt-2 border-t border-slate-200/70 dark:border-slate-800/60 flex items-center justify-between text-[10px]">
-                <p className="italic text-slate-600 dark:text-slate-300 font-medium truncate">
+              <div className={`mt-2.5 pt-2 border-t flex items-center justify-between text-[10px] ${
+                circadian.isNight ? 'border-slate-800/80' : 'border-slate-200/70'
+              }`}>
+                <p className={`italic font-medium truncate ${
+                  circadian.isNight ? 'text-slate-300' : 'text-slate-600'
+                }`}>
                   &ldquo;Small steps make big doctors.&rdquo;
                 </p>
-                <span className="font-mono font-bold text-teal-700 dark:text-teal-400 tracking-wider shrink-0 ml-2">
+                <span className={`font-mono font-bold tracking-wider shrink-0 ml-2 ${
+                  circadian.isNight ? 'text-cyan-300' : 'text-teal-700'
+                }`}>
                   FMGE 2026
                 </span>
               </div>

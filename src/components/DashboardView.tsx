@@ -1535,7 +1535,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion, 0)}
-          className={`rounded-3xl border backdrop-blur-2xl p-4 sm:p-5 relative z-30 transition-all duration-700 mb-2 sm:mb-3 ${heroTheme.bannerBg}`}
+          className={`rounded-3xl border backdrop-blur-2xl p-4 sm:p-5 relative z-30 transition-all duration-700 mb-5 sm:mb-7 ${heroTheme.bannerBg}`}
         >
           {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so dropdown popover never clips) */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
@@ -1664,7 +1664,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* 4 Stat Cards Row with Staggered Motion and Micro-Interactions */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 pt-2.5 mt-2.5 sm:pt-3 sm:mt-3 border-t border-[#D0EBE5]/70 relative z-10">
+          <div className={`grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 pt-2.5 mt-2.5 sm:pt-3 sm:mt-3 border-t relative z-10 ${
+            circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
+          }`}>
             {/* Card 1: Days remaining — Apple Sunrise / Amber */}
             <motion.div
               whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
@@ -1691,7 +1693,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   }`}>
                     <AnimatedNumber value={daysRemaining} />
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-300/90 shrink-0">
+                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider border shrink-0 ${
+                    circadian.isNight
+                      ? 'bg-amber-400/20 text-amber-300 border-amber-400/50 shadow-[0_0_8px_rgba(251,191,36,0.2)]'
+                      : 'bg-amber-500/15 text-amber-900 border-amber-300/80'
+                  }`}>
                     Live
                   </span>
                 </div>
@@ -1727,7 +1733,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   }`}>
                     {savedTargetScore ? `${savedTargetScore}+` : '200+'}
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-950 dark:text-blue-200 border border-blue-300/90 shrink-0">
+                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider border shrink-0 ${
+                    circadian.isNight
+                      ? 'bg-sky-400/20 text-cyan-200 border-cyan-400/50 shadow-[0_0_8px_rgba(56,189,248,0.2)]'
+                      : 'bg-blue-500/15 text-blue-900 border-blue-300/80'
+                  }`}>
                     150 Pass
                   </span>
                 </div>
@@ -1762,7 +1772,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   }`}>
                     19
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-violet-500/20 text-violet-950 dark:text-violet-200 border border-violet-300/90 shrink-0">
+                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider border shrink-0 ${
+                    circadian.isNight
+                      ? 'bg-purple-400/20 text-purple-200 border-purple-400/50 shadow-[0_0_8px_rgba(192,132,252,0.2)]'
+                      : 'bg-violet-500/15 text-violet-900 border-violet-300/80'
+                  }`}>
                     NBE Core
                   </span>
                 </div>
@@ -1797,8 +1811,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   }`}>
                     {currentStreak || 1}d
                   </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-300/90 shrink-0">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider border shrink-0 ${
+                    circadian.isNight
+                      ? 'bg-emerald-400/20 text-emerald-300 border-emerald-400/50 shadow-[0_0_8px_rgba(52,211,153,0.2)]'
+                      : 'bg-emerald-500/15 text-emerald-900 border-emerald-300/80'
+                  }`}>
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     Active
                   </span>
                 </div>

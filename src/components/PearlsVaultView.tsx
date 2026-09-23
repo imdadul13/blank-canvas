@@ -846,13 +846,19 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         </div>
 
         {/* Top Utility Bar: Eyebrow + Live Circadian Focus Dropdown */}
-        <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/70">
+        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b ${
+          circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
+        }`}>
           <div className="flex items-center gap-2">
-            <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-amber-700 dark:text-amber-300">
+            <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${
+              circadian.isNight ? 'text-amber-300' : 'text-amber-800'
+            }`}>
               LEARN • CONNECT • APPLY
             </span>
             <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
-            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">
+            <span className={`text-[10px] font-mono font-bold tracking-widest uppercase hidden sm:inline ${
+              circadian.isNight ? 'text-slate-300' : 'text-slate-600'
+            }`}>
               CLINICAL PEARLS VAULT
             </span>
           </div>

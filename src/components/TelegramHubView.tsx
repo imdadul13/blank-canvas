@@ -1421,9 +1421,13 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         </div>
 
         {/* Top Utility Bar: Eyebrow + MTProto Status + Circadian Focus Dropdown */}
-        <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/70">
+        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b ${
+          circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
+        }`}>
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-sky-700 dark:text-sky-300">
+            <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${
+              circadian.isNight ? 'text-sky-300' : 'text-sky-700'
+            }`}>
               TELEGRAM CLINICAL HUB
             </span>
             <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
@@ -1468,19 +1472,19 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 </div>
                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-amber-950/60 border-amber-800/60 text-amber-200' : 'bg-amber-500/10 border-amber-200/80 text-amber-900'}`}>
                   <span className={circadian.isNight ? 'text-amber-300' : 'text-amber-700 font-sans font-semibold'}>Pearls:</span>
-                  <span className="font-extrabold text-amber-700 dark:text-amber-300">{curatedCounts.examPearls}</span>
+                  <span className={`font-extrabold ${circadian.isNight ? 'text-amber-300' : 'text-amber-700'}`}>{curatedCounts.examPearls}</span>
                 </div>
                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-sky-950/60 border-sky-800/60 text-sky-200' : 'bg-sky-500/10 border-sky-200/80 text-sky-900'}`}>
                   <span className={circadian.isNight ? 'text-sky-300' : 'text-sky-700 font-sans font-semibold'}>Questions:</span>
-                  <span className="font-extrabold text-sky-700 dark:text-sky-300">{curatedCounts.questions}</span>
+                  <span className={`font-extrabold ${circadian.isNight ? 'text-sky-300' : 'text-sky-700'}`}>{curatedCounts.questions}</span>
                 </div>
                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-teal-950/60 border-teal-800/60 text-teal-200' : 'bg-teal-500/10 border-teal-200/80 text-teal-900'}`}>
                   <span className={circadian.isNight ? 'text-teal-300' : 'text-teal-700 font-sans font-semibold'}>Spotters:</span>
-                  <span className="font-extrabold text-teal-800 dark:text-teal-300">{curatedCounts.imageSpotters}</span>
+                  <span className={`font-extrabold ${circadian.isNight ? 'text-cyan-300' : 'text-teal-800'}`}>{curatedCounts.imageSpotters}</span>
                 </div>
                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-emerald-950/60 border-emerald-800/60 text-emerald-200' : 'bg-emerald-500/10 border-emerald-200/80 text-emerald-900'}`}>
                   <span className={circadian.isNight ? 'text-emerald-300' : 'text-emerald-700 font-sans font-semibold'}>Saved:</span>
-                  <span className="font-extrabold text-emerald-700 dark:text-emerald-300">{savedItems.length}</span>
+                  <span className={`font-extrabold ${circadian.isNight ? 'text-emerald-300' : 'text-emerald-700'}`}>{savedItems.length}</span>
                 </div>
               </div>
             </div>

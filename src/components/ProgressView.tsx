@@ -477,7 +477,9 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'overview'
                     ? 'text-white'
-                    : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
+                    : circadian.isNight
+                    ? 'text-slate-300 hover:text-white'
+                    : 'text-slate-700 hover:text-slate-950'
                 }`}
               >
                 {currentSubTab === 'overview' && (
@@ -488,7 +490,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   />
                 )}
                 <span className="relative z-10 flex items-center gap-1.5">
-                  <BarChart3 className={`w-3.5 h-3.5 ${currentSubTab === 'overview' ? 'text-teal-200' : 'text-indigo-600 dark:text-indigo-400'} stroke-[2.2]`} />
+                  <BarChart3 className={`w-3.5 h-3.5 ${currentSubTab === 'overview' ? 'text-teal-200' : (circadian.isNight ? 'text-cyan-400' : 'text-indigo-600')} stroke-[2.2]`} />
                   <span>Overview</span>
                 </span>
               </motion.button>
@@ -502,7 +504,9 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'errors'
                     ? 'text-white'
-                    : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
+                    : circadian.isNight
+                    ? 'text-slate-300 hover:text-white'
+                    : 'text-slate-700 hover:text-slate-950'
                 }`}
               >
                 {currentSubTab === 'errors' && (
@@ -519,7 +523,9 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                     <span className={`font-mono text-[9px] font-black px-1.5 py-0.5 rounded-full ${
                       currentSubTab === 'errors'
                         ? 'bg-rose-500/30 text-rose-100 border border-rose-400/40'
-                        : 'bg-rose-100 text-rose-900 dark:bg-rose-950/70 dark:text-rose-200 border border-rose-300/60'
+                        : circadian.isNight
+                        ? 'bg-rose-950/70 text-rose-200 border border-rose-700/60'
+                        : 'bg-rose-100 text-rose-900 border border-rose-300/60'
                     }`}>
                       {state.errorNotebook?.length}
                     </span>
@@ -536,7 +542,9 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'predictor'
                     ? 'text-white'
-                    : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
+                    : circadian.isNight
+                    ? 'text-slate-300 hover:text-white'
+                    : 'text-slate-700 hover:text-slate-950'
                 }`}
               >
                 {currentSubTab === 'predictor' && (
@@ -547,7 +555,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   />
                 )}
                 <span className="relative z-10 flex items-center gap-1.5">
-                  <TrendingUp className={`w-3.5 h-3.5 ${currentSubTab === 'predictor' ? 'text-teal-200' : 'text-emerald-600 dark:text-emerald-400'} stroke-[2.2]`} />
+                  <TrendingUp className={`w-3.5 h-3.5 ${currentSubTab === 'predictor' ? 'text-teal-200' : (circadian.isNight ? 'text-emerald-300' : 'text-emerald-600')} stroke-[2.2]`} />
                   <span>Score Predictor</span>
                 </span>
               </motion.button>

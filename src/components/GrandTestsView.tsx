@@ -521,13 +521,19 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         </div>
 
         {/* Top Utility Bar: Eyebrow + Live Circadian Focus Dropdown */}
-        <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/70">
+        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b ${
+          circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
+        }`}>
           <div className="flex items-center gap-2">
-            <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300">
+            <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${
+              circadian.isNight ? 'text-cyan-300' : 'text-teal-700'
+            }`}>
               PRACTICE • SIMULATE • IMPROVE
             </span>
             <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
-            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">
+            <span className={`text-[10px] font-mono font-bold tracking-widest uppercase hidden sm:inline ${
+              circadian.isNight ? 'text-slate-300' : 'text-slate-600'
+            }`}>
               300-QUESTION NBE SIMULATION
             </span>
           </div>
@@ -571,7 +577,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                   circadian.isNight ? 'bg-blue-950/60 border-blue-800/60 text-blue-200' : 'bg-blue-500/10 border-blue-200/80 text-blue-900'
                 }`}>
                   <span className={circadian.isNight ? 'text-blue-300' : 'text-blue-700 font-sans font-semibold'}>Latest:</span>
-                  <span className={`font-extrabold ${stats.latestPassed ? 'text-emerald-500' : stats.latestScore > 0 ? (circadian.isNight ? 'text-amber-300' : 'text-amber-800') : (circadian.isNight ? 'text-white' : 'text-slate-900')}`}>
+                  <span className={`font-extrabold ${stats.latestPassed ? 'text-emerald-400' : stats.latestScore > 0 ? (circadian.isNight ? 'text-amber-300' : 'text-amber-800') : (circadian.isNight ? 'text-white' : 'text-slate-900')}`}>
                     {stats.latestScore > 0 ? `${stats.latestScore}/300` : 'None'}
                   </span>
                 </div>
@@ -587,11 +593,15 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                   circadian.isNight ? 'bg-emerald-950/60 border-emerald-800/60 text-emerald-200' : 'bg-emerald-500/10 border-emerald-200/80 text-emerald-900'
                 }`}>
                   <span className={circadian.isNight ? 'text-emerald-300' : 'text-emerald-700 font-sans font-semibold'}>Pass Rate:</span>
-                  <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
+                  <span className={`font-extrabold ${circadian.isNight ? 'text-emerald-300' : 'text-emerald-600'}`}>
                     {stats.clearanceRate}%
                   </span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono font-bold bg-amber-500/10 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-300/80 dark:border-amber-800/80 shadow-2xs">
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono font-bold shadow-2xs border ${
+                  circadian.isNight
+                    ? 'bg-amber-950/60 text-amber-200 border-amber-800/80'
+                    : 'bg-amber-500/10 text-amber-900 border-amber-300/80'
+                }`}>
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
                   <span>Cutoff: 150/300</span>
                 </div>

@@ -389,17 +389,17 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                 : 'bg-white/95 border-slate-200/90 text-slate-700 shadow-[0_8px_24px_rgba(0,107,99,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)]'
             }`}>
               <div className="flex items-center gap-2">
-                <Target className="w-3.5 h-3.5 text-[#005B54] dark:text-teal-400 shrink-0" />
-                <span className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-[13px]">{displayedTopics.length}</span>
-                <span className="text-slate-700 dark:text-slate-300 text-[11px] font-semibold font-sans">Drill Topics</span>
+                <Target className={`w-3.5 h-3.5 shrink-0 ${circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}`} />
+                <span className={`font-extrabold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{displayedTopics.length}</span>
+                <span className={`text-[11px] font-semibold font-sans ${circadian.isNight ? 'text-slate-300' : 'text-slate-700'}`}>Drill Topics</span>
               </div>
-              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <span className={circadian.isNight ? 'text-slate-600' : 'text-slate-300'}>•</span>
               <div className="flex items-center gap-2">
                 <Brain className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                <span className="font-extrabold text-amber-700 dark:text-amber-300 text-xs sm:text-[13px]">
+                <span className={`font-extrabold text-xs sm:text-[13px] ${circadian.isNight ? 'text-amber-300' : 'text-amber-700'}`}>
                   {displayedTopics.filter((t) => t.isHighYield).length}
                 </span>
-                <span className="text-amber-800 dark:text-amber-200 text-[11px] font-semibold font-sans">High-Yield</span>
+                <span className={`text-[11px] font-semibold font-sans ${circadian.isNight ? 'text-amber-200' : 'text-amber-800'}`}>High-Yield</span>
               </div>
             </div>
           </div>

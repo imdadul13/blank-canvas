@@ -290,15 +290,19 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
                 : 'bg-teal-500/10 border-teal-300/80 text-teal-900'
             }`}
           >
-            <Target className="h-3.5 w-3.5 text-[#00685F] dark:text-teal-400" />
+            <Target className={`h-3.5 w-3.5 ${circadian.isNight ? 'text-teal-300' : 'text-[#00685F]'}`} />
             <span className="font-extrabold font-mono text-[11px]">{countdownText}</span>
-            <span className="text-[10px] text-teal-800/80 dark:text-teal-300 font-semibold">{countdownSub}</span>
+            <span className={`text-[10px] font-semibold ${circadian.isNight ? 'text-teal-300' : 'text-teal-800/80'}`}>{countdownSub}</span>
           </motion.div>
 
           {/* Golden Hour High-Yield Pill */}
           {isGoldenHourMode && (
             <div
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-900 dark:text-amber-300 text-[10px] font-bold font-mono tracking-wider uppercase shrink-0"
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase shrink-0 border ${
+                circadian.isNight
+                  ? 'bg-amber-950/60 border-amber-500/50 text-amber-200'
+                  : 'bg-amber-500/15 border-amber-400/50 text-amber-900'
+              }`}
               title="Golden Hour mode prioritizes high-yield clinical traps, rapid revision, and exam-pattern MCQs"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
@@ -330,7 +334,9 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
                 onClick={onOpenKeyConfig}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs shrink-0 cursor-pointer hover:opacity-90 transition-all ${
                   isAiConfigured === false
-                    ? 'bg-amber-500/10 border-amber-400/40 text-amber-800 dark:text-amber-300'
+                    ? circadian.isNight
+                      ? 'bg-amber-950/60 border-amber-800 text-amber-300'
+                      : 'bg-amber-500/10 border-amber-400/40 text-amber-800'
                     : `${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`
                 }`}
                 title="Click to view Gemini AI Engine status & settings"
