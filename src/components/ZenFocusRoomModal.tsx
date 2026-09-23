@@ -293,7 +293,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                 }`}
               />
             </span>
-            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-teal-200 font-['Outfit'] tracking-wide">
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-teal-200 font-display tracking-wide">
               <Headphones className="w-3.5 h-3.5 text-teal-300" />
               <span>Zen Clinical Sanctuary</span>
             </div>

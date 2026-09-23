@@ -142,12 +142,19 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
       aria-modal="true"
       aria-labelledby="app-settings-title"
     >
-      <div className="relative bg-white/95 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[0_24px_64px_rgba(0,0,0,0.16)] border border-slate-200/80 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[88vh] animate-in zoom-in-95 duration-150">
+      <div className="relative bg-white/95 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[0_24px_64px_rgba(0,0,0,0.14)] border border-slate-200/80 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[88vh] before:absolute before:inset-0 before:bg-gradient-to-tr before:from-teal-500/[0.03] before:via-white/0 before:to-emerald-500/[0.02] before:pointer-events-none animate-in zoom-in-95 duration-150">
+        
+        {/* Specular Top Shimmer Edge */}
+        <div
+          className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-teal-400/40 to-transparent pointer-events-none"
+          aria-hidden="true"
+        />
+
         {/* ── Modal Header ── */}
-        <div className="p-4 sm:p-5 border-b border-slate-200/80 bg-white/90 backdrop-blur-md flex items-center justify-between relative z-10">
+        <div className="p-4 sm:p-5 border-b border-slate-200/80 bg-white/90 backdrop-blur-md flex items-center justify-between relative z-10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-br from-[#006B63] to-[#004D47] text-white shadow-sm shadow-teal-950/15 shrink-0">
-              <Settings2 className="h-5 w-5 text-emerald-50 stroke-[1.8]" />
+            <div className="flex items-center justify-center h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-tr from-[#006B63] to-teal-500 text-white shadow-xs shadow-teal-900/20 shrink-0 ring-2 ring-white">
+              <Settings2 className="h-5 w-5 text-white stroke-[2]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -157,7 +164,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                 >
                   Preferences &amp; Settings
                 </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-teal-50 text-[#006B63] border border-teal-200/70">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-teal-50 text-[#006B63] border border-teal-200/70">
                   FMGE 2026
                 </span>
               </div>
@@ -177,33 +184,35 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
           </button>
         </div>
 
-        {/* ── Segmented Tab Switcher (Apple HIG Style) ── */}
-        <div className="px-3 sm:px-5 py-2.5 border-b border-slate-200/80 bg-slate-50/80 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-          {[
-            { id: 'theme', label: 'Atmosphere & Themes', shortLabel: 'Atmosphere', icon: Palette },
-            { id: 'mcq', label: 'Pacing & Goals', shortLabel: 'Pacing', icon: Clock },
-            { id: 'wellness', label: 'Wellness & Audio', shortLabel: 'Wellness', icon: Droplet },
-            { id: 'storage', label: 'Storage & PWA', shortLabel: 'Storage', icon: HardDrive },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  active
-                    ? 'bg-[#006B63] text-white shadow-2xs font-bold'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100/80 hover:text-slate-900'
-                }`}
-              >
-                <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-teal-100' : 'text-slate-400'}`} />
-                <span className="hidden sm:inline">{tab.label}</span>
-                <span className="sm:hidden">{tab.shortLabel}</span>
-              </button>
-            );
-          })}
+        {/* ── Segmented Tab Switcher (iOS Segmented Style) ── */}
+        <div className="px-4 sm:px-6 py-2.5 border-b border-slate-200/80 bg-slate-50/70 flex items-center justify-between gap-1.5 overflow-x-auto scrollbar-none shrink-0">
+          <div className="p-1 bg-slate-200/60 rounded-2xl flex items-center gap-1 w-full sm:w-auto">
+            {[
+              { id: 'theme', label: 'Atmosphere & Themes', shortLabel: 'Atmosphere', icon: Palette },
+              { id: 'mcq', label: 'Pacing & Goals', shortLabel: 'Pacing', icon: Clock },
+              { id: 'wellness', label: 'Wellness & Audio', shortLabel: 'Wellness', icon: Droplet },
+              { id: 'storage', label: 'Storage & PWA', shortLabel: 'Storage', icon: HardDrive },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                    active
+                      ? 'bg-white text-slate-900 shadow-xs font-bold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-[#006B63]' : 'text-slate-400'}`} />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.shortLabel}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Save confirmation toast */}
@@ -771,7 +780,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
 
         {/* ── Footer ── */}
         <div
-          className="p-3.5 sm:p-4 bg-slate-50/90 border-t border-slate-200/80 flex items-center justify-between"
+          className="p-3.5 sm:p-4 bg-slate-50/80 backdrop-blur-md border-t border-slate-200/80 flex items-center justify-between shrink-0"
           style={{ paddingBottom: 'max(0.875rem, calc(0.625rem + env(safe-area-inset-bottom, 0px)))' }}
         >
           <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">

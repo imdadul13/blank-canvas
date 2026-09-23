@@ -164,32 +164,38 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 font-['Plus_Jakarta_Sans'] text-slate-900 animate-in fade-in duration-150"
+      className="fixed inset-0 z-[100] bg-slate-950/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 font-sans text-slate-900 animate-in fade-in duration-150"
       style={{
         paddingTop: 'max(0.75rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
         paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))'
       }}
     >
-      <div className="relative bg-white/95 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90vh] animate-in zoom-in-95 duration-150">
+      <div className="relative bg-white/95 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[0_24px_64px_rgba(0,0,0,0.14)] border border-slate-200/80 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90vh] before:absolute before:inset-0 before:bg-gradient-to-tr before:from-amber-500/[0.03] before:via-white/0 before:to-teal-500/[0.02] before:pointer-events-none animate-in zoom-in-95 duration-150">
         
-        {/* ── 1. Premium Medical Intelligence Header ── */}
-        <div className="p-5 sm:p-6 border-b border-slate-100 bg-white/90 backdrop-blur-md relative z-10 shrink-0">
+        {/* Specular Top Shimmer Edge */}
+        <div
+          className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent pointer-events-none"
+          aria-hidden="true"
+        />
+
+        {/* ── 1. Apple Notification Center Intelligence Header ── */}
+        <div className="p-5 sm:p-6 border-b border-slate-200/80 bg-white/90 backdrop-blur-md relative z-10 shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3.5">
-              <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-br from-[#006B63] to-[#004D47] text-white flex items-center justify-center shadow-md shadow-teal-950/15 shrink-0">
-                <Brain className="h-6 w-6 text-emerald-100 stroke-[1.8]" />
+              <div className="h-12 w-12 sm:h-13 sm:w-13 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shadow-xs shadow-amber-500/25 shrink-0 ring-2 ring-white">
+                <Bell className="h-6 w-6 text-white stroke-[2]" />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-['Newsreader',_serif] text-xl sm:text-2xl font-semibold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent tracking-tight">
+                  <h3 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
                     Study Intelligence
                   </h3>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-teal-500/10 text-[#00685F] border border-teal-500/20">
-                    <ShieldCheck className="h-3 w-3 text-[#00685F]" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/70">
+                    <ShieldCheck className="h-3 w-3 text-amber-600" />
                     {visibleNotifications.length > 0 ? `${visibleNotifications.length} Active` : 'Sentinel Live'}
                   </span>
                 </div>
-                <p className="text-xs text-stone-500 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Diagnostic sensor monitoring clinical errors, spaced recall &amp; exam pacing
                 </p>
               </div>
@@ -198,57 +204,57 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-stone-400 hover:text-stone-700 rounded-full hover:bg-stone-200/50 transition-colors cursor-pointer shrink-0"
+              className="p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
               aria-label="Close Study Intelligence"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* System Telemetry Intelligence Strip */}
-          <div className="mt-4 pt-3.5 border-t border-stone-200/60 grid grid-cols-4 gap-2 text-center">
-            <div className="bg-slate-50/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-slate-200/90 shadow-2xs">
-              <span className="text-[9.5px] uppercase font-semibold text-stone-400 tracking-wider block">
+          {/* System Telemetry Intelligence Strip — 4 Apple Health Cards */}
+          <div className="mt-4 pt-3.5 border-t border-slate-100 grid grid-cols-4 gap-2 text-center">
+            <div className="bg-slate-50/80 backdrop-blur-xs rounded-2xl px-2 py-2 border border-slate-200/70 shadow-2xs">
+              <span className="text-[9.5px] uppercase font-semibold text-slate-400 tracking-wider block">
                 Target Score
               </span>
-              <span className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit']">
-                {state.settings?.targetScore || 200}<span className="text-[10px] text-stone-400 font-normal">/300</span>
+              <span className="text-xs sm:text-sm font-bold text-slate-900 font-display">
+                {state.settings?.targetScore || 200}<span className="text-[10px] text-slate-400 font-normal">/300</span>
               </span>
             </div>
 
-            <div className="bg-slate-50/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-slate-200/90 shadow-2xs">
-              <span className="text-[9.5px] uppercase font-semibold text-stone-400 tracking-wider block">
+            <div className="bg-slate-50/80 backdrop-blur-xs rounded-2xl px-2 py-2 border border-slate-200/70 shadow-2xs">
+              <span className="text-[9.5px] uppercase font-semibold text-slate-400 tracking-wider block">
                 Countdown
               </span>
-              <span className="text-xs sm:text-sm font-bold text-amber-600 font-['Outfit'] flex items-center justify-center gap-0.5">
-                <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
+              <span className="text-xs sm:text-sm font-bold text-amber-600 font-display flex items-center justify-center gap-0.5">
+                <Flame className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                 {daysRemaining}d
               </span>
             </div>
 
-            <div className="bg-slate-50/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-slate-200/90 shadow-2xs">
-              <span className="text-[9.5px] uppercase font-semibold text-stone-400 tracking-wider block">
+            <div className="bg-slate-50/80 backdrop-blur-xs rounded-2xl px-2 py-2 border border-slate-200/70 shadow-2xs">
+              <span className="text-[9.5px] uppercase font-semibold text-slate-400 tracking-wider block">
                 Error Vault
               </span>
-              <span className={`text-xs sm:text-sm font-bold font-['Outfit'] ${unreviewedMistakesCount > 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
+              <span className={`text-xs sm:text-sm font-bold font-display ${unreviewedMistakesCount > 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
                 {unreviewedMistakesCount} Traps
               </span>
             </div>
 
-            <div className="bg-slate-50/80 backdrop-blur-xs rounded-xl px-2 py-1.5 border border-slate-200/90 shadow-2xs">
-              <span className="text-[9.5px] uppercase font-semibold text-stone-400 tracking-wider block">
+            <div className="bg-slate-50/80 backdrop-blur-xs rounded-2xl px-2 py-2 border border-slate-200/70 shadow-2xs">
+              <span className="text-[9.5px] uppercase font-semibold text-slate-400 tracking-wider block">
                 Daily Goal
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#006B63] font-['Outfit']">
+              <span className="text-xs sm:text-sm font-bold text-[#006B63] font-display">
                 {state.settings?.dailyStudyHourGoal || 6}h/d
               </span>
             </div>
           </div>
         </div>
 
-        {/* ── 2. Segmented Filter Navigation Dock ── */}
-        <div className="px-4 sm:px-6 pt-2.5 pb-2.5 border-b border-slate-100 bg-white/80 backdrop-blur-md flex items-center justify-between gap-2 overflow-x-auto scrollbar-none shrink-0">
-          <div className="flex items-center gap-1.5">
+        {/* ── 2. iOS Segmented Pill Filter Dock ── */}
+        <div className="px-4 sm:px-6 py-2.5 border-b border-slate-200/80 bg-slate-50/70 flex items-center justify-between gap-2 overflow-x-auto scrollbar-none shrink-0">
+          <div className="p-1 bg-slate-200/60 rounded-2xl flex items-center gap-1 overflow-x-auto">
             {[
               { id: 'all', label: 'All Alerts' },
               { id: 'mistake', label: 'Error Traps' },
@@ -264,8 +270,8 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                   onClick={() => setActiveFilter(tab.id as any)}
                   className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                     active
-                      ? 'bg-[#00685F] text-white shadow-xs font-bold'
-                      : 'bg-slate-50/80 backdrop-blur-xs text-stone-600 border border-slate-200/90 hover:bg-white hover:text-stone-900 shadow-2xs'
+                      ? 'bg-white text-slate-900 shadow-xs font-bold'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   {tab.label}
@@ -278,7 +284,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
             <button
               type="button"
               onClick={handleDismissAll}
-              className="text-xs font-semibold text-stone-500 hover:text-stone-800 transition-colors cursor-pointer shrink-0"
+              className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
             >
               Dismiss All
             </button>
@@ -287,26 +293,26 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
 
         {/* Feedback Banner */}
         {wellnessLoggedToast && (
-          <div className="mx-5 mt-3 p-3 rounded-2xl bg-emerald-50/90 backdrop-blur-xs border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in shrink-0">
+          <div className="mx-5 mt-3 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in shrink-0">
             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
             <span className="font-semibold">{wellnessLoggedToast}</span>
           </div>
         )}
 
         {/* ── 3. Modal Body: Notifications & Proactive Intelligence ── */}
-        <div className="p-4 sm:p-6 pb-8 sm:pb-6 overflow-y-auto flex-1 space-y-4 bg-white/40 min-h-[300px]">
+        <div className="p-4 sm:p-6 pb-8 sm:pb-6 overflow-y-auto flex-1 space-y-4 bg-white/50 min-h-[300px]">
           {filteredNotifications.length === 0 ? (
             /* Proactive System Intelligence Briefing (When all caught up) */
             <div className="space-y-4 animate-in fade-in duration-150">
-              <div className="p-4 rounded-2xl bg-teal-50/80 backdrop-blur-md border border-teal-200/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,107,99,0.03)] flex items-start gap-3">
-                <div className="h-9 w-9 rounded-xl bg-[#006B63] text-white flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="p-4 sm:p-5 rounded-3xl bg-teal-50/70 border border-teal-200/80 flex items-start gap-3.5 shadow-2xs">
+                <div className="h-10 w-10 rounded-2xl bg-[#006B63] text-white flex items-center justify-center shrink-0 shadow-xs shadow-teal-900/20">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <div className="space-y-0.5">
                   <h4 className="text-sm font-bold text-slate-900">
                     Diagnostic Sentinels Clear — No Overdue Traps
                   </h4>
-                  <p className="text-xs text-stone-600 leading-relaxed">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     No urgent question traps or overdue spaced recalls require immediate remediation right now. Keep your momentum going with these recommended system actions:
                   </p>
                 </div>
@@ -314,15 +320,15 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
 
               {/* 3 Proactive System Recommendations */}
               <div className="space-y-2.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block px-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block px-1">
                   Highest-Yield Strategic Actions
                 </span>
 
                 {/* Card 1: Today's High-Yield Vignettes */}
-                <div className="p-3.5 rounded-2xl bg-slate-50/70 hover:bg-white backdrop-blur-md border border-slate-200/90 shadow-2xs hover:border-teal-300 transition-all flex items-center justify-between gap-3">
+                <div className="p-4 rounded-3xl bg-white hover:bg-slate-50/80 border border-slate-200/80 shadow-2xs hover:border-teal-300 transition-all flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-9 w-9 rounded-xl bg-teal-50 text-[#006B63] border border-teal-200/70 flex items-center justify-center shrink-0">
-                      <BookOpen className="h-4.5 w-4.5" />
+                    <div className="h-10 w-10 rounded-2xl bg-teal-50 text-[#006B63] border border-teal-200/70 flex items-center justify-center shrink-0">
+                      <BookOpen className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
@@ -330,7 +336,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                           {recommendedFocus.subjectName} (~{recommendedFocus.weightage}M)
                         </span>
                       </div>
-                      <h5 className="text-xs font-bold text-slate-900 truncate">
+                      <h5 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
                         {recommendedFocus.topicName}
                       </h5>
                     </div>
@@ -346,24 +352,24 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                         recommendedFocus.topicName
                       );
                     }}
-                    className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#00685F] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-2xs shrink-0"
+                    className="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold bg-[#00685F] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs shrink-0 active:scale-[0.98]"
                   >
                     <span>Solve 10 MCQs</span>
-                    <ArrowRight className="h-3 w-3" />
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
 
                 {/* Card 2: Grand Test Diagnostic Simulation */}
-                <div className="p-3.5 rounded-2xl bg-slate-50/70 hover:bg-white backdrop-blur-md border border-slate-200/90 shadow-2xs hover:border-indigo-300 transition-all flex items-center justify-between gap-3">
+                <div className="p-4 rounded-3xl bg-white hover:bg-slate-50/80 border border-slate-200/80 shadow-2xs hover:border-indigo-300 transition-all flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-9 w-9 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200/70 flex items-center justify-center shrink-0">
-                      <GraduationCap className="h-4.5 w-4.5" />
+                    <div className="h-10 w-10 rounded-2xl bg-indigo-50 text-indigo-700 border border-indigo-200/70 flex items-center justify-center shrink-0">
+                      <GraduationCap className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">
                         Full-Length Simulation
                       </span>
-                      <h5 className="text-xs font-bold text-slate-900 truncate">
+                      <h5 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
                         {state.grandTests && state.grandTests.length > 0
                           ? `Latest Mock: ${state.grandTests[0].title} (${state.grandTests[0].score}/300)`
                           : 'Benchmark Grand Test (300 Questions)'}
@@ -377,24 +383,24 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                       onClose();
                       onNavigateTab('grandtests');
                     }}
-                    className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all cursor-pointer shadow-2xs shrink-0"
+                    className="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all cursor-pointer shadow-xs shrink-0 active:scale-[0.98]"
                   >
                     <span>Open Mock Room</span>
-                    <ArrowRight className="h-3 w-3" />
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
 
                 {/* Card 3: Error Vault Distractor Drill */}
-                <div className="p-3.5 rounded-2xl bg-slate-50/70 hover:bg-white backdrop-blur-md border border-slate-200/90 shadow-2xs hover:border-rose-300 transition-all flex items-center justify-between gap-3">
+                <div className="p-4 rounded-3xl bg-white hover:bg-slate-50/80 border border-slate-200/80 shadow-2xs hover:border-rose-300 transition-all flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-9 w-9 rounded-xl bg-rose-50 text-rose-700 border border-rose-200/70 flex items-center justify-center shrink-0">
-                      <AlertTriangle className="h-4.5 w-4.5" />
+                    <div className="h-10 w-10 rounded-2xl bg-rose-50 text-rose-700 border border-rose-200/70 flex items-center justify-center shrink-0">
+                      <AlertTriangle className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600">
                         Error Notebook Drill
                       </span>
-                      <h5 className="text-xs font-bold text-slate-900 truncate">
+                      <h5 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
                         {unreviewedMistakesCount > 0
                           ? `${unreviewedMistakesCount} Unreviewed Clinical Traps`
                           : 'Zero Overdue Traps — Review Mastered Vault'}
@@ -408,48 +414,48 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                       onClose();
                       onNavigateTab('errors');
                     }}
-                    className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition-all cursor-pointer shadow-2xs shrink-0"
+                    className="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white transition-all cursor-pointer shadow-xs shrink-0 active:scale-[0.98]"
                   >
                     <span>Inspect Vault</span>
-                    <ArrowRight className="h-3 w-3" />
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
             </div>
           ) : (
-            /* Active Notification Cards List */
+            /* Active Notification Cards List — Apple iOS Grouped Cards */
             <div className="space-y-3 animate-in fade-in duration-150">
               {filteredNotifications.map((n) => {
                 const Icon = n.icon;
                 return (
                   <div
                     key={n.id}
-                    className="p-4 rounded-2xl bg-slate-50/70 hover:bg-white backdrop-blur-md border border-slate-200/90 shadow-2xs hover:border-teal-300/70 transition-all space-y-3 group"
+                    className="p-4 sm:p-5 rounded-3xl bg-slate-50/70 hover:bg-white backdrop-blur-md border border-slate-200/80 shadow-2xs hover:border-teal-300/70 transition-all space-y-3 group relative overflow-hidden"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className={`h-10 w-10 rounded-2xl border flex items-center justify-center shrink-0 shadow-2xs ${n.iconColor}`}>
+                    <div className="flex items-start gap-3.5">
+                      <div className={`h-11 w-11 rounded-2xl border flex items-center justify-center shrink-0 shadow-2xs ${n.iconColor}`}>
                         <Icon className="h-5 w-5" />
                       </div>
 
                       <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider bg-white/90 border border-stone-200/80 text-stone-700">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider bg-white border border-slate-200 text-slate-700">
                               {n.badge || n.category}
                             </span>
                             {n.priority === 'high' && (
-                              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold font-mono bg-rose-50 text-rose-700 border border-rose-200/70">
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-rose-50 text-rose-700 border border-rose-200/70">
                                 CRITICAL
                               </span>
                             )}
                           </div>
 
                           <div className="flex items-center gap-2 shrink-0">
-                            <span className="text-[10px] text-stone-400 font-mono">{n.time}</span>
+                            <span className="text-[10px] text-slate-400 font-mono">{n.time}</span>
                             <button
                               type="button"
                               onClick={(e) => handleDismiss(n, e)}
-                              className="p-1 text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 rounded-lg transition-colors cursor-pointer"
+                              className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                               title="Dismiss insight"
                             >
                               <X className="h-3.5 w-3.5" />
@@ -461,7 +467,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                           {n.title}
                         </h4>
 
-                        <p className="text-xs text-stone-600 leading-relaxed">
+                        <p className="text-xs text-slate-600 leading-relaxed">
                           {n.description}
                         </p>
                       </div>
@@ -471,7 +477,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                       <button
                         type="button"
                         onClick={n.onAction}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#00685F] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#00685F] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs active:scale-[0.98]"
                       >
                         <span>{n.actionLabel}</span>
                         <ArrowRight className="h-3.5 w-3.5" />
@@ -486,10 +492,10 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
 
         {/* ── 4. Polished Action Footer ── */}
         <div
-          className="p-4 bg-white/90 backdrop-blur-md border-t border-slate-100 flex items-center justify-between shrink-0"
+          className="p-4 bg-slate-50/80 backdrop-blur-md border-t border-slate-200/80 flex items-center justify-between shrink-0"
           style={{ paddingBottom: 'max(0.875rem, calc(0.625rem + env(safe-area-inset-bottom, 0px)))' }}
         >
-          <div className="flex items-center gap-1.5 text-[11px] text-stone-500 font-medium">
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Sensed live from your progress &amp; schedule</span>
           </div>
@@ -497,12 +503,11 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 rounded-xl hover:bg-white/80 transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-200/50 transition-colors cursor-pointer"
           >
             Close
           </button>
         </div>
-
       </div>
     </div>,
     document.body
