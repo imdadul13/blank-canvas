@@ -870,13 +870,13 @@ const DEFAULT_CARD_THEME: SubjectCardTheme = {
   primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,107,99,0.25)]',
 };
 
-const SECTION_ENTER = (delay: number, reduced: boolean | null) =>
-  reduced ? {} : { delay, y: 10, opacity: 0 };
-const SECTION_SHOW = { y: 0, opacity: 1 };
-const SECTION_TRANSITION = (reduced: boolean | null) =>
-  reduced ? { duration: 0 } : { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const };
+const SECTION_ENTER = (_delay: number, reduced: boolean | null) =>
+  reduced ? {} : { y: 20, opacity: 0, scale: 0.985 };
+const SECTION_SHOW = { y: 0, opacity: 1, scale: 1 };
+const SECTION_TRANSITION = (reduced: boolean | null, delay: number = 0) =>
+  reduced ? { duration: 0 } : { type: 'spring' as const, stiffness: 280, damping: 24, delay };
 const SPRING = (reduced: boolean | null) =>
-  reduced ? { duration: 0 } : { type: 'spring' as const, stiffness: 420, damping: 34 };
+  reduced ? { duration: 0 } : { type: 'spring' as const, stiffness: 420, damping: 30 };
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   state,
@@ -1534,8 +1534,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <motion.div
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
-          transition={SECTION_TRANSITION(reducedMotion)}
-          className={`rounded-3xl border border-teal-200/60 shadow-[0_8px_32px_rgba(0,107,99,0.05)] backdrop-blur-xl p-4 sm:p-5 relative transition-colors duration-700 ${heroTheme.bannerBg}`}
+          transition={SECTION_TRANSITION(reducedMotion, 0)}
+          className={`rounded-3xl border border-teal-200/70 shadow-[0_8px_32px_rgba(0,107,99,0.06)] backdrop-blur-xl p-4 sm:p-5 relative z-30 transition-colors duration-700 ${heroTheme.bannerBg}`}
         >
           {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so dropdown popover never clips) */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
@@ -1558,30 +1558,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <DoctorMountainArt
               variant="backdrop"
               forceTimeOfDay={timeOfDay}
-              className="transition-opacity duration-700 opacity-40 sm:opacity-50 md:opacity-[0.62]"
+              className="transition-opacity duration-700 opacity-25 sm:opacity-30 md:opacity-35 dark:opacity-50"
             />
           </div>
 
           {/* Top Utility Bar: Greeting Badge + Circadian Focus Dropdown */}
-          <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/60">
+          <div className="relative z-40 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/70 dark:border-slate-800/70">
             <div className="flex items-center gap-2">
-              <div className={`inline-flex items-center gap-1.5 text-xs font-semibold ${timeOfDay === 'night' ? 'text-teal-200/90' : 'text-slate-600'}`}>
-                <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.2] ${heroTheme.greetingIconColor}`} />
+              <div className={`inline-flex items-center gap-1.5 text-xs font-bold ${timeOfDay === 'night' ? 'text-teal-200' : 'text-slate-900 dark:text-slate-100'}`}>
+                <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.4] ${heroTheme.greetingIconColor}`} />
                 <span>{greeting}</span>
               </div>
-              <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
-              <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">
+              <span className={circadian.isNight ? 'text-sky-700' : 'text-stone-400'}>•</span>
+              <span className="text-[10px] font-mono font-bold tracking-widest text-slate-700 dark:text-slate-300 uppercase hidden sm:inline">
                 CLINICAL MASTERY DASHBOARD
               </span>
             </div>
-            <CircadianFocusDropdown circadian={circadian} />
+            <CircadianFocusDropdown circadian={circadian} align="right" />
           </div>
 
           {/* Main Hero Content Area: Doctor Name & Interactive Creed Badge */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-3 relative z-10">
             {/* Left side: Doctor Name + Strategic Subtitle */}
             <div className="space-y-1 sm:space-y-1.5 max-w-xl">
-              <h1 className={`text-2xl sm:text-3xl lg:text-[34px] font-extrabold tracking-[-0.03em] leading-tight ${heroTheme.nameColor}`}>
+              <h1 className={`text-2xl sm:text-3xl lg:text-[34px] font-black tracking-[-0.03em] leading-tight ${heroTheme.nameColor}`}>
                 {userName.startsWith('Dr.') ? (
                   <>
                     <span className="text-[#005B54] dark:text-teal-400">Dr. </span>
@@ -1591,7 +1591,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   userName
                 )}
               </h1>
-              <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic ${heroTheme.subtitleColor}`}>
+              <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic font-semibold ${heroTheme.subtitleColor}`}>
                 &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
               </p>
               <div
@@ -1606,7 +1606,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     className="w-full h-full"
                   />
                 </div>
-                <p className={`text-xs leading-relaxed italic ${heroTheme.subtitleColor}`}>
+                <p className={`text-xs leading-relaxed italic font-semibold ${heroTheme.subtitleColor}`}>
                   &ldquo;{doctorCreed.quote}&rdquo;
                 </p>
               </div>
@@ -1626,8 +1626,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               }}
               className={`hidden md:flex items-center gap-3.5 rounded-2xl px-4 py-2.5 cursor-pointer select-none transition-all duration-300 group shrink-0 ${
                 timeOfDay === 'night'
-                  ? 'bg-sky-950/80 backdrop-blur-xl border border-cyan-500/30 shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:border-cyan-400/60'
-                  : 'bg-white/90 backdrop-blur-xl border border-teal-200/60 shadow-xs hover:bg-white hover:border-[#006B63]/40 hover:shadow-md'
+                  ? 'bg-sky-950/85 backdrop-blur-xl border border-cyan-500/40 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-cyan-400'
+                  : 'bg-white/95 backdrop-blur-xl border border-teal-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#006B63]/60 hover:shadow-md'
               }`}
             >
               <div className="h-8 w-12 shrink-0 relative flex items-center justify-center">
@@ -1671,10 +1671,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => handleSubTabChange('planner')}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.03] hover:from-amber-500/[0.12] hover:via-white hover:to-orange-500/[0.06] backdrop-blur-md border border-amber-200/80 hover:border-amber-400 shadow-[0_4px_16px_rgba(245,158,11,0.06)] hover:shadow-[0_8px_24px_rgba(245,158,11,0.16)] transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 hover:border-amber-300/90 shadow-xs hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
               <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-xs shadow-amber-500/25 transition-all group-hover:scale-110 group-hover:rotate-[-4deg]">
-                <Calendar className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform" />
+                <Calendar className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
                 <span className="absolute -top-1 -right-1 flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
@@ -1682,18 +1682,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-amber-700 transition-colors shrink-0">
+                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-950 dark:text-white group-hover:text-amber-700 transition-colors shrink-0">
                     <AnimatedNumber value={daysRemaining} />
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-800 border border-amber-200/80 shrink-0">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 border border-amber-300/90 shrink-0">
                     Live
                   </span>
                 </div>
-                <span className="block text-[9.5px] sm:text-[11px] font-medium text-amber-900/70 group-hover:text-amber-800 transition-colors leading-tight mt-0.5">
+                <span className="block text-[10px] sm:text-[11.5px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-amber-900 transition-colors leading-tight mt-0.5">
                   days to FMGE
                 </span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-amber-400 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block" />
+              <ChevronRight className="w-3.5 h-3.5 text-amber-500 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block stroke-[2.5]" />
             </motion.div>
 
             {/* Card 2: Target Score — Apple Ultramarine / Sapphire */}
@@ -1702,26 +1702,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => setIsPassingGapModalOpen(true)}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-gradient-to-br from-blue-500/[0.08] via-white to-cyan-500/[0.03] hover:from-blue-500/[0.12] hover:via-white hover:to-cyan-500/[0.06] backdrop-blur-md border border-blue-200/80 hover:border-blue-400 shadow-[0_4px_16px_rgba(59,130,246,0.06)] hover:shadow-[0_8px_24px_rgba(59,130,246,0.16)] transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 hover:border-blue-300/90 shadow-xs hover:shadow-md transition-all min-w-0 cursor-pointer"
               title="Click to view 150/300 Passing Score Gap Analysis"
             >
               <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-blue-500 to-cyan-500 text-white shadow-xs shadow-blue-500/25 transition-all group-hover:scale-110">
-                <Target className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform" />
+                <Target className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-blue-700 transition-colors shrink-0">
+                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-950 dark:text-white group-hover:text-blue-700 transition-colors shrink-0">
                     {savedTargetScore ? `${savedTargetScore}+` : '200+'}
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-800 border border-blue-200/80 shrink-0">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-blue-100 dark:bg-blue-950/80 text-blue-950 dark:text-blue-200 border border-blue-300/90 shrink-0">
                     150 Pass
                   </span>
                 </div>
-                <span className="block text-[9.5px] sm:text-[11px] font-medium text-blue-900/70 group-hover:text-blue-800 transition-colors leading-tight mt-0.5">
+                <span className="block text-[10px] sm:text-[11.5px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-blue-900 transition-colors leading-tight mt-0.5">
                   Target Score
                 </span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block" />
+              <ChevronRight className="w-3.5 h-3.5 text-blue-500 group-hover:text-blue-700 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block stroke-[2.5]" />
             </motion.div>
 
             {/* Card 3: Subjects count — Apple Violet / Iris */}
@@ -1730,25 +1730,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => onNavigateTab('syllabus')}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-gradient-to-br from-violet-500/[0.08] via-white to-purple-500/[0.03] hover:from-violet-500/[0.12] hover:via-white hover:to-purple-500/[0.06] backdrop-blur-md border border-violet-200/80 hover:border-violet-400 shadow-[0_4px_16px_rgba(139,92,246,0.06)] hover:shadow-[0_8px_24px_rgba(139,92,246,0.16)] transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 hover:border-violet-300/90 shadow-xs hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
               <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-violet-500 to-purple-600 text-white shadow-xs shadow-violet-500/25 transition-all group-hover:scale-110 group-hover:rotate-[4deg]">
-                <BookOpen className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform" />
+                <BookOpen className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-violet-700 transition-colors shrink-0">
+                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-950 dark:text-white group-hover:text-violet-700 transition-colors shrink-0">
                     19
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-violet-500/10 text-violet-800 border border-violet-200/80 shrink-0">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-950/80 text-purple-950 dark:text-purple-200 border border-purple-300/90 shrink-0">
                     NBE Core
                   </span>
                 </div>
-                <span className="block text-[9.5px] sm:text-[11px] font-medium text-violet-900/70 group-hover:text-violet-800 transition-colors leading-tight mt-0.5">
+                <span className="block text-[10px] sm:text-[11.5px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-violet-900 transition-colors leading-tight mt-0.5">
                   Subjects
                 </span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-violet-400 group-hover:text-violet-600 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block" />
+              <ChevronRight className="w-3.5 h-3.5 text-violet-500 group-hover:text-violet-700 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block stroke-[2.5]" />
             </motion.div>
 
             {/* Card 4: Study Streak — Apple Emerald / Mint */}
@@ -1757,26 +1757,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => onNavigateTab('progress')}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.03] hover:from-emerald-500/[0.12] hover:via-white hover:to-teal-500/[0.06] backdrop-blur-md border border-emerald-200/80 hover:border-emerald-400 shadow-[0_4px_16px_rgba(16,185,129,0.06)] hover:shadow-[0_8px_24px_rgba(16,185,129,0.16)] transition-all min-w-0 cursor-pointer"
+              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-300/90 shadow-xs hover:shadow-md transition-all min-w-0 cursor-pointer"
             >
               <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-xs shadow-emerald-500/25 transition-all group-hover:scale-110">
-                <Activity className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform" />
+                <Activity className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-900 group-hover:text-emerald-700 transition-colors shrink-0">
+                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-950 dark:text-white group-hover:text-emerald-700 transition-colors shrink-0">
                     {currentStreak || 1}d
                   </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-800 border border-emerald-200/80 shrink-0">
-                    <span className="h-1 w-1 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/80 text-emerald-950 dark:text-emerald-200 border border-emerald-300/90 shrink-0">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Active
                   </span>
                 </div>
-                <span className="block text-[9.5px] sm:text-[11px] font-medium text-emerald-900/70 group-hover:text-emerald-800 transition-colors leading-tight mt-0.5">
+                <span className="block text-[10px] sm:text-[11.5px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-emerald-900 transition-colors leading-tight mt-0.5">
                   Study Streak
                 </span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-emerald-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block" />
+              <ChevronRight className="w-3.5 h-3.5 text-emerald-500 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block stroke-[2.5]" />
             </motion.div>
           </div>
         </motion.div>
@@ -1790,9 +1790,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             opacity: isHeaderVisible || isAtTop || scrollY <= 260 ? 1 : 0,
           }}
           transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-          className={`sticky top-[54px] sm:top-[58px] z-20 py-2 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
+          className={`sticky top-[56px] sm:top-[64px] z-20 py-2 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
             scrollY > 260
-              ? 'bg-white/85 backdrop-blur-2xl border-b border-slate-200/50 shadow-xs'
+              ? 'bg-white/95 backdrop-blur-2xl border-b border-slate-200/80 shadow-sm'
               : 'bg-transparent'
           } ${isHeaderVisible || isAtTop || scrollY <= 260 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
@@ -1808,13 +1808,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     key={f.id}
                     type="button"
                     onClick={() => setSelectedFilterSubjectId(f.id)}
-                    whileHover={reducedMotion ? undefined : { scale: 1.03 }}
+                    whileHover={reducedMotion ? undefined : { scale: 1.04 }}
                     whileTap={reducedMotion ? undefined : { scale: 0.96 }}
                     aria-pressed={active}
-                    className={`relative snap-start inline-flex items-center px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[34px] ${
+                    className={`relative snap-start inline-flex items-center px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[34px] ${
                       active
                         ? 'text-white'
-                        : 'text-slate-600 hover:text-[#006B63] bg-white/85 backdrop-blur-md border border-slate-200/90 hover:border-teal-300 hover:bg-white shadow-2xs'
+                        : 'text-slate-800 dark:text-slate-200 hover:text-[#006B63] bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300/90 dark:border-slate-700 hover:border-teal-400 hover:bg-white shadow-2xs'
                     }`}
                   >
                     {active && (

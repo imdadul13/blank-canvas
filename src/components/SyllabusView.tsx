@@ -185,8 +185,8 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
         className={`relative rounded-[28px] sm:rounded-[32px] border p-4 sm:p-5 lg:p-5.5 shadow-sm transition-colors duration-700 ${
           circadian.isNight
-            ? 'bg-gradient-to-r from-[#0B1523] via-[#0F1E32] to-[#0A1829] border-sky-800/60 shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
-            : 'bg-gradient-to-r from-amber-50/50 via-white to-teal-50/40 border-stone-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.03)]'
+            ? 'bg-slate-900/95 border-sky-800/60 shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
+            : 'bg-white/95 dark:bg-slate-900/95 border-slate-200/90 dark:border-slate-800 shadow-sm'
         }`}
       >
         {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so popover never clips) */}
@@ -194,7 +194,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
           <CircadianHeaderAtmosphere circadian={circadian} />
 
           {/* Scenic mountain & sunrise backdrop on far right */}
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-72 sm:w-96 select-none opacity-40 sm:opacity-60 dark:opacity-20">
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-72 sm:w-96 select-none opacity-25 sm:opacity-35 dark:opacity-20 [mask-image:linear-gradient(to_left,black_50%,transparent_100%)]">
             <svg viewBox="0 0 380 160" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
               <defs>
                 <radialGradient id="syl-sun-glow" cx="50%" cy="50%" r="50%">
@@ -265,44 +265,47 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
               </div>
             </div>
 
-            {/* Interactive Navigation Switcher Pills */}
-            <div className="flex items-center gap-2.5 pt-0.5">
-              <motion.button
-                whileHover={{ scale: 1.03, y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            {/* Apple SwiftUI Segmented Subtab Switcher */}
+            <div className="inline-flex p-1 rounded-full bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
+              <button
                 type="button"
                 onClick={() => handleSubTabChange('curriculum')}
-                className={`inline-flex items-center gap-2 px-4.5 py-2 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer ${
+                className={`relative inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                   currentSubTab === 'curriculum'
-                    ? 'bg-[#005B54] text-white hover:bg-[#004D47] shadow-md shadow-teal-900/20 ring-1 ring-white/20'
-                    : circadian.isNight
-                    ? 'bg-slate-800/90 text-slate-200 hover:bg-slate-700 border border-slate-700'
-                    : 'bg-white/95 text-slate-700 hover:bg-slate-100 border border-slate-200/90'
+                    ? 'text-white'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <BookOpen className="w-3.5 h-3.5" />
-                <span>Curriculum</span>
-                <ArrowRight className="w-3 h-3 stroke-[2.5]" />
-              </motion.button>
+                {currentSubTab === 'curriculum' && (
+                  <motion.span
+                    layoutId="syllabus-active-subtab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    className="absolute inset-0 rounded-full bg-[#00685F] shadow-xs"
+                  />
+                )}
+                <BookOpen className="w-3.5 h-3.5 relative z-10" />
+                <span className="relative z-10">Curriculum</span>
+              </button>
 
-              <motion.button
-                whileHover={{ scale: 1.03, y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              <button
                 type="button"
                 onClick={() => handleSubTabChange('revision')}
-                className={`inline-flex items-center gap-2 px-4.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                className={`relative inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                   currentSubTab === 'revision'
-                    ? 'bg-[#005B54] text-white hover:bg-[#004D47] shadow-md shadow-teal-900/20 ring-1 ring-white/20'
-                    : circadian.isNight
-                    ? 'bg-slate-800/90 text-slate-200 hover:bg-slate-700 border border-slate-700'
-                    : 'bg-white/95 text-slate-700 hover:bg-slate-100 border border-slate-200/90'
+                    ? 'text-white'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <RotateCw className="w-3.5 h-3.5" />
-                <span>Revision Matrix</span>
-              </motion.button>
+                {currentSubTab === 'revision' && (
+                  <motion.span
+                    layoutId="syllabus-active-subtab"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    className="absolute inset-0 rounded-full bg-[#00685F] shadow-xs"
+                  />
+                )}
+                <RotateCw className="w-3.5 h-3.5 relative z-10" />
+                <span className="relative z-10">Revision Matrix</span>
+              </button>
             </div>
           </div>
 
@@ -423,14 +426,18 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
       {/* ================= 4 METRIC CARDS ROW (Apple Bento Style) ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Circular Gauge Progress — Sapphire Ultramarine */}
-        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/[0.07] via-white to-cyan-500/[0.03] backdrop-blur-xl border border-blue-200/80 shadow-[0_4px_20px_rgba(59,130,246,0.06)] hover:shadow-[0_8px_25px_rgba(59,130,246,0.14)] hover:border-blue-300 transition-all flex items-center gap-4 group">
+        <motion.div
+          whileHover={{ y: -4, scale: 1.02 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center gap-4 group"
+        >
           <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 76 76">
               <circle
                 cx="38"
                 cy="38"
                 r={radius}
-                className="text-blue-100"
+                className="text-slate-100 dark:text-slate-800"
                 strokeWidth="6"
                 stroke="currentColor"
                 fill="transparent"
@@ -439,7 +446,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 cx="38"
                 cy="38"
                 r={radius}
-                className="text-blue-600"
+                className="text-blue-600 dark:text-blue-400"
                 strokeWidth="6"
                 strokeDasharray={circumference}
                 initial={{ strokeDashoffset: circumference }}
@@ -450,77 +457,89 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 fill="transparent"
               />
             </svg>
-            <span className="absolute font-display font-extrabold text-sm text-blue-950 font-mono">
+            <span className="absolute font-display font-black text-sm text-slate-950 dark:text-white font-mono">
               {overallStats.percentage}%
             </span>
           </div>
 
           <div className="min-w-0 space-y-0.5">
-            <h4 className="text-[10px] font-bold text-blue-700 uppercase tracking-wider font-mono">
+            <h4 className="text-[10px] font-black text-blue-900 dark:text-blue-300 uppercase tracking-wider font-mono">
               Curriculum Completed
             </h4>
-            <div className="text-base sm:text-lg font-extrabold font-display text-slate-900">
+            <div className="text-base sm:text-lg font-black font-display text-slate-950 dark:text-white">
               {overallStats.completedNotes} / {overallStats.totalTopics}
             </div>
-            <p className="text-[11px] text-slate-500 truncate">
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
               {overallStats.completedSubjectsCount} / 19 subjects covered
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Metric 2: Total Subjects — Iris Violet */}
-        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-violet-500/[0.07] via-white to-purple-500/[0.03] backdrop-blur-xl border border-violet-200/80 shadow-[0_4px_20px_rgba(139,92,246,0.06)] hover:shadow-[0_8px_25px_rgba(139,92,246,0.14)] hover:border-violet-300 transition-all flex items-center gap-4 group">
+        <motion.div
+          whileHover={{ y: -4, scale: 1.02 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex items-center gap-4 group"
+        >
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-500 to-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-violet-500/25">
             <BookOpen className="h-5 w-5" />
           </div>
           <div className="min-w-0 space-y-0.5">
-            <div className="text-2xl font-extrabold font-display text-slate-900 leading-tight">
+            <div className="text-2xl font-black font-display text-slate-950 dark:text-white leading-tight">
               19
             </div>
-            <h4 className="text-xs font-bold text-violet-900 font-display">
+            <h4 className="text-xs font-bold text-violet-950 dark:text-violet-200 font-display">
               Total Subjects
             </h4>
-            <p className="text-[11px] text-slate-500 truncate">
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
               FMGE core blueprint
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Metric 3: Estimated Study Hours — Radiant Amber */}
-        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/[0.07] via-white to-orange-500/[0.03] backdrop-blur-xl border border-amber-200/80 shadow-[0_4px_20px_rgba(245,158,11,0.06)] hover:shadow-[0_8px_25px_rgba(245,158,11,0.14)] hover:border-amber-300 transition-all flex items-center gap-4 group">
+        <motion.div
+          whileHover={{ y: -4, scale: 1.02 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-amber-300 transition-all flex items-center gap-4 group"
+        >
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-amber-500/25">
             <Clock className="h-5 w-5" />
           </div>
           <div className="min-w-0 space-y-0.5">
-            <div className="text-2xl font-extrabold font-display text-slate-900 leading-tight">
+            <div className="text-2xl font-black font-display text-slate-950 dark:text-white leading-tight">
               ~ 480h
             </div>
-            <h4 className="text-xs font-bold text-amber-900 font-display">
+            <h4 className="text-xs font-bold text-amber-950 dark:text-amber-200 font-display">
               Estimated Study Hours
             </h4>
-            <p className="text-[11px] text-slate-500 truncate">
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
               Personalized pacing
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Metric 4: Target Score — Mint Emerald */}
-        <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500/[0.07] via-white to-teal-500/[0.03] backdrop-blur-xl border border-emerald-200/80 shadow-[0_4px_20px_rgba(16,185,129,0.06)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.14)] hover:border-emerald-300 transition-all flex items-center gap-4 group">
+        <motion.div
+          whileHover={{ y: -4, scale: 1.02 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex items-center gap-4 group"
+        >
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/25">
             <Target className="h-5 w-5" />
           </div>
           <div className="min-w-0 space-y-0.5">
-            <div className="text-2xl font-extrabold font-display text-slate-900 leading-tight">
+            <div className="text-2xl font-black font-display text-slate-950 dark:text-white leading-tight">
               {state.settings?.targetScore || 200}+
             </div>
-            <h4 className="text-xs font-bold text-emerald-900 font-display">
+            <h4 className="text-xs font-bold text-emerald-950 dark:text-emerald-200 font-display">
               Target Score
             </h4>
-            <p className="text-[11px] text-slate-500 truncate">
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
               Qualify with confidence
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* ================= PHASE FILTERS & SEARCH & SORT ================= */}

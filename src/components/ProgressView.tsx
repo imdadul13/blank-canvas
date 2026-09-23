@@ -244,7 +244,12 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 space-y-5 sm:space-y-6 text-[#121E1B] font-sans antialiased">
       {/* ================= 1. PERFORMANCE HEADER CARD & SECONDARY SWITCHER ================= */}
-      <header className={`relative rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}>
+      <motion.header
+        initial={{ opacity: 0, y: 16, scale: 0.99 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        className={`relative rounded-3xl border ${circadian.cardBorder} p-4 sm:px-6 sm:py-4 transition-colors duration-700 ${circadian.bannerBg}`}
+      >
         {/* Background Atmosphere & Lighthouse Art (isolated with overflow-hidden so dropdown never clips) */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
           {/* Dynamic Circadian Ambient Diagnostics Atmosphere & 2px Shimmer Track */}
@@ -267,7 +272,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           </svg>
 
           {/* Premium Lighthouse of Insight & Navigational Celestial Compass Artwork */}
-          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[520px] overflow-hidden opacity-45 sm:opacity-60 md:opacity-[0.72] select-none pointer-events-none block">
+          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[520px] overflow-hidden opacity-25 sm:opacity-30 dark:opacity-60 select-none pointer-events-none block [mask-image:linear-gradient(to_left,black_60%,transparent_100%)]">
             <svg viewBox="0 0 520 145" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
               <defs>
                 <linearGradient id="progress-cliff-grad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -414,23 +419,23 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-indigo-700 dark:text-indigo-300">
+                  <span className="text-[10px] sm:text-[11px] font-mono font-black tracking-[0.2em] uppercase text-indigo-950 dark:text-indigo-200">
                     ANALYZE • IDENTIFY • IMPROVE
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
+                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-black tracking-tight font-display leading-tight">
                     <span className="text-[#005B54] dark:text-teal-400">PERFORMANCE </span>
-                    <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>&amp; DIAGNOSTICS</span>
+                    <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>&amp; DIAGNOSTICS</span>
                   </h1>
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-indigo-500'}`} />
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-indigo-600'}`} />
                     Diagnostic Engine
                   </span>
                 </div>
 
-                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
+                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-100' : 'text-slate-800 dark:text-slate-100 font-semibold'}`}>
                   Know exactly where you stand. Diagnose preparation depth, clinical solving accuracy, and high-yield retention.
                 </p>
               </div>
@@ -438,28 +443,28 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
             {/* Live Circadian Phase Dropdown & Date Badge */}
             <div className="flex items-center gap-2 self-start lg:self-center shrink-0 flex-wrap sm:flex-nowrap">
-              <CircadianFocusDropdown circadian={circadian} />
+              <CircadianFocusDropdown circadian={circadian} align="right" />
               <motion.div
                 whileHover={{ scale: 1.03, y: -1 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono shadow-2xs backdrop-blur-md shrink-0 border font-bold ${
                   circadian.isNight
                     ? 'bg-slate-900/90 border-sky-500/40 text-cyan-200'
-                    : 'bg-indigo-500/10 border-indigo-300/80 text-indigo-900'
+                    : 'bg-indigo-500/15 border-indigo-300 text-indigo-950'
                 }`}
               >
-                <Calendar className={`w-3.5 h-3.5 ${circadian.isNight ? 'text-cyan-400' : 'text-[#4338CA]'}`} />
+                <Calendar className={`w-3.5 h-3.5 ${circadian.isNight ? 'text-cyan-400' : 'text-indigo-700'} stroke-[2.2]`} />
                 <span>Updated: {formattedToday}</span>
               </motion.div>
             </div>
           </div>
 
-          {/* Secondary Switcher: [ Overview ] [ Error Vault ] [ Score Predictor ] */}
-          <div className={`flex items-center justify-between gap-2 pt-2.5 border-t flex-wrap ${circadian.isNight ? 'border-sky-800/50' : 'border-slate-200/80'}`}>
+          {/* Secondary Switcher: [ Overview ] [ Error Vault ] [ Score Predictor ] with SwiftUI Slide Pill */}
+          <div className={`flex items-center justify-between gap-2 pt-2.5 border-t flex-wrap ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/90'}`}>
             <div className={`inline-flex p-1 rounded-2xl shadow-2xs backdrop-blur-xl border ${
               circadian.isNight
-                ? 'bg-slate-900/90 border-sky-800/60'
-                : 'bg-white/95 border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
+                ? 'bg-slate-900/95 border-sky-800/70'
+                : 'bg-white/98 border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
             }`}>
               <motion.button
                 type="button"
@@ -467,14 +472,23 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 onClick={() => handleSubTabChange('overview')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'overview'
-                    ? 'bg-[#005B54] text-white shadow-md shadow-teal-900/20 ring-1 ring-white/20'
-                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-100/80 dark:hover:bg-slate-800'
+                    ? 'text-white'
+                    : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
                 }`}
               >
-                <BarChart3 className={`w-3.5 h-3.5 ${currentSubTab === 'overview' ? 'text-teal-200' : 'text-indigo-600 dark:text-indigo-400'}`} />
-                <span>Overview</span>
+                {currentSubTab === 'overview' && (
+                  <motion.div
+                    layoutId="progress-active-subtab"
+                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                    className="absolute inset-0 rounded-xl bg-[#005B54] shadow-md shadow-teal-900/25 ring-1 ring-white/20"
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <BarChart3 className={`w-3.5 h-3.5 ${currentSubTab === 'overview' ? 'text-teal-200' : 'text-indigo-600 dark:text-indigo-400'} stroke-[2.2]`} />
+                  <span>Overview</span>
+                </span>
               </motion.button>
 
               <motion.button
@@ -483,23 +497,32 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 onClick={() => handleSubTabChange('errors')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'errors'
-                    ? 'bg-[#005B54] text-white shadow-md shadow-teal-900/20 ring-1 ring-white/20'
-                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-100/80 dark:hover:bg-slate-800'
+                    ? 'text-white'
+                    : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
                 }`}
               >
-                <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
-                <span>Error Vault</span>
-                {(state.errorNotebook?.length || 0) > 0 && (
-                  <span className={`font-mono text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ${
-                    currentSubTab === 'errors'
-                      ? 'bg-rose-500/30 text-rose-100 border border-rose-400/40'
-                      : 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
-                  }`}>
-                    {state.errorNotebook?.length}
-                  </span>
+                {currentSubTab === 'errors' && (
+                  <motion.div
+                    layoutId="progress-active-subtab"
+                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                    className="absolute inset-0 rounded-xl bg-[#005B54] shadow-md shadow-teal-900/25 ring-1 ring-white/20"
+                  />
                 )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-rose-500 stroke-[2.2]" />
+                  <span>Error Vault</span>
+                  {(state.errorNotebook?.length || 0) > 0 && (
+                    <span className={`font-mono text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+                      currentSubTab === 'errors'
+                        ? 'bg-rose-500/30 text-rose-100 border border-rose-400/40'
+                        : 'bg-rose-100 text-rose-900 dark:bg-rose-950/70 dark:text-rose-200 border border-rose-300/60'
+                    }`}>
+                      {state.errorNotebook?.length}
+                    </span>
+                  )}
+                </span>
               </motion.button>
 
               <motion.button
@@ -508,32 +531,41 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 onClick={() => handleSubTabChange('predictor')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'predictor'
-                    ? 'bg-[#005B54] text-white shadow-md shadow-teal-900/20 ring-1 ring-white/20'
-                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-100/80 dark:hover:bg-slate-800'
+                    ? 'text-white'
+                    : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
                 }`}
               >
-                <TrendingUp className={`w-3.5 h-3.5 ${currentSubTab === 'predictor' ? 'text-teal-200' : 'text-emerald-600 dark:text-emerald-400'}`} />
-                <span>Score Predictor</span>
+                {currentSubTab === 'predictor' && (
+                  <motion.div
+                    layoutId="progress-active-subtab"
+                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                    className="absolute inset-0 rounded-xl bg-[#005B54] shadow-md shadow-teal-900/25 ring-1 ring-white/20"
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <TrendingUp className={`w-3.5 h-3.5 ${currentSubTab === 'predictor' ? 'text-teal-200' : 'text-emerald-600 dark:text-emerald-400'} stroke-[2.2]`} />
+                  <span>Score Predictor</span>
+                </span>
               </motion.button>
             </div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {currentSubTab === 'overview' && (
         <>
           {/* ================= 2. EXAM READINESS HERO ================= */}
-      <section className="bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] p-6 sm:p-8 transition-shadow">
+      <section className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm p-6 sm:p-8 transition-shadow">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left Column: Readiness Dial & High-Yield Verdict */}
-          <div className="lg:col-span-5 flex flex-col items-center sm:items-start text-center sm:text-left space-y-5 lg:border-r lg:border-[#EAEFEA] lg:pr-8">
+          <div className="lg:col-span-5 flex flex-col items-center sm:items-start text-center sm:text-left space-y-5 lg:border-r lg:border-slate-200/80 dark:lg:border-slate-800 lg:pr-8">
             <div className="flex items-center justify-between w-full">
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-stone-500">
+              <span className="font-mono text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-300">
                 FMGE READINESS
               </span>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${readinessStage.color}`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${readinessStage.color}`}>
                 {readinessStage.label}
               </span>
             </div>
@@ -542,13 +574,14 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               {/* Circular Gauge */}
               <div className="relative inline-flex items-center justify-center shrink-0">
                 <svg width="120" height="120" viewBox="0 0 120 120" className="-rotate-90">
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#F1EBE3" strokeWidth="10" />
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" className="text-slate-100 dark:text-slate-800" strokeWidth="10" />
                   <circle
                     cx="60"
                     cy="60"
                     r="50"
                     fill="none"
-                    stroke="#00685f"
+                    stroke="currentColor"
+                    className="text-teal-600 dark:text-teal-400"
                     strokeWidth="10"
                     strokeLinecap="round"
                     strokeDasharray={2 * Math.PI * 50}
@@ -557,25 +590,25 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-3xl font-extrabold font-mono text-[#121E1B] leading-none">
+                  <span className="text-3xl sm:text-4xl font-black font-mono text-slate-950 dark:text-white leading-none">
                     {readiness.score}
                   </span>
-                  <span className="text-[11px] text-stone-400 font-mono mt-1">/ 100</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-bold mt-1">/ 100</span>
                 </div>
               </div>
 
               {/* Clinical Verdict Text */}
               <div className="space-y-2 text-center sm:text-left">
-                <p className="text-sm text-[#4A5553] leading-relaxed">
+                <p className="text-sm text-slate-800 dark:text-slate-200 font-medium leading-relaxed">
                   {readiness.summaryText}
                 </p>
                 <button
                   type="button"
                   onClick={() => setIsReadinessModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00685f] hover:text-[#005049] transition-colors cursor-pointer py-1"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-300 hover:text-teal-900 dark:hover:text-teal-100 transition-colors cursor-pointer py-1"
                 >
                   <span>View Full Readiness Breakdown</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
             </div>
@@ -584,16 +617,16 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           {/* Right Column: 8-Pillar Readiness Progress Bars */}
           <div className="lg:col-span-7 space-y-4">
             <div className="flex items-center justify-between pb-1">
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-stone-500">
+              <span className="font-mono text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-300">
                 8-Pillar Readiness
               </span>
               <button
                 type="button"
                 onClick={() => setIsReadinessModalOpen(true)}
-                className="text-xs text-[#00685f] hover:underline font-mono font-bold flex items-center gap-1 cursor-pointer"
+                className="text-xs text-teal-700 dark:text-teal-300 hover:underline font-mono font-bold flex items-center gap-1 cursor-pointer"
               >
                 <span>Drill-Down</span>
-                <ChevronRight className="w-3 h-3" />
+                <ChevronRight className="w-3 h-3 stroke-[2.5]" />
               </button>
             </div>
 
@@ -603,14 +636,14 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 return (
                   <div key={comp.id} className="space-y-1.5" title={comp.details}>
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-stone-700 font-medium truncate max-w-[150px]">{comp.name}</span>
-                      <span className="font-mono font-bold text-[#121E1B] ml-2">
+                      <span className="text-slate-800 dark:text-slate-200 font-semibold truncate max-w-[150px]">{comp.name}</span>
+                      <span className="font-mono font-black text-slate-950 dark:text-white ml-2">
                         {comp.status === 'no_data' ? '—' : scoreVal}
                       </span>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-stone-100 overflow-hidden">
+                    <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                       <div
-                        className="h-full bg-[#00685f] rounded-full transition-all duration-600"
+                        className="h-full bg-teal-600 dark:bg-teal-400 rounded-full transition-all duration-600"
                         style={{ width: `${Math.min(100, Math.max(0, scoreVal))}%` }}
                       />
                     </div>
@@ -623,12 +656,12 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
         {/* Expandable Explanation Drawer */}
         {showReadinessBreakdown && (
-          <div className="mt-6 pt-6 border-t border-[#EAEFEA] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-200">
+          <div className="mt-6 pt-6 border-t border-slate-200/80 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-200">
             {readiness.components.map((c) => (
-              <div key={c.id} className="p-3 rounded-xl bg-white/70 backdrop-blur-xs border border-stone-200/60 text-xs space-y-1">
-                <span className="font-bold text-stone-800 block">{c.name}</span>
-                <span className="text-stone-500 text-[11px] block">{c.label}</span>
-                <p className="text-stone-600 text-[11px] leading-snug">{c.details}</p>
+              <div key={c.id} className="p-3 rounded-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 text-xs space-y-1">
+                <span className="font-bold text-slate-900 dark:text-slate-100 block">{c.name}</span>
+                <span className="text-slate-500 dark:text-slate-400 font-semibold text-[11px] block">{c.label}</span>
+                <p className="text-slate-700 dark:text-slate-300 font-medium text-[11px] leading-snug">{c.details}</p>
               </div>
             ))}
           </div>
@@ -638,114 +671,134 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
       {/* ================= 3. WHERE YOU STAND (Metric Cards) ================= */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-[#121E1B]">Where You Stand</h2>
-          <span className="text-xs text-stone-400 font-mono">Live MCQ Diagnostics</span>
+          <h2 className="text-base font-black text-slate-950 dark:text-white font-['Outfit'] tracking-tight">Where You Stand</h2>
+          <span className="text-xs text-teal-800 dark:text-teal-300 font-mono font-bold bg-teal-500/10 dark:bg-teal-950/80 px-2 py-0.5 rounded-md border border-teal-300/40">Live MCQ Diagnostics</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* 1. Overall Accuracy — Sapphire Ultramarine */}
-          <div className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/[0.08] via-white to-cyan-500/[0.03] backdrop-blur-xl border border-blue-200/80 shadow-[0_4px_20px_rgba(59,130,246,0.06)] hover:shadow-[0_8px_25px_rgba(59,130,246,0.14)] hover:border-blue-300 transition-all space-y-2 group">
+          <motion.div
+            whileHover={{ y: -4, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/[0.12] via-white to-cyan-500/[0.04] backdrop-blur-xl border border-blue-300/90 hover:border-blue-400 shadow-[0_4px_20px_rgba(59,130,246,0.08)] hover:shadow-[0_8px_25px_rgba(59,130,246,0.18)] transition-all space-y-2 group cursor-default"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-800 font-mono">
+              <span className="text-[11px] font-black uppercase tracking-wider text-blue-950 dark:text-blue-200 font-mono">
                 Overall Accuracy
               </span>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                <Target className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-blue-500/25 group-hover:scale-110 transition-transform">
+                <Target className="w-4 h-4 stroke-[2.2]" />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold font-mono text-slate-900">
+              <span className="text-3xl sm:text-4xl font-black font-['Outfit'] tabular-nums text-slate-950 dark:text-white">
                 {overallPerf.overallAccuracy}%
               </span>
               {overallPerf.totalAttempts > 0 && (
                 <span
-                  className={`inline-flex items-center text-xs font-bold font-mono px-2 py-0.5 rounded-full border shadow-2xs ${
+                  className={`inline-flex items-center text-xs font-black font-mono px-2 py-0.5 rounded-full border shadow-2xs ${
                     accuracyDelta >= 0
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                      : 'bg-rose-50 text-rose-800 border-rose-200'
+                      ? 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border-emerald-300/80'
+                      : 'bg-rose-500/15 text-rose-950 dark:text-rose-200 border-rose-300/80'
                   }`}
                 >
                   {accuracyDelta >= 0 ? `+${accuracyDelta}%` : `${accuracyDelta}%`}
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-500 font-mono">
+            <p className="text-xs text-slate-700 dark:text-slate-300 font-bold font-mono">
               {overallPerf.totalAttempts > 0
                 ? `Last 15 attempts: ${overallPerf.recentAccuracy}%`
                 : 'Complete drills to establish baseline'}
             </p>
-          </div>
+          </motion.div>
 
           {/* 2. Questions Attempted — Mint Emerald */}
-          <div className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.03] backdrop-blur-xl border border-emerald-200/80 shadow-[0_4px_20px_rgba(16,185,129,0.06)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.14)] hover:border-emerald-300 transition-all space-y-2 group">
+          <motion.div
+            whileHover={{ y: -4, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500/[0.12] via-white to-teal-500/[0.04] backdrop-blur-xl border border-emerald-300/90 hover:border-emerald-400 shadow-[0_4px_20px_rgba(16,185,129,0.08)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.18)] transition-all space-y-2 group cursor-default"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 font-mono">
+              <span className="text-[11px] font-black uppercase tracking-wider text-emerald-950 dark:text-emerald-200 font-mono">
                 Questions Attempted
               </span>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                <Activity className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/25 group-hover:scale-110 transition-transform">
+                <Activity className="w-4 h-4 stroke-[2.2]" />
               </div>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-extrabold font-mono text-slate-900">
+              <span className="text-3xl sm:text-4xl font-black font-['Outfit'] tabular-nums text-slate-950 dark:text-white">
                 {overallPerf.totalAttempts.toLocaleString()}
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-mono truncate">
+            <p className="text-xs text-slate-700 dark:text-slate-300 font-bold font-mono truncate">
               QBank, Grand Tests, Practice
             </p>
-          </div>
+          </motion.div>
 
           {/* 3. Average Response Pace — Radiant Amber */}
-          <div className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.03] backdrop-blur-xl border border-amber-200/80 shadow-[0_4px_20px_rgba(245,158,11,0.06)] hover:shadow-[0_8px_25px_rgba(245,158,11,0.14)] hover:border-amber-300 transition-all space-y-2 group">
+          <motion.div
+            whileHover={{ y: -4, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/[0.12] via-white to-orange-500/[0.04] backdrop-blur-xl border border-amber-300/90 hover:border-amber-400 shadow-[0_4px_20px_rgba(245,158,11,0.08)] hover:shadow-[0_8px_25px_rgba(245,158,11,0.18)] transition-all space-y-2 group cursor-default"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 font-mono">
+              <span className="text-[11px] font-black uppercase tracking-wider text-amber-950 dark:text-amber-200 font-mono">
                 Avg. Response Time
               </span>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                <Clock className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-amber-500/25 group-hover:scale-110 transition-transform">
+                <Clock className="w-4 h-4 stroke-[2.2]" />
               </div>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-extrabold font-mono text-slate-900">
+              <span className="text-3xl sm:text-4xl font-black font-['Outfit'] tabular-nums text-slate-950 dark:text-white">
                 {overallPerf.avgResponseTimeSeconds > 0 ? `${overallPerf.avgResponseTimeSeconds}s` : '—'}
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-mono">
+            <p className="text-xs text-slate-700 dark:text-slate-300 font-bold font-mono">
               {overallPerf.avgResponseTimeSeconds > 0
                 ? overallPerf.avgResponseTimeSeconds <= 60
                   ? 'Optimal FMGE exam pace (≤60s)'
                   : 'Slightly slow (target ≤60s)'
                 : 'Target 60s per question'}
             </p>
-          </div>
+          </motion.div>
 
           {/* 4. Repeated Errors — Apple Health Coral */}
-          <div className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-rose-500/[0.08] via-white to-red-500/[0.03] backdrop-blur-xl border border-rose-200/80 shadow-[0_4px_20px_rgba(244,63,94,0.06)] hover:shadow-[0_8px_25px_rgba(244,63,94,0.14)] hover:border-rose-300 transition-all space-y-2 group">
+          <motion.div
+            whileHover={{ y: -4, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-rose-500/[0.12] via-white to-red-500/[0.04] backdrop-blur-xl border border-rose-300/90 hover:border-rose-400 shadow-[0_4px_20px_rgba(244,63,94,0.08)] hover:shadow-[0_8px_25px_rgba(244,63,94,0.18)] transition-all space-y-2 group cursor-default"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-800 font-mono">
+              <span className="text-[11px] font-black uppercase tracking-wider text-rose-950 dark:text-rose-200 font-mono">
                 Repeated Errors
               </span>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-red-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                <AlertTriangle className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-red-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-rose-500/25 group-hover:scale-110 transition-transform">
+                <AlertTriangle className="w-4 h-4 stroke-[2.2]" />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold font-mono text-slate-900">
+              <span className="text-3xl sm:text-4xl font-black font-['Outfit'] tabular-nums text-slate-950 dark:text-white">
                 {overallPerf.totalRepeatedErrors}
               </span>
               {overallPerf.totalRepeatedErrors > 0 && (
-                <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 shadow-2xs">
+                <span className="text-[10px] font-extrabold font-mono px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-950 dark:text-rose-200 border border-rose-300/80 shadow-2xs">
                   Revision due
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-500 font-mono">
+            <p className="text-xs text-slate-700 dark:text-slate-300 font-bold font-mono">
               {overallPerf.totalRepeatedErrors > 0
                 ? 'Concepts missed ≥2 times'
                 : 'Zero repeated errors logged'}
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 

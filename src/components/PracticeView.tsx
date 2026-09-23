@@ -129,7 +129,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           </svg>
 
           {/* Premium Doctor's Clinical Diagnostic Desk & Stethoscope Artwork */}
-          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[480px] overflow-hidden opacity-40 sm:opacity-55 md:opacity-[0.68] select-none pointer-events-none block">
+          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[480px] overflow-hidden opacity-25 sm:opacity-35 dark:opacity-50 [mask-image:linear-gradient(to_left,black_50%,transparent_100%)] select-none pointer-events-none block">
             <svg viewBox="0 0 480 140" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
               <defs>
                 <linearGradient id="practice-chart-grad" x1="0%" y1="0%" x2="100%" y2="100%">

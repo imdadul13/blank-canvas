@@ -455,7 +455,7 @@ export const DoctorMountainArt: React.FC<DoctorMountainArtProps> = ({
   // Variant: Backdrop (embedded directly into parent headers like Dashboard greeting banner)
   if (variant === 'backdrop') {
     return (
-      <div className={`absolute right-0 bottom-0 top-0 w-80 sm:w-[500px] lg:w-[560px] pointer-events-none select-none overflow-hidden ${className}`}>
+      <div className={`absolute right-0 bottom-0 top-0 w-72 sm:w-96 lg:w-[420px] pointer-events-none select-none overflow-hidden [mask-image:linear-gradient(to_left,black_55%,transparent_100%)] ${className}`}>
         {svgVisual}
       </div>
     );
