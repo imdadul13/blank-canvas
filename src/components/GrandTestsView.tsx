@@ -539,6 +539,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 min-w-0 max-w-3xl">
             <HeaderGlassIcon
               icon={Target}
+              variant="rose"
               isNight={circadian.isNight}
             />
 
@@ -554,44 +555,44 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
                 Simulate 300-Q NBE exams &amp; track your trajectory past the 150-mark cutoff.
               </p>
 
-              {/* Quick Metrics Bar */}
+              {/* Quick Metrics Bar with High-Contrast Apple Capsules */}
               <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono shadow-2xs border ${
+                  circadian.isNight ? 'bg-slate-900/80 border-slate-800 text-slate-200' : 'bg-slate-100/90 border-slate-200/80 text-slate-700'
                 }`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Tests:</span>
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-600 font-sans font-semibold'}>Tests:</span>
                   <span className={`font-extrabold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{stats.totalTests}</span>
                 </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono shadow-2xs border ${
+                  circadian.isNight ? 'bg-blue-950/60 border-blue-800/60 text-blue-200' : 'bg-blue-500/10 border-blue-200/80 text-blue-900'
                 }`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Latest:</span>
-                  <span className={`font-extrabold ${stats.latestPassed ? 'text-emerald-500' : stats.latestScore > 0 ? (circadian.isNight ? 'text-amber-300' : 'text-amber-700') : (circadian.isNight ? 'text-white' : 'text-slate-900')}`}>
+                  <span className={circadian.isNight ? 'text-blue-300' : 'text-blue-700 font-sans font-semibold'}>Latest:</span>
+                  <span className={`font-extrabold ${stats.latestPassed ? 'text-emerald-500' : stats.latestScore > 0 ? (circadian.isNight ? 'text-amber-300' : 'text-amber-800') : (circadian.isNight ? 'text-white' : 'text-slate-900')}`}>
                     {stats.latestScore > 0 ? `${stats.latestScore}/300` : 'None'}
                   </span>
                 </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono shadow-2xs border ${
+                  circadian.isNight ? 'bg-teal-950/60 border-teal-800/60 text-teal-200' : 'bg-teal-500/10 border-teal-200/80 text-teal-900'
                 }`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Peak:</span>
-                  <span className={`font-extrabold ${circadian.isNight ? 'text-cyan-300' : 'text-teal-700'}`}>
+                  <span className={circadian.isNight ? 'text-teal-300' : 'text-teal-700 font-sans font-semibold'}>Peak:</span>
+                  <span className={`font-extrabold ${circadian.isNight ? 'text-cyan-300' : 'text-teal-800'}`}>
                     {stats.highestScore > 0 ? `${stats.highestScore}/300` : '-'}
                   </span>
                 </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-slate-900/80 border-sky-800/60 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono shadow-2xs border ${
+                  circadian.isNight ? 'bg-emerald-950/60 border-emerald-800/60 text-emerald-200' : 'bg-emerald-500/10 border-emerald-200/80 text-emerald-900'
                 }`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Pass Rate:</span>
-                  <span className="font-extrabold text-emerald-500">
+                  <span className={circadian.isNight ? 'text-emerald-300' : 'text-emerald-700 font-sans font-semibold'}>Pass Rate:</span>
+                  <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
                     {stats.clearanceRate}%
                   </span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200/80 dark:border-teal-800/80 shadow-2xs">
-                  <span className="h-1.5 w-1.5 rounded-full bg-teal-500 animate-pulse" />
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono font-bold bg-amber-500/10 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-300/80 dark:border-amber-800/80 shadow-2xs">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
                   <span>Cutoff: 150/300</span>
                 </div>
               </div>
@@ -602,11 +603,12 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           <div className="flex items-center gap-2.5 shrink-0 self-start lg:self-center">
             {/* Take 50-MCQ Timed Mini-Mock */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               type="button"
               onClick={() => setShowMockModal(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold shadow-sm hover:shadow-md transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-bold shadow-md shadow-amber-500/25 transition-all cursor-pointer select-none"
               title="Launch 50-MCQ timed NBE exam simulation"
             >
               <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -614,11 +616,12 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             </motion.button>
 
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               type="button"
               onClick={() => setShowAddGTModal(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#005B54] hover:bg-[#004D47] text-white text-xs font-bold shadow-md shadow-teal-900/20 ring-1 ring-white/20 transition-all cursor-pointer select-none"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Log Grand Test</span>

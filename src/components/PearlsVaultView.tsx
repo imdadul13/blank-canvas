@@ -864,8 +864,8 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 max-w-3xl min-w-0">
             <HeaderGlassIcon
               icon={Lightbulb}
+              variant="amber"
               isNight={circadian.isNight}
-              badgeDotColor="bg-amber-400"
             />
 
             <div className="space-y-1.5 min-w-0">
@@ -880,24 +880,25 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'} leading-relaxed max-w-xl`}>
+              <p className={`text-xs sm:text-sm ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'} leading-relaxed max-w-xl`}>
                 Clinical mnemonics, Drugs of Choice (DOC), diagnostic triads, and exam traps.
               </p>
 
-              {/* Action and Filter Pills */}
+              {/* Action and Filter Pills with Apple Styling */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 {/* Spaced Repetition Due Today Review Button */}
                 {duePearls.length > 0 && (
                   <motion.button
                     type="button"
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.03, y: -1 }}
+                    whileTap={{ scale: 0.96 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     onClick={() => {
                       setSrsIndex(0);
                       setIsSrsAnswerRevealed(false);
                       setIsSrsReviewOpen(true);
                     }}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs"
+                    className="px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25"
                   >
                     <Flame className="h-3.5 w-3.5 fill-white text-white animate-pulse" />
                     <span>Review Due ({duePearls.length})</span>
@@ -907,43 +908,45 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                 {/* Hands-Free Commute Audio Button */}
                 <motion.button
                   type="button"
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   onClick={handleStartCommuteAudio}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs ${
                     circadian.isNight
                       ? 'bg-teal-950/70 hover:bg-teal-900/80 text-teal-200 border-teal-800/80'
-                      : 'bg-teal-50/90 hover:bg-teal-100 text-teal-900 border-teal-200/80'
+                      : 'bg-teal-500/10 hover:bg-teal-500/15 text-teal-900 border-teal-300/80'
                   }`}
                   title="Listen to active pearls sequentially in hands-free commute mode"
                 >
-                  <Headphones className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                  <Headphones className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 stroke-[2.2]" />
                   <span>Commute Audio</span>
                 </motion.button>
 
                 {/* Printable Cheat Sheet Button */}
                 <motion.button
                   type="button"
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   onClick={() => setIsCheatSheetModalOpen(true)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs ${
                     circadian.isNight
                       ? 'bg-slate-800/80 hover:bg-slate-700 text-slate-200 border-slate-700/80'
-                      : 'bg-white/90 hover:bg-white text-slate-700 border-stone-200/80 hover:border-teal-300'
+                      : 'bg-slate-100/90 hover:bg-slate-200/90 text-slate-800 border-slate-200/90'
                   }`}
                   title="Open print-optimized 2-column clinical cheat sheet"
                 >
-                  <Printer className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                  <Printer className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300 stroke-[2.2]" />
                   <span>Cheat Sheet</span>
                 </motion.button>
 
                 {/* Starred Filter Button */}
                 <motion.button
                   type="button"
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   onClick={() => {
                     setBookmarkedOnly(!bookmarkedOnly);
                     const vaultEl = document.getElementById('master-vault');
@@ -951,15 +954,15 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                       vaultEl.scrollIntoView({ behavior: 'smooth' });
                     }
                   }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs backdrop-blur-sm ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer border shadow-2xs backdrop-blur-sm ${
                     bookmarkedOnly
-                      ? 'bg-amber-500 text-white border-amber-600 shadow-amber-500/20 shadow-xs'
+                      ? 'bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/25'
                       : circadian.isNight
                         ? 'bg-slate-800/80 hover:bg-slate-700/90 text-slate-200 border-slate-700/80 hover:border-slate-600'
-                        : 'bg-white/90 hover:bg-white text-slate-700 border-stone-200/80 hover:border-teal-300'
+                        : 'bg-amber-500/10 hover:bg-amber-500/15 text-amber-900 border-amber-300/80'
                   }`}
                 >
-                  <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-white text-white' : 'fill-amber-500/20 text-amber-500'}`} />
+                  <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-white text-white' : 'fill-amber-500 text-amber-500'}`} />
                   <span>Starred ({bookmarkedCount})</span>
                 </motion.button>
               </div>

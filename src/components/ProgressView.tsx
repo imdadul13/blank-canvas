@@ -408,6 +408,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 min-w-0 max-w-3xl">
               <HeaderGlassIcon
                 icon={BarChart3}
+                variant="indigo"
                 isNight={circadian.isNight}
               />
 
@@ -429,7 +430,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   </span>
                 </div>
 
-                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
+                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
                   Know exactly where you stand. Diagnose preparation depth, clinical solving accuracy, and high-yield retention.
                 </p>
               </div>
@@ -438,51 +439,63 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             {/* Live Circadian Phase Dropdown & Date Badge */}
             <div className="flex items-center gap-2 self-start lg:self-center shrink-0 flex-wrap sm:flex-nowrap">
               <CircadianFocusDropdown circadian={circadian} />
-              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono shadow-2xs backdrop-blur-md shrink-0 border ${
-                circadian.isNight
-                  ? 'bg-slate-900/80 border-sky-800/60 text-cyan-200'
-                  : 'bg-white/90 border-stone-200/80 text-slate-700'
-              }`}>
+              <motion.div
+                whileHover={{ scale: 1.03, y: -1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono shadow-2xs backdrop-blur-md shrink-0 border font-bold ${
+                  circadian.isNight
+                    ? 'bg-slate-900/90 border-sky-500/40 text-cyan-200'
+                    : 'bg-indigo-500/10 border-indigo-300/80 text-indigo-900'
+                }`}
+              >
                 <Calendar className={`w-3.5 h-3.5 ${circadian.isNight ? 'text-cyan-400' : 'text-[#4338CA]'}`} />
                 <span>Updated: {formattedToday}</span>
-              </div>
+              </motion.div>
             </div>
           </div>
 
           {/* Secondary Switcher: [ Overview ] [ Error Vault ] [ Score Predictor ] */}
-          <div className={`flex items-center justify-between gap-2 pt-2 border-t flex-wrap ${circadian.isNight ? 'border-sky-800/40' : 'border-teal-100/70'}`}>
-            <div className={`inline-flex p-0.5 rounded-xl shadow-2xs backdrop-blur-md border ${circadian.isNight ? 'bg-slate-900/80 border-sky-800/60' : 'bg-white/90 border-teal-100/90'}`}>
+          <div className={`flex items-center justify-between gap-2 pt-2.5 border-t flex-wrap ${circadian.isNight ? 'border-sky-800/50' : 'border-slate-200/80'}`}>
+            <div className={`inline-flex p-1 rounded-2xl shadow-2xs backdrop-blur-xl border ${
+              circadian.isNight
+                ? 'bg-slate-900/90 border-sky-800/60'
+                : 'bg-white/95 border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)]'
+            }`}>
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 onClick={() => handleSubTabChange('overview')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'overview'
-                    ? 'bg-gradient-to-r from-slate-950 via-slate-900 to-[#006B63] text-white shadow-xs font-bold'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-[#006B63] hover:bg-teal-50/70'
+                    ? 'bg-[#005B54] text-white shadow-md shadow-teal-900/20 ring-1 ring-white/20'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-100/80 dark:hover:bg-slate-800'
                 }`}
               >
-                <BarChart3 className={`w-3.5 h-3.5 ${currentSubTab === 'overview' ? 'text-teal-200' : 'text-[#00685f]'}`} />
+                <BarChart3 className={`w-3.5 h-3.5 ${currentSubTab === 'overview' ? 'text-teal-200' : 'text-indigo-600 dark:text-indigo-400'}`} />
                 <span>Overview</span>
               </motion.button>
 
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 onClick={() => handleSubTabChange('errors')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'errors'
-                    ? 'bg-gradient-to-r from-slate-950 via-slate-900 to-[#006B63] text-white shadow-xs font-bold'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-[#006B63] hover:bg-teal-50/70'
+                    ? 'bg-[#005B54] text-white shadow-md shadow-teal-900/20 ring-1 ring-white/20'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-100/80 dark:hover:bg-slate-800'
                 }`}
               >
-                <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
                 <span>Error Vault</span>
                 {(state.errorNotebook?.length || 0) > 0 && (
-                  <span className={`font-mono text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
-                    currentSubTab === 'errors' ? 'bg-rose-500/30 text-rose-200 border border-rose-400/40' : 'bg-rose-100 text-rose-700'
+                  <span className={`font-mono text-[9px] font-extrabold px-1.5 py-0.5 rounded-full ${
+                    currentSubTab === 'errors'
+                      ? 'bg-rose-500/30 text-rose-100 border border-rose-400/40'
+                      : 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
                   }`}>
                     {state.errorNotebook?.length}
                   </span>
@@ -491,16 +504,17 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 onClick={() => handleSubTabChange('predictor')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   currentSubTab === 'predictor'
-                    ? 'bg-gradient-to-r from-slate-950 via-slate-900 to-[#006B63] text-white shadow-xs font-bold'
-                    : 'text-stone-600 hover:text-[#006B63] hover:bg-teal-50/70'
+                    ? 'bg-[#005B54] text-white shadow-md shadow-teal-900/20 ring-1 ring-white/20'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-100/80 dark:hover:bg-slate-800'
                 }`}
               >
-                <TrendingUp className={`w-3.5 h-3.5 ${currentSubTab === 'predictor' ? 'text-amber-300' : 'text-amber-600'}`} />
+                <TrendingUp className={`w-3.5 h-3.5 ${currentSubTab === 'predictor' ? 'text-teal-200' : 'text-emerald-600 dark:text-emerald-400'}`} />
                 <span>Score Predictor</span>
               </motion.button>
             </div>

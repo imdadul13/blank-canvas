@@ -667,24 +667,32 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <CircadianFocusDropdown circadian={circadian} />
 
               {/* Today's Date */}
-              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold shadow-2xs backdrop-blur-xs border ${
-                circadian.isNight
-                  ? 'bg-slate-900/80 border-sky-800/60 text-slate-200'
-                  : 'bg-white/90 border-stone-200/80 text-slate-700'
-              }`}>
+              <motion.div
+                whileHover={{ scale: 1.03, y: -1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-2xs backdrop-blur-md border ${
+                  circadian.isNight
+                    ? 'bg-slate-900/90 border-sky-500/40 text-slate-100'
+                    : 'bg-teal-500/10 border-teal-300/80 text-teal-900'
+                }`}
+              >
                 <Calendar className={`w-3.5 h-3.5 ${circadian.isNight ? 'text-cyan-400' : 'text-[#00685F]'}`} />
                 <span>{formattedDate}</span>
-              </div>
+              </motion.div>
 
               {/* Active Streak */}
-              <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold shadow-2xs border ${
-                circadian.isNight
-                  ? 'bg-orange-950/70 border-orange-800/60 text-orange-300'
-                  : 'bg-orange-50/90 border-orange-200/80 text-orange-700'
-              }`}>
+              <motion.div
+                whileHover={{ scale: 1.03, y: -1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold shadow-2xs border ${
+                  circadian.isNight
+                    ? 'bg-orange-950/70 border-orange-500/50 text-orange-200'
+                    : 'bg-orange-500/10 border-orange-300/80 text-orange-900'
+                }`}
+              >
                 <Flame className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
                 <span>{streakDays}d</span>
-              </div>
+              </motion.div>
             </div>
           </div>
 
@@ -692,6 +700,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl">
             <HeaderGlassIcon
               icon={Calendar}
+              variant="amber"
               isNight={circadian.isNight}
             />
 
@@ -707,64 +716,64 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
                 Focus on high-yield mastery. One intentional milestone at a time.
               </p>
             </div>
           </div>
 
           {/* Bottom Row: Minimal Integrated Bento Telemetry Strip */}
-          <div className={`flex flex-wrap items-center gap-3 sm:gap-6 pt-2.5 border-t text-xs ${
-            circadian.isNight ? 'border-sky-800/40' : 'border-stone-200/60'
+          <div className={`flex flex-wrap items-center gap-3 sm:gap-6 pt-3 border-t text-xs ${
+            circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
           }`}>
             {/* Planned / Progress */}
             <div className="flex items-center gap-2">
-              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
+              <div className={`w-7.5 h-7.5 rounded-xl flex items-center justify-center shrink-0 border shadow-2xs ${
                 circadian.isNight
-                  ? 'bg-slate-800/80 border-slate-700 text-teal-300'
-                  : 'bg-teal-50 text-[#00685F] border-teal-100/80'
+                  ? 'bg-slate-800/90 border-slate-700 text-teal-300'
+                  : 'bg-teal-500/10 text-[#00685F] border-teal-300/70'
               }`}>
-                <BookmarkCheck className="w-3.5 h-3.5" />
+                <BookmarkCheck className="w-4 h-4 stroke-[2.2]" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className={`text-[11px] font-sans font-medium ${circadian.isNight ? 'text-slate-400' : 'text-slate-600'}`}>Tasks:</span>
-                <span className={`font-bold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{completedTaskCount}/{totalTaskCount}</span>
-                <span className={`font-medium text-[11px] ${circadian.isNight ? 'text-cyan-400' : 'text-teal-700'}`}>({progressPercent}%)</span>
+                <span className={`text-[11px] font-sans font-semibold ${circadian.isNight ? 'text-slate-300' : 'text-slate-700'}`}>Tasks:</span>
+                <span className={`font-extrabold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{completedTaskCount}/{totalTaskCount}</span>
+                <span className={`font-bold text-[11px] ${circadian.isNight ? 'text-cyan-400' : 'text-teal-700 dark:text-teal-300'}`}>({progressPercent}%)</span>
               </div>
             </div>
 
-            <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-stone-300'}`}>•</span>
+            <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-slate-300'}`}>•</span>
 
             {/* Study Time */}
             <div className="flex items-center gap-2">
-              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
+              <div className={`w-7.5 h-7.5 rounded-xl flex items-center justify-center shrink-0 border shadow-2xs ${
                 circadian.isNight
-                  ? 'bg-slate-800/80 border-slate-700 text-amber-300'
-                  : 'bg-amber-50 text-amber-700 border-amber-100/80'
+                  ? 'bg-slate-800/90 border-slate-700 text-amber-300'
+                  : 'bg-amber-500/10 text-amber-800 border-amber-300/70'
               }`}>
-                <Clock className="w-3.5 h-3.5" />
+                <Clock className="w-4 h-4 stroke-[2.2]" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className={`text-[11px] font-sans font-medium ${circadian.isNight ? 'text-slate-400' : 'text-slate-600'}`}>Focus Time:</span>
-                <span className={`font-bold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{studyTimeFormatted}</span>
-                <span className={`text-[11px] font-sans ${circadian.isNight ? 'text-slate-400' : 'text-slate-500'}`}>/ {dailyGoalHours}h</span>
+                <span className={`text-[11px] font-sans font-semibold ${circadian.isNight ? 'text-slate-300' : 'text-slate-700'}`}>Focus Time:</span>
+                <span className={`font-extrabold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{studyTimeFormatted}</span>
+                <span className={`text-[11px] font-sans font-medium ${circadian.isNight ? 'text-slate-400' : 'text-slate-600'}`}>/ {dailyGoalHours}h</span>
               </div>
             </div>
 
-            <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-stone-300'}`}>•</span>
+            <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-slate-300'}`}>•</span>
 
             {/* Goal % */}
             <div className="flex items-center gap-2">
-              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
+              <div className={`w-7.5 h-7.5 rounded-xl flex items-center justify-center shrink-0 border shadow-2xs ${
                 circadian.isNight
-                  ? 'bg-slate-800/80 border-slate-700 text-emerald-300'
-                  : 'bg-emerald-50 text-emerald-700 border-emerald-100/80'
+                  ? 'bg-slate-800/90 border-slate-700 text-emerald-300'
+                  : 'bg-emerald-500/10 text-emerald-800 border-emerald-300/70'
               }`}>
-                <Target className="w-3.5 h-3.5" />
+                <Target className="w-4 h-4 stroke-[2.2]" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className={`text-[11px] font-sans font-medium ${circadian.isNight ? 'text-slate-400' : 'text-slate-600'}`}>Daily Goal:</span>
-                <span className={`font-bold text-xs sm:text-[13px] ${circadian.isNight ? 'text-emerald-400' : 'text-emerald-700'}`}>{dailyGoalPercent}%</span>
+                <span className={`text-[11px] font-sans font-semibold ${circadian.isNight ? 'text-slate-300' : 'text-slate-700'}`}>Daily Goal:</span>
+                <span className={`font-extrabold text-xs sm:text-[13px] ${circadian.isNight ? 'text-emerald-400' : 'text-emerald-700 dark:text-emerald-300'}`}>{dailyGoalPercent}%</span>
               </div>
             </div>
           </div>

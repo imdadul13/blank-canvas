@@ -317,6 +317,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 max-w-3xl min-w-0">
             <HeaderGlassIcon
               icon={Stethoscope}
+              variant="teal"
               isNight={circadian.isNight}
             />
 
@@ -334,59 +335,71 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               </div>
 
               {/* Subtitle */}
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
                 10-MCQ clinical drills with instant distractor breakdowns &amp; active recall.
               </p>
 
-              {/* Feature Pills */}
+              {/* Feature Pills with Apple Saturated Tints & SwiftUI Spring Hover */}
               <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border ${
-                  circadian.isNight
-                    ? 'bg-slate-800/80 border-slate-700/80 text-cyan-300'
-                    : 'bg-white/85 border-stone-200/80 text-teal-800 shadow-2xs'
-                }`}>
+                <motion.span
+                  whileHover={{ scale: 1.04, y: -1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border shadow-2xs cursor-default ${
+                    circadian.isNight
+                      ? 'bg-amber-500/15 border-amber-400/30 text-amber-200'
+                      : 'bg-amber-500/10 border-amber-300/80 text-amber-900'
+                  }`}
+                >
                   <Zap className="w-3.5 h-3.5 text-amber-500" />
                   Active Recall
-                </span>
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border ${
-                  circadian.isNight
-                    ? 'bg-slate-800/80 border-slate-700/80 text-teal-300'
-                    : 'bg-white/85 border-stone-200/80 text-teal-800 shadow-2xs'
-                }`}>
+                </motion.span>
+                <motion.span
+                  whileHover={{ scale: 1.04, y: -1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border shadow-2xs cursor-default ${
+                    circadian.isNight
+                      ? 'bg-teal-500/15 border-teal-400/30 text-teal-200'
+                      : 'bg-teal-500/10 border-teal-300/80 text-teal-900'
+                  }`}
+                >
                   <BarChart3 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                   Performance Insights
-                </span>
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border ${
-                  circadian.isNight
-                    ? 'bg-slate-800/80 border-slate-700/80 text-emerald-300'
-                    : 'bg-white/85 border-stone-200/80 text-emerald-800 shadow-2xs'
-                }`}>
+                </motion.span>
+                <motion.span
+                  whileHover={{ scale: 1.04, y: -1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border shadow-2xs cursor-default ${
+                    circadian.isNight
+                      ? 'bg-emerald-500/15 border-emerald-400/30 text-emerald-200'
+                      : 'bg-emerald-500/10 border-emerald-300/80 text-emerald-900'
+                  }`}
+                >
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   Exam-Ready
-                </span>
+                </motion.span>
               </div>
             </div>
           </div>
 
           {/* Right Column: Telemetry Bento Capsule */}
           <div className="shrink-0 self-start lg:self-center">
-            <div className={`flex items-center gap-3.5 px-4 py-2 rounded-2xl border text-xs font-mono backdrop-blur-md ${
+            <div className={`flex items-center gap-3.5 px-4 py-2.5 rounded-2xl border text-xs font-mono backdrop-blur-2xl ${
               circadian.isNight
-                ? 'bg-slate-900/80 border-slate-800 text-slate-200 shadow-xs'
-                : 'bg-white/85 border-stone-200/90 text-slate-700 shadow-2xs'
+                ? 'bg-slate-900/90 border-slate-800 text-slate-200 shadow-xs'
+                : 'bg-white/95 border-slate-200/90 text-slate-700 shadow-[0_8px_24px_rgba(0,107,99,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)]'
             }`}>
               <div className="flex items-center gap-2">
                 <Target className="w-3.5 h-3.5 text-[#005B54] dark:text-teal-400 shrink-0" />
                 <span className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-[13px]">{displayedTopics.length}</span>
-                <span className="text-slate-600 dark:text-slate-300 text-[11px] font-medium font-sans">Drill Topics</span>
+                <span className="text-slate-700 dark:text-slate-300 text-[11px] font-semibold font-sans">Drill Topics</span>
               </div>
               <span className="text-slate-300 dark:text-slate-700">•</span>
               <div className="flex items-center gap-2">
                 <Brain className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                <span className="font-extrabold text-amber-600 dark:text-amber-400 text-xs sm:text-[13px]">
+                <span className="font-extrabold text-amber-700 dark:text-amber-300 text-xs sm:text-[13px]">
                   {displayedTopics.filter((t) => t.isHighYield).length}
                 </span>
-                <span className="text-amber-700 dark:text-amber-300 text-[11px] font-medium font-sans">High-Yield</span>
+                <span className="text-amber-800 dark:text-amber-200 text-[11px] font-semibold font-sans">High-Yield</span>
               </div>
             </div>
           </div>

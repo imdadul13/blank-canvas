@@ -281,22 +281,24 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
           <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
 
           {/* Days to FMGE Target Badge */}
-          <div
-            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border shadow-2xs text-xs ${
+          <motion.div
+            whileHover={{ scale: 1.03, y: -1 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border shadow-2xs text-xs font-bold ${
               circadian.isNight
-                ? 'bg-slate-900/80 border-slate-700/80 text-white'
-                : 'bg-white/90 border-stone-200/80 text-slate-800'
+                ? 'bg-slate-900/90 border-slate-700/80 text-white'
+                : 'bg-teal-500/10 border-teal-300/80 text-teal-900'
             }`}
           >
-            <Target className="h-3 w-3 text-[#00685F] dark:text-teal-400" />
+            <Target className="h-3.5 w-3.5 text-[#00685F] dark:text-teal-400" />
             <span className="font-extrabold font-mono text-[11px]">{countdownText}</span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{countdownSub}</span>
-          </div>
+            <span className="text-[10px] text-teal-800/80 dark:text-teal-300 font-semibold">{countdownSub}</span>
+          </motion.div>
 
           {/* Golden Hour High-Yield Pill */}
           {isGoldenHourMode && (
             <div
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-800 dark:text-amber-300 text-[10px] font-bold font-mono tracking-wider uppercase shrink-0"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/50 text-amber-900 dark:text-amber-300 text-[10px] font-bold font-mono tracking-wider uppercase shrink-0"
               title="Golden Hour mode prioritizes high-yield clinical traps, rapid revision, and exam-pattern MCQs"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
@@ -313,6 +315,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 max-w-3xl min-w-0">
           <HeaderGlassIcon
             icon={GraduationCap}
+            variant="teal"
             isNight={circadian.isNight}
           />
 
@@ -327,7 +330,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
                 onClick={onOpenKeyConfig}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs shrink-0 cursor-pointer hover:opacity-90 transition-all ${
                   isAiConfigured === false
-                    ? 'bg-amber-500/10 border-amber-400/40 text-amber-700 dark:text-amber-300'
+                    ? 'bg-amber-500/10 border-amber-400/40 text-amber-800 dark:text-amber-300'
                     : `${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`
                 }`}
                 title="Click to view Gemini AI Engine status & settings"
@@ -337,30 +340,31 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
               </button>
             </div>
 
-            <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
+            <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
               High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted remediation.
             </p>
           </div>
         </div>
 
-        {/* Right Action Controls: History & New Chat Buttons */}
+        {/* Right Action Controls: History & New Chat Buttons with Apple Tactile Spring */}
         <div className="flex items-center gap-2.5 shrink-0 self-start lg:self-center">
           {/* Saved History Trigger Button */}
           <motion.button
             type="button"
-            whileHover={reducedMotion ? undefined : { scale: 1.02 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+            whileHover={reducedMotion ? undefined : { scale: 1.03, y: -1 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             onClick={onOpenHistory}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold shadow-2xs transition-all cursor-pointer backdrop-blur-sm group shrink-0 ${
+            className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border text-xs font-bold shadow-2xs transition-all cursor-pointer backdrop-blur-sm group shrink-0 ${
               circadian.isNight
                 ? 'bg-slate-800/80 hover:bg-slate-700 border-slate-700/80 text-slate-200 hover:text-white'
-                : 'bg-white/90 hover:bg-teal-50/70 border-stone-200/80 hover:border-teal-300 text-slate-700 hover:text-[#006B63]'
+                : 'bg-slate-100/90 hover:bg-slate-200/90 border-slate-200/90 text-slate-800'
             }`}
             title="Open saved consultations history"
           >
-            <History className={`h-3.5 w-3.5 transition-transform group-hover:rotate-[-20deg] ${circadian.isNight ? 'text-slate-400 group-hover:text-cyan-300' : 'text-slate-500 group-hover:text-[#006B63]'}`} />
-            <span className="whitespace-nowrap font-medium">History</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold border ${circadian.isNight ? 'bg-teal-950/70 text-teal-300 border-teal-800/80' : 'bg-teal-50 text-[#00685F] border-teal-200/60'}`}>
+            <History className={`h-3.5 w-3.5 transition-transform group-hover:rotate-[-20deg] ${circadian.isNight ? 'text-slate-400 group-hover:text-cyan-300' : 'text-slate-600'}`} />
+            <span className="whitespace-nowrap font-bold">History</span>
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-extrabold border ${circadian.isNight ? 'bg-teal-950/70 text-teal-300 border-teal-800/80' : 'bg-teal-500/15 text-[#00685F] border-teal-300/70'}`}>
               {sessionsCount}
             </span>
           </motion.button>
@@ -368,13 +372,14 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
           {/* New Chat Action Button */}
           <motion.button
             type="button"
-            whileHover={reducedMotion ? undefined : { scale: 1.02 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+            whileHover={reducedMotion ? undefined : { scale: 1.03, y: -1 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             onClick={onNewSession}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00685F] hover:bg-[#00554E] hover:shadow-md text-white text-xs font-bold shadow-xs transition-all cursor-pointer group shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#005B54] hover:bg-[#004D47] text-white text-xs font-bold shadow-md shadow-teal-900/20 ring-1 ring-white/20 transition-all cursor-pointer group shrink-0"
             title="Start a new consultation session"
           >
-            <Plus className="h-3.5 w-3.5 group-hover:rotate-90 transition-transform duration-200" />
+            <Plus className="h-3.5 w-3.5 group-hover:rotate-90 transition-transform duration-200 stroke-[2.5]" />
             <span className="whitespace-nowrap">New Chat</span>
           </motion.button>
         </div>

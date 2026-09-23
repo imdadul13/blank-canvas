@@ -155,6 +155,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
                 <div className="flex items-start gap-4 min-w-0">
                   <HeaderGlassIcon
                     icon={LayoutGrid}
+                    variant="slate"
                     isNight={circadian.isNight}
                   />
 

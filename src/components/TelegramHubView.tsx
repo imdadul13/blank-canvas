@@ -1440,6 +1440,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 max-w-3xl min-w-0">
             <HeaderGlassIcon
               icon={Send}
+              variant="blue"
               isNight={circadian.isNight}
             />
 
@@ -1455,45 +1456,46 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm leading-relaxed max-w-xl ${circadian.isNight ? 'text-slate-200' : 'text-slate-600'}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed max-w-xl ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
                 High-yield FMGE content, intelligently curated from your verified sources.
               </p>
 
-              {/* Quick Metrics Bar */}
+              {/* Quick Metrics Bar with Apple Bento Capsules */}
               <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'}`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Curated:</span>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-900/80 border-slate-800 text-slate-200' : 'bg-slate-100/90 border-slate-200/80 text-slate-700'}`}>
+                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-600 font-sans font-semibold'}>Curated:</span>
                   <span className={`font-extrabold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{curatedCounts.totalCurated || curatedItems.length}</span>
                 </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'}`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Pearls:</span>
-                  <span className="font-extrabold text-amber-500">{curatedCounts.examPearls}</span>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-amber-950/60 border-amber-800/60 text-amber-200' : 'bg-amber-500/10 border-amber-200/80 text-amber-900'}`}>
+                  <span className={circadian.isNight ? 'text-amber-300' : 'text-amber-700 font-sans font-semibold'}>Pearls:</span>
+                  <span className="font-extrabold text-amber-700 dark:text-amber-300">{curatedCounts.examPearls}</span>
                 </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'}`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Questions:</span>
-                  <span className="font-extrabold text-sky-500">{curatedCounts.questions}</span>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-sky-950/60 border-sky-800/60 text-sky-200' : 'bg-sky-500/10 border-sky-200/80 text-sky-900'}`}>
+                  <span className={circadian.isNight ? 'text-sky-300' : 'text-sky-700 font-sans font-semibold'}>Questions:</span>
+                  <span className="font-extrabold text-sky-700 dark:text-sky-300">{curatedCounts.questions}</span>
                 </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'}`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Spotters:</span>
-                  <span className="font-extrabold text-teal-500">{curatedCounts.imageSpotters}</span>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-teal-950/60 border-teal-800/60 text-teal-200' : 'bg-teal-500/10 border-teal-200/80 text-teal-900'}`}>
+                  <span className={circadian.isNight ? 'text-teal-300' : 'text-teal-700 font-sans font-semibold'}>Spotters:</span>
+                  <span className="font-extrabold text-teal-800 dark:text-teal-300">{curatedCounts.imageSpotters}</span>
                 </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-800/80 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-200/80 text-slate-700'}`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-500 font-sans font-medium'}>Saved:</span>
-                  <span className="font-extrabold text-emerald-500">{savedItems.length}</span>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-emerald-950/60 border-emerald-800/60 text-emerald-200' : 'bg-emerald-500/10 border-emerald-200/80 text-emerald-900'}`}>
+                  <span className={circadian.isNight ? 'text-emerald-300' : 'text-emerald-700 font-sans font-semibold'}>Saved:</span>
+                  <span className="font-extrabold text-emerald-700 dark:text-emerald-300">{savedItems.length}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Action Controls: Sync Feed & Connect MTProto in single row */}
+          {/* Right Action Controls: Sync Feed & Connect MTProto in single row with Apple Tactile Spring */}
           <div className="flex items-center gap-2.5 shrink-0 self-start lg:self-center">
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               type="button"
               onClick={handleManualSyncNow}
               disabled={isManualSyncing}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#005B54] hover:bg-[#004D47] text-white text-xs font-bold shadow-md shadow-teal-900/20 ring-1 ring-white/20 transition-all cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isManualSyncing ? 'animate-spin' : ''}`} />
               <span>{isManualSyncing ? 'Syncing...' : 'Sync Feed'}</span>
@@ -1501,8 +1503,9 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
             {!isConnected && (
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.03, y: -1 }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 type="button"
                 onClick={() => {
                   setAuthMethod('qr');
@@ -1510,13 +1513,13 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   setAuthError(null);
                   setIsConnectModalOpen(true);
                 }}
-                className={`inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold shadow-2xs transition-all cursor-pointer ${
+                className={`inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-bold shadow-2xs transition-all cursor-pointer ${
                   circadian.isNight
                     ? 'bg-slate-800/80 hover:bg-slate-700 border-slate-700/80 text-slate-200 hover:text-white'
-                    : 'bg-white hover:bg-stone-50 border-stone-200/90 text-slate-700'
+                    : 'bg-slate-100/90 hover:bg-slate-200/90 border-slate-200/90 text-slate-800'
                 }`}
               >
-                <QrCode className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <QrCode className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 stroke-[2.2]" />
                 <span>Connect MTProto</span>
               </motion.button>
             )}
