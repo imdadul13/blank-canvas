@@ -1535,7 +1535,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion, 0)}
-          className={`rounded-3xl border border-teal-200/70 shadow-[0_8px_32px_rgba(0,107,99,0.06)] backdrop-blur-xl p-4 sm:p-5 relative z-30 transition-colors duration-700 ${heroTheme.bannerBg}`}
+          className={`rounded-3xl border backdrop-blur-2xl p-4 sm:p-5 relative z-30 transition-all duration-700 mb-2 sm:mb-3 ${heroTheme.bannerBg}`}
         >
           {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so dropdown popover never clips) */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
@@ -1550,7 +1550,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <motion.div
                 animate={{ x: ['-100%', '300%'] }}
                 transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
-                className="w-52 sm:w-80 h-full bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_16px_#2dd4bf]"
+                className={`w-52 sm:w-80 h-full bg-gradient-to-r from-transparent ${circadian.shimmerGlow} to-transparent`}
               />
             </div>
 
@@ -1563,14 +1563,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* Top Utility Bar: Greeting Badge + Circadian Focus Dropdown */}
-          <div className="relative z-40 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/70 dark:border-slate-800/70">
+          <div className={`relative z-40 flex items-center justify-between gap-3 pb-2.5 border-b ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'}`}>
             <div className="flex items-center gap-2">
-              <div className={`inline-flex items-center gap-1.5 text-xs font-bold ${timeOfDay === 'night' ? 'text-teal-200' : 'text-slate-900 dark:text-slate-100'}`}>
+              <div className={`inline-flex items-center gap-1.5 text-xs font-bold ${circadian.isNight ? 'text-teal-200' : 'text-slate-900'}`}>
                 <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.4] ${heroTheme.greetingIconColor}`} />
                 <span>{greeting}</span>
               </div>
               <span className={circadian.isNight ? 'text-sky-700' : 'text-stone-400'}>•</span>
-              <span className="text-[10px] font-mono font-bold tracking-widest text-slate-700 dark:text-slate-300 uppercase hidden sm:inline">
+              <span className={`text-[10px] font-mono font-bold tracking-widest uppercase hidden sm:inline ${circadian.isNight ? 'text-cyan-200' : 'text-slate-700'}`}>
                 CLINICAL MASTERY DASHBOARD
               </span>
             </div>
@@ -1581,17 +1581,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-3 relative z-10">
             {/* Left side: Doctor Name + Strategic Subtitle */}
             <div className="space-y-1 sm:space-y-1.5 max-w-xl">
-              <h1 className={`text-2xl sm:text-3xl lg:text-[34px] font-black tracking-[-0.03em] leading-tight ${heroTheme.nameColor}`}>
+              <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black tracking-[-0.03em] leading-tight">
                 {userName.startsWith('Dr.') ? (
                   <>
-                    <span className="text-[#005B54] dark:text-teal-400">Dr. </span>
-                    <span>{userName.replace(/^Dr\.\s*/, '')}</span>
+                    <span className={circadian.isNight ? 'text-teal-300' : 'text-[#00685F]'}>Dr. </span>
+                    <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>{userName.replace(/^Dr\.\s*/, '')}</span>
                   </>
                 ) : (
-                  userName
+                  <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>{userName}</span>
                 )}
               </h1>
-              <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic font-semibold ${heroTheme.subtitleColor}`}>
+              <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic font-semibold ${circadian.isNight ? 'text-slate-200' : 'text-slate-700'}`}>
                 &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
               </p>
               <div
@@ -1606,7 +1606,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     className="w-full h-full"
                   />
                 </div>
-                <p className={`text-xs leading-relaxed italic font-semibold ${heroTheme.subtitleColor}`}>
+                <p className={`text-xs leading-relaxed italic font-semibold ${circadian.isNight ? 'text-slate-200' : 'text-slate-700'}`}>
                   &ldquo;{doctorCreed.quote}&rdquo;
                 </p>
               </div>
@@ -1625,9 +1625,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 if (e.key === 'Enter' || e.key === ' ') shuffleCreed();
               }}
               className={`hidden md:flex items-center gap-3.5 rounded-2xl px-4 py-2.5 cursor-pointer select-none transition-all duration-300 group shrink-0 ${
-                timeOfDay === 'night'
+                circadian.isNight
                   ? 'bg-sky-950/85 backdrop-blur-xl border border-cyan-500/40 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-cyan-400'
-                  : 'bg-white/95 backdrop-blur-xl border border-teal-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#006B63]/60 hover:shadow-md'
+                  : 'bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_4px_20px_rgba(0,107,99,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#006B63]/60 hover:shadow-md'
               }`}
             >
               <div className="h-8 w-12 shrink-0 relative flex items-center justify-center">
@@ -1639,15 +1639,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div className="text-right space-y-0.5 min-w-[180px] max-w-[260px]">
                 <p className={`text-xs font-bold italic transition-colors line-clamp-2 ${
-                  timeOfDay === 'night'
+                  circadian.isNight
                     ? 'text-cyan-100 group-hover:text-cyan-200'
-                    : 'text-[#0D3833] group-hover:text-[#006B63]'
+                    : 'text-slate-900 group-hover:text-[#006B63]'
                 }`}>
                   &ldquo;{doctorCreed.quote}&rdquo;
                 </p>
                 <div className="flex items-center justify-end gap-1.5">
                   <span className={`text-[9.5px] font-mono font-bold uppercase tracking-wider ${
-                    timeOfDay === 'night' ? 'text-cyan-400' : 'text-[#5B948C]'
+                    circadian.isNight ? 'text-cyan-400' : 'text-[#5B948C]'
                   }`}>
                     {doctorCreed.tagline}
                   </span>
@@ -1655,7 +1655,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     className={`h-2.5 w-2.5 opacity-60 group-hover:opacity-100 transition-all duration-500 ${
                       isCreedShuffling ? 'rotate-180' : 'group-hover:-rotate-90'
                     } ${
-                      timeOfDay === 'night' ? 'text-cyan-300' : 'text-[#5B948C] group-hover:text-[#006B63]'
+                      circadian.isNight ? 'text-cyan-300' : 'text-[#5B948C] group-hover:text-[#006B63]'
                     }`}
                   />
                 </div>
@@ -1671,7 +1671,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => handleSubTabChange('planner')}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 hover:border-amber-300/90 shadow-xs hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className={`group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 backdrop-blur-xl transition-all min-w-0 cursor-pointer border ${
+                circadian.isNight
+                  ? 'bg-slate-900/80 border-sky-800/60 hover:border-amber-400/60 shadow-xs'
+                  : 'bg-white/95 border-amber-200/80 hover:border-amber-300 shadow-xs hover:shadow-md'
+              }`}
             >
               <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-xs shadow-amber-500/25 transition-all group-hover:scale-110 group-hover:rotate-[-4deg]">
                 <Calendar className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
@@ -1682,14 +1686,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-950 dark:text-white group-hover:text-amber-700 transition-colors shrink-0">
+                  <span className={`text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight shrink-0 ${
+                    circadian.isNight ? 'text-white' : 'text-slate-950'
+                  }`}>
                     <AnimatedNumber value={daysRemaining} />
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/80 text-amber-950 dark:text-amber-200 border border-amber-300/90 shrink-0">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-950 dark:text-amber-200 border border-amber-300/90 shrink-0">
                     Live
                   </span>
                 </div>
-                <span className="block text-[10px] sm:text-[11.5px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-amber-900 transition-colors leading-tight mt-0.5">
+                <span className={`block text-[10px] sm:text-[11.5px] font-bold leading-tight mt-0.5 ${
+                  circadian.isNight ? 'text-slate-300' : 'text-slate-700'
+                }`}>
                   days to FMGE
                 </span>
               </div>
@@ -1702,7 +1710,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => setIsPassingGapModalOpen(true)}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 hover:border-blue-300/90 shadow-xs hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className={`group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 backdrop-blur-xl transition-all min-w-0 cursor-pointer border ${
+                circadian.isNight
+                  ? 'bg-slate-900/80 border-sky-800/60 hover:border-blue-400/60 shadow-xs'
+                  : 'bg-white/95 border-blue-200/80 hover:border-blue-300 shadow-xs hover:shadow-md'
+              }`}
               title="Click to view 150/300 Passing Score Gap Analysis"
             >
               <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-blue-500 to-cyan-500 text-white shadow-xs shadow-blue-500/25 transition-all group-hover:scale-110">
@@ -1710,14 +1722,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-950 dark:text-white group-hover:text-blue-700 transition-colors shrink-0">
+                  <span className={`text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight shrink-0 ${
+                    circadian.isNight ? 'text-white' : 'text-slate-950'
+                  }`}>
                     {savedTargetScore ? `${savedTargetScore}+` : '200+'}
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-blue-100 dark:bg-blue-950/80 text-blue-950 dark:text-blue-200 border border-blue-300/90 shrink-0">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-950 dark:text-blue-200 border border-blue-300/90 shrink-0">
                     150 Pass
                   </span>
                 </div>
-                <span className="block text-[10px] sm:text-[11.5px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-blue-900 transition-colors leading-tight mt-0.5">
+                <span className={`block text-[10px] sm:text-[11.5px] font-bold leading-tight mt-0.5 ${
+                  circadian.isNight ? 'text-slate-300' : 'text-slate-700'
+                }`}>
                   Target Score
                 </span>
               </div>
@@ -1730,21 +1746,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => onNavigateTab('syllabus')}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 hover:border-violet-300/90 shadow-xs hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className={`group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 backdrop-blur-xl transition-all min-w-0 cursor-pointer border ${
+                circadian.isNight
+                  ? 'bg-slate-900/80 border-sky-800/60 hover:border-violet-400/60 shadow-xs'
+                  : 'bg-white/95 border-violet-200/80 hover:border-violet-300 shadow-xs hover:shadow-md'
+              }`}
             >
               <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-violet-500 to-purple-600 text-white shadow-xs shadow-violet-500/25 transition-all group-hover:scale-110 group-hover:rotate-[4deg]">
                 <BookOpen className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-950 dark:text-white group-hover:text-violet-700 transition-colors shrink-0">
+                  <span className={`text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight shrink-0 ${
+                    circadian.isNight ? 'text-white' : 'text-slate-950'
+                  }`}>
                     19
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-950/80 text-purple-950 dark:text-purple-200 border border-purple-300/90 shrink-0">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-violet-500/20 text-violet-950 dark:text-violet-200 border border-violet-300/90 shrink-0">
                     NBE Core
                   </span>
                 </div>
-                <span className="block text-[10px] sm:text-[11.5px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-violet-900 transition-colors leading-tight mt-0.5">
+                <span className={`block text-[10px] sm:text-[11.5px] font-bold leading-tight mt-0.5 ${
+                  circadian.isNight ? 'text-slate-300' : 'text-slate-700'
+                }`}>
                   Subjects
                 </span>
               </div>
@@ -1757,22 +1781,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               onClick={() => onNavigateTab('progress')}
-              className="group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-300/90 shadow-xs hover:shadow-md transition-all min-w-0 cursor-pointer"
+              className={`group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 backdrop-blur-xl transition-all min-w-0 cursor-pointer border ${
+                circadian.isNight
+                  ? 'bg-slate-900/80 border-sky-800/60 hover:border-emerald-400/60 shadow-xs'
+                  : 'bg-white/95 border-emerald-200/80 hover:border-emerald-300 shadow-xs hover:shadow-md'
+              }`}
             >
               <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-xs shadow-emerald-500/25 transition-all group-hover:scale-110">
                 <Activity className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className="text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight text-slate-950 dark:text-white group-hover:text-emerald-700 transition-colors shrink-0">
+                  <span className={`text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight shrink-0 ${
+                    circadian.isNight ? 'text-white' : 'text-slate-950'
+                  }`}>
                     {currentStreak || 1}d
                   </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/80 text-emerald-950 dark:text-emerald-200 border border-emerald-300/90 shrink-0">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-950 dark:text-emerald-200 border border-emerald-300/90 shrink-0">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Active
                   </span>
                 </div>
-                <span className="block text-[10px] sm:text-[11.5px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-emerald-900 transition-colors leading-tight mt-0.5">
+                <span className={`block text-[10px] sm:text-[11.5px] font-bold leading-tight mt-0.5 ${
+                  circadian.isNight ? 'text-slate-300' : 'text-slate-700'
+                }`}>
                   Study Streak
                 </span>
               </div>

@@ -320,7 +320,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-4 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
+        className={`relative rounded-3xl border p-4 sm:px-6 sm:py-4 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
       >
         {/* Background Atmosphere & Mountain Colonnade (isolated so dropdown never clips) */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
@@ -546,8 +546,8 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             <div className="space-y-1.5 min-w-0">
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
-                  <span className="text-[#005B54] dark:text-teal-400">GRAND TESTS </span>
-                  <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>&amp; MOCKS</span>
+                  <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>GRAND TESTS </span>
+                  <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>&amp; MOCKS</span>
                 </h1>
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                   <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-indigo-500'}`} />
@@ -555,7 +555,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
                 Simulate 300-Q NBE exams &amp; track your trajectory past the 150-mark cutoff.
               </p>
 

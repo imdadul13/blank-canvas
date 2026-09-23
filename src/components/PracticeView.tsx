@@ -104,7 +104,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-3xl border border-stone-200/80 p-4 sm:px-6 sm:py-4 shadow-xs transition-colors duration-700 ${circadian.bannerBg}`}
+        className={`relative rounded-3xl border p-4 sm:px-6 sm:py-4 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
       >
         {/* Background Atmosphere & Stethoscope Art (isolated so dropdown never clips) */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
@@ -298,13 +298,13 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         </div>
 
         {/* Top Utility Bar: Eyebrow + Live Circadian Focus Dropdown */}
-        <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/70">
+        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'}`}>
           <div className="flex items-center gap-2">
-            <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300">
+            <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${circadian.isNight ? 'text-cyan-300' : 'text-teal-700'}`}>
               PRACTICE • LEARN • MASTER
             </span>
             <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
-            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">
+            <span className={`text-[10px] font-mono font-bold tracking-widest uppercase hidden sm:inline ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
               10-MCQ CLINICAL DRILLS
             </span>
           </div>
@@ -325,8 +325,8 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               {/* Two-Tone Title & Badge */}
               <div className="flex flex-wrap items-center gap-2.5">
                 <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
-                  <span className="text-[#005B54] dark:text-teal-400">CLINICAL </span>
-                  <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>VIGNETTES &amp; DRILLS</span>
+                  <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>CLINICAL </span>
+                  <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>VIGNETTES &amp; DRILLS</span>
                 </h1>
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                   <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-sky-500'}`} />
@@ -335,7 +335,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               </div>
 
               {/* Subtitle */}
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
                 10-MCQ clinical drills with instant distractor breakdowns &amp; active recall.
               </p>
 

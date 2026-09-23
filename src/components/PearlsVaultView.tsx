@@ -871,8 +871,8 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             <div className="space-y-1.5 min-w-0">
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
-                  <span className="text-[#005B54] dark:text-teal-400">KNOWLEDGE </span>
-                  <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>&amp; PEARLS</span>
+                  <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>KNOWLEDGE </span>
+                  <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>&amp; PEARLS</span>
                 </h1>
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText} shadow-2xs`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
@@ -880,7 +880,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'} leading-relaxed max-w-xl`}>
+              <p className={`text-xs sm:text-sm ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'} leading-relaxed max-w-xl`}>
                 Clinical mnemonics, Drugs of Choice (DOC), diagnostic triads, and exam traps.
               </p>
 

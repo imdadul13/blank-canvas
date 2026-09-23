@@ -84,12 +84,35 @@ function AppInner() {
 
   // User custom background theme or time-based auto calculation (unified circadian state)
   const currentHour = new Date().getHours();
+  const [circadianOverride, setCircadianOverride] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('fmge_circadian_override');
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    const handleSync = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      setCircadianOverride(customEvent.detail || localStorage.getItem('fmge_circadian_override'));
+    };
+    window.addEventListener('circadian-theme-change', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('circadian-theme-change', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
+  }, []);
+
   const activeBg = useMemo(() => {
-    const resolved = resolveTimeOfDay(currentHour, state.settings?.bgTheme);
+    const resolved =
+      circadianOverride && ['morning', 'afternoon', 'evening', 'night'].includes(circadianOverride)
+        ? (circadianOverride as any)
+        : resolveTimeOfDay(currentHour, state.settings?.bgTheme);
     if (resolved === 'morning') return STUDY_BACKGROUNDS[0];
     if (resolved === 'afternoon' || resolved === 'evening') return STUDY_BACKGROUNDS[1];
     return STUDY_BACKGROUNDS[2];
-  }, [state.settings?.bgTheme, currentHour]);
+  }, [circadianOverride, state.settings?.bgTheme, currentHour]);
 
   const bgOpacity = state.settings?.bgOpacity ?? 0.8;
 

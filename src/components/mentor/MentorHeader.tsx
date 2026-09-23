@@ -322,8 +322,8 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
           <div className="space-y-1.5 min-w-0">
             <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
               <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
-                <span className="text-[#005B54] dark:text-teal-400">FACULTY </span>
-                <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>MENTOR</span>
+                <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>FACULTY </span>
+                <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>MENTOR</span>
               </h1>
               <button
                 type="button"
@@ -340,7 +340,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
               </button>
             </div>
 
-            <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
+            <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
               High-yield clinical explanations, complete exam vignettes, differential reasoning, and targeted remediation.
             </p>
           </div>

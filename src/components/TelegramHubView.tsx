@@ -1447,8 +1447,8 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             <div className="space-y-1.5 min-w-0">
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
-                  <span className="text-[#005B54] dark:text-teal-400">TELEGRAM </span>
-                  <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>KNOWLEDGE BANK</span>
+                  <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>TELEGRAM </span>
+                  <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>KNOWLEDGE BANK</span>
                 </h1>
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
@@ -1456,7 +1456,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 </span>
               </div>
 
-              <p className={`text-xs sm:text-sm leading-relaxed max-w-xl ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
+              <p className={`text-xs sm:text-sm leading-relaxed max-w-xl ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
                 High-yield FMGE content, intelligently curated from your verified sources.
               </p>
 

@@ -419,14 +419,16 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] sm:text-[11px] font-mono font-black tracking-[0.2em] uppercase text-indigo-950 dark:text-indigo-200">
+                  <span className={`text-[10px] sm:text-[11px] font-mono font-black tracking-[0.2em] uppercase ${
+                    circadian.isNight ? 'text-cyan-300' : 'text-indigo-950'
+                  }`}>
                     ANALYZE • IDENTIFY • IMPROVE
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                   <h1 className="text-xl sm:text-2xl lg:text-[26px] font-black tracking-tight font-display leading-tight">
-                    <span className="text-[#005B54] dark:text-teal-400">PERFORMANCE </span>
+                    <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>PERFORMANCE </span>
                     <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>&amp; DIAGNOSTICS</span>
                   </h1>
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
@@ -435,7 +437,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   </span>
                 </div>
 
-                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-100' : 'text-slate-800 dark:text-slate-100 font-semibold'}`}>
+                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
                   Know exactly where you stand. Diagnose preparation depth, clinical solving accuracy, and high-yield retention.
                 </p>
               </div>

@@ -161,11 +161,11 @@ export const MoreView: React.FC<MoreViewProps> = ({
 
                   <div className="space-y-1 min-w-0">
                     <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-['Outfit'] leading-tight">
-                      <span className="text-[#005B54] dark:text-teal-400">CLINICAL </span>
-                      <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>UTILITIES &amp; SERVICES</span>
+                      <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>CLINICAL </span>
+                      <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>UTILITIES &amp; SERVICES</span>
                     </h1>
 
-                    <p className={`text-xs sm:text-sm leading-relaxed ${circadian.subtitleColor}`}>
+                    <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
                       Grand test mock exams, Telegram clinical feed, cloud telemetry synchronization, and application preferences.
                     </p>
                   </div>

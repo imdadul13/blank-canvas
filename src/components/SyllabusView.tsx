@@ -183,11 +183,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-[28px] sm:rounded-[32px] border p-4 sm:p-5 lg:p-5.5 shadow-sm transition-colors duration-700 ${
-          circadian.isNight
-            ? 'bg-slate-900/95 border-sky-800/60 shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
-            : 'bg-white/95 dark:bg-slate-900/95 border-slate-200/90 dark:border-slate-800 shadow-sm'
-        }`}
+        className={`relative rounded-[28px] sm:rounded-[32px] border p-4 sm:p-5 lg:p-5.5 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
       >
         {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so popover never clips) */}
         <div className="absolute inset-0 overflow-hidden rounded-[28px] sm:rounded-[32px] pointer-events-none select-none" aria-hidden="true">
@@ -219,13 +215,13 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         </div>
 
         {/* Top Utility Strip: Eyebrow + Live Circadian Focus Dropdown */}
-        <div className="relative z-20 flex items-center justify-between gap-3 pb-3 border-b border-stone-200/60 dark:border-slate-800/70">
+        <div className={`relative z-20 flex items-center justify-between gap-3 pb-3 border-b ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'}`}>
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300">
+            <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${circadian.isNight ? 'text-cyan-300' : 'text-teal-700'}`}>
               STUDY PLAN • CURRICULUM
             </span>
             <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
-            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">
+            <span className={`text-[10px] font-mono font-bold tracking-widest uppercase hidden sm:inline ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
               DISCIPLINE TODAY · DOCTOR TOMORROW
             </span>
           </div>
@@ -242,24 +238,32 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                   <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
-                    <span className={circadian.isNight ? 'text-white' : 'text-slate-900'}>Your Study </span>
-                    <span className="text-[#00685F] dark:text-teal-400">Plan</span>
+                    <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>Your Study </span>
+                    <span className={circadian.isNight ? 'text-teal-300' : 'text-[#00685F]'}>Plan</span>
                   </h1>
 
                   {/* Dual Badges with High-Contrast Crisp Borders */}
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-teal-500/10 dark:bg-teal-950/70 text-[#00685F] dark:text-teal-300 border border-teal-300/80 dark:border-teal-700 shadow-2xs">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${
+                      circadian.isNight
+                        ? 'bg-teal-950/70 text-teal-300 border-teal-700'
+                        : 'bg-teal-500/10 text-[#00685F] border-teal-300/80'
+                    }`}>
                       <Layers className="w-3 h-3 text-[#00685F] dark:text-teal-300" />
                       <span>19 Subjects</span>
                     </span>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-amber-500/10 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300/80 dark:border-amber-700 shadow-2xs">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${
+                      circadian.isNight
+                        ? 'bg-amber-950/60 text-amber-300 border-amber-700'
+                        : 'bg-amber-500/10 text-amber-900 border-amber-300/80'
+                    }`}>
                       <BarChart3 className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                       <span>FMGE Blueprint</span>
                     </span>
                   </div>
                 </div>
 
-                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-600 dark:text-slate-300 font-medium'}`}>
+                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
                   Master the 19 subjects systematically. Clinical depth, step by step.
                 </p>
               </div>
