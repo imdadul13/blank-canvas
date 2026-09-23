@@ -183,10 +183,10 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-[28px] sm:rounded-[32px] border p-4 sm:p-5 lg:p-5.5 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
+        className={`relative rounded-[24px] sm:rounded-[28px] border p-3.5 sm:p-4 lg:p-4.5 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
       >
         {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so popover never clips) */}
-        <div className="absolute inset-0 overflow-hidden rounded-[28px] sm:rounded-[32px] pointer-events-none select-none" aria-hidden="true">
+        <div className="absolute inset-0 overflow-hidden rounded-[24px] sm:rounded-[28px] pointer-events-none select-none" aria-hidden="true">
           <CircadianHeaderAtmosphere circadian={circadian} />
 
           {/* Scenic mountain & sunrise backdrop on far right */}
@@ -215,7 +215,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         </div>
 
         {/* Top Utility Strip: Eyebrow + Live Circadian Focus Dropdown */}
-        <div className={`relative z-20 flex items-center justify-between gap-3 pb-3 border-b ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'}`}>
+        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2 border-b ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'}`}>
           <div className="flex items-center gap-2 text-xs">
             <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${circadian.isNight ? 'text-cyan-300' : 'text-teal-700'}`}>
               STUDY PLAN • CURRICULUM
@@ -229,10 +229,10 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         </div>
 
         {/* Main 2-Section Balanced Bento Layout */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 pt-3.5 items-center">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 pt-2 items-center">
           {/* ═══ LEFT SECTION: BRAND LOCKUP, TITLE, BADGES, SUBTITLE & TABS (Cols 1-7) ═══ */}
-          <div className="lg:col-span-7 space-y-3 min-w-0">
-            <div className="flex items-start gap-3.5">
+          <div className="lg:col-span-7 space-y-2 sm:space-y-2.5 min-w-0">
+            <div className="flex items-center gap-3 sm:gap-3.5">
               <HeaderGlassIcon icon={BookOpen} variant="teal" isNight={circadian.isNight} />
 
               <div className="space-y-1 min-w-0">
@@ -323,15 +323,15 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
 
           {/* ═══ RIGHT SECTION: INTEGRATED APPLE BENTO TELEMETRY CARD (Cols 8-12) ═══ */}
           <div className="lg:col-span-5">
-            <div className={`p-4 rounded-2xl border backdrop-blur-2xl transition-all ${
+            <div className={`p-3 rounded-2xl border backdrop-blur-2xl transition-all ${
               circadian.isNight
                 ? 'bg-slate-900/90 border-slate-800/80 shadow-[0_8px_24px_rgba(0,0,0,0.4)] text-slate-100'
                 : 'bg-white/95 border-slate-200/90 shadow-[0_8px_28px_rgba(0,107,99,0.08),inset_0_1px_1px_rgba(255,255,255,0.95)] text-slate-900'
             }`}>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-3 sm:gap-4">
                 {/* Circular Mastery Gauge */}
                 <div className="flex flex-col items-center shrink-0">
-                  <div className="relative w-20 h-20 sm:w-22 sm:h-22 flex items-center justify-center">
+                  <div className="relative w-16 h-16 sm:w-18 sm:h-18 flex items-center justify-center">
                     <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
                       <circle
                         cx="50"

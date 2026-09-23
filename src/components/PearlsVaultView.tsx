@@ -403,7 +403,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-3xl border p-4 sm:px-6 sm:py-4 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
+        className={`relative rounded-3xl border p-3.5 sm:px-5 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
       >
         {/* Background Atmosphere & Pearl Reliquary Art (isolated so dropdown never clips) */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
@@ -846,7 +846,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         </div>
 
         {/* Top Utility Bar: Eyebrow + Live Circadian Focus Dropdown */}
-        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b ${
+        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2 border-b ${
           circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
         }`}>
           <div className="flex items-center gap-2">
@@ -866,8 +866,8 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         </div>
 
         {/* Header Main Content matching knowledge-pearls-banner.png */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-3">
-          <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 max-w-3xl min-w-0">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 max-w-3xl min-w-0">
             <HeaderGlassIcon
               icon={Lightbulb}
               variant="amber"

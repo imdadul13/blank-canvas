@@ -248,7 +248,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         initial={{ opacity: 0, y: 16, scale: 0.99 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className={`relative rounded-3xl border ${circadian.cardBorder} p-4 sm:px-6 sm:py-4 transition-colors duration-700 ${circadian.bannerBg}`}
+        className={`relative rounded-3xl border ${circadian.cardBorder} p-3.5 sm:px-5 sm:py-3.5 transition-colors duration-700 ${circadian.bannerBg}`}
       >
         {/* Background Atmosphere & Lighthouse Art (isolated with overflow-hidden so dropdown never clips) */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
@@ -410,7 +410,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         {/* Main Content Layout matching performance-diagnostics-banner.png */}
         <div className="relative z-10 space-y-2.5">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
-            <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 min-w-0 max-w-3xl">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 min-w-0 max-w-3xl">
               <HeaderGlassIcon
                 icon={BarChart3}
                 variant="indigo"
@@ -462,7 +462,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           </div>
 
           {/* Secondary Switcher: [ Overview ] [ Error Vault ] [ Score Predictor ] with SwiftUI Slide Pill */}
-          <div className={`flex items-center justify-between gap-2 pt-2.5 border-t flex-wrap ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/90'}`}>
+          <div className={`flex items-center justify-between gap-2 pt-2 border-t flex-wrap ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/90'}`}>
             <div className={`inline-flex p-1 rounded-2xl shadow-2xs backdrop-blur-xl border ${
               circadian.isNight
                 ? 'bg-slate-900/95 border-sky-800/70'

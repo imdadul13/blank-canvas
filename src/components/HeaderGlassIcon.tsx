@@ -122,13 +122,13 @@ export const HeaderGlassIcon: React.FC<HeaderGlassIconProps> = ({
 
       {/* Apple Squircle Solid Gradient Container */}
       <div
-        className={`relative flex items-center justify-center w-12 h-12 sm:w-13 sm:h-13 rounded-2xl border transition-all ${
+        className={`relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-2xl border transition-all ${
           isNight
             ? 'bg-gradient-to-tr from-slate-900 via-sky-950 to-slate-900 text-cyan-300 border-sky-400/40 shadow-[0_0_24px_rgba(56,189,248,0.35),inset_0_1px_1.5px_rgba(56,189,248,0.4)]'
             : `${current.bg} ${current.border} ${current.shadow}`
         }`}
       >
-        <Icon className="w-5.5 h-5.5 sm:w-6 sm:h-6 stroke-[2.2] drop-shadow-xs" />
+        <Icon className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.2] drop-shadow-xs" />
 
         {/* Ambient Top-Right Golden Notification Dot */}
         <div

@@ -400,7 +400,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-3xl border p-4 sm:px-6 sm:py-3.5 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
+        className={`relative rounded-3xl border p-3.5 sm:px-5 sm:py-3 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
       >
         {/* Background Atmosphere (isolated with overflow-hidden so dropdown never clips) */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
@@ -624,7 +624,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
         </div>
 
         {/* Foreground Content — Bento Apple Glass Layout matching daily-focus-banner.png */}
-        <div className="relative z-10 flex flex-col gap-3.5">
+        <div className="relative z-10 flex flex-col gap-2.5">
           {/* Top Row: Eyebrow + Circadian Dropdown & Quick Metadata */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs font-semibold font-mono tracking-wider">
@@ -697,7 +697,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           </div>
 
           {/* Center Row: Glass Icon, Two-Tone Title, Badge & Subtitle */}
-          <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 sm:gap-4 max-w-3xl">
             <HeaderGlassIcon
               icon={Calendar}
               variant="amber"
@@ -723,7 +723,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           </div>
 
           {/* Bottom Row: Minimal Integrated Bento Telemetry Strip */}
-          <div className={`flex flex-wrap items-center gap-3 sm:gap-6 pt-3 border-t text-xs ${
+          <div className={`flex flex-wrap items-center gap-3 sm:gap-6 pt-2 sm:pt-2.5 border-t text-xs ${
             circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
           }`}>
             {/* Planned / Progress */}

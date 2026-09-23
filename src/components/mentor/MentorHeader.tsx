@@ -56,7 +56,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-      className={`relative rounded-3xl border p-4 sm:px-6 sm:py-4 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
+      className={`relative rounded-3xl border p-3.5 sm:px-5 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
     >
       {/* Background Atmosphere (isolated with overflow-hidden so dropdown never clips) */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
@@ -69,9 +69,9 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
             reducedMotion
               ? {}
               : {
-                  scale: [1, 1.18, 1],
-                  opacity: [0.35, 0.55, 0.35],
-                  x: [0, 16, 0],
+                  scale: [1, 1.15, 1],
+                  opacity: [0.14, 0.26, 0.14],
+                  x: [0, 14, 0],
                 }
           }
           transition={{
@@ -79,7 +79,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/35 via-emerald-200/25 to-transparent blur-3xl"
+          className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/25 via-emerald-200/15 to-transparent blur-3xl"
         />
         <motion.div
           animate={
@@ -87,7 +87,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
               ? {}
               : {
                   scale: [1.1, 1, 1.1],
-                  opacity: [0.22, 0.42, 0.22],
+                  opacity: [0.10, 0.20, 0.10],
                   y: [0, -10, 0],
                 }
           }
@@ -96,9 +96,9 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-cyan-200/30 via-teal-100/20 to-transparent blur-3xl"
+          className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-gradient-to-tr from-cyan-200/20 via-teal-100/12 to-transparent blur-3xl"
         />
-        <div className="absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r from-teal-200/20 via-emerald-100/15 to-transparent blur-3xl" />
+        <div className="absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r from-teal-200/15 via-emerald-100/10 to-transparent blur-3xl opacity-50" />
 
         {/* Subtle Precision Clinical Calibration Dot & Cross Pattern */}
         <svg
@@ -273,7 +273,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
       </div>
 
       {/* Top Utility Bar: Eyebrow + Countdown + Circadian Focus Dropdown */}
-      <div className="relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b border-stone-200/60 dark:border-slate-800/70">
+      <div className="relative z-20 flex items-center justify-between gap-3 pb-2 border-b border-stone-200/60 dark:border-slate-800/70">
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase text-teal-700 dark:text-teal-300">
             CLINICAL FACULTY MENTOR
@@ -315,8 +315,8 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
       </div>
 
       {/* Main Content Layout Matching faculty-mentor-banner.png */}
-      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-3">
-        <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 sm:gap-4 max-w-3xl min-w-0">
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 pt-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 max-w-3xl min-w-0">
           <HeaderGlassIcon
             icon={GraduationCap}
             variant="teal"

@@ -104,7 +104,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-3xl border p-4 sm:px-6 sm:py-4 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
+        className={`relative rounded-3xl border p-3.5 sm:px-5 sm:py-3.5 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
       >
         {/* Background Atmosphere & Stethoscope Art (isolated so dropdown never clips) */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
@@ -298,7 +298,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         </div>
 
         {/* Top Utility Bar: Eyebrow + Live Circadian Focus Dropdown */}
-        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2.5 border-b ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'}`}>
+        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2 border-b ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'}`}>
           <div className="flex items-center gap-2">
             <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${circadian.isNight ? 'text-cyan-300' : 'text-teal-700'}`}>
               PRACTICE • LEARN • MASTER
@@ -312,9 +312,9 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         </div>
 
         {/* Bento Content Layout matching practice-vignettes-banner.png */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-3">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 pt-2">
           {/* Left Column: Glass Icon, Two-Tone Title, Badges, Subtitle & Feature Pills */}
-          <div className="flex flex-col sm:flex-row sm:items-start gap-3.5 max-w-3xl min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 max-w-3xl min-w-0">
             <HeaderGlassIcon
               icon={Stethoscope}
               variant="teal"

@@ -127,13 +127,13 @@ export const MoreView: React.FC<MoreViewProps> = ({
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative rounded-3xl border p-4 sm:px-6 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
+            className={`relative rounded-3xl border p-3.5 sm:px-5 sm:py-3 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
           >
             <CircadianHeaderAtmosphere circadian={circadian} />
 
-            <div className="relative z-10 space-y-3">
+            <div className="relative z-10 space-y-2 sm:space-y-2.5">
               {/* Top Utility Row */}
-              <div className={`flex items-center justify-between gap-2 pb-2.5 border-b ${
+              <div className={`flex items-center justify-between gap-2 pb-2 border-b ${
                 circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
               }`}>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -155,8 +155,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
               </div>
 
               {/* Main Header Content */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-start gap-4 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4">
+                <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
                   <HeaderGlassIcon
                     icon={LayoutGrid}
                     variant="slate"

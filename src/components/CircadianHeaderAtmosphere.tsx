@@ -73,12 +73,12 @@ export const NocturnalCelestialCanvas: React.FC = () => {
             ? {}
             : {
                 scale: [1, 1.14, 1],
-                opacity: [0.35, 0.55, 0.35],
+                opacity: [0.18, 0.32, 0.18],
                 x: [0, 20, 0],
               }
         }
         transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -top-24 -right-16 h-80 w-80 rounded-full bg-gradient-to-br from-cyan-500/25 via-sky-600/18 to-transparent blur-3xl"
+        className="absolute -top-24 -right-16 h-80 w-80 rounded-full bg-gradient-to-br from-cyan-500/20 via-sky-600/12 to-transparent blur-3xl"
       />
       <motion.div
         animate={
@@ -86,14 +86,14 @@ export const NocturnalCelestialCanvas: React.FC = () => {
             ? {}
             : {
                 scale: [1.1, 1, 1.1],
-                opacity: [0.25, 0.45, 0.25],
+                opacity: [0.14, 0.25, 0.14],
                 y: [0, -15, 0],
               }
         }
         transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-gradient-to-tr from-indigo-600/25 via-blue-500/18 to-transparent blur-3xl"
+        className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-gradient-to-tr from-indigo-600/20 via-blue-500/12 to-transparent blur-3xl"
       />
-      <div className="absolute top-0 left-10 h-60 w-96 rounded-full bg-gradient-to-r from-teal-500/15 via-sky-500/10 to-transparent blur-3xl" />
+      <div className="absolute top-0 left-10 h-60 w-96 rounded-full bg-gradient-to-r from-teal-500/10 via-sky-500/08 to-transparent blur-3xl" />
 
       {/* ═══ 2. SVG STARRY SKY & CONSTELLATION CANVAS ═══ */}
       <svg
@@ -379,9 +379,9 @@ export const CircadianHeaderAtmosphere: React.FC<CircadianHeaderAtmosphereProps>
               reducedMotion
                 ? {}
                 : {
-                    scale: [1, 1.18, 1],
-                    opacity: [0.35, 0.65, 0.35],
-                    x: [0, 18, 0],
+                    scale: [1, 1.15, 1],
+                    opacity: [0.15, 0.30, 0.15],
+                    x: [0, 14, 0],
                   }
             }
             transition={{
@@ -398,8 +398,8 @@ export const CircadianHeaderAtmosphere: React.FC<CircadianHeaderAtmosphereProps>
                 ? {}
                 : {
                     scale: [1.1, 1, 1.1],
-                    opacity: [0.25, 0.5, 0.25],
-                    y: [0, -12, 0],
+                    opacity: [0.12, 0.22, 0.12],
+                    y: [0, -10, 0],
                   }
             }
             transition={{
@@ -411,7 +411,7 @@ export const CircadianHeaderAtmosphere: React.FC<CircadianHeaderAtmosphereProps>
           />
 
           <div
-            className={`absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r ${circadian.orb3} blur-3xl`}
+            className={`absolute -top-12 left-1/3 h-52 w-96 rounded-full bg-gradient-to-r ${circadian.orb3} blur-3xl opacity-50`}
           />
         </>
       )}
