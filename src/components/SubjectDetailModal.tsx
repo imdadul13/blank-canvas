@@ -136,12 +136,14 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
         <div className="flex min-h-full items-center justify-center p-2 sm:p-4 md:p-6">
           <div className="bg-[#F8FAFA] backdrop-blur-2xl rounded-3xl max-w-4xl w-full my-auto max-h-[92vh] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80 overflow-hidden">
             {/* ================= 1. WORKSPACE HEADER & NAVIGATION HIERARCHY ================= */}
-            <div className="relative overflow-hidden p-4 sm:p-6 border-b border-slate-200/80 bg-gradient-to-br from-white via-white to-slate-50/70 backdrop-blur-md space-y-4">
-              {/* Subtle Subject Light Leak */}
-              <div
-                className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl opacity-20 pointer-events-none"
-                style={{ backgroundColor: subjectTheme.color }}
-              />
+            <div className="relative shrink-0 p-4 sm:px-6 sm:py-4.5 border-b border-slate-200/80 bg-gradient-to-br from-white via-white to-slate-50/70 backdrop-blur-md space-y-3.5">
+              {/* Subtle Subject Light Leak (isolated with overflow-hidden so modal contents never clip) */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-t-3xl" aria-hidden="true">
+                <div
+                  className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl opacity-20 pointer-events-none"
+                  style={{ backgroundColor: subjectTheme.color }}
+                />
+              </div>
 
               {/* Navigation Location Bar: Study → Subject */}
               <div className="flex items-center justify-between gap-3 relative z-10">
@@ -234,7 +236,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
               </div>
 
               {/* Subject Progress & Mastery Bar — Apple Bento Container */}
-              <div className="p-4 rounded-2xl sm:rounded-3xl bg-white/95 border border-slate-200/90 space-y-3.5 shadow-xs relative z-10">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white/95 border border-slate-200/90 space-y-2.5 shadow-xs relative z-10">
                 {/* Progress track */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">

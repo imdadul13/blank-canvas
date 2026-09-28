@@ -34,6 +34,7 @@ class SpeechEngine {
   private activeTextId: string | undefined = undefined;
   private listeners: Set<SpeechStateListener> = new Set();
   private speechRate: number = 1.0;
+  private speechEpoch: number = 0;
 
   // Playlist State
   private playlist: PlaylistItem[] = [];
@@ -45,6 +46,20 @@ class SpeechEngine {
   constructor() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       this.synth = window.speechSynthesis;
+    }
+  }
+
+  private cancelSpeech() {
+    this.speechEpoch++;
+    this.clearAutoAdvanceTimer();
+    if (this.currentUtterance) {
+      this.currentUtterance.onstart = null;
+      this.currentUtterance.onend = null;
+      this.currentUtterance.onerror = null;
+      this.currentUtterance = null;
+    }
+    if (this.synth) {
+      this.synth.cancel();
     }
   }
 
@@ -133,6 +148,9 @@ class SpeechEngine {
   ) {
     if (!this.synth) return;
 
+    this.cancelSpeech();
+    const epoch = this.speechEpoch;
+
     const cleanText = text
       .replace(/[#*`_~]/g, '')
       .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
@@ -140,7 +158,9 @@ class SpeechEngine {
       .trim();
 
     if (!cleanText) {
-      if (onEndedCallback) onEndedCallback();
+      if (onEndedCallback && epoch === this.speechEpoch) {
+        onEndedCallback();
+      }
       return;
     }
 
@@ -171,10 +191,12 @@ class SpeechEngine {
     this.isPausedState = false;
 
     utterance.onstart = () => {
+      if (epoch !== this.speechEpoch) return;
       this.notify();
     };
 
     utterance.onend = () => {
+      if (epoch !== this.speechEpoch) return;
       this.activeTextId = undefined;
       this.currentUtterance = null;
       this.notify();
@@ -183,7 +205,11 @@ class SpeechEngine {
       }
     };
 
-    utterance.onerror = () => {
+    utterance.onerror = (e: SpeechSynthesisErrorEvent) => {
+      if (epoch !== this.speechEpoch) return;
+      if (e?.error === 'canceled' || e?.error === 'interrupted') {
+        return;
+      }
       this.activeTextId = undefined;
       this.currentUtterance = null;
       this.notify();
@@ -201,8 +227,7 @@ class SpeechEngine {
    */
   public playPlaylist(items: PlaylistItem[], startIndex: number = 0) {
     if (!items || items.length === 0) return;
-    this.stop();
-    this.clearAutoAdvanceTimer();
+    this.cancelSpeech();
 
     this.playlist = [...items];
     this.playlistIndex = Math.max(0, Math.min(startIndex, items.length - 1));
@@ -218,15 +243,16 @@ class SpeechEngine {
       return;
     }
 
+    const epoch = this.speechEpoch;
     const current = this.playlist[this.playlistIndex];
     const speechScript = `${current.title}. ${current.text}`;
 
     this.speakItemInternal(current.id, speechScript, this.speechRate, () => {
-      if (!this.isPlaylistActive) return;
+      if (!this.isPlaylistActive || epoch !== this.speechEpoch) return;
 
       // 1.8 second natural reflective pause before next clinical pearl
       this.autoAdvanceTimer = setTimeout(() => {
-        if (!this.isPlaylistActive) return;
+        if (!this.isPlaylistActive || epoch !== this.speechEpoch) return;
         if (this.playlistIndex < this.playlist.length - 1) {
           this.playlistIndex += 1;
           this.playCurrentPlaylistItem();
@@ -247,10 +273,9 @@ class SpeechEngine {
 
   public nextTrack() {
     if (!this.isPlaylistActive || this.playlist.length === 0) return;
-    this.clearAutoAdvanceTimer();
+    this.cancelSpeech();
     if (this.playlistIndex < this.playlist.length - 1) {
       this.playlistIndex += 1;
-      this.stop();
       this.playCurrentPlaylistItem();
     } else {
       this.stopPlaylist();
@@ -259,15 +284,11 @@ class SpeechEngine {
 
   public prevTrack() {
     if (!this.isPlaylistActive || this.playlist.length === 0) return;
-    this.clearAutoAdvanceTimer();
+    this.cancelSpeech();
     if (this.playlistIndex > 0) {
       this.playlistIndex -= 1;
-      this.stop();
-      this.playCurrentPlaylistItem();
-    } else {
-      this.stop();
-      this.playCurrentPlaylistItem();
     }
+    this.playCurrentPlaylistItem();
   }
 
   public togglePauseResume() {
@@ -285,21 +306,18 @@ class SpeechEngine {
   }
 
   public stopPlaylist() {
-    this.clearAutoAdvanceTimer();
+    this.cancelSpeech();
     this.isPlaylistActive = false;
     this.isPausedState = false;
     this.playlist = [];
     this.playlistIndex = 0;
-    this.stop();
+    this.activeTextId = undefined;
+    this.notify();
   }
 
   public stop() {
-    this.clearAutoAdvanceTimer();
-    if (this.synth) {
-      this.synth.cancel();
-    }
+    this.cancelSpeech();
     this.activeTextId = undefined;
-    this.currentUtterance = null;
     this.notify();
   }
 }
