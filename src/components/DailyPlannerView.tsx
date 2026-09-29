@@ -4,30 +4,21 @@ import {
   Clock,
   Play,
   Pause,
-  RotateCcw,
   Square,
   Plus,
   Trash2,
   CheckCircle2,
   Flame,
   Target,
-  Smile,
   Calendar,
   BookmarkCheck,
-  Volume2,
-  VolumeX,
   Check,
   Lightbulb,
   Settings,
   BookOpen,
-  Bell,
-  ArrowRight,
   ArrowLeft,
-  ChevronDown,
   ChevronRight,
   X,
-  HelpCircle,
-  TrendingUp,
   Headphones,
 } from 'lucide-react';
 import { DailyTask, DailyStudyLog, AppState } from '../types';
@@ -35,13 +26,10 @@ import { motion } from 'motion/react';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { getLocalDateKey } from '../utils/date';
 import { useAuth } from '../context/AuthContext';
-import { getPersonalizedDailyPlan, PersonalizedPlanTask } from '../utils/personalizationEngine';
+import { getPersonalizedDailyPlan } from '../utils/personalizationEngine';
 import { calculateStudyStreak } from '../utils/dailyMissionEngine';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
-import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
-import { HeaderTabInsignia } from './HeaderTabInsignia';
 import { CircadianFocusDropdown } from './CircadianFocusDropdown';
-import { HeaderGlassIcon } from './HeaderGlassIcon';
 
 interface DailyPlannerViewProps {
   state: AppState;
@@ -395,385 +383,152 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
         paddingBottom: 'calc(max(1rem, env(safe-area-inset-bottom, 1rem)) + 145px)',
       }}
     >
-      {/* 1. Header & Greeting Area — Animated Hero Card */}
+      {/* 1. Header & Greeting Area — Apple Luminous Hero Card */}
       <motion.header
-        initial={{ opacity: 0, y: -12 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-3xl border p-3.5 sm:px-5 sm:py-3 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(255,149,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-orange-200/50"
+        style={{
+          background: 'linear-gradient(135deg, #FFF9F2 0%, #FFF1E0 35%, #FFE2C2 70%, #FFD4A3 100%)',
+        }}
       >
-        {/* Background Atmosphere (isolated with overflow-hidden so dropdown never clips) */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
-          {/* Dynamic Circadian Ambient Schedule Atmosphere & 2px Shimmer Track */}
-          <CircadianHeaderAtmosphere circadian={circadian} />
+        {/* Soft Ambient Glow */}
+        <div
+          className="absolute right-0 top-0 bottom-0 w-3/5 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at 85% 45%, rgba(255,149,0,0.20) 0%, rgba(255,107,0,0.06) 50%, transparent 75%)',
+          }}
+        />
 
-          {/* Dynamic Animated Ambient Effects */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
-
-          {/* Subtle Coordinate Grid */}
-          <svg
-            className="absolute inset-0 h-full w-full opacity-[0.03] text-amber-950 pointer-events-none select-none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <pattern id="planner-hero-grid" width="28" height="28" patternUnits="userSpaceOnUse">
-                <path d="M 28 0 L 0 0 0 28" fill="none" stroke="currentColor" strokeWidth="0.75" />
-                <circle cx="28" cy="28" r="0.75" fill="currentColor" opacity="0.6" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#planner-hero-grid)" />
-          </svg>
-
-          {/* Premium Chrono-Sanctorum Sunlit Astrolabe & Morning Window Artwork */}
-          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[500px] overflow-hidden opacity-25 sm:opacity-35 md:opacity-[0.42] select-none pointer-events-none block">
-            <svg viewBox="0 0 520 145" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
-              <defs>
-                <linearGradient id="planner-window-sky" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#FEF3C7" stopOpacity="0.85" />
-                  <stop offset="50%" stopColor="#FDE68A" stopOpacity="0.5" />
-                  <stop offset="100%" stopColor="#D1FAE5" stopOpacity="0.3" />
-                </linearGradient>
-                <linearGradient id="planner-brass-metal" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#FDE68A" />
-                  <stop offset="45%" stopColor="#D97706" />
-                  <stop offset="85%" stopColor="#B45309" />
-                  <stop offset="100%" stopColor="#78350F" />
-                </linearGradient>
-                <linearGradient id="planner-hills" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.55" />
-                  <stop offset="100%" stopColor="#1D4ED8" stopOpacity="0.85" />
-                </linearGradient>
-                <radialGradient id="planner-sun-glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.75" />
-                  <stop offset="50%" stopColor="#FBBF24" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#D97706" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Ambient Morning Solar Glow */}
-              <motion.circle
-                cx="420"
-                cy="46"
-                r="65"
-                fill="url(#planner-sun-glow)"
-                animate={{ scale: [1, 1.15, 1], opacity: [0.45, 0.75, 0.45] }}
-                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
-              />
-
-              {/* ═══ 1. ARCHED WINDOW WITH MORNING SUNRISE VIEW ═══ */}
-              <g transform="translate(390, 15)">
-                {/* Window Sky Backdrop */}
-                <path
-                  d="M -50 40 A 50 50 0 0 1 50 40 L 50 120 L -50 120 Z"
-                  fill="url(#planner-window-sky)"
-                />
-
-                {/* Distant Dawn Rolling Hills through Window */}
-                <path
-                  d="M -50 85 Q -20 68 15 78 Q 35 72 50 85 L 50 120 L -50 120 Z"
-                  fill="url(#planner-hills)"
-                />
-
-                {/* Rising Dawn Sun on Horizon */}
-                <circle cx="15" cy="68" r="12" fill="#F59E0B" />
-                <motion.circle
-                  cx="15"
-                  cy="68"
-                  r="20"
-                  stroke="#FDE68A"
-                  strokeWidth="1.2"
-                  fill="none"
-                  animate={{ scale: [1, 1.6], opacity: [0.75, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }}
-                />
-
-                {/* Architectural Arched Window Frame */}
-                <path
-                  d="M -50 40 A 50 50 0 0 1 50 40 L 50 125 L -50 125 Z"
-                  stroke="#B45309"
-                  strokeWidth="4"
-                  strokeOpacity="0.4"
-                  fill="none"
-                />
-                {/* Window Pane Muntin Bars */}
-                <line x1="0" y1="-10" x2="0" y2="120" stroke="#B45309" strokeWidth="1.6" strokeOpacity="0.35" />
-                <line x1="-50" y1="50" x2="50" y2="50" stroke="#B45309" strokeWidth="1.6" strokeOpacity="0.35" />
-              </g>
-
-              {/* Study Desk Window Sill Base */}
-              <rect x="220" y="132" width="300" height="13" fill="#78350F" opacity="0.45" rx="2" />
-              <line x1="220" y1="132" x2="520" y2="132" stroke="#B45309" strokeWidth="1.5" opacity="0.6" />
-
-              {/* ═══ 2. BRASS CELESTIAL ASTROLABE / ARMILLARY SPHERE ═══ */}
-              <g transform="translate(455, 95)">
-                {/* Turned Brass Base Stanchion */}
-                <path d="M -8 37 L 8 37 L 4 24 L -4 24 Z" fill="url(#planner-brass-metal)" />
-                <rect x="-12" y="35" width="24" height="3" rx="1.5" fill="url(#planner-brass-metal)" />
-
-                {/* Outer Astrolabe Ring with Meridian Ticks */}
-                <circle r="26" stroke="url(#planner-brass-metal)" strokeWidth="2.2" fill="none" />
-                {/* Meridian Axis Pivot */}
-                <line x1="0" y1="-26" x2="0" y2="24" stroke="url(#planner-brass-metal)" strokeWidth="1.6" />
-
-                {/* Rotating Inclined Ecliptic Band Ring */}
-                <motion.ellipse
-                  cx="0"
-                  cy="0"
-                  rx="24"
-                  ry="9"
-                  stroke="url(#planner-brass-metal)"
-                  strokeWidth="1.8"
-                  fill="none"
-                  transform="rotate(-28)"
-                  animate={{ rotate: [-28, 332] }}
-                  transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
-                />
-
-                {/* Equatorial Ring */}
-                <ellipse cx="0" cy="0" rx="22" ry="7" stroke="url(#planner-brass-metal)" strokeWidth="1.2" fill="none" opacity="0.75" />
-
-                {/* Central Terrestrial Solar Sphere */}
-                <circle r="4.5" fill="#F59E0B" />
-                <circle r="1.5" fill="#FFFFFF" />
-              </g>
-
-              {/* ═══ 3. CLASSICAL FOCUS HOURGLASS ON DESK ═══ */}
-              <g transform="translate(340, 102)">
-                {/* Top Wooden Base Plate */}
-                <rect x="-14" y="-24" width="28" height="3.5" rx="1" fill="#78350F" stroke="#B45309" strokeWidth="0.8" />
-                {/* Bottom Wooden Base Plate */}
-                <rect x="-14" y="26" width="28" height="3.5" rx="1" fill="#78350F" stroke="#B45309" strokeWidth="0.8" />
-                {/* Side Supporting Struts */}
-                <line x1="-11" y1="-21" x2="-11" y2="26" stroke="#B45309" strokeWidth="1.2" />
-                <line x1="11" y1="-21" x2="11" y2="26" stroke="#B45309" strokeWidth="1.2" />
-
-                {/* Glass Bulbs Silhouette */}
-                <path
-                  d="M -9 -21 L 9 -21 C 7 -4, 2 -2, 0 1 C -2 -2, -7 -4, -9 -21 Z"
-                  fill="#FFFFFF"
-                  fillOpacity="0.4"
-                  stroke="#FDE68A"
-                  strokeWidth="0.9"
-                />
-                <path
-                  d="M 0 1 C 2 4, 7 6, 9 26 L -9 26 C -7 6, -2 4, 0 1 Z"
-                  fill="#FFFFFF"
-                  fillOpacity="0.4"
-                  stroke="#FDE68A"
-                  strokeWidth="0.9"
-                />
-
-                {/* Upper Sand Chamber */}
-                <path d="M -7 -14 Q 0 -6 7 -14 L 0 0 Z" fill="#F59E0B" opacity="0.85" />
-
-                {/* Trickling Golden Sand Stream */}
-                <motion.line
-                  x1="0"
-                  y1="1"
-                  x2="0"
-                  y2="18"
-                  stroke="#F59E0B"
-                  strokeWidth="1.2"
-                  strokeDasharray="2 2"
-                  animate={{ strokeDashoffset: [0, -12] }}
-                  transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                />
-
-                {/* Lower Accumulated Sand Pile */}
-                <path d="M -7 25 Q 0 16 7 25 Z" fill="#F59E0B" opacity="0.9" />
-              </g>
-
-              {/* ═══ 4. STEAMING MORNING TEA / COFFEE MUG ═══ */}
-              <g transform="translate(285, 118)">
-                {/* Porcelain Cup Body */}
-                <rect x="-8" y="0" width="16" height="14" rx="2" fill="#FFFFFF" stroke="#94A3B8" strokeWidth="0.8" />
-                {/* Handle */}
-                <path d="M -8 3 C -13 3, -13 11, -8 11" stroke="#94A3B8" strokeWidth="1.2" fill="none" />
-
-                {/* Rising Fragrant Steam Curl 1 */}
-                <motion.path
-                  d="M -3 0 Q -7 -8 -2 -14 Q 3 -20 -1 -26"
-                  stroke="#FDE68A"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  fill="none"
-                  animate={{
-                    y: [0, -4, 0],
-                    opacity: [0.2, 0.75, 0.2],
-                  }}
-                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-                />
-
-                {/* Rising Fragrant Steam Curl 2 */}
-                <motion.path
-                  d="M 3 -2 Q 7 -9 2 -16 Q -2 -22 2 -28"
-                  stroke="#FDE68A"
-                  strokeWidth="1.1"
-                  strokeLinecap="round"
-                  fill="none"
-                  animate={{
-                    y: [0, -5, 0],
-                    opacity: [0.15, 0.65, 0.15],
-                  }}
-                  transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
-                />
-              </g>
-            </svg>
-          </div>
-        </div>
-        </div>
-
-        {/* Foreground Content — Bento Apple Glass Layout matching daily-focus-banner.png */}
-        <div className="relative z-10 flex flex-col gap-2.5">
-          {/* Top Row: Eyebrow + Circadian Dropdown & Quick Metadata */}
+        {/* Content */}
+        <div className="relative z-10 p-5 sm:p-6 lg:p-8 space-y-5 sm:space-y-6">
+          {/* Top Bar: Back to Dashboard, Eyebrow & Metadata Cluster */}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs font-semibold font-mono tracking-wider">
-              {onBackToOverview ? (
+            <div className="flex items-center gap-2">
+              {onBackToOverview && (
                 <button
                   type="button"
                   onClick={onBackToOverview}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer border ${
-                    circadian.isNight
-                      ? 'bg-slate-900/90 text-cyan-300 border-sky-800/70 hover:bg-slate-800'
-                      : 'bg-white/95 text-[#007AFF] border-black/[0.08] hover:bg-black/[0.03] shadow-2xs'
-                  }`}
-                  title="Return to Home Overview"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/80 hover:bg-white text-[#1D1D1F] border border-[rgba(60,60,67,0.10)] shadow-xs transition-all cursor-pointer"
+                  title="Return to Home Dashboard"
                 >
-                  <ArrowLeft className="w-3 h-3 stroke-[2.5]" />
+                  <ArrowLeft className="w-3.5 h-3.5 stroke-[2.2]" />
                   <span>Dashboard</span>
                 </button>
-              ) : (
-                <span className="text-slate-600 dark:text-slate-400 font-mono font-bold uppercase text-[11px]">PLANNER</span>
               )}
-              <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
-              <span className={`font-bold uppercase text-[11px] flex items-center gap-1.5 ${
-                circadian.isNight ? 'text-cyan-300' : 'text-teal-800'
-              }`}>
-                <span className={`h-1.5 w-1.5 rounded-full animate-pulse ${
-                  circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-emerald-500'
-                }`} />
-                DAILY FOCUS
-              </span>
-              <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-stone-300'}`}>•</span>
-              <span className={`font-sans text-xs hidden sm:inline normal-case font-medium ${
-                circadian.isNight ? 'text-slate-300' : 'text-slate-600'
-              }`}>
-                {greeting}
-              </span>
+
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 backdrop-blur-md border border-[rgba(60,60,67,0.08)] text-xs font-semibold text-[#FF9500]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] animate-pulse" />
+                <span className="uppercase tracking-wider text-[11px] font-bold">Daily Focus</span>
+                <span className="text-[#C7C7CC]">·</span>
+                <span className="text-[#3C3C43] font-normal hidden sm:inline">{greeting}</span>
+              </div>
             </div>
 
             {/* Quick Metadata Cluster */}
             <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-              <CircadianFocusDropdown circadian={circadian} />
+              <CircadianFocusDropdown circadian={circadian} align="right" isDark={false} />
 
               {/* Today's Date */}
-              <motion.div
-                whileHover={{ scale: 1.03, y: -1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-2xs backdrop-blur-md border ${
-                  circadian.isNight
-                    ? 'bg-slate-900/90 border-sky-500/40 text-slate-100'
-                    : 'bg-teal-500/10 border-teal-300/80 text-teal-900'
-                }`}
-              >
-                <Calendar className={`w-3.5 h-3.5 ${circadian.isNight ? 'text-cyan-400' : 'text-[#00685F]'}`} />
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/80 backdrop-blur-md border border-[rgba(60,60,67,0.10)] text-[#1D1D1F] shadow-xs">
+                <Calendar className="w-3.5 h-3.5 text-[#FF9500]" />
                 <span>{formattedDate}</span>
-              </motion.div>
+              </div>
 
               {/* Active Streak */}
-              <motion.div
-                whileHover={{ scale: 1.03, y: -1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold shadow-2xs border ${
-                  circadian.isNight
-                    ? 'bg-orange-950/70 border-orange-500/50 text-orange-200'
-                    : 'bg-orange-500/10 border-orange-300/80 text-orange-900'
-                }`}
-              >
-                <Flame className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
-                <span>{streakDays}d</span>
-              </motion.div>
+              <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-white/80 backdrop-blur-md border border-orange-200/80 text-[#FF9500] shadow-xs">
+                <Flame className="w-3.5 h-3.5 fill-[#FF9500] text-[#FF9500]" />
+                <span>{streakDays}d streak</span>
+              </div>
             </div>
           </div>
 
-          {/* Center Row: Glass Icon, Two-Tone Title, Badge & Subtitle */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 sm:gap-4 max-w-3xl">
-            <HeaderGlassIcon
-              icon={Calendar}
-              variant="amber"
-              isNight={circadian.isNight}
-            />
-
-            <div className="space-y-1.5 min-w-0">
-              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-snug">
-                  <span className={circadian.isNight ? 'text-blue-300' : 'text-[#007AFF]'}>TODAY’S PLAN </span>
-                  <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>&amp; FOCUS</span>
-                </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-teal-500'}`} />
-                  Daily Planner · Clinical Schedule
-                </span>
-              </div>
-
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
+          {/* Main Hero Row: Title & Subtitle + Interactive Mini Chrono Card */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2.5 max-w-xl min-w-0">
+              <h1 className="text-[36px] sm:text-[46px] lg:text-[52px] font-black tracking-[-0.04em] leading-[0.92] text-[#1D1D1F]">
+                Today’s Plan <br />
+                <span className="text-[#FF9500]">&amp; Clinical Focus</span>
+              </h1>
+              <p className="text-[14px] sm:text-[15px] font-medium text-[#3C3C43] leading-snug">
                 Focus on high-yield mastery. One intentional milestone at a time.
               </p>
             </div>
+
+            {/* Right Mini Goal Gauge Widget */}
+            <div className="bg-white/80 backdrop-blur-md border border-white/90 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm flex items-center gap-4 sm:gap-5 shrink-0 max-w-sm">
+              <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center shrink-0">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r="20" stroke="#F2F2F7" strokeWidth="4.5" fill="none" />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    stroke="#FF9500"
+                    strokeWidth="4.5"
+                    strokeDasharray={125.6}
+                    strokeDashoffset={125.6 * (1 - dailyGoalPercent / 100)}
+                    strokeLinecap="round"
+                    fill="none"
+                    className="transition-all duration-700 ease-out"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span className="font-mono text-xs sm:text-sm font-bold text-[#1D1D1F]">{dailyGoalPercent}%</span>
+                </div>
+              </div>
+
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#FF9500]">Daily Target</span>
+                  <span className="text-[10px] text-[#8E8E93]">({dailyGoalHours}h Goal)</span>
+                </div>
+                <div className="text-xs font-semibold text-[#1D1D1F] truncate">
+                  {studyTimeFormatted} logged today
+                </div>
+                <div className="text-[11px] text-[#8E8E93] truncate">
+                  {completedTaskCount} of {totalTaskCount} tasks finished
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Bottom Row: Minimal Integrated Bento Telemetry Strip */}
-          <div className={`flex flex-wrap items-center gap-3 sm:gap-6 pt-2 sm:pt-2.5 border-t text-xs ${
-            circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
-          }`}>
-            {/* Planned / Progress */}
+          {/* Bottom Telemetry Strip: Apple frosted glass row */}
+          <div className="pt-3 border-t border-[rgba(0,0,0,0.06)] flex flex-wrap items-center gap-3 sm:gap-6 text-xs text-[#1D1D1F]">
             <div className="flex items-center gap-2">
-              <div className={`w-7.5 h-7.5 rounded-xl flex items-center justify-center shrink-0 border shadow-2xs ${
-                circadian.isNight
-                  ? 'bg-slate-800/90 border-slate-700 text-teal-300'
-                  : 'bg-teal-500/10 text-[#00685F] border-teal-300/70'
-              }`}>
+              <div className="w-7 h-7 rounded-xl bg-white/80 border border-white/90 shadow-2xs flex items-center justify-center text-[#FF9500]">
                 <BookmarkCheck className="w-4 h-4 stroke-[2.2]" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className={`text-[11px] font-sans font-semibold ${circadian.isNight ? 'text-slate-300' : 'text-slate-700'}`}>Tasks:</span>
-                <span className={`font-extrabold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{completedTaskCount}/{totalTaskCount}</span>
-                <span className={`font-bold text-[11px] ${circadian.isNight ? 'text-cyan-400' : 'text-teal-700 dark:text-teal-300'}`}>({progressPercent}%)</span>
+                <span className="text-[11px] font-sans font-medium text-[#6E6E73]">Tasks:</span>
+                <span className="font-bold text-xs text-[#1D1D1F]">{completedTaskCount}/{totalTaskCount}</span>
+                <span className="font-bold text-[11px] text-[#FF9500]">({progressPercent}%)</span>
               </div>
             </div>
 
-            <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-slate-300'}`}>•</span>
+            <span className="text-[#C7C7CC] hidden sm:inline">·</span>
 
-            {/* Study Time */}
             <div className="flex items-center gap-2">
-              <div className={`w-7.5 h-7.5 rounded-xl flex items-center justify-center shrink-0 border shadow-2xs ${
-                circadian.isNight
-                  ? 'bg-slate-800/90 border-slate-700 text-amber-300'
-                  : 'bg-amber-500/10 text-amber-800 border-amber-300/70'
-              }`}>
+              <div className="w-7 h-7 rounded-xl bg-white/80 border border-white/90 shadow-2xs flex items-center justify-center text-[#007AFF]">
                 <Clock className="w-4 h-4 stroke-[2.2]" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className={`text-[11px] font-sans font-semibold ${circadian.isNight ? 'text-slate-300' : 'text-slate-700'}`}>Focus Time:</span>
-                <span className={`font-extrabold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{studyTimeFormatted}</span>
-                <span className={`text-[11px] font-sans font-medium ${circadian.isNight ? 'text-slate-400' : 'text-slate-600'}`}>/ {dailyGoalHours}h</span>
+                <span className="text-[11px] font-sans font-medium text-[#6E6E73]">Focus Time:</span>
+                <span className="font-bold text-xs text-[#1D1D1F]">{studyTimeFormatted}</span>
+                <span className="text-[11px] font-sans text-[#8E8E93]">/ {dailyGoalHours}h</span>
               </div>
             </div>
 
-            <span className={`hidden sm:inline ${circadian.isNight ? 'text-sky-800' : 'text-slate-300'}`}>•</span>
+            <span className="text-[#C7C7CC] hidden sm:inline">·</span>
 
-            {/* Goal % */}
             <div className="flex items-center gap-2">
-              <div className={`w-7.5 h-7.5 rounded-xl flex items-center justify-center shrink-0 border shadow-2xs ${
-                circadian.isNight
-                  ? 'bg-slate-800/90 border-slate-700 text-emerald-300'
-                  : 'bg-emerald-500/10 text-emerald-800 border-emerald-300/70'
-              }`}>
+              <div className="w-7 h-7 rounded-xl bg-white/80 border border-white/90 shadow-2xs flex items-center justify-center text-[#30D158]">
                 <Target className="w-4 h-4 stroke-[2.2]" />
               </div>
               <div className="flex items-baseline gap-1.5 font-mono">
-                <span className={`text-[11px] font-sans font-semibold ${circadian.isNight ? 'text-slate-300' : 'text-slate-700'}`}>Daily Goal:</span>
-                <span className={`font-extrabold text-xs sm:text-[13px] ${circadian.isNight ? 'text-emerald-400' : 'text-emerald-700 dark:text-emerald-300'}`}>{dailyGoalPercent}%</span>
+                <span className="text-[11px] font-sans font-medium text-[#6E6E73]">Daily Goal:</span>
+                <span className="font-bold text-xs text-[#30D158]">{dailyGoalPercent}%</span>
               </div>
             </div>
           </div>
@@ -782,31 +537,31 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
       {/* 2. Sub-Header Controls & View Calendar */}
       <div className="flex items-center justify-between gap-3 pt-1">
-        {/* Mobile Tab Switcher: Only displayed on smaller screens where columns are tabbed */}
-        <div className="lg:hidden inline-flex p-1 bg-stone-100 dark:bg-slate-800 rounded-full border border-stone-200/70 dark:border-white/10 shadow-2xs">
+        {/* Mobile Tab Switcher */}
+        <div className="lg:hidden inline-flex p-1 bg-[#E5E5EA] rounded-full border border-[rgba(60,60,67,0.08)] shadow-2xs">
           <button
             type="button"
             onClick={() => setMobileTab('planner')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
               mobileTab === 'planner'
-                ? 'bg-[#007AFF] text-white shadow-xs'
-                : 'text-stone-600 dark:text-slate-300 hover:text-stone-900'
+                ? 'bg-white text-[#1D1D1F] shadow-xs'
+                : 'text-[#6E6E73] hover:text-[#1D1D1F]'
             }`}
           >
-            <BookmarkCheck className="w-4 h-4" />
+            <BookmarkCheck className="w-4 h-4 text-[#007AFF]" />
             <span>Daily Planner</span>
           </button>
 
           <button
             type="button"
             onClick={() => setMobileTab('focus')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
               mobileTab === 'focus'
-                ? 'bg-[#007AFF] text-white shadow-xs'
-                : 'text-stone-600 dark:text-slate-300 hover:text-stone-900'
+                ? 'bg-white text-[#1D1D1F] shadow-xs'
+                : 'text-[#6E6E73] hover:text-[#1D1D1F]'
             }`}
           >
-            <Clock className="w-4 h-4" />
+            <Clock className="w-4 h-4 text-[#FF9500]" />
             <span>Focus Engine</span>
           </button>
         </div>
@@ -816,7 +571,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           <button
             type="button"
             onClick={() => setShowCalendarModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200/80 hover:border-stone-300 text-stone-700 hover:text-stone-900 text-xs font-bold shadow-2xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] text-[#1D1D1F] text-xs font-semibold shadow-xs transition-all cursor-pointer active:scale-95"
           >
             <Calendar className="w-3.5 h-3.5 text-[#007AFF]" />
             <span>View Calendar</span>
@@ -833,18 +588,18 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           }`}
         >
           {/* Card 1: Today's Personalized Plan + Top Priority */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[rgba(60,60,67,0.10)] shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-6">
             {/* Card Header */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="p-2.5 rounded-2xl bg-blue-500/[0.08] text-[#007AFF] border border-blue-500/20 shrink-0 mt-0.5">
+                <div className="p-2.5 rounded-2xl bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/15 shrink-0 mt-0.5 shadow-2xs">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+                  <h2 className="text-base sm:text-lg font-bold text-[#1D1D1F] leading-snug">
                     Today’s Personalized Plan
                   </h2>
-                  <p className="text-xs text-stone-500 mt-0.5 leading-relaxed">
+                  <p className="text-xs text-[#8E8E93] mt-0.5 leading-relaxed font-medium">
                     Curated from your weak areas, revision cycle, and exam timeline.
                   </p>
                 </div>
@@ -854,7 +609,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowAddTask(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer shrink-0 active:scale-95"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer shrink-0 active:scale-95"
               >
                 <Plus className="w-3.5 h-3.5 stroke-[2.6]" />
                 <span>Add Task</span>
@@ -863,27 +618,27 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
             {/* TOP PRIORITY Study Task Box */}
             {topPriorityTask ? (
-              <div className="rounded-2xl p-5 bg-white/80 backdrop-blur-md border border-rose-200/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(225,29,72,0.04)] space-y-3.5 relative overflow-hidden transition-all">
+              <div className="rounded-2xl p-5 bg-gradient-to-br from-[#FFF5F5] to-white border border-[#FF3B30]/20 shadow-[0_2px_12px_rgba(255,59,48,0.06)] space-y-3.5 relative overflow-hidden transition-all">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
-                      <Target className="w-4 h-4" />
+                    <div className="w-6 h-6 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center shrink-0">
+                      <Target className="w-3.5 h-3.5 stroke-[2.4]" />
                     </div>
-                    <span className="text-[11px] font-mono font-extrabold uppercase tracking-wider text-rose-700">
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#FF3B30]">
                       TOP PRIORITY
                     </span>
                   </div>
 
-                  <span className="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-bold uppercase tracking-wider border border-rose-200">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] text-[10px] font-bold uppercase tracking-wider border border-[#FF3B30]/20">
                     High Impact
                   </span>
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+                  <h3 className="text-base sm:text-lg font-bold text-[#1D1D1F] leading-snug">
                     {topPriorityTask.title}
                   </h3>
-                  <p className="text-xs text-stone-500 font-medium">
+                  <p className="text-xs text-[#8E8E93] font-medium">
                     {(() => {
                       const sub = FMGE_SUBJECTS.find((s) => s.id === topPriorityTask.subjectId);
                       return `${sub?.name || 'General Medicine'} • High-yield topic • R1 Revision`;
@@ -891,14 +646,14 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-rose-100">
-                  <div className="flex items-center gap-4 text-xs text-stone-600 font-medium">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[rgba(255,59,48,0.12)]">
+                  <div className="flex items-center gap-4 text-xs text-[#6E6E73] font-medium">
                     <div className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-stone-400" />
+                      <Clock className="w-3.5 h-3.5 text-[#8E8E93]" />
                       <span>{topPriorityTask.durationMinutes || 45} min</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <BookOpen className="w-3.5 h-3.5 text-stone-400" />
+                      <BookOpen className="w-3.5 h-3.5 text-[#8E8E93]" />
                       <span>Study + QBank</span>
                     </div>
                   </div>
@@ -906,7 +661,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleStartTopPriority(topPriorityTask)}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white text-xs font-bold shadow-xs transition-all cursor-pointer self-stretch sm:self-auto active:scale-95"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer self-stretch sm:self-auto active:scale-95"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
                     <span>Start Now</span>
@@ -914,14 +669,14 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 text-center space-y-2">
-                <p className="text-xs text-stone-600">All planned tasks completed for today!</p>
+              <div className="p-6 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] text-center space-y-2.5">
+                <p className="text-xs text-[#6E6E73] font-medium">All planned tasks completed for today!</p>
                 <button
                   type="button"
                   onClick={handlePopulateFromPlan}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#007AFF] text-white text-xs font-bold hover:bg-[#0062CC] transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 stroke-[2.4]" />
                   <span>Load More From Syllabus Plan</span>
                 </button>
               </div>
@@ -929,31 +684,31 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           </div>
 
           {/* Card 2: Today's Tasks List with Progress */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-5">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[rgba(60,60,67,0.10)] shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-5">
             {/* Header with Progress Bar */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-blue-500/[0.08] text-[#007AFF] border border-blue-500/20">
+                  <div className="p-2 rounded-xl bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/15">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-slate-900">
+                    <h2 className="text-base font-bold text-[#1D1D1F]">
                       Today’s Tasks ({totalTaskCount})
                     </h2>
-                    <p className="text-xs text-stone-500">
+                    <p className="text-xs text-[#8E8E93]">
                       {completedTaskCount} of {totalTaskCount} completed
                     </p>
                   </div>
                 </div>
 
-                <span className="text-sm font-mono font-extrabold text-slate-700">
+                <span className="text-sm font-mono font-bold text-[#1D1D1F]">
                   {progressPercent}%
                 </span>
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full h-2 rounded-full bg-stone-100 overflow-hidden">
+              <div className="w-full h-2 rounded-full bg-[#E5E5EA] overflow-hidden">
                 <div
                   className="h-full rounded-full bg-[#007AFF] transition-all duration-500"
                   style={{ width: `${progressPercent}%` }}
@@ -974,10 +729,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                       key={task.id}
                       className={`p-4 rounded-2xl border transition-all flex items-start justify-between gap-3 group ${
                         isActive
-                          ? 'border-[#007AFF] bg-blue-500/[0.03] ring-1 ring-[#007AFF]/20'
+                          ? 'border-[#007AFF] bg-[#007AFF]/[0.03] ring-1 ring-[#007AFF]/20'
                           : isCompleted
-                          ? 'border-stone-200/70 bg-stone-50/50'
-                          : 'border-stone-200/80 bg-white hover:border-stone-300'
+                          ? 'border-[rgba(60,60,67,0.08)] bg-[#F2F2F7]/50'
+                          : 'border-[rgba(60,60,67,0.10)] bg-white hover:border-[#007AFF]/40 shadow-2xs'
                       }`}
                     >
                       <div className="flex items-start gap-3.5 flex-1 min-w-0">
@@ -988,8 +743,8 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                           aria-label={isCompleted ? 'Mark uncompleted' : 'Mark completed'}
                           className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-all cursor-pointer ${
                             isCompleted
-                              ? 'bg-[#059669] text-white'
-                              : 'border-2 border-stone-300 hover:border-stone-500 bg-white'
+                              ? 'bg-[#30D158] text-white shadow-2xs'
+                              : 'border-2 border-[#C7C7CC] hover:border-[#007AFF] bg-white'
                           }`}
                         >
                           {isCompleted && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -1007,15 +762,15 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                         >
                           <div className="flex items-center gap-2">
                             <h4
-                              className={`text-xs sm:text-sm font-bold leading-snug truncate ${
-                                isCompleted ? 'line-through text-stone-400' : 'text-slate-900'
+                              className={`text-xs sm:text-sm font-semibold leading-snug truncate ${
+                                isCompleted ? 'line-through text-[#8E8E93]' : 'text-[#1D1D1F]'
                               }`}
                             >
                               {task.title}
                             </h4>
                           </div>
 
-                          <div className="flex items-center gap-2 mt-1 text-[11px] text-stone-500 font-medium flex-wrap">
+                          <div className="flex items-center gap-2 mt-1 text-[11px] text-[#8E8E93] font-medium flex-wrap">
                             <span>{sub?.name || 'General Medicine'}</span>
                             <span>•</span>
                             <span className="capitalize">{task.type.replace('_', ' ')}</span>
@@ -1025,16 +780,16 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
                       {/* Right: Duration & Status Pill */}
                       <div className="flex items-center gap-3 shrink-0">
-                        <div className="flex items-center gap-1 text-xs text-stone-500 font-medium">
-                          <Clock className="w-3.5 h-3.5 text-stone-400" />
+                        <div className="flex items-center gap-1 text-xs text-[#6E6E73] font-medium">
+                          <Clock className="w-3.5 h-3.5 text-[#8E8E93]" />
                           <span>{task.durationMinutes} min</span>
                         </div>
 
                         <span
                           className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border ${
                             isCompleted
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200/90'
-                              : 'bg-amber-50 text-amber-800 border-amber-200/90'
+                              ? 'bg-[#30D158]/10 text-[#30D158] border-[#30D158]/20'
+                              : 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/20'
                           }`}
                         >
                           {isCompleted ? 'Completed' : 'Pending'}
@@ -1044,7 +799,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onDeleteTask(task.id)}
-                          className="text-stone-300 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-50 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                          className="text-[#C7C7CC] hover:text-[#FF3B30] p-1 rounded-lg hover:bg-[#FF3B30]/10 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                           title="Delete task"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -1055,17 +810,17 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 })}
               </div>
             ) : (
-              <div className="text-center py-10 bg-stone-50 rounded-2xl border border-dashed border-stone-200 space-y-3">
-                <BookmarkCheck className="w-8 h-8 text-stone-300 mx-auto" />
-                <p className="text-xs text-stone-500 font-medium">
+              <div className="text-center py-10 bg-[#F2F2F7] rounded-2xl border border-dashed border-[rgba(60,60,67,0.15)] space-y-3">
+                <BookmarkCheck className="w-8 h-8 text-[#8E8E93] mx-auto" />
+                <p className="text-xs text-[#6E6E73] font-medium">
                   No tasks planned for today yet. Add high-yield study goals or load from your personalized plan.
                 </p>
                 <button
                   type="button"
                   onClick={handlePopulateFromPlan}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 stroke-[2.4]" />
                   <span>Load Today's Personalized Plan</span>
                 </button>
               </div>
@@ -1073,18 +828,18 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
             {/* Completed Tasks Accordion */}
             {completedTaskCount > 0 && (
-              <div className="pt-2 border-t border-stone-100">
+              <div className="pt-2 border-t border-[rgba(60,60,67,0.08)]">
                 <button
                   type="button"
                   onClick={() => setShowCompletedAccordion(!showCompletedAccordion)}
-                  className="w-full flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] transition-colors cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <CheckCircle2 className="w-4 h-4 text-[#30D158]" />
                     <span>Completed Tasks ({completedTaskCount})</span>
                   </span>
                   <ChevronRight
-                    className={`w-4 h-4 text-stone-400 transition-transform ${
+                    className={`w-4 h-4 text-[#8E8E93] transition-transform ${
                       showCompletedAccordion ? 'rotate-90' : ''
                     }`}
                   />
@@ -1095,10 +850,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                     {completedTasks.map((t) => (
                       <div
                         key={t.id}
-                        className="text-xs text-stone-500 flex items-center justify-between py-1 border-b border-stone-100 last:border-none"
+                        className="text-xs text-[#8E8E93] flex items-center justify-between py-1 border-b border-[rgba(60,60,67,0.06)] last:border-none"
                       >
                         <span className="line-through">{t.title}</span>
-                        <span className="font-mono text-[10px] text-emerald-700">Done</span>
+                        <span className="font-mono text-[10px] text-[#30D158] font-bold">Done</span>
                       </div>
                     ))}
                   </div>
@@ -1114,26 +869,26 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             mobileTab === 'focus' ? 'block' : 'hidden lg:block'
           }`}
         >
-          <div className="relative overflow-hidden bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-6">
+          <div className="relative overflow-hidden bg-white rounded-3xl p-6 sm:p-7 border border-[rgba(60,60,67,0.10)] shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-6">
             {/* Luminous Top Shimmer Track */}
             <div className="absolute top-0 left-0 right-0 h-[2px] overflow-hidden pointer-events-none" aria-hidden="true">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/25 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#007AFF]/25 to-transparent" />
               <motion.div
                 animate={{ x: ['-100%', '300%'] }}
                 transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
-                className="w-36 sm:w-56 h-full bg-gradient-to-r from-transparent via-blue-400 to-transparent shadow-[0_0_12px_rgba(0,122,255,0.4)]"
+                className="w-36 sm:w-56 h-full bg-gradient-to-r from-transparent via-[#007AFF] to-transparent shadow-[0_0_12px_rgba(0,122,255,0.4)]"
               />
             </div>
 
             {/* Card Header with Rotating Gyroscope & Status */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="relative p-2.5 rounded-2xl bg-blue-500/[0.08] text-[#007AFF] shrink-0 mt-0.5 border border-blue-500/20 shadow-2xs">
+                <div className="relative p-2.5 rounded-2xl bg-[#007AFF]/10 text-[#007AFF] shrink-0 mt-0.5 border border-[#007AFF]/15 shadow-2xs">
                   {/* Rotating focus ring reticle */}
                   <motion.div
                     animate={{ rotate: isRunning ? 360 : 0 }}
                     transition={isRunning ? { duration: 12, repeat: Infinity, ease: 'linear' } : { duration: 0.4 }}
-                    className="absolute inset-0 rounded-2xl border border-dashed border-blue-400/60 pointer-events-none"
+                    className="absolute inset-0 rounded-2xl border border-dashed border-[#007AFF]/40 pointer-events-none"
                   />
                   <motion.div
                     animate={isRunning ? { scale: [1, 1.08, 1], opacity: [0.85, 1, 0.85] } : { scale: 1, opacity: 1 }}
@@ -1144,19 +899,19 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+                    <h2 className="text-base sm:text-lg font-bold text-[#1D1D1F] leading-snug">
                       Focus Engine
                     </h2>
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border transition-colors ${
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border transition-colors ${
                         isRunning
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-stone-100 text-stone-600 border-stone-200'
+                          ? 'bg-[#30D158]/10 text-[#30D158] border-[#30D158]/20'
+                          : 'bg-[#F2F2F7] text-[#6E6E73] border-[rgba(60,60,67,0.10)]'
                       }`}
                     >
                       <span
                         className={`h-1.5 w-1.5 rounded-full ${
-                          isRunning ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'
+                          isRunning ? 'bg-[#30D158] animate-pulse' : 'bg-[#8E8E93]'
                         }`}
                       />
                       {isRunning
@@ -1168,7 +923,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                         : 'Standby'}
                     </span>
                   </div>
-                  <p className="text-xs text-stone-500 mt-0.5 leading-relaxed">
+                  <p className="text-xs text-[#8E8E93] mt-0.5 leading-relaxed font-medium">
                     Deep work. Better retention. Real progress.
                   </p>
                 </div>
@@ -1179,11 +934,11 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <button
                     type="button"
                     onClick={onOpenZenFocus}
-                    className="p-2 rounded-xl border border-black/[0.08] bg-white hover:bg-black/[0.03] text-[#007AFF] text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs group"
+                    className="px-3 py-1.5 rounded-full border border-[rgba(60,60,67,0.10)] bg-white hover:bg-[#F2F2F7] text-[#007AFF] text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs group"
                     title="Enter Fullscreen Zen Study Sanctuary (⌘J)"
                   >
                     <Headphones className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                    <span className="text-[11px] font-bold hidden sm:inline">Zen Sanctuary</span>
+                    <span className="text-[11px] font-semibold hidden sm:inline">Zen Sanctuary</span>
                   </button>
                 )}
 
@@ -1191,32 +946,32 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowSettings(!showSettings)}
-                  className={`p-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                     showSettings
-                      ? 'bg-stone-100 border-stone-300 text-stone-900 shadow-2xs'
-                      : 'bg-white border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50 shadow-2xs'
+                      ? 'bg-[#F2F2F7] border-[rgba(60,60,67,0.20)] text-[#1D1D1F] shadow-2xs'
+                      : 'bg-white border-[rgba(60,60,67,0.10)] text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] shadow-2xs'
                   }`}
                   title="Timer Settings & Ambient Sound"
                 >
                   <motion.div animate={{ rotate: showSettings ? 90 : 0 }} transition={{ duration: 0.25 }}>
                     <Settings className="w-3.5 h-3.5" />
                   </motion.div>
-                  <span className="text-[11px] font-bold hidden sm:inline">Settings</span>
+                  <span className="text-[11px] font-semibold hidden sm:inline">Settings</span>
                 </button>
               </div>
             </div>
 
             {/* Settings Accordion Panel */}
             {showSettings && (
-              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3 animate-in fade-in duration-100 text-xs">
+              <div className="p-4 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] space-y-3 animate-in fade-in duration-100 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-stone-800 uppercase tracking-wider text-[10px] font-mono">
+                  <span className="font-bold text-[#1D1D1F] uppercase tracking-wider text-[10px] font-mono">
                     Ambient Audio Synthesizer
                   </span>
-                  <span className="text-[10px] text-stone-400">Web Audio API</span>
+                  <span className="text-[10px] text-[#8E8E93]">Web Audio API</span>
                 </div>
 
-                <div className="grid grid-cols-4 gap-1.5 text-[11px] font-bold">
+                <div className="grid grid-cols-4 gap-1.5 text-[11px] font-semibold">
                   {[
                     { id: 'off', label: 'Off' },
                     { id: 'alpha', label: 'Alpha' },
@@ -1229,8 +984,8 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                       onClick={() => handleSoundToggle(s.id as any)}
                       className={`py-1.5 px-2 rounded-xl transition-all cursor-pointer ${
                         soundMode === s.id
-                          ? 'bg-[#007AFF] text-white shadow-xs'
-                          : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+                          ? 'bg-[#007AFF] text-white shadow-xs font-bold'
+                          : 'bg-white text-[#1D1D1F] border border-[rgba(60,60,67,0.10)] hover:bg-[#E5E5EA]'
                       }`}
                     >
                       {s.label}
@@ -1238,7 +993,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   ))}
                 </div>
 
-                <div className="pt-2 border-t border-stone-200 flex items-center justify-between text-[11px] text-stone-600">
+                <div className="pt-2 border-t border-[rgba(60,60,67,0.10)] flex items-center justify-between text-[11px] text-[#6E6E73]">
                   <span>Session Length:</span>
                   <div className="flex items-center gap-1">
                     {[25, 45, 60].map((mins) => (
@@ -1246,10 +1001,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                         key={mins}
                         type="button"
                         onClick={() => handleModeChange('pomodoro', mins * 60)}
-                        className={`px-2 py-0.5 rounded-lg font-mono text-[10px] font-bold ${
+                        className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-semibold cursor-pointer transition-all ${
                           totalDuration === mins * 60 && timerMode === 'pomodoro'
-                            ? 'bg-[#007AFF] text-white'
-                            : 'bg-white border border-stone-200 text-stone-600'
+                            ? 'bg-[#007AFF] text-white shadow-xs'
+                            : 'bg-white border border-[rgba(60,60,67,0.10)] text-[#1D1D1F] hover:bg-[#E5E5EA]'
                         }`}
                       >
                         {mins}m
@@ -1262,14 +1017,14 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
             {/* Circular Timer Display */}
             <div className="flex flex-col items-center justify-center py-2">
-              <div className="relative w-48 h-48 sm:w-52 sm:h-52 flex items-center justify-center">
+              <div className="relative w-52 h-52 sm:w-56 sm:h-56 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
                   {/* Background Circle */}
                   <circle
                     cx="80"
                     cy="80"
                     r={radius}
-                    className="stroke-stone-100"
+                    className="stroke-[#E5E5EA]"
                     strokeWidth={strokeWidth}
                     fill="transparent"
                   />
@@ -1278,7 +1033,9 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                     cx="80"
                     cy="80"
                     r={radius}
-                    className="stroke-[#007AFF] transition-all duration-300 ease-linear"
+                    className={`${
+                      timerMode.includes('break') ? 'stroke-[#30D158]' : 'stroke-[#007AFF]'
+                    } transition-all duration-300 ease-linear`}
                     strokeWidth={strokeWidth}
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
@@ -1289,7 +1046,9 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
                 {/* Inside Circle Content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center space-y-1">
-                  <span className="text-[11px] font-mono font-extrabold uppercase tracking-widest text-[#007AFF]">
+                  <span className={`text-[11px] font-mono font-bold uppercase tracking-widest ${
+                    timerMode.includes('break') ? 'text-[#30D158]' : 'text-[#007AFF]'
+                  }`}>
                     {timerMode === 'pomodoro'
                       ? 'FOCUS'
                       : timerMode === 'short_break'
@@ -1299,11 +1058,11 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                       : 'STOPWATCH'}
                   </span>
 
-                  <div className="font-mono text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
+                  <div className="font-mono text-5xl sm:text-6xl font-black tracking-tight text-[#1D1D1F]">
                     {formatTime(timeLeft)}
                   </div>
 
-                  <span className="text-xs text-stone-400 font-medium">
+                  <span className="text-xs text-[#8E8E93] font-medium">
                     {isRunning ? 'Stay focused' : timeLeft === 0 ? 'Session Complete' : 'Ready'}
                   </span>
                 </div>
@@ -1312,15 +1071,15 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
             {/* Current Study Task Banner */}
             {activeFocusTask && (
-              <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-500/[0.08] text-[#007AFF] border border-blue-500/20 flex items-center justify-center shrink-0">
+              <div className="p-3.5 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/15 flex items-center justify-center shrink-0">
                   <BookOpen className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                  <h4 className="text-xs sm:text-sm font-semibold text-[#1D1D1F] truncate">
                     {activeFocusTask.title}
                   </h4>
-                  <p className="text-[11px] text-stone-500 truncate">
+                  <p className="text-[11px] text-[#8E8E93] truncate">
                     {(() => {
                       const sub = FMGE_SUBJECTS.find((s) => s.id === activeFocusTask.subjectId);
                       return `${sub?.name || 'General Medicine'} • Study & QBank`;
@@ -1336,7 +1095,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsRunning(!isRunning)}
-                className="col-span-1 py-2.5 px-3 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
+                className="col-span-1 py-2.5 px-3 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
               >
                 {isRunning ? (
                   <>
@@ -1355,10 +1114,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleModeChange('short_break')}
-                className={`col-span-1 py-2.5 px-2 rounded-full border text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+                className={`col-span-1 py-2.5 px-2 rounded-full border text-xs font-semibold transition-all cursor-pointer active:scale-95 ${
                   timerMode === 'short_break'
-                    ? 'bg-stone-900 text-white border-stone-900'
-                    : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
+                    ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]'
+                    : 'bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#1D1D1F] border-[rgba(60,60,67,0.10)]'
                 }`}
               >
                 5m Break
@@ -1368,10 +1127,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleModeChange('long_break')}
-                className={`col-span-1 py-2.5 px-2 rounded-full border text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+                className={`col-span-1 py-2.5 px-2 rounded-full border text-xs font-semibold transition-all cursor-pointer active:scale-95 ${
                   timerMode === 'long_break'
-                    ? 'bg-stone-900 text-white border-stone-900'
-                    : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
+                    ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]'
+                    : 'bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#1D1D1F] border-[rgba(60,60,67,0.10)]'
                 }`}
               >
                 15m Break
@@ -1381,7 +1140,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={handleStopTimer}
-                className="col-span-1 py-2.5 px-3 rounded-full bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95"
+                className="col-span-1 py-2.5 px-3 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] border border-[rgba(60,60,67,0.10)] text-[#FF3B30] text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95"
                 title="Stop and Reset"
               >
                 <Square className="w-3 h-3 fill-current" />
@@ -1390,69 +1149,69 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             </div>
 
             {/* Focus Tip Card */}
-            <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-1">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs">
-                <div className="w-5 h-5 rounded-full bg-amber-200/70 flex items-center justify-center text-amber-800">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FFFBEB] to-[#FEF3C7]/40 border border-[#F59E0B]/20 space-y-1">
+              <div className="flex items-center gap-2 text-[#92400E] font-bold text-xs">
+                <div className="w-5 h-5 rounded-full bg-[#F59E0B]/20 flex items-center justify-center text-[#B45309]">
                   <Lightbulb className="w-3 h-3" />
                 </div>
                 <span>Focus Tip</span>
               </div>
-              <p className="text-xs text-amber-900/80 leading-relaxed pl-7">
+              <p className="text-xs text-[#92400E]/90 leading-relaxed pl-7 font-medium">
                 {focusTips[currentTipIndex]}
               </p>
             </div>
 
             {/* Today's Progress Section */}
-            <div className="space-y-3 pt-2 border-t border-stone-100">
+            <div className="space-y-3 pt-2 border-t border-[rgba(60,60,67,0.08)]">
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Today’s Progress</h3>
-                <p className="text-xs text-stone-400">Small steps create big results.</p>
+                <h3 className="text-sm font-bold text-[#1D1D1F]">Today’s Progress</h3>
+                <p className="text-xs text-[#8E8E93]">Small steps create big results.</p>
               </div>
 
               {/* 4 Metric Tiles Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {/* 1. Tasks completed (Emerald) */}
-                <div className="p-3.5 rounded-2xl bg-emerald-500/[0.06] border border-emerald-500/20 space-y-1.5 shadow-2xs">
-                  <div className="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <div className="p-3.5 rounded-2xl bg-[#30D158]/[0.08] border border-[#30D158]/20 space-y-1.5 shadow-2xs">
+                  <div className="w-7 h-7 rounded-xl bg-white/80 text-[#30D158] flex items-center justify-center shadow-xs">
                     <CheckCircle2 className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div className="font-mono text-base font-extrabold text-emerald-800 leading-tight">
+                  <div className="font-mono text-base font-bold text-[#1D1D1F] leading-tight">
                     {completedTaskCount}/{totalTaskCount}
                   </div>
-                  <div className="text-[10.5px] text-emerald-700/80 font-medium">Tasks completed</div>
+                  <div className="text-[10.5px] text-[#1A7A35] font-semibold">Tasks done</div>
                 </div>
 
                 {/* 2. Study time (Blue) */}
-                <div className="p-3.5 rounded-2xl bg-blue-500/[0.06] border border-blue-500/20 space-y-1.5 shadow-2xs">
-                  <div className="w-7 h-7 rounded-xl bg-blue-100 text-[#007AFF] flex items-center justify-center">
+                <div className="p-3.5 rounded-2xl bg-[#007AFF]/[0.08] border border-[#007AFF]/20 space-y-1.5 shadow-2xs">
+                  <div className="w-7 h-7 rounded-xl bg-white/80 text-[#007AFF] flex items-center justify-center shadow-xs">
                     <Clock className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div className="font-mono text-base font-extrabold text-[#007AFF] leading-tight">
+                  <div className="font-mono text-base font-bold text-[#1D1D1F] leading-tight">
                     {studyTimeFormatted}
                   </div>
-                  <div className="text-[10.5px] text-blue-700/80 font-medium">Study time</div>
+                  <div className="text-[10.5px] text-[#007AFF] font-semibold">Study time</div>
                 </div>
 
                 {/* 3. Subjects covered (Indigo) */}
-                <div className="p-3.5 rounded-2xl bg-indigo-500/[0.06] border border-indigo-500/20 space-y-1.5 shadow-2xs">
-                  <div className="w-7 h-7 rounded-xl bg-indigo-100 text-[#5856D6] flex items-center justify-center">
+                <div className="p-3.5 rounded-2xl bg-[#5856D6]/[0.08] border border-[#5856D6]/20 space-y-1.5 shadow-2xs">
+                  <div className="w-7 h-7 rounded-xl bg-white/80 text-[#5856D6] flex items-center justify-center shadow-xs">
                     <BookOpen className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div className="font-mono text-base font-extrabold text-[#5856D6] leading-tight">
+                  <div className="font-mono text-base font-bold text-[#1D1D1F] leading-tight">
                     {uniqueSubjectsCount}
                   </div>
-                  <div className="text-[10.5px] text-indigo-700/80 font-medium">Subjects covered</div>
+                  <div className="text-[10.5px] text-[#5856D6] font-semibold">Subjects</div>
                 </div>
 
                 {/* 4. Daily goal (Amber) */}
-                <div className="p-3.5 rounded-2xl bg-amber-500/[0.06] border border-amber-500/20 space-y-1.5 shadow-2xs">
-                  <div className="w-7 h-7 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                <div className="p-3.5 rounded-2xl bg-[#FF9500]/[0.08] border border-[#FF9500]/20 space-y-1.5 shadow-2xs">
+                  <div className="w-7 h-7 rounded-xl bg-white/80 text-[#FF9500] flex items-center justify-center shadow-xs">
                     <Target className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div className="font-mono text-base font-extrabold text-amber-800 leading-tight">
+                  <div className="font-mono text-base font-bold text-[#1D1D1F] leading-tight">
                     {dailyGoalPercent}%
                   </div>
-                  <div className="text-[10.5px] text-amber-700/80 font-medium">Daily goal</div>
+                  <div className="text-[10.5px] text-[#FF9500] font-semibold">Daily goal</div>
                 </div>
               </div>
             </div>
@@ -1469,7 +1228,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           }}
           aria-label="Focus Engine Quick Controls"
         >
-          <div className="px-4 py-2.5 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-stone-200/90 dark:border-white/10 shadow-[0_12px_36px_rgba(0,0,0,0.12)] flex items-center justify-between gap-3 font-sans text-slate-900 dark:text-slate-100">
+          <div className="px-4 py-2.5 rounded-full bg-white/95 backdrop-blur-2xl border border-[rgba(60,60,67,0.12)] shadow-[0_12px_36px_rgba(0,0,0,0.12)] flex items-center justify-between gap-3 font-sans text-[#1D1D1F]">
             {/* Left: Tappable to open the full Focus Engine */}
             <button
               type="button"
@@ -1477,19 +1236,19 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               className="flex items-center gap-2.5 min-w-0 flex-1 text-left cursor-pointer group active:scale-95 transition-transform"
               title="Open full Focus Engine"
             >
-              <div className="w-8 h-8 rounded-full bg-blue-500/[0.08] text-[#007AFF] border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/15 transition-colors">
+              <div className="w-8 h-8 rounded-full bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/15 flex items-center justify-center shrink-0 group-hover:bg-[#007AFF]/20 transition-colors">
                 <Clock className="w-4 h-4 text-[#007AFF]" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                  <span className="text-xs font-bold text-[#1D1D1F] leading-tight">
                     Focus Engine
                   </span>
                   {isRunning && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] animate-pulse shrink-0" />
                   )}
                 </div>
-                <div className="font-mono text-sm font-extrabold text-slate-900 dark:text-white leading-tight">
+                <div className="font-mono text-sm font-bold text-[#1D1D1F] leading-tight">
                   {formatTime(timeLeft)}
                 </div>
               </div>
@@ -1501,7 +1260,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsRunning(!isRunning)}
-                className="w-10 h-10 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-90 transition-all"
+                className="w-10 h-10 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-90 transition-all"
                 title={isRunning ? 'Pause Focus Session' : 'Start Focus Session'}
                 aria-label={isRunning ? 'Pause' : 'Start'}
               >
@@ -1516,7 +1275,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={handleStopTimer}
-                className="w-9 h-9 rounded-full bg-stone-900 hover:bg-stone-800 text-white flex items-center justify-center shadow-2xs cursor-pointer active:scale-90 transition-all"
+                className="w-9 h-9 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#FF3B30] flex items-center justify-center shadow-2xs border border-[rgba(60,60,67,0.10)] cursor-pointer active:scale-90 transition-all"
                 title="Stop and Reset Session"
                 aria-label="Stop Session"
               >
@@ -1530,42 +1289,42 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
       {/* MODAL: ADD TASK */}
       {showAddTask &&
         createPortal(
-          <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-            <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-stone-200 space-y-4 animate-in zoom-in-95 duration-150">
+          <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-[rgba(60,60,67,0.10)] space-y-4 animate-in zoom-in-95 duration-150">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900">Add Today’s Study Task</h3>
-                  <p className="text-xs text-stone-500 mt-0.5">Plan a high-yield study or MCQ block.</p>
+                  <h3 className="text-lg font-bold text-[#1D1D1F]">Add Today’s Study Task</h3>
+                  <p className="text-xs text-[#8E8E93] mt-0.5 font-medium">Plan a high-yield study or MCQ block.</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowAddTask(false)}
-                  className="p-1 rounded-lg text-stone-400 hover:text-stone-700 cursor-pointer"
+                  className="p-1.5 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#6E6E73] hover:text-[#1D1D1F] cursor-pointer transition-colors"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               <form onSubmit={handleCreateTask} className="space-y-4 text-xs">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[11px]">Task Title *</label>
+                  <label className="block font-semibold text-[#1D1D1F] mb-1 text-[11px]">Task Title *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Solve 50 MCQs of Cardiology ECGs"
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
-                    className="w-full h-10 px-3 bg-stone-50 border border-stone-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-[#007AFF] focus:outline-none transition-all"
+                    className="w-full h-10 px-3 bg-[#F2F2F7] border border-[rgba(60,60,67,0.12)] rounded-xl text-xs text-[#1D1D1F] focus:bg-white focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/12 focus:outline-none transition-all"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1 text-[11px]">Subject</label>
+                    <label className="block font-semibold text-[#1D1D1F] mb-1 text-[11px]">Subject</label>
                     <select
                       value={newTaskSubject}
                       onChange={(e) => setNewTaskSubject(e.target.value)}
-                      className="w-full h-10 px-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none cursor-pointer"
+                      className="w-full h-10 px-2.5 bg-[#F2F2F7] border border-[rgba(60,60,67,0.12)] rounded-xl text-xs font-medium text-[#1D1D1F] focus:bg-white focus:border-[#007AFF] focus:outline-none cursor-pointer transition-all"
                     >
                       {FMGE_SUBJECTS.map((sub) => (
                         <option key={sub.id} value={sub.id}>
@@ -1576,11 +1335,11 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1 text-[11px]">Task Type</label>
+                    <label className="block font-semibold text-[#1D1D1F] mb-1 text-[11px]">Task Type</label>
                     <select
                       value={newTaskType}
                       onChange={(e) => setNewTaskType(e.target.value as any)}
-                      className="w-full h-10 px-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none cursor-pointer"
+                      className="w-full h-10 px-2.5 bg-[#F2F2F7] border border-[rgba(60,60,67,0.12)] rounded-xl text-xs font-medium text-[#1D1D1F] focus:bg-white focus:border-[#007AFF] focus:outline-none cursor-pointer transition-all"
                     >
                       <option value="qbank">QBank / MCQs</option>
                       <option value="video">Video / Notes</option>
@@ -1594,23 +1353,23 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1 text-[11px]">Duration (Minutes)</label>
+                    <label className="block font-semibold text-[#1D1D1F] mb-1 text-[11px]">Duration (Minutes)</label>
                     <input
                       type="number"
                       min="10"
                       step="5"
                       value={newTaskDuration}
                       onChange={(e) => setNewTaskDuration(Number(e.target.value))}
-                      className="w-full h-10 px-3 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold font-mono text-slate-900 focus:outline-none"
+                      className="w-full h-10 px-3 bg-[#F2F2F7] border border-[rgba(60,60,67,0.12)] rounded-xl text-xs font-bold font-mono text-[#1D1D1F] focus:bg-white focus:border-[#007AFF] focus:outline-none transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1 text-[11px]">Priority</label>
+                    <label className="block font-semibold text-[#1D1D1F] mb-1 text-[11px]">Priority</label>
                     <select
                       value={newTaskPriority}
                       onChange={(e) => setNewTaskPriority(e.target.value as any)}
-                      className="w-full h-10 px-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none cursor-pointer"
+                      className="w-full h-10 px-2.5 bg-[#F2F2F7] border border-[rgba(60,60,67,0.12)] rounded-xl text-xs font-medium text-[#1D1D1F] focus:bg-white focus:border-[#007AFF] focus:outline-none cursor-pointer transition-all"
                     >
                       <option value="high">High Priority</option>
                       <option value="medium">Medium</option>
@@ -1619,17 +1378,17 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-stone-100">
+                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[rgba(60,60,67,0.08)]">
                   <button
                     type="button"
                     onClick={() => setShowAddTask(false)}
-                    className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-full font-bold cursor-pointer active:scale-95"
+                    className="px-4 py-2 bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#1D1D1F] rounded-full font-semibold cursor-pointer active:scale-95 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-[#007AFF] hover:bg-[#0066D6] text-white rounded-full font-bold shadow-xs cursor-pointer transition-colors active:scale-95"
+                    className="px-5 py-2 bg-[#007AFF] hover:bg-[#0062CC] text-white rounded-full font-semibold shadow-xs cursor-pointer transition-colors active:scale-95"
                   >
                     Add Task
                   </button>
@@ -1643,62 +1402,62 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
       {/* MODAL: VIEW CALENDAR & STREAK */}
       {showCalendarModal &&
         createPortal(
-          <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-            <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-stone-200 space-y-5 animate-in zoom-in-95 duration-150">
+          <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
+            <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-[rgba(60,60,67,0.10)] space-y-5 animate-in zoom-in-95 duration-150">
               <div className="flex items-start justify-between">
                 <div>
                   <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#007AFF]">
                     STUDY CONSISTENCY CALENDAR
                   </span>
-                  <h3 className="text-xl font-bold text-slate-900 tracking-tight mt-0.5">
+                  <h3 className="text-xl font-bold text-[#1D1D1F] tracking-tight mt-0.5">
                     Daily Study Habit Tracker
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowCalendarModal(false)}
-                  className="p-1 rounded-lg text-stone-400 hover:text-stone-700 cursor-pointer"
+                  className="p-1.5 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#6E6E73] hover:text-[#1D1D1F] cursor-pointer transition-colors"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Streak Hero Card */}
-              <div className="p-4 rounded-2xl bg-amber-500/[0.08] border border-amber-500/20 flex items-center justify-between">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FFF7ED] to-white border border-orange-200/80 flex items-center justify-between shadow-2xs">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
-                    <Flame className="w-6 h-6 fill-amber-500 text-amber-500" />
+                  <div className="w-10 h-10 rounded-2xl bg-orange-100 text-[#FF9500] flex items-center justify-center shadow-xs">
+                    <Flame className="w-6 h-6 fill-[#FF9500] text-[#FF9500]" />
                   </div>
                   <div>
-                    <div className="text-base font-bold text-slate-900">
+                    <div className="text-base font-bold text-[#1D1D1F]">
                       {streakDays} Day Study Streak
                     </div>
-                    <div className="text-xs text-stone-500">
+                    <div className="text-xs text-[#8E8E93]">
                       {streakDays >= 3 ? 'Excellent momentum! Keep it going.' : 'Log at least 30m every day.'}
                     </div>
                   </div>
                 </div>
-                <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-white text-amber-800 border border-amber-500/20">
+                <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-white text-[#FF9500] border border-orange-200 shadow-2xs">
                   {streakDays > 0 ? 'ACTIVE' : 'START TODAY'}
                 </span>
               </div>
 
               {/* Today's Stats Breakdown */}
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-stone-400 font-bold block">
+                <div className="p-3.5 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.08)] space-y-1">
+                  <span className="text-[10px] font-mono uppercase text-[#8E8E93] font-bold block">
                     Today's Study Hours
                   </span>
-                  <div className="font-mono text-lg font-bold text-slate-900">
+                  <div className="font-mono text-lg font-bold text-[#1D1D1F]">
                     {(todayLog.studyMinutes / 60).toFixed(1)} / {state.settings.dailyStudyHourGoal}h
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-stone-400 font-bold block">
+                <div className="p-3.5 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.08)] space-y-1">
+                  <span className="text-[10px] font-mono uppercase text-[#8E8E93] font-bold block">
                     MCQs Solved Today
                   </span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <input
                       type="number"
                       min="0"
@@ -1706,9 +1465,9 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                       onChange={(e) =>
                         onUpdateDailyLog(todayStr, { questionsSolved: Number(e.target.value) })
                       }
-                      className="w-20 font-mono text-lg font-bold text-slate-900 bg-white border border-stone-200 rounded-lg px-2 py-0.5"
+                      className="w-20 font-mono text-lg font-bold text-[#1D1D1F] bg-white border border-[rgba(60,60,67,0.15)] rounded-lg px-2 py-0.5 focus:border-[#007AFF] focus:outline-none"
                     />
-                    <span className="text-stone-400 font-mono text-xs">Qs</span>
+                    <span className="text-[#8E8E93] font-mono text-xs">Qs</span>
                   </div>
                 </div>
               </div>
@@ -1717,7 +1476,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCalendarModal(false)}
-                  className="px-6 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-full text-xs font-bold transition-all cursor-pointer active:scale-95"
+                  className="px-6 py-2.5 bg-[#1D1D1F] hover:bg-black text-white rounded-full text-xs font-semibold transition-all cursor-pointer active:scale-95 shadow-xs"
                 >
                   Close
                 </button>
