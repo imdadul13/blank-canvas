@@ -1923,20 +1923,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(0,100,220,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
           style={{ background: 'linear-gradient(135deg, #EEF5FF 0%, #DDEEFF 35%, #C8E0FF 65%, #A8CCFF 100%)' }}
         >
-          {/* Right radial glow behind illustration */}
-          <div
-            className="absolute right-0 top-0 bottom-0 w-[55%] pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse at 80% 45%, rgba(80,160,255,0.32) 0%, rgba(0,122,255,0.10) 55%, transparent 78%)' }}
-          />
-          {/* Subtle inner highlight — very soft, no hard line */}
-          <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-white/30 to-transparent pointer-events-none rounded-t-[2rem] sm:rounded-t-[2.5rem]" />
-
           {/* Vertical accent text — far right, desktop only */}
           <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden xl:flex flex-col items-center gap-0.5 pointer-events-none select-none z-20">
             {['FOCUSED', 'PRACTICE', 'DEEPER', 'UNDERSTANDING'].map((word) => (
               <span key={word} className="text-[7px] font-bold text-[#007AFF]/25 tracking-[0.18em] uppercase">{word}</span>
             ))}
-            <div className="w-px h-6 bg-[#007AFF]/15 mt-1 rounded-full" />
           </div>
 
           {/* Card content */}
@@ -2510,63 +2501,54 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* ── Rest of dashboard sections ── */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6 mt-4 sm:mt-6">
 
-        {/* ═══ 2. SUBJECT FILTER PILLS BAR with Dynamic Auto-Hide ═══ */}
+        {/* ═══ 2. SUBJECT FILTER PILLS BAR ═══ */}
         <motion.div
-          initial={false}
-          animate={{
-            y: isHeaderVisible || isAtTop || scrollY <= 260 ? 0 : -100,
-            opacity: isHeaderVisible || isAtTop || scrollY <= 260 ? 1 : 0,
-          }}
-          transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-          className={`sticky ${isGuest ? 'top-[102px] sm:top-[114px]' : 'top-[60px] sm:top-[68px]'} z-20 py-2 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
-            scrollY > 260
-              ? 'bg-[#F2F2F7]/80 backdrop-blur-3xl border-b border-[rgba(60,60,67,0.10)]'
-              : 'bg-transparent'
-          } ${isHeaderVisible || isAtTop || scrollY <= 260 ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          initial={SECTION_ENTER(0.04, reducedMotion)}
+          animate={SECTION_SHOW}
+          transition={SECTION_TRANSITION(reducedMotion)}
+          className="relative flex items-center"
         >
-          <div className="relative flex items-center max-w-7xl mx-auto">
-            <div
-              ref={filterScrollRef}
-              className="flex items-center gap-0.5 overflow-x-auto pb-1 scrollbar-none select-none snap-x w-full pr-2 sm:pr-10 [mask-image:linear-gradient(to_right,black_92%,transparent_100%)] bg-[#E5E5EA] rounded-full p-0.5"
-            >
-              {[{ id: 'all', name: 'All Subjects (19)' }, ...FMGE_SUBJECTS.map((s) => ({ id: s.id, name: s.name }))].map((f) => {
-                const active = selectedFilterSubjectId === f.id;
-                return (
-                  <motion.button
-                    key={f.id}
-                    type="button"
-                    onClick={() => setSelectedFilterSubjectId(f.id)}
-                    whileHover={reducedMotion ? undefined : { scale: 1.04 }}
-                    whileTap={reducedMotion ? undefined : { scale: 0.96 }}
-                    aria-pressed={active}
-                    className={`relative snap-start inline-flex items-center px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] font-medium whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[36px] ${
-                      active
-                        ? 'text-[#1D1D1F] font-semibold'
-                        : 'text-[#6E6E73] hover:text-[#1D1D1F]'
-                    }`}
-                  >
-                    {active && (
-                      <motion.span
-                        layoutId="dashboard-subject-filter-pill"
-                        transition={SPRING(reducedMotion)}
-                        className="absolute inset-0 rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.10)] border border-[rgba(0,0,0,0.06)]"
-                      />
-                    )}
-                    <span className="relative z-10">{f.name}</span>
-                  </motion.button>
-                );
-              })}
-            </div>
-            {/* Scroll arrow on desktop */}
-            <button
-              type="button"
-              onClick={scrollPillsRight}
-              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white border border-[rgba(0,0,0,0.08)] shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-[#6E6E73] hover:text-[#007AFF] items-center justify-center cursor-pointer transition-colors"
-              title="Scroll subjects right"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
+          <div
+            ref={filterScrollRef}
+            className="flex items-center gap-0.5 overflow-x-auto pb-1 scrollbar-none select-none snap-x w-full pr-2 sm:pr-10 [mask-image:linear-gradient(to_right,black_92%,transparent_100%)] bg-[#E5E5EA] rounded-full p-0.5"
+          >
+            {[{ id: 'all', name: 'All Subjects (19)' }, ...FMGE_SUBJECTS.map((s) => ({ id: s.id, name: s.name }))].map((f) => {
+              const active = selectedFilterSubjectId === f.id;
+              return (
+                <motion.button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setSelectedFilterSubjectId(f.id)}
+                  whileHover={reducedMotion ? undefined : { scale: 1.04 }}
+                  whileTap={reducedMotion ? undefined : { scale: 0.96 }}
+                  aria-pressed={active}
+                  className={`relative snap-start inline-flex items-center px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] font-medium whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[36px] ${
+                    active
+                      ? 'text-[#1D1D1F] font-semibold'
+                      : 'text-[#6E6E73] hover:text-[#1D1D1F]'
+                  }`}
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="dashboard-subject-filter-pill"
+                      transition={SPRING(reducedMotion)}
+                      className="absolute inset-0 rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.10)] border border-[rgba(0,0,0,0.06)]"
+                    />
+                  )}
+                  <span className="relative z-10">{f.name}</span>
+                </motion.button>
+              );
+            })}
           </div>
+          {/* Scroll arrow on desktop */}
+          <button
+            type="button"
+            onClick={scrollPillsRight}
+            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white border border-[rgba(0,0,0,0.08)] shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-[#6E6E73] hover:text-[#007AFF] items-center justify-center cursor-pointer transition-colors"
+            title="Scroll subjects right"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </motion.div>
 
         {/* ═══ 3. HIGH-YIELD ACTION DOCK (5 VIBRANT APPLE BENTO LAUNCHPAD PILLS) ═══ */}
