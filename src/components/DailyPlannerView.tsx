@@ -14,12 +14,15 @@ import {
   BookmarkCheck,
   Check,
   Lightbulb,
-  Settings,
   BookOpen,
   ArrowLeft,
   ChevronRight,
   X,
   Headphones,
+  Sparkles,
+  Volume2,
+  VolumeX,
+  RotateCcw,
 } from 'lucide-react';
 import { DailyTask, DailyStudyLog, AppState } from '../types';
 import { motion } from 'motion/react';
@@ -73,9 +76,8 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
   // View state & tabs
   const [mobileTab, setMobileTab] = useState<'planner' | 'focus'>('planner');
-  const [showSettings, setShowSettings] = useState(false);
+  const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [showCalendarModal, setShowCalendarModal] = useState(false);
-  const [showCompletedAccordion, setShowCompletedAccordion] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
 
   // New Task Form State
@@ -106,6 +108,20 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
   const totalTaskCount = tasks.length;
   const completedTaskCount = completedTasks.length;
   const progressPercent = totalTaskCount > 0 ? Math.round((completedTaskCount / totalTaskCount) * 100) : 0;
+
+  const filteredTasks = useMemo(() => {
+    if (taskFilter === 'pending') return pendingTasks;
+    if (taskFilter === 'completed') return completedTasks;
+    return tasks;
+  }, [taskFilter, tasks, pendingTasks, completedTasks]);
+
+  // Recommended high-yield tasks from dailyPlan not yet in tasks
+  const recommendedPlanTasks = useMemo(() => {
+    const existingTitles = new Set(tasks.map((t) => t.title.toLowerCase().trim()));
+    return (dailyPlan.tasks || [])
+      .filter((t) => !existingTitles.has(t.topicName.toLowerCase().trim()))
+      .slice(0, 3);
+  }, [dailyPlan.tasks, tasks]);
 
   // Top Priority Task
   const topPriorityTask = useMemo(() => {
@@ -312,9 +328,9 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
   // Add plan tasks to checklist
   const handlePopulateFromPlan = () => {
-    const existingTitles = new Set(tasks.map((t) => t.title));
+    const existingTitles = new Set(tasks.map((t) => t.title.toLowerCase().trim()));
     dailyPlan.tasks
-      .filter((t) => !existingTitles.has(t.topicName))
+      .filter((t) => !existingTitles.has(t.topicName.toLowerCase().trim()))
       .slice(0, 4)
       .forEach((t) => {
         onAddTask({
@@ -328,6 +344,20 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           priority: t.priority >= 66 ? 'high' : 'medium',
         });
       });
+  };
+
+  // Add a single recommended topic from dailyPlan
+  const handleAddSinglePlanTask = (t: typeof dailyPlan.tasks[0]) => {
+    onAddTask({
+      id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      title: t.topicName,
+      subjectId: t.subjectId,
+      topicName: t.topicName,
+      type: 'qbank',
+      durationMinutes: t.durationMinutes || 40,
+      completed: false,
+      priority: t.priority >= 66 ? 'high' : 'medium',
+    });
   };
 
   // Handle task form submit
@@ -581,26 +611,30 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
       {/* 3. Main Dual Column Workspace (Desktop 2-Column, Mobile Tabbed/Stacked) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* ===================== LEFT COLUMN: DAILY PLANNER ===================== */}
+        {/* ===================== LEFT COLUMN: DAILY ROADMAP & TASKS ===================== */}
         <div
           className={`lg:col-span-7 space-y-6 ${
             mobileTab === 'planner' ? 'block' : 'hidden lg:block'
           }`}
         >
-          {/* Card 1: Today's Personalized Plan + Top Priority */}
           <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[rgba(60,60,67,0.10)] shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-6">
-            {/* Card Header */}
-            <div className="flex items-start justify-between gap-3">
+            {/* Header: Title, Progress count, and Add Task CTA */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3">
                 <div className="p-2.5 rounded-2xl bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/15 shrink-0 mt-0.5 shadow-2xs">
-                  <Calendar className="w-5 h-5" />
+                  <BookmarkCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-[#1D1D1F] leading-snug">
-                    Today’s Personalized Plan
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base sm:text-lg font-bold text-[#1D1D1F] leading-snug">
+                      Daily Roadmap & Tasks
+                    </h2>
+                    <span className="px-2 py-0.5 rounded-full bg-[#F2F2F7] text-[#6E6E73] font-mono text-[10px] font-semibold border border-[rgba(60,60,67,0.10)]">
+                      {completedTaskCount}/{totalTaskCount} Done
+                    </span>
+                  </div>
                   <p className="text-xs text-[#8E8E93] mt-0.5 leading-relaxed font-medium">
-                    Curated from your weak areas, revision cycle, and exam timeline.
+                    Personalized study queue prioritized by FMGE weightage & retention curve.
                   </p>
                 </div>
               </div>
@@ -609,23 +643,37 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowAddTask(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer shrink-0 active:scale-95"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer shrink-0 active:scale-95"
               >
                 <Plus className="w-3.5 h-3.5 stroke-[2.6]" />
                 <span>Add Task</span>
               </button>
             </div>
 
-            {/* TOP PRIORITY Study Task Box */}
-            {topPriorityTask ? (
-              <div className="rounded-2xl p-5 bg-gradient-to-br from-[#FFF5F5] to-white border border-[#FF3B30]/20 shadow-[0_2px_12px_rgba(255,59,48,0.06)] space-y-3.5 relative overflow-hidden transition-all">
+            {/* Apple Progress Track */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-semibold">
+                <span className="text-[#8E8E93]">Daily Completion Progress</span>
+                <span className="font-mono text-[#1D1D1F]">{progressPercent}%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-[#E5E5EA] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-[#007AFF] transition-all duration-500 ease-out"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+
+            {/* TOP PRIORITY MISSION CARD */}
+            {topPriorityTask && (
+              <div className="rounded-2xl p-5 bg-gradient-to-br from-[#FFF5F2] via-white to-white border border-[#FF3B30]/20 shadow-[0_2px_12px_rgba(255,59,48,0.06)] space-y-3.5 relative overflow-hidden transition-all">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full bg-[#FF3B30]/10 text-[#FF3B30] flex items-center justify-center shrink-0">
                       <Target className="w-3.5 h-3.5 stroke-[2.4]" />
                     </div>
                     <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#FF3B30]">
-                      TOP PRIORITY
+                      TOP PRIORITY MISSION
                     </span>
                   </div>
 
@@ -638,12 +686,26 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <h3 className="text-base sm:text-lg font-bold text-[#1D1D1F] leading-snug">
                     {topPriorityTask.title}
                   </h3>
-                  <p className="text-xs text-[#8E8E93] font-medium">
+                  <div className="flex items-center gap-2 text-xs text-[#8E8E93] font-medium flex-wrap">
                     {(() => {
                       const sub = FMGE_SUBJECTS.find((s) => s.id === topPriorityTask.subjectId);
-                      return `${sub?.name || 'General Medicine'} • High-yield topic • R1 Revision`;
+                      return (
+                        <>
+                          <span className="inline-flex items-center gap-1.5 text-[#1D1D1F] font-semibold">
+                            <span
+                              className="w-2 h-2 rounded-full shrink-0"
+                              style={{ backgroundColor: sub?.color || '#007AFF' }}
+                            />
+                            {sub?.name || 'General Medicine'}
+                          </span>
+                          <span>•</span>
+                          <span>High-yield topic</span>
+                          <span>•</span>
+                          <span>R1 Revision</span>
+                        </>
+                      );
                     })()}
-                  </p>
+                  </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[rgba(255,59,48,0.12)]">
@@ -658,68 +720,115 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleStartTopPriority(topPriorityTask)}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer self-stretch sm:self-auto active:scale-95"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Start Now</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleStartTopPriority(topPriorityTask)}
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer self-stretch sm:self-auto active:scale-95"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <span>Start Session</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            ) : (
-              <div className="p-6 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] text-center space-y-2.5">
-                <p className="text-xs text-[#6E6E73] font-medium">All planned tasks completed for today!</p>
+            )}
+
+            {/* CURATED RECOMMENDATIONS FROM SYLLABUS */}
+            {recommendedPlanTasks.length > 0 && (
+              <div className="p-4 rounded-2xl bg-[#F2F2F7]/70 border border-[rgba(60,60,67,0.08)] space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#FF9500]" />
+                    <span className="text-xs font-bold text-[#1D1D1F]">
+                      Recommended from Your Syllabus Weak Spots
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handlePopulateFromPlan}
+                    className="text-[11px] font-semibold text-[#007AFF] hover:underline cursor-pointer"
+                  >
+                    Add All
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {recommendedPlanTasks.map((rec) => {
+                    const sub = FMGE_SUBJECTS.find((s) => s.id === rec.subjectId);
+                    return (
+                      <button
+                        key={rec.id}
+                        type="button"
+                        onClick={() => handleAddSinglePlanTask(rec)}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white hover:bg-[#E5E5EA] border border-[rgba(60,60,67,0.10)] text-xs text-[#1D1D1F] font-medium shadow-2xs transition-all cursor-pointer active:scale-95 group text-left"
+                      >
+                        <span
+                          className="w-2 h-2 rounded-full shrink-0"
+                          style={{ backgroundColor: sub?.color || '#007AFF' }}
+                        />
+                        <span className="truncate max-w-[200px]">{rec.topicName}</span>
+                        <Plus className="w-3 h-3 text-[#007AFF] shrink-0 group-hover:rotate-90 transition-transform" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Task Filter Segmented Bar */}
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <div className="inline-flex p-1 bg-[#F2F2F7] rounded-full border border-[rgba(60,60,67,0.08)] text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setTaskFilter('all')}
+                  className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
+                    taskFilter === 'all'
+                      ? 'bg-white text-[#1D1D1F] shadow-xs'
+                      : 'text-[#6E6E73] hover:text-[#1D1D1F]'
+                  }`}
+                >
+                  All ({totalTaskCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTaskFilter('pending')}
+                  className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
+                    taskFilter === 'pending'
+                      ? 'bg-white text-[#1D1D1F] shadow-xs'
+                      : 'text-[#6E6E73] hover:text-[#1D1D1F]'
+                  }`}
+                >
+                  Pending ({pendingTasks.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTaskFilter('completed')}
+                  className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
+                    taskFilter === 'completed'
+                      ? 'bg-white text-[#1D1D1F] shadow-xs'
+                      : 'text-[#6E6E73] hover:text-[#1D1D1F]'
+                  }`}
+                >
+                  Completed ({completedTasks.length})
+                </button>
+              </div>
+
+              {totalTaskCount === 0 && (
                 <button
                   type="button"
                   onClick={handlePopulateFromPlan}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                  className="text-xs font-semibold text-[#007AFF] hover:underline cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5 stroke-[2.4]" />
-                  <span>Load More From Syllabus Plan</span>
+                  Auto-Populate Today's Plan
                 </button>
-              </div>
-            )}
-          </div>
-
-          {/* Card 2: Today's Tasks List with Progress */}
-          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[rgba(60,60,67,0.10)] shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-5">
-            {/* Header with Progress Bar */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/15">
-                    <Clock className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-bold text-[#1D1D1F]">
-                      Today’s Tasks ({totalTaskCount})
-                    </h2>
-                    <p className="text-xs text-[#8E8E93]">
-                      {completedTaskCount} of {totalTaskCount} completed
-                    </p>
-                  </div>
-                </div>
-
-                <span className="text-sm font-mono font-bold text-[#1D1D1F]">
-                  {progressPercent}%
-                </span>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="w-full h-2 rounded-full bg-[#E5E5EA] overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-[#007AFF] transition-all duration-500"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
+              )}
             </div>
 
             {/* Task List Items */}
-            {tasks.length > 0 ? (
+            {filteredTasks.length > 0 ? (
               <div className="space-y-2.5">
-                {tasks.map((task) => {
+                {filteredTasks.map((task) => {
                   const sub = FMGE_SUBJECTS.find((s) => s.id === task.subjectId);
                   const isCompleted = task.completed;
                   const isActive = activeTaskId === task.id;
@@ -729,10 +838,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                       key={task.id}
                       className={`p-4 rounded-2xl border transition-all flex items-start justify-between gap-3 group ${
                         isActive
-                          ? 'border-[#007AFF] bg-[#007AFF]/[0.03] ring-1 ring-[#007AFF]/20'
+                          ? 'border-[#007AFF] bg-[#007AFF]/[0.03] ring-1 ring-[#007AFF]/20 shadow-2xs'
                           : isCompleted
                           ? 'border-[rgba(60,60,67,0.08)] bg-[#F2F2F7]/50'
-                          : 'border-[rgba(60,60,67,0.10)] bg-white hover:border-[#007AFF]/40 shadow-2xs'
+                          : 'border-[rgba(60,60,67,0.10)] bg-white hover:border-[#007AFF]/40 hover:shadow-xs'
                       }`}
                     >
                       <div className="flex items-start gap-3.5 flex-1 min-w-0">
@@ -768,38 +877,61 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                             >
                               {task.title}
                             </h4>
+                            {isActive && (
+                              <span className="px-2 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[9px] font-mono font-bold uppercase tracking-wider shrink-0">
+                                Active Focus
+                              </span>
+                            )}
                           </div>
 
                           <div className="flex items-center gap-2 mt-1 text-[11px] text-[#8E8E93] font-medium flex-wrap">
-                            <span>{sub?.name || 'General Medicine'}</span>
+                            <span className="inline-flex items-center gap-1 text-[#1D1D1F] font-semibold">
+                              <span
+                                className="w-1.5 h-1.5 rounded-full shrink-0"
+                                style={{ backgroundColor: sub?.color || '#007AFF' }}
+                              />
+                              {sub?.name || 'General Medicine'}
+                            </span>
                             <span>•</span>
                             <span className="capitalize">{task.type.replace('_', ' ')}</span>
+                            {task.priority === 'high' && (
+                              <>
+                                <span>•</span>
+                                <span className="text-[#FF3B30] font-semibold">High Priority</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
 
-                      {/* Right: Duration & Status Pill */}
-                      <div className="flex items-center gap-3 shrink-0">
-                        <div className="flex items-center gap-1 text-xs text-[#6E6E73] font-medium">
+                      {/* Right: Duration & Actions */}
+                      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                        <div className="flex items-center gap-1 text-xs text-[#6E6E73] font-mono font-medium">
                           <Clock className="w-3.5 h-3.5 text-[#8E8E93]" />
-                          <span>{task.durationMinutes} min</span>
+                          <span>{task.durationMinutes}m</span>
                         </div>
 
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border ${
-                            isCompleted
-                              ? 'bg-[#30D158]/10 text-[#30D158] border-[#30D158]/20'
-                              : 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/20'
-                          }`}
-                        >
-                          {isCompleted ? 'Completed' : 'Pending'}
-                        </span>
+                        {!isCompleted && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveTaskId(task.id);
+                              handleModeChange('pomodoro', (task.durationMinutes || 25) * 60);
+                              setIsRunning(true);
+                              setMobileTab('focus');
+                            }}
+                            className="hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-[#007AFF]/10 hover:bg-[#007AFF] text-[#007AFF] hover:text-white transition-all cursor-pointer active:scale-95"
+                          >
+                            <Play className="w-3 h-3 fill-current" />
+                            <span>Focus</span>
+                          </button>
+                        )}
 
                         {/* Delete Action */}
                         <button
                           type="button"
                           onClick={() => onDeleteTask(task.id)}
-                          className="text-[#C7C7CC] hover:text-[#FF3B30] p-1 rounded-lg hover:bg-[#FF3B30]/10 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                          className="text-[#C7C7CC] hover:text-[#FF3B30] p-1 rounded-lg hover:bg-[#FF3B30]/10 transition-colors opacity-60 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
                           title="Delete task"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -810,54 +942,32 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 })}
               </div>
             ) : (
-              <div className="text-center py-10 bg-[#F2F2F7] rounded-2xl border border-dashed border-[rgba(60,60,67,0.15)] space-y-3">
+              <div className="text-center py-10 bg-[#F2F2F7]/60 rounded-2xl border border-dashed border-[rgba(60,60,67,0.15)] space-y-3 px-4">
                 <BookmarkCheck className="w-8 h-8 text-[#8E8E93] mx-auto" />
-                <p className="text-xs text-[#6E6E73] font-medium">
-                  No tasks planned for today yet. Add high-yield study goals or load from your personalized plan.
+                <p className="text-xs text-[#6E6E73] font-medium max-w-sm mx-auto">
+                  {taskFilter === 'completed'
+                    ? 'No completed tasks yet. Check off your first study milestone today!'
+                    : taskFilter === 'pending' && totalTaskCount > 0
+                    ? 'All tasks completed for today! Awesome dedication doctor.'
+                    : 'No study tasks planned for today yet. Load high-yield topics directly from your personalized syllabus plan.'}
                 </p>
-                <button
-                  type="button"
-                  onClick={handlePopulateFromPlan}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5 stroke-[2.4]" />
-                  <span>Load Today's Personalized Plan</span>
-                </button>
-              </div>
-            )}
-
-            {/* Completed Tasks Accordion */}
-            {completedTaskCount > 0 && (
-              <div className="pt-2 border-t border-[rgba(60,60,67,0.08)]">
-                <button
-                  type="button"
-                  onClick={() => setShowCompletedAccordion(!showCompletedAccordion)}
-                  className="w-full flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] transition-colors cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#30D158]" />
-                    <span>Completed Tasks ({completedTaskCount})</span>
-                  </span>
-                  <ChevronRight
-                    className={`w-4 h-4 text-[#8E8E93] transition-transform ${
-                      showCompletedAccordion ? 'rotate-90' : ''
-                    }`}
-                  />
-                </button>
-
-                {showCompletedAccordion && (
-                  <div className="mt-2 space-y-2 pl-6 pt-1">
-                    {completedTasks.map((t) => (
-                      <div
-                        key={t.id}
-                        className="text-xs text-[#8E8E93] flex items-center justify-between py-1 border-b border-[rgba(60,60,67,0.06)] last:border-none"
-                      >
-                        <span className="line-through">{t.title}</span>
-                        <span className="font-mono text-[10px] text-[#30D158] font-bold">Done</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handlePopulateFromPlan}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5 stroke-[2.4]" />
+                    <span>Load Today’s Plan</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddTask(true)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white hover:bg-[#E5E5EA] border border-[rgba(60,60,67,0.12)] text-[#1D1D1F] text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                  >
+                    <span>Custom Task</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -884,7 +994,6 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
                 <div className="relative p-2.5 rounded-2xl bg-[#007AFF]/10 text-[#007AFF] shrink-0 mt-0.5 border border-[#007AFF]/15 shadow-2xs">
-                  {/* Rotating focus ring reticle */}
                   <motion.div
                     animate={{ rotate: isRunning ? 360 : 0 }}
                     transition={isRunning ? { duration: 12, repeat: Infinity, ease: 'linear' } : { duration: 0.4 }}
@@ -900,7 +1009,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-base sm:text-lg font-bold text-[#1D1D1F] leading-snug">
-                      Focus Engine
+                      Focus Studio
                     </h2>
                     <span
                       className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border transition-colors ${
@@ -918,13 +1027,13 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                         ? timerMode === 'pomodoro'
                           ? 'Deep Flow'
                           : timerMode === 'stopwatch'
-                          ? 'Timer Running'
+                          ? 'Stopwatch'
                           : 'Break'
                         : 'Standby'}
                     </span>
                   </div>
                   <p className="text-xs text-[#8E8E93] mt-0.5 leading-relaxed font-medium">
-                    Deep work. Better retention. Real progress.
+                    Deep work. High retention. Real progress.
                   </p>
                 </div>
               </div>
@@ -934,89 +1043,18 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <button
                     type="button"
                     onClick={onOpenZenFocus}
-                    className="px-3 py-1.5 rounded-full border border-[rgba(60,60,67,0.10)] bg-white hover:bg-[#F2F2F7] text-[#007AFF] text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs group"
-                    title="Enter Fullscreen Zen Study Sanctuary (⌘J)"
+                    className="px-3 py-1.5 rounded-full border border-[rgba(60,60,67,0.10)] bg-white hover:bg-[#F2F2F7] text-[#007AFF] text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs group active:scale-95"
+                    title="Enter Fullscreen Zen Study Sanctuary"
                   >
                     <Headphones className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
                     <span className="text-[11px] font-semibold hidden sm:inline">Zen Sanctuary</span>
                   </button>
                 )}
-
-                {/* Settings Button */}
-                <button
-                  type="button"
-                  onClick={() => setShowSettings(!showSettings)}
-                  className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-                    showSettings
-                      ? 'bg-[#F2F2F7] border-[rgba(60,60,67,0.20)] text-[#1D1D1F] shadow-2xs'
-                      : 'bg-white border-[rgba(60,60,67,0.10)] text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] shadow-2xs'
-                  }`}
-                  title="Timer Settings & Ambient Sound"
-                >
-                  <motion.div animate={{ rotate: showSettings ? 90 : 0 }} transition={{ duration: 0.25 }}>
-                    <Settings className="w-3.5 h-3.5" />
-                  </motion.div>
-                  <span className="text-[11px] font-semibold hidden sm:inline">Settings</span>
-                </button>
               </div>
             </div>
 
-            {/* Settings Accordion Panel */}
-            {showSettings && (
-              <div className="p-4 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] space-y-3 animate-in fade-in duration-100 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#1D1D1F] uppercase tracking-wider text-[10px] font-mono">
-                    Ambient Audio Synthesizer
-                  </span>
-                  <span className="text-[10px] text-[#8E8E93]">Web Audio API</span>
-                </div>
-
-                <div className="grid grid-cols-4 gap-1.5 text-[11px] font-semibold">
-                  {[
-                    { id: 'off', label: 'Off' },
-                    { id: 'alpha', label: 'Alpha' },
-                    { id: 'rain', label: 'Rain' },
-                    { id: 'whitenoise', label: 'Noise' },
-                  ].map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => handleSoundToggle(s.id as any)}
-                      className={`py-1.5 px-2 rounded-xl transition-all cursor-pointer ${
-                        soundMode === s.id
-                          ? 'bg-[#007AFF] text-white shadow-xs font-bold'
-                          : 'bg-white text-[#1D1D1F] border border-[rgba(60,60,67,0.10)] hover:bg-[#E5E5EA]'
-                      }`}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="pt-2 border-t border-[rgba(60,60,67,0.10)] flex items-center justify-between text-[11px] text-[#6E6E73]">
-                  <span>Session Length:</span>
-                  <div className="flex items-center gap-1">
-                    {[25, 45, 60].map((mins) => (
-                      <button
-                        key={mins}
-                        type="button"
-                        onClick={() => handleModeChange('pomodoro', mins * 60)}
-                        className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-semibold cursor-pointer transition-all ${
-                          totalDuration === mins * 60 && timerMode === 'pomodoro'
-                            ? 'bg-[#007AFF] text-white shadow-xs'
-                            : 'bg-white border border-[rgba(60,60,67,0.10)] text-[#1D1D1F] hover:bg-[#E5E5EA]'
-                        }`}
-                      >
-                        {mins}m
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Circular Timer Display */}
-            <div className="flex flex-col items-center justify-center py-2">
+            <div className="flex flex-col items-center justify-center py-1">
               <div className="relative w-52 h-52 sm:w-56 sm:h-56 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
                   {/* Background Circle */}
@@ -1063,88 +1101,151 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   </div>
 
                   <span className="text-xs text-[#8E8E93] font-medium">
-                    {isRunning ? 'Stay focused' : timeLeft === 0 ? 'Session Complete' : 'Ready'}
+                    {isRunning ? 'Session in progress' : timeLeft === 0 ? 'Session Complete' : 'Ready'}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Current Study Task Banner */}
+            {/* Session Presets Segment Bar */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-medium text-[#8E8E93]">
+                <span>Session Preset</span>
+                <span>{timerMode === 'pomodoro' ? `${Math.round(totalDuration / 60)} min` : timerMode.replace('_', ' ')}</span>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5">
+                {[
+                  { mode: 'pomodoro', minutes: 25, label: '25m Focus' },
+                  { mode: 'pomodoro', minutes: 45, label: '45m Study' },
+                  { mode: 'short_break', minutes: 5, label: '5m Break' },
+                  { mode: 'long_break', minutes: 15, label: '15m Break' },
+                ].map((preset) => {
+                  const isCurrent =
+                    timerMode === preset.mode &&
+                    (preset.mode !== 'pomodoro' || totalDuration === preset.minutes * 60);
+
+                  return (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => handleModeChange(preset.mode as any, preset.minutes * 60)}
+                      className={`py-2 px-1 text-center rounded-xl text-xs font-semibold transition-all cursor-pointer active:scale-95 ${
+                        isCurrent
+                          ? 'bg-[#1D1D1F] text-white shadow-xs'
+                          : 'bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#6E6E73] hover:text-[#1D1D1F] border border-[rgba(60,60,67,0.06)]'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Ambient Sound Synthesizer Dock */}
+            <div className="p-3.5 rounded-2xl bg-[#F2F2F7]/70 border border-[rgba(60,60,67,0.08)] space-y-2">
+              <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center gap-1.5 font-semibold text-[#1D1D1F]">
+                  {soundMode === 'off' ? (
+                    <VolumeX className="w-3.5 h-3.5 text-[#8E8E93]" />
+                  ) : (
+                    <Volume2 className="w-3.5 h-3.5 text-[#007AFF]" />
+                  )}
+                  <span>Ambient Focus Audio</span>
+                </div>
+                <span className="font-mono text-[10px] text-[#8E8E93]">Web Audio API</span>
+              </div>
+
+              <div className="grid grid-cols-4 gap-1.5 text-xs font-medium">
+                {[
+                  { id: 'off', label: 'Mute' },
+                  { id: 'alpha', label: 'Alpha 10Hz' },
+                  { id: 'rain', label: 'Rain' },
+                  { id: 'whitenoise', label: 'White Noise' },
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => handleSoundToggle(s.id as any)}
+                    className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold transition-all cursor-pointer ${
+                      soundMode === s.id
+                        ? 'bg-[#007AFF] text-white shadow-xs'
+                        : 'bg-white text-[#1D1D1F] border border-[rgba(60,60,67,0.10)] hover:bg-[#E5E5EA]'
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Current Study Task Banner with Direct Practice MCQ Action */}
             {activeFocusTask && (
-              <div className="p-3.5 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/15 flex items-center justify-center shrink-0">
-                  <BookOpen className="w-4 h-4" />
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#F2F2F7] to-white border border-[rgba(60,60,67,0.10)] flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-9 h-9 rounded-xl bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/15 flex items-center justify-center shrink-0 shadow-2xs">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-xs sm:text-sm font-semibold text-[#1D1D1F] truncate">
+                      {activeFocusTask.title}
+                    </h4>
+                    <p className="text-[11px] text-[#8E8E93] truncate">
+                      {(() => {
+                        const sub = FMGE_SUBJECTS.find((s) => s.id === activeFocusTask.subjectId);
+                        return `${sub?.name || 'General Medicine'} • Active Focus Topic`;
+                      })()}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-xs sm:text-sm font-semibold text-[#1D1D1F] truncate">
-                    {activeFocusTask.title}
-                  </h4>
-                  <p className="text-[11px] text-[#8E8E93] truncate">
-                    {(() => {
-                      const sub = FMGE_SUBJECTS.find((s) => s.id === activeFocusTask.subjectId);
-                      return `${sub?.name || 'General Medicine'} • Study & QBank`;
-                    })()}
-                  </p>
-                </div>
+
+                {onLaunchPracticeSession && activeFocusTask.subjectId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const topicId = (activeFocusTask as any).topicId || `${activeFocusTask.subjectId}-1`;
+                      onLaunchPracticeSession(activeFocusTask.subjectId, topicId, activeFocusTask.title);
+                    }}
+                    className="px-3 py-1.5 rounded-full bg-white hover:bg-[#F2F2F7] border border-[rgba(60,60,67,0.12)] text-[#007AFF] text-xs font-semibold transition-all cursor-pointer shrink-0 shadow-2xs active:scale-95"
+                  >
+                    Practice MCQs →
+                  </button>
+                )}
               </div>
             )}
 
-            {/* Timer Control Buttons */}
-            <div className="grid grid-cols-4 gap-2">
-              {/* Start / Pause */}
+            {/* Timer Control Primary Action Bar */}
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setIsRunning(!isRunning)}
-                className="col-span-1 py-2.5 px-3 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
+                className={`flex-1 py-3 px-5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs active:scale-95 ${
+                  isRunning
+                    ? 'bg-[#FF9500] hover:bg-[#E08500] text-white shadow-[0_4px_16px_rgba(255,149,0,0.25)]'
+                    : 'bg-[#007AFF] hover:bg-[#0062CC] text-white shadow-[0_4px_16px_rgba(0,122,255,0.25)]'
+                }`}
               >
                 {isRunning ? (
                   <>
-                    <Pause className="w-3.5 h-3.5 fill-current" />
-                    <span>Pause</span>
+                    <Pause className="w-4 h-4 fill-current" />
+                    <span>Pause Session</span>
                   </>
                 ) : (
                   <>
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Start</span>
+                    <Play className="w-4 h-4 fill-current translate-x-0.5" />
+                    <span>Start Focus Session</span>
                   </>
                 )}
               </button>
 
-              {/* 5 min Break */}
-              <button
-                type="button"
-                onClick={() => handleModeChange('short_break')}
-                className={`col-span-1 py-2.5 px-2 rounded-full border text-xs font-semibold transition-all cursor-pointer active:scale-95 ${
-                  timerMode === 'short_break'
-                    ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]'
-                    : 'bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#1D1D1F] border-[rgba(60,60,67,0.10)]'
-                }`}
-              >
-                5m Break
-              </button>
-
-              {/* 15 min Break */}
-              <button
-                type="button"
-                onClick={() => handleModeChange('long_break')}
-                className={`col-span-1 py-2.5 px-2 rounded-full border text-xs font-semibold transition-all cursor-pointer active:scale-95 ${
-                  timerMode === 'long_break'
-                    ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]'
-                    : 'bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#1D1D1F] border-[rgba(60,60,67,0.10)]'
-                }`}
-              >
-                15m Break
-              </button>
-
-              {/* Stop / Reset */}
               <button
                 type="button"
                 onClick={handleStopTimer}
-                className="col-span-1 py-2.5 px-3 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] border border-[rgba(60,60,67,0.10)] text-[#FF3B30] text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95"
-                title="Stop and Reset"
+                className="py-3 px-4 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] border border-[rgba(60,60,67,0.10)] text-[#FF3B30] text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
+                title="Stop and Reset Timer"
               >
-                <Square className="w-3 h-3 fill-current" />
-                <span>Stop</span>
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset</span>
               </button>
             </div>
 
@@ -1161,14 +1262,13 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               </p>
             </div>
 
-            {/* Today's Progress Section */}
+            {/* Today's Progress Section: 4 Apple Bento Metric Tiles */}
             <div className="space-y-3 pt-2 border-t border-[rgba(60,60,67,0.08)]">
               <div>
-                <h3 className="text-sm font-bold text-[#1D1D1F]">Today’s Progress</h3>
-                <p className="text-xs text-[#8E8E93]">Small steps create big results.</p>
+                <h3 className="text-sm font-bold text-[#1D1D1F]">Today’s Telemetry</h3>
+                <p className="text-xs text-[#8E8E93]">Consistent daily blocks compound into 200+ marks.</p>
               </div>
 
-              {/* 4 Metric Tiles Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {/* 1. Tasks completed (Emerald) */}
                 <div className="p-3.5 rounded-2xl bg-[#30D158]/[0.08] border border-[#30D158]/20 space-y-1.5 shadow-2xs">
