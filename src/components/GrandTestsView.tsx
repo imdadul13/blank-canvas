@@ -288,126 +288,138 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         </div>
       )}
 
-      {/* Apple HIG Luminous Pastel Indigo Hero Header matching Figma (media_1790581286730.png & media_1790580523066.png) */}
+      {/* Apple HIG Luminous Royal Indigo Hero Header — Matching DailyPlannerView Structure with Distinct Exam Indigo Palette */}
       <motion.header
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-        className="relative rounded-3xl overflow-hidden border border-[#C7D2FE]/70"
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(79,70,229,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-indigo-200/70"
         style={{
-          background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 40%, #C7D2FE 100%)',
-          boxShadow: '0 4px 24px rgba(79,70,229,0.08), 0 1px 3px rgba(0,0,0,0.03)',
+          background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 35%, #C7D2FE 70%, #A5B4FC 100%)',
         }}
       >
-        {/* Ambient Highlights */}
+        {/* Soft Ambient Radial Glow (Royal Indigo) */}
         <div
-          className="pointer-events-none absolute right-0 top-0 bottom-0 w-2/3"
-          style={{ background: 'radial-gradient(ellipse at 85% 30%, rgba(129,140,248,0.22) 0%, transparent 65%)' }}
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-3/5"
+          style={{
+            background: 'radial-gradient(ellipse at 85% 45%, rgba(99,102,241,0.20) 0%, rgba(79,70,229,0.06) 50%, transparent 75%)',
+          }}
         />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/40 to-transparent" />
 
-        <div className="relative z-10 px-5 sm:px-8 py-5 sm:py-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-          {/* Left: Eyebrow, Title, Subtitle, and Pill Tabs */}
-          <div className="space-y-3 min-w-0 max-w-xl">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-white/80 shadow-2xs border border-[#C7D2FE] flex items-center justify-center shrink-0">
-                <Target className="h-3.5 w-3.5 text-[#4338CA]" />
+        <div className="relative z-10 p-5 sm:p-6 space-y-4">
+          {/* Top Metadata Row */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/75 backdrop-blur-md border border-[rgba(60,60,67,0.08)] text-xs font-semibold text-[#4338CA]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] animate-pulse" />
+              <span className="uppercase tracking-wider text-[10.5px] font-bold">NBE CBT Simulation</span>
+              <span className="text-[#C7C7CC]">·</span>
+              <span className="text-[#3C3C43] font-normal hidden sm:inline">300 Questions Benchmark</span>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/80 backdrop-blur-md border border-[rgba(60,60,67,0.10)] text-[#1D1D1F] shadow-xs">
+                <Clock className="w-3.5 h-3.5 text-[#4338CA]" />
+                <span>{stats.totalTests} {stats.totalTests === 1 ? 'Mock' : 'Mocks'}</span>
               </div>
-              <span className="font-mono text-[10.5px] font-bold uppercase tracking-widest text-[#4338CA]">
-                NBE SIMULATION · 300 QUESTIONS · BENCHMARK
-              </span>
-            </div>
 
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-black tracking-tight text-[#1D1D1F] leading-tight">
-                <span className="text-[#4338CA]">Grand Tests </span> &amp; Mock Exams
-              </h1>
-              <p className="text-[12.5px] sm:text-[13px] text-[#475569] leading-relaxed max-w-lg font-medium">
-                Simulate 300-Q NBE exam sessions and benchmark your trajectory against the 150-mark pass threshold.
-              </p>
-            </div>
+              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/80 backdrop-blur-md border border-indigo-200 text-[#4338CA] shadow-xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#4338CA]" />
+                <span>{stats.clearanceRate}% Clearance</span>
+              </div>
 
-            {/* Apple Segmented Pill Switch (Matching media_1790580523066.png) */}
-            <div className="inline-flex items-center gap-1 p-1 bg-white/75 backdrop-blur-md rounded-full border border-[#C7D2FE]/70 shadow-2xs">
-              <button
-                type="button"
-                onClick={() => setStatusFilter('all')}
-                className={`px-3.5 py-1 rounded-full text-[11.5px] font-bold transition-all cursor-pointer ${
-                  statusFilter === 'all'
-                    ? 'bg-white text-[#1D1D1F] shadow-xs'
-                    : 'text-[#64748B] hover:text-[#1D1D1F]'
-                }`}
-              >
-                Overview
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowMockModal(true)}
-                className="px-3.5 py-1 rounded-full text-[11.5px] font-bold text-[#64748B] hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                <Clock className="w-3 h-3 text-[#4338CA]" />
-                <span>50Q Mini-Mock</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowDiagnosticModal(true)}
-                className="px-3.5 py-1 rounded-full text-[11.5px] font-bold text-[#64748B] hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                <BarChart3 className="w-3 h-3 text-[#4338CA]" />
-                <span>Diagnostics</span>
-              </button>
+              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/80 backdrop-blur-md border border-emerald-200 text-emerald-700 shadow-xs">
+                <Target className="w-3.5 h-3.5 text-emerald-600" />
+                <span>150 / 300 Pass</span>
+              </div>
             </div>
           </div>
 
-          {/* Right: Actions + CBT Stadium Benchmark Card */}
-          <div className="flex flex-col sm:flex-row lg:flex-col sm:items-center lg:items-end gap-3.5 shrink-0">
-            {/* Action Buttons Row */}
-            <div className="flex items-center gap-2">
-              <div className="px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-[#4338CA] border border-[#C7D2FE] text-[11.5px] font-bold flex items-center gap-1.5 shadow-2xs">
-                <Clock className="w-3.5 h-3.5 text-[#4338CA]" />
-                <span>{stats.totalTests} {stats.totalTests === 1 ? 'Mock Logged' : 'Mocks Logged'}</span>
-              </div>
+          {/* Main Row: Title & Subtitle + Mode Switcher + Right Gauge Widget */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <div className="space-y-2.5 min-w-0 max-w-xl">
+              <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black tracking-[-0.03em] leading-tight text-[#1D1D1F]">
+                Grand Tests <span className="text-[#4338CA]">&amp; Mock Exams</span>
+              </h1>
+              <p className="text-xs sm:text-[13px] text-[#334155] font-medium leading-snug">
+                Simulate 300-Q NBE exam sessions and benchmark your trajectory against the 150-mark pass threshold.
+              </p>
 
-              <button
-                type="button"
-                onClick={() => setShowAddGTModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#3730A3] hover:bg-[#312E81] text-white text-[12px] font-bold shadow-sm transition-all cursor-pointer active:scale-95"
-              >
-                <Plus className="h-3.5 w-3.5 stroke-[2.8]" />
-                <span>Log Grand Test</span>
-              </button>
+              {/* Apple Segmented Pill Switch */}
+              <div className="inline-flex items-center gap-1 p-1 bg-white/80 backdrop-blur-md rounded-full border border-black/[0.08] shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('all')}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === 'all'
+                      ? 'bg-white text-[#1D1D1F] shadow-xs'
+                      : 'text-[#64748B] hover:text-[#1D1D1F]'
+                  }`}
+                >
+                  Overview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowMockModal(true)}
+                  className="px-3 py-1 rounded-full text-xs font-bold text-[#64748B] hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <Clock className="w-3 h-3 text-[#4338CA]" />
+                  <span>50Q Mini-Mock</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDiagnosticModal(true)}
+                  className="px-3 py-1 rounded-full text-xs font-bold text-[#64748B] hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <BarChart3 className="w-3 h-3 text-[#4338CA]" />
+                  <span>Diagnostics</span>
+                </button>
+              </div>
             </div>
 
-            {/* Examination Stadium Benchmark Badge (Tailored specifically for Grand Tests) */}
-            <div className="flex items-center gap-3.5 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-[#C7D2FE]/80 shadow-2xs">
-              <div className="flex flex-col items-start">
-                <div className="flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-[#30D158] animate-pulse" />
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#4338CA]">
-                    NBE CBT Pass Benchmark
+            {/* Right Compact Circular Gauge Widget Card */}
+            <div className="bg-white/80 backdrop-blur-md border border-white/90 rounded-2xl p-3.5 sm:p-4 shadow-sm flex items-center gap-3.5 sm:gap-4 shrink-0">
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r="20" stroke="#F2F2F7" strokeWidth="4.5" fill="none" />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    stroke="#4338CA"
+                    strokeWidth="4.5"
+                    strokeDasharray={125.6}
+                    strokeDashoffset={125.6 * (1 - Math.min(100, Math.max(0, stats.clearanceRate || 50)) / 100)}
+                    strokeLinecap="round"
+                    fill="none"
+                    className="transition-all duration-700 ease-out"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span className="font-mono text-xs font-black text-[#1D1D1F] leading-none">
+                    {stats.clearanceRate}%
                   </span>
-                </div>
-                <div className="flex items-baseline gap-1 mt-0.5">
-                  <span className="text-[20px] font-black font-mono text-[#1D1D1F] leading-none">
-                    150
+                  <span className="text-[6.5px] font-mono font-bold uppercase tracking-wider text-[#4338CA] mt-0.5">
+                    PASS
                   </span>
-                  <span className="text-[11px] font-mono font-bold text-[#6366F1]">/ 300 Marks (50%)</span>
                 </div>
               </div>
 
-              <div className="h-8 w-px bg-[#C7D2FE]/60 shrink-0" />
-
-              <div className="text-right">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-[#64748B]">Latest Mock</div>
-                <div className="text-[14px] font-mono font-black text-[#1D1D1F]">
+              <div className="space-y-1.5 min-w-0">
+                <div className="text-xs font-bold text-[#1D1D1F] truncate">
                   {stats.latestScore > 0 ? (
-                    <span className={stats.latestPassed ? 'text-emerald-700' : 'text-amber-700'}>
-                      {stats.latestScore} <span className="text-[10px] font-sans font-bold text-[#64748B]">({stats.latestScore >= 150 ? `+${stats.latestScore - 150}` : `${stats.latestScore - 150}`})</span>
-                    </span>
+                    <span>Latest: {stats.latestScore}/300 ({stats.latestScore >= 150 ? `+${stats.latestScore - 150}` : `${stats.latestScore - 150}`})</span>
                   ) : (
-                    <span className="text-[#94A3B8]">Not taken</span>
+                    <span>Target: 150/300 Marks</span>
                   )}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddGTModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#4338CA] hover:bg-[#3730A3] text-white text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[2.8]" />
+                  <span>Log Grand Test</span>
+                </button>
               </div>
             </div>
           </div>

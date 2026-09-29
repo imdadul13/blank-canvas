@@ -1840,6 +1840,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             );
           }
         }}
+        onBackToOverview={onClose}
       />
 
 
