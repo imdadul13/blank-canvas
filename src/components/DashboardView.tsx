@@ -130,6 +130,7 @@ interface DashboardViewProps {
   onOpenAudioRecall?: () => void;
   subTab?: 'overview' | 'planner';
   onSubTabChange?: (tab: 'overview' | 'planner') => void;
+  isGuest?: boolean;
 }
 
 /** Polite, SwiftUI-style number interpolation. No-op under reduced motion. */
@@ -182,48 +183,23 @@ function CircularCountdown({
 
   return (
     <div className="relative flex items-center justify-center shrink-0 w-28 h-28 sm:w-32 sm:h-32">
-      {/* Soft inner ambient glow */}
-      <div className="absolute inset-2 rounded-full bg-[radial-gradient(circle_at_50%_50%,rgba(13,148,136,0.08)_0%,transparent_70%)] pointer-events-none" />
       <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full transform -rotate-90">
         <defs>
           <linearGradient id="examCountdownGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#006B63" />
-            <stop offset="50%" stopColor="#0D9488" />
-            <stop offset="100%" stopColor="#10B981" />
+            <stop offset="0%" stopColor="#007AFF" />
+            <stop offset="50%" stopColor="#60B3FF" />
+            <stop offset="100%" stopColor="#34C759" />
           </linearGradient>
         </defs>
-        {/* Soft Background Track */}
+        {/* Background Track */}
         <circle
           cx={center}
           cy={center}
           r={radius}
           fill="none"
-          stroke="#F1F5F9"
+          stroke="#E5E5EA"
           strokeWidth={strokeWidth}
         />
-        {/* Tiny Circular Graduation / Precision Marks around ring */}
-        {Array.from({ length: 24 }).map((_, i) => {
-          const angle = (i * 360) / 24;
-          const rad = (angle * Math.PI) / 180;
-          const r1 = radius + strokeWidth / 2 + 3;
-          const r2 = radius + strokeWidth / 2 + (i % 6 === 0 ? 6.5 : 4.5);
-          const x1 = center + r1 * Math.cos(rad);
-          const y1 = center + r1 * Math.sin(rad);
-          const x2 = center + r2 * Math.cos(rad);
-          const y2 = center + r2 * Math.sin(rad);
-          return (
-            <line
-              key={i}
-              x1={x1}
-              y1={y1}
-              x2={x2}
-              y2={y2}
-              stroke="#006B63"
-              strokeWidth={i % 6 === 0 ? 1.2 : 0.8}
-              strokeOpacity={i % 6 === 0 ? 0.3 : 0.14}
-            />
-          );
-        })}
         {/* Animated Gradient Progress Ring */}
         <motion.circle
           cx={center}
@@ -242,13 +218,13 @@ function CircularCountdown({
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none px-2">
         <AnimatedNumber
           value={displayVal}
-          className="font-black text-2xl sm:text-3xl text-slate-900 tracking-tight font-['Outfit'] tabular-nums leading-none"
+          className="font-black text-2xl sm:text-3xl text-[#1D1D1F] tracking-tight tabular-nums leading-none"
         />
-        <span className="text-[9px] font-bold text-[#638E88] mt-1 leading-tight tracking-wider uppercase font-mono">
+        <span className="text-[11px] font-medium text-[#6E6E73] mt-1 leading-tight">
           {label}
         </span>
         {sublabel && (
-          <span className="text-[8.5px] font-bold text-emerald-600 mt-0.5 leading-none font-mono">
+          <span className="text-[11px] font-semibold text-[#30D158] mt-0.5 leading-none">
             {sublabel}
           </span>
         )}
@@ -265,52 +241,52 @@ function getContextualProgressStyle(percentage: number, rawStatusText?: string) 
 
   if (isStrong) {
     return {
-      bar: 'bg-gradient-to-r from-[#006B63] via-[#0D9488] to-[#10B981]',
-      track: 'bg-teal-50/80',
-      badge: 'text-teal-800 bg-teal-50/90 border-teal-200/80',
-      dot: 'bg-teal-500',
+      bar: 'bg-gradient-to-r from-[#007AFF] via-[#60B3FF] to-[#10B981]',
+      track: 'bg-[#32ADE6]/8',
+      badge: 'text-[#32ADE6] bg-[#32ADE6]/10 border-[#32ADE6]/15',
+      dot: 'bg-[#32ADE6]',
       statusText: rawStatusText || 'Strong',
     };
   }
   if (isModerate) {
     return {
-      bar: 'bg-gradient-to-r from-sky-500 to-indigo-500',
-      track: 'bg-sky-50/80',
-      badge: 'text-sky-800 bg-sky-50/90 border-sky-200/80',
-      dot: 'bg-sky-500',
+      bar: 'bg-[#FF9F0A]',
+      track: 'bg-[#FF9F0A]/8',
+      badge: 'text-[#FF9F0A] bg-[#FF9F0A]/10 border-[#FF9F0A]/15',
+      dot: 'bg-[#FF9F0A]',
       statusText: rawStatusText || 'Moderate',
     };
   }
   return {
-    bar: 'bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500',
-    track: 'bg-rose-50/80',
-    badge: 'text-rose-800 bg-rose-50/90 border-rose-200/80',
-    dot: 'bg-rose-500',
+    bar: 'bg-[#FF3B30]',
+    track: 'bg-[#FF3B30]/8',
+    badge: 'text-[#FF3B30] bg-[#FF3B30]/10 border-[#FF3B30]/15',
+    dot: 'bg-[#FF3B30]',
     statusText: rawStatusText || 'Needs focus',
   };
 }
 
 /** Subject Accent Colors for Progress Bars & Badges */
 const SUBJECT_ACCENT_COLORS: Record<string, { bar: string; badge: string; text: string }> = {
-  anatomy: { bar: 'bg-[#f43f5e]', badge: 'text-rose-700 bg-rose-50 border-rose-100', text: 'text-rose-600' },
-  physiology: { bar: 'bg-[#0ea5e9]', badge: 'text-sky-700 bg-sky-50 border-sky-100', text: 'text-sky-600' },
-  biochemistry: { bar: 'bg-[#8b5cf6]', badge: 'text-purple-700 bg-purple-50 border-purple-100', text: 'text-purple-600' },
-  pathology: { bar: 'bg-[#0d9488]', badge: 'text-teal-700 bg-teal-50 border-teal-100', text: 'text-teal-600' },
-  pharmacology: { bar: 'bg-[#f59e0b]', badge: 'text-amber-700 bg-amber-50 border-amber-100', text: 'text-amber-600' },
-  microbiology: { bar: 'bg-[#06b6d4]', badge: 'text-cyan-700 bg-cyan-50 border-cyan-100', text: 'text-cyan-600' },
-  fmt: { bar: 'bg-[#e11d48]', badge: 'text-rose-700 bg-rose-50 border-rose-100', text: 'text-rose-600' },
-  psm: { bar: 'bg-[#10b981]', badge: 'text-emerald-700 bg-emerald-50 border-emerald-100', text: 'text-emerald-600' },
-  medicine: { bar: 'bg-[#2563eb]', badge: 'text-blue-700 bg-blue-50 border-blue-100', text: 'text-blue-600' },
-  surgery: { bar: 'bg-[#dc2626]', badge: 'text-red-700 bg-red-50 border-red-100', text: 'text-red-600' },
-  obg: { bar: 'bg-[#ec4899]', badge: 'text-pink-700 bg-pink-50 border-pink-100', text: 'text-pink-600' },
-  pediatrics: { bar: 'bg-[#14b8a6]', badge: 'text-teal-700 bg-teal-50 border-teal-100', text: 'text-teal-600' },
-  ophthalmology: { bar: 'bg-[#6366f1]', badge: 'text-indigo-700 bg-indigo-50 border-indigo-100', text: 'text-indigo-600' },
-  ent: { bar: 'bg-[#84cc16]', badge: 'text-lime-700 bg-lime-50 border-lime-100', text: 'text-lime-600' },
-  dermatology: { bar: 'bg-[#f97316]', badge: 'text-orange-700 bg-orange-50 border-orange-100', text: 'text-orange-600' },
-  psychiatry: { bar: 'bg-[#a855f7]', badge: 'text-purple-700 bg-purple-50 border-purple-100', text: 'text-purple-600' },
-  radiology: { bar: 'bg-[#0284c7]', badge: 'text-sky-700 bg-sky-50 border-sky-100', text: 'text-sky-600' },
-  orthopedics: { bar: 'bg-[#b45309]', badge: 'text-amber-800 bg-amber-50 border-amber-100', text: 'text-amber-700' },
-  anesthesia: { bar: 'bg-[#475569]', badge: 'text-slate-700 bg-slate-100 border-slate-200', text: 'text-slate-600' },
+  anatomy:      { bar: 'bg-[#FF3B30]', badge: 'text-[#FF3B30] bg-[#FF3B30]/10 border-[#FF3B30]/15', text: 'text-[#FF3B30]' },
+  physiology:   { bar: 'bg-[#5AC8FA]', badge: 'text-[#32ADE6] bg-[#32ADE6]/10 border-[#32ADE6]/15', text: 'text-[#32ADE6]' },
+  biochemistry: { bar: 'bg-[#BF5AF2]', badge: 'text-[#BF5AF2] bg-[#BF5AF2]/10 border-[#BF5AF2]/15', text: 'text-[#BF5AF2]' },
+  pathology:    { bar: 'bg-[#FF9500]', badge: 'text-[#FF9500] bg-[#FF9500]/10 border-[#FF9500]/15', text: 'text-[#FF9500]' },
+  pharmacology: { bar: 'bg-[#BF5AF2]', badge: 'text-[#BF5AF2] bg-[#BF5AF2]/10 border-[#BF5AF2]/15', text: 'text-[#BF5AF2]' },
+  microbiology: { bar: 'bg-[#32ADE6]', badge: 'text-[#32ADE6] bg-[#32ADE6]/10 border-[#32ADE6]/15', text: 'text-[#32ADE6]' },
+  fmt:          { bar: 'bg-[#8E8E93]', badge: 'text-[#6E6E73] bg-[#E5E5EA] border-[rgba(60,60,67,0.12)]', text: 'text-[#6E6E73]' },
+  psm:          { bar: 'bg-[#30D158]', badge: 'text-[#30D158] bg-[#30D158]/10 border-[#30D158]/15', text: 'text-[#30D158]' },
+  medicine:     { bar: 'bg-[#FF3B30]', badge: 'text-[#FF3B30] bg-[#FF3B30]/10 border-[#FF3B30]/15', text: 'text-[#FF3B30]' },
+  surgery:      { bar: 'bg-[#FF453A]', badge: 'text-[#FF453A] bg-[#FF453A]/10 border-[#FF453A]/15', text: 'text-[#FF453A]' },
+  obg:          { bar: 'bg-[#FF2D55]', badge: 'text-[#FF2D55] bg-[#FF2D55]/10 border-[#FF2D55]/15', text: 'text-[#FF2D55]' },
+  pediatrics:   { bar: 'bg-[#FF9F0A]', badge: 'text-[#FF9F0A] bg-[#FF9F0A]/10 border-[#FF9F0A]/15', text: 'text-[#FF9F0A]' },
+  ophthalmology:{ bar: 'bg-[#5E5CE6]', badge: 'text-[#5E5CE6] bg-[#5E5CE6]/10 border-[#5E5CE6]/15', text: 'text-[#5E5CE6]' },
+  ent:          { bar: 'bg-[#30D158]', badge: 'text-[#30D158] bg-[#30D158]/10 border-[#30D158]/15', text: 'text-[#30D158]' },
+  dermatology:  { bar: 'bg-[#FF9500]', badge: 'text-[#FF9500] bg-[#FF9500]/10 border-[#FF9500]/15', text: 'text-[#FF9500]' },
+  psychiatry:   { bar: 'bg-[#BF5AF2]', badge: 'text-[#BF5AF2] bg-[#BF5AF2]/10 border-[#BF5AF2]/15', text: 'text-[#BF5AF2]' },
+  radiology:    { bar: 'bg-[#007AFF]', badge: 'text-[#007AFF] bg-[#007AFF]/10 border-[#007AFF]/15', text: 'text-[#007AFF]' },
+  orthopedics:  { bar: 'bg-[#8E8E93]', badge: 'text-[#6E6E73] bg-[#E5E5EA] border-[rgba(60,60,67,0.12)]', text: 'text-[#6E6E73]' },
+  anesthesia:   { bar: 'bg-[#5AC8FA]', badge: 'text-[#32ADE6] bg-[#32ADE6]/10 border-[#32ADE6]/15', text: 'text-[#32ADE6]' },
 };
 
 /** Helper to get specialty insignia Lucide icon for each of the 19 subjects */
@@ -388,486 +364,486 @@ export interface SubjectCardTheme {
 /** Subject Card Gradient Themes & Backdrops matching Reference Mockup */
 const SUBJECT_CARD_THEMES: Record<string, SubjectCardTheme> = {
   medicine: {
-    bg: 'from-teal-500/[0.08] via-cyan-500/[0.04] to-white/95',
-    border: 'border-cyan-200/70 hover:border-cyan-400/90',
-    glow: 'rgba(6, 182, 212, 0.22)',
-    badge: 'bg-cyan-500/10 text-cyan-800 border-cyan-200/70',
-    insigniaBg: 'bg-teal-500/10 text-teal-700 border-teal-200/70',
-    insigniaText: 'text-teal-700',
-    progressBar: 'from-teal-600 to-cyan-500',
-    arrowBg: 'group-hover:bg-[#006B63] group-hover:text-white',
-    arrowText: 'text-cyan-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.20) 0%, rgba(6, 182, 212, 0.14) 42%, transparent 72%)',
-    cardGradient: 'from-[#F4FAF8] via-[#FBFCFC] to-[#EFF8F5]',
-    ecgStrokeStart: '#006B63',
-    ecgStrokeMid: '#0284C7',
-    ecgGlow: 'rgba(2, 132, 199, 0.85)',
-    ecgDotColor: '#00D8B4',
-    haloStart: '#2DD4BF',
-    haloMid: '#38BDF8',
-    haloEnd: '#0EA5E9',
-    orbitStroke: '#006B63',
-    primaryBtnBg: 'bg-[#006B63]',
-    primaryBtnHover: 'hover:bg-[#00554E]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,107,99,0.25)]',
+    bg: 'from-[#FF3B30]/[0.07] via-[#FF6B6B]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#FF3B30]/25',
+    glow: 'rgba(255,59,48,0.22)',
+    badge: 'bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/15',
+    insigniaBg: 'bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/15',
+    insigniaText: 'text-[#FF3B30]',
+    progressBar: 'from-[#FF6B6B] to-[#FF3B30]',
+    arrowBg: 'group-hover:bg-[#FF3B30] group-hover:text-white',
+    arrowText: 'text-[#FF3B30]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(255,59,48,0.20) 0%, rgba(255,107,107,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#FFF1F0] via-[#FBFCFC] to-[#FFE5E5]',
+    ecgStrokeStart: '#FF3B30',
+    ecgStrokeMid: '#FF6B6B',
+    ecgGlow: 'rgba(255,59,48,0.85)',
+    ecgDotColor: '#FFB3B0',
+    haloStart: '#FF6B6B',
+    haloMid: '#FF3B30',
+    haloEnd: '#C0392B',
+    orbitStroke: '#FF3B30',
+    primaryBtnBg: 'bg-[#FF3B30]',
+    primaryBtnHover: 'hover:bg-[#D32F2F]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(255,59,48,0.28)]',
   },
   psychiatry: {
-    bg: 'from-purple-500/[0.08] via-indigo-500/[0.04] to-white/95',
-    border: 'border-purple-200/70 hover:border-purple-400/90',
-    glow: 'rgba(168, 85, 247, 0.20)',
-    badge: 'bg-purple-500/10 text-purple-800 border-purple-200/70',
-    insigniaBg: 'bg-purple-500/10 text-purple-700 border-purple-200/70',
-    insigniaText: 'text-purple-700',
-    progressBar: 'from-purple-600 to-indigo-500',
-    arrowBg: 'group-hover:bg-purple-600 group-hover:text-white',
-    arrowText: 'text-purple-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.22) 0%, rgba(14, 165, 233, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-[#FAF5FF] via-[#FBFCFC] to-[#F3E8FF]',
-    ecgStrokeStart: '#9333EA',
-    ecgStrokeMid: '#C084FC',
-    ecgGlow: 'rgba(192, 132, 252, 0.85)',
+    bg: 'from-[#BF5AF2]/[0.07] via-[#DA8FFF]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#BF5AF2]/25',
+    glow: 'rgba(191,90,242,0.22)',
+    badge: 'bg-[#BF5AF2]/10 text-[#BF5AF2] border-[#BF5AF2]/15',
+    insigniaBg: 'bg-[#BF5AF2]/10 text-[#BF5AF2] border-[#BF5AF2]/15',
+    insigniaText: 'text-[#BF5AF2]',
+    progressBar: 'from-[#DA8FFF] to-[#BF5AF2]',
+    arrowBg: 'group-hover:bg-[#BF5AF2] group-hover:text-white',
+    arrowText: 'text-[#BF5AF2]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(191,90,242,0.22) 0%, rgba(218,143,255,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#F9F0FF] via-[#FBFCFC] to-[#F3E8FF]',
+    ecgStrokeStart: '#BF5AF2',
+    ecgStrokeMid: '#DA8FFF',
+    ecgGlow: 'rgba(218,143,255,0.85)',
     ecgDotColor: '#E9D5FF',
-    haloStart: '#C084FC',
-    haloMid: '#A855F7',
-    haloEnd: '#7E22CE',
-    orbitStroke: '#9333EA',
-    primaryBtnBg: 'bg-[#7E22CE]',
-    primaryBtnHover: 'hover:bg-[#6B21A8]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(126,34,206,0.25)]',
+    haloStart: '#DA8FFF',
+    haloMid: '#BF5AF2',
+    haloEnd: '#7B2FA0',
+    orbitStroke: '#BF5AF2',
+    primaryBtnBg: 'bg-[#BF5AF2]',
+    primaryBtnHover: 'hover:bg-[#A040D0]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(191,90,242,0.28)]',
   },
   physiology: {
-    bg: 'from-sky-500/[0.08] via-blue-500/[0.04] to-white/95',
-    border: 'border-sky-200/70 hover:border-sky-400/90',
-    glow: 'rgba(14, 165, 233, 0.20)',
-    badge: 'bg-sky-500/10 text-sky-800 border-sky-200/70',
-    insigniaBg: 'bg-sky-500/10 text-sky-700 border-sky-200/70',
-    insigniaText: 'text-sky-700',
-    progressBar: 'from-sky-600 to-cyan-500',
-    arrowBg: 'group-hover:bg-sky-600 group-hover:text-white',
-    arrowText: 'text-sky-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.22) 0%, rgba(13, 148, 136, 0.15) 44%, transparent 72%)',
-    cardGradient: 'from-[#F0F9FF] via-[#FBFCFC] to-[#E0F2FE]',
-    ecgStrokeStart: '#0284C7',
-    ecgStrokeMid: '#38BDF8',
-    ecgGlow: 'rgba(56, 189, 248, 0.85)',
-    ecgDotColor: '#BAE6FD',
-    haloStart: '#38BDF8',
-    haloMid: '#0284C7',
-    haloEnd: '#0369A1',
-    orbitStroke: '#0284C7',
-    primaryBtnBg: 'bg-[#0284C7]',
-    primaryBtnHover: 'hover:bg-[#0369A1]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(2,132,199,0.25)]',
+    bg: 'from-[#5AC8FA]/[0.07] via-[#32ADE6]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#32ADE6]/25',
+    glow: 'rgba(90,200,250,0.22)',
+    badge: 'bg-[#32ADE6]/10 text-[#32ADE6] border-[#32ADE6]/15',
+    insigniaBg: 'bg-[#32ADE6]/10 text-[#32ADE6] border-[#32ADE6]/15',
+    insigniaText: 'text-[#32ADE6]',
+    progressBar: 'from-[#5AC8FA] to-[#32ADE6]',
+    arrowBg: 'group-hover:bg-[#32ADE6] group-hover:text-white',
+    arrowText: 'text-[#32ADE6]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(90,200,250,0.22) 0%, rgba(50,173,230,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#EBF9FF] via-[#FBFCFC] to-[#D6F0FF]',
+    ecgStrokeStart: '#32ADE6',
+    ecgStrokeMid: '#5AC8FA',
+    ecgGlow: 'rgba(90,200,250,0.85)',
+    ecgDotColor: '#B3E5FC',
+    haloStart: '#5AC8FA',
+    haloMid: '#32ADE6',
+    haloEnd: '#0078CC',
+    orbitStroke: '#32ADE6',
+    primaryBtnBg: 'bg-[#007AFF]',
+    primaryBtnHover: 'hover:bg-[#0056CC]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(50,173,230,0.28)]',
   },
   surgery: {
-    bg: 'from-rose-500/[0.08] via-orange-500/[0.04] to-white/95',
-    border: 'border-rose-200/70 hover:border-rose-400/90',
-    glow: 'rgba(244, 63, 94, 0.20)',
-    badge: 'bg-rose-500/10 text-rose-800 border-rose-200/70',
-    insigniaBg: 'bg-rose-500/10 text-rose-700 border-rose-200/70',
-    insigniaText: 'text-rose-700',
-    progressBar: 'from-rose-600 to-red-500',
-    arrowBg: 'group-hover:bg-rose-600 group-hover:text-white',
-    arrowText: 'text-rose-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.20) 0%, rgba(245, 158, 11, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-[#FFF1F2] via-[#FBFCFC] to-[#FFE4E6]',
-    ecgStrokeStart: '#E11D48',
-    ecgStrokeMid: '#FB7185',
-    ecgGlow: 'rgba(251, 113, 133, 0.85)',
-    ecgDotColor: '#FECDD3',
-    haloStart: '#FB7185',
-    haloMid: '#F43F5E',
-    haloEnd: '#BE123C',
-    orbitStroke: '#E11D48',
-    primaryBtnBg: 'bg-[#BE123C]',
-    primaryBtnHover: 'hover:bg-[#9F1239]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(190,18,60,0.25)]',
+    bg: 'from-[#FF453A]/[0.07] via-[#FF6961]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#FF453A]/25',
+    glow: 'rgba(255,69,58,0.22)',
+    badge: 'bg-[#FF453A]/10 text-[#FF453A] border-[#FF453A]/15',
+    insigniaBg: 'bg-[#FF453A]/10 text-[#FF453A] border-[#FF453A]/15',
+    insigniaText: 'text-[#FF453A]',
+    progressBar: 'from-[#FF6961] to-[#FF453A]',
+    arrowBg: 'group-hover:bg-[#FF453A] group-hover:text-white',
+    arrowText: 'text-[#FF453A]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(255,69,58,0.20) 0%, rgba(255,105,97,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#FFF0EF] via-[#FBFCFC] to-[#FFE2E0]',
+    ecgStrokeStart: '#FF453A',
+    ecgStrokeMid: '#FF6961',
+    ecgGlow: 'rgba(255,69,58,0.85)',
+    ecgDotColor: '#FFB3AE',
+    haloStart: '#FF6961',
+    haloMid: '#FF453A',
+    haloEnd: '#CC2200',
+    orbitStroke: '#FF453A',
+    primaryBtnBg: 'bg-[#FF453A]',
+    primaryBtnHover: 'hover:bg-[#D03020]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(255,69,58,0.28)]',
   },
   pathology: {
-    bg: 'from-blue-500/[0.08] via-indigo-500/[0.04] to-white/95',
-    border: 'border-blue-200/70 hover:border-blue-400/90',
-    glow: 'rgba(59, 130, 246, 0.20)',
-    badge: 'bg-blue-500/10 text-blue-800 border-blue-200/70',
-    insigniaBg: 'bg-blue-500/10 text-blue-700 border-blue-200/70',
-    insigniaText: 'text-blue-700',
-    progressBar: 'from-blue-600 to-indigo-500',
-    arrowBg: 'group-hover:bg-blue-600 group-hover:text-white',
-    arrowText: 'text-blue-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.20) 0%, rgba(99, 102, 241, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-[#EFF6FF] via-[#FBFCFC] to-[#DBEAFE]',
-    ecgStrokeStart: '#2563EB',
-    ecgStrokeMid: '#60A5FA',
-    ecgGlow: 'rgba(96, 165, 250, 0.85)',
-    ecgDotColor: '#BFDBFE',
-    haloStart: '#60A5FA',
-    haloMid: '#3B82F6',
-    haloEnd: '#1D4ED8',
-    orbitStroke: '#2563EB',
-    primaryBtnBg: 'bg-[#1D4ED8]',
-    primaryBtnHover: 'hover:bg-[#1E40AF]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(29,78,216,0.25)]',
+    bg: 'from-[#FF9500]/[0.07] via-[#FFB340]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#FF9500]/25',
+    glow: 'rgba(255,149,0,0.22)',
+    badge: 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/15',
+    insigniaBg: 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/15',
+    insigniaText: 'text-[#FF9500]',
+    progressBar: 'from-[#FFB340] to-[#FF9500]',
+    arrowBg: 'group-hover:bg-[#FF9500] group-hover:text-white',
+    arrowText: 'text-[#FF9500]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(255,149,0,0.20) 0%, rgba(255,179,64,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#FFF8EC] via-[#FBFCFC] to-[#FFF0D6]',
+    ecgStrokeStart: '#FF9500',
+    ecgStrokeMid: '#FFB340',
+    ecgGlow: 'rgba(255,149,0,0.85)',
+    ecgDotColor: '#FFD9A0',
+    haloStart: '#FFB340',
+    haloMid: '#FF9500',
+    haloEnd: '#CC7700',
+    orbitStroke: '#FF9500',
+    primaryBtnBg: 'bg-[#FF9500]',
+    primaryBtnHover: 'hover:bg-[#D07800]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(255,149,0,0.28)]',
   },
   biochemistry: {
-    bg: 'from-amber-500/[0.08] via-yellow-500/[0.04] to-white/95',
-    border: 'border-amber-200/70 hover:border-amber-400/90',
-    glow: 'rgba(245, 158, 11, 0.20)',
-    badge: 'bg-amber-500/10 text-amber-800 border-amber-200/70',
-    insigniaBg: 'bg-amber-500/10 text-amber-700 border-amber-200/70',
-    insigniaText: 'text-amber-700',
-    progressBar: 'from-amber-600 to-yellow-500',
-    arrowBg: 'group-hover:bg-amber-600 group-hover:text-white',
-    arrowText: 'text-amber-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.22) 0%, rgba(251, 191, 36, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-[#FFFBEB] via-[#FBFCFC] to-[#FEF3C7]',
-    ecgStrokeStart: '#D97706',
-    ecgStrokeMid: '#FBBF24',
-    ecgGlow: 'rgba(251, 191, 36, 0.85)',
-    ecgDotColor: '#FDE68A',
-    haloStart: '#FBBF24',
-    haloMid: '#F59E0B',
-    haloEnd: '#B45309',
-    orbitStroke: '#D97706',
-    primaryBtnBg: 'bg-[#B45309]',
-    primaryBtnHover: 'hover:bg-[#92400E]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(180,83,9,0.25)]',
+    bg: 'from-[#FFD60A]/[0.07] via-[#FFE04D]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#FFD60A]/35',
+    glow: 'rgba(255,214,10,0.22)',
+    badge: 'bg-[#FFD60A]/12 text-[#CC9900] border-[#FFD60A]/30',
+    insigniaBg: 'bg-[#FFD60A]/12 text-[#CC9900] border-[#FFD60A]/25',
+    insigniaText: 'text-[#CC9900]',
+    progressBar: 'from-[#FFE04D] to-[#FFD60A]',
+    arrowBg: 'group-hover:bg-[#FFD60A] group-hover:text-[#1D1D1F]',
+    arrowText: 'text-[#CC9900]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(255,214,10,0.22) 0%, rgba(255,224,77,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#FFFCE0] via-[#FBFCFC] to-[#FFF9C0]',
+    ecgStrokeStart: '#CC9900',
+    ecgStrokeMid: '#FFD60A',
+    ecgGlow: 'rgba(255,214,10,0.85)',
+    ecgDotColor: '#FFF0A0',
+    haloStart: '#FFE04D',
+    haloMid: '#FFD60A',
+    haloEnd: '#AA8000',
+    orbitStroke: '#CC9900',
+    primaryBtnBg: 'bg-[#AA8000]',
+    primaryBtnHover: 'hover:bg-[#886600]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(204,153,0,0.28)]',
   },
   anatomy: {
-    bg: 'from-emerald-500/[0.08] via-teal-500/[0.04] to-white/95',
-    border: 'border-emerald-200/70 hover:border-emerald-400/90',
-    glow: 'rgba(20, 184, 166, 0.20)',
-    badge: 'bg-emerald-500/10 text-emerald-800 border-emerald-200/70',
-    insigniaBg: 'bg-emerald-500/10 text-emerald-700 border-emerald-200/70',
-    insigniaText: 'text-emerald-700',
-    progressBar: 'from-emerald-600 to-teal-500',
-    arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
-    arrowText: 'text-teal-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.20) 0%, rgba(0, 107, 99, 0.15) 44%, transparent 72%)',
-    cardGradient: 'from-[#F0FDF4] via-[#FBFCFC] to-[#DCFCE7]',
-    ecgStrokeStart: '#059669',
-    ecgStrokeMid: '#34D399',
-    ecgGlow: 'rgba(52, 211, 153, 0.85)',
-    ecgDotColor: '#A7F3D0',
-    haloStart: '#34D399',
-    haloMid: '#10B981',
-    haloEnd: '#047857',
-    orbitStroke: '#059669',
-    primaryBtnBg: 'bg-[#047857]',
-    primaryBtnHover: 'hover:bg-[#065F46]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(4,120,87,0.25)]',
+    bg: 'from-[#30D158]/[0.07] via-[#4CD964]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#30D158]/25',
+    glow: 'rgba(48,209,88,0.22)',
+    badge: 'bg-[#30D158]/10 text-[#30D158] border-[#30D158]/15',
+    insigniaBg: 'bg-[#30D158]/10 text-[#30D158] border-[#30D158]/15',
+    insigniaText: 'text-[#30D158]',
+    progressBar: 'from-[#4CD964] to-[#30D158]',
+    arrowBg: 'group-hover:bg-[#30D158] group-hover:text-white',
+    arrowText: 'text-[#30D158]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(48,209,88,0.20) 0%, rgba(76,217,100,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#EDFFF2] via-[#FBFCFC] to-[#D6FFE3]',
+    ecgStrokeStart: '#30D158',
+    ecgStrokeMid: '#4CD964',
+    ecgGlow: 'rgba(48,209,88,0.85)',
+    ecgDotColor: '#A8F0BA',
+    haloStart: '#4CD964',
+    haloMid: '#30D158',
+    haloEnd: '#1A8A35',
+    orbitStroke: '#30D158',
+    primaryBtnBg: 'bg-[#30D158]',
+    primaryBtnHover: 'hover:bg-[#25A845]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(48,209,88,0.28)]',
   },
   pharmacology: {
-    bg: 'from-violet-500/[0.08] via-purple-500/[0.04] to-white/95',
-    border: 'border-violet-200/70 hover:border-violet-400/90',
-    glow: 'rgba(16, 185, 129, 0.20)',
-    badge: 'bg-violet-500/10 text-violet-800 border-violet-200/70',
-    insigniaBg: 'bg-violet-500/10 text-violet-700 border-violet-200/70',
-    insigniaText: 'text-violet-700',
-    progressBar: 'from-violet-600 to-purple-500',
-    arrowBg: 'group-hover:bg-violet-600 group-hover:text-white',
-    arrowText: 'text-violet-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.20) 0%, rgba(20, 184, 166, 0.15) 44%, transparent 72%)',
-    cardGradient: 'from-[#ECFDF5] via-[#FBFCFC] to-[#D1FAE5]',
-    ecgStrokeStart: '#7C3AED',
-    ecgStrokeMid: '#A78BFA',
-    ecgGlow: 'rgba(167, 139, 250, 0.85)',
-    ecgDotColor: '#DDD6FE',
-    haloStart: '#A78BFA',
-    haloMid: '#7C3AED',
-    haloEnd: '#5B21B6',
-    orbitStroke: '#7C3AED',
-    primaryBtnBg: 'bg-[#5B21B6]',
-    primaryBtnHover: 'hover:bg-[#4C1D95]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(91,33,182,0.25)]',
+    bg: 'from-[#BF5AF2]/[0.07] via-[#DA8FFF]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#BF5AF2]/25',
+    glow: 'rgba(191,90,242,0.22)',
+    badge: 'bg-[#BF5AF2]/10 text-[#BF5AF2] border-[#BF5AF2]/15',
+    insigniaBg: 'bg-[#BF5AF2]/10 text-[#BF5AF2] border-[#BF5AF2]/15',
+    insigniaText: 'text-[#BF5AF2]',
+    progressBar: 'from-[#DA8FFF] to-[#BF5AF2]',
+    arrowBg: 'group-hover:bg-[#BF5AF2] group-hover:text-white',
+    arrowText: 'text-[#BF5AF2]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(191,90,242,0.22) 0%, rgba(218,143,255,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#F9F0FF] via-[#FBFCFC] to-[#F0DEFF]',
+    ecgStrokeStart: '#BF5AF2',
+    ecgStrokeMid: '#DA8FFF',
+    ecgGlow: 'rgba(191,90,242,0.85)',
+    ecgDotColor: '#E5BBFF',
+    haloStart: '#DA8FFF',
+    haloMid: '#BF5AF2',
+    haloEnd: '#7B2FA0',
+    orbitStroke: '#BF5AF2',
+    primaryBtnBg: 'bg-[#BF5AF2]',
+    primaryBtnHover: 'hover:bg-[#A040D0]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(191,90,242,0.28)]',
   },
   microbiology: {
-    bg: 'from-cyan-500/[0.08] via-teal-500/[0.04] to-white/95',
-    border: 'border-cyan-200/70 hover:border-cyan-400/90',
-    glow: 'rgba(13, 148, 136, 0.20)',
-    badge: 'bg-cyan-500/10 text-cyan-800 border-cyan-200/70',
-    insigniaBg: 'bg-cyan-500/10 text-cyan-700 border-cyan-200/70',
-    insigniaText: 'text-cyan-700',
-    progressBar: 'from-cyan-600 to-teal-500',
-    arrowBg: 'group-hover:bg-cyan-600 group-hover:text-white',
-    arrowText: 'text-cyan-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.22) 0%, rgba(16, 185, 129, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-[#ECFEFF] via-[#FBFCFC] to-[#CFFAFE]',
-    ecgStrokeStart: '#0891B2',
-    ecgStrokeMid: '#22D3EE',
-    ecgGlow: 'rgba(34, 211, 238, 0.85)',
-    ecgDotColor: '#A5F3FC',
-    haloStart: '#22D3EE',
-    haloMid: '#06B6D4',
-    haloEnd: '#0E7490',
-    orbitStroke: '#0891B2',
-    primaryBtnBg: 'bg-[#0E7490]',
-    primaryBtnHover: 'hover:bg-[#155E75]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(14,116,144,0.25)]',
+    bg: 'from-[#32ADE6]/[0.07] via-[#5AC8FA]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#32ADE6]/25',
+    glow: 'rgba(50,173,230,0.22)',
+    badge: 'bg-[#32ADE6]/10 text-[#32ADE6] border-[#32ADE6]/15',
+    insigniaBg: 'bg-[#32ADE6]/10 text-[#32ADE6] border-[#32ADE6]/15',
+    insigniaText: 'text-[#32ADE6]',
+    progressBar: 'from-[#5AC8FA] to-[#32ADE6]',
+    arrowBg: 'group-hover:bg-[#32ADE6] group-hover:text-white',
+    arrowText: 'text-[#32ADE6]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(50,173,230,0.22) 0%, rgba(90,200,250,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#EBF9FF] via-[#FBFCFC] to-[#D0F0FF]',
+    ecgStrokeStart: '#32ADE6',
+    ecgStrokeMid: '#5AC8FA',
+    ecgGlow: 'rgba(90,200,250,0.85)',
+    ecgDotColor: '#B0E5FF',
+    haloStart: '#5AC8FA',
+    haloMid: '#32ADE6',
+    haloEnd: '#0078CC',
+    orbitStroke: '#32ADE6',
+    primaryBtnBg: 'bg-[#32ADE6]',
+    primaryBtnHover: 'hover:bg-[#0078CC]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(50,173,230,0.28)]',
   },
   fmt: {
-    bg: 'from-slate-500/[0.08] via-zinc-500/[0.04] to-white/95',
-    border: 'border-slate-300/70 hover:border-slate-400',
-    glow: 'rgba(100, 116, 139, 0.18)',
-    badge: 'bg-slate-500/10 text-slate-800 border-slate-300/70',
-    insigniaBg: 'bg-slate-500/10 text-slate-700 border-slate-300/70',
-    insigniaText: 'text-slate-700',
-    progressBar: 'from-slate-600 to-slate-500',
-    arrowBg: 'group-hover:bg-slate-700 group-hover:text-white',
-    arrowText: 'text-slate-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(100, 116, 139, 0.20) 0%, rgba(148, 163, 184, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-[#F8FAFC] via-[#FBFCFC] to-[#F1F5F9]',
-    ecgStrokeStart: '#475569',
-    ecgStrokeMid: '#94A3B8',
-    ecgGlow: 'rgba(148, 163, 184, 0.85)',
-    ecgDotColor: '#CBD5E1',
-    haloStart: '#94A3B8',
-    haloMid: '#64748B',
-    haloEnd: '#334155',
-    orbitStroke: '#475569',
-    primaryBtnBg: 'bg-[#334155]',
-    primaryBtnHover: 'hover:bg-[#1E293B]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(51,65,85,0.25)]',
+    bg: 'from-[#8E8E93]/[0.07] via-[#AEAEB2]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.12)] hover:border-[rgba(60,60,67,0.22)]',
+    glow: 'rgba(142,142,147,0.18)',
+    badge: 'bg-[#E5E5EA] text-[#6E6E73] border-[rgba(60,60,67,0.12)]',
+    insigniaBg: 'bg-[#E5E5EA] text-[#6E6E73] border-[rgba(60,60,67,0.12)]',
+    insigniaText: 'text-[#6E6E73]',
+    progressBar: 'from-[#AEAEB2] to-[#8E8E93]',
+    arrowBg: 'group-hover:bg-[#1D1D1F] group-hover:text-white',
+    arrowText: 'text-[#6E6E73]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(142,142,147,0.18) 0%, rgba(174,174,178,0.09) 44%, transparent 72%)',
+    cardGradient: 'from-[#F5F5F7] via-[#FBFCFC] to-[#EBEBF0]',
+    ecgStrokeStart: '#8E8E93',
+    ecgStrokeMid: '#AEAEB2',
+    ecgGlow: 'rgba(174,174,178,0.85)',
+    ecgDotColor: '#C7C7CC',
+    haloStart: '#AEAEB2',
+    haloMid: '#8E8E93',
+    haloEnd: '#48484A',
+    orbitStroke: '#8E8E93',
+    primaryBtnBg: 'bg-[#48484A]',
+    primaryBtnHover: 'hover:bg-[#1D1D1F]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(72,72,74,0.25)]',
   },
   psm: {
-    bg: 'from-teal-500/[0.08] via-emerald-500/[0.04] to-white/95',
-    border: 'border-teal-200/70 hover:border-teal-400/90',
-    glow: 'rgba(6, 182, 212, 0.20)',
-    badge: 'bg-teal-500/10 text-teal-800 border-teal-200/70',
-    insigniaBg: 'bg-teal-500/10 text-teal-700 border-teal-200/70',
-    insigniaText: 'text-teal-700',
-    progressBar: 'from-[#006B63] to-emerald-500',
-    arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
-    arrowText: 'text-teal-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(0, 107, 99, 0.22) 0%, rgba(6, 182, 212, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-[#F0FDFA] via-[#FBFCFC] to-[#CCFBF1]',
-    ecgStrokeStart: '#007F73',
-    ecgStrokeMid: '#2DD4BF',
-    ecgGlow: 'rgba(45, 212, 191, 0.85)',
-    ecgDotColor: '#99F6E4',
-    haloStart: '#2DD4BF',
-    haloMid: '#0D9488',
-    haloEnd: '#006B63',
-    orbitStroke: '#007F73',
-    primaryBtnBg: 'bg-[#006B63]',
-    primaryBtnHover: 'hover:bg-[#00554E]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,107,99,0.25)]',
+    bg: 'from-[#30D158]/[0.07] via-[#4CD964]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#30D158]/25',
+    glow: 'rgba(48,209,88,0.22)',
+    badge: 'bg-[#30D158]/10 text-[#30D158] border-[#30D158]/15',
+    insigniaBg: 'bg-[#30D158]/10 text-[#30D158] border-[#30D158]/15',
+    insigniaText: 'text-[#30D158]',
+    progressBar: 'from-[#4CD964] to-[#30D158]',
+    arrowBg: 'group-hover:bg-[#30D158] group-hover:text-white',
+    arrowText: 'text-[#30D158]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(48,209,88,0.20) 0%, rgba(76,217,100,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#EDFFF2] via-[#FBFCFC] to-[#D0FFE0]',
+    ecgStrokeStart: '#30D158',
+    ecgStrokeMid: '#4CD964',
+    ecgGlow: 'rgba(48,209,88,0.85)',
+    ecgDotColor: '#A8F0BA',
+    haloStart: '#4CD964',
+    haloMid: '#30D158',
+    haloEnd: '#1A8A35',
+    orbitStroke: '#30D158',
+    primaryBtnBg: 'bg-[#30D158]',
+    primaryBtnHover: 'hover:bg-[#25A845]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(48,209,88,0.28)]',
   },
   ophthalmology: {
-    bg: 'from-indigo-500/[0.08] via-blue-500/[0.04] to-white/95',
-    border: 'border-indigo-200/70 hover:border-indigo-400/90',
-    glow: 'rgba(99, 102, 241, 0.20)',
-    badge: 'bg-indigo-500/10 text-indigo-800 border-indigo-200/70',
-    insigniaBg: 'bg-indigo-500/10 text-indigo-700 border-indigo-200/70',
-    insigniaText: 'text-indigo-700',
-    progressBar: 'from-indigo-600 to-blue-500',
-    arrowBg: 'group-hover:bg-indigo-600 group-hover:text-white',
-    arrowText: 'text-indigo-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.22) 0%, rgba(99, 102, 241, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-[#EEF2FF] via-[#FBFCFC] to-[#E0E7FF]',
-    ecgStrokeStart: '#4F46E5',
-    ecgStrokeMid: '#818CF8',
-    ecgGlow: 'rgba(129, 140, 248, 0.85)',
-    ecgDotColor: '#C7D2FE',
-    haloStart: '#818CF8',
-    haloMid: '#6366F1',
-    haloEnd: '#4338CA',
-    orbitStroke: '#4F46E5',
-    primaryBtnBg: 'bg-[#4338CA]',
-    primaryBtnHover: 'hover:bg-[#3730A3]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(67,56,202,0.25)]',
+    bg: 'from-[#5E5CE6]/[0.07] via-[#7D7AFF]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#5E5CE6]/25',
+    glow: 'rgba(94,92,230,0.22)',
+    badge: 'bg-[#5E5CE6]/10 text-[#5E5CE6] border-[#5E5CE6]/15',
+    insigniaBg: 'bg-[#5E5CE6]/10 text-[#5E5CE6] border-[#5E5CE6]/15',
+    insigniaText: 'text-[#5E5CE6]',
+    progressBar: 'from-[#7D7AFF] to-[#5E5CE6]',
+    arrowBg: 'group-hover:bg-[#5E5CE6] group-hover:text-white',
+    arrowText: 'text-[#5E5CE6]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(94,92,230,0.22) 0%, rgba(125,122,255,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#EFEFF9] via-[#FBFCFC] to-[#E2E2F8]',
+    ecgStrokeStart: '#5E5CE6',
+    ecgStrokeMid: '#7D7AFF',
+    ecgGlow: 'rgba(125,122,255,0.85)',
+    ecgDotColor: '#C0BFFF',
+    haloStart: '#7D7AFF',
+    haloMid: '#5E5CE6',
+    haloEnd: '#3634A3',
+    orbitStroke: '#5E5CE6',
+    primaryBtnBg: 'bg-[#5E5CE6]',
+    primaryBtnHover: 'hover:bg-[#4240C0]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(94,92,230,0.28)]',
   },
   ent: {
-    bg: 'from-fuchsia-500/[0.08] via-pink-500/[0.04] to-white/95',
-    border: 'border-fuchsia-200/70 hover:border-fuchsia-400/90',
-    glow: 'rgba(168, 85, 247, 0.20)',
-    badge: 'bg-fuchsia-500/10 text-fuchsia-800 border-fuchsia-200/70',
-    insigniaBg: 'bg-fuchsia-500/10 text-fuchsia-700 border-fuchsia-200/70',
-    insigniaText: 'text-fuchsia-700',
-    progressBar: 'from-fuchsia-600 to-pink-500',
-    arrowBg: 'group-hover:bg-fuchsia-600 group-hover:text-white',
-    arrowText: 'text-fuchsia-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.20) 0%, rgba(236, 72, 153, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-[#FDF4FF] via-[#FBFCFC] to-[#FAE8FF]',
-    ecgStrokeStart: '#C026D3',
-    ecgStrokeMid: '#E879F9',
-    ecgGlow: 'rgba(232, 121, 249, 0.85)',
-    ecgDotColor: '#F5D0FE',
-    haloStart: '#E879F9',
-    haloMid: '#D946EF',
-    haloEnd: '#A21CAF',
-    orbitStroke: '#C026D3',
-    primaryBtnBg: 'bg-[#A21CAF]',
-    primaryBtnHover: 'hover:bg-[#86198F]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(162,28,175,0.25)]',
+    bg: 'from-[#30D158]/[0.07] via-[#4CD964]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#30D158]/25',
+    glow: 'rgba(48,209,88,0.22)',
+    badge: 'bg-[#30D158]/10 text-[#30D158] border-[#30D158]/15',
+    insigniaBg: 'bg-[#30D158]/10 text-[#30D158] border-[#30D158]/15',
+    insigniaText: 'text-[#30D158]',
+    progressBar: 'from-[#4CD964] to-[#30D158]',
+    arrowBg: 'group-hover:bg-[#30D158] group-hover:text-white',
+    arrowText: 'text-[#30D158]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(48,209,88,0.20) 0%, rgba(76,217,100,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#EDFFF2] via-[#FBFCFC] to-[#D6FFE3]',
+    ecgStrokeStart: '#30D158',
+    ecgStrokeMid: '#4CD964',
+    ecgGlow: 'rgba(48,209,88,0.85)',
+    ecgDotColor: '#A8F0BA',
+    haloStart: '#4CD964',
+    haloMid: '#30D158',
+    haloEnd: '#1A8A35',
+    orbitStroke: '#30D158',
+    primaryBtnBg: 'bg-[#30D158]',
+    primaryBtnHover: 'hover:bg-[#25A845]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(48,209,88,0.28)]',
   },
   obg: {
-    bg: 'from-pink-500/[0.08] via-rose-500/[0.04] to-white/95',
-    border: 'border-pink-200/70 hover:border-pink-400/90',
-    glow: 'rgba(236, 72, 153, 0.20)',
-    badge: 'bg-pink-500/10 text-pink-800 border-pink-200/70',
-    insigniaBg: 'bg-pink-500/10 text-pink-700 border-pink-200/70',
-    insigniaText: 'text-pink-700',
-    progressBar: 'from-pink-600 to-rose-500',
-    arrowBg: 'group-hover:bg-pink-600 group-hover:text-white',
-    arrowText: 'text-pink-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.20) 0%, rgba(251, 113, 133, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-[#FDF2F8] via-[#FBFCFC] to-[#FCE7F3]',
-    ecgStrokeStart: '#DB2777',
-    ecgStrokeMid: '#F472B6',
-    ecgGlow: 'rgba(244, 114, 182, 0.85)',
-    ecgDotColor: '#FBCFE8',
-    haloStart: '#F472B6',
-    haloMid: '#EC4899',
-    haloEnd: '#BE185D',
-    orbitStroke: '#DB2777',
-    primaryBtnBg: 'bg-[#BE185D]',
-    primaryBtnHover: 'hover:bg-[#9D174D]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(190,24,93,0.25)]',
+    bg: 'from-[#FF2D55]/[0.07] via-[#FF6B8A]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#FF2D55]/25',
+    glow: 'rgba(255,45,85,0.22)',
+    badge: 'bg-[#FF2D55]/10 text-[#FF2D55] border-[#FF2D55]/15',
+    insigniaBg: 'bg-[#FF2D55]/10 text-[#FF2D55] border-[#FF2D55]/15',
+    insigniaText: 'text-[#FF2D55]',
+    progressBar: 'from-[#FF6B8A] to-[#FF2D55]',
+    arrowBg: 'group-hover:bg-[#FF2D55] group-hover:text-white',
+    arrowText: 'text-[#FF2D55]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(255,45,85,0.20) 0%, rgba(255,107,138,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#FFF0F3] via-[#FBFCFC] to-[#FFE0E7]',
+    ecgStrokeStart: '#FF2D55',
+    ecgStrokeMid: '#FF6B8A',
+    ecgGlow: 'rgba(255,45,85,0.85)',
+    ecgDotColor: '#FFB0BF',
+    haloStart: '#FF6B8A',
+    haloMid: '#FF2D55',
+    haloEnd: '#CC0033',
+    orbitStroke: '#FF2D55',
+    primaryBtnBg: 'bg-[#FF2D55]',
+    primaryBtnHover: 'hover:bg-[#CC0033]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(255,45,85,0.28)]',
   },
   pediatrics: {
-    bg: 'from-amber-500/[0.08] via-orange-500/[0.04] to-white/95',
-    border: 'border-amber-200/70 hover:border-amber-400/90',
-    glow: 'rgba(245, 158, 11, 0.20)',
-    badge: 'bg-amber-500/10 text-amber-800 border-amber-200/70',
-    insigniaBg: 'bg-amber-500/10 text-amber-700 border-amber-200/70',
-    insigniaText: 'text-amber-700',
-    progressBar: 'from-amber-600 to-orange-500',
-    arrowBg: 'group-hover:bg-amber-600 group-hover:text-white',
-    arrowText: 'text-amber-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.22) 0%, rgba(6, 182, 212, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-[#F0FDFA] via-[#FBFCFC] to-[#E0F2FE]',
-    ecgStrokeStart: '#D97706',
-    ecgStrokeMid: '#FBBF24',
-    ecgGlow: 'rgba(251, 191, 36, 0.85)',
-    ecgDotColor: '#FDE68A',
-    haloStart: '#FBBF24',
-    haloMid: '#F59E0B',
-    haloEnd: '#B45309',
-    orbitStroke: '#D97706',
-    primaryBtnBg: 'bg-[#B45309]',
-    primaryBtnHover: 'hover:bg-[#92400E]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(180,83,9,0.25)]',
+    bg: 'from-[#FF9F0A]/[0.07] via-[#FFB340]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#FF9F0A]/25',
+    glow: 'rgba(255,159,10,0.22)',
+    badge: 'bg-[#FF9F0A]/10 text-[#FF9F0A] border-[#FF9F0A]/15',
+    insigniaBg: 'bg-[#FF9F0A]/10 text-[#FF9F0A] border-[#FF9F0A]/15',
+    insigniaText: 'text-[#FF9F0A]',
+    progressBar: 'from-[#FFB340] to-[#FF9F0A]',
+    arrowBg: 'group-hover:bg-[#FF9F0A] group-hover:text-white',
+    arrowText: 'text-[#FF9F0A]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(255,159,10,0.22) 0%, rgba(255,179,64,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#FFF8EC] via-[#FBFCFC] to-[#FFF0D0]',
+    ecgStrokeStart: '#FF9F0A',
+    ecgStrokeMid: '#FFB340',
+    ecgGlow: 'rgba(255,179,64,0.85)',
+    ecgDotColor: '#FFD9A0',
+    haloStart: '#FFB340',
+    haloMid: '#FF9F0A',
+    haloEnd: '#CC7700',
+    orbitStroke: '#FF9F0A',
+    primaryBtnBg: 'bg-[#FF9F0A]',
+    primaryBtnHover: 'hover:bg-[#D07800]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(255,159,10,0.28)]',
   },
   orthopedics: {
-    bg: 'from-violet-500/[0.08] via-purple-500/[0.04] to-white/95',
-    border: 'border-violet-200/70 hover:border-violet-400/90',
-    glow: 'rgba(139, 92, 246, 0.18)',
-    badge: 'bg-violet-500/10 text-violet-800 border-violet-200/70',
-    insigniaBg: 'bg-violet-500/10 text-violet-700 border-violet-200/70',
-    insigniaText: 'text-violet-700',
-    progressBar: 'from-violet-600 to-purple-500',
-    arrowBg: 'group-hover:bg-violet-600 group-hover:text-white',
-    arrowText: 'text-violet-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.20) 0%, rgba(16, 185, 129, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-[#F5F3FF] via-[#FBFCFC] to-[#EDE9FE]',
-    ecgStrokeStart: '#7C3AED',
-    ecgStrokeMid: '#A78BFA',
-    ecgGlow: 'rgba(167, 139, 250, 0.85)',
-    ecgDotColor: '#DDD6FE',
-    haloStart: '#A78BFA',
-    haloMid: '#8B5CF6',
-    haloEnd: '#6D28D9',
-    orbitStroke: '#7C3AED',
-    primaryBtnBg: 'bg-[#6D28D9]',
-    primaryBtnHover: 'hover:bg-[#5B21B6]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(109,40,217,0.25)]',
+    bg: 'from-[#8E8E93]/[0.07] via-[#AEAEB2]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[rgba(60,60,67,0.22)]',
+    glow: 'rgba(142,142,147,0.18)',
+    badge: 'bg-[#E5E5EA] text-[#6E6E73] border-[rgba(60,60,67,0.12)]',
+    insigniaBg: 'bg-[#E5E5EA] text-[#6E6E73] border-[rgba(60,60,67,0.12)]',
+    insigniaText: 'text-[#6E6E73]',
+    progressBar: 'from-[#AEAEB2] to-[#8E8E93]',
+    arrowBg: 'group-hover:bg-[#1D1D1F] group-hover:text-white',
+    arrowText: 'text-[#6E6E73]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(174,174,178,0.18) 0%, rgba(142,142,147,0.09) 44%, transparent 72%)',
+    cardGradient: 'from-[#F5F5F7] via-[#FBFCFC] to-[#EBEBF0]',
+    ecgStrokeStart: '#8E8E93',
+    ecgStrokeMid: '#AEAEB2',
+    ecgGlow: 'rgba(174,174,178,0.80)',
+    ecgDotColor: '#C7C7CC',
+    haloStart: '#AEAEB2',
+    haloMid: '#8E8E93',
+    haloEnd: '#48484A',
+    orbitStroke: '#8E8E93',
+    primaryBtnBg: 'bg-[#48484A]',
+    primaryBtnHover: 'hover:bg-[#1D1D1F]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(72,72,74,0.25)]',
   },
   dermatology: {
-    bg: 'from-orange-500/[0.08] via-rose-500/[0.04] to-white/95',
-    border: 'border-orange-200/70 hover:border-orange-400/90',
-    glow: 'rgba(244, 63, 94, 0.20)',
-    badge: 'bg-orange-500/10 text-orange-800 border-orange-200/70',
-    insigniaBg: 'bg-orange-500/10 text-orange-700 border-orange-200/70',
-    insigniaText: 'text-orange-700',
-    progressBar: 'from-orange-600 to-rose-500',
-    arrowBg: 'group-hover:bg-orange-600 group-hover:text-white',
-    arrowText: 'text-orange-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.20) 0%, rgba(245, 158, 11, 0.13) 44%, transparent 72%)',
-    cardGradient: 'from-[#FFF7ED] via-[#FBFCFC] to-[#FFEDD5]',
-    ecgStrokeStart: '#EA580C',
-    ecgStrokeMid: '#FB923C',
-    ecgGlow: 'rgba(251, 146, 60, 0.85)',
-    ecgDotColor: '#FED7AA',
-    haloStart: '#FB923C',
-    haloMid: '#F97316',
-    haloEnd: '#C2410C',
-    orbitStroke: '#EA580C',
-    primaryBtnBg: 'bg-[#C2410C]',
-    primaryBtnHover: 'hover:bg-[#9A3412]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(194,65,12,0.25)]',
+    bg: 'from-[#FF9500]/[0.07] via-[#FFB37C]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#FF9500]/25',
+    glow: 'rgba(255,149,0,0.22)',
+    badge: 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/15',
+    insigniaBg: 'bg-[#FF9500]/10 text-[#FF9500] border-[#FF9500]/15',
+    insigniaText: 'text-[#FF9500]',
+    progressBar: 'from-[#FFB37C] to-[#FF9500]',
+    arrowBg: 'group-hover:bg-[#FF9500] group-hover:text-white',
+    arrowText: 'text-[#FF9500]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(255,149,0,0.20) 0%, rgba(255,179,124,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#FFF5E8] via-[#FBFCFC] to-[#FFECD0]',
+    ecgStrokeStart: '#FF9500',
+    ecgStrokeMid: '#FFB37C',
+    ecgGlow: 'rgba(255,149,0,0.85)',
+    ecgDotColor: '#FFD5A8',
+    haloStart: '#FFB37C',
+    haloMid: '#FF9500',
+    haloEnd: '#CC7700',
+    orbitStroke: '#FF9500',
+    primaryBtnBg: 'bg-[#FF9500]',
+    primaryBtnHover: 'hover:bg-[#D07800]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(255,149,0,0.28)]',
   },
   radiology: {
-    bg: 'from-cyan-600/[0.08] via-slate-500/[0.04] to-white/95',
-    border: 'border-cyan-200/70 hover:border-cyan-400/90',
-    glow: 'rgba(15, 23, 42, 0.18)',
-    badge: 'bg-cyan-600/10 text-cyan-800 border-cyan-200/70',
-    insigniaBg: 'bg-cyan-600/10 text-cyan-800 border-cyan-200/70',
-    insigniaText: 'text-cyan-800',
-    progressBar: 'from-cyan-600 to-slate-600',
-    arrowBg: 'group-hover:bg-slate-700 group-hover:text-white',
-    arrowText: 'text-slate-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(2, 132, 199, 0.22) 0%, rgba(71, 85, 105, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-[#F0F9FF] via-[#FBFCFC] to-[#E2E8F0]',
-    ecgStrokeStart: '#0369A1',
-    ecgStrokeMid: '#38BDF8',
-    ecgGlow: 'rgba(56, 189, 248, 0.85)',
-    ecgDotColor: '#BAE6FD',
-    haloStart: '#38BDF8',
-    haloMid: '#0284C7',
-    haloEnd: '#0F172A',
-    orbitStroke: '#0369A1',
-    primaryBtnBg: 'bg-[#0369A1]',
-    primaryBtnHover: 'hover:bg-[#075985]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(3,105,161,0.25)]',
+    bg: 'from-[#007AFF]/[0.07] via-[#409CFF]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#007AFF]/25',
+    glow: 'rgba(0,122,255,0.22)',
+    badge: 'bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/15',
+    insigniaBg: 'bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/15',
+    insigniaText: 'text-[#007AFF]',
+    progressBar: 'from-[#409CFF] to-[#007AFF]',
+    arrowBg: 'group-hover:bg-[#007AFF] group-hover:text-white',
+    arrowText: 'text-[#007AFF]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(0,122,255,0.22) 0%, rgba(64,156,255,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#EBF4FF] via-[#FBFCFC] to-[#D6EAFF]',
+    ecgStrokeStart: '#007AFF',
+    ecgStrokeMid: '#409CFF',
+    ecgGlow: 'rgba(0,122,255,0.85)',
+    ecgDotColor: '#A0CCFF',
+    haloStart: '#409CFF',
+    haloMid: '#007AFF',
+    haloEnd: '#0050CC',
+    orbitStroke: '#007AFF',
+    primaryBtnBg: 'bg-[#007AFF]',
+    primaryBtnHover: 'hover:bg-[#0056CC]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,122,255,0.28)]',
   },
   anesthesia: {
-    bg: 'from-teal-600/[0.08] via-slate-500/[0.04] to-white/95',
-    border: 'border-teal-200/70 hover:border-teal-400/90',
-    glow: 'rgba(13, 148, 136, 0.20)',
-    badge: 'bg-teal-600/10 text-teal-800 border-teal-200/70',
-    insigniaBg: 'bg-teal-600/10 text-teal-800 border-teal-200/70',
-    insigniaText: 'text-teal-800',
-    progressBar: 'from-teal-700 to-teal-500',
-    arrowBg: 'group-hover:bg-teal-600 group-hover:text-white',
-    arrowText: 'text-teal-700',
-    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(13, 148, 136, 0.22) 0%, rgba(56, 189, 248, 0.14) 44%, transparent 72%)',
-    cardGradient: 'from-[#F0FDFA] via-[#FBFCFC] to-[#F1F5F9]',
-    ecgStrokeStart: '#0F766E',
-    ecgStrokeMid: '#2DD4BF',
-    ecgGlow: 'rgba(45, 212, 191, 0.85)',
-    ecgDotColor: '#99F6E4',
-    haloStart: '#2DD4BF',
-    haloMid: '#0D9488',
-    haloEnd: '#115E59',
-    orbitStroke: '#0F766E',
-    primaryBtnBg: 'bg-[#0F766E]',
-    primaryBtnHover: 'hover:bg-[#115E59]',
-    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(15,118,110,0.25)]',
+    bg: 'from-[#5AC8FA]/[0.07] via-[#70D7FF]/[0.03] to-white/90',
+    border: 'border-[rgba(60,60,67,0.10)] hover:border-[#5AC8FA]/25',
+    glow: 'rgba(90,200,250,0.22)',
+    badge: 'bg-[#5AC8FA]/10 text-[#32ADE6] border-[#5AC8FA]/20',
+    insigniaBg: 'bg-[#5AC8FA]/10 text-[#32ADE6] border-[#5AC8FA]/20',
+    insigniaText: 'text-[#32ADE6]',
+    progressBar: 'from-[#70D7FF] to-[#5AC8FA]',
+    arrowBg: 'group-hover:bg-[#5AC8FA] group-hover:text-[#1D1D1F]',
+    arrowText: 'text-[#32ADE6]',
+    heroGradient: 'radial-gradient(circle at 50% 50%, rgba(90,200,250,0.22) 0%, rgba(112,215,255,0.10) 44%, transparent 72%)',
+    cardGradient: 'from-[#EBF9FF] via-[#FBFCFC] to-[#D0F4FF]',
+    ecgStrokeStart: '#32ADE6',
+    ecgStrokeMid: '#5AC8FA',
+    ecgGlow: 'rgba(90,200,250,0.85)',
+    ecgDotColor: '#B0E8FF',
+    haloStart: '#70D7FF',
+    haloMid: '#5AC8FA',
+    haloEnd: '#0078CC',
+    orbitStroke: '#32ADE6',
+    primaryBtnBg: 'bg-[#32ADE6]',
+    primaryBtnHover: 'hover:bg-[#0078CC]',
+    primaryBtnShadow: 'shadow-[0_4px_14px_rgba(90,200,250,0.28)]',
   },
 };
 
 const DEFAULT_CARD_THEME: SubjectCardTheme = {
-  bg: 'from-teal-500/[0.08] via-slate-500/[0.04] to-white/95',
-  border: 'border-slate-200/80 hover:border-teal-300',
-  glow: 'rgba(13, 148, 136, 0.16)',
-  badge: 'bg-slate-100 text-slate-700 border-slate-200',
-  insigniaBg: 'bg-teal-500/10 text-teal-700 border-teal-200/70',
-  insigniaText: 'text-teal-700',
-  progressBar: 'from-[#006B63] to-teal-500',
-  arrowBg: 'group-hover:bg-[#006B63] group-hover:text-white',
-  arrowText: 'text-slate-600',
-  heroGradient: 'radial-gradient(circle at 50% 50%, rgba(45, 212, 191, 0.22) 0%, transparent 70%)',
-  cardGradient: 'from-[#F4FAF8] via-[#FBFCFC] to-[#EFF8F5]',
-  ecgStrokeStart: '#0D9488',
-  ecgStrokeMid: '#00F0FF',
-  ecgGlow: 'rgba(0, 240, 255, 0.85)',
-  ecgDotColor: '#00FFFF',
-  haloStart: '#2DD4BF',
-  haloMid: '#38BDF8',
-  haloEnd: '#0EA5E9',
-  orbitStroke: '#0D9488',
-  primaryBtnBg: 'bg-[#006B63]',
-  primaryBtnHover: 'hover:bg-[#00554E]',
-  primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,107,99,0.25)]',
+  bg: 'from-[#007AFF]/[0.07] via-[#409CFF]/[0.03] to-white/90',
+  border: 'border-[rgba(60,60,67,0.10)] hover:border-[#007AFF]/25',
+  glow: 'rgba(0,122,255,0.18)',
+  badge: 'bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/15',
+  insigniaBg: 'bg-[#007AFF]/10 text-[#007AFF] border-[#007AFF]/15',
+  insigniaText: 'text-[#007AFF]',
+  progressBar: 'from-[#409CFF] to-[#007AFF]',
+  arrowBg: 'group-hover:bg-[#007AFF] group-hover:text-white',
+  arrowText: 'text-[#6E6E73]',
+  heroGradient: 'radial-gradient(circle at 50% 50%, rgba(0,122,255,0.20) 0%, transparent 70%)',
+  cardGradient: 'from-[#EBF4FF] via-[#FBFCFC] to-[#D6EAFF]',
+  ecgStrokeStart: '#007AFF',
+  ecgStrokeMid: '#409CFF',
+  ecgGlow: 'rgba(0,122,255,0.85)',
+  ecgDotColor: '#A0CCFF',
+  haloStart: '#409CFF',
+  haloMid: '#007AFF',
+  haloEnd: '#0050CC',
+  orbitStroke: '#007AFF',
+  primaryBtnBg: 'bg-[#007AFF]',
+  primaryBtnHover: 'hover:bg-[#0056CC]',
+  primaryBtnShadow: 'shadow-[0_4px_14px_rgba(0,122,255,0.25)]',
 };
 
 const SECTION_ENTER = (_delay: number, reduced: boolean | null) =>
@@ -877,6 +853,435 @@ const SECTION_TRANSITION = (reduced: boolean | null, delay: number = 0) =>
   reduced ? { duration: 0 } : { type: 'spring' as const, stiffness: 280, damping: 24, delay };
 const SPRING = (reduced: boolean | null) =>
   reduced ? { duration: 0 } : { type: 'spring' as const, stiffness: 420, damping: 30 };
+
+// Subject-specific animated SVG backgrounds for the Today's Focus hero visual
+const SubjectFocusAnimation: React.FC<{
+  subjectId: string;
+  theme: SubjectCardTheme;
+  reducedMotion: boolean;
+}> = ({ subjectId, theme, reducedMotion: rm }) => {
+  const c = theme.ecgStrokeStart;
+  const c2 = theme.ecgStrokeMid;
+  const loop = (dur: number, delay = 0) => ({
+    duration: dur, repeat: rm ? 0 : Infinity, ease: 'linear' as const, delay,
+  });
+
+  // ── MEDICINE: cardiac ECG sinus rhythm ──
+  if (subjectId === 'medicine') {
+    const inflow = "M 0 110 L 32 110 L 36 105 L 40 105 L 44 110 L 56 110 L 60 116 L 68 44 L 76 164 L 82 110 L 88 101 L 93 101 L 98 110 L 108 110 L 112 116 L 120 84 L 128 136 L 132 110 L 160 110";
+    const outflow = "M 160 110 L 190 110 L 194 106 L 198 106 L 202 110 L 214 110 L 218 116 L 226 44 L 234 166 L 240 110 L 246 98 L 252 98 L 256 110 L 266 110 L 270 115 L 276 80 L 282 138 L 286 110 L 320 110";
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible" shapeRendering="geometricPrecision">
+        <path d={inflow} stroke={c} strokeWidth="2" opacity="0.28" strokeLinecap="round" />
+        <path d={outflow} stroke={c} strokeWidth="2" opacity="0.28" strokeLinecap="round" />
+        {!rm && <>
+          <motion.path d={inflow} stroke={c} strokeWidth="3.5" strokeLinecap="round"
+            strokeDasharray="28 320" initial={{ strokeDashoffset: 320 }} animate={{ strokeDashoffset: -320 }}
+            transition={loop(2.2)} />
+          <motion.path d={outflow} stroke={c} strokeWidth="3.5" strokeLinecap="round"
+            strokeDasharray="28 320" initial={{ strokeDashoffset: 320 }} animate={{ strokeDashoffset: -320 }}
+            transition={loop(2.2, 1.1)} />
+        </>}
+      </svg>
+    );
+  }
+
+  // ── ANATOMY: neural branching network ──
+  if (subjectId === 'anatomy') {
+    const angles = [0, 45, 90, 135, 180, 225, 270, 315];
+    const L = 70;
+    const endpoints = angles.map(a => ({
+      x: 160 + L * Math.cos((a * Math.PI) / 180),
+      y: 110 + L * Math.sin((a * Math.PI) / 180),
+    }));
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        {endpoints.map((ep, i) => {
+          const branchA = ((i * 45 + 30) * Math.PI) / 180;
+          const branchB = ((i * 45 - 30) * Math.PI) / 180;
+          return (
+            <React.Fragment key={i}>
+              <line x1="160" y1="110" x2={ep.x} y2={ep.y} stroke={c} strokeWidth="1.6" opacity="0.35" />
+              <line x1={ep.x} y1={ep.y} x2={ep.x + 22 * Math.cos(branchA)} y2={ep.y + 22 * Math.sin(branchA)} stroke={c} strokeWidth="1" opacity="0.18" />
+              <line x1={ep.x} y1={ep.y} x2={ep.x + 22 * Math.cos(branchB)} y2={ep.y + 22 * Math.sin(branchB)} stroke={c} strokeWidth="1" opacity="0.18" />
+              {!rm
+                ? <motion.circle cx={ep.x} cy={ep.y} r="4" fill={c}
+                    animate={{ opacity: [0.3, 1, 0.3], r: [3, 5.5, 3] }}
+                    transition={{ duration: 1.6, delay: i * 0.2, repeat: Infinity }} />
+                : <circle cx={ep.x} cy={ep.y} r="4" fill={c} opacity="0.5" />}
+            </React.Fragment>
+          );
+        })}
+        <circle cx="160" cy="110" r="7" fill={c} opacity="0.9" />
+        {!rm && <motion.circle cx="160" cy="110" r="12" stroke={c} strokeWidth="1.5" fill="none"
+          animate={{ r: [10, 20, 10], opacity: [0.5, 0, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }} />}
+      </svg>
+    );
+  }
+
+  // ── PHYSIOLOGY: smooth breathing sine wave ──
+  if (subjectId === 'physiology') {
+    const wave = "M 0 110 C 20 110 30 52 40 52 C 50 52 60 168 70 168 C 80 168 90 52 100 52 C 110 52 120 168 130 168 C 140 168 150 52 160 52 C 170 52 180 168 190 168 C 200 168 210 52 220 52 C 230 52 240 168 250 168 C 260 168 270 52 280 52 C 290 52 305 110 320 110";
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <path d={wave} stroke={c} strokeWidth="2" opacity="0.22" />
+        {!rm && <motion.path d={wave} stroke={c} strokeWidth="3.5" strokeLinecap="round"
+          strokeDasharray="45 460" initial={{ strokeDashoffset: 460 }} animate={{ strokeDashoffset: -460 }}
+          transition={loop(3.2)} />}
+      </svg>
+    );
+  }
+
+  // ── BIOCHEMISTRY: rotating hexagon molecule ──
+  if (subjectId === 'biochemistry') {
+    const hexPts = Array.from({ length: 6 }, (_, i) => ({
+      x: 160 + 52 * Math.cos(((i * 60 - 30) * Math.PI) / 180),
+      y: 110 + 52 * Math.sin(((i * 60 - 30) * Math.PI) / 180),
+    }));
+    const hexPath = hexPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ') + ' Z';
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <motion.g style={{ originX: '160px', originY: '110px' }}
+          animate={rm ? {} : { rotate: 360 }}
+          transition={{ duration: 9, ease: 'linear', repeat: Infinity }}>
+          <path d={hexPath} stroke={c} strokeWidth="2" opacity="0.45" />
+          {hexPts.map((p, i) => (
+            <React.Fragment key={i}>
+              <line x1="160" y1="110" x2={p.x.toFixed(1)} y2={p.y.toFixed(1)} stroke={c} strokeWidth="0.9" opacity="0.18" />
+              <circle cx={p.x.toFixed(1)} cy={p.y.toFixed(1)} r="5" fill={c} opacity="0.7" />
+            </React.Fragment>
+          ))}
+        </motion.g>
+        <circle cx="160" cy="110" r="9" fill={c} opacity="0.9" />
+        {!rm && <motion.circle r="5" fill={c2}
+          animate={{ cx: [212, 160, 108, 160, 212], cy: [110, 63, 110, 157, 110] }}
+          transition={{ duration: 3.5, ease: 'linear', repeat: Infinity }} />}
+      </svg>
+    );
+  }
+
+  // ── PHARMACOLOGY: drug molecule orbiting receptor ──
+  if (subjectId === 'pharmacology') {
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <circle cx="160" cy="110" r="24" stroke={c} strokeWidth="2.5" fill="none" opacity="0.35" />
+        <circle cx="160" cy="110" r="13" fill={c} opacity="0.65" />
+        {[0, 60, 120, 180, 240, 300].map(a => {
+          const rad = (a * Math.PI) / 180;
+          return <line key={a}
+            x1={(160 + 24 * Math.cos(rad)).toFixed(1)} y1={(110 + 24 * Math.sin(rad)).toFixed(1)}
+            x2={(160 + 38 * Math.cos(rad)).toFixed(1)} y2={(110 + 38 * Math.sin(rad)).toFixed(1)}
+            stroke={c} strokeWidth="2.5" strokeLinecap="round" opacity="0.45" />;
+        })}
+        <ellipse cx="160" cy="110" rx="78" ry="42" stroke={c} strokeWidth="1.2" fill="none" opacity="0.18" strokeDasharray="5 7" />
+        {!rm && <motion.g style={{ originX: '160px', originY: '110px' }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 4.5, ease: 'linear', repeat: Infinity }}>
+          <ellipse cx="238" cy="110" rx="9" ry="5.5" fill={c2} opacity="0.9" />
+          <rect x="229" y="108" width="18" height="4" rx="2" fill={c} opacity="0.35" />
+        </motion.g>}
+      </svg>
+    );
+  }
+
+  // ── MICROBIOLOGY: petri dish with expanding rings + bacteria ──
+  if (subjectId === 'microbiology') {
+    const bDots: [number, number][] = [[128, 88], [188, 85], [142, 140], [192, 136], [160, 72], [160, 148], [118, 118], [202, 112]];
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <ellipse cx="160" cy="114" rx="92" ry="76" stroke={c} strokeWidth="2.5" fill="none" opacity="0.18" />
+        {[22, 44, 66].map((r, i) => (
+          !rm
+            ? <motion.circle key={i} cx="160" cy="110" stroke={c} strokeWidth="1.8" fill="none"
+                animate={{ r: [r, r + 16, r], opacity: [0.65, 0, 0.65] }}
+                transition={{ duration: 2.2, delay: i * 0.65, repeat: Infinity }} />
+            : <circle key={i} cx="160" cy="110" r={r} stroke={c} strokeWidth="1.5" fill="none" opacity="0.3" />
+        ))}
+        {bDots.map(([bx, by], i) => (
+          !rm
+            ? <motion.circle key={i} cx={bx} cy={by} r="5" fill={c} opacity="0.55"
+                animate={{ cy: [by, by - 7, by], opacity: [0.35, 0.8, 0.35] }}
+                transition={{ duration: 1.8, delay: i * 0.28, repeat: Infinity }} />
+            : <circle key={i} cx={bx} cy={by} r="4.5" fill={c} opacity="0.38" />
+        ))}
+        <circle cx="160" cy="110" r="5" fill={c} />
+      </svg>
+    );
+  }
+
+  // ── PATHOLOGY: microscope crosshair + pulsing rings ──
+  if (subjectId === 'pathology') {
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <line x1="25" y1="110" x2="295" y2="110" stroke={c} strokeWidth="1" opacity="0.18" />
+        <line x1="160" y1="12" x2="160" y2="208" stroke={c} strokeWidth="1" opacity="0.18" />
+        {[28, 52, 78].map((r, i) => (
+          !rm
+            ? <motion.circle key={i} cx="160" cy="110" r={r} stroke={c} strokeWidth={i === 0 ? 2.2 : 1.4} fill="none"
+                animate={{ r: [r, r + 8, r], opacity: [0.55, 0.12, 0.55] }}
+                transition={{ duration: 2.8, delay: i * 0.55, repeat: Infinity }} />
+            : <circle key={i} cx="160" cy="110" r={r} stroke={c} strokeWidth="1.5" fill="none" opacity="0.3" />
+        ))}
+        {([[160, 58], [212, 110], [160, 162], [108, 110]] as [number, number][]).map(([nx, ny], i) => (
+          <circle key={i} cx={nx} cy={ny} r="5.5" fill={c} opacity="0.55" />
+        ))}
+        <circle cx="160" cy="110" r="5" fill={c} />
+        {!rm && <motion.circle cx="160" cy="110" r="5" stroke={c} strokeWidth="1.5" fill="none"
+          animate={{ r: [7, 18, 7], opacity: [0.6, 0, 0.6] }}
+          transition={{ duration: 2, repeat: Infinity }} />}
+      </svg>
+    );
+  }
+
+  // ── PSYCHIATRY: EEG brainwave (irregular) ──
+  if (subjectId === 'psychiatry') {
+    const eeg = "M 0 110 L 18 110 L 22 100 L 26 120 L 30 110 L 42 110 L 46 86 L 52 134 L 56 110 L 66 112 L 70 107 L 74 115 L 78 110 L 88 110 L 94 70 L 100 150 L 106 110 L 116 108 L 120 118 L 124 104 L 128 110 L 142 110 L 146 92 L 152 128 L 158 110 L 172 110 L 178 100 L 182 120 L 186 110 L 198 110 L 202 78 L 208 142 L 212 110 L 222 107 L 226 117 L 232 110 L 243 110 L 247 94 L 253 126 L 258 110 L 275 110 L 280 103 L 285 117 L 290 110 L 320 110";
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <path d={eeg} stroke={c} strokeWidth="1.8" opacity="0.25" strokeLinecap="round" />
+        {!rm && <motion.path d={eeg} stroke={c} strokeWidth="3.5" strokeLinecap="round"
+          strokeDasharray="55 560" initial={{ strokeDashoffset: 560 }} animate={{ strokeDashoffset: -560 }}
+          transition={loop(3.8)} />}
+      </svg>
+    );
+  }
+
+  // ── RADIOLOGY: CT scan rotating sweep ──
+  if (subjectId === 'radiology') {
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        {[28, 52, 72, 90].map((r, i) => (
+          <circle key={i} cx="160" cy="110" r={r} stroke={c} strokeWidth="1.2" fill="none"
+            opacity={[0.5, 0.38, 0.25, 0.14][i]} strokeDasharray={i % 2 === 1 ? '4 5' : undefined} />
+        ))}
+        {!rm
+          ? <motion.g style={{ originX: '160px', originY: '110px' }}
+              animate={{ rotate: 360 }} transition={{ duration: 3, ease: 'linear', repeat: Infinity }}>
+              <line x1="160" y1="110" x2="160" y2="20" stroke={c} strokeWidth="2.8" opacity="0.75" />
+              <path d="M 160 110 L 160 20 A 90 90 0 0 1 204 43 Z" fill={c} opacity="0.07" />
+            </motion.g>
+          : <line x1="160" y1="110" x2="160" y2="20" stroke={c} strokeWidth="2.5" opacity="0.6" />}
+        <circle cx="160" cy="110" r="6" fill={c} />
+        {([[160, 20], [250, 110], [160, 200], [70, 110]] as [number, number][]).map(([mx, my], i) => (
+          <circle key={i} cx={mx} cy={my} r="3.5" fill={c} opacity="0.45" />
+        ))}
+      </svg>
+    );
+  }
+
+  // ── SURGERY: precision crosshair + scanning beam ──
+  if (subjectId === 'surgery') {
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        {([[32, 28], [288, 28], [288, 192], [32, 192]] as [number, number][]).map(([cx, cy], i) => (
+          <React.Fragment key={i}>
+            <line x1={cx} y1={cy} x2={cx + (i === 0 || i === 3 ? 18 : -18)} y2={cy} stroke={c} strokeWidth="2" strokeLinecap="round" opacity="0.48" />
+            <line x1={cx} y1={cy} x2={cx} y2={cy + (i < 2 ? 18 : -18)} stroke={c} strokeWidth="2" strokeLinecap="round" opacity="0.48" />
+          </React.Fragment>
+        ))}
+        <line x1="52" y1="110" x2="138" y2="110" stroke={c} strokeWidth="1.5" opacity="0.38" />
+        <line x1="182" y1="110" x2="268" y2="110" stroke={c} strokeWidth="1.5" opacity="0.38" />
+        <line x1="160" y1="32" x2="160" y2="90" stroke={c} strokeWidth="1.5" opacity="0.38" />
+        <line x1="160" y1="130" x2="160" y2="188" stroke={c} strokeWidth="1.5" opacity="0.38" />
+        <circle cx="160" cy="110" r="22" stroke={c} strokeWidth="2.2" fill="none" opacity="0.48" />
+        <circle cx="160" cy="110" r="7" fill={c} opacity="0.8" />
+        {!rm && <motion.line x1="52" y1="35" x2="268" y2="35" stroke={c} strokeWidth="2" opacity="0.5"
+          animate={{ y1: [35, 185, 35], y2: [35, 185, 35] }}
+          transition={{ duration: 2.8, ease: 'easeInOut', repeat: Infinity }} />}
+      </svg>
+    );
+  }
+
+  // ── OPHTHALMOLOGY: iris rings + breathing pupil ──
+  if (subjectId === 'ophthalmology') {
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        {[82, 66, 50, 36].map((r, i) => (
+          <circle key={i} cx="160" cy="110" r={r} stroke={c} strokeWidth={[1, 1.4, 1.8, 2.2][i]} fill="none"
+            opacity={[0.14, 0.24, 0.38, 0.52][i]} />
+        ))}
+        {Array.from({ length: 12 }, (_, i) => {
+          const a = (i * 30 * Math.PI) / 180;
+          return <line key={i}
+            x1={(160 + 36 * Math.cos(a)).toFixed(1)} y1={(110 + 36 * Math.sin(a)).toFixed(1)}
+            x2={(160 + 80 * Math.cos(a)).toFixed(1)} y2={(110 + 80 * Math.sin(a)).toFixed(1)}
+            stroke={c} strokeWidth="0.8" opacity="0.18" />;
+        })}
+        {!rm
+          ? <motion.circle cx="160" cy="110" fill="#0A0A0A"
+              animate={{ r: [14, 22, 14] }}
+              transition={{ duration: 3.2, ease: 'easeInOut', repeat: Infinity }} />
+          : <circle cx="160" cy="110" r="17" fill="#0A0A0A" />}
+        <circle cx="152" cy="103" r="4.5" fill="white" opacity="0.8" />
+        <circle cx="169" cy="119" r="2.2" fill="white" opacity="0.38" />
+      </svg>
+    );
+  }
+
+  // ── ENT: speaker + expanding sound arcs ──
+  if (subjectId === 'ent') {
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <rect x="52" y="94" width="20" height="32" rx="3" fill={c} opacity="0.45" />
+        <polygon points="72,94 94,72 94,148 72,126" fill={c} opacity="0.35" />
+        {[58, 90, 122, 154].map((r, i) => {
+          const x = 94 + r * 0.08;
+          return !rm
+            ? <motion.path key={i} d={`M ${x},${110 - r * 0.62} A ${r} ${r} 0 0 1 ${x},${110 + r * 0.62}`}
+                stroke={c} strokeWidth="2.8" fill="none" strokeLinecap="round"
+                animate={{ opacity: [0.65 - i * 0.1, 0.08, 0.65 - i * 0.1] }}
+                transition={{ duration: 1.9, delay: i * 0.27, repeat: Infinity }} />
+            : <path key={i} d={`M ${x},${110 - r * 0.62} A ${r} ${r} 0 0 1 ${x},${110 + r * 0.62}`}
+                stroke={c} strokeWidth="2.2" fill="none" strokeLinecap="round" opacity={0.58 - i * 0.12} />;
+        })}
+      </svg>
+    );
+  }
+
+  // ── OBG: elliptical fetal orbit ──
+  if (subjectId === 'obg') {
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <ellipse cx="160" cy="114" rx="88" ry="72" stroke={c} strokeWidth="2.8" fill="none" opacity="0.28" />
+        <circle cx="160" cy="110" r="26" stroke={c} strokeWidth="2" fill="none" opacity="0.38" />
+        <circle cx="160" cy="110" r="15" fill={c} opacity="0.52" />
+        {!rm && <motion.circle r="8" fill={c2}
+          animate={{ cx: [248, 160, 72, 160, 248], cy: [114, 42, 114, 186, 114] }}
+          transition={{ duration: 4.5, ease: 'linear', repeat: Infinity }} />}
+        <path d="M 58 196 L 76 196 L 80 184 L 86 208 L 92 184 L 96 196 L 262 196"
+          stroke={c} strokeWidth="1.8" opacity="0.35" />
+      </svg>
+    );
+  }
+
+  // ── PEDIATRICS: growth curve + traveling dot ──
+  if (subjectId === 'pediatrics') {
+    const curve = "M 22 192 C 50 188 75 178 95 162 C 115 146 128 128 145 110 C 162 92 172 76 192 62 C 212 48 238 38 305 32";
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <line x1="22" y1="192" x2="310" y2="192" stroke={c} strokeWidth="1.5" opacity="0.25" />
+        <line x1="22" y1="12" x2="22" y2="192" stroke={c} strokeWidth="1.5" opacity="0.25" />
+        <path d="M 22 200 C 80 196 145 172 305 58" stroke={c} strokeWidth="0.8" opacity="0.10" />
+        <path d={curve} stroke={c} strokeWidth="2.2" opacity="0.28" fill="none" />
+        {([[22, 192], [95, 162], [145, 110], [192, 62], [305, 32]] as [number, number][]).map(([mx, my], i) => (
+          <circle key={i} cx={mx} cy={my} r="4.5" fill={c} opacity="0.42" />
+        ))}
+        {!rm && <motion.circle r="7" fill={c}
+          animate={{ cx: [22, 95, 145, 192, 305, 22], cy: [192, 162, 110, 62, 32, 192] }}
+          transition={{ duration: 4, ease: 'easeInOut', repeat: Infinity }} />}
+      </svg>
+    );
+  }
+
+  // ── ORTHOPEDICS: joint geometry with ROM arc ──
+  if (subjectId === 'orthopedics') {
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <path d="M 132 18 C 130 50 134 82 160 108" stroke={c} strokeWidth="14" strokeLinecap="round" fill="none" opacity="0.28" />
+        <path d="M 160 112 C 145 130 138 155 135 202" stroke={c} strokeWidth="12" strokeLinecap="round" fill="none" opacity="0.28" />
+        <circle cx="160" cy="112" r="20" stroke={c} strokeWidth="2.2" fill="white" opacity="0.75" />
+        <circle cx="160" cy="112" r="10" fill={c} opacity="0.42" />
+        <line x1="160" y1="112" x2="160" y2="65" stroke={c} strokeWidth="1.2" opacity="0.28" strokeDasharray="4 5" />
+        <line x1="160" y1="112" x2="205" y2="112" stroke={c} strokeWidth="1.2" opacity="0.28" strokeDasharray="4 5" />
+        {!rm
+          ? <motion.path d="M 160 78 A 34 34 0 0 1 194 112" stroke={c2} strokeWidth="3" fill="none" strokeLinecap="round"
+              animate={{ rotate: [-22, 22, -22] }}
+              style={{ originX: '160px', originY: '112px' }}
+              transition={{ duration: 2.2, ease: 'easeInOut', repeat: Infinity }} />
+          : <path d="M 160 78 A 34 34 0 0 1 194 112" stroke={c2} strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.6" />}
+      </svg>
+    );
+  }
+
+  // ── DERMATOLOGY: fingerprint arcs ──
+  if (subjectId === 'dermatology') {
+    const arcs = [14, 26, 38, 50, 62, 74, 86, 98, 110];
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        {arcs.map((r, i) => (
+          <ellipse key={i} cx={162 + i * 1.5} cy="110" rx={r} ry={r * 0.62}
+            stroke={c} strokeWidth="1.5" fill="none" opacity={0.55 - i * 0.04} />
+        ))}
+        {!rm && <motion.ellipse cx="172" cy="110" rx="38" ry="24" stroke={c2} strokeWidth="2.5" fill="none"
+          animate={{ opacity: [0.75, 0.15, 0.75] }}
+          transition={{ duration: 2.8, repeat: Infinity }} />}
+        <circle cx="162" cy="110" r="3.5" fill={c} />
+      </svg>
+    );
+  }
+
+  // ── FMT: balance scale oscillating ──
+  if (subjectId === 'fmt') {
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <line x1="160" y1="55" x2="160" y2="192" stroke={c} strokeWidth="3.5" strokeLinecap="round" opacity="0.45" />
+        <circle cx="160" cy="55" r="9" fill={c} opacity="0.6" />
+        <line x1="118" y1="192" x2="202" y2="192" stroke={c} strokeWidth="4.5" strokeLinecap="round" opacity="0.38" />
+        {!rm
+          ? <motion.g style={{ originX: '160px', originY: '78px' }}
+              animate={{ rotate: [-14, 14, -14] }}
+              transition={{ duration: 2.6, ease: 'easeInOut', repeat: Infinity }}>
+              <line x1="68" y1="78" x2="252" y2="78" stroke={c} strokeWidth="3" strokeLinecap="round" opacity="0.6" />
+              <line x1="88" y1="78" x2="88" y2="132" stroke={c} strokeWidth="1.8" opacity="0.38" />
+              <ellipse cx="88" cy="142" rx="26" ry="9" stroke={c} strokeWidth="2" fill={c} fillOpacity="0.14" opacity="0.58" />
+              <line x1="232" y1="78" x2="232" y2="132" stroke={c} strokeWidth="1.8" opacity="0.38" />
+              <ellipse cx="232" cy="142" rx="26" ry="9" stroke={c} strokeWidth="2" fill={c} fillOpacity="0.14" opacity="0.58" />
+            </motion.g>
+          : <>
+              <line x1="68" y1="78" x2="252" y2="78" stroke={c} strokeWidth="3" strokeLinecap="round" opacity="0.6" />
+              <line x1="88" y1="78" x2="88" y2="132" stroke={c} strokeWidth="1.8" opacity="0.38" />
+              <ellipse cx="88" cy="142" rx="26" ry="9" stroke={c} strokeWidth="2" fill={c} fillOpacity="0.14" opacity="0.58" />
+              <line x1="232" y1="78" x2="232" y2="132" stroke={c} strokeWidth="1.8" opacity="0.38" />
+              <ellipse cx="232" cy="142" rx="26" ry="9" stroke={c} strokeWidth="2" fill={c} fillOpacity="0.14" opacity="0.58" />
+            </>}
+      </svg>
+    );
+  }
+
+  // ── PSM: rising bar chart ──
+  if (subjectId === 'psm') {
+    const bars: [number, number][] = [[58, 55], [106, 88], [154, 120], [202, 98], [250, 145]];
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <line x1="32" y1="182" x2="290" y2="182" stroke={c} strokeWidth="1.5" opacity="0.25" />
+        <line x1="32" y1="18" x2="32" y2="182" stroke={c} strokeWidth="1.5" opacity="0.25" />
+        {bars.map(([bx, bh], i) => (
+          !rm
+            ? <motion.rect key={i} x={bx - 18} y={182} width="36" rx="4" fill={i === 4 ? c2 : c} opacity="0.65"
+                animate={{ y: [182, 182 - bh, 182], height: [0, bh, 0] }}
+                transition={{ duration: 2.8, delay: i * 0.28, repeat: Infinity, ease: 'easeOut' }} />
+            : <rect key={i} x={bx - 18} y={182 - bh} width="36" height={bh} rx="4" fill={i === 4 ? c2 : c} opacity="0.48" />
+        ))}
+      </svg>
+    );
+  }
+
+  // ── ANESTHESIA: square ventilator waveform ──
+  if (subjectId === 'anesthesia') {
+    const vent = "M 0 150 L 28 150 L 28 68 L 92 68 L 92 150 L 128 150 L 128 68 L 192 68 L 192 150 L 228 150 L 228 68 L 292 68 L 292 150 L 320 150";
+    return (
+      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+        <line x1="0" y1="150" x2="320" y2="150" stroke={c} strokeWidth="0.8" opacity="0.12" strokeDasharray="4 9" />
+        <path d={vent} stroke={c} strokeWidth="2" opacity="0.22" strokeLinecap="round" strokeLinejoin="round" />
+        {!rm && <motion.path d={vent} stroke={c} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
+          strokeDasharray="88 580" initial={{ strokeDashoffset: 580 }} animate={{ strokeDashoffset: -580 }}
+          transition={loop(4.2)} />}
+      </svg>
+    );
+  }
+
+  // ── DEFAULT / fallback: smooth sine wave ──
+  const defPath = "M 0 110 C 40 52 80 168 120 110 C 160 52 200 168 240 110 C 280 52 305 110 320 110";
+  return (
+    <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible">
+      <path d={defPath} stroke={c} strokeWidth="2" opacity="0.25" />
+      {!rm && <motion.path d={defPath} stroke={c} strokeWidth="3.5" strokeLinecap="round"
+        strokeDasharray="42 420" initial={{ strokeDashoffset: 420 }} animate={{ strokeDashoffset: -420 }}
+        transition={loop(3)} />}
+    </svg>
+  );
+};
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   state,
@@ -900,6 +1305,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenAudioRecall,
   subTab,
   onSubTabChange,
+  isGuest = false,
 }) => {
   const { user, profile } = useAuth();
   const [currentSubTab, setCurrentSubTab] = useState<'overview' | 'planner'>(
@@ -1004,7 +1410,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       auraGrad: circadian.auraGrad,
       topLight: circadian.topLight,
       nameColor: circadian.isNight ? 'text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]' : 'text-[#1D1D1F]',
-      subtitleColor: circadian.isNight ? 'text-teal-100/90' : circadian.subtitleColor,
+      subtitleColor: circadian.isNight ? 'text-[#5AC8FA]/80' : circadian.subtitleColor,
       greetingIconColor: circadian.iconColor,
     };
   }, [circadian]);
@@ -1141,7 +1547,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Dynamic scattered multi-point ambient gradient tailored to the active subject (No rigid circle / bullseye)
   const cardGradientStyle = useMemo(() => {
-    const primary = focusTheme.ecgStrokeStart || '#0D9488';
+    const primary = focusTheme.ecgStrokeStart || '#60B3FF';
     const secondary = focusTheme.haloStart || '#2DD4BF';
     const bgColors = focusTheme.cardGradient?.match(/#[A-Fa-f0-9]{6}/g) || ['#F4FAF8', '#FBFCFC', '#EFF8F5'];
     const baseStart = bgColors[0] || '#FFFFFF';
@@ -1175,13 +1581,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       const percentage = Math.round((doneNotes / Math.max(1, allTopics.length)) * 100);
 
       let statusText = 'On track';
-      let statusClass = 'text-[#006B63] bg-[#e6f0ee] border-[#cfe2df]';
+      let statusClass = 'text-[#007AFF] bg-[#e6f0ee] border-[#cfe2df]';
       if (percentage < 30) {
         statusText = 'Needs focus';
         statusClass = 'text-[#92400e] bg-[#fef3c7] border-[#fde68a]';
       } else if (percentage >= 60) {
         statusText = 'On track';
-        statusClass = 'text-[#006B63] bg-[#e6f0ee] border-[#cfe2df]';
+        statusClass = 'text-[#007AFF] bg-[#e6f0ee] border-[#cfe2df]';
       }
       return {
         ...sub,
@@ -1375,462 +1781,734 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }
 
   return (
-    <div className="relative min-h-screen font-['Plus_Jakarta_Sans'] text-slate-900 pb-16 lg:pb-12 pt-4 sm:pt-6 lg:pt-6">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+    <div className="relative min-h-screen text-[#1D1D1F] pb-12">
 
-        {/* ═══ 1. TOP BAR (Search, Notifications, Profile) with Dynamic Auto-Hide ═══ */}
-        <motion.div
-          initial={false}
-          animate={{
-            y: isHeaderVisible || isAtTop ? 0 : -80,
-            opacity: isHeaderVisible || isAtTop ? 1 : 0,
-          }}
-          transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-          className={`sticky top-0 z-50 py-2 sm:py-2.5 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
-            scrollY > 30
-              ? 'bg-white/90 backdrop-blur-2xl border-b border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)]'
-              : 'bg-transparent'
-          }`}
-        >
-          <div className="flex items-center justify-between gap-2 sm:gap-4 max-w-7xl mx-auto">
-            {/* Search topics input */}
-            <div className="relative flex-1 w-full lg:max-w-xl">
-              <Search className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setIsSearchOpen(true);
-                }}
-                onFocus={() => setIsSearchOpen(true)}
-                placeholder="Search topics, subjects, questions..."
-                aria-label="Search topics"
-                className="w-full pl-9 sm:pl-10 pr-8 sm:pr-14 h-10 sm:h-11 rounded-full bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 shadow-xs focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 transition-all"
-              />
-              {searchQuery ? (
-                <button
-                  type="button"
-                  onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }}
-                  className="absolute right-2.5 sm:right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
-                  aria-label="Clear search"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              ) : (
-                <span className="hidden sm:inline-flex absolute right-3.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-mono text-slate-500 font-medium shadow-2xs">
-                  ⌘ K
+      {/* ── Search bar: always clean light, sticky at top ── */}
+      <motion.div
+        initial={false}
+        animate={{
+          y: isHeaderVisible || isAtTop ? 0 : -80,
+          opacity: isHeaderVisible || isAtTop ? 1 : 0,
+        }}
+        transition={{ type: 'spring', stiffness: 450, damping: 28 }}
+        className={`sticky z-30 py-2 sm:py-2.5 bg-[#F2F2F7]/95 backdrop-blur-3xl relative ${
+          isGuest ? 'top-[46px]' : 'top-0'
+        }`}
+      >
+        <div className="px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-4 max-w-7xl mx-auto">
+
+          {/* ── Search bar ── */}
+          <div className="relative flex-1 w-full lg:max-w-2xl">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8E8E93] pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setIsSearchOpen(true); }}
+              onFocus={() => setIsSearchOpen(true)}
+              placeholder="Search subjects, topics, questions…"
+              aria-label="Search topics"
+              className="w-full pl-10 pr-16 h-11 rounded-2xl text-sm focus:outline-none bg-white hover:bg-white focus:bg-white text-[#1D1D1F] placeholder:text-[#8E8E93] border border-[rgba(60,60,67,0.10)] focus:border-[#007AFF]/40 focus:ring-2 focus:ring-[#007AFF]/12 shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200"
+            />
+            {searchQuery ? (
+              <button
+                type="button"
+                onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-[#C7C7CC] flex items-center justify-center text-white hover:bg-[#8E8E93] cursor-pointer transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            ) : (
+              <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 px-2 py-1 rounded-lg text-[11px] font-medium bg-[rgba(60,60,67,0.06)] border border-[rgba(60,60,67,0.10)] text-[#8E8E93] pointer-events-none">
+                ⌘K
+              </kbd>
+            )}
+          </div>
+
+          {/* ── Right controls ── */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <AmbientSoundWidget onOpenZenFocus={onOpenZenFocus} isDark={false} />
+            <button
+              type="button"
+              onClick={() => setIsNotificationCenterOpen(true)}
+              className="relative flex items-center justify-center h-10 w-10 rounded-full cursor-pointer transition-all bg-white hover:bg-[#F2F2F7] text-[#3A3A3C] border border-[rgba(60,60,67,0.10)] shadow-[0_1px_4px_rgba(0,0,0,0.06)]"
+              title="Notifications"
+              aria-label="View notifications"
+            >
+              <Bell className="h-4 w-4 stroke-[1.7]" />
+              {hasUnread && (
+                <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF3B30] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF3B30]" />
                 </span>
               )}
+            </button>
+            <button
+              type="button"
+              onClick={onOpenProfile}
+              className="hidden sm:flex items-center gap-2 h-10 pl-1 pr-3 rounded-full bg-white hover:bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] shadow-[0_1px_4px_rgba(0,0,0,0.06)] cursor-pointer group transition-all"
+              title="Doctor Profile"
+            >
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5AC8FA] text-white flex items-center justify-center font-bold text-[11px] shrink-0 shadow-[0_2px_8px_rgba(0,122,255,0.40)]">
+                {initials}
+              </div>
+              <ChevronDown className="h-3.5 w-3.5 text-[#8E8E93] group-hover:text-[#007AFF] transition-colors" />
+            </button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Live Search Autocomplete Popup — absolute so it floats over content */}
+      <AnimatePresence>
+        {isSearchOpen && searchResults.length > 0 && (
+          <motion.div
+            initial={reducedMotion ? false : { opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            transition={SECTION_TRANSITION(reducedMotion)}
+            className="absolute left-0 right-0 z-[35] px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto"
+            style={{ top: 'calc(100% + 4px)' }}
+          >
+          <div className="bg-white/98 backdrop-blur-3xl rounded-3xl border border-[rgba(60,60,67,0.10)] shadow-[0_8px_30px_rgba(0,0,0,0.10),0_2px_8px_rgba(0,0,0,0.06)] p-4 space-y-2"
+          >
+            <div className="flex items-center justify-between pb-2 border-b border-[rgba(60,60,67,0.06)]">
+              <span className="text-xs font-semibold text-[#6E6E73]">
+                Matching Blueprint Topics
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsSearchOpen(false)}
+                className="text-xs text-[#8E8E93] hover:text-[#1D1D1F] cursor-pointer"
+              >
+                Close (ESC)
+              </button>
             </div>
-
-            {/* Right Action Controls: Focus Audio Engine + Notification Bell + Doctor Avatar */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0 relative z-50">
-
-              {/* Ambient Focus Audio Engine */}
-              <AmbientSoundWidget onOpenZenFocus={onOpenZenFocus} />
-
-              <button
-                type="button"
-                onClick={() => setIsNotificationCenterOpen(true)}
-                className="relative flex items-center justify-center h-10 w-10 rounded-full bg-slate-100/90 hover:bg-white border border-slate-200/90 hover:border-slate-300 shadow-xs text-slate-600 cursor-pointer hover:text-[#006B63] transition-all shrink-0"
-                title="View Study Notifications"
-                aria-label="View Study Notifications"
-              >
-                <Bell className="h-4.5 w-4.5 stroke-[1.8]" />
-                {hasUnread && (
-                  <span className="absolute top-2 right-2 flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500" />
-                  </span>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={onOpenProfile}
-                className="hidden sm:flex items-center gap-1.5 sm:gap-2 h-10 pl-1 pr-1 sm:pr-3 rounded-full bg-slate-100/90 hover:bg-white border border-slate-200/90 hover:border-slate-300 shadow-xs transition-all cursor-pointer group"
-                title="Doctor Profile & Blueprint"
-              >
-                <div className="h-8 w-8 rounded-full bg-[#2A2322] text-white flex items-center justify-center font-['Outfit'] font-bold text-xs shrink-0 ring-2 ring-slate-900/10">
-                  {initials}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+              {searchResults.map(({ subject, topic }) => (
+                <div
+                  key={`${subject.id}-${topic.id}`}
+                  className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-[#F2F2F7] border border-[rgba(60,60,67,0.06)] transition-colors"
+                >
+                  <div className="min-w-0 pr-2">
+                    <span className="text-[11px] font-semibold text-[#007AFF] block">{subject.name}</span>
+                    <span className="text-xs font-semibold text-[#1D1D1F] truncate block">{topic.name}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => { setIsSearchOpen(false); setActiveMasteryTopic({ subjectId: subject.id, topicId: topic.id, topicName: topic.name }); }}
+                      className="px-2.5 py-1 text-[11px] font-bold bg-[#007AFF] text-white rounded-lg hover:bg-[#0056CC] transition-colors cursor-pointer"
+                    >
+                      Study
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setIsSearchOpen(false); onLaunchPracticeSession?.(subject.id, topic.id, topic.name); }}
+                      className="px-2 py-1 text-[11px] font-semibold text-[#6E6E73] border border-[rgba(60,60,67,0.12)] rounded-lg hover:bg-[#F2F2F7] transition-colors cursor-pointer"
+                    >
+                      10 MCQs
+                    </button>
+                  </div>
                 </div>
-                <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] transition-colors" />
-              </button>
+              ))}
             </div>
           </div>
-        </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* Live Search Autocomplete Popup */}
-        <AnimatePresence>
-          {isSearchOpen && searchResults.length > 0 && (
-            <motion.div
-              initial={reducedMotion ? false : { opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={SECTION_TRANSITION(reducedMotion)}
-              className="bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_20px_50px_rgba(0,107,99,0.12)] p-4 space-y-2 relative z-50"
-            >
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100/80">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-                  Matching Blueprint Topics
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setIsSearchOpen(false)}
-                  className="text-xs text-slate-400 hover:text-slate-700 cursor-pointer"
-                >
-                  Close (ESC)
-                </button>
+      {/* ── Hero card: contained rounded card with light blue gradient ── */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-5">
+        <div
+          className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(0,100,220,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
+          style={{ background: 'linear-gradient(135deg, #EEF5FF 0%, #DDEEFF 35%, #C8E0FF 65%, #A8CCFF 100%)' }}
+        >
+          {/* Right radial glow behind illustration */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-[55%] pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse at 80% 45%, rgba(80,160,255,0.32) 0%, rgba(0,122,255,0.10) 55%, transparent 78%)' }}
+          />
+          {/* Subtle inner highlight — very soft, no hard line */}
+          <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-white/30 to-transparent pointer-events-none rounded-t-[2rem] sm:rounded-t-[2.5rem]" />
+
+          {/* Vertical accent text — far right, desktop only */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden xl:flex flex-col items-center gap-0.5 pointer-events-none select-none z-20">
+            {['FOCUSED', 'PRACTICE', 'DEEPER', 'UNDERSTANDING'].map((word) => (
+              <span key={word} className="text-[7px] font-bold text-[#007AFF]/25 tracking-[0.18em] uppercase">{word}</span>
+            ))}
+            <div className="w-px h-6 bg-[#007AFF]/15 mt-1 rounded-full" />
+          </div>
+
+          {/* Card content */}
+          <div className="relative z-10 p-5 sm:p-6 lg:p-8">
+
+            {/* Top bar: greeting + Circadian Focus */}
+            <div className="flex items-center justify-between gap-3 mb-4 sm:mb-5">
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#007AFF]">
+                  <GreetingIcon className="h-3.5 w-3.5 stroke-[2.4]" />
+                  <span>{greeting},</span>
+                </div>
+                <span className="text-[#C7C7CC]">·</span>
+                <span className="text-[12px] font-semibold hidden sm:inline text-[#8E8E93]">OneShot FMGE</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                {searchResults.map(({ subject, topic }) => (
-                  <div
-                    key={`${subject.id}-${topic.id}`}
-                    className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-white/90 border border-slate-100/80 transition-colors"
-                  >
-                    <div className="min-w-0 pr-2">
-                      <span className="text-[10px] font-bold text-[#006B63] uppercase tracking-wider block">
-                        {subject.name}
+              <CircadianFocusDropdown circadian={circadian} align="right" isDark={false} />
+            </div>
+
+            {/* Main content: name + illustration */}
+            <div className="flex flex-col md:flex-row md:items-center gap-5 lg:gap-8">
+
+              {/* Left: name + subtitle + creed */}
+              <div className="flex-1 space-y-3 sm:space-y-4 min-w-0">
+                <h1 className="text-[44px] sm:text-[56px] lg:text-[68px] font-black tracking-[-0.045em] leading-[0.88] text-[#1D1D1F] line-clamp-2 break-words">
+                  {userName.startsWith('Dr.') ? (
+                    <>
+                      <span className="text-[#007AFF]">Dr. </span>
+                      <span>{userName.replace(/^Dr\.\s*/, '')}</span>
+                    </>
+                  ) : (
+                    <span>{userName}</span>
+                  )}
+                </h1>
+                <p className="text-[15px] sm:text-[16px] leading-snug font-medium text-[#3C3C43] max-w-sm">
+                  Consistent study today builds the doctor you&apos;ll be tomorrow.
+                </p>
+
+                {/* Creed card — white glass */}
+                <motion.div
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+                  onClick={shuffleCreed}
+                  title="Click to shuffle motivation"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') shuffleCreed(); }}
+                  className="inline-flex items-start gap-3 rounded-2xl px-4 py-3 cursor-pointer select-none group bg-white/75 hover:bg-white/90 backdrop-blur-md border border-white/80 shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-all duration-200 max-w-[320px]"
+                >
+                  <div className="h-9 w-12 shrink-0 relative flex items-center justify-center mt-0.5">
+                    <AnimatedMountainInsignia
+                      phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
+                      creedId={doctorCreed.id}
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <div className="space-y-1.5 min-w-0 flex-1">
+                    <p className="text-[12px] font-semibold text-[#1D1D1F] leading-snug line-clamp-2">
+                      &ldquo;{doctorCreed.quote}&rdquo;
+                    </p>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-semibold text-[#8E8E93] tracking-wide truncate">
+                        {doctorCreed.tagline}
                       </span>
-                      <span className="text-xs font-semibold text-slate-800 truncate block">
-                        {topic.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsSearchOpen(false);
-                          setActiveMasteryTopic({
-                            subjectId: subject.id,
-                            topicId: topic.id,
-                            topicName: topic.name,
-                          });
-                        }}
-                        className="px-2.5 py-1 text-[11px] font-bold bg-[#006B63] text-white rounded-lg hover:bg-[#005750] transition-colors cursor-pointer"
-                      >
-                        Study
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsSearchOpen(false);
-                          onLaunchPracticeSession?.(subject.id, topic.id, topic.name);
-                        }}
-                        className="px-2 py-1 text-[11px] font-semibold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                      >
-                        10 MCQs
-                      </button>
+                      <RotateCcw
+                        className={`h-3 w-3 text-[#C7C7CC] group-hover:text-[#007AFF] transition-all duration-300 shrink-0 ${
+                          isCreedShuffling ? 'rotate-180' : 'group-hover:-rotate-90'
+                        }`}
+                      />
                     </div>
                   </div>
-                ))}
+                </motion.div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* ═══ 2. TOP GREETING HERO BANNER ═══ */}
-        <motion.div
-          initial={SECTION_ENTER(0, reducedMotion)}
-          animate={SECTION_SHOW}
-          transition={SECTION_TRANSITION(reducedMotion, 0)}
-          className={`rounded-3xl border backdrop-blur-2xl p-4 sm:p-5 relative z-10 transition-all duration-700 mb-5 sm:mb-7 ${heroTheme.bannerBg}`}
-        >
-          {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so dropdown popover never clips) */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
-            {/* Subtle Ambient Radial Aura Mesh */}
-            <div
-              className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${heroTheme.auraGrad}`}
-            />
+              {/* Right: circadian-reactive anime character */}
+              {(() => {
+                const phase = circadian.timeOfDay;
+                const isAuto = circadian.themeSetting === 'auto';
+                const phaseConfig = {
+                  morning:   { color: '#FF9500', colorRgb: '255,149,0',  chipLabel: 'Dawn Session',  chipSub: 'Peak alertness window' },
+                  afternoon: { color: '#007AFF', colorRgb: '0,122,255',  chipLabel: 'Zenith Focus',  chipSub: 'Deep work zone' },
+                  evening:   { color: '#FF6B35', colorRgb: '255,107,53', chipLabel: 'Dusk Review',   chipSub: 'Consolidate today' },
+                  night:     { color: '#BF5AF2', colorRgb: '191,90,242', chipLabel: 'Night Mode',    chipSub: 'Memory encoding' },
+                } as const;
+                const cfg = phaseConfig[phase] ?? phaseConfig.afternoon;
+                const c = cfg.color;
+                const cr = cfg.colorRgb;
+                const rm = reducedMotion ?? false;
 
-            {/* Precision Architectural Top Light Line */}
-            <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
-              <div className={`absolute inset-0 bg-gradient-to-r ${heroTheme.topLight}`} />
-              <motion.div
-                animate={{ x: ['-100%', '300%'] }}
-                transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
-                className={`w-52 sm:w-80 h-full bg-gradient-to-r from-transparent ${circadian.shimmerGlow} to-transparent`}
-              />
+                /* shared character parts */
+
+                return (
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={phase}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+                      className="relative w-full md:w-[240px] lg:w-[280px] h-[210px] sm:h-[240px] shrink-0 flex items-end justify-center select-none pointer-events-none lg:mr-4"
+                    >
+                      {/* ── PHASE FOCUS ORB ── */}
+                      <svg viewBox="0 0 300 240" className="w-full h-full" fill="none" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                          {/* Skin gradient */}
+                          <radialGradient id={`skin-${phase}`} cx="45%" cy="38%" r="60%">
+                            <stop offset="0%" stopColor="#FFE4C8"/>
+                            <stop offset="100%" stopColor="#FFCBA4"/>
+                          </radialGradient>
+                          {/* Hair gradient */}
+                          <radialGradient id={`hair-${phase}`} cx="50%" cy="30%" r="65%">
+                            <stop offset="0%" stopColor={c}/>
+                            <stop offset="100%" stopColor={`rgba(${cr},0.75)`}/>
+                          </radialGradient>
+                          {/* Iris gradient */}
+                          <radialGradient id={`iris-${phase}`} cx="35%" cy="30%" r="65%">
+                            <stop offset="0%" stopColor={c}/>
+                            <stop offset="100%" stopColor={`rgba(${cr},0.6)`}/>
+                          </radialGradient>
+                          {/* Clothing gradient */}
+                          <linearGradient id={`cloth-${phase}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor={`rgba(${cr},0.30)`}/>
+                            <stop offset="100%" stopColor={`rgba(${cr},0.15)`}/>
+                          </linearGradient>
+                        </defs>
+
+                        {/* ─── shared defs ─── */}
+                        <defs>
+                          <radialGradient id={`orb-core-${phase}`} cx="38%" cy="32%" r="65%">
+                            <stop offset="0%"   stopColor={phase==='morning'?'#FFE878':phase==='afternoon'?'#80D8FF':phase==='evening'?'#FFCB80':'#DDA0FF'}/>
+                            <stop offset="45%"  stopColor={c} stopOpacity="0.92"/>
+                            <stop offset="100%" stopColor={phase==='morning'?'#A84400':phase==='afternoon'?'#001F66':phase==='evening'?'#7A2200':'#3A0060'} stopOpacity="0.95"/>
+                          </radialGradient>
+                          <radialGradient id={`orb-glow-${phase}`} cx="50%" cy="50%" r="50%">
+                            <stop offset="0%"  stopColor={c} stopOpacity="0.35"/>
+                            <stop offset="100%" stopColor={c} stopOpacity="0"/>
+                          </radialGradient>
+                          <radialGradient id={`orb-rim-${phase}`} cx="72%" cy="68%" r="45%">
+                            <stop offset="0%"  stopColor={phase==='morning'?'#FF6B00':phase==='afternoon'?'#0033AA':phase==='evening'?'#CC3300':'#6600CC'} stopOpacity="0.55"/>
+                            <stop offset="100%" stopColor="transparent"/>
+                          </radialGradient>
+                          <filter id={`blur-glow-${phase}`} x="-60%" y="-60%" width="220%" height="220%">
+                            <feGaussianBlur stdDeviation="14"/>
+                          </filter>
+                          <filter id={`blur-sm-${phase}`} x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3"/>
+                          </filter>
+                          <filter id={`blur-xs-${phase}`} x="-10%" y="-10%" width="120%" height="120%">
+                            <feGaussianBlur stdDeviation="1.5"/>
+                          </filter>
+                        </defs>
+
+                        {/* ─── MORNING: golden dawn ─── */}
+                        {phase === 'morning' && (<g>
+                          {/* Deep amber background atmosphere */}
+                          <ellipse cx="185" cy="118" rx="130" ry="105" fill={`rgba(${cr},0.07)`}/>
+                          {/* Soft outer halo */}
+                          <circle cx="185" cy="112" r="105" fill={`url(#orb-glow-${phase})`} filter={`url(#blur-glow-${phase})`}/>
+
+                          {/* Sun rays — 12 tapering golden beams */}
+                          {Array.from({length:18},(_,i)=>{
+                            const ang=(i*20)*Math.PI/180;
+                            const len=52+( i%3===0?20:i%3===1?10:0);
+                            const w=i%3===0?2.8:i%3===1?1.8:1.2;
+                            return <line key={i}
+                              x1={185+Math.cos(ang)*79} y1={112+Math.sin(ang)*79}
+                              x2={185+Math.cos(ang)*(79+len)} y2={112+Math.sin(ang)*(79+len)}
+                              stroke={c} strokeWidth={w} strokeLinecap="round" opacity={i%3===0?0.55:0.30}
+                              style={rm?{}:{animation:`pulse ${2.2+(i%4)*0.4}s ease-in-out infinite ${i*0.08}s`}}/>;
+                          })}
+
+                          {/* Orbit ring 1 — tilted ellipse */}
+                          <ellipse cx="185" cy="112" rx="95" ry="34" stroke={`rgba(${cr},0.05)`} strokeWidth="1"
+                            strokeDasharray="8 6" transform="rotate(-28,185,112)"
+                            style={rm?{}:{animation:'orbRotate1 12s linear infinite'}}/>
+                          {/* Orbit ring 2 */}
+                          <ellipse cx="185" cy="112" rx="88" ry="28" stroke={`rgba(${cr},0.04)`} strokeWidth="0.8"
+                            strokeDasharray="5 8" transform="rotate(42,185,112)"
+                            style={rm?{}:{animation:'orbRotate2 18s linear infinite'}}/>
+
+                          {/* Travelling dot on orbit 1 */}
+                          {!rm && <circle r="4.5" fill={c} opacity="0.80" filter={`url(#blur-xs-${phase})`}>
+                            <animateMotion dur="12s" repeatCount="indefinite">
+                              <mpath href="#orb-path-m"/>
+                            </animateMotion>
+                          </circle>}
+                          <path id="orb-path-m" d="M280,112 A95,34 0 1,1 279.99,112" transform="rotate(-28,185,112)" fill="none"/>
+
+                          {/* Main orb — 3D shaded sphere */}
+                          <circle cx="185" cy="112" r="76" fill={`url(#orb-rim-${phase})`}/>
+                          <circle cx="185" cy="112" r="76" fill={`url(#orb-core-${phase})`}/>
+                          {/* Specular highlight */}
+                          <ellipse cx="162" cy="89" rx="22" ry="16" fill="white" opacity="0.28"/>
+                          <ellipse cx="158" cy="85" rx="10" ry="7" fill="white" opacity="0.22"/>
+                          {/* Secondary rim glow */}
+
+                          {/* Inner symbol: medical cross + circle */}
+                          <circle cx="185" cy="112" r="28" stroke="rgba(255,255,255,0.18)" strokeWidth="1.2"/>
+                          <rect x="181" y="96" width="8" height="32" rx="4" fill="rgba(255,255,255,0.28)"/>
+                          <rect x="169" y="108" width="32" height="8" rx="4" fill="rgba(255,255,255,0.28)"/>
+                          {/* Pulse ring inside */}
+                          {!rm && <circle cx="185" cy="112" r="20" stroke="rgba(255,255,255,0.30)" strokeWidth="1.5" fill="none">
+                            <animate attributeName="r" values="20;32;20" dur="2.4s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.30;0;0.30" dur="2.4s" repeatCount="indefinite"/>
+                          </circle>}
+
+                          {/* Floating pill badges */}
+                          <g style={rm?{}:{animation:'heroFloat 3.5s ease-in-out infinite 0.3s'}}>
+                            <rect x="36" y="70" width="94" height="22" rx="11" fill="rgba(255,255,255,0.82)" stroke={`rgba(${cr},0.25)`} strokeWidth="1"/>
+                            <circle cx="50" cy="81" r="6" fill={c} opacity="0.80"/>
+                            <text x="62" y="85" fontSize="10" fontWeight="700" fill="#1D1D1F">Dawn Focus</text>
+                          </g>
+                          <g style={rm?{}:{animation:'heroFloat 4s ease-in-out infinite 1.2s'}}>
+                            <rect x="24" y="130" width="102" height="22" rx="11" fill="rgba(255,255,255,0.78)" stroke={`rgba(${cr},0.22)`} strokeWidth="1"/>
+                            <text x="32" y="145" fontSize="10" fontWeight="600" fill={c}>Peak Alertness</text>
+                          </g>
+                          <g style={rm?{}:{animation:'heroFloat 3.8s ease-in-out infinite 2s'}}>
+                            <rect x="40" y="168" width="72" height="20" rx="10" fill="rgba(255,255,255,0.75)" stroke={`rgba(${cr},0.20)`} strokeWidth="1"/>
+                            <text x="50" y="182" fontSize="10" fontWeight="600" fill="#3A3A3C">05:00–12:00</text>
+                          </g>
+
+                          {/* Particle sparks */}
+                          {[[100,52],[250,82],[68,155],[262,158],[130,200],[228,196]].map(([px,py],i)=>(
+                            <circle key={i} cx={px} cy={py} r={i%2===0?3:2} fill={c} opacity={0.50-i*0.05}
+                              style={rm?{}:{animation:`pulse ${1.8+i*0.4}s ease-in-out infinite ${i*0.3}s`}}/>
+                          ))}
+
+                          {/* ECG strip at base */}
+                          <path d="M14 226 L48 226 L56 212 L64 238 L72 196 L82 226 L100 226 L108 218 L113 231 L119 226 L275 226"
+                            stroke={`rgba(${cr},0.42)`} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+                            style={rm?{}:{strokeDasharray:460,strokeDashoffset:460,animation:'ecgDraw 2.2s ease-out 0.5s forwards'}}/>
+                          {!rm && <circle cx="82" cy="226" r="3" fill={c}><animate attributeName="opacity" values="1;0.2;1" dur="1.4s" repeatCount="indefinite"/><animate attributeName="r" values="3;5;3" dur="1.4s" repeatCount="indefinite"/></circle>}
+                        </g>)}
+
+                        {/* ─── AFTERNOON: electric blue peak-focus sphere ─── */}
+                        {phase === 'afternoon' && (<g>
+                          {/* Electric field atmosphere */}
+                          <ellipse cx="185" cy="118" rx="130" ry="105" fill={`rgba(${cr},0.06)`}/>
+                          <circle cx="185" cy="112" r="112" fill={`url(#orb-glow-${phase})`} filter={`url(#blur-glow-${phase})`}/>
+
+                          {/* Grid lines — focus / matrix vibe */}
+                          {[75,100,125,150,175,200,225,250,275].map(x=>(
+                            <line key={x} x1={x} y1="12" x2={x} y2="232" stroke={`rgba(${cr},0.06)`} strokeWidth="1"/>
+                          ))}
+                          {[35,65,95,125,155,185,215].map(y=>(
+                            <line key={y} x1="14" y1={y} x2="285" y2={y} stroke={`rgba(${cr},0.06)`} strokeWidth="1"/>
+                          ))}
+
+                          {/* Arc rings — sharp energy rings */}
+                          {[102,88,74].map((r2,i)=>(
+                            <circle key={i} cx="185" cy="112" r={r2} stroke={`rgba(${cr},${0.05-i*0.01})`} strokeWidth={1-i*0.2}
+                              strokeDasharray={i===0?"260 60":i===1?"200 55":"140 50"}
+                              style={rm?{}:{animation:`orbRotate${i%2===0?'1':'2'} ${8+i*4}s linear infinite`}}/>
+                          ))}
+
+                          {/* Travelling energy nodes */}
+                          {!rm && [0,1].map(i=>(
+                            <g key={i}>
+                              <circle r="5" fill={c} filter={`url(#blur-xs-${phase})`}>
+                                <animateMotion dur={`${9+i*5}s`} repeatCount="indefinite" begin={`${i*4}s`}>
+                                  <mpath href={`#af-path-${i}`}/>
+                                </animateMotion>
+                              </circle>
+                              <path id={`af-path-${i}`} d={i===0?"M287,112 A102,102 0 1,1 286.99,112":"M273,112 A88,88 0 1,0 272.99,112"} fill="none"/>
+                            </g>
+                          ))}
+
+                          {/* Orb */}
+                          <circle cx="185" cy="112" r="76" fill={`url(#orb-rim-${phase})`}/>
+                          <circle cx="185" cy="112" r="76" fill={`url(#orb-core-${phase})`}/>
+                          <ellipse cx="162" cy="89" rx="22" ry="16" fill="white" opacity="0.24"/>
+                          <ellipse cx="158" cy="84" rx="9" ry="6" fill="white" opacity="0.20"/>
+
+                          {/* Brain silhouette inside orb */}
+                          <g opacity="0.22" transform="translate(165,92) scale(0.82)">
+                            <path d="M25 35 Q10 30 8 18 Q6 5 18 4 Q22 3 26 7 Q30 3 36 5 Q44 3 46 12 Q50 10 52 16 Q56 22 50 28 Q54 34 50 40 Q46 46 40 44 Q36 50 28 48 Q20 50 16 44 Q10 42 10 36 Z" fill="white"/>
+                          </g>
+                          {/* Focus spark lines inside orb */}
+                          {[[185,88],[185,136],[162,112],[208,112]].map(([x,y],i)=>(
+                            <line key={i} x1={185} y1={112} x2={x} y2={y} stroke="rgba(255,255,255,0.22)" strokeWidth="1"
+                              style={rm?{}:{animation:`pulse ${2+i*0.5}s ease-in-out infinite ${i*0.4}s`}}/>
+                          ))}
+                          {!rm && <circle cx="185" cy="112" r="22" stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" fill="none">
+                            <animate attributeName="r" values="22;36;22" dur="2s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.28;0;0.28" dur="2s" repeatCount="indefinite"/>
+                          </circle>}
+
+                          {/* Floating pill badges */}
+                          <g style={rm?{}:{animation:'heroFloat 3.5s ease-in-out infinite'}}>
+                            <rect x="34" y="62" width="100" height="22" rx="11" fill="rgba(255,255,255,0.85)" stroke={`rgba(${cr},0.25)`} strokeWidth="1"/>
+                            <circle cx="48" cy="73" r="6" fill={c} opacity="0.85"/>
+                            <text x="60" y="77" fontSize="10" fontWeight="700" fill="#1D1D1F">Zenith Focus</text>
+                          </g>
+                          <g style={rm?{}:{animation:'heroFloat 4.2s ease-in-out infinite 1.5s'}}>
+                            <rect x="22" y="128" width="100" height="22" rx="11" fill="rgba(255,255,255,0.80)" stroke={`rgba(${cr},0.22)`} strokeWidth="1"/>
+                            <text x="30" y="143" fontSize="10" fontWeight="600" fill={c}>Deep Work Zone</text>
+                          </g>
+                          <g style={rm?{}:{animation:'heroFloat 3.6s ease-in-out infinite 0.8s'}}>
+                            <rect x="38" y="170" width="72" height="20" rx="10" fill="rgba(255,255,255,0.75)" stroke={`rgba(${cr},0.20)`} strokeWidth="1"/>
+                            <text x="46" y="184" fontSize="10" fontWeight="600" fill="#3A3A3C">12:00–17:00</text>
+                          </g>
+
+                          {/* Corner sparks */}
+                          {[[60,40],[280,55],[38,195],[265,205],[155,22]].map(([px,py],i)=>(
+                            <g key={i} style={rm?{}:{animation:`pulse ${1.5+i*0.35}s ease-in-out infinite ${i*0.25}s`}}>
+                              <circle cx={px} cy={py} r={3-i*0.3} fill={c} opacity={0.55-i*0.06}/>
+                              <circle cx={px} cy={py} r={6-i*0.5} fill={c} opacity={0.12} filter={`url(#blur-xs-${phase})`}/>
+                            </g>
+                          ))}
+
+                          {/* ECG */}
+                          <path d="M14 226 L48 226 L56 212 L64 238 L72 196 L82 226 L100 226 L108 218 L113 231 L119 226 L275 226"
+                            stroke={`rgba(${cr},0.42)`} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+                            style={rm?{}:{strokeDasharray:460,strokeDashoffset:460,animation:'ecgDraw 2.2s ease-out 0.5s forwards'}}/>
+                          {!rm && <circle cx="82" cy="226" r="3" fill={c}><animate attributeName="opacity" values="1;0.2;1" dur="1.2s" repeatCount="indefinite"/><animate attributeName="r" values="3;5;3" dur="1.2s" repeatCount="indefinite"/></circle>}
+                        </g>)}
+
+                        {/* ─── EVENING: warm ember glow sphere ─── */}
+                        {phase === 'evening' && (<g>
+                          {/* Warm haze */}
+                          <ellipse cx="185" cy="130" rx="140" ry="100" fill={`rgba(${cr},0.07)`}/>
+                          <circle cx="185" cy="112" r="100" fill={`url(#orb-glow-${phase})`} filter={`url(#blur-glow-${phase})`}/>
+
+                          {/* Concentric fade rings — settling energy */}
+                          {[110,95,80].map((r2,i)=>(
+                            <circle key={i} cx="185" cy="112" r={r2} stroke={`rgba(${cr},${0.18-i*0.04})`} strokeWidth={3-i*0.5} fill="none"
+                              style={rm?{}:{animation:`pulse ${3.5+i*1.2}s ease-in-out infinite ${i*0.6}s`}}/>
+                          ))}
+
+                          {/* Curved sweep arcs — like a setting sun horizon */}
+                          <path d="M80 155 Q185 210 290 155" stroke={`rgba(${cr},0.18)`} strokeWidth="2" fill="none" strokeLinecap="round"/>
+                          <path d="M95 170 Q185 225 275 170" stroke={`rgba(${cr},0.12)`} strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                          <path d="M110 185 Q185 235 260 185" stroke={`rgba(${cr},0.08)`} strokeWidth="1" fill="none" strokeLinecap="round"/>
+
+                          {/* Orbit arc — single gentle sweep */}
+                          <ellipse cx="185" cy="112" rx="96" ry="32" stroke={`rgba(${cr},0.05)`} strokeWidth="0.8"
+                            strokeDasharray="220 100" transform="rotate(15,185,112)"
+                            style={rm?{}:{animation:'orbRotate2 20s linear infinite'}}/>
+
+                          {/* Floating ember particles */}
+                          {[[88,185],[114,198],[155,208],[210,202],[244,190],[268,178]].map(([px,py],i)=>(
+                            <circle key={i} cx={px} cy={py} r={2.5+i*0.3} fill={c} opacity={0.35+i*0.05}
+                              style={rm?{}:{animation:`noteFloat ${3+i*0.6}s ease-in-out infinite ${i*0.4}s`}}/>
+                          ))}
+
+                          {/* Orb */}
+                          <circle cx="185" cy="112" r="76" fill={`url(#orb-rim-${phase})`}/>
+                          <circle cx="185" cy="112" r="76" fill={`url(#orb-core-${phase})`}/>
+                          <ellipse cx="162" cy="89" rx="22" ry="16" fill="white" opacity="0.26"/>
+                          <ellipse cx="158" cy="85" rx="9" ry="6" fill="white" opacity="0.20"/>
+
+                          {/* Open book silhouette inside */}
+                          <g opacity="0.22" transform="translate(160,95) scale(1.0)">
+                            <path d="M25 30 Q27 18 38 18 L54 20 L54 44 L28 44 Z" fill="white"/>
+                            <path d="M54 20 L68 18 Q80 18 82 30 L82 44 L54 44 Z" fill="white" opacity="0.70"/>
+                            <line x1="54" y1="20" x2="54" y2="44" stroke="rgba(0,0,0,0.25)" strokeWidth="1.5"/>
+                          </g>
+                          {!rm && <circle cx="185" cy="112" r="24" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" fill="none">
+                            <animate attributeName="r" values="24;38;24" dur="3s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.25;0;0.25" dur="3s" repeatCount="indefinite"/>
+                          </circle>}
+
+                          {/* Badges */}
+                          <g style={rm?{}:{animation:'heroFloat 4s ease-in-out infinite'}}>
+                            <rect x="34" y="65" width="96" height="22" rx="11" fill="rgba(255,255,255,0.84)" stroke={`rgba(${cr},0.25)`} strokeWidth="1"/>
+                            <circle cx="48" cy="76" r="6" fill={c} opacity="0.80"/>
+                            <text x="60" y="80" fontSize="10" fontWeight="700" fill="#1D1D1F">Dusk Review</text>
+                          </g>
+                          <g style={rm?{}:{animation:'heroFloat 3.8s ease-in-out infinite 1s'}}>
+                            <rect x="22" y="130" width="116" height="22" rx="11" fill="rgba(255,255,255,0.80)" stroke={`rgba(${cr},0.22)`} strokeWidth="1"/>
+                            <text x="30" y="145" fontSize="10" fontWeight="600" fill={c}>Consolidate Today</text>
+                          </g>
+                          <g style={rm?{}:{animation:'heroFloat 3.4s ease-in-out infinite 2s'}}>
+                            <rect x="40" y="170" width="72" height="20" rx="10" fill="rgba(255,255,255,0.75)" stroke={`rgba(${cr},0.20)`} strokeWidth="1"/>
+                            <text x="46" y="184" fontSize="10" fontWeight="600" fill="#3A3A3C">17:00–21:00</text>
+                          </g>
+
+                          {/* ECG */}
+                          <path d="M14 226 L48 226 L56 212 L64 238 L72 196 L82 226 L100 226 L108 218 L113 231 L119 226 L275 226"
+                            stroke={`rgba(${cr},0.42)`} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+                            style={rm?{}:{strokeDasharray:460,strokeDashoffset:460,animation:'ecgDraw 2.4s ease-out 0.5s forwards'}}/>
+                          {!rm && <circle cx="82" cy="226" r="3" fill={c}><animate attributeName="opacity" values="1;0.2;1" dur="1.6s" repeatCount="indefinite"/><animate attributeName="r" values="3;5;3" dur="1.6s" repeatCount="indefinite"/></circle>}
+                        </g>)}
+
+                        {/* ─── NIGHT: deep-space aurora memory sphere ─── */}
+                        {phase === 'night' && (<g>
+                          {/* Space atmosphere */}
+                          <ellipse cx="185" cy="112" rx="145" ry="115" fill={`rgba(${cr},0.06)`}/>
+                          <circle cx="185" cy="112" r="115" fill={`url(#orb-glow-${phase})`} filter={`url(#blur-glow-${phase})`}/>
+
+                          {/* Stars */}
+                          {[[30,22,2.5],[58,15,1.8],[100,10,3],[148,18,2],[195,12,2.8],[240,20,1.6],[272,38,2.2],[285,75,1.8],[275,140,2],[262,175,1.5],[38,155,2.2],[22,100,1.8],[50,68,1.5]].map(([sx,sy,sr],i)=>(
+                            <circle key={i} cx={sx} cy={sy} r={sr} fill={c} opacity={0.65}
+                              style={rm?{}:{animation:`pulse ${1.6+i*0.28}s ease-in-out infinite ${i*0.22}s`}}/>
+                          ))}
+
+                          {/* Aurora bands — flowing curved streaks */}
+                          <path d="M14 82 Q80 55 150 72 Q210 88 280 62" stroke={`rgba(${cr},0.22)`} strokeWidth="3.5" fill="none" strokeLinecap="round"
+                            style={rm?{}:{animation:'aurora1 8s ease-in-out infinite'}}/>
+                          <path d="M14 98 Q90 70 165 88 Q228 104 280 78" stroke={`rgba(${cr},0.14)`} strokeWidth="2.5" fill="none" strokeLinecap="round"
+                            style={rm?{}:{animation:'aurora1 10s ease-in-out infinite 1.5s'}}/>
+                          <path d="M14 68 Q70 48 140 58 Q200 68 280 48" stroke="rgba(200,100,255,0.12)" strokeWidth="2" fill="none" strokeLinecap="round"
+                            style={rm?{}:{animation:'aurora2 12s ease-in-out infinite 3s'}}/>
+
+                          {/* Orbit rings */}
+                          <ellipse cx="185" cy="112" rx="100" ry="36" stroke={`rgba(${cr},0.05)`} strokeWidth="0.8"
+                            strokeDasharray="6 8" transform="rotate(-22,185,112)"
+                            style={rm?{}:{animation:'orbRotate2 24s linear infinite'}}/>
+                          <ellipse cx="185" cy="112" rx="90" ry="28" stroke={`rgba(${cr},0.03)`} strokeWidth="0.6"
+                            strokeDasharray="4 10" transform="rotate(50,185,112)"
+                            style={rm?{}:{animation:'orbRotate1 32s linear infinite'}}/>
+
+                          {/* Slow-traveling moon particle */}
+                          {!rm && <circle r="5.5" fill={c} opacity="0.75" filter={`url(#blur-xs-${phase})`}>
+                            <animateMotion dur="24s" repeatCount="indefinite">
+                              <mpath href="#night-orb-path"/>
+                            </animateMotion>
+                          </circle>}
+                          <path id="night-orb-path" d="M285,112 A100,36 0 1,1 284.99,112" transform="rotate(-22,185,112)" fill="none"/>
+
+                          {/* Orb */}
+                          <circle cx="185" cy="112" r="76" fill={`url(#orb-rim-${phase})`}/>
+                          <circle cx="185" cy="112" r="76" fill={`url(#orb-core-${phase})`}/>
+                          <ellipse cx="162" cy="89" rx="22" ry="16" fill="white" opacity="0.22"/>
+                          <ellipse cx="158" cy="84" rx="9" ry="6" fill="white" opacity="0.18"/>
+
+                          {/* Moon crescent inside orb */}
+                          <circle cx="185" cy="112" r="28" fill={`rgba(${cr},0.22)`}/>
+                          <circle cx="196" cy="107" r="22" fill={`url(#orb-core-${phase})`} opacity="0.85"/>
+                          {/* Small stars inside orb */}
+                          {[[175,100],[196,122],[188,96],[172,118]].map(([sx,sy],i)=>(
+                            <circle key={i} cx={sx} cy={sy} r={i===0?2.5:1.8} fill="white" opacity={0.55+i*0.08}
+                              style={rm?{}:{animation:`pulse ${1.8+i*0.5}s ease-in-out infinite ${i*0.35}s`}}/>
+                          ))}
+                          {!rm && <circle cx="185" cy="112" r="26" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" fill="none">
+                            <animate attributeName="r" values="26;40;26" dur="3.5s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.22;0;0.22" dur="3.5s" repeatCount="indefinite"/>
+                          </circle>}
+
+                          {/* Badges */}
+                          <g style={rm?{}:{animation:'heroFloat 4.5s ease-in-out infinite'}}>
+                            <rect x="34" y="65" width="96" height="22" rx="11" fill="rgba(255,255,255,0.80)" stroke={`rgba(${cr},0.25)`} strokeWidth="1"/>
+                            <circle cx="48" cy="76" r="6" fill={c} opacity="0.80"/>
+                            <text x="60" y="80" fontSize="10" fontWeight="700" fill="#1D1D1F">Deep Study</text>
+                          </g>
+                          <g style={rm?{}:{animation:'heroFloat 5s ease-in-out infinite 1.8s'}}>
+                            <rect x="22" y="130" width="108" height="22" rx="11" fill="rgba(255,255,255,0.76)" stroke={`rgba(${cr},0.22)`} strokeWidth="1"/>
+                            <text x="30" y="145" fontSize="10" fontWeight="600" fill={c}>Memory Encoding</text>
+                          </g>
+                          <g style={rm?{}:{animation:'heroFloat 4.2s ease-in-out infinite 0.6s'}}>
+                            <rect x="40" y="170" width="72" height="20" rx="10" fill="rgba(255,255,255,0.72)" stroke={`rgba(${cr},0.18)`} strokeWidth="1"/>
+                            <text x="46" y="184" fontSize="10" fontWeight="600" fill="#3A3A3C">21:00–05:00</text>
+                          </g>
+
+                          {/* ECG */}
+                          <path d="M14 226 L48 226 L56 212 L64 238 L72 196 L82 226 L100 226 L108 218 L113 231 L119 226 L275 226"
+                            stroke={`rgba(${cr},0.38)`} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+                            style={rm?{}:{strokeDasharray:460,strokeDashoffset:460,animation:'ecgDraw 2.6s ease-out 0.5s forwards'}}/>
+                          {!rm && <circle cx="82" cy="226" r="3" fill={c}><animate attributeName="opacity" values="1;0.15;1" dur="2s" repeatCount="indefinite"/><animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/></circle>}
+                        </g>)}
+
+                      </svg>
+
+                    </motion.div>
+                  </AnimatePresence>
+                );
+              })()}
             </div>
-
-            {/* Mountain Scenery with Birds & Celestial Sun/Moon Atmosphere */}
-            <DoctorMountainArt
-              variant="backdrop"
-              forceTimeOfDay={timeOfDay}
-              className="transition-opacity duration-700 opacity-25 sm:opacity-30 md:opacity-35 dark:opacity-50"
-            />
           </div>
+        </div>
+      </div>
 
-          {/* Top Utility Bar: Greeting Badge + Circadian Focus Dropdown */}
-          <div className={`relative z-40 flex items-center justify-between gap-3 pb-2.5 border-b ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'}`}>
-            <div className="flex items-center gap-2">
-              <div className={`inline-flex items-center gap-1.5 text-xs font-bold ${circadian.isNight ? 'text-teal-200' : 'text-slate-900'}`}>
-                <GreetingIcon className={`h-3.5 w-3.5 stroke-[2.4] ${heroTheme.greetingIconColor}`} />
-                <span>{greeting}</span>
-              </div>
-              <span className={circadian.isNight ? 'text-sky-700' : 'text-stone-400'}>•</span>
-              <span className={`text-[10px] font-mono font-bold tracking-widest uppercase hidden sm:inline ${circadian.isNight ? 'text-cyan-200' : 'text-slate-700'}`}>
-                CLINICAL MASTERY DASHBOARD
-              </span>
-            </div>
-            <CircadianFocusDropdown circadian={circadian} align="right" />
-          </div>
-
-          {/* Main Hero Content Area: Doctor Name & Interactive Creed Badge */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-3 relative z-10">
-            {/* Left side: Doctor Name + Strategic Subtitle */}
-            <div className="space-y-1 sm:space-y-1.5 max-w-xl">
-              <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black tracking-[-0.03em] leading-tight">
-                {userName.startsWith('Dr.') ? (
-                  <>
-                    <span className={circadian.isNight ? 'text-teal-300' : 'text-[#00685F]'}>Dr. </span>
-                    <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>{userName.replace(/^Dr\.\s*/, '')}</span>
-                  </>
-                ) : (
-                  <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>{userName}</span>
-                )}
-              </h1>
-              <p className={`hidden md:block text-xs sm:text-sm leading-relaxed italic font-semibold ${circadian.isNight ? 'text-slate-200' : 'text-slate-700'}`}>
-                &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
-              </p>
-              <div
-                className="md:hidden flex items-center gap-2.5 mt-1.5 cursor-pointer active:scale-98 transition-transform"
-                onClick={shuffleCreed}
-                title="Tap to shuffle motivation"
-              >
-                <div className="h-6 w-9 shrink-0">
-                  <AnimatedMountainInsignia
-                    phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
-                    creedId={doctorCreed.id}
-                    className="w-full h-full"
-                  />
-                </div>
-                <p className={`text-xs leading-relaxed italic font-semibold ${circadian.isNight ? 'text-slate-200' : 'text-slate-700'}`}>
-                  &ldquo;{doctorCreed.quote}&rdquo;
-                </p>
-              </div>
-            </div>
-
-            {/* Right side: Doctor's Mountain Creed Badge */}
+      {/* ── Stat tiles: clean spacing below hero card ── */}
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 mt-3 sm:mt-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
+            {/* Widget 1: Days to FMGE */}
             <motion.div
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 20 }}
-              onClick={shuffleCreed}
-              title="Click to shuffle motivation"
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') shuffleCreed();
-              }}
-              className={`hidden md:flex items-center gap-3.5 rounded-2xl px-4 py-2.5 cursor-pointer select-none transition-all duration-300 group shrink-0 ${
-                circadian.isNight
-                  ? 'bg-sky-950/85 backdrop-blur-xl border border-cyan-500/40 shadow-[0_4px_16px_rgba(0,0,0,0.4)] hover:border-cyan-400'
-                  : 'bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_4px_20px_rgba(0,107,99,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#006B63]/60 hover:shadow-md'
-              }`}
-            >
-              <div className="h-8 w-12 shrink-0 relative flex items-center justify-center">
-                <AnimatedMountainInsignia
-                  phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
-                  creedId={doctorCreed.id}
-                  className="w-full h-full"
-                />
-              </div>
-              <div className="text-right space-y-0.5 min-w-[180px] max-w-[260px]">
-                <p className={`text-xs font-bold italic transition-colors line-clamp-2 ${
-                  circadian.isNight
-                    ? 'text-cyan-100 group-hover:text-cyan-200'
-                    : 'text-slate-900 group-hover:text-[#006B63]'
-                }`}>
-                  &ldquo;{doctorCreed.quote}&rdquo;
-                </p>
-                <div className="flex items-center justify-end gap-1.5">
-                  <span className={`text-[9.5px] font-mono font-bold uppercase tracking-wider ${
-                    circadian.isNight ? 'text-cyan-400' : 'text-[#5B948C]'
-                  }`}>
-                    {doctorCreed.tagline}
-                  </span>
-                  <RotateCcw
-                    className={`h-2.5 w-2.5 opacity-60 group-hover:opacity-100 transition-all duration-500 ${
-                      isCreedShuffling ? 'rotate-180' : 'group-hover:-rotate-90'
-                    } ${
-                      circadian.isNight ? 'text-cyan-300' : 'text-[#5B948C] group-hover:text-[#006B63]'
-                    }`}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* 4 Stat Cards Row with Staggered Motion and Micro-Interactions */}
-          <div className={`grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 pt-2.5 mt-2.5 sm:pt-3 sm:mt-3 border-t relative z-10 ${
-            circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
-          }`}>
-            {/* Card 1: Days remaining — Apple Sunrise / Amber */}
-            <motion.div
-              whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
-              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              whileHover={reducedMotion ? undefined : { y: -5, scale: 1.02 }}
+              whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
               onClick={() => handleSubTabChange('planner')}
-              className={`group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 backdrop-blur-xl transition-all min-w-0 cursor-pointer border ${
-                circadian.isNight
-                  ? 'bg-slate-900/80 border-sky-800/60 hover:border-amber-400/60 shadow-xs'
-                  : 'bg-white/95 border-amber-200/80 hover:border-amber-300 shadow-xs hover:shadow-md'
-              }`}
+              className="group flex flex-col rounded-3xl p-4 sm:p-5 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.14),0_1px_4px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(255,149,0,0.20)] min-h-[120px] sm:min-h-[140px] cursor-pointer transition-all duration-200 relative overflow-hidden"
             >
-              <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-xs shadow-amber-500/25 transition-all group-hover:scale-110 group-hover:rotate-[-4deg]">
-                <Calendar className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
-                <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-                </span>
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className={`text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight shrink-0 ${
-                    circadian.isNight ? 'text-white' : 'text-slate-950'
-                  }`}>
-                    <AnimatedNumber value={daysRemaining} />
-                  </span>
-                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider border shrink-0 ${
-                    circadian.isNight
-                      ? 'bg-amber-400/20 text-amber-300 border-amber-400/50 shadow-[0_0_8px_rgba(251,191,36,0.2)]'
-                      : 'bg-amber-500/15 text-amber-900 border-amber-300/80'
-                  }`}>
-                    Live
-                  </span>
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FFF8EC] via-white to-white pointer-events-none" />
+              <div className="relative flex items-start justify-between">
+                <div className="h-9 w-9 rounded-2xl bg-[#FF9500] text-white flex items-center justify-center shrink-0 group-hover:scale-[1.08] transition-transform duration-200 shadow-[0_2px_10px_rgba(255,149,0,0.40)]">
+                  <Calendar className="h-[18px] w-[18px] stroke-[2]" />
                 </div>
-                <span className={`block text-[10px] sm:text-[11.5px] font-bold leading-tight mt-0.5 ${
-                  circadian.isNight ? 'text-slate-300' : 'text-slate-700'
-                }`}>
-                  days to FMGE
-                </span>
+                <span className="text-[11px] font-semibold text-[#FF9500] bg-[#FF9500]/10 px-2 py-0.5 rounded-full">Live</span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-amber-500 group-hover:text-amber-700 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block stroke-[2.5]" />
+              <div className="relative mt-auto pt-3">
+                <div className="text-[44px] sm:text-[52px] font-black tabular-nums leading-none tracking-[-0.03em] text-[#1D1D1F]">
+                  <AnimatedNumber value={daysRemaining} />
+                </div>
+                <span className="block text-[13px] sm:text-[14px] font-medium text-[#6E6E73] mt-1.5">days to FMGE</span>
+              </div>
             </motion.div>
 
-            {/* Card 2: Target Score — Apple Ultramarine / Sapphire */}
+            {/* Widget 2: Target Score */}
             <motion.div
-              whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
-              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              whileHover={reducedMotion ? undefined : { y: -5, scale: 1.02 }}
+              whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
               onClick={() => setIsPassingGapModalOpen(true)}
-              className={`group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 backdrop-blur-xl transition-all min-w-0 cursor-pointer border ${
-                circadian.isNight
-                  ? 'bg-slate-900/80 border-sky-800/60 hover:border-blue-400/60 shadow-xs'
-                  : 'bg-white/95 border-blue-200/80 hover:border-blue-300 shadow-xs hover:shadow-md'
-              }`}
+              className="group flex flex-col rounded-3xl p-4 sm:p-5 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.14),0_1px_4px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(0,122,255,0.20)] min-h-[120px] sm:min-h-[140px] cursor-pointer transition-all duration-200 relative overflow-hidden"
               title="Click to view 150/300 Passing Score Gap Analysis"
             >
-              <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-blue-500 to-cyan-500 text-white shadow-xs shadow-blue-500/25 transition-all group-hover:scale-110">
-                <Target className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className={`text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight shrink-0 ${
-                    circadian.isNight ? 'text-white' : 'text-slate-950'
-                  }`}>
-                    {savedTargetScore ? `${savedTargetScore}+` : '200+'}
-                  </span>
-                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider border shrink-0 ${
-                    circadian.isNight
-                      ? 'bg-sky-400/20 text-cyan-200 border-cyan-400/50 shadow-[0_0_8px_rgba(56,189,248,0.2)]'
-                      : 'bg-blue-500/15 text-blue-900 border-blue-300/80'
-                  }`}>
-                    150 Pass
-                  </span>
+              <div className="absolute inset-0 bg-gradient-to-br from-[#EBF4FF] via-white to-white pointer-events-none" />
+              <div className="relative flex items-start justify-between">
+                <div className="h-9 w-9 rounded-2xl bg-[#007AFF] text-white flex items-center justify-center shrink-0 group-hover:scale-[1.08] transition-transform duration-200 shadow-[0_2px_10px_rgba(0,122,255,0.40)]">
+                  <Target className="h-[18px] w-[18px] stroke-[2]" />
                 </div>
-                <span className={`block text-[10px] sm:text-[11.5px] font-bold leading-tight mt-0.5 ${
-                  circadian.isNight ? 'text-slate-300' : 'text-slate-700'
-                }`}>
-                  Target Score
-                </span>
+                <span className="text-[11px] font-semibold text-[#007AFF] bg-[#007AFF]/10 px-2 py-0.5 rounded-full">Pass 150</span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-blue-500 group-hover:text-blue-700 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block stroke-[2.5]" />
+              <div className="relative mt-auto pt-3">
+                <div className="text-[44px] sm:text-[52px] font-black tabular-nums leading-none tracking-[-0.03em] text-[#1D1D1F]">
+                  {savedTargetScore ?? 200}+
+                </div>
+                <span className="block text-[13px] sm:text-[14px] font-medium text-[#6E6E73] mt-1.5">Target Score</span>
+              </div>
             </motion.div>
 
-            {/* Card 3: Subjects count — Apple Violet / Iris */}
+            {/* Widget 3: Subjects */}
             <motion.div
-              whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
-              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              whileHover={reducedMotion ? undefined : { y: -5, scale: 1.02 }}
+              whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
               onClick={() => onNavigateTab('syllabus')}
-              className={`group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 backdrop-blur-xl transition-all min-w-0 cursor-pointer border ${
-                circadian.isNight
-                  ? 'bg-slate-900/80 border-sky-800/60 hover:border-violet-400/60 shadow-xs'
-                  : 'bg-white/95 border-violet-200/80 hover:border-violet-300 shadow-xs hover:shadow-md'
-              }`}
+              className="group flex flex-col rounded-3xl p-4 sm:p-5 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.14),0_1px_4px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(175,82,222,0.20)] min-h-[120px] sm:min-h-[140px] cursor-pointer transition-all duration-200 relative overflow-hidden"
             >
-              <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-violet-500 to-purple-600 text-white shadow-xs shadow-violet-500/25 transition-all group-hover:scale-110 group-hover:rotate-[4deg]">
-                <BookOpen className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className={`text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight shrink-0 ${
-                    circadian.isNight ? 'text-white' : 'text-slate-950'
-                  }`}>
-                    19
-                  </span>
-                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider border shrink-0 ${
-                    circadian.isNight
-                      ? 'bg-purple-400/20 text-purple-200 border-purple-400/50 shadow-[0_0_8px_rgba(192,132,252,0.2)]'
-                      : 'bg-violet-500/15 text-violet-900 border-violet-300/80'
-                  }`}>
-                    NBE Core
-                  </span>
+              <div className="absolute inset-0 bg-gradient-to-br from-[#F5EEFF] via-white to-white pointer-events-none" />
+              <div className="relative flex items-start justify-between">
+                <div className="h-9 w-9 rounded-2xl bg-[#AF52DE] text-white flex items-center justify-center shrink-0 group-hover:scale-[1.08] transition-transform duration-200 shadow-[0_2px_10px_rgba(175,82,222,0.40)]">
+                  <BookOpen className="h-[18px] w-[18px] stroke-[2]" />
                 </div>
-                <span className={`block text-[10px] sm:text-[11.5px] font-bold leading-tight mt-0.5 ${
-                  circadian.isNight ? 'text-slate-300' : 'text-slate-700'
-                }`}>
-                  Subjects
-                </span>
+                <span className="text-[11px] font-semibold text-[#AF52DE] bg-[#AF52DE]/10 px-2 py-0.5 rounded-full">NBE Core</span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-violet-500 group-hover:text-violet-700 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block stroke-[2.5]" />
+              <div className="relative mt-auto pt-3">
+                <div className="text-[44px] sm:text-[52px] font-black tabular-nums leading-none tracking-[-0.03em] text-[#1D1D1F]">
+                  19
+                </div>
+                <span className="block text-[13px] sm:text-[14px] font-medium text-[#6E6E73] mt-1.5">Subjects</span>
+              </div>
             </motion.div>
 
-            {/* Card 4: Study Streak — Apple Emerald / Mint */}
+            {/* Widget 4: Study Streak */}
             <motion.div
-              whileHover={reducedMotion ? undefined : { y: -3, scale: 1.02 }}
-              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              whileHover={reducedMotion ? undefined : { y: -5, scale: 1.02 }}
+              whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
               onClick={() => onNavigateTab('progress')}
-              className={`group flex items-center gap-2 sm:gap-3 rounded-2xl p-2 sm:p-3 backdrop-blur-xl transition-all min-w-0 cursor-pointer border ${
-                circadian.isNight
-                  ? 'bg-slate-900/80 border-sky-800/60 hover:border-emerald-400/60 shadow-xs'
-                  : 'bg-white/95 border-emerald-200/80 hover:border-emerald-300 shadow-xs hover:shadow-md'
-              }`}
+              className="group flex flex-col rounded-3xl p-4 sm:p-5 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.14),0_1px_4px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_32px_rgba(48,209,88,0.20)] min-h-[120px] sm:min-h-[140px] cursor-pointer transition-all duration-200 relative overflow-hidden"
             >
-              <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-xs shadow-emerald-500/25 transition-all group-hover:scale-110">
-                <Activity className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5 transition-transform stroke-[2.2]" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                  <span className={`text-sm sm:text-lg font-black font-['Outfit'] tabular-nums leading-tight shrink-0 ${
-                    circadian.isNight ? 'text-white' : 'text-slate-950'
-                  }`}>
-                    {currentStreak || 1}d
-                  </span>
-                  <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider border shrink-0 ${
-                    circadian.isNight
-                      ? 'bg-emerald-400/20 text-emerald-300 border-emerald-400/50 shadow-[0_0_8px_rgba(52,211,153,0.2)]'
-                      : 'bg-emerald-500/15 text-emerald-900 border-emerald-300/80'
-                  }`}>
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Active
-                  </span>
+              <div className="absolute inset-0 bg-gradient-to-br from-[#EDFFF3] via-white to-white pointer-events-none" />
+              <div className="relative flex items-start justify-between">
+                <div className="h-9 w-9 rounded-2xl bg-[#30D158] text-white flex items-center justify-center shrink-0 group-hover:scale-[1.08] transition-transform duration-200 shadow-[0_2px_10px_rgba(48,209,88,0.40)]">
+                  <Activity className="h-[18px] w-[18px] stroke-[2]" />
                 </div>
-                <span className={`block text-[10px] sm:text-[11.5px] font-bold leading-tight mt-0.5 ${
-                  circadian.isNight ? 'text-slate-300' : 'text-slate-700'
-                }`}>
-                  Study Streak
-                </span>
+                <span className="text-[11px] font-semibold text-[#30D158] bg-[#30D158]/10 px-2 py-0.5 rounded-full">Active</span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-emerald-500 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all ml-auto shrink-0 hidden sm:block stroke-[2.5]" />
+              <div className="relative mt-auto pt-3">
+                <div className="text-[44px] sm:text-[52px] font-black tabular-nums leading-none tracking-[-0.03em] text-[#1D1D1F]">
+                  {currentStreak || 1}<span className="text-[26px] sm:text-[30px] font-bold text-[#6E6E73]">d</span>
+                </div>
+                <span className="block text-[13px] sm:text-[14px] font-medium text-[#6E6E73] mt-1.5">Study Streak</span>
+              </div>
             </motion.div>
-          </div>
-        </motion.div>
+      </div>
+      </div>
 
+      {/* ── Rest of dashboard sections ── */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6 mt-4 sm:mt-6">
 
         {/* ═══ 2. SUBJECT FILTER PILLS BAR with Dynamic Auto-Hide ═══ */}
         <motion.div
@@ -1840,16 +2518,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             opacity: isHeaderVisible || isAtTop || scrollY <= 260 ? 1 : 0,
           }}
           transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-          className={`sticky top-[56px] sm:top-[64px] z-20 py-2 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
+          className={`sticky ${isGuest ? 'top-[102px] sm:top-[114px]' : 'top-[60px] sm:top-[68px]'} z-20 py-2 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 transition-colors duration-200 ${
             scrollY > 260
-              ? 'bg-white/95 backdrop-blur-2xl border-b border-slate-200/80 shadow-sm'
+              ? 'bg-[#F2F2F7]/80 backdrop-blur-3xl border-b border-[rgba(60,60,67,0.10)]'
               : 'bg-transparent'
           } ${isHeaderVisible || isAtTop || scrollY <= 260 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           <div className="relative flex items-center max-w-7xl mx-auto">
             <div
               ref={filterScrollRef}
-              className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none select-none snap-x w-full pr-2 sm:pr-10 [mask-image:linear-gradient(to_right,black_92%,transparent_100%)]"
+              className="flex items-center gap-0.5 overflow-x-auto pb-1 scrollbar-none select-none snap-x w-full pr-2 sm:pr-10 [mask-image:linear-gradient(to_right,black_92%,transparent_100%)] bg-[#E5E5EA] rounded-full p-0.5"
             >
               {[{ id: 'all', name: 'All Subjects (19)' }, ...FMGE_SUBJECTS.map((s) => ({ id: s.id, name: s.name }))].map((f) => {
                 const active = selectedFilterSubjectId === f.id;
@@ -1861,17 +2539,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     whileHover={reducedMotion ? undefined : { scale: 1.04 }}
                     whileTap={reducedMotion ? undefined : { scale: 0.96 }}
                     aria-pressed={active}
-                    className={`relative snap-start inline-flex items-center px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[34px] ${
+                    className={`relative snap-start inline-flex items-center px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] font-medium whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[36px] ${
                       active
-                        ? 'text-white'
-                        : 'text-slate-800 dark:text-slate-200 hover:text-[#006B63] bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300/90 dark:border-slate-700 hover:border-teal-400 hover:bg-white shadow-2xs'
+                        ? 'text-[#1D1D1F] font-semibold'
+                        : 'text-[#6E6E73] hover:text-[#1D1D1F]'
                     }`}
                   >
                     {active && (
                       <motion.span
                         layoutId="dashboard-subject-filter-pill"
                         transition={SPRING(reducedMotion)}
-                        className="absolute inset-0 rounded-full bg-[#006B63] shadow-xs"
+                        className="absolute inset-0 rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.10)] border border-[rgba(0,0,0,0.06)]"
                       />
                     )}
                     <span className="relative z-10">{f.name}</span>
@@ -1883,7 +2561,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               type="button"
               onClick={scrollPillsRight}
-              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xs text-slate-500 hover:text-[#006B63] hover:border-teal-300 items-center justify-center cursor-pointer transition-colors"
+              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white border border-[rgba(0,0,0,0.08)] shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-[#6E6E73] hover:text-[#007AFF] items-center justify-center cursor-pointer transition-colors"
               title="Scroll subjects right"
             >
               <ChevronRight className="h-4 w-4" />
@@ -1896,149 +2574,101 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0.09, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion)}
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3"
+          className="grid grid-cols-5 gap-1.5 sm:gap-3 lg:gap-4"
         >
-          {/* Action 1: IBQ Visual Sprint — Apple Electric Cyan */}
+          {/* App 1: IBQ Visual Sprint */}
           <motion.div
-            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            whileHover={reducedMotion ? undefined : { y: -6, scale: 1.04 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             onClick={() => setIsIbqModalOpen(true)}
-            className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-cyan-500/[0.08] via-white to-sky-500/[0.03] hover:from-cyan-500/[0.12] hover:via-white hover:to-sky-500/[0.06] backdrop-blur-2xl border border-cyan-200/80 hover:border-cyan-400 shadow-[0_4px_20px_rgba(6,182,212,0.06)] hover:shadow-[0_8px_25px_rgba(6,182,212,0.18)] transition-all cursor-pointer group relative overflow-hidden"
+            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-[#EBF9FF] via-white to-white shadow-[0_2px_8px_rgba(50,173,230,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(50,173,230,0.22)] cursor-pointer group transition-all duration-200"
           >
-            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-cyan-500/25 group-hover:scale-110 group-hover:rotate-[-3deg] transition-all">
-              <Stethoscope className="h-4 w-4 stroke-[2.3]" />
+            <div className="h-10 w-10 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-[16px] sm:rounded-[22px] lg:rounded-[26px] bg-[#32ADE6] text-white flex items-center justify-center group-hover:scale-[1.06] transition-transform duration-200 shadow-[0_4px_14px_rgba(50,173,230,0.35)]">
+              <Stethoscope className="h-5 w-5 sm:h-7 sm:w-7 lg:h-8 lg:w-8 stroke-[1.8]" />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1">
-                <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-cyan-700 transition-colors leading-tight">
-                  IBQ Sprint
-                </h4>
-                <span className="hidden xs:inline-flex px-1.5 py-0.2 rounded-full bg-cyan-500/10 text-[8px] font-mono font-bold text-cyan-800 border border-cyan-300/40 shrink-0">
-                  VISUAL
-                </span>
-              </div>
-              <p className="text-[10px] sm:text-[11px] text-cyan-900/70 font-medium leading-tight mt-0.5">
-                ECG &amp; Radiology
-              </p>
+            <div className="text-center space-y-0.5 w-full hidden sm:block">
+              <span className="block text-[12px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate">IBQ Sprint</span>
+              <span className="block text-[10px] sm:text-[11px] text-[#6E6E73] font-medium truncate">ECG &amp; X-Ray</span>
             </div>
-            <ChevronRight className="h-3.5 w-3.5 text-cyan-400 group-hover:text-cyan-600 group-hover:translate-x-0.5 transition-all shrink-0" />
           </motion.div>
 
-          {/* Action 2: Repeat Vault (PYTs) — Apple Radiant Amber */}
+          {/* App 2: Repeat Vault */}
           <motion.div
-            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            whileHover={reducedMotion ? undefined : { y: -6, scale: 1.04 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             onClick={() => setIsExamEveCheatSheetOpen(true)}
-            className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.03] hover:from-amber-500/[0.12] hover:via-white hover:to-orange-500/[0.06] backdrop-blur-2xl border border-amber-200/80 hover:border-amber-400 shadow-[0_4px_20px_rgba(245,158,11,0.06)] hover:shadow-[0_8px_25px_rgba(245,158,11,0.18)] transition-all cursor-pointer group relative overflow-hidden"
+            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-[#FFF8EC] via-white to-white shadow-[0_2px_8px_rgba(255,149,0,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(255,149,0,0.22)] cursor-pointer group transition-all duration-200"
           >
-            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-amber-500/25 group-hover:scale-110 group-hover:rotate-[-3deg] transition-all">
-              <Pill className="h-4 w-4 stroke-[2.3]" />
+            <div className="h-10 w-10 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-[16px] sm:rounded-[22px] lg:rounded-[26px] bg-[#FF9500] text-white flex items-center justify-center group-hover:scale-[1.06] transition-transform duration-200 shadow-[0_4px_14px_rgba(255,149,0,0.35)]">
+              <Pill className="h-5 w-5 sm:h-7 sm:w-7 lg:h-8 lg:w-8 stroke-[1.8]" />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1">
-                <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors leading-tight">
-                  Repeat Vault
-                </h4>
-                <span className="hidden xs:inline-flex px-1.5 py-0.2 rounded-full bg-amber-500/10 text-[8px] font-mono font-bold text-amber-800 border border-amber-300/40 shrink-0">
-                  PYQs
-                </span>
-              </div>
-              <p className="text-[10px] sm:text-[11px] text-amber-900/70 font-medium leading-tight mt-0.5">
-                DOCs &amp; Triads
-              </p>
+            <div className="text-center space-y-0.5 w-full hidden sm:block">
+              <span className="block text-[12px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate">Repeat Vault</span>
+              <span className="block text-[10px] sm:text-[11px] text-[#6E6E73] font-medium truncate">PYQs &amp; Triads</span>
             </div>
-            <ChevronRight className="h-3.5 w-3.5 text-amber-400 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all shrink-0" />
           </motion.div>
 
-          {/* Action 3: Hands-Free Audio Recall — Apple Podcasts / Luminous Violet */}
+          {/* App 3: Audio Recall */}
           <motion.div
-            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            whileHover={reducedMotion ? undefined : { y: -6, scale: 1.04 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             onClick={() => onOpenAudioRecall?.()}
-            className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/[0.08] via-white to-pink-500/[0.03] hover:from-purple-500/[0.12] hover:via-white hover:to-pink-500/[0.06] backdrop-blur-2xl border border-purple-200/80 hover:border-purple-400 shadow-[0_4px_20px_rgba(168,85,247,0.06)] hover:shadow-[0_8px_25px_rgba(168,85,247,0.18)] transition-all cursor-pointer group relative overflow-hidden"
+            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-[#F9EEFF] via-white to-white shadow-[0_2px_8px_rgba(191,90,242,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(191,90,242,0.22)] cursor-pointer group transition-all duration-200"
           >
-            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-purple-500/25 group-hover:scale-110 group-hover:rotate-[-3deg] transition-all">
-              <Headphones className="h-4 w-4 stroke-[2.3]" />
+            <div className="h-10 w-10 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-[16px] sm:rounded-[22px] lg:rounded-[26px] bg-[#BF5AF2] text-white flex items-center justify-center group-hover:scale-[1.06] transition-transform duration-200 shadow-[0_4px_14px_rgba(191,90,242,0.35)]">
+              <Headphones className="h-5 w-5 sm:h-7 sm:w-7 lg:h-8 lg:w-8 stroke-[1.8]" />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-purple-700 transition-colors leading-tight">
-                  Audio Recall
-                </h4>
-                <span className="px-1.5 py-0.2 rounded-full bg-purple-500/15 text-[8.5px] font-mono font-bold text-purple-800 border border-purple-300/40 shrink-0">
-                  PRO
-                </span>
-              </div>
-              <p className="text-[10px] sm:text-[11px] text-purple-900/70 font-medium leading-tight mt-0.5">
-                Hospital Commute
-              </p>
+            <div className="text-center space-y-0.5 w-full hidden sm:block">
+              <span className="block text-[12px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate">Audio Recall</span>
+              <span className="block text-[10px] sm:text-[11px] text-[#6E6E73] font-medium truncate">Commute Mode</span>
             </div>
-            <ChevronRight className="h-3.5 w-3.5 text-purple-400 group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all shrink-0" />
           </motion.div>
 
-          {/* Action 4: Retest Mistakes — Apple Health / Vivid Coral */}
+          {/* App 4: Retest Errors */}
           <motion.div
-            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            whileHover={reducedMotion ? undefined : { y: -6, scale: 1.04 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             onClick={handleLaunchErrorDrill}
-            className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-rose-500/[0.08] via-white to-red-500/[0.03] hover:from-rose-500/[0.12] hover:via-white hover:to-red-500/[0.06] backdrop-blur-2xl border border-rose-200/80 hover:border-rose-400 shadow-[0_4px_20px_rgba(244,63,94,0.06)] hover:shadow-[0_8px_25px_rgba(244,63,94,0.18)] transition-all cursor-pointer group relative overflow-hidden"
+            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-[#FFF0EF] via-white to-white shadow-[0_2px_8px_rgba(255,59,48,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(255,59,48,0.22)] cursor-pointer group transition-all duration-200"
           >
-            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-tr from-rose-500 to-red-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-rose-500/25 group-hover:scale-110 group-hover:rotate-[-3deg] transition-all">
-              <RotateCcw className="h-4 w-4 stroke-[2.3]" />
+            <div className="h-10 w-10 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-[16px] sm:rounded-[22px] lg:rounded-[26px] bg-[#FF3B30] text-white flex items-center justify-center group-hover:scale-[1.06] transition-transform duration-200 shadow-[0_4px_14px_rgba(255,59,48,0.35)]">
+              <RotateCcw className="h-5 w-5 sm:h-7 sm:w-7 lg:h-8 lg:w-8 stroke-[1.8]" />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1">
-                <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-rose-700 transition-colors leading-tight">
-                  Retest Errors
-                </h4>
-                <span className="hidden xs:inline-flex px-1.5 py-0.2 rounded-full bg-rose-500/10 text-[8px] font-mono font-bold text-rose-800 border border-rose-300/40 shrink-0">
-                  TRAPS
-                </span>
-              </div>
-              <p className="text-[10px] sm:text-[11px] text-rose-900/70 font-medium leading-tight mt-0.5">
-                {unreviewedErrorsCount > 0 ? `${unreviewedErrorsCount} due mistakes` : 'Vault mastered'}
-              </p>
+            <div className="text-center space-y-0.5 w-full hidden sm:block">
+              <span className="block text-[12px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate">Retest Errors</span>
+              <span className="block text-[10px] sm:text-[11px] text-[#6E6E73] font-medium truncate">
+                {unreviewedErrorsCount > 0 ? `${unreviewedErrorsCount} pending` : 'Vault clear'}
+              </span>
             </div>
-            <ChevronRight className="h-3.5 w-3.5 text-rose-400 group-hover:text-rose-600 group-hover:translate-x-0.5 transition-all shrink-0" />
           </motion.div>
 
-          {/* Action 5: NBE Simulator — Apple Mint / Emerald */}
+          {/* App 5: NBE Simulator */}
           <motion.div
-            whileHover={reducedMotion ? undefined : { y: -2, scale: 1.015 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            whileHover={reducedMotion ? undefined : { y: -6, scale: 1.04 }}
+            whileTap={reducedMotion ? undefined : { scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             onClick={() => setIsNbeMockOpen(true)}
-            className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.03] hover:from-emerald-500/[0.12] hover:via-white hover:to-teal-500/[0.06] backdrop-blur-2xl border border-emerald-200/80 hover:border-emerald-400 shadow-[0_4px_20px_rgba(16,185,129,0.06)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.18)] transition-all cursor-pointer group relative overflow-hidden"
+            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-[#EDFFF3] via-white to-white shadow-[0_2px_8px_rgba(48,209,88,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(48,209,88,0.22)] cursor-pointer group transition-all duration-200"
           >
-            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-tr from-[#006B63] to-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-teal-500/25 group-hover:scale-110 group-hover:rotate-[-3deg] transition-all">
-              <Award className="h-4 w-4 stroke-[2.3]" />
+            <div className="h-10 w-10 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-[16px] sm:rounded-[22px] lg:rounded-[26px] bg-[#30D158] text-white flex items-center justify-center group-hover:scale-[1.06] transition-transform duration-200 shadow-[0_4px_14px_rgba(48,209,88,0.35)]">
+              <Award className="h-5 w-5 sm:h-7 sm:w-7 lg:h-8 lg:w-8 stroke-[1.8]" />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1">
-                <h4 className="text-xs sm:text-[13px] font-bold font-['Outfit'] text-slate-900 group-hover:text-emerald-700 transition-colors leading-tight">
-                  NBE Simulator
-                </h4>
-                <span className="hidden xs:inline-flex px-1.5 py-0.2 rounded-full bg-emerald-500/10 text-[8px] font-mono font-bold text-emerald-800 border border-emerald-300/40 shrink-0">
-                  300Q
-                </span>
-              </div>
-              <p className="text-[10px] sm:text-[11px] text-emerald-900/70 font-medium leading-tight mt-0.5">
-                Official TCS iON Mock
-              </p>
+            <div className="text-center space-y-0.5 w-full hidden sm:block">
+              <span className="block text-[12px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate">NBE Simulator</span>
+              <span className="block text-[10px] sm:text-[11px] text-[#6E6E73] font-medium truncate">300 Questions</span>
             </div>
-            <ChevronRight className="h-3.5 w-3.5 text-emerald-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all shrink-0" />
           </motion.div>
         </motion.div>
 
         {/* ═══ 4. TWO-COLUMN DESKTOP LAYOUT (LEFT & RIGHT) ═══ */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-6 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-7 items-start">
 
           {/* ══════════════ LEFT COLUMN (xl:col-span-7) ══════════════ */}
-          <div className="xl:col-span-7 space-y-5">
+          <div className="xl:col-span-7 space-y-4">
 
             {/* ── TODAY'S FOCUS HERO CARD (MATCHING REFERENCE DESIGN - SIDE COLUMN) ── */}
             <motion.section
@@ -2046,52 +2676,43 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.08, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              style={cardGradientStyle}
-              className={`rounded-3xl border border-teal-200/80 bg-gradient-to-br ${focusTheme.cardGradient || 'from-[#F4FAF8] via-[#FBFCFC] to-[#EFF8F5]'} shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_10px_36px_rgba(0,107,99,0.06)] backdrop-blur-xl overflow-hidden transition-all duration-500 relative`}
+              className="rounded-3xl bg-white shadow-[0_4px_28px_rgba(0,0,0,0.09),0_1px_4px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-300 relative"
+            style={{ background: `linear-gradient(145deg, color-mix(in srgb, ${focusTheme.ecgStrokeStart} 5%, white) 0%, white 55%)` }}
             >
               {/* ══ TOP COMPARTMENT ══ */}
               <div className="p-4 sm:p-5 lg:p-6 relative z-10">
-                {/* Top Right Motivational Quote: Master concepts. Score higher. */}
-                <div className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 text-right select-none pointer-events-none z-20 hidden sm:block">
-                  <p className="text-[11px] font-medium text-slate-500 leading-snug">
-                    Master<br />
-                    concepts.<br />
-                    <span className="text-slate-800 font-bold">Score higher.</span>
-                  </p>
-                  <div className="w-5 h-0.5 bg-slate-300 ml-auto mt-1 rounded-full" />
-                </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 lg:gap-5">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-5">
                   
                   {/* Left Column: Eyebrow pills, two-tone title, subtopics, meta chips, and CTA buttons */}
                   <div className="flex-1 space-y-2.5 sm:space-y-3 min-w-0">
                     
                     {/* Eyebrow Pills: [TODAY'S FOCUS] and Dynamic Subject Pill */}
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-wider bg-white/95 backdrop-blur-md text-slate-700 border border-slate-200/90 shadow-2xs">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#F2F2F7] text-[#1D1D1F] border border-[rgba(60,60,67,0.10)]">
                         <Target className="w-3 h-3" style={{ color: focusTheme.ecgStrokeStart }} />
-                        <span>TODAY&apos;S FOCUS</span>
+                        <span>Today&apos;s Focus</span>
                       </span>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs backdrop-blur-md ${focusTheme.badge}`}>
-                        {activeFocusSubject.name.toUpperCase()}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold border shadow-2xs backdrop-blur-md ${focusTheme.badge}`}>
+                        {activeFocusSubject.name}
                       </span>
                     </div>
 
                     {/* Topic Title with Two-Tone Bold Hierarchy & Subtopics */}
                     <div>
-                      <h2 className="font-['Outfit'] text-xl sm:text-2xl lg:text-[25px] font-extrabold tracking-tight leading-[1.15] text-slate-900 break-normal flex flex-wrap items-baseline gap-x-1.5">
+                      <h2 className="text-[22px] sm:text-[24px] lg:text-[26px] font-bold tracking-[-0.02em] leading-[1.2] text-[#1D1D1F] break-normal flex flex-wrap items-baseline gap-x-1.5">
                         <span className="whitespace-normal">{topicTitlePrimary}</span>
                         <span className="whitespace-normal" style={{ color: focusTheme.ecgStrokeStart }}>{topicTitleHighlight || activeFocusTopic.name}</span>
                       </h2>
 
                       {/* Sub-bullet highlights: STEMI • Arrhythmias • Heart Blocks • WPW */}
                       {topicSubtitleItems.length > 0 && (
-                        <div className="flex items-center gap-1.5 flex-wrap text-[11px] sm:text-xs font-medium text-slate-500 tracking-wide mt-1">
+                        <div className="flex items-center gap-1.5 flex-wrap text-[11px] sm:text-xs font-medium text-[#6E6E73] tracking-wide mt-1">
                           {topicSubtitleItems.map((item, idx) => (
                             <React.Fragment key={item}>
                               <span>{item}</span>
                               {idx < topicSubtitleItems.length - 1 && (
-                                <span className="text-slate-300 font-bold">•</span>
+                                <span className="text-[#C7C7CC] font-bold">•</span>
                               )}
                             </React.Fragment>
                           ))}
@@ -2101,20 +2722,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     {/* 4 Clean Rounded Meta Badges */}
                     <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
-                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/95 backdrop-blur-md text-slate-700 border border-slate-200/90 shadow-2xs">
-                        <BookOpen className="h-3 w-3 text-slate-500" />
-                        <span className="font-semibold">{focusMarks} marks</span>
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#F2F2F7] text-[#3C3C43] border border-[rgba(60,60,67,0.08)]">
+                        <BookOpen className="h-3 w-3 text-[#8E8E93]" />
+                        <span>{focusMarks} marks</span>
                       </div>
-                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/95 backdrop-blur-md text-slate-700 border border-slate-200/90 shadow-2xs">
-                        <Clock className="h-3 w-3 text-slate-500" />
-                        <span className="font-semibold">{focusMinutes} min</span>
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#F2F2F7] text-[#3C3C43] border border-[rgba(60,60,67,0.08)]">
+                        <Clock className="h-3 w-3 text-[#8E8E93]" />
+                        <span>{focusMinutes} min</span>
                       </div>
-                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/95 backdrop-blur-md text-slate-700 border border-slate-200/90 shadow-2xs">
-                        <Layers className="h-3 w-3 text-slate-500" />
-                        <span className="font-semibold">Clinical MCQ</span>
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#F2F2F7] text-[#3C3C43] border border-[rgba(60,60,67,0.08)]">
+                        <Layers className="h-3 w-3 text-[#8E8E93]" />
+                        <span>Clinical MCQ</span>
                       </div>
-                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#FFF2F2]/90 backdrop-blur-md text-[#E11D48] border border-rose-200/80 shadow-2xs">
-                        <Flame className="h-3 w-3 fill-[#E11D48] text-[#E11D48]" />
+                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#FF3B30]/8 text-[#FF3B30] border border-[#FF3B30]/18 shadow-2xs">
+                        <Flame className="h-3 w-3 fill-[#FF3B30] text-[#FF3B30]" />
                         <span>High-yield</span>
                       </div>
                     </div>
@@ -2126,7 +2747,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         onClick={startFocusSession}
                         whileHover={{ scale: 1.025, y: -1, boxShadow: `0 8px 18px -2px ${focusTheme.glow}` }}
                         whileTap={{ scale: 0.975 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 28 }}
                         className={`inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold text-white transition-all cursor-pointer min-h-[40px] ${focusTheme.primaryBtnBg} ${focusTheme.primaryBtnHover} ${focusTheme.primaryBtnShadow}`}
                       >
                         <Play className="h-3.5 w-3.5 fill-white text-white" />
@@ -2137,17 +2758,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <button
                         type="button"
                         onClick={() => onSelectSubject(activeFocusSubject.id)}
-                        className="group inline-flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                        className="group inline-flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold text-[#6E6E73] hover:text-[#1D1D1F] transition-colors cursor-pointer"
                         title="View full topic breakdown in Syllabus"
                       >
-                        <div className="w-7 h-7 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 flex items-center justify-center text-slate-500 group-hover:border-slate-300 group-hover:text-slate-900 group-hover:bg-white transition-all shadow-2xs">
+                        <div className="w-7 h-7 rounded-full bg-white/95 backdrop-blur-md border border-[rgba(60,60,67,0.10)] flex items-center justify-center text-[#6E6E73] group-hover:border-[rgba(60,60,67,0.20)] group-hover:text-[#1D1D1F] group-hover:bg-white transition-all shadow-2xs">
                           <FileText className="w-3.5 h-3.5" />
                         </div>
                         <div className="text-left leading-tight">
-                          <span className="block text-[11px] font-semibold text-slate-700 group-hover:text-slate-900">
+                          <span className="block text-[11px] font-semibold text-[#1D1D1F] group-hover:text-[#1D1D1F]">
                             View Topic
                           </span>
-                          <span className="block text-[9.5px] text-slate-400">
+                          <span className="block text-[9.5px] text-[#8E8E93]">
                             Overview
                           </span>
                         </div>
@@ -2156,14 +2777,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
 
                     {/* Right Column: 3D Anatomical Organ Stage with Bio-Pulse Coupled ECG & Telemetry */}
-                  <div className="relative w-full sm:w-[280px] md:w-[300px] lg:w-[320px] h-[200px] sm:h-[220px] shrink-0 flex items-center justify-center">
-                    
+                  <div className="relative w-full lg:w-[310px] xl:w-[340px] h-[220px] lg:h-[250px] shrink-0 flex items-center justify-center rounded-2xl overflow-hidden"
+                    style={{
+                      background: `radial-gradient(ellipse at 60% 40%, ${focusTheme.haloStart}22 0%, ${focusTheme.haloMid}10 55%, transparent 80%), #F2F2F7`,
+                    }}
+                  >
                     {/* Integrated Bioluminescent Halo directly wrapping behind the organ */}
                     <div
-                      className="absolute w-[170px] h-[170px] pointer-events-none select-none rounded-full"
+                      className="absolute w-[190px] h-[190px] pointer-events-none select-none rounded-full"
                       style={{
-                        background: `radial-gradient(circle, ${focusTheme.haloStart}44 0%, ${focusTheme.haloMid}22 50%, transparent 72%)`,
-                        filter: 'blur(22px)',
+                        background: `radial-gradient(circle, ${focusTheme.haloStart}55 0%, ${focusTheme.haloMid}28 50%, transparent 75%)`,
+                        filter: 'blur(28px)',
                       }}
                     />
 
@@ -2176,106 +2800,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       }}
                     />
 
-                    {/* Ambient ECG Rhythm Waveform and Telemetry Markers - Ported from High-Quality Sidebar */}
+                    {/* Subject-specific animated background */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                      <svg viewBox="0 0 320 220" className="w-full h-full fill-none overflow-visible" shapeRendering="geometricPrecision">
-                        <defs>
-                          <linearGradient id={`ecgGrad-${activeFocusSubject.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#006B63" stopOpacity="0.25" />
-                            <stop offset="25%" stopColor={focusTheme.ecgStrokeStart || '#006B63'} stopOpacity="0.85" />
-                            <stop offset="50%" stopColor="#F59E0B" stopOpacity="1" />
-                            <stop offset="75%" stopColor={focusTheme.ecgStrokeStart || '#006B63'} stopOpacity="0.85" />
-                            <stop offset="100%" stopColor="#006B63" stopOpacity="0.20" />
-                          </linearGradient>
-                        </defs>
-
-                        {/* RAZOR-SHARP HIGH-DEFINITION FOREGROUND VECTOR STROKE (matching sidebar 2.2px strokeWidth + drop-shadow-xs) */}
-                        {/* Inflow trace entering heart conduction system */}
-                        <path
-                          d="M 0 110 L 32 110 C 36 110, 38 104, 41 104 C 44 104, 46 110, 50 110 L 56 110 L 60 116 L 68 44 L 76 164 L 82 110 C 86 110, 89 101, 93 101 C 97 101, 99 110, 102 110 C 114 110, 120 116, 130 120"
-                          stroke={`url(#ecgGrad-${activeFocusSubject.id})`}
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="drop-shadow-xs"
-                          fill="none"
-                        />
-                        {/* Outflow trace emerging from organ */}
-                        <path
-                          d="M 190 102 C 198 106, 204 110, 214 110 L 218 110 L 222 116 L 230 42 L 238 166 L 244 110 C 248 110, 252 98, 256 98 C 260 98, 262 110, 266 110 L 270 110 L 273 115 L 277 78 L 281 138 L 284 110 L 320 110"
-                          stroke={`url(#ecgGrad-${activeFocusSubject.id})`}
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="drop-shadow-xs"
-                          fill="none"
-                        />
-
-                        {/* Animated Sweeping Pulse Beam over the ECG Path (Sidebar signature feature) */}
-                        {!reducedMotion && (
-                          <>
-                            <motion.path
-                              d="M 0 110 L 32 110 C 36 110, 38 104, 41 104 C 44 104, 46 110, 50 110 L 56 110 L 60 116 L 68 44 L 76 164 L 82 110 C 86 110, 89 101, 93 101 C 97 101, 99 110, 102 110 C 114 110, 120 116, 130 120"
-                              stroke="#FDE68A"
-                              strokeWidth="2.6"
-                              strokeLinecap="round"
-                              fill="none"
-                              strokeDasharray="24 160"
-                              animate={{ strokeDashoffset: [180, -180] }}
-                              transition={{ duration: 2.8, repeat: Infinity, ease: 'linear', repeatDelay: 0.8 }}
-                            />
-                            <motion.path
-                              d="M 190 102 C 198 106, 204 110, 214 110 L 218 110 L 222 116 L 230 42 L 238 166 L 244 110 C 248 110, 252 98, 256 98 C 260 98, 262 110, 266 110 L 270 110 L 273 115 L 277 78 L 281 138 L 284 110 L 320 110"
-                              stroke="#FDE68A"
-                              strokeWidth="2.6"
-                              strokeLinecap="round"
-                              fill="none"
-                              strokeDasharray="24 160"
-                              animate={{ strokeDashoffset: [180, -180] }}
-                              transition={{ duration: 2.8, repeat: Infinity, ease: 'linear', repeatDelay: 0.8, delay: 0.4 }}
-                            />
-                          </>
-                        )}
-
-
-
-                        {/* Luminous Glowing Dot Traveling Continuously from Start to End */}
-                        {!reducedMotion && (
-                          <motion.g
-                            animate={{
-                              x: [0, 32, 41, 50, 56, 60, 68, 76, 82, 93, 102, 130, 190, 214, 218, 222, 230, 238, 244, 256, 266, 270, 273, 277, 281, 284, 320],
-                              y: [110, 110, 104, 110, 110, 116, 44, 164, 110, 101, 110, 120, 102, 110, 110, 116, 42, 166, 110, 98, 110, 110, 115, 78, 138, 110, 110],
-                              opacity: [0, 0.9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.25, 0.25, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-                            }}
-                            transition={{
-                              duration: 3.2,
-                              times: [0, 0.0345, 0.0461, 0.0578, 0.0642, 0.072, 0.15, 0.2795, 0.338, 0.3533, 0.367, 0.399, 0.4665, 0.4937, 0.498, 0.5058, 0.5859, 0.7198, 0.7804, 0.7987, 0.8155, 0.8198, 0.8261, 0.8662, 0.9309, 0.9612, 1],
-                              repeat: Infinity,
-                              ease: 'linear',
-                              repeatDelay: 0.5,
-                            }}
-                          >
-                            {/* Outer ambient glow */}
-                            <circle r="7" fill="#F59E0B" fillOpacity="0.35" />
-                            {/* Inner bright flare */}
-                            <circle r="3.5" fill="#FDE68A" />
-                            {/* Center pure white core */}
-                            <circle r="1.8" fill="#FFFFFF" />
-                          </motion.g>
-                        )}
-                      </svg>
+                      <SubjectFocusAnimation
+                        subjectId={activeFocusSubject.id}
+                        theme={focusTheme}
+                        reducedMotion={reducedMotion ?? false}
+                      />
                     </div>
 
-                    {/* 3D Anatomical Visual Centered Harmoniously on the Exact Origin (160, 110) */}
+                    {/* Medical Subject Visual */}
                     <motion.div
-                      animate={
-                        reducedMotion
-                          ? undefined
-                          : {
-                              scale: [1, 1.025, 0.99, 1.015, 1],
-                            }
-                      }
-                      transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
                       whileHover={reducedMotion ? undefined : { scale: 1.04 }}
                       className="relative w-full h-full flex items-center justify-center z-10 select-none cursor-pointer"
                     >
@@ -2294,25 +2829,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <motion.div
                       key={`telemetry-card-${activeFocusSubject.id}`}
                       initial={{ opacity: 0, y: 6, scale: 0.95 }}
-                      animate={
-                        reducedMotion
-                          ? { opacity: 1, y: 0, scale: 1 }
-                          : { opacity: 1, y: [0, -2, 0], scale: 1 }
-                      }
-                      transition={
-                        reducedMotion
-                          ? { duration: 0.35 }
-                          : { y: { repeat: Infinity, duration: 3.8, ease: 'easeInOut' }, duration: 0.35 }
-                      }
-                      className="absolute -bottom-1 sm:bottom-0 right-1 sm:right-2 z-30 inline-flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xs select-none"
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.35 }}
+                      className="absolute -bottom-1 sm:bottom-0 right-1 sm:right-2 z-30 inline-flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-white border border-[rgba(60,60,67,0.12)] shadow-sm select-none"
                     >
-                      <Heart className="w-4 h-4 shrink-0" style={{ color: focusTheme.ecgStrokeStart, fill: focusTheme.ecgStrokeStart }} />
+                      <div className="w-4 h-4 shrink-0 rounded-full" style={{ backgroundColor: focusTheme.ecgStrokeStart }} />
                       <div className="leading-tight">
-                        <div className="text-xs sm:text-[13px] font-bold text-slate-900 tracking-tight font-['Outfit']">
+                        <div className="text-xs sm:text-[13px] font-bold text-[#1D1D1F] tracking-tight">
                           {currentTelemetry.label.split('·')[0].trim()}
                         </div>
-                        <div className="text-[10px] text-slate-500 font-medium">
-                          {currentTelemetry.label.split('·')[1]?.trim() || 'Sinus Rhythm'}
+                        <div className="text-[10px] text-[#6E6E73] font-medium">
+                          {currentTelemetry.label.includes('·') ? currentTelemetry.label.split('·')[1].trim() : currentTelemetry.status}
                         </div>
                       </div>
                     </motion.div>
@@ -2321,12 +2848,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               {/* ══ BOTTOM COMPARTMENT: STATUS & INTEGRATED 3-STEP SPRINT PROTOCOL ══ */}
-              <div className="border-t border-slate-200/80 bg-white/85 backdrop-blur-xl p-3.5 sm:p-5 space-y-3.5">
+              <div className="border-t border-[rgba(60,60,67,0.08)] bg-[#F2F2F7]/50 p-4 sm:p-5 space-y-3">
                 {/* Status Bar & Quick Actions */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/60">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[rgba(60,60,67,0.08)]">
                   {/* Circular Completion Gauge & Status Description */}
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="relative w-8 h-8 rounded-full border-[2.5px] border-slate-200/90 flex items-center justify-center shrink-0 bg-white/95 backdrop-blur-md shadow-2xs">
+                    <div className="relative w-8 h-8 rounded-full border-[2.5px] border-[rgba(60,60,67,0.10)] flex items-center justify-center shrink-0 bg-white/95 backdrop-blur-md shadow-2xs">
                       {topicProgressPercent > 0 && (
                         <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 48 48">
                           <circle
@@ -2342,21 +2869,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           />
                         </svg>
                       )}
-                      <span className="text-[9.5px] font-bold font-mono text-slate-800">
+                      <span className="text-[9.5px] font-semibold text-[#1D1D1F]">
                         {topicProgressPercent}%
                       </span>
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-slate-900">
+                        <span className="text-xs font-bold text-[#1D1D1F]">
                           {topicStatusLabel}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-medium">•</span>
-                        <span className="text-[10px] text-slate-500 font-mono font-medium">
+                        <span className="text-[10px] text-[#8E8E93] font-medium">•</span>
+                        <span className="text-[10px] text-[#6E6E73] font-medium">
                           NBE Blueprint Core
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-500 truncate max-w-[280px] sm:max-w-md">
+                      <p className="text-[11px] text-[#6E6E73] truncate">
                         {topicSubtext}
                       </p>
                     </div>
@@ -2367,7 +2894,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <button
                       type="button"
                       onClick={() => onNavigateTab('revision')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-white/80 transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-white/80 transition-all cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" style={{ color: focusTheme.ecgStrokeStart }} />
                       <span>Review Deck</span>
@@ -2375,9 +2902,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <button
                       type="button"
                       onClick={() => onNavigateTab('practice')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white/95 backdrop-blur-md text-slate-800 border border-slate-200/90 hover:border-slate-400 shadow-2xs transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#007AFF] text-white hover:bg-[#0056CC] shadow-[0_2px_8px_rgba(0,122,255,0.22)] transition-all cursor-pointer"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#30D158]" />
                       <span>MCQs (25)</span>
                     </button>
                   </div>
@@ -2387,50 +2914,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div>
                   <div className="flex items-center justify-between gap-2 pb-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-['Outfit'] bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 text-slate-800 border border-amber-500/25 shadow-2xs backdrop-blur-xs">
-                        <Flame className="h-3.5 w-3.5 text-amber-500 fill-amber-500 animate-pulse" />
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#F2F2F7] text-[#1D1D1F] border border-[rgba(60,60,67,0.12)] shadow-2xs">
+                        <Flame className="h-3.5 w-3.5 text-[#FF9500] fill-[#FF9500]" />
                         <span>{sprintPhase.headline}</span>
                       </span>
                     </div>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-500 font-semibold">
-                      <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#6E6E73]">
                       <span>3 Daily Actions</span>
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5 lg:gap-3">
                     {/* Target 1: Subject High-Yield Anchor */}
                     <motion.div
                       whileHover={reducedMotion ? undefined : { y: -3, scale: 1.012 }}
                       whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                      className="flex flex-col justify-between p-3.5 rounded-2xl bg-gradient-to-b from-teal-500/[0.08] via-emerald-500/[0.03] to-white/95 backdrop-blur-xl border border-teal-200/70 hover:border-teal-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_4px_16px_rgba(0,107,99,0.04)] hover:shadow-[0_12px_28px_rgba(0,107,99,0.10)] transition-all group relative overflow-hidden"
+                      transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+                      className="flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_0_0_3px_rgba(0,122,255,0.12)] transition-all group relative overflow-hidden"
                     >
-                      {/* Top Specular Hairline */}
-                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none" />
 
                       <div>
                         {/* Header Row: Specialty Insignia & Weightage Pill */}
                         <div className="flex items-center justify-between gap-1.5">
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-teal-500/10 border border-teal-200/60 text-[#006B63] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-[#007AFF] text-white flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-[1.08]">
                               <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
                             </div>
-                            <span className="text-[9.5px] font-bold font-mono tracking-wider text-[#006B63] uppercase whitespace-nowrap shrink-0">
+                            <span className="text-[11px] font-semibold text-[#007AFF] whitespace-nowrap shrink-0">
                               {sprintPhase.anchorLabel}
                             </span>
                           </div>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-teal-500/10 text-[#006B63] border border-teal-200/70 shrink-0 shadow-2xs">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/15 shrink-0">
                             ~{focusMarks}M
                           </span>
                         </div>
 
                         {/* Title & Clinical Subtitle */}
                         <div className="mt-2.5">
-                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-[#006B63] transition-colors leading-snug">
+                          <h4 className="text-[13px] sm:text-[14px] font-bold text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors leading-snug">
                             Study Notes &amp; Patterns
                           </h4>
-                          <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
+                          <p className="text-[11px] text-[#6E6E73] font-medium line-clamp-1 mt-0.5">
                             Signs, criteria &amp; 1st-line drugs
                           </p>
                         </div>
@@ -2446,7 +2970,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             topicName: activeFocusTopic.name,
                           })
                         }
-                        className="mt-3 w-full py-2 px-3 rounded-xl bg-slate-900 text-white hover:bg-[#006B63] text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn relative overflow-hidden"
+                        className="mt-3 w-full py-2 px-3 rounded-xl bg-[#007AFF] text-white hover:bg-[#0056CC] text-xs font-semibold transition-all shadow-[0_2px_8px_rgba(0,122,255,0.25)] cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn relative overflow-hidden"
                       >
                         <span>Study Concepts</span>
                         <ChevronRight className="h-3.5 w-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
@@ -2458,34 +2982,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <motion.div
                       whileHover={reducedMotion ? undefined : { y: -3, scale: 1.012 }}
                       whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                      className="flex flex-col justify-between p-3.5 rounded-2xl bg-gradient-to-b from-amber-500/[0.08] via-orange-500/[0.03] to-white/95 backdrop-blur-xl border border-amber-200/70 hover:border-amber-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_4px_16px_rgba(245,158,11,0.05)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.12)] transition-all group relative overflow-hidden"
+                      transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+                      className="flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)] transition-all group relative overflow-hidden"
                     >
-                      {/* Top Specular Hairline */}
-                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none" />
 
                       <div>
                         {/* Header Row: Specialty Insignia & Speed Tag */}
                         <div className="flex items-center justify-between gap-1.5">
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-500/10 border border-amber-200/60 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-[#FF9500] text-white flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-[1.08]">
                               <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
                             </div>
-                            <span className="text-[9.5px] font-bold font-mono tracking-wider text-amber-800 uppercase whitespace-nowrap shrink-0">
+                            <span className="text-[11px] font-semibold text-[#FF9500] whitespace-nowrap shrink-0">
                               {sprintPhase.drillLabel}
                             </span>
                           </div>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-amber-500/10 text-amber-800 border border-amber-200/70 shrink-0 shadow-2xs">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/15 shrink-0">
                             60s / Q
                           </span>
                         </div>
 
                         {/* Title & Clinical Subtitle */}
                         <div className="mt-2.5">
-                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-700 transition-colors leading-snug">
+                          <h4 className="text-[13px] sm:text-[14px] font-bold text-[#1D1D1F] group-hover:text-[#FF9500] transition-colors leading-snug">
                             10 Timed Vignettes
                           </h4>
-                          <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
+                          <p className="text-[11px] text-[#6E6E73] font-medium line-clamp-1 mt-0.5">
                             Reflex speed &amp; pattern locks
                           </p>
                         </div>
@@ -2501,10 +3023,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             activeFocusTopic.name
                           )
                         }
-                        className="mt-3 w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn relative overflow-hidden"
+                        className="mt-3 w-full py-2 px-3 rounded-xl bg-[#FF9500] hover:bg-[#E68600] text-white text-xs font-semibold transition-all shadow-[0_2px_8px_rgba(255,149,0,0.25)] cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn relative overflow-hidden"
                       >
                         <span>Start 10 MCQs</span>
-                        <Play className="h-3 w-3 fill-slate-950 group-hover/btn:scale-110 transition-transform" />
+                        <Play className="h-3 w-3 fill-white text-white group-hover/btn:scale-110 transition-transform" />
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
                       </button>
                     </motion.div>
@@ -2513,28 +3035,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <motion.div
                       whileHover={reducedMotion ? undefined : { y: -3, scale: 1.012 }}
                       whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                      className="flex flex-col justify-between p-3.5 rounded-2xl bg-gradient-to-b from-rose-500/[0.07] via-red-500/[0.03] to-white/95 backdrop-blur-xl border border-rose-200/70 hover:border-rose-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_4px_16px_rgba(244,63,94,0.04)] hover:shadow-[0_12px_28px_rgba(244,63,94,0.10)] transition-all group relative overflow-hidden"
+                      transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+                      className="flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)] transition-all group relative overflow-hidden"
                     >
-                      {/* Top Specular Hairline */}
-                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none" />
 
                       <div>
                         {/* Header Row: Specialty Insignia & Due Count */}
                         <div className="flex items-center justify-between gap-1.5">
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-rose-500/10 border border-rose-200/60 text-rose-700 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-[#FF3B30] text-white flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-[1.08]">
                               <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
                             </div>
-                            <span className="text-[9.5px] font-bold font-mono tracking-wider text-rose-800 uppercase whitespace-nowrap shrink-0">
+                            <span className="text-[11px] font-semibold text-[#FF3B30] whitespace-nowrap shrink-0">
                               {sprintPhase.shieldLabel}
                             </span>
                           </div>
                           <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold shrink-0 shadow-2xs ${
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${
                               unreviewedErrorsCount > 0
-                                ? 'bg-rose-500/15 text-rose-800 border border-rose-300'
-                                : 'bg-rose-500/10 text-rose-700 border border-rose-200/70'
+                                ? 'bg-[#FF3B30]/12 text-[#FF3B30] border border-[#FF3B30]/20'
+                                : 'bg-[#F2F2F7] text-[#6E6E73] border border-[rgba(60,60,67,0.10)]'
                             }`}
                           >
                             {unreviewedErrorsCount} Due
@@ -2543,10 +3063,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                         {/* Title & Clinical Subtitle */}
                         <div className="mt-2.5">
-                          <h4 className="text-[13px] sm:text-[14px] font-bold font-['Outfit'] text-slate-900 group-hover:text-rose-700 transition-colors leading-snug">
+                          <h4 className="text-[13px] sm:text-[14px] font-bold text-[#1D1D1F] group-hover:text-[#FF3B30] transition-colors leading-snug">
                             {unreviewedErrorsCount > 0 ? `${unreviewedErrorsCount} Blunders Pending` : 'Vault Mastered'}
                           </h4>
-                          <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mt-0.5">
+                          <p className="text-[11px] text-[#6E6E73] font-medium line-clamp-1 mt-0.5">
                             {unreviewedErrorsCount > 0 ? 'Retest to prevent lost marks' : 'Zero unreviewed blunders'}
                           </p>
                         </div>
@@ -2556,7 +3076,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <button
                         type="button"
                         onClick={handleLaunchErrorDrill}
-                        className="mt-3 w-full py-2 px-3 rounded-xl bg-slate-900 text-white hover:bg-rose-600 text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn relative overflow-hidden"
+                        className="mt-3 w-full py-2 px-3 rounded-xl bg-[#FF3B30] text-white hover:bg-[#CC2F26] text-xs font-semibold transition-all shadow-[0_2px_8px_rgba(255,59,48,0.25)] cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn relative overflow-hidden"
                       >
                         <span>{unreviewedErrorsCount > 0 ? 'Retest Mistakes' : 'Inspect Vault'}</span>
                         <RotateCcw className="h-3.5 w-3.5 group-hover/btn:rotate-[-45deg] transition-transform" />
@@ -2572,87 +3092,78 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               initial={SECTION_ENTER(0.12, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="space-y-3"
+              className="rounded-3xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden"
             >
-              <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 sm:gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-lg bg-teal-500/10 flex items-center justify-center text-[#006B63] shrink-0">
-                    <Calendar className="h-4 w-4" />
+              {/* Card header */}
+              <div className="flex items-center justify-between px-5 pt-5 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-2xl bg-[#007AFF] flex items-center justify-center shadow-[0_2px_8px_rgba(0,122,255,0.30)]">
+                    <Calendar className="h-4.5 w-4.5 text-white" style={{ width: 18, height: 18 }} />
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-bold text-slate-900">Today&apos;s Plan</h3>
-                    <p className="text-[11px] text-slate-500 truncate">
-                      {dailyPlan.tasks.length} targeted task{dailyPlan.tasks.length !== 1 ? 's' : ''} based on your study profile
+                  <div>
+                    <h3 className="text-[17px] font-bold text-[#1D1D1F] tracking-tight leading-none">Today&apos;s Plan</h3>
+                    <p className="text-[12px] text-[#8E8E93] font-medium mt-0.5">
+                      {dailyPlan.tasks.length} task{dailyPlan.tasks.length !== 1 ? 's' : ''} · adaptive priority
                     </p>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-1.5 shrink-0 self-start xs:self-auto">
-                  <button
-                    type="button"
-                    onClick={() => handleSubTabChange('planner')}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#006B63] hover:text-[#005750] bg-teal-50/80 hover:bg-teal-100/70 border border-teal-200/60 hover:border-teal-300 transition-colors cursor-pointer min-h-[32px]"
-                  >
-                    <span>Planner</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSubTabChange('planner')}
+                  className="text-[13px] font-semibold text-[#007AFF] hover:text-[#0056CC] transition-colors cursor-pointer"
+                >
+                  Full Plan →
+                </button>
               </div>
 
-              {/* Task Cards List with Inner Motion & Hover Animations */}
-              <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200/90 shadow-[0_8px_30px_rgba(0,107,99,0.04)] divide-y divide-slate-100 overflow-hidden">
-                {(todayPlanTasks.length > 0 ? todayPlanTasks : dailyPlan.tasks.slice(1, 4)).map((task, index) => (
-                  <motion.div
-                    key={task.id}
-                    whileHover={reducedMotion ? undefined : { y: -2, scale: 1.006 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 hover:bg-teal-50/40 transition-colors group cursor-pointer"
-                  >
-                    <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                      {/* Status Check / Play Icon with Micro-Bounce on Hover */}
-                      <div
-                        className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-[-5deg] ${
-                          index === 0
-                            ? 'bg-rose-50/90 border border-rose-100 text-rose-500'
-                            : 'bg-slate-50 border border-slate-100 text-slate-400 group-hover:text-[#006B63] group-hover:bg-teal-50'
-                        }`}
-                      >
-                        <BookOpen className="h-4 w-4" />
+              {/* Separator */}
+              <div className="h-px bg-[rgba(60,60,67,0.08)] mx-5" />
+
+              {/* Task list */}
+              <div className="px-4 py-3 space-y-2">
+                {(todayPlanTasks.length > 0 ? todayPlanTasks : dailyPlan.tasks.slice(1, 4)).map((task, index) => {
+                  const priorityColors = [
+                    { bg: 'bg-[#FF3B30]/10', icon: 'text-[#FF3B30]', bar: 'bg-[#FF3B30]', label: 'text-[#FF3B30]' },
+                    { bg: 'bg-[#FF9500]/10', icon: 'text-[#FF9500]', bar: 'bg-[#FF9500]', label: 'text-[#FF9500]' },
+                    { bg: 'bg-[#007AFF]/10', icon: 'text-[#007AFF]', bar: 'bg-[#007AFF]', label: 'text-[#007AFF]' },
+                  ];
+                  const pc = priorityColors[index] ?? priorityColors[2];
+                  return (
+                    <motion.div
+                      key={task.id}
+                      whileHover={reducedMotion ? undefined : { y: -1, scale: 1.005 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#F2F2F7] hover:bg-[#EAEAF0] transition-colors group cursor-pointer relative overflow-hidden"
+                    >
+                      {/* Priority bar */}
+                      <div className={`absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full ${pc.bar}`} />
+
+                      {/* Icon */}
+                      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ml-1 ${pc.bg}`}>
+                        <BookOpen className={`h-4.5 w-4.5 ${pc.icon}`} style={{ width: 18, height: 18 }} />
                       </div>
 
-                      {/* Task Info with extra mobile breathing room and 2-line wrapping */}
-                      <div className="space-y-0.5 min-w-0 flex-1 pr-1 sm:pr-2">
-                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                          <span
-                            className={`text-[10px] font-bold uppercase tracking-wider font-mono ${
-                              index === 0 ? 'text-rose-600' : 'text-slate-600'
-                            }`}
-                          >
-                            {task.subjectName.toUpperCase()}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`text-[10px] font-black uppercase tracking-wider ${pc.label}`}>
+                            {task.subjectName}
                           </span>
-                          <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-teal-50 text-[#006B63] border border-teal-100 group-hover:border-teal-300 transition-colors">
-                            MCQ drill
+                          <span className="text-[10px] font-semibold text-[#8E8E93] bg-white rounded-md px-1.5 py-0.5">
+                            {task.durationMinutes} min
                           </span>
                         </div>
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#006B63] transition-colors line-clamp-2 leading-snug break-words">
+                        <h4 className="text-[14px] font-bold text-[#1D1D1F] line-clamp-1 leading-snug">
                           {task.topicName}
                         </h4>
-                        <p className="text-[10px] sm:text-[11px] text-slate-500 truncate max-w-md">
-                          {task.reason}
-                        </p>
+                        <p className="text-[11px] text-[#6E6E73] line-clamp-1">{task.reason}</p>
                       </div>
-                    </div>
 
-                    {/* Right side: Duration + Start Button + Menu */}
-                    <div className="flex items-center gap-1 sm:gap-2 shrink-0 self-center sm:self-auto">
-                      <div className="hidden xs:flex items-center gap-1 text-[11px] text-slate-400 font-mono">
-                        <Clock className="h-3 w-3" />
-                        <span>{task.durationMinutes} min</span>
-                      </div>
+                      {/* Start CTA */}
                       <motion.button
                         type="button"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.06 }}
+                        whileTap={{ scale: 0.94 }}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (task.activity === 'learn' || task.activity === 'mcqs') {
@@ -2661,538 +3172,475 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             onNavigateTab(task.activity === 'revision' ? 'revision' : 'practice');
                           }
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#006B63] hover:bg-[#00524B] text-white shadow-2xs transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-full bg-[#007AFF] flex items-center justify-center shadow-[0_2px_8px_rgba(0,122,255,0.28)] shrink-0 cursor-pointer"
                       >
-                        <Play className="h-3 w-3 fill-white" />
-                        <span>Start</span>
+                        <Play className="h-3.5 w-3.5 text-white fill-white ml-0.5" style={{ width: 14, height: 14 }} />
                       </motion.button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onToggleTask?.(task.id);
-                        }}
-                        className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-                        title="Options"
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
 
-              <button
-                type="button"
-                onClick={() => handleSubTabChange('planner')}
-                className="w-full text-center text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline py-1 transition-colors cursor-pointer"
-              >
-                Open full plan →
-              </button>
+              {/* Footer CTA */}
+              <div className="px-4 pb-4">
+                <button
+                  type="button"
+                  onClick={() => handleSubTabChange('planner')}
+                  className="w-full h-11 rounded-2xl bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[13px] font-bold text-[#007AFF] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Calendar className="h-4 w-4" />
+                  Open Daily Planner
+                </button>
+              </div>
             </motion.section>
           </div>
 
           {/* ══════════════ RIGHT COLUMN (xl:col-span-5) ══════════════ */}
           <div className="xl:col-span-5 space-y-4">
 
-            {/* ── YOUR EXAM JOURNEY (Apple Teal/Cyan Identity) ── */}
+            {/* ── YOUR EXAM JOURNEY ── */}
             <motion.section
               initial={SECTION_ENTER(0.1, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-3xl bg-gradient-to-br from-teal-500/[0.06] via-white to-cyan-500/[0.03] backdrop-blur-xl border border-teal-200/80 shadow-[0_8px_30px_rgba(0,107,99,0.06)] p-4 sm:p-5 space-y-3.5 relative overflow-hidden"
+              className="rounded-3xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.04)] relative overflow-hidden"
             >
-              {/* Subtle Target / Radar Watermark Graphic in Background */}
-              <div className="absolute -top-3 right-3 w-36 h-36 pointer-events-none select-none opacity-[0.07] overflow-hidden" aria-hidden="true">
-                <svg viewBox="0 0 140 140" fill="none" className="w-full h-full stroke-[#006B63]">
-                  <circle cx="70" cy="70" r="62" strokeWidth="1" />
-                  <circle cx="70" cy="70" r="45" strokeWidth="1" />
-                  <circle cx="70" cy="70" r="28" strokeWidth="1" />
-                  <circle cx="70" cy="70" r="10" strokeWidth="1" />
-                  <line x1="70" y1="4" x2="70" y2="136" strokeWidth="1" strokeDasharray="3 3" />
-                  <line x1="4" y1="70" x2="136" y2="70" strokeWidth="1" strokeDasharray="3 3" />
-                </svg>
-              </div>
+              {/* Blue top accent stripe */}
+              <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#007AFF] via-[#5AC8FA] to-[#30D158]" />
 
               {/* Card Header */}
-              <div className="flex items-center justify-between relative z-10">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-[#006B63] to-teal-500 text-white flex items-center justify-center shadow-xs shadow-teal-500/20">
-                    <Compass className="h-4.5 w-4.5" />
+              <div className="flex items-center justify-between px-5 pt-5 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#007AFF] to-[#5AC8FA] flex items-center justify-center shadow-[0_2px_8px_rgba(0,122,255,0.30)]">
+                    <Target className="text-white" style={{ width: 18, height: 18 }} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">Your Exam Journey</h3>
-                    <p className="text-[10px] text-teal-800/80 font-medium">Trajectory &amp; Readiness</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setIsPassingGapModalOpen(true)}
-                    className="text-[11px] font-bold text-[#006B63] hover:text-[#005750] bg-teal-500/10 hover:bg-teal-500/15 px-2.5 py-0.5 rounded-full border border-teal-300/40 cursor-pointer flex items-center gap-1 transition-colors"
-                    title="Open 150/300 Passing Score Gap Analyzer"
-                  >
-                    <span>150 Cutoff</span>
-                    <span className="text-[9px]">→</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onNavigateTab('progress')}
-                    className="text-xs font-semibold text-slate-500 hover:text-[#006B63] hover:underline cursor-pointer flex items-center transition-colors"
-                  >
-                    Details →
-                  </button>
-                </div>
-              </div>
-
-              {/* Circular Gauge + Stats Block */}
-              <div className="flex items-center justify-between gap-3 sm:gap-4 pt-1 relative z-10">
-                {/* Circular Gauge */}
-                <CircularCountdown
-                  value={projectedScore}
-                  label="EST. SCORE"
-                  sublabel="150 Pass"
-                  progressRatio={Math.min(1, Math.max(0.2, (projectedScore - 100) / 150))}
-                  reducedMotion={reducedMotion}
-                />
-
-                {/* Right Stat Items */}
-                <div className="space-y-2.5 flex-1 min-w-0">
-                  {/* Target score */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <Target className="h-3.5 w-3.5 text-[#006B63]" />
-                      <span className="text-xs text-slate-500 font-medium">Target Score</span>
-                    </div>
-                    <span className="text-xs font-bold text-slate-900 font-['Outfit']">
-                      {savedTargetScore ? `${savedTargetScore}+` : '200+'}
-                    </span>
-                  </div>
-
-                  {/* Cutoff / Pass mark */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                      <span className="text-xs text-slate-500 font-medium">NBE Pass Cutoff</span>
-                    </div>
-                    <span className="text-xs font-bold text-emerald-700 font-['Outfit']">
-                      150 / 300
-                    </span>
-                  </div>
-
-                  {/* Days remaining */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5 text-teal-600" />
-                      <span className="text-xs text-slate-500 font-medium">Exam Countdown</span>
-                    </div>
-                    <span className="text-xs font-bold text-slate-900 font-['Outfit']">
-                      {daysRemaining} Days Left
-                    </span>
-                  </div>
-
-                  {/* Syllabus Coverage */}
-                  <div className="space-y-1.5 pt-0.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500 font-medium">Syllabus Coverage</span>
-                      <span className="font-bold text-slate-800 tabular-nums">
-                        {stats?.notesPercentage ? `${stats.notesPercentage}%` : '~ 16%'}
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-[#E5F3F0] rounded-full overflow-hidden relative">
-                      <motion.div
-                        className="h-full bg-[#00897B] rounded-full relative overflow-hidden"
-                        initial={reducedMotion ? false : { width: 0 }}
-                        whileInView={{ width: `${Math.max(stats?.notesPercentage || 16, 5)}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                      >
-                        {!reducedMotion && (
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-full"
-                            animate={{ x: ['-100%', '200%'] }}
-                            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
-                          />
-                        )}
-                      </motion.div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quote Box */}
-              <motion.div
-                whileHover={reducedMotion ? {} : { y: -2, scale: 1.01 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className="rounded-2xl bg-[#EFF8F6]/90 backdrop-blur-md border border-teal-200/60 p-2.5 px-3 flex items-center gap-2.5 mt-2 relative z-10 hover:border-[#006B63]/40 transition-colors shadow-xs cursor-default"
-              >
-                <div className="h-6 w-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
-                  <Quote className="h-3.5 w-3.5 text-emerald-700" />
-                </div>
-                <p className="text-xs font-medium text-[#245C54] italic leading-tight">
-                  &ldquo;A little progress each day adds up to big results.&rdquo;
-                </p>
-              </motion.div>
-            </motion.section>
-
-            {/* ── YOUR STUDY STREAK (Apple Fitness / Flame Aura) ── */}
-            <motion.section
-              initial={SECTION_ENTER(0.14, reducedMotion)}
-              animate={SECTION_SHOW}
-              transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-3xl bg-gradient-to-br from-amber-500/[0.07] via-white to-orange-500/[0.04] backdrop-blur-xl border border-amber-200/80 shadow-[0_8px_30px_rgba(245,158,11,0.07)] p-4 sm:p-5 space-y-3.5 relative overflow-hidden"
-            >
-              {/* Faint ECG / Flowing rhythm wave near bottom edge */}
-              <div className="absolute bottom-1 right-2 w-48 h-6 pointer-events-none select-none opacity-[0.08] overflow-hidden" aria-hidden="true">
-                <svg viewBox="0 0 190 24" fill="none" className="w-full h-full stroke-amber-600">
-                  <path
-                    d="M0 12 L55 12 L61 6 L67 18 L73 2 L79 22 L85 12 L95 12 L101 8 L107 12 L190 12"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-
-              {/* Card Header */}
-              <div className="flex items-center justify-between relative z-10">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white shadow-xs shadow-orange-500/25 flex items-center justify-center relative">
-                    <motion.div
-                      animate={reducedMotion ? {} : { scale: [1, 1.15, 1], rotate: [-3, 3, -3] }}
-                      transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                    >
-                      <Flame className="h-4.5 w-4.5 fill-white text-white" />
-                    </motion.div>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900">Your Study Streak</h3>
-                    <p className="text-[10px] text-amber-800/80 font-medium">Daily Hospital Discipline</p>
+                    <h3 className="text-[17px] font-bold text-[#1D1D1F] tracking-tight leading-none">Exam Journey</h3>
+                    <p className="text-[12px] text-[#8E8E93] font-medium mt-0.5">Score trajectory &amp; readiness</p>
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleSubTabChange('planner')}
-                  className="text-xs font-semibold text-amber-800 hover:text-amber-900 hover:underline cursor-pointer flex items-center"
+                  onClick={() => onNavigateTab('progress')}
+                  className="text-[13px] font-semibold text-[#007AFF] hover:text-[#0056CC] cursor-pointer transition-colors"
                 >
-                  View calendar →
+                  Details →
                 </button>
               </div>
 
-              {/* 7 Days Row */}
-              <div className="grid grid-cols-7 gap-1 sm:gap-1.5 text-center relative z-10">
-                {weekDays.map(({ dayName, dateNum, isCompleted, isToday }) => (
-                  <div key={dayName} className="flex flex-col items-center gap-1 sm:gap-1.5">
-                    <span className="text-[10px] sm:text-[11px] font-semibold text-amber-950/70">
-                      {dayName}
-                    </span>
-                    <motion.div
-                      whileHover={reducedMotion ? {} : { scale: 1.18, y: -2 }}
-                      whileTap={reducedMotion ? {} : { scale: 0.92 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                      className={`relative w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm cursor-pointer select-none transition-all ${
-                        isToday
-                          ? 'bg-gradient-to-tr from-amber-500 to-orange-600 text-white ring-2 ring-orange-400 ring-offset-2 font-black shadow-xs'
-                          : isCompleted
-                          ? 'bg-gradient-to-tr from-[#006B63] to-emerald-500 text-white font-bold shadow-2xs hover:brightness-105'
-                          : 'text-slate-600 font-medium hover:bg-amber-100/40'
-                      }`}
-                    >
-                      {isToday && !reducedMotion && (
-                        <motion.span
-                          className="absolute -inset-1 rounded-full border-2 border-orange-400/60 pointer-events-none"
-                          animate={{ scale: [1, 1.25, 1], opacity: [0.8, 0, 0.8] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                        />
-                      )}
-                      {dateNum}
-                    </motion.div>
+              {/* Hero score row */}
+              <div className="flex items-center gap-4 px-5 pb-4">
+                {/* Circular gauge */}
+                <div className="shrink-0">
+                  <CircularCountdown
+                    value={projectedScore}
+                    label="EST. SCORE"
+                    sublabel="150 Pass"
+                    progressRatio={Math.min(1, Math.max(0.2, (projectedScore - 100) / 150))}
+                    reducedMotion={reducedMotion}
+                  />
+                </div>
+
+                {/* Metrics */}
+                <div className="flex-1 min-w-0 space-y-2.5">
+                  <div className="rounded-2xl bg-[#F2F2F7] p-3 space-y-0.5">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-[#8E8E93]">Gap to Target</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-[26px] font-black text-[#1D1D1F] tracking-tight tabular-nums leading-none">
+                        {Math.max(0, (savedTargetScore || 200) - projectedScore)}
+                      </span>
+                      <span className="text-[12px] font-semibold text-[#6E6E73]">pts to {savedTargetScore || 200}</span>
+                    </div>
                   </div>
-                ))}
+                  <div className="rounded-2xl bg-[#FFF8EE] border border-[rgba(255,149,0,0.15)] p-3 space-y-0.5">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-[#FF9500]">Exam Countdown</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-[26px] font-black text-[#FF9500] tracking-tight tabular-nums leading-none">
+                        {daysRemaining}
+                      </span>
+                      <span className="text-[12px] font-semibold text-[#6E6E73]">days left</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Footer */}
-              <div className="flex items-center gap-2 pt-1 text-xs text-amber-900/70 relative z-10">
-                <Calendar className="h-3.5 w-3.5 text-amber-700 shrink-0" />
-                <span>Consistency compounds into confidence.</span>
+              {/* Separator */}
+              <div className="h-px bg-[rgba(60,60,67,0.08)] mx-5" />
+
+              {/* Stat tiles row */}
+              <div className="grid grid-cols-2 gap-3 px-5 py-4">
+                {/* Pass Cutoff */}
+                <button
+                  type="button"
+                  onClick={() => setIsPassingGapModalOpen(true)}
+                  className="rounded-2xl bg-[#EDFDF5] border border-[rgba(48,209,88,0.18)] p-3.5 text-left group hover:bg-[#D8FAE8] transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-6 h-6 rounded-lg bg-[#30D158] flex items-center justify-center">
+                      <ShieldCheck className="text-white" style={{ width: 13, height: 13 }} />
+                    </div>
+                    <span className="text-[11px] font-bold text-[#30D158]">Pass Cutoff</span>
+                  </div>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-[22px] font-black text-[#1D1D1F] tracking-tight tabular-nums leading-none">150</span>
+                    <span className="text-[11px] font-semibold text-[#8E8E93] ml-0.5">/ 300</span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-[#007AFF] mt-1 block group-hover:underline">Analyze gap →</span>
+                </button>
+
+                {/* Target Score */}
+                <div className="rounded-2xl bg-[#EBF4FF] border border-[rgba(0,122,255,0.15)] p-3.5">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-6 h-6 rounded-lg bg-[#007AFF] flex items-center justify-center">
+                      <Target className="text-white" style={{ width: 13, height: 13 }} />
+                    </div>
+                    <span className="text-[11px] font-bold text-[#007AFF]">Your Target</span>
+                  </div>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-[22px] font-black text-[#1D1D1F] tracking-tight tabular-nums leading-none">
+                      {savedTargetScore || 200}
+                    </span>
+                    <span className="text-[11px] font-semibold text-[#8E8E93] ml-0.5">/ 300</span>
+                  </div>
+                  <span className="text-[10px] font-medium text-[#8E8E93] mt-1 block">Personal goal</span>
+                </div>
+              </div>
+
+              {/* Syllabus Coverage bar */}
+              <div className="px-5 pb-5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] font-bold text-[#1D1D1F]">Syllabus Coverage</span>
+                  <span className="text-[12px] font-black text-[#007AFF] tabular-nums">
+                    {stats?.notesPercentage ? `${stats.notesPercentage}%` : '16%'}
+                  </span>
+                </div>
+                <div className="w-full h-3 bg-[#F2F2F7] rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-gradient-to-r from-[#5AC8FA] via-[#409CFF] to-[#007AFF]"
+                    initial={reducedMotion ? false : { width: 0 }}
+                    whileInView={{ width: `${Math.max(stats?.notesPercentage || 16, 5)}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                  />
+                </div>
+                <p className="text-[11px] text-[#8E8E93] font-medium">
+                  {(() => {
+                    const pct = stats?.notesPercentage || 16;
+                    if (pct >= 80) return 'Excellent coverage — review weak spots now.';
+                    if (pct >= 50) return 'Good momentum — keep up the daily notes habit.';
+                    if (pct >= 25) return 'Building a strong foundation — stay consistent.';
+                    return 'Early days — consistent daily study adds up fast.';
+                  })()}
+                </p>
               </div>
             </motion.section>
 
-            {/* ── YOUR PROGRESS (Apple Health Analytics Identity) ── */}
+            {/* ── YOUR STUDY STREAK ── */}
+            <motion.section
+              initial={SECTION_ENTER(0.14, reducedMotion)}
+              animate={SECTION_SHOW}
+              transition={SECTION_TRANSITION(reducedMotion)}
+              className="rounded-3xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden"
+            >
+              {/* Amber top stripe */}
+              <div className="h-[3px] bg-gradient-to-r from-[#FF9500] via-[#FFB340] to-[#FF6B00]" />
+
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 pt-4 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#FF9500] to-[#FF6B00] flex items-center justify-center shadow-[0_2px_8px_rgba(255,149,0,0.35)]">
+                    <Flame className="text-white fill-white" style={{ width: 18, height: 18 }} />
+                  </div>
+                  <div>
+                    <h3 className="text-[17px] font-bold text-[#1D1D1F] tracking-tight leading-none">Study Streak</h3>
+                    <p className="text-[12px] text-[#8E8E93] font-medium mt-0.5">Daily consistency</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[28px] font-black text-[#FF9500] tracking-tight leading-none tabular-nums">
+                    {currentStreak || 1}
+                  </div>
+                  <div className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wider">day streak</div>
+                </div>
+              </div>
+
+              {/* 7-day ring row */}
+              <div className="px-5 pb-4">
+                <div className="grid grid-cols-7 gap-1.5 text-center">
+                  {weekDays.map(({ dayName, dateNum, isCompleted, isToday }) => (
+                    <div key={dayName} className="flex flex-col items-center gap-1.5">
+                      <span className="text-[9px] font-bold uppercase tracking-wide text-[#8E8E93]">
+                        {dayName}
+                      </span>
+                      <motion.div
+                        whileHover={reducedMotion ? {} : { scale: 1.12, y: -1 }}
+                        whileTap={reducedMotion ? {} : { scale: 0.92 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                        className={`relative w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold cursor-pointer select-none transition-all ${
+                          isToday
+                            ? 'bg-[#FF9500] text-white shadow-[0_3px_10px_rgba(255,149,0,0.40)]'
+                            : isCompleted
+                            ? 'bg-[#FF9500]/15 text-[#FF9500]'
+                            : 'bg-[#F2F2F7] text-[#C7C7CC]'
+                        }`}
+                      >
+                        {isToday && !reducedMotion && (
+                          <motion.span
+                            className="absolute inset-0 rounded-full border-2 border-[#FF9500]/40"
+                            animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0, 0.6] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          />
+                        )}
+                        {isCompleted && !isToday ? (
+                          <CheckCircle2 className="w-4 h-4 text-[#FF9500]" />
+                        ) : (
+                          dateNum
+                        )}
+                      </motion.div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[11px] text-[#8E8E93] font-medium mt-3 text-center">
+                  Consistency compounds into confidence.
+                </p>
+              </div>
+            </motion.section>
+
+            {/* ── YOUR PROGRESS ── */}
             <motion.section
               initial={SECTION_ENTER(0.18, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-3xl bg-gradient-to-br from-indigo-500/[0.06] via-white to-blue-500/[0.03] backdrop-blur-xl border border-indigo-200/80 shadow-[0_8px_30px_rgba(99,102,241,0.06)] hover:shadow-md p-4 sm:p-5 space-y-3.5 transition-all duration-200"
+              className="rounded-3xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden"
             >
-              {/* Card Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-blue-600 text-white flex items-center justify-center shadow-xs shadow-indigo-500/20">
-                    <BarChart3 className="h-4.5 w-4.5" />
+              {/* Green top stripe */}
+              <div className="h-[3px] bg-gradient-to-r from-[#30D158] via-[#4CD964] to-[#30D158]" />
+
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 pt-4 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#30D158] to-[#25A040] flex items-center justify-center shadow-[0_2px_8px_rgba(48,209,88,0.30)]">
+                    <BarChart3 className="text-white" style={{ width: 18, height: 18 }} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">Your Progress</h3>
-                    <p className="text-[10px] text-indigo-800/80 font-medium">Curriculum Completion</p>
+                    <h3 className="text-[17px] font-bold text-[#1D1D1F] tracking-tight leading-none">Your Progress</h3>
+                    <p className="text-[12px] text-[#8E8E93] font-medium mt-0.5">Curriculum completion</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => onNavigateTab('syllabus')}
-                  className="text-xs font-semibold text-indigo-700 hover:text-indigo-900 hover:underline cursor-pointer min-h-[32px] flex items-center"
+                  className="text-[13px] font-semibold text-[#007AFF] hover:text-[#0056CC] cursor-pointer transition-colors"
                 >
-                  View curriculum →
+                  All →
                 </button>
               </div>
 
-              {/* Subject Rows */}
-              <div className="space-y-2.5 sm:space-y-3">
+              {/* Separator */}
+              <div className="h-px bg-[rgba(60,60,67,0.08)] mx-5" />
+
+              {/* Subject rows */}
+              <div className="px-4 py-3 space-y-1">
                 {subjectList.slice(0, 5).map((sub, idx) => {
-                  const visual = getContextualProgressStyle(sub.percentage, sub.statusText);
-                  const studyTimeApprox = sub.weightage ? `~${Math.max(1, Math.round(sub.weightage * 1.5))}h` : '~2h';
+                  const accent = SUBJECT_ACCENT_COLORS[sub.id];
+                  const barColor = accent?.bar ?? 'bg-[#007AFF]';
+                  const pct = Math.max(sub.percentage, 2);
+                  const statusColor = sub.percentage >= 50 ? '#30D158' : sub.percentage >= 20 ? '#FF9500' : '#FF3B30';
 
                   return (
                     <motion.div
                       key={sub.id}
-                      whileHover={reducedMotion ? {} : { x: 4, scale: 1.01 }}
+                      whileHover={reducedMotion ? {} : { x: 2 }}
                       transition={{ type: 'spring', stiffness: 450, damping: 30 }}
                       onClick={() => onSelectSubject(sub.id)}
-                      className="group p-2 sm:p-2.5 rounded-2xl hover:bg-white/80 transition-colors cursor-pointer space-y-1.5 border border-transparent hover:border-slate-200/60"
+                      className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-[#F2F2F7] transition-colors cursor-pointer group"
                     >
-                      <div className="flex items-center justify-between text-xs gap-1.5">
-                        <span className="font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate">
-                          {sub.name}
-                        </span>
-                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                          <span className="font-mono font-extrabold text-slate-900 tabular-nums">
-                            <AnimatedNumber value={sub.percentage} />%
-                          </span>
-                          <span className="font-mono text-[10px] text-slate-400">
-                            {studyTimeApprox} • {sub.weightage} Marks
-                          </span>
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${visual.badge}`}
-                          >
-                            <span className={`h-1.5 w-1.5 rounded-full ${visual.dot} animate-pulse`} />
-                            {visual.statusText}
-                          </span>
-                        </div>
+                      {/* Color dot */}
+                      <div className={`w-2 h-2 rounded-full shrink-0 ${barColor}`} />
+
+                      {/* Name */}
+                      <span className="text-[13px] font-semibold text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors truncate flex-1 min-w-0">
+                        {sub.name}
+                      </span>
+
+                      {/* Bar */}
+                      <div className="w-20 h-1.5 bg-[#F2F2F7] rounded-full overflow-hidden shrink-0">
+                        <motion.div
+                          className={`h-full rounded-full ${barColor}`}
+                          initial={reducedMotion ? false : { width: 0 }}
+                          whileInView={{ width: `${pct}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.7, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                        />
                       </div>
 
-                      {/* Smooth Animated Progress Bar */}
-                      <div className={`w-full h-2 sm:h-2.5 ${visual.track || 'bg-slate-100'} rounded-full overflow-hidden relative`}>
-                        <motion.div
-                          className={`h-full rounded-full ${visual.bar} relative overflow-hidden`}
-                          initial={reducedMotion ? false : { width: 0 }}
-                          whileInView={{ width: `${Math.max(sub.percentage, 4)}%` }}
-                          viewport={{ once: true }}
-                          transition={
-                            reducedMotion
-                              ? { duration: 0 }
-                              : { duration: 0.75, delay: idx * 0.04, ease: [0.16, 1, 0.3, 1] }
-                          }
-                        >
-                          {!reducedMotion && (
-                            <motion.div
-                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent w-full"
-                              animate={{ x: ['-100%', '200%'] }}
-                              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: idx * 0.2, repeatDelay: 1.5 }}
-                            />
-                          )}
-                        </motion.div>
-                      </div>
+                      {/* Percentage */}
+                      <span className="text-[12px] font-black tabular-nums w-8 text-right shrink-0" style={{ color: statusColor }}>
+                        <AnimatedNumber value={sub.percentage} />%
+                      </span>
                     </motion.div>
                   );
                 })}
               </div>
 
-              {/* View all subjects action */}
-              <div className="pt-2 border-t border-slate-100/80">
+              {/* Footer CTA */}
+              <div className="px-4 pb-4">
                 <button
                   type="button"
                   onClick={() => onNavigateTab('syllabus')}
-                  className="w-full text-center text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline py-1 transition-colors cursor-pointer flex items-center justify-center gap-1 min-h-[36px]"
+                  className="w-full h-10 rounded-2xl bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[13px] font-bold text-[#30D158] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  View all subjects →
+                  <BarChart3 className="h-4 w-4" />
+                  View all 19 subjects
                 </button>
               </div>
             </motion.section>
 
-            {/* ── DAILY HIGH-YIELD RECALL / UP NEXT (BALANCED IN RIGHT COLUMN) ── */}
+            {/* ── DAILY RECALL / UP NEXT ── */}
             <motion.section
               initial={SECTION_ENTER(0.16, reducedMotion)}
               animate={SECTION_SHOW}
               transition={SECTION_TRANSITION(reducedMotion)}
-              className="space-y-3"
+              className="rounded-3xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden"
             >
-              <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-teal-500/15 to-emerald-500/10 border border-teal-200/60 flex items-center justify-center text-[#006B63] shadow-2xs">
-                  <Compass className="h-4 w-4 stroke-[2.2]" />
+              {/* Amber top stripe */}
+              <div className="h-[3px] bg-gradient-to-r from-[#FF9500] via-[#FFD60A] to-[#FF9500]" />
+
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 pt-4 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#FF9500] to-[#CC7700] flex items-center justify-center shadow-[0_2px_8px_rgba(255,149,0,0.30)]">
+                    <Lightbulb className="text-white" style={{ width: 18, height: 18 }} />
+                  </div>
+                  <div>
+                    <h3 className="text-[17px] font-bold text-[#1D1D1F] tracking-tight leading-none">
+                      {hasRevisionDue || errorsToReview ? 'Up Next' : 'Daily Recall'}
+                    </h3>
+                    <p className="text-[12px] text-[#8E8E93] font-medium mt-0.5">Reinforce what matters</p>
+                  </div>
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 font-['Outfit']">
-                  {hasRevisionDue || errorsToReview ? 'Up Next' : 'Daily High-Yield Recall'}
-                </h3>
+                {!(hasRevisionDue || errorsToReview) && (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => { setIsPearlRevealed(false); setDailyPearlIndex((p) => p + 1); }}
+                      className="w-8 h-8 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] flex items-center justify-center text-[#6E6E73] transition-colors cursor-pointer"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsExamEveCheatSheetOpen(true)}
+                      className="h-8 px-3 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[12px] font-bold cursor-pointer hover:bg-[#007AFF]/15 transition-colors"
+                    >
+                      Vault
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {hasRevisionDue || errorsToReview ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-                  {/* Card 1: Revision */}
-                  <motion.div
-                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
-                    whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                    onClick={() => onNavigateTab('revision')}
-                    className="relative rounded-3xl bg-gradient-to-b from-emerald-500/[0.08] via-teal-500/[0.03] to-white/95 backdrop-blur-xl border border-emerald-200/70 hover:border-emerald-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_20px_rgba(16,185,129,0.04)] hover:shadow-[0_12px_28px_rgba(16,185,129,0.12)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 transition-all duration-300 cursor-pointer group min-h-[64px] overflow-hidden"
-                  >
-                    {/* Top Specular Hairline */}
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/60 to-transparent pointer-events-none" />
+              <div className="h-px bg-[rgba(60,60,67,0.08)] mx-5" />
 
-                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/15 text-emerald-700 border border-emerald-200/60 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-[-6deg] transition-transform duration-300">
-                        <CheckCircle2 className="h-4.5 w-4.5 sm:h-5 sm:w-5 stroke-[2.2]" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="block text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 group-hover:text-emerald-700 transition-colors">
-                          Revision
-                        </span>
-                        <span className="block text-[11px] sm:text-xs font-semibold text-emerald-800 mt-0.5">
-                          {dailyPlan.revisionDueCount} items due
-                        </span>
-                      </div>
+              {hasRevisionDue || errorsToReview ? (
+                <div className="p-4 space-y-2.5">
+                  {/* Revision card */}
+                  <motion.div
+                    whileHover={reducedMotion ? undefined : { y: -1, scale: 1.01 }}
+                    whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+                    onClick={() => onNavigateTab('revision')}
+                    className="flex items-center gap-3.5 p-4 rounded-2xl bg-[#EDFDF5] border border-[rgba(48,209,88,0.18)] cursor-pointer group hover:bg-[#D8FAE8] transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-2xl bg-[#30D158] flex items-center justify-center shrink-0 shadow-[0_2px_8px_rgba(48,209,88,0.30)]">
+                      <CheckCircle2 className="text-white" style={{ width: 18, height: 18 }} />
                     </div>
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-emerald-500/10 text-emerald-700 border border-emerald-200/50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <BookOpen className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                    <div className="flex-1 min-w-0">
+                      <span className="block text-[14px] font-bold text-[#1D1D1F]">Revision Due</span>
+                      <span className="block text-[12px] font-semibold text-[#30D158] mt-0.5">
+                        {dailyPlan.revisionDueCount} items ready to review
+                      </span>
                     </div>
+                    <ChevronRight className="h-4 w-4 text-[#30D158] shrink-0" />
                   </motion.div>
 
-                  {/* Card 2: Error Remediation */}
+                  {/* Error Remediation card */}
                   <motion.div
-                    whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015 }}
+                    whileHover={reducedMotion ? undefined : { y: -1, scale: 1.01 }}
                     whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                    transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 30 }}
                     onClick={() => onNavigateTab('errors')}
-                    className="relative rounded-3xl bg-gradient-to-b from-amber-500/[0.08] via-orange-500/[0.03] to-white/95 backdrop-blur-xl border border-amber-200/70 hover:border-amber-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_20px_rgba(245,158,11,0.05)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.12)] p-3 sm:p-3.5 flex items-center justify-between gap-2.5 transition-all duration-300 cursor-pointer group min-h-[64px] overflow-hidden"
+                    className="flex items-center gap-3.5 p-4 rounded-2xl bg-[#FFF8EE] border border-[rgba(255,149,0,0.18)] cursor-pointer group hover:bg-[#FFEFD6] transition-colors"
                   >
-                    {/* Top Specular Hairline */}
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent pointer-events-none" />
-
-                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/15 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
-                        <RotateCcw className="h-4.5 w-4.5 sm:h-5 sm:w-5 group-hover:rotate-[-45deg] transition-transform duration-300 stroke-[2.2]" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="block text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 group-hover:text-amber-800 transition-colors">
-                          Error Remediation
-                        </span>
-                        <span className="block text-[11px] sm:text-xs font-semibold text-amber-800 mt-0.5">
-                          {dailyPlan.errorRemediationCount} errors to review
-                        </span>
-                      </div>
+                    <div className="w-10 h-10 rounded-2xl bg-[#FF9500] flex items-center justify-center shrink-0 shadow-[0_2px_8px_rgba(255,149,0,0.30)]">
+                      <RotateCcw className="text-white" style={{ width: 18, height: 18 }} />
                     </div>
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-2xl bg-amber-500/10 text-amber-700 border border-amber-200/50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <FileText className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                    <div className="flex-1 min-w-0">
+                      <span className="block text-[14px] font-bold text-[#1D1D1F]">Error Remediation</span>
+                      <span className="block text-[12px] font-semibold text-[#FF9500] mt-0.5">
+                        {dailyPlan.errorRemediationCount} mistakes to address
+                      </span>
                     </div>
+                    <ChevronRight className="h-4 w-4 text-[#FF9500] shrink-0" />
                   </motion.div>
                 </div>
               ) : (
-                /* Daily High-Yield Recall Pearl (Interactive Reveal) */
-                <motion.div
-                  whileHover={reducedMotion ? undefined : { y: -3, scale: 1.008 }}
-                  transition={{ type: 'spring', stiffness: 450, damping: 26 }}
-                  className="rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-amber-100/[0.12] to-teal-500/[0.04] backdrop-blur-2xl border border-amber-200/70 hover:border-amber-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_6px_24px_rgba(245,158,11,0.06)] hover:shadow-[0_12px_32px_rgba(245,158,11,0.12)] p-4 sm:p-5 relative overflow-hidden transition-all duration-300 group"
-                >
-                  {/* Top Specular Hairline */}
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/70 to-transparent pointer-events-none" />
-
-                  {/* Header Row: Lightbulb with Halo & Shuffle/Vault Actions */}
-                  <div className="flex items-center justify-between gap-3 pb-3 border-b border-amber-200/50">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-300/70 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                        <div className="absolute inset-0 bg-amber-400/20 rounded-2xl filter blur-xs animate-pulse" />
-                        <Lightbulb className="h-4 w-4 relative z-10 stroke-[2.3]" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-[10px] font-bold font-mono tracking-wider text-amber-800 uppercase block">
-                          HIGH-YIELD RECALL PEARL
-                        </span>
-                        <h4 className="text-xs sm:text-[14px] font-bold font-['Outfit'] text-slate-900 leading-tight">
-                          {todayPearl?.name || "Beck's Triad"}
-                        </h4>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsPearlRevealed(false);
-                          setDailyPearlIndex((p) => p + 1);
-                        }}
-                        className="h-7 w-7 rounded-xl bg-white/80 hover:bg-amber-100/80 text-amber-800 border border-amber-200/70 flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95 group/shuffle"
-                        title="Next Recall Pearl"
-                      >
-                        <RotateCcw className="h-3.5 w-3.5 group-hover/shuffle:rotate-[-60deg] transition-transform duration-300" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsExamEveCheatSheetOpen(true)}
-                        className="text-[11px] font-bold text-[#006B63] hover:text-[#005750] bg-teal-500/10 hover:bg-teal-500/15 px-2.5 py-1 rounded-full border border-teal-200/80 shadow-2xs cursor-pointer flex items-center gap-1 transition-all active:scale-95"
-                      >
-                        <span>Vault</span>
-                        <ChevronRight className="h-3 w-3" />
-                      </button>
-                    </div>
+                /* High-Yield Pearl */
+                <div className="px-5 pt-4 pb-5 space-y-4">
+                  {/* Pearl meta */}
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#FF9500]">High-Yield Recall Pearl</span>
+                    <h4 className="text-[16px] font-black text-[#1D1D1F] leading-snug tracking-tight">
+                      {todayPearl?.name || "Beck's Triad"}
+                    </h4>
                   </div>
 
-                  {/* Body: High-Yield Components & Reveal */}
-                  <div className="pt-3 space-y-3">
-                    {/* Clinical Findings / Token Pills */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {(todayPearl?.components || '').split('+').map((part, i) => (
-                        <span
-                          key={i}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-semibold bg-white/85 border border-amber-200/70 text-slate-800 shadow-2xs backdrop-blur-xs"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                          <span>{part.trim()}</span>
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Bottom Action Row: Reveal / Revealed Diagnosis & NBE Badge */}
-                    <div className="flex items-center justify-between gap-2 flex-wrap pt-0.5">
-                      <div className="min-w-0">
-                        {isPearlRevealed ? (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 2 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-300 text-emerald-900 text-xs sm:text-[13px] font-bold font-['Outfit'] shadow-2xs backdrop-blur-xs"
-                          >
-                            <div className="w-5 h-5 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-700 shrink-0">
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="tracking-tight">{todayPearl?.diagnosis}</span>
-                          </motion.div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => setIsPearlRevealed(true)}
-                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-[#006B63] text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-98 group/btn relative overflow-hidden"
-                          >
-                            <Eye className="h-3.5 w-3.5 group-hover/btn:scale-110 transition-transform" />
-                            <span>Tap to Reveal Diagnosis</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
-                          </button>
-                        )}
-                      </div>
-
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 text-amber-800 border border-amber-300/60 shadow-2xs">
-                        <Sparkles className="w-3 h-3 text-amber-500 animate-pulse" />
-                        <span>Guaranteed NBE Repeat</span>
+                  {/* Component pills */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {(todayPearl?.components || '').split('+').map((part, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold bg-[#F2F2F7] text-[#1D1D1F]"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF9500] shrink-0" />
+                        {part.trim()}
                       </span>
-                    </div>
+                    ))}
                   </div>
-                </motion.div>
+
+                  {/* Reveal */}
+                  {isPearlRevealed ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+                      className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#EDFDF5] border border-[rgba(48,209,88,0.20)]"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-[#30D158] flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="text-white" style={{ width: 16, height: 16 }} />
+                      </div>
+                      <span className="text-[14px] font-bold text-[#1D1D1F] tracking-tight">{todayPearl?.diagnosis}</span>
+                    </motion.div>
+                  ) : (
+                    <motion.button
+                      type="button"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => setIsPearlRevealed(true)}
+                      className="w-full h-11 rounded-2xl bg-[#FF9500] hover:bg-[#E08600] text-white text-[14px] font-bold flex items-center justify-center gap-2 shadow-[0_3px_12px_rgba(255,149,0,0.30)] cursor-pointer transition-colors"
+                    >
+                      <Eye style={{ width: 16, height: 16 }} />
+                      Reveal Diagnosis
+                    </motion.button>
+                  )}
+
+                  {/* NBE badge */}
+                  <div className="flex items-center justify-center">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/20">
+                      <Sparkles className="w-3 h-3" />
+                      Guaranteed NBE Repeat
+                    </span>
+                  </div>
+                </div>
               )}
             </motion.section>
           </div>
@@ -3203,26 +3651,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           initial={SECTION_ENTER(0.2, reducedMotion)}
           animate={SECTION_SHOW}
           transition={SECTION_TRANSITION(reducedMotion)}
-          className="space-y-3 pt-1"
+          className="space-y-3"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-xl bg-teal-500/10 flex items-center justify-center text-[#006B63] shrink-0">
-                <Flame className="h-4.5 w-4.5 fill-[#006B63] text-[#006B63]" />
+              <div className="h-9 w-9 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] flex items-center justify-center text-[#007AFF] shrink-0">
+                <Flame className="h-5 w-5 fill-[#007AFF] text-[#007AFF]" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-bold bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent font-['Outfit'] leading-tight">
-                  Explore Other High-Yield Subjects
+                <h3 className="text-[17px] sm:text-[19px] font-bold text-[#1D1D1F] leading-tight tracking-tight">
+                  Explore Subjects
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Curated 3D anatomical models and clinical blueprints weighted by NBE exam pattern
+                <p className="text-xs sm:text-[13px] text-[#6E6E73] font-medium">
+                  19 high-yield subjects, weighted by NBE exam pattern
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => onNavigateTab('syllabus')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#006B63] hover:text-[#005750] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#007AFF] hover:text-[#0056CC] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
             >
               View all 19 subjects <ArrowRight className="h-3.5 w-3.5" />
             </button>
@@ -3241,53 +3689,38 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   key={sub.id}
                   whileHover={reducedMotion ? {} : { y: -4, scale: 1.02 }}
                   whileTap={reducedMotion ? {} : { scale: 0.97 }}
-                  transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                  transition={{ type: 'spring', stiffness: 320, damping: 30 }}
                   onClick={() => {
                     setSelectedFilterSubjectId(sub.id);
                     onSelectSubject(sub.id);
                   }}
-                  className={`group relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-3.5 flex flex-col justify-between cursor-pointer border bg-gradient-to-b ${theme.bg} backdrop-blur-xl overflow-hidden transition-all duration-300 ${
+                  className={`group relative rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col justify-between cursor-pointer border bg-white overflow-hidden transition-all duration-200 ${
                     isCurrent
-                      ? 'border-[#006B63] shadow-[0_8px_24px_rgba(0,107,99,0.18)] ring-2 ring-[#006B63]/25'
-                      : `${theme.border} shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.07)]`
+                      ? 'border-[#007AFF] shadow-[0_0_0_3px_rgba(0,122,255,0.12)]'
+                      : 'border-[rgba(60,60,67,0.10)] shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:border-[rgba(60,60,67,0.20)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)]'
                   }`}
                 >
-                  {/* Top Specular Hairline Accent */}
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none" />
 
                   {/* Top Row: Specialty Insignia & NBE Weightage Pill */}
                   <div className="flex items-center justify-between gap-1 mb-1 z-20">
                     <div
-                      className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl flex items-center justify-center border shadow-2xs backdrop-blur-xs transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${
-                        theme.insigniaBg || 'bg-slate-100 text-slate-700 border-slate-200'
+                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl flex items-center justify-center border shadow-2xs transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${
+                        theme.insigniaBg || 'bg-[#E5E5EA] text-[#1D1D1F] border-[rgba(60,60,67,0.12)]'
                       }`}
                     >
-                      <InsigniaIcon className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-105" />
+                      <InsigniaIcon className="w-4 h-4 transition-transform duration-300 group-hover:scale-105" />
                     </div>
 
-                    <span
-                      className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold border shadow-2xs backdrop-blur-xs ${theme.badge}`}
-                    >
-                      <span className="text-[8px] font-sans font-medium opacity-65">NBE</span>
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[11px] font-medium border bg-[#F2F2F7] text-[#6E6E73] border-[rgba(60,60,67,0.10)]">
                       <span>{sub.weightage}m</span>
                     </span>
                   </div>
 
-                  {/* 3D Medical Artwork Stage */}
-                  <div className="relative w-full h-18 sm:h-20 md:h-22 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1 sm:p-1.5 group-hover:scale-105 transition-transform duration-300 ease-out">
-                    <div
-                      className="absolute inset-0 filter blur-sm pointer-events-none rounded-full transition-opacity duration-300 group-hover:opacity-100 opacity-70"
-                      style={{
-                        background: `radial-gradient(circle at 50% 55%, ${theme.glow} 0%, transparent 72%)`,
-                      }}
-                    />
-                    <motion.div
-                      className="relative w-full h-full flex items-center justify-center z-10"
-                      animate={reducedMotion ? {} : { y: [-2, 2, -2] }}
-                      transition={{ duration: 4 + (idx % 3), repeat: Infinity, ease: 'easeInOut' }}
-                    >
+                  {/* Medical Subject Artwork */}
+                  <div className={`relative w-full h-24 sm:h-28 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1 sm:p-2 group-hover:scale-[1.03] transition-transform duration-300 ease-out bg-gradient-to-br ${theme.bg || 'from-[#F2F2F7] to-white/80'}`}>
+                    <div className="relative w-full h-full flex items-center justify-center z-10">
                       <MedicalSubjectCardVisual subjectId={sub.id} />
-                    </motion.div>
+                    </div>
                   </div>
 
                   {/* Content & Typography */}
@@ -3295,17 +3728,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <div className="flex items-start justify-between gap-1">
                       <div className="min-w-0 flex-1">
                         <h4
-                          className="text-[12px] sm:text-[13px] md:text-[14px] font-bold text-slate-900 group-hover:text-[#006B63] transition-colors truncate font-['Outfit']"
+                          className="text-[13px] sm:text-sm font-semibold text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors truncate"
                           title={sub.name}
                         >
                           {sub.name}
                         </h4>
-                        <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-slate-500 font-medium pt-0.5">
+                        <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-[#6E6E73] font-medium pt-0.5">
                           <span className="inline-flex items-center gap-1 truncate">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20 shrink-0" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] shrink-0" />
                             <span>{hyCount} High-yield</span>
                           </span>
-                          <span className="opacity-0 group-hover:opacity-100 text-[#006B63] font-semibold flex items-center gap-0.5 transition-all duration-200 transform translate-x-1 group-hover:translate-x-0 text-[10px] shrink-0">
+                          <span className="opacity-0 group-hover:opacity-100 text-[#007AFF] font-semibold flex items-center gap-0.5 transition-all duration-200 transform translate-x-1 group-hover:translate-x-0 text-[10px] shrink-0">
                             <span>Blueprint</span>
                             <ArrowRight className="h-2.5 w-2.5" />
                           </span>
@@ -3315,15 +3748,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     {/* Micro Progress Bar */}
                     <div className="flex items-center gap-1.5 pt-0.5">
-                      <div className="relative flex-1 h-1.5 bg-slate-200/60 rounded-full overflow-hidden">
+                      <div className="relative flex-1 h-2 bg-[#E5E5EA] rounded-full overflow-hidden">
                         <div
-                          className={`h-full bg-gradient-to-r ${theme.progressBar || 'from-[#006B63] to-[#10B981]'} rounded-full transition-all duration-500`}
+                          className="h-full bg-[#007AFF] rounded-full transition-all duration-500"
                           style={{ width: `${Math.max(sub.percentage, 4)}%` }}
                         />
                         {/* Interactive Shimmer Beam */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
                       </div>
-                      <span className="font-mono text-[9px] sm:text-[10px] font-bold text-slate-600 tabular-nums shrink-0">
+                      <span className="text-[11px] font-medium text-[#6E6E73] tabular-nums shrink-0">
                         {sub.percentage}%
                       </span>
                     </div>
@@ -3394,22 +3827,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 150/300 Passing Score Gap Analyzer Modal */}
       <AnimatePresence>
         {isPassingGapModalOpen && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 bg-[#1D1D1F]/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-slate-50/95 backdrop-blur-xl rounded-3xl border border-slate-200/90 shadow-2xl p-4 sm:p-6 scrollbar-thin"
+              className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-[#F2F2F7]/95 backdrop-blur-xl rounded-3xl border border-[rgba(60,60,67,0.10)] shadow-2xl p-4 sm:p-6 scrollbar-thin"
             >
               <button
                 type="button"
                 onClick={() => setIsPassingGapModalOpen(false)}
-                className="absolute top-4 right-4 h-9 w-9 rounded-full bg-white text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center shadow-xs cursor-pointer z-10 transition-colors border border-slate-200/70"
+                className="absolute top-4 right-4 h-9 w-9 rounded-full bg-white text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] flex items-center justify-center shadow-xs cursor-pointer z-10 transition-colors border border-[rgba(60,60,67,0.10)]"
                 title="Close analyzer"
                 aria-label="Close"
               >
-                <X className="h-4.5 w-4.5" />
+                <X className="h-[18px] w-[18px]" />
               </button>
               <PassingGapAnalyzer
                 state={state}

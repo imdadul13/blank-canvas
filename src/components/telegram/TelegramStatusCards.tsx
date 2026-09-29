@@ -80,10 +80,10 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
           <button
             type="button"
             onClick={isConnected ? onOpenManageModal || onOpenConnectModal : onOpenConnectModal}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer shrink-0 transition-all self-center ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer shrink-0 transition-all self-center ${
               isConnected
-                ? "bg-stone-100 hover:bg-stone-200 text-slate-700 border border-stone-200"
-                : "bg-gradient-to-tr from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-xs"
+                ? "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
+                : "bg-[#007AFF] hover:bg-[#0062CC] text-white shadow-xs"
             }`}
           >
             {isConnected ? "Manage" : "Connect"}
@@ -91,9 +91,9 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
         </div>
 
         {/* Card 2: Ingestion Worker */}
-        <div className="h-full rounded-2xl sm:rounded-3xl border border-teal-200/80 bg-gradient-to-tr from-teal-500/[0.04] via-white to-emerald-500/[0.02] p-4 sm:p-4.5 shadow-2xs flex items-center justify-between gap-3 hover:border-teal-300 transition-colors">
+        <div className="h-full rounded-2xl sm:rounded-3xl border border-blue-500/20 bg-gradient-to-tr from-blue-500/[0.04] via-white to-sky-500/[0.02] p-4 sm:p-4.5 shadow-2xs flex items-center justify-between gap-3 hover:border-blue-500/30 transition-colors">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-600 text-white shadow-xs shadow-teal-500/25 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#007AFF] to-[#0284C7] text-white shadow-xs shadow-blue-500/25 flex items-center justify-center shrink-0">
               <Cpu className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -138,7 +138,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
               </button>
             ) : (
               <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-bold font-mono ${
-                isWorkerRunning ? "bg-teal-50 text-teal-700 border border-teal-200/80" : "bg-amber-50 text-amber-700 border border-amber-200/80"
+                isWorkerRunning ? "bg-blue-50 text-[#007AFF] border border-blue-200/80" : "bg-amber-50 text-amber-700 border border-amber-200/80"
               }`}>
                 {isWorkerRunning ? "AUTO" : "IDLE"}
               </span>
@@ -232,7 +232,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
           className="rounded-2xl border border-stone-200/90 bg-white p-3.5 shadow-2xs flex items-center justify-between gap-3 active:bg-stone-50 cursor-pointer transition-colors"
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#00685f] flex items-center justify-center shrink-0 border border-teal-100/70">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/[0.08] text-[#007AFF] flex items-center justify-center shrink-0 border border-blue-500/20">
               <Cpu className="w-5 h-5" />
             </div>
             <div className="min-w-0">

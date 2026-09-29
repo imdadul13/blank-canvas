@@ -18,7 +18,7 @@ export const TelegramQuickActions: React.FC<TelegramQuickActionsProps> = ({
   return (
     <div className="space-y-3">
       <div>
-        <h3 className="font-serif text-base sm:text-lg font-bold text-slate-900">
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
           Quick Actions
         </h3>
         <p className="text-xs text-slate-500">
@@ -34,10 +34,10 @@ export const TelegramQuickActions: React.FC<TelegramQuickActionsProps> = ({
           whileTap={{ scale: 0.98 }}
           transition={{ type: 'spring', stiffness: 450, damping: 25 }}
           onClick={onSearchFocus}
-          className="h-full rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-4.5 text-left shadow-2xs hover:border-stone-300 hover:shadow-xs transition-colors cursor-pointer flex items-center justify-between group"
+          className="h-full rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-4.5 text-left shadow-2xs hover:border-slate-300 hover:shadow-xs transition-colors cursor-pointer flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#00685f] border border-teal-100/70 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/[0.08] text-[#007AFF] border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <Search className="w-5 h-5" />
             </div>
             <div>

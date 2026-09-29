@@ -39,7 +39,7 @@
       "purpose": "any maskable"
     }
   ],
-  "theme_color": "#006B63",
+  "theme_color": "#007AFF",
   "background_color": "#FFFFFF",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],

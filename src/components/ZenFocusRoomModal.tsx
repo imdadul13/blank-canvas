@@ -335,14 +335,14 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                 key={mins}
                 type="button"
                 onClick={() => handleSelectDuration(mins)}
-                className={`relative z-10 px-3 xs:px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold font-['Outfit'] transition-colors duration-200 cursor-pointer active:scale-95 ${
+                className={`relative z-10 px-3 xs:px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors duration-200 cursor-pointer active:scale-95 ${
                   isSelected ? 'text-white' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 {isSelected && (
                   <motion.div
                     layoutId="zenDurationPill"
-                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#006B63] to-[#0D9488] shadow-md shadow-teal-900/40 border border-teal-300/30 -z-10"
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#007AFF] to-[#60B3FF] shadow-md shadow-teal-900/40 border border-teal-300/30 -z-10"
                     transition={{ type: 'spring', stiffness: 450, damping: 32 }}
                   />
                 )}
@@ -361,8 +361,8 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
             <defs>
               {/* Radial gradient for glowing arc */}
               <linearGradient id="zenTimerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#006B63" />
-                <stop offset="50%" stopColor="#14B8A6" />
+                <stop offset="0%" stopColor="#007AFF" />
+                <stop offset="50%" stopColor="#60B3FF" />
                 <stop offset="100%" stopColor="#2DD4BF" />
               </linearGradient>
 
@@ -418,7 +418,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
             <motion.div
               animate={isRunning ? { scale: [1, 1.015, 1] } : { scale: 1 }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="font-['Outfit'] text-4xl xs:text-5xl sm:text-6xl font-black tracking-tight text-white tabular-nums drop-shadow-[0_4px_16px_rgba(20,184,166,0.3)]"
+              className="text-4xl xs:text-5xl sm:text-6xl font-black tracking-tight text-white tabular-nums drop-shadow-[0_4px_16px_rgba(20,184,166,0.3)]"
             >
               {formattedTime}
             </motion.div>
@@ -430,7 +430,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-400" />
                 </span>
               )}
-              <span className="text-[10px] xs:text-[11px] font-bold tracking-widest uppercase font-['Outfit'] text-teal-300/90">
+              <span className="text-[10px] xs:text-[11px] font-bold tracking-widest uppercase text-teal-300/90">
                 {isRunning ? 'Deep Immersion' : 'Ready to Immerse'}
               </span>
             </div>
@@ -445,7 +445,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
             whileTap={reducedMotion ? undefined : { scale: 0.94 }}
             transition={{ type: 'spring', stiffness: 500, damping: 25 }}
             onClick={() => setIsRunning(!isRunning)}
-            className={`flex items-center gap-2 sm:gap-2.5 px-6 xs:px-7 sm:px-8 py-2.5 sm:py-3 rounded-2xl text-xs xs:text-sm font-extrabold font-['Outfit'] shadow-xl transition-all cursor-pointer ${
+            className={`flex items-center gap-2 sm:gap-2.5 px-6 xs:px-7 sm:px-8 py-2.5 sm:py-3 rounded-2xl text-xs xs:text-sm font-extrabold shadow-xl transition-all cursor-pointer ${
               isRunning
                 ? 'bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-amber-400/25'
                 : 'bg-gradient-to-r from-teal-400 via-teal-500 to-emerald-500 hover:brightness-110 text-slate-950 shadow-teal-500/30'
@@ -488,7 +488,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
               <div className="p-1 sm:p-1.5 rounded-lg bg-teal-500/15 text-teal-300 border border-teal-500/20">
                 <Volume2 className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-200 font-['Outfit'] uppercase tracking-wider">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-200 uppercase tracking-wider">
                 Acoustic Atmosphere
               </span>
             </div>
@@ -506,7 +506,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
               <button
                 type="button"
                 onClick={() => ambientAudioEngine.toggle()}
-                className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold font-['Outfit'] transition-all cursor-pointer active:scale-95 ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer active:scale-95 ${
                   isAudioActive
                     ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                     : 'bg-teal-500/20 text-teal-300 border border-teal-500/30 hover:bg-teal-500/30'
@@ -581,7 +581,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                     )}
                   </div>
 
-                  <div className="text-[11px] font-bold text-slate-200 font-['Outfit'] truncate">
+                  <div className="text-[11px] font-bold text-slate-200 truncate">
                     {m.label}
                   </div>
                 </button>
@@ -598,7 +598,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                 <span className="px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-300 font-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-wider border border-teal-400/20">
                   {currentPearl.subjectId}
                 </span>
-                <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 font-['Outfit']">
+                <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400">
                   Active Recall Check
                 </span>
               </div>
@@ -613,7 +613,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
               </button>
             </div>
 
-            <h4 className="text-xs sm:text-sm font-bold text-slate-100 font-['Outfit'] leading-relaxed mb-2 sm:mb-2.5">
+            <h4 className="text-xs sm:text-sm font-bold text-slate-100 leading-relaxed mb-2 sm:mb-2.5">
               {currentPearl.title}
             </h4>
 
@@ -623,7 +623,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                 animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 className="p-2.5 sm:p-3 rounded-xl bg-teal-500/15 border border-teal-400/30 text-xs text-teal-100 space-y-1.5"
               >
-                <div className="flex items-center gap-1 font-bold text-teal-300 font-['Outfit']">
+                <div className="flex items-center gap-1 font-bold text-teal-300">
                   <Sparkles className="w-3.5 h-3.5 text-teal-300" />
                   <span>Clinical High-Yield Takeaway:</span>
                 </div>
@@ -634,7 +634,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                 type="button"
                 whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                 onClick={() => setIsPearlRevealed(true)}
-                className="w-full py-1.5 sm:py-2 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-teal-300 text-xs font-bold font-['Outfit'] text-center cursor-pointer transition-all"
+                className="w-full py-1.5 sm:py-2 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-teal-300 text-xs font-bold text-center cursor-pointer transition-all"
               >
                 Tap to Reveal Clinical Takeaway
               </motion.button>
@@ -681,7 +681,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                   <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div>
-                  <h5 className="font-bold text-xs sm:text-sm font-['Outfit']">Focus Block Completed!</h5>
+                  <h5 className="font-bold text-xs sm:text-sm tracking-tight">Focus Block Completed!</h5>
                   <p className="text-[11px] sm:text-xs text-emerald-100">
                     +{selectedDuration} minutes automatically recorded to your study log.
                   </p>

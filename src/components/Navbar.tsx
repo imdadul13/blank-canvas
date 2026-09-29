@@ -20,6 +20,9 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
+  Cloud,
+  ShieldCheck,
+  Target,
 } from 'lucide-react';
 import OneShotLogo from './OneShotLogo';
 import { AppStats } from '../utils/storage';
@@ -68,12 +71,12 @@ export interface NavbarProps {
 }
 
 export const primaryNavItems = [
-  { id: 'dashboard' as ActiveTab, label: 'Home', icon: Home },
-  { id: 'syllabus' as ActiveTab, label: 'Study', icon: BookOpen },
-  { id: 'practice' as ActiveTab, label: 'Practice', icon: Edit3 },
-  { id: 'progress' as ActiveTab, label: 'Performance', icon: BarChart3 },
-  { id: 'pearls' as ActiveTab, label: 'Knowledge', icon: BookMarked },
-  { id: 'aicoach' as ActiveTab, label: 'Mentor', icon: Users },
+  { id: 'dashboard' as ActiveTab, label: 'Home',        desc: 'Your study command center', icon: Home,      color: '#007AFF', bg: '#EBF3FF', activeBg: '#007AFF' },
+  { id: 'syllabus'  as ActiveTab, label: 'Study',       desc: 'Subjects & topic mastery',  icon: BookOpen,  color: '#30D158', bg: '#E3F9EC', activeBg: '#30D158' },
+  { id: 'practice'  as ActiveTab, label: 'Practice',    desc: 'MCQs & timed sessions',     icon: Edit3,     color: '#FF9500', bg: '#FFF4E0', activeBg: '#FF9500' },
+  { id: 'progress'  as ActiveTab, label: 'Performance', desc: 'Analytics & accuracy',      icon: BarChart3, color: '#5AC8FA', bg: '#E4F5FF', activeBg: '#5AC8FA' },
+  { id: 'pearls'    as ActiveTab, label: 'Knowledge',   desc: 'Pearls & quick recall',     icon: BookMarked,color: '#BF5AF2', bg: '#F3E8FF', activeBg: '#BF5AF2' },
+  { id: 'aicoach'   as ActiveTab, label: 'Mentor',      desc: 'AI-powered guidance',       icon: Users,     color: '#5856D6', bg: '#EEEDFA', activeBg: '#5856D6' },
 ];
 
 export const secondaryNavItems = [
@@ -131,336 +134,7 @@ export const isTabActive = (id: ActiveTab, currentTab: ActiveTab) => {
   return false;
 };
 
-/* ─── Ambient Lower Sidebar Medical Motif ───────────────────────────
-   Directly matching Reference B:
-   - Faint, elegant caduceus line-art watermark on the right
-   - Graceful clinical ECG / rhythm wave starting from left margin
-   - Luminous gold/amber node sitting atop the waveform with a radiant halo
-   - Stacked editorial tagline:
-     "Better Doctors"
-     "Brighter Tomorrows.™"
-   - Fully contained within the sidebar width (no horizontal bleed)
-   ──────────────────────────────────────────────────────────────── */
-/* ─── Ambient Lower Sidebar Medical Motif ───────────────────────────
-   Premium Clinical Signature Art:
-   - Breathing circadian auroras with smooth fluid motion
-   - Precision Asclepius & Caduceus staff with shimmering winged corona
-   - Live continuous ECG telemetry pulse that sweeps along the vector wave
-   - Levitating radiant amber node with concentric cardiac ripple rings
-   - Micro floating clinical particles / sparkles that float upward
-   - Deep editorial tagline in Newsreader typography:
-     "Better Doctors"
-     "Brighter Tomorrows.™"
-   ──────────────────────────────────────────────────────────────── */
-function AmbientMedicalMotif() {
-  const reducedMotion = useReducedMotion();
-
-  return (
-    <div
-      className="flex-1 flex flex-col justify-end relative px-4 pb-6 pt-3 select-none overflow-hidden min-h-[240px]"
-      aria-hidden="true"
-    >
-      {/* Seamless atmospheric gradient wash filling the lower vertical void */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#006B63]/12 via-teal-50/40 to-transparent pointer-events-none" />
-
-      {/* Breathing ambient radial aura orbs */}
-      <motion.div
-        animate={
-          reducedMotion
-            ? undefined
-            : {
-                scale: [1, 1.25, 1],
-                opacity: [0.35, 0.6, 0.35],
-                x: [0, 8, 0],
-              }
-        }
-        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -right-8 -bottom-10 w-48 h-48 rounded-full bg-gradient-to-tl from-teal-200/40 to-emerald-100/20 blur-3xl pointer-events-none"
-      />
-      <motion.div
-        animate={
-          reducedMotion
-            ? undefined
-            : {
-                scale: [1.1, 0.95, 1.1],
-                opacity: [0.25, 0.45, 0.25],
-                y: [0, -10, 0],
-              }
-        }
-        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute left-0 bottom-16 w-36 h-36 rounded-full bg-gradient-to-tr from-amber-200/30 via-teal-100/20 to-transparent blur-2xl pointer-events-none"
-      />
-
-      {/* Ambient Particle Glow */}
-      {!reducedMotion && (
-        <div className="absolute inset-x-4 bottom-24 h-28 pointer-events-none overflow-hidden">
-          <motion.span
-            className="absolute h-1 w-1 rounded-full bg-amber-400/70"
-            style={{ left: '25%', bottom: '20%' }}
-            animate={{
-              y: [0, -35, -50],
-              opacity: [0, 0.8, 0],
-              scale: [0.5, 1.2, 0.4],
-            }}
-            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
-          />
-          <motion.span
-            className="absolute h-1.5 w-1.5 rounded-full bg-teal-400/60"
-            style={{ left: '72%', bottom: '30%' }}
-            animate={{
-              y: [0, -45, -60],
-              opacity: [0, 0.9, 0],
-              scale: [0.6, 1.4, 0.4],
-            }}
-            transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut', delay: 1.8 }}
-          />
-          <motion.span
-            className="absolute h-1 w-1 rounded-full bg-emerald-400/60"
-            style={{ left: '50%', bottom: '15%' }}
-            animate={{
-              y: [0, -30, -45],
-              opacity: [0, 0.7, 0],
-              scale: [0.4, 1, 0.3],
-            }}
-            transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 2.8 }}
-          />
-        </div>
-      )}
-
-      <div className="relative w-full h-[200px]">
-        <svg
-          viewBox="0 0 240 210"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full overflow-visible"
-          aria-hidden="true"
-        >
-          <defs>
-            {/* Luminous dynamic gradient for the clinical rhythm line */}
-            <linearGradient id="ecg-line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#006B63" stopOpacity="0.20" />
-              <stop offset="35%" stopColor="#0D9488" stopOpacity="0.75" />
-              <stop offset="65%" stopColor="#F59E0B" stopOpacity="0.95" />
-              <stop offset="82%" stopColor="#0D9488" stopOpacity="0.65" />
-              <stop offset="100%" stopColor="#006B63" stopOpacity="0.18" />
-            </linearGradient>
-
-            {/* Expansive radial glow for the amber pulse node */}
-            <radialGradient id="pulse-aura-grad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.65" />
-              <stop offset="45%" stopColor="#F59E0B" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-
-          {/* Anatomical Heart & Coronary Network Line-Art Watermark */}
-          <motion.g
-            stroke="#006B63"
-            strokeOpacity="0.16"
-            strokeWidth="1.25"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-            animate={reducedMotion ? undefined : { opacity: [0.85, 1, 0.85] }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            {/* Aortic Arch & Brachiocephalic branches */}
-            <path d="M 130 50 C 130 30, 154 18, 172 24 C 185 28, 192 42, 188 56" strokeWidth="1.4" />
-            <line x1="142" y1="24" x2="142" y2="10" strokeWidth="1.3" />
-            <line x1="156" y1="21" x2="159" y2="8" strokeWidth="1.3" />
-            <line x1="170" y1="23" x2="177" y2="12" strokeWidth="1.3" />
-
-            {/* Pulmonary Trunk & Artery branches */}
-            <path d="M 115 56 C 110 42, 124 32, 136 38" strokeWidth="1.3" />
-            <path d="M 188 52 C 198 56, 208 66, 205 82" strokeWidth="1.3" />
-
-            {/* Cardiac Muscle Silhouette & Ventricular Apex */}
-            <path
-              d="M 128 50 C 102 65, 86 92, 90 122 C 94 154, 122 186, 146 205 C 154 210, 162 205, 170 195 C 190 172, 215 138, 210 98 C 206 70, 190 52, 174 50"
-              strokeWidth="1.5"
-            />
-
-            {/* Anterior Interventricular Sulcus & Coronary Arteries network */}
-            <path d="M 150 58 C 144 82, 142 116, 150 156 C 154 174, 152 192, 148 202" strokeDasharray="3.5 2.5" />
-            <path d="M 144 88 C 130 98, 114 108, 108 126" />
-            <path d="M 116 114 C 106 128, 104 144, 108 158" />
-            <path d="M 148 120 C 160 130, 176 138, 190 144" />
-            <path d="M 162 134 C 168 148, 178 162, 176 178" />
-
-            {/* Vascular branch nodes */}
-            <circle cx="108" cy="126" r="1.5" fill="#006B63" fillOpacity="0.25" />
-            <circle cx="108" cy="158" r="1.5" fill="#006B63" fillOpacity="0.25" />
-            <circle cx="190" cy="144" r="1.5" fill="#006B63" fillOpacity="0.25" />
-            <circle cx="176" cy="178" r="1.5" fill="#006B63" fillOpacity="0.25" />
-
-            {/* Faint Molecular Node Connections & Geometry */}
-            <g opacity="0.8">
-              <circle cx="28" cy="48" r="2" fill="#006B63" fillOpacity="0.3" />
-              <circle cx="46" cy="34" r="1.8" fill="#006B63" fillOpacity="0.3" />
-              <circle cx="58" cy="62" r="2.2" fill="#006B63" fillOpacity="0.3" />
-              <circle cx="78" cy="46" r="1.8" fill="#006B63" fillOpacity="0.3" />
-              <line x1="28" y1="48" x2="46" y2="34" strokeWidth="0.9" strokeOpacity="0.18" />
-              <line x1="46" y1="34" x2="78" y2="46" strokeWidth="0.9" strokeOpacity="0.18" />
-              <line x1="28" y1="48" x2="58" y2="62" strokeWidth="0.9" strokeOpacity="0.18" />
-              <line x1="58" y1="62" x2="78" y2="46" strokeWidth="0.9" strokeOpacity="0.18" />
-            </g>
-          </motion.g>
-
-          {/* Clinical Waveform Rhythm traversing horizontally */}
-          <path
-            id="ecg-track-path"
-            d="M 6 138
-               L 36 138
-               L 42 130
-               L 48 138
-               L 56 138
-               L 62 108
-               L 68 168
-               L 74 125
-               L 80 146
-               L 86 138
-               L 112 138
-               L 118 128
-               L 126 138
-               L 150 138
-               L 156 120
-               L 162 152
-               L 168 134
-               L 174 138
-               L 234 138"
-            stroke="url(#ecg-line-gradient)"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-            className="drop-shadow-xs"
-          />
-
-          {/* Animated Sweeping Pulse Beam over the ECG Path */}
-          {!reducedMotion && (
-            <motion.path
-              d="M 6 138
-                 L 36 138
-                 L 42 130
-                 L 48 138
-                 L 56 138
-                 L 62 108
-                 L 68 168
-                 L 74 125
-                 L 80 146
-                 L 86 138
-                 L 112 138
-                 L 118 128
-                 L 126 138
-                 L 150 138
-                 L 156 120
-                 L 162 152
-                 L 168 134
-                 L 174 138
-                 L 234 138"
-              stroke="#FDE68A"
-              strokeWidth="2.6"
-              strokeLinecap="round"
-              fill="none"
-              strokeDasharray="30 260"
-              animate={{ strokeDashoffset: [290, -290] }}
-              transition={{ duration: 3.2, repeat: Infinity, ease: 'linear', repeatDelay: 1.2 }}
-            />
-          )}
-
-          {/* Concentric Cardiac Ripple Waves around Gold Node (cx=174, cy=138) */}
-          {!reducedMotion && (
-            <>
-              <motion.circle
-                cx="174"
-                cy="138"
-                r="8"
-                stroke="#F59E0B"
-                strokeWidth="1.2"
-                fill="none"
-                animate={{
-                  scale: [1, 2.5],
-                  opacity: [0.7, 0],
-                }}
-                transition={{
-                  duration: 2.6,
-                  repeat: Infinity,
-                  ease: 'easeOut',
-                }}
-              />
-              <motion.circle
-                cx="174"
-                cy="138"
-                r="13"
-                stroke="#006B63"
-                strokeWidth="1"
-                fill="none"
-                animate={{
-                  scale: [1, 2.1],
-                  opacity: [0.5, 0],
-                }}
-                transition={{
-                  duration: 2.6,
-                  repeat: Infinity,
-                  ease: 'easeOut',
-                  delay: 0.6,
-                }}
-              />
-            </>
-          )}
-
-          {/* Luminous Gold Accent Node sitting at wave crest */}
-          <motion.circle
-            cx="174"
-            cy="138"
-            r="16"
-            fill="url(#pulse-aura-grad)"
-            animate={reducedMotion ? undefined : { scale: [1, 1.25, 1], opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <circle cx="174" cy="138" r="6.5" fill="#F59E0B" />
-          <circle cx="174" cy="138" r="3.2" fill="#D97706" />
-          <circle cx="174" cy="138" r="1.5" fill="#FFFDF5" />
-        </svg>
-      </div>
-
-      {/* Doctor Progression & Creed subtle block */}
-      <div className="mt-[-10px] pl-2.5 z-10 relative space-y-2">
-        <div className="space-y-0.5 opacity-40 hover:opacity-75 transition-opacity">
-          <p className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#006B63] uppercase leading-none">
-            LEARN
-          </p>
-          <p className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#006B63] uppercase leading-none">
-            PRACTICE
-          </p>
-          <p className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#006B63] uppercase leading-none">
-            IMPROVE
-          </p>
-          <p className="text-[9px] font-mono font-bold tracking-[0.2em] text-[#006B63] uppercase leading-none">
-            BECOME
-          </p>
-          <p className="text-[9.5px] font-mono font-extrabold tracking-[0.16em] text-[#006B63] uppercase leading-none pt-0.5">
-            A BETTER DOCTOR
-          </p>
-        </div>
-
-        {/* Brand Tagline in 2 lines with refined typography */}
-        <div className="pt-1">
-          <p className="font-['Newsreader',_serif] italic text-[15px] leading-[1.25] text-[#006B63] font-semibold tracking-tight">
-            Better Doctors.
-          </p>
-          <p className="font-['Newsreader',_serif] italic text-[15px] leading-[1.25] text-[#006B63] font-semibold tracking-tight flex items-center">
-            <span>Brighter Tomorrows.</span>
-            <span className="text-[9.5px] font-sans not-italic font-bold ml-1 text-amber-600 align-super">™</span>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ─── Desktop Sidebar ────────────────────────────────────────────── */
-/** Desktop Left Vertical Sidebar Dock (Visual Source of Truth Architecture) */
 export const SidebarDock: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
@@ -487,6 +161,19 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   const sidebarRef = useRef<HTMLElement>(null);
   const moreHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reducedMotion = useReducedMotion();
+
+  const QUOTES = [
+    { text: 'Every question answered is a life better served.', author: null },
+    { text: 'The good physician treats the disease. The great physician treats the patient.', author: 'Osler' },
+    { text: 'Study hard today. Heal lives tomorrow.', author: null },
+    { text: 'Medicine is learned at the bedside, not in the classroom.', author: 'Osler' },
+    { text: 'Your future patients are counting on your focus right now.', author: null },
+  ] as const;
+  const [quoteIdx, setQuoteIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setQuoteIdx(i => (i + 1) % QUOTES.length), 7000);
+    return () => clearInterval(t);
+  }, []);
 
   const isVisible = isSidebarOpen || isSidebarHovered;
 
@@ -558,289 +245,324 @@ export const SidebarDock: React.FC<NavbarProps> = ({
       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       onMouseEnter={onSidebarHoverEnter}
       onMouseLeave={onSidebarHoverLeave}
-      className={`hidden lg:flex flex-col justify-between w-60 xl:w-64 h-screen select-none font-sans fixed inset-y-0 left-0 transition-colors duration-200 ${
+      className={`hidden lg:flex flex-col w-60 xl:w-64 h-screen select-none font-sans fixed inset-y-0 left-0 transition-colors duration-200 ${
         isSidebarOpen
-          ? 'bg-[#F6F6F6]/85 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.06] shadow-[inset_-1px_0_0_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.02)] z-40'
-          : 'bg-[#F6F6F6]/95 backdrop-blur-2xl saturate-[180%] border-r border-black/[0.08] shadow-[0_24px_64px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.06)] z-50'
+          ? 'bg-white/95 backdrop-blur-2xl saturate-150 border-r border-black/[0.07] z-40'
+          : 'bg-white/98 backdrop-blur-2xl border-r border-black/[0.09] shadow-[0_24px_64px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.06)] z-50'
       } ${!isVisible ? 'pointer-events-none' : 'pointer-events-auto'}`}
       aria-label="Desktop Navigation"
     >
-      {/* ── Top: Logo & Primary Navigation ─────────────────── */}
-      <div className="flex flex-col">
-        {/* Brand Header & Toggle */}
-        <div className="px-3.5 pt-3.5 pb-2.5 border-b border-black/[0.06]">
-          <div className="flex items-center justify-between gap-1.5">
-            <div
-              onClick={() => handleNavClick('dashboard')}
-              className="cursor-pointer rounded-xl p-1 -ml-1 transition-opacity hover:opacity-85 active:opacity-70 min-w-0"
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleNavClick('dashboard');
-                }
-              }}
-              aria-label="ONE SHOT FMGE — Go to Home"
-            >
-              <OneShotLogo variant="horizontal" showTagline={true} />
-            </div>
-
-            {/* Toggle Button ON/OFF */}
-            {onToggleSidebar && (
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.92 }}
-                onClick={onToggleSidebar}
-                className={`h-8 w-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
-                  isSidebarOpen
-                    ? 'text-slate-400 hover:text-slate-800 hover:bg-black/[0.05]'
-                    : 'text-[#006B63] bg-teal-50 hover:bg-teal-100/80 border border-teal-200/80 shadow-2xs'
-                }`}
-                title={isSidebarOpen ? 'Turn sidebar OFF (⌘B) · Hover to peek' : 'Pin sidebar ON (⌘B)'}
-                aria-label={isSidebarOpen ? 'Turn sidebar OFF' : 'Pin sidebar ON'}
-              >
-                {isSidebarOpen ? (
-                  <PanelLeftClose className="h-4.5 w-4.5 stroke-[1.8]" />
-                ) : (
-                  <PanelLeftOpen className="h-4.5 w-4.5 stroke-[2]" />
-                )}
-              </motion.button>
-            )}
-          </div>
-
-          {/* Live Sync Status Pill */}
-          <button
-            type="button"
-            onClick={onOpenCloudSync}
-            className="mt-2.5 flex items-center justify-between w-full px-2.5 py-1.5 rounded-xl bg-white/80 hover:bg-white border border-black/[0.06] text-[11px] font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer group shadow-2xs"
-            title="View Cloud Sync & Auto-Snapshots"
+      {/* ── Top: Brand Header ───────────────────────────────── */}
+      <div className="flex flex-col min-h-0 flex-1">
+        <div className="px-4 pt-4 pb-3 flex items-center justify-between gap-2 shrink-0">
+          <div
+            onClick={() => handleNavClick('dashboard')}
+            className="cursor-pointer min-w-0 flex-1 transition-opacity hover:opacity-80 active:opacity-50"
+            role="button" tabIndex={0}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNavClick('dashboard'); } }}
+            aria-label="ONE SHOT FMGE — Go to Home"
           >
-            <span className="flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span className="font-semibold text-slate-800 group-hover:text-slate-950">
-                {syncStatus === 'offline' ? 'Offline Ready' : 'Synced'}
-              </span>
-            </span>
-            <span className="text-[10px] text-slate-400 font-mono">Auto-Snapshots</span>
-          </button>
+            <OneShotLogo variant="horizontal" showTagline={false} />
+          </div>
+          {onToggleSidebar && (
+            <motion.button type="button" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
+              onClick={onToggleSidebar}
+              className="h-7 w-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer shrink-0 text-[#8E8E93] hover:text-[#1D1D1F] hover:bg-black/[0.05]"
+              title={isSidebarOpen ? 'Collapse (⌘B)' : 'Pin (⌘B)'}
+            >
+              {isSidebarOpen ? <PanelLeftClose className="h-4 w-4 stroke-[1.8]" /> : <PanelLeftOpen className="h-4 w-4 stroke-[2]" />}
+            </motion.button>
+          )}
         </div>
 
-        {/* Primary Navigation List */}
-        <nav className="px-3 pt-2.5 space-y-0.5" aria-label="Main Navigation">
-          {primaryNavItems.map(({ id, label, icon: Icon }) => {
+        {/* ── Section: Menu (Assorted Apple Colors) ─────────── */}
+        <nav className="px-3 pb-2 space-y-[3px] shrink-0" aria-label="Main Navigation">
+          <p className="px-2 pb-1.5 text-[10.5px] font-bold tracking-[0.12em] uppercase text-[#8E8E93] select-none">Menu</p>
+          {primaryNavItems.map(({ id, label, desc, icon: Icon, color, bg }) => {
             const active = isTabActiveLocal(id);
             return (
               <div key={id} className="relative">
-                {/* Shared animated background pill with Apple Music elevated card highlight */}
+                {/* Animated active background pill */}
                 {active && !reducedMotion && (
                   <motion.div
                     layoutId="sidebar-active-pill"
-                    className="absolute inset-0 rounded-2xl bg-white border border-black/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]"
                     transition={EASE_SPRING}
+                    className="absolute inset-0 rounded-xl"
+                    style={{ background: `${color}14`, border: `1px solid ${color}28` }}
                   />
                 )}
                 {active && reducedMotion && (
-                  <div className="absolute inset-0 rounded-2xl bg-white border border-black/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]" />
+                  <div className="absolute inset-0 rounded-xl" style={{ background: `${color}14`, border: `1px solid ${color}28` }} />
                 )}
 
                 <motion.button
                   type="button"
                   onClick={() => handleNavClick(id)}
                   aria-current={active ? 'page' : undefined}
-                  whileHover={reducedMotion ? undefined : { x: 2 }}
                   whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-                  className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2 rounded-2xl text-[13.5px] transition-colors duration-150 cursor-pointer group ${
+                  className={`relative z-10 w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13.5px] transition-all duration-150 cursor-pointer outline-none group ${
                     active
-                      ? 'text-slate-900 font-bold'
-                      : 'text-slate-600 font-medium hover:text-slate-900 hover:bg-black/[0.03]'
+                      ? 'font-bold text-[#1D1D1F]'
+                      : 'font-semibold text-[#48484A] hover:text-[#1D1D1F] hover:bg-black/[0.035]'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <Icon
-                        className={`h-[19px] w-[19px] shrink-0 transition-all duration-200 ${
-                          active
-                            ? 'text-[#006B63] fill-[#006B63]/20 stroke-[#006B63] stroke-[2.2] scale-105'
-                            : 'text-slate-400 stroke-[1.8] group-hover:text-slate-800 group-hover:stroke-slate-800 group-hover:scale-105'
-                        }`}
-                      />
-                      {active && (
-                        <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-[#006B63] ring-1.5 ring-white" />
-                      )}
-                    </div>
-                    <span>{label}</span>
+                  {/* Assorted Apple squircle icon container */}
+                  <div
+                    className="h-8 w-8 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200"
+                    style={active
+                      ? { background: color, boxShadow: `0 3px 10px ${color}45` }
+                      : { background: bg }
+                    }
+                  >
+                    <Icon
+                      className="h-4 w-4 shrink-0 stroke-[2.2]"
+                      style={{ color: active ? 'white' : color }}
+                    />
                   </div>
+
+                  {/* Label + desc */}
+                  <div className="flex flex-col min-w-0 text-left">
+                    <span className="leading-tight truncate tracking-tight">{label}</span>
+                    {active && (
+                      <motion.span
+                        initial={{ opacity: 0, y: -2 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-[10px] font-medium leading-tight truncate mt-[1px]"
+                        style={{ color: `${color}cc` }}
+                      >
+                        {desc}
+                      </motion.span>
+                    )}
+                  </div>
+
+                  {/* Active chevron */}
                   {active && (
-                    <motion.div
-                      initial={{ opacity: 0, x: -4 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <ChevronRight className="h-4 w-4 text-slate-400 stroke-[2.5]" />
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="ml-auto">
+                      <ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" style={{ color }} />
                     </motion.div>
                   )}
                 </motion.button>
               </div>
             );
           })}
+        </nav>
 
-          {/* Clean Separator Line */}
-          <div className="pt-2 pb-1">
-            <div className="border-t border-black/[0.06]" />
-          </div>
+        {/* Separator */}
+        <div className="mx-4 my-2 border-t border-black/[0.06] shrink-0" />
 
-          {/* ── More Section (Interactive Card on Hover & Click) ──────────────── */}
-          <div
-            className="relative"
-            ref={moreMenuRef}
-            onMouseEnter={handleMoreMouseEnter}
-            onMouseLeave={handleMoreMouseLeave}
-          >
-            <div className="relative">
-              {isSecondaryActive && !reducedMotion && (
-                <motion.div
-                  layoutId="sidebar-active-pill"
-                  className="absolute inset-0 rounded-2xl bg-[#D8F2EC] border border-[#BDE4DA]"
-                  transition={EASE_SPRING}
-                />
-              )}
-              {isSecondaryActive && reducedMotion && (
-                <div className="absolute inset-0 rounded-2xl bg-[#D8F2EC] border border-[#BDE4DA]" />
-              )}
+        {/* ── Section: Tools (More) ─────────────────────────── */}
+        <div
+          className="px-3 shrink-0"
+          ref={moreMenuRef}
+          onMouseEnter={handleMoreMouseEnter}
+          onMouseLeave={handleMoreMouseLeave}
+        >
+          <p className="px-2 pb-1.5 text-[10.5px] font-bold tracking-[0.12em] uppercase text-[#8E8E93] select-none">Tools</p>
 
-              <motion.button
-                type="button"
-                onClick={() => {
-                  handleNavClick('more');
-                  setIsMoreMenuOpen((prev) => !prev);
-                }}
-                whileHover={reducedMotion ? undefined : { x: 3 }}
-                whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-                aria-expanded={isMoreMenuOpen}
-                aria-haspopup="menu"
-                aria-label="More utilities"
-                className={`relative z-10 w-full flex items-center justify-between px-3.5 py-2 rounded-2xl text-[13.5px] transition-colors duration-150 cursor-pointer group ${
-                  isSecondaryActive || isMoreMenuOpen
-                    ? 'text-[#006B63] font-bold bg-[#D8F2EC]'
-                    : 'text-slate-600 font-medium hover:text-slate-900 hover:bg-black/[0.03]'
-                }`}
+          <div className="relative">
+            {/* Active pill for More */}
+            {isSecondaryActive && !reducedMotion && (
+              <motion.div
+                layoutId="sidebar-active-pill"
+                transition={EASE_SPRING}
+                className="absolute inset-0 rounded-xl bg-[#007AFF]/10 border border-[#007AFF]/25"
+              />
+            )}
+            {isSecondaryActive && reducedMotion && (
+              <div className="absolute inset-0 rounded-xl bg-[#007AFF]/10 border border-[#007AFF]/25" />
+            )}
+
+            <motion.button
+              type="button"
+              onClick={() => { handleNavClick('more'); setIsMoreMenuOpen((prev) => !prev); }}
+              whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+              transition={{ type: 'spring', stiffness: 450, damping: 28 }}
+              aria-expanded={isMoreMenuOpen}
+              aria-haspopup="menu"
+              aria-label="More utilities"
+              className={`relative z-10 w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13.5px] transition-all duration-150 cursor-pointer outline-none group ${
+                isSecondaryActive || isMoreMenuOpen
+                  ? 'font-bold text-[#007AFF]'
+                  : 'font-semibold text-[#48484A] hover:text-[#1D1D1F] hover:bg-black/[0.035]'
+              }`}
+            >
+              <div
+                className="h-8 w-8 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200"
+                style={isSecondaryActive || isMoreMenuOpen
+                  ? { background: '#007AFF', boxShadow: '0 3px 10px rgba(0,122,255,0.38)' }
+                  : { background: '#EBF3FF' }
+                }
               >
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={`w-7 h-7 rounded-xl flex items-center justify-center transition-colors ${
-                      isSecondaryActive || isMoreMenuOpen
-                        ? 'bg-[#006B63]/15 text-[#006B63]'
-                        : 'bg-slate-100 text-slate-500 group-hover:bg-[#006B63]/10 group-hover:text-[#006B63]'
-                    }`}
-                  >
-                    <MoreHorizontal className="h-4 w-4 stroke-[2]" />
-                  </div>
-                  <span>More</span>
-                </div>
-                <ChevronRight
-                  className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
-                    isMoreMenuOpen ? 'rotate-90 text-[#006B63]' : ''
-                  }`}
+                <MoreHorizontal
+                  className="h-4 w-4 stroke-[2.2]"
+                  style={{ color: isSecondaryActive || isMoreMenuOpen ? 'white' : '#007AFF' }}
                 />
-              </motion.button>
-            </div>
+              </div>
+              <span className="tracking-tight">More</span>
+              <ChevronRight
+                className={`h-3.5 w-3.5 ml-auto stroke-[2.5] transition-transform duration-200 ${
+                  isSecondaryActive || isMoreMenuOpen ? 'text-[#007AFF]' : 'text-[#8E8E93]'
+                } ${isMoreMenuOpen ? 'rotate-90' : ''}`}
+              />
+            </motion.button>
 
-            {/* Seamless invisible hover bridge so cursor travels safely between trigger button and card popover */}
-            <div className="absolute left-full top-0 w-3 h-full pointer-events-auto" />
+            {/* Hover bridge */}
+            <div className="absolute left-full top-0 w-4 h-full pointer-events-auto" />
 
-            {/* ── Desktop Floating Card Popover ── */}
+            {/* ── Popover ── */}
             <AnimatePresence>
               {isMoreMenuOpen && (
                 <motion.div
                   initial={reducedMotion ? false : { opacity: 0, x: -8, scale: 0.96 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={reducedMotion ? undefined : { opacity: 0, x: -8, scale: 0.96 }}
-                  transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute left-[calc(100%+8px)] top-0 w-64 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-[0_18px_48px_rgba(0,107,99,0.12)] border border-slate-200/90 py-2.5 px-2 z-50 font-['Plus_Jakarta_Sans']"
-                  role="menu"
-                  aria-label="Secondary Utilities"
+                  transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute left-[calc(100%+12px)] bottom-0 w-64 bg-white/95 backdrop-blur-2xl rounded-2xl py-2.5 px-2 z-[60] border border-black/[0.08] shadow-[0_20px_52px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.06)]"
+                role="menu"
+                aria-label="Secondary Utilities"
+              >
+                <button
+                  type="button"
+                  onClick={() => { handleNavClick('more'); setIsMoreMenuOpen(false); }}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#F2F2F7] border-b border-black/[0.06] mb-1.5 pb-2.5 cursor-pointer text-left group transition-colors"
                 >
-                  {/* Top Bar: Clickable to open full Utilities Directory */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleNavClick('more');
-                      setIsMoreMenuOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-[#E8F5F3] border-b border-slate-100/80 mb-1.5 cursor-pointer text-left group transition-colors"
-                    title="Open Full Utilities Directory"
-                  >
-                    <div className="flex items-center gap-2 text-slate-700 group-hover:text-[#006B63] font-semibold text-xs">
-                      <MoreHorizontal className="h-3.5 w-3.5 text-[#006B63]" />
-                      <span>Utilities Directory</span>
-                    </div>
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-transform" />
-                  </button>
+                  <div className="flex items-center gap-2 text-[#1D1D1F] group-hover:text-[#007AFF] font-bold text-xs transition-colors">
+                    <MoreHorizontal className="h-3.5 w-3.5 text-[#007AFF]" />
+                    <span>Utilities Directory</span>
+                  </div>
+                  <ChevronRight className="h-3.5 w-3.5 text-[#8E8E93] group-hover:text-[#007AFF] group-hover:translate-x-0.5 transition-all" />
+                </button>
 
-                  {/* Utility Items */}
-                  <div className="space-y-0.5">
-                    {moreUtilityItems.map((item) => {
-                      const { id, label, icon: Icon, desc } = item;
-                      const active = Boolean(item.tab && activeTab === item.tab);
-                      return (
-                        <button
-                          key={id}
-                          type="button"
-                          role="menuitem"
-                          onClick={() => {
-                            if (item.tab) {
-                              handleNavClick(item.tab);
-                            } else if (item.action === 'cloudsync') {
-                              onOpenCloudSync?.();
-                              if (!isSidebarOpen) onSidebarHoverLeave?.();
-                            } else if (item.action === 'onboarding') {
-                              onOpenOnboarding?.();
-                              if (!isSidebarOpen) onSidebarHoverLeave?.();
-                            } else if (item.action === 'settings') {
-                              onOpenSettings();
-                              if (!isSidebarOpen) onSidebarHoverLeave?.();
-                            }
-                            setIsMoreMenuOpen(false);
-                          }}
-                          className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
-                            active
-                              ? 'bg-[#E8F5F3] text-[#006B63]'
-                              : 'hover:bg-teal-50/70 hover:text-[#006B63] text-slate-700'
+                <div className="space-y-0.5">
+                  {moreUtilityItems.map((item) => {
+                    const { id, label, icon: Icon, desc } = item;
+                    const active = Boolean(item.tab && activeTab === item.tab);
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          if (item.tab) {
+                            handleNavClick(item.tab);
+                          } else if (item.action === 'cloudsync') {
+                            onOpenCloudSync?.();
+                            if (!isSidebarOpen) onSidebarHoverLeave?.();
+                          } else if (item.action === 'onboarding') {
+                            onOpenOnboarding?.();
+                            if (!isSidebarOpen) onSidebarHoverLeave?.();
+                          } else if (item.action === 'settings') {
+                            onOpenSettings();
+                            if (!isSidebarOpen) onSidebarHoverLeave?.();
+                          }
+                          setIsMoreMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
+                          active ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'hover:bg-[#F2F2F7] text-[#3A3A3C] hover:text-[#1D1D1F]'
+                        }`}
+                      >
+                        <div
+                          className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                            active ? 'bg-[#007AFF] text-white shadow-[0_2px_8px_rgba(0,122,255,0.35)]' : 'bg-[#EBF3FF] group-hover:bg-[#007AFF]/10'
                           }`}
                         >
-                          <div
-                            className={`p-2 rounded-lg shrink-0 transition-colors ${
-                              active
-                                ? 'bg-[#006B63] text-white shadow-2xs'
-                                : 'bg-slate-100 text-slate-600 group-hover:bg-[#006B63]/10 group-hover:text-[#006B63]'
-                            }`}
-                          >
-                            <Icon className="h-4 w-4" />
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[13px] font-semibold leading-tight">{label}</span>
-                            <span className="text-[10px] text-slate-400 truncate">{desc}</span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </nav>
+                          <Icon className="h-4 w-4" style={{ color: active ? 'white' : '#007AFF' }} />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[13px] font-semibold leading-tight">{label}</span>
+                          <span className="text-[10px] text-[#8E8E93] truncate">{desc}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
-      {/* ── Bottom: Ambient Medical Signature ──────────────── */}
-      <AmbientMedicalMotif />
+        {/* Flexible calm Apple negative space */}
+        <div className="flex-1" />
+      </div>
+
+      {/* ── Bottom: Sync + Apple Glass Quote Card ──────────── */}
+      <div className="px-3 pb-4 pt-2 shrink-0">
+        <div className="border-t border-black/[0.06] mb-3" />
+
+        {/* Sync row */}
+        <button type="button" onClick={onOpenCloudSync}
+          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-black/[0.03] transition-colors cursor-pointer group mb-3"
+        >
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#34C759] opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#34C759]" />
+          </span>
+          <span className="text-[11px] font-semibold text-[#8E8E93] group-hover:text-[#1D1D1F] flex-1 text-left transition-colors">
+            {syncStatus === 'offline' ? 'Offline Ready' : 'Synced to cloud'}
+          </span>
+          <span className="text-[10px] font-medium text-[#C7C7CC]">Auto</span>
+        </button>
+
+        {/* Animated Quote Card */}
+        <div
+          className="relative overflow-hidden rounded-2xl p-3.5 border border-black/[0.06] shadow-[0_2px_12px_rgba(0,0,0,0.03)]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(245,245,247,0.92) 100%)',
+          }}
+        >
+          {/* Subtle ambient azure glow */}
+          <div className="pointer-events-none absolute -top-6 -right-6 h-16 w-16 rounded-full bg-[#007AFF]/10 blur-xl" />
+
+          {/* ECG art row */}
+          <div className="relative flex items-center gap-2 mb-2">
+            {/* Pulsing dot */}
+            <div className="relative shrink-0 flex items-center justify-center h-4 w-4">
+              <span className="absolute inset-0 rounded-full bg-[#007AFF]/25 animate-ping" style={{ animationDuration: '2.4s' }} />
+              <span className="relative h-2 w-2 rounded-full bg-[#007AFF] shadow-[0_0_6px_rgba(0,122,255,0.6)]" />
+            </div>
+
+            {/* ECG trace SVG */}
+            <svg viewBox="0 0 100 20" className="flex-1 h-3.5 overflow-visible" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="ecg-grad-sb" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#007AFF" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#5AC8FA" stopOpacity="0.8" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M0 10 L18 10 L22 4 L26 16 L30 3 L34 10 L44 10 L47 7 L50 10 L100 10"
+                stroke="url(#ecg-grad-sb)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+
+          {/* Rotating quote */}
+          <div className="relative min-h-[2.8rem]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={quoteIdx}
+                initial={reducedMotion ? false : { opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reducedMotion ? undefined : { opacity: 0, y: -4 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="space-y-1"
+              >
+                <p className="text-[11.5px] font-semibold leading-[1.4] text-[#1D1D1F] tracking-tight">
+                  "{QUOTES[quoteIdx].text}"
+                </p>
+                {QUOTES[quoteIdx].author && (
+                  <p className="text-[10px] font-bold text-[#8E8E93] tracking-wide">— {QUOTES[quoteIdx].author}</p>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
     </motion.aside>
   );
 };
@@ -995,7 +717,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.94 }}
               onClick={onExitGuest}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-teal-50/80 backdrop-blur-md border border-teal-300/80 text-[11px] font-extrabold text-[#006B63] shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#EBF3FF] backdrop-blur-md border border-[#B8D9FF] text-[11px] font-extrabold text-[#007AFF] shadow-2xs cursor-pointer"
               title="Exit Local Practice Mode"
             >
               <ArrowLeft className="h-3 w-3 stroke-[2.5]" />
@@ -1010,116 +732,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={onOpenCloudSync}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100/90 hover:bg-teal-50 border border-slate-200/80 text-[11px] font-semibold text-slate-700 hover:text-teal-800 transition-colors cursor-pointer shadow-2xs"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F2F2F7]/90 hover:bg-[#F0F6FF] border border-[rgba(60,60,67,0.12)] text-[11px] font-semibold text-[#3A3A3C] hover:text-[#007AFF] transition-colors cursor-pointer shadow-2xs"
               title="Cloud Sync & Local Snapshots"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#30D158] animate-pulse" />
               <span className="text-[10px] font-medium hidden xs:inline">{syncStatus === 'offline' ? 'Offline' : 'Synced'}</span>
             </button>
           )}
 
-          {/* Mobile More Utilities Button in Top Header */}
-          <div className="relative" ref={mobileMoreRef}>
-            <button
-              type="button"
-              onClick={() => setMobileMoreOpen((o) => !o)}
-              aria-expanded={mobileMoreOpen}
-              aria-haspopup="menu"
-              aria-label="More utilities"
-              className={`relative flex items-center justify-center h-9 w-9 rounded-full border shadow-2xs transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B63]/40 ${
-                mobileMoreOpen || isSecondaryActive
-                  ? 'bg-[#E8F5F3] border-teal-200 text-[#006B63]'
-                  : 'bg-slate-100/90 hover:bg-white border-slate-200/90 hover:border-slate-300 text-stone-700 hover:text-[#006B63] shadow-xs'
-              }`}
-            >
-              <MoreHorizontal className="h-4.5 w-4.5" />
-            </button>
 
-            {/* Mobile More Popover */}
-            <AnimatePresence>
-              {mobileMoreOpen && (
-                <motion.div
-                  initial={reducedMotion ? false : { opacity: 0, y: -6, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={reducedMotion ? undefined : { opacity: 0, y: -6, scale: 0.96 }}
-                  transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute right-0 top-[calc(100%+0.5rem)] w-64 max-w-[calc(100vw-2rem)] z-50 rounded-2xl bg-white/95 backdrop-blur-2xl saturate-[180%] border border-slate-200/90 shadow-[0_18px_48px_rgba(0,0,0,0.1)] p-2 font-sans"
-                  role="menu"
-                  aria-label="Secondary Utilities"
-                >
-                  <div
-                    onClick={() => {
-                      setActiveTab('more');
-                      setMobileMoreOpen(false);
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        setActiveTab('more');
-                        setMobileMoreOpen(false);
-                      }
-                    }}
-                    className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100/80 mb-1 cursor-pointer hover:bg-teal-50/70 rounded-xl transition-colors group"
-                  >
-                    <div className="flex items-center gap-2 text-slate-700 group-hover:text-[#006B63] font-semibold text-xs">
-                      <MoreHorizontal className="h-3.5 w-3.5 text-[#006B63]" />
-                      <span>More</span>
-                    </div>
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#006B63] group-hover:translate-x-0.5 transition-all" />
-                  </div>
-                  {moreUtilityItems.map((item) => {
-                    const { id, label, icon: Icon, desc } = item;
-                    const active = Boolean(item.tab && activeTab === item.tab);
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          if (item.tab) {
-                            setActiveTab(item.tab);
-                          } else if (item.action === 'cloudsync') {
-                            onOpenCloudSync?.();
-                          } else if (item.action === 'onboarding') {
-                            onOpenOnboarding?.();
-                          } else if (item.action === 'settings') {
-                            onOpenSettings();
-                          }
-                          setMobileMoreOpen(false);
-                        }}
-                        className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
-                          active
-                            ? 'bg-[#E8F5F3] text-[#006B63]'
-                            : 'hover:bg-teal-50/70 hover:text-[#006B63] text-slate-700'
-                        }`}
-                      >
-                        <div
-                          className={`p-2 rounded-lg shrink-0 transition-colors ${
-                            active
-                              ? 'bg-[#006B63] text-white shadow-2xs'
-                              : 'bg-slate-100 text-slate-600 group-hover:bg-[#006B63]/10 group-hover:text-[#006B63]'
-                          }`}
-                        >
-                          <Icon className="h-4 w-4" />
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-[13px] font-semibold leading-tight">{label}</span>
-                          <span className="text-[10px] text-slate-400 truncate">{desc}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
 
           {/* Avatar Profile Trigger */}
           <button
             type="button"
             onClick={onOpenProfile}
-            className="h-9 w-9 rounded-full bg-[#2A2322] text-white font-['Outfit'] font-bold text-xs flex items-center justify-center ring-2 ring-slate-900/10 shadow-xs cursor-pointer hover:ring-[#006B63] transition-all overflow-hidden"
+            className="h-9 w-9 rounded-full bg-[#2A2322] text-white font-bold text-xs flex items-center justify-center ring-2 ring-[rgba(0,0,0,0.10)] shadow-xs cursor-pointer hover:ring-[#007AFF] transition-all overflow-hidden"
             title={`${userName} — Doctor Profile`}
             aria-label={`${userName} — Doctor Profile`}
           >
@@ -1132,111 +759,229 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </motion.header>
 
-      {/* ── Dynamic Floating Pill Navigation Bar with Auto-Hide on Scroll ── */}
+      {/* ── iOS-style Floating Tab Bar ── */}
       <motion.nav
-        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1.25rem)] w-auto bg-white/85 backdrop-blur-2xl saturate-[180%] border border-black/[0.08] shadow-[0_16px_40px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04),inset_0_1px_1.5px_rgba(255,255,255,0.98)] rounded-full px-2 py-1.5 font-sans select-none"
+        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1rem)]"
         style={{
-          bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))',
+          bottom: 'calc(0.625rem + env(safe-area-inset-bottom, 0px))',
           transformOrigin: 'center bottom',
         }}
         initial={false}
         animate={
           reducedMotion
             ? { y: isNavVisible ? 0 : 100, opacity: isNavVisible ? 1 : 0 }
-            : {
-                y: isNavVisible ? 0 : 100,
-                opacity: isNavVisible ? 1 : 0,
-                scale: isNavVisible ? 1 : 0.9,
-              }
+            : { y: isNavVisible ? 0 : 100, opacity: isNavVisible ? 1 : 0, scale: isNavVisible ? 1 : 0.94 }
         }
-        transition={{
-          type: 'spring',
-          stiffness: 440,
-          damping: 28,
-        }}
+        transition={{ type: 'spring', stiffness: 440, damping: 32 }}
         aria-label="Mobile Navigation"
       >
-        <div className="flex items-center gap-1 xs:gap-1.5 md:gap-2.5">
-          {mobileNavItems.map(({ id, label, icon: Icon }) => {
+        {/* Glass pill container */}
+        <div
+          className="flex items-end gap-0.5 px-2 pt-2 pb-1.5 rounded-[28px] select-none"
+          style={{
+            background: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(28px) saturate(200%)',
+            WebkitBackdropFilter: 'blur(28px) saturate(200%)',
+            border: '1px solid rgba(0,0,0,0.08)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.98), 0 12px 36px rgba(0,0,0,0.12), 0 3px 8px rgba(0,0,0,0.06)',
+          }}
+        >
+          {mobileNavItems.map(({ id, label, icon: Icon, color, bg }) => {
             const active = isTabActiveLocal(id);
-            const isFilledIcon = id === 'dashboard' || id === 'pearls';
             return (
-              <div key={id} className="relative">
-                <motion.button
-                  type="button"
-                  whileTap={reducedMotion ? undefined : { scale: 0.86 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-                  onClick={() => {
-                    setActiveTab(id);
-                    setMobileMoreOpen(false);
-                  }}
-                  aria-current={active ? 'page' : undefined}
-                  className={`relative flex items-center justify-center h-10 w-11 xs:w-12 md:w-14 md:h-11 rounded-full transition-all duration-200 cursor-pointer group ${
-                    active
-                      ? 'bg-[#FA2D48]/14 border border-[#FA2D48]/25 shadow-xs text-[#FA2D48]'
-                      : 'border border-transparent text-black'
-                  }`}
-                  title={label}
-                  aria-label={label}
-                >
+              <motion.button
+                key={id}
+                type="button"
+                whileTap={reducedMotion ? undefined : { scale: 0.88 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+                onClick={() => { setActiveTab(id); setMobileMoreOpen(false); }}
+                aria-current={active ? 'page' : undefined}
+                aria-label={label}
+                className="relative flex flex-col items-center justify-end cursor-pointer outline-none focus-visible:ring-2 rounded-2xl"
+                style={{
+                  minWidth: 52,
+                  paddingLeft: 6,
+                  paddingRight: 6,
+                  paddingBottom: 2,
+                  // the ring follows the tab's own colour, like the drawer pill
+                  ['--tw-ring-color' as string]: `${color}59`,
+                }}
+              >
+                {/* Active background capsule */}
+                {active && (
                   <motion.div
-                    animate={active && !reducedMotion ? { scale: [1, 1.15, 1] } : undefined}
-                    transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                    className="relative z-10 flex items-center justify-center"
-                  >
-                    <Icon
-                      className={`h-[21px] w-[21px] transition-all duration-150 ${
-                        active
-                          ? isFilledIcon
-                            ? 'stroke-[2.2] text-[#FA2D48] fill-[#FA2D48]'
-                            : 'stroke-[2.3] text-[#FA2D48] fill-[#FA2D48]/20'
-                          : 'stroke-[2.1] text-black fill-transparent'
-                      }`}
-                    />
-                  </motion.div>
-                </motion.button>
-              </div>
+                    layoutId="tab-active-bg"
+                    className="absolute inset-x-0 top-0 bottom-5 rounded-2xl"
+                    style={{ background: `${color}1A` }}
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                  />
+                )}
+
+                {/* Icon */}
+                <motion.div
+                  animate={active && !reducedMotion ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                  className="relative z-10 mb-0.5"
+                >
+                  <Icon
+                    className="transition-all duration-150"
+                    style={{
+                      width: 22, height: 22,
+                      color: active ? color : '#3C3C43',
+                      opacity: active ? 1 : 0.6,
+                      strokeWidth: active ? 2.2 : 1.9,
+                      fill: active ? `${color}26` : 'transparent',
+                    }}
+                  />
+                </motion.div>
+
+                {/* Label — always visible, iOS HIG */}
+                <span
+                  className="relative z-10 font-sans leading-none transition-all duration-150"
+                  style={{
+                    fontSize: 10,
+                    fontWeight: active ? 600 : 400,
+                    letterSpacing: '-0.01em',
+                    color: active ? '#007AFF' : 'rgba(60,60,67,0.6)',
+                  }}
+                >
+                  {label}
+                </span>
+              </motion.button>
             );
           })}
 
-          {/* More Tab in Mobile Floating Dock */}
-          <div className="relative">
-            <motion.button
-              type="button"
-              whileTap={reducedMotion ? undefined : { scale: 0.86 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-              onClick={() => {
-                setActiveTab('more');
-                setMobileMoreOpen(false);
-              }}
-              aria-current={activeTab === 'more' || isSecondaryActive ? 'page' : undefined}
-              className={`relative flex items-center justify-center h-10 w-11 xs:w-12 md:w-14 md:h-11 rounded-full transition-all duration-200 cursor-pointer group ${
-                activeTab === 'more' || isSecondaryActive
-                  ? 'bg-[#FA2D48]/14 border border-[#FA2D48]/25 shadow-xs text-[#FA2D48]'
-                  : 'border border-transparent text-black'
-              }`}
-              title="More Utilities"
-              aria-label="More"
-            >
-              <motion.div
-                animate={
-                  (activeTab === 'more' || isSecondaryActive) && !reducedMotion
-                    ? { scale: [1, 1.15, 1] }
-                    : undefined
-                }
-                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                className="relative z-10 flex items-center justify-center"
-              >
-                <MoreHorizontal
-                  className={`h-[21px] w-[21px] transition-all duration-150 ${
-                    activeTab === 'more' || isSecondaryActive
-                      ? 'stroke-[2.3] text-[#FA2D48]'
-                      : 'stroke-[2.1] text-black fill-transparent'
-                  }`}
-                />
-              </motion.div>
-            </motion.button>
-          </div>
+          {/* More tab */}
+          {(() => {
+            const active = activeTab === 'more' || isSecondaryActive;
+            return (
+              <div className="relative" ref={mobileMoreRef}>
+                <motion.button
+                  type="button"
+                  whileTap={reducedMotion ? undefined : { scale: 0.88 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+                  onClick={() => {
+                    setMobileMoreOpen((prev) => !prev);
+                  }}
+                  aria-expanded={mobileMoreOpen}
+                  aria-haspopup="menu"
+                  aria-current={active ? 'page' : undefined}
+                  aria-label="More"
+                  className="relative flex flex-col items-center justify-end cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 rounded-2xl"
+                  style={{ minWidth: 52, paddingLeft: 6, paddingRight: 6, paddingBottom: 2 }}
+                >
+                  {active && (
+                    <motion.div
+                      layoutId="tab-active-bg"
+                      className="absolute inset-x-0 top-0 bottom-5 rounded-2xl"
+                      style={{ background: 'rgba(0,122,255,0.10)' }}
+                      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                    />
+                  )}
+                  <motion.div
+                    animate={active && !reducedMotion ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                    className="relative z-10 mb-0.5"
+                  >
+                    <MoreHorizontal
+                      style={{
+                        width: 22, height: 22,
+                        color: active ? '#007AFF' : '#3C3C43',
+                        opacity: active ? 1 : 0.6,
+                        strokeWidth: active ? 2.2 : 1.9,
+                      }}
+                    />
+                  </motion.div>
+                  <span
+                    className="relative z-10 font-sans leading-none transition-all duration-150"
+                    style={{
+                      fontSize: 10,
+                      fontWeight: active ? 600 : 400,
+                      letterSpacing: '-0.01em',
+                      color: active ? '#007AFF' : 'rgba(60,60,67,0.6)',
+                    }}
+                  >
+                    More
+                  </span>
+                </motion.button>
+
+                {/* Mobile Floating Action Sheet / Popover anchored above bottom dock */}
+                <AnimatePresence>
+                  {mobileMoreOpen && (
+                    <motion.div
+                      initial={reducedMotion ? false : { opacity: 0, y: 12, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={reducedMotion ? undefined : { opacity: 0, y: 12, scale: 0.96 }}
+                      transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute right-0 bottom-[calc(100%+0.75rem)] w-64 max-w-[calc(100vw-2rem)] z-[70] rounded-2xl bg-white/95 backdrop-blur-2xl saturate-[180%] border border-[rgba(60,60,67,0.10)] shadow-[0_20px_52px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.08)] p-2 font-sans"
+                      role="menu"
+                      aria-label="Secondary Utilities"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab('more');
+                          setMobileMoreOpen(false);
+                        }}
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#F2F2F7] border-b border-black/[0.06] mb-1.5 pb-2 cursor-pointer text-left group transition-colors"
+                      >
+                        <div className="flex items-center gap-2 text-[#1D1D1F] group-hover:text-[#007AFF] font-bold text-xs transition-colors">
+                          <MoreHorizontal className="h-3.5 w-3.5 text-[#007AFF]" />
+                          <span>All Utilities &amp; Directory</span>
+                        </div>
+                        <ChevronRight className="h-3.5 w-3.5 text-[#8E8E93] group-hover:text-[#007AFF] group-hover:translate-x-0.5 transition-all" />
+                      </button>
+
+                      <div className="space-y-0.5">
+                        {moreUtilityItems.map((item) => {
+                          const { id, label, icon: Icon, desc } = item;
+                          const itemActive = Boolean(item.tab && activeTab === item.tab);
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              role="menuitem"
+                              onClick={() => {
+                                if (item.tab) {
+                                  setActiveTab(item.tab);
+                                } else if (item.action === 'cloudsync') {
+                                  onOpenCloudSync?.();
+                                } else if (item.action === 'onboarding') {
+                                  onOpenOnboarding?.();
+                                } else if (item.action === 'settings') {
+                                  onOpenSettings();
+                                }
+                                setMobileMoreOpen(false);
+                              }}
+                              className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
+                                itemActive
+                                  ? 'bg-[#EBF3FF] text-[#007AFF]'
+                                  : 'hover:bg-[#F0F6FF] hover:text-[#007AFF] text-[#3A3A3C]'
+                              }`}
+                            >
+                              <div
+                                className={`p-2 rounded-lg shrink-0 transition-colors ${
+                                  itemActive
+                                    ? 'bg-[#007AFF] text-white shadow-2xs'
+                                    : 'bg-[#F2F2F7] text-[#6E6E73] group-hover:bg-[#007AFF]/10 group-hover:text-[#007AFF]'
+                                }`}
+                              >
+                                <Icon className="h-4 w-4" />
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-[13px] font-semibold leading-tight">{label}</span>
+                                <span className="text-[10px] text-[#8E8E93] truncate">{desc}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })()}
         </div>
       </motion.nav>
     </>

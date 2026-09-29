@@ -1,14 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
-import {
-  X,
-  Search,
-  Target,
-  ArrowRight,
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
-} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { X, Search, Target, BookOpen } from 'lucide-react';
 import { AppState, TopicItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { calculateTopicPerformanceMetrics } from '../utils/performanceEngine';
@@ -28,6 +20,30 @@ interface TopicMasteryDetailModalProps {
 }
 
 type MasteryTier = 'all' | 'struggling' | 'developing' | 'proficient' | 'mastered' | 'unattempted';
+
+const TIER_COLOR: Record<string, string> = {
+  mastered: '#30D158',
+  proficient: '#007AFF',
+  developing: '#FF9500',
+  struggling: '#FF3B30',
+  unattempted: '#8E8E93',
+};
+
+const TIER_BG: Record<string, string> = {
+  mastered: 'rgba(48,209,88,0.10)',
+  proficient: 'rgba(0,122,255,0.10)',
+  developing: 'rgba(255,149,0,0.10)',
+  struggling: 'rgba(255,59,48,0.10)',
+  unattempted: 'rgba(142,142,147,0.10)',
+};
+
+const TIER_LABEL: Record<string, string> = {
+  mastered: 'Mastered',
+  proficient: 'Proficient',
+  developing: 'Developing',
+  struggling: 'Struggling',
+  unattempted: 'Unattempted',
+};
 
 export const TopicMasteryDetailModal: React.FC<TopicMasteryDetailModalProps> = ({
   isOpen,
@@ -136,7 +152,7 @@ export const TopicMasteryDetailModal: React.FC<TopicMasteryDetailModalProps> = (
       );
     }
 
-    // Sort order: struggling first (most repeated errors), then developing, then proficient, then unattempted, then mastered
+    // Sort order: struggling first (most repeated errors), then developing, proficient, unattempted, mastered
     return list.sort((a, b) => {
       const priorityOrder: Record<string, number> = {
         struggling: 0,
@@ -160,259 +176,661 @@ export const TopicMasteryDetailModal: React.FC<TopicMasteryDetailModalProps> = (
 
   if (!isOpen) return null;
 
-  return createPortal(
+  const total = allTopicRows.length || 1;
+  const displayedRows = filteredRows.slice(0, 50);
+
+  const tierTabs: { id: MasteryTier; label: string; count: number }[] = [
+    { id: 'all', label: 'All', count: tierCounts.all },
+    { id: 'struggling', label: 'Struggling', count: tierCounts.struggling },
+    { id: 'developing', label: 'Developing', count: tierCounts.developing },
+    { id: 'proficient', label: 'Proficient', count: tierCounts.proficient },
+    { id: 'mastered', label: 'Mastered', count: tierCounts.mastered },
+    { id: 'unattempted', label: 'Unattempted', count: tierCounts.unattempted },
+  ];
+
+  return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/40 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9050,
+        backgroundColor: 'rgba(0,0,0,0.65)',
+        backdropFilter: 'blur(10px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+      }}
       onClick={onClose}
     >
-      <div
-        className="relative w-full max-w-4xl bg-white rounded-3xl border border-[#DCE4E1] shadow-xl overflow-hidden my-auto text-[#121E1B]"
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 16 }}
+        transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
         onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: '56rem',
+          backgroundColor: '#FFFFFF',
+          borderRadius: '24px',
+          boxShadow: '0 32px 80px rgba(0,0,0,0.28), 0 8px 24px rgba(0,0,0,0.16)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          maxHeight: '92vh',
+        }}
       >
-        {/* Modal Header */}
-        <div className="flex items-start justify-between p-6 sm:px-8 border-b border-[#EAEFEA] bg-[#FAF9F5]">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#00685f]">
-                CURRICULUM DISTRIBUTION
-              </span>
-              <span className="w-1 h-1 rounded-full bg-[#00685f]/40" />
-              <span className="text-xs text-stone-400 font-mono">19 SUBJECTS · {allTopicRows.length} TOPICS</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-['Outfit'] tracking-tight bg-gradient-to-r from-stone-900 via-stone-800 to-[#00685f] bg-clip-text text-transparent">
+        {/* ── Header ── */}
+        <div
+          style={{
+            flexShrink: 0,
+            padding: '20px 24px 18px',
+            borderBottom: '1px solid #F2F2F7',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8FF 100%)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: '16px',
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <p
+              style={{
+                fontSize: '10px',
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                color: '#007AFF',
+                textTransform: 'uppercase',
+                marginBottom: '6px',
+                margin: 0,
+              }}
+            >
+              CURRICULUM DISTRIBUTION &nbsp;·&nbsp; {FMGE_SUBJECTS.length} SUBJECTS &nbsp;·&nbsp; {allTopicRows.length} TOPICS
+            </p>
+            <h2
+              style={{
+                fontSize: '22px',
+                fontWeight: 800,
+                color: '#1D1D1F',
+                margin: '4px 0 0',
+                letterSpacing: '-0.3px',
+              }}
+            >
               Topic Mastery Diagnostic
             </h2>
-            <p className="text-xs sm:text-sm text-stone-500 max-w-2xl leading-relaxed">
-              Drill down into your topic mastery distribution across the entire FMGE syllabus.
-            </p>
           </div>
-
           <button
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors cursor-pointer shrink-0 ml-4"
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              border: 'none',
+              background: '#F2F2F7',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              color: '#8E8E93',
+              transition: 'background 0.15s',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#E5E5EA'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#F2F2F7'; }}
           >
-            <X className="w-5 h-5" />
+            <X size={16} strokeWidth={2.5} />
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-6 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
+        {/* ── Scrollable Body ── */}
+        <div
+          style={{
+            maxHeight: '72vh',
+            overflowY: 'auto',
+            padding: '20px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+          }}
+        >
           {/* Distribution Bar */}
-          <div className="space-y-2 p-4 rounded-2xl bg-stone-50 border border-stone-200/80">
-            <div className="flex items-center justify-between text-xs font-mono font-bold">
-              <span className="text-stone-700 uppercase tracking-wider">Mastery Tier Breakdown</span>
-              <span className="text-stone-500">{allTopicRows.length} Topics Total</span>
-            </div>
-
-            {/* Segmented Bar */}
-            <div className="w-full h-3 rounded-full bg-stone-200 overflow-hidden flex">
-              <div
-                className="bg-emerald-500 h-full transition-all"
-                style={{ width: `${(tierCounts.mastered / allTopicRows.length) * 100}%` }}
-                title={`Mastered: ${tierCounts.mastered}`}
-              />
-              <div
-                className="bg-teal-600 h-full transition-all"
-                style={{ width: `${(tierCounts.proficient / allTopicRows.length) * 100}%` }}
-                title={`Proficient: ${tierCounts.proficient}`}
-              />
-              <div
-                className="bg-amber-400 h-full transition-all"
-                style={{ width: `${(tierCounts.developing / allTopicRows.length) * 100}%` }}
-                title={`Developing: ${tierCounts.developing}`}
-              />
-              <div
-                className="bg-rose-500 h-full transition-all"
-                style={{ width: `${(tierCounts.struggling / allTopicRows.length) * 100}%` }}
-                title={`Struggling: ${tierCounts.struggling}`}
-              />
-            </div>
-
-            {/* Legend Pills */}
-            <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] font-mono">
-              <span className="flex items-center gap-1.5 text-stone-700">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                Mastered: <strong>{tierCounts.mastered}</strong>
+          <div
+            style={{
+              background: '#F2F2F7',
+              borderRadius: '16px',
+              padding: '14px 16px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '10px',
+              }}
+            >
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#1D1D1F', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Mastery Distribution
               </span>
-              <span className="flex items-center gap-1.5 text-stone-700">
-                <span className="w-2.5 h-2.5 rounded-full bg-teal-600" />
-                Proficient: <strong>{tierCounts.proficient}</strong>
-              </span>
-              <span className="flex items-center gap-1.5 text-stone-700">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                Developing: <strong>{tierCounts.developing}</strong>
-              </span>
-              <span className="flex items-center gap-1.5 text-stone-700">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                Struggling: <strong>{tierCounts.struggling}</strong>
-              </span>
-              <span className="flex items-center gap-1.5 text-stone-500">
-                <span className="w-2.5 h-2.5 rounded-full bg-stone-300" />
-                Unattempted: <strong>{tierCounts.unattempted}</strong>
+              <span style={{ fontSize: '11px', color: '#8E8E93', fontWeight: 600 }}>
+                {allTopicRows.length} topics total
               </span>
             </div>
-          </div>
 
-          {/* Search & Tier Filters */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 justify-between">
-            {/* Tier Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
-              {(
-                [
-                  { id: 'all', label: `All (${tierCounts.all})` },
-                  { id: 'struggling', label: `Struggling (${tierCounts.struggling})` },
-                  { id: 'developing', label: `Developing (${tierCounts.developing})` },
-                  { id: 'proficient', label: `Proficient (${tierCounts.proficient})` },
-                  { id: 'mastered', label: `Mastered (${tierCounts.mastered})` },
-                  { id: 'unattempted', label: `Unattempted (${tierCounts.unattempted})` },
-                ] as const
-              ).map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setSelectedTier(tab.id)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    selectedTier === tab.id
-                      ? 'bg-stone-900 text-white shadow-2xs'
-                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                  }`}
+            {/* Segmented bar */}
+            <div
+              style={{
+                width: '100%',
+                height: '8px',
+                borderRadius: '100px',
+                background: '#E5E5EA',
+                overflow: 'hidden',
+                display: 'flex',
+              }}
+            >
+              {[
+                { key: 'struggling', color: '#FF3B30', count: tierCounts.struggling },
+                { key: 'developing', color: '#FF9500', count: tierCounts.developing },
+                { key: 'proficient', color: '#007AFF', count: tierCounts.proficient },
+                { key: 'mastered', color: '#30D158', count: tierCounts.mastered },
+                { key: 'unattempted', color: '#C7C7CC', count: tierCounts.unattempted },
+              ].map(({ key, color, count }) =>
+                count > 0 ? (
+                  <div
+                    key={key}
+                    title={`${TIER_LABEL[key]}: ${count}`}
+                    style={{
+                      width: `${(count / total) * 100}%`,
+                      background: color,
+                      height: '100%',
+                      transition: 'width 0.4s ease',
+                    }}
+                  />
+                ) : null
+              )}
+            </div>
+
+            {/* Legend pills */}
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '8px',
+                marginTop: '12px',
+              }}
+            >
+              {[
+                { key: 'struggling', label: 'Struggling', color: '#FF3B30', count: tierCounts.struggling },
+                { key: 'developing', label: 'Developing', color: '#FF9500', count: tierCounts.developing },
+                { key: 'proficient', label: 'Proficient', color: '#007AFF', count: tierCounts.proficient },
+                { key: 'mastered', label: 'Mastered', color: '#30D158', count: tierCounts.mastered },
+                { key: 'unattempted', label: 'Unattempted', color: '#8E8E93', count: tierCounts.unattempted },
+              ].map(({ key, label, color, count }) => (
+                <span
+                  key={key}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: '#1D1D1F',
+                    background: '#FFFFFF',
+                    borderRadius: '100px',
+                    padding: '3px 10px 3px 6px',
+                    border: `1px solid ${color}30`,
+                  }}
                 >
-                  {tab.label}
-                </button>
+                  <span
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: color,
+                      flexShrink: 0,
+                    }}
+                  />
+                  {label} <strong style={{ color }}>{count}</strong>
+                </span>
               ))}
             </div>
+          </div>
 
-            {/* Search Input */}
-            <div className="relative w-full sm:w-64 shrink-0">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          {/* Controls: tier tabs + search */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {/* Tier tab pills */}
+            <div
+              style={{
+                display: 'flex',
+                gap: '6px',
+                overflowX: 'auto',
+                paddingBottom: '2px',
+              }}
+            >
+              {tierTabs.map((tab) => {
+                const isActive = selectedTier === tab.id;
+                const tierColor = tab.id === 'all' ? '#1D1D1F' : TIER_COLOR[tab.id];
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setSelectedTier(tab.id)}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: '100px',
+                      border: isActive ? 'none' : '1px solid #E5E5EA',
+                      background: isActive
+                        ? tab.id === 'all'
+                          ? '#1D1D1F'
+                          : tierColor
+                        : '#FFFFFF',
+                      color: isActive ? '#FFFFFF' : tab.id === 'all' ? '#1D1D1F' : tierColor,
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      cursor: 'pointer',
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      transition: 'all 0.15s',
+                      boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+                    }}
+                  >
+                    {tab.label} {tab.count > 0 && (
+                      <span style={{ opacity: isActive ? 0.75 : 0.6 }}>({tab.count})</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Search input */}
+            <div style={{ position: 'relative' }}>
+              <Search
+                size={14}
+                style={{
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#8E8E93',
+                  pointerEvents: 'none',
+                }}
+              />
               <input
                 type="text"
-                placeholder="Search topics or subjects..."
+                placeholder="Search topics or subjects…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 rounded-full border border-slate-200/90 text-xs bg-slate-100/90 hover:bg-slate-100 focus:bg-white focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 transition-all text-slate-800 placeholder:text-slate-400 shadow-xs"
+                style={{
+                  width: '100%',
+                  paddingLeft: '34px',
+                  paddingRight: '12px',
+                  paddingTop: '9px',
+                  paddingBottom: '9px',
+                  borderRadius: '12px',
+                  border: '1.5px solid #E5E5EA',
+                  background: '#F2F2F7',
+                  fontSize: '13px',
+                  color: '#1D1D1F',
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.border = '1.5px solid #007AFF';
+                  e.currentTarget.style.background = '#FFFFFF';
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0,122,255,0.12)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.border = '1.5px solid #E5E5EA';
+                  e.currentTarget.style.background = '#F2F2F7';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               />
             </div>
           </div>
 
-          {/* Topics List */}
-          <div className="space-y-2.5">
-            {filteredRows.length > 0 ? (
-              filteredRows.slice(0, 50).map(({ subjectId, subjectName, subjectWeightage, topic, metrics: tm }) => {
-                const isAttempted = tm.totalAttempts > 0;
-                let badgeStyle = 'bg-stone-100 text-stone-600 border-stone-200';
-                if (tm.masteryStatus === 'mastered') {
-                  badgeStyle = 'bg-emerald-50 text-emerald-700 border-emerald-200/60';
-                } else if (tm.masteryStatus === 'proficient') {
-                  badgeStyle = 'bg-teal-50 text-[#00685f] border-teal-200/60';
-                } else if (tm.masteryStatus === 'developing') {
-                  badgeStyle = 'bg-amber-50 text-amber-700 border-amber-200/60';
-                } else if (tm.masteryStatus === 'struggling') {
-                  badgeStyle = 'bg-rose-50 text-rose-700 border-rose-200/60';
-                }
+          {/* Topic List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <AnimatePresence mode="popLayout">
+              {displayedRows.length > 0 ? (
+                displayedRows.map(({ subjectId, subjectName, subjectWeightage, topic, metrics: tm }, idx) => {
+                  const isAttempted = tm.totalAttempts > 0;
+                  const tierColor = TIER_COLOR[tm.masteryStatus] ?? '#8E8E93';
+                  const tierBg = TIER_BG[tm.masteryStatus] ?? 'rgba(142,142,147,0.10)';
 
-                return (
-                  <div
-                    key={`${subjectId}-${topic.id}`}
-                    className="p-3.5 rounded-2xl bg-white border border-[#DCE4E1] hover:border-[#00685f]/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                  >
-                    <div className="space-y-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${badgeStyle}`}>
-                          {tm.masteryStatus.toUpperCase()}
-                        </span>
-                        {topic.isHighYield && (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200/50">
-                            HIGH-YIELD
+                  return (
+                    <motion.div
+                      key={`${subjectId}-${topic.id}`}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.18, delay: Math.min(idx * 0.02, 0.3) }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'stretch',
+                        background: '#FFFFFF',
+                        borderRadius: '14px',
+                        border: '1px solid #F2F2F7',
+                        overflow: 'hidden',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                      }}
+                    >
+                      {/* Left accent bar */}
+                      <div
+                        style={{
+                          width: '4px',
+                          background: tierColor,
+                          flexShrink: 0,
+                          borderRadius: '14px 0 0 14px',
+                        }}
+                      />
+
+                      {/* Content */}
+                      <div
+                        style={{
+                          flex: 1,
+                          padding: '12px 14px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px',
+                          minWidth: 0,
+                        }}
+                      >
+                        {/* Top row: mastery badge, high-yield, subject pill */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span
+                            style={{
+                              fontSize: '10px',
+                              fontWeight: 800,
+                              letterSpacing: '0.06em',
+                              textTransform: 'uppercase',
+                              color: tierColor,
+                              background: tierBg,
+                              borderRadius: '100px',
+                              padding: '2px 8px',
+                            }}
+                          >
+                            {TIER_LABEL[tm.masteryStatus] ?? tm.masteryStatus}
                           </span>
-                        )}
-                        <span className="text-xs text-stone-400 font-mono">
-                          {subjectName} ({subjectWeightage}M)
-                        </span>
-                      </div>
 
-                      <h4 className="text-sm font-bold text-stone-900 truncate">
-                        {topic.name}
-                      </h4>
-
-                      <div className="flex items-center gap-3 text-xs text-stone-500 font-mono">
-                        <span>Accuracy: <strong>{isAttempted ? `${tm.accuracy}%` : '—'}</strong></span>
-                        <span>•</span>
-                        <span>Solved: <strong>{tm.totalAttempts}</strong></span>
-                        {tm.repeatedErrorsCount > 0 && (
-                          <>
-                            <span>•</span>
-                            <span className="text-rose-600 font-bold">
-                              {tm.repeatedErrorsCount} repeat error{tm.repeatedErrorsCount > 1 ? 's' : ''}
+                          {topic.isHighYield && (
+                            <span
+                              style={{
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                color: '#FF9500',
+                                background: 'rgba(255,149,0,0.10)',
+                                borderRadius: '100px',
+                                padding: '2px 7px',
+                              }}
+                            >
+                              ⭐ High-Yield
                             </span>
-                          </>
-                        )}
+                          )}
+
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              color: '#8E8E93',
+                              background: '#F2F2F7',
+                              borderRadius: '100px',
+                              padding: '2px 8px',
+                              maxWidth: '180px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                            title={`${subjectName} · ${subjectWeightage}M`}
+                          >
+                            {subjectName}
+                          </span>
+                        </div>
+
+                        {/* Topic name */}
+                        <p
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 700,
+                            color: '#1D1D1F',
+                            margin: 0,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {topic.name}
+                        </p>
+
+                        {/* Stats row */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            fontSize: '11px',
+                            color: '#8E8E93',
+                            fontWeight: 600,
+                          }}
+                        >
+                          <span>
+                            Accuracy:{' '}
+                            <strong style={{ color: isAttempted ? '#1D1D1F' : '#8E8E93' }}>
+                              {isAttempted ? `${tm.accuracy}%` : '—'}
+                            </strong>
+                          </span>
+                          <span style={{ color: '#C7C7CC' }}>·</span>
+                          <span>
+                            Solved: <strong style={{ color: '#1D1D1F' }}>{tm.totalAttempts}</strong>
+                          </span>
+                          {tm.repeatedErrorsCount > 0 && (
+                            <>
+                              <span style={{ color: '#C7C7CC' }}>·</span>
+                              <span style={{ color: '#FF3B30', fontWeight: 700 }}>
+                                {tm.repeatedErrorsCount} repeat error{tm.repeatedErrorsCount !== 1 ? 's' : ''}
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onClose();
-                          onOpenSubjectDiagnostic(subjectId);
+                      {/* Action buttons */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px',
+                          padding: '12px 14px',
+                          justifyContent: 'center',
+                          alignItems: 'flex-end',
+                          flexShrink: 0,
                         }}
-                        className="px-3 py-1.5 rounded-full text-xs font-semibold text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer"
                       >
-                        Roadmap
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClose();
+                            onOpenSubjectDiagnostic(subjectId);
+                          }}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: '100px',
+                            border: '1.5px solid #E5E5EA',
+                            background: '#FFFFFF',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            color: '#1D1D1F',
+                            cursor: 'pointer',
+                            fontFamily: "'Plus Jakarta Sans', sans-serif",
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                        >
+                          <BookOpen size={11} strokeWidth={2.5} />
+                          Roadmap
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onClose();
-                          onLaunchPracticeSession?.(
-                            subjectId,
-                            topic.id,
-                            topic.name,
-                            undefined,
-                            'recommended_video_practice'
-                          );
-                        }}
-                        className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#00685f] hover:bg-[#005049] text-white transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
-                      >
-                        <Target className="w-3.5 h-3.5" />
-                        <span>Solve 10 MCQs</span>
-                      </button>
-                    </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClose();
+                            onLaunchPracticeSession?.(
+                              subjectId,
+                              topic.id,
+                              topic.name,
+                              undefined,
+                              'recommended_video_practice'
+                            );
+                          }}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: '100px',
+                            border: 'none',
+                            background: '#007AFF',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            color: '#FFFFFF',
+                            cursor: 'pointer',
+                            fontFamily: "'Plus Jakarta Sans', sans-serif",
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            boxShadow: '0 2px 8px rgba(0,122,255,0.30)',
+                          }}
+                        >
+                          <Target size={11} strokeWidth={2.5} />
+                          Solve 10 MCQs
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              ) : (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  style={{
+                    textAlign: 'center',
+                    padding: '48px 24px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '56px',
+                      height: '56px',
+                      borderRadius: '50%',
+                      background: '#F2F2F7',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Search size={24} style={{ color: '#C7C7CC' }} />
                   </div>
-                );
-              })
-            ) : (
-              <div className="py-12 text-center text-stone-400 space-y-2">
-                <p className="text-sm">No topics match your current filter.</p>
-              </div>
-            )}
+                  <p style={{ fontSize: '15px', fontWeight: 700, color: '#1D1D1F', margin: 0 }}>
+                    No topics match
+                  </p>
+                  <p style={{ fontSize: '13px', color: '#8E8E93', margin: 0 }}>
+                    Try adjusting your filter or search query.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedTier('all'); setSearchQuery(''); }}
+                    style={{
+                      padding: '8px 20px',
+                      borderRadius: '100px',
+                      border: 'none',
+                      background: '#007AFF',
+                      color: '#FFFFFF',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    }}
+                  >
+                    Clear Filters
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {filteredRows.length > 50 && (
-              <p className="text-center text-xs font-mono text-stone-400 pt-2">
-                Showing first 50 of {filteredRows.length} topics. Use search to narrow results.
+              <p
+                style={{
+                  textAlign: 'center',
+                  fontSize: '12px',
+                  color: '#8E8E93',
+                  fontWeight: 600,
+                  padding: '8px 0',
+                  margin: 0,
+                }}
+              >
+                Showing 50 of {filteredRows.length} — refine your search to see more
               </p>
             )}
           </div>
         </div>
 
-        {/* Modal Footer */}
-        <div className="p-4 sm:px-8 border-t border-[#EAEFEA] bg-stone-50 flex items-center justify-between">
-          <span className="text-xs font-mono text-stone-400">
-            Mastery status automatically recalculates as you practice questions.
-          </span>
+        {/* ── Footer ── */}
+        <div
+          style={{
+            flexShrink: 0,
+            padding: '14px 24px',
+            borderTop: '1px solid #F2F2F7',
+            background: '#FAFAFA',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+          }}
+        >
+          <p
+            style={{
+              fontSize: '11px',
+              color: '#8E8E93',
+              margin: 0,
+              fontWeight: 500,
+            }}
+          >
+            Mastery status recalculates automatically as you practice.
+          </p>
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-full text-xs font-bold bg-stone-900 hover:bg-stone-800 text-white transition-colors cursor-pointer"
+            style={{
+              padding: '8px 20px',
+              borderRadius: '100px',
+              border: 'none',
+              background: '#1D1D1F',
+              color: '#FFFFFF',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              flexShrink: 0,
+            }}
           >
-            Close Drill-Down
+            Close
           </button>
         </div>
-      </div>
-    </div>,
-    document.body
+      </motion.div>
+    </div>
   );
 };

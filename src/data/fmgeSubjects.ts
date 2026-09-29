@@ -182,7 +182,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'PSM',
     phase: 'para-clinical',
     weightage: 30, // Extremely high yield subject!
-    color: '#0284c7', // Sky blue
+    color: '#007AFF', // Sky blue
     iconName: 'Users',
     description: 'Epidemiology, Biostatistics, National Health Programs, Vaccines, Nutrition, Environmental health, and Demography.',
     highYieldTips: 'MEGA HIGH YIELD (30 Marks). Must master National Immunization Schedule, Study designs (Cohort vs Case-Control, Odds ratio), Screening tests (Sensitivity/Specificity/PPV), and Health Programs (NTEP, NVBDCP).',
@@ -284,7 +284,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'SURG',
     phase: 'clinical',
     weightage: 35, // Mega clinical subject!
-    color: '#0284c7', // Teal-dark
+    color: '#007AFF', // Teal-dark
     iconName: 'Scissors',
     description: 'Trauma & ATLS, burns, shock, surgical oncology, GI surgery, thyroid/breast lesions, and urology.',
     highYieldTips: 'MEGA HIGH YIELD (30 Marks). Must master ATLS protocols, Burns fluid Parkland formula, Breast cancer staging/triple assessment, Thyroid swellings, and Acute Abdomen.',
@@ -335,7 +335,7 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     code: 'PEDS',
     phase: 'clinical',
     weightage: 15,
-    color: '#0284c7', // Teal
+    color: '#007AFF', // Teal
     iconName: 'Smile',
     description: 'Growth & development, neonatal resuscitation, congenital heart diseases, pediatric nutrition, and genetic disorders.',
     highYieldTips: 'High focus on Developmental Milestones, Neonatal Resuscitation (NRP steps), Cyanotic vs Acyanotic Heart diseases, and Inborn errors of metabolism in newborns.',

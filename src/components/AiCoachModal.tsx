@@ -31,7 +31,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 bg-slate-900/40 backdrop-blur-xs overflow-y-auto font-['Plus_Jakarta_Sans']">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
       <div className="relative w-full max-w-4xl my-auto bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-200/90">
         <button
           type="button"

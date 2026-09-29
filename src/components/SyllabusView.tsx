@@ -65,7 +65,7 @@ function getSubjectVisual(subjectId: string, fallbackColor?: string) {
   const theme = getSubjectVisualTheme(subjectId);
   return {
     icon: theme.icon,
-    color: theme.color || fallbackColor || '#006B63',
+    color: theme.color || fallbackColor || '#007AFF',
     bg: `${theme.bgGradient} ${theme.border} ${theme.text}`,
     badge: theme.badgeType === 'high' ? 'High-yield' : theme.badgeType === 'important' ? 'Important' : 'Core',
     badgeType: theme.badgeType,
@@ -172,280 +172,130 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (overallStats.percentage / 100) * circumference;
 
+  const PHASE_FILTERS = [
+    { id: 'all',          label: 'All (19)',     short: 'All' },
+    { id: 'pre-clinical', label: 'Pre-Clinical', short: 'Pre' },
+    { id: 'para-clinical',label: 'Para-Clinical',short: 'Para' },
+    { id: 'clinical',     label: 'Clinical',     short: 'Clinical' },
+  ] as const;
+
   return (
     <div
-      className={`w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-4 sm:space-y-6 font-sans text-stone-900 ${
+      className={`w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5 font-sans ${
         currentSubTab === 'revision' ? 'pb-28 sm:pb-20' : 'pb-20'
       }`}
     >
-      {/* ================= 1. STUDY EDITORIAL HEADER CARD (Apple Glass Bento) ================= */}
+      {/* ── Hero Header ── */}
       <motion.header
-        initial={{ opacity: 0, y: -12 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-[24px] sm:rounded-[28px] border p-3.5 sm:p-4 lg:p-4.5 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
+        style={{ background: 'linear-gradient(135deg, #E8F9EE 0%, #D0F2DC 40%, #B8E8C8 70%, #9EDDB6 100%)' }}
       >
-        {/* Background Atmosphere & Mountain Art (isolated with overflow-hidden so popover never clips) */}
-        <div className="absolute inset-0 overflow-hidden rounded-[24px] sm:rounded-[28px] pointer-events-none select-none" aria-hidden="true">
-          <CircadianHeaderAtmosphere circadian={circadian} />
+        {/* Decorative right glow */}
+        <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(48,209,88,0.28) 0%, transparent 70%)' }} />
+        {/* Top inner shine */}
+        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/30 to-transparent pointer-events-none rounded-t-[2rem] sm:rounded-t-[2.5rem]" />
 
-          {/* Scenic mountain & sunrise backdrop on far right */}
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-72 sm:w-96 select-none opacity-25 sm:opacity-35 dark:opacity-20 [mask-image:linear-gradient(to_left,black_50%,transparent_100%)]">
-            <svg viewBox="0 0 380 160" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
-              <defs>
-                <radialGradient id="syl-sun-glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#FDE68A" stopOpacity="0.8" />
-                  <stop offset="60%" stopColor="#F59E0B" stopOpacity="0.2" />
-                  <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
-                </radialGradient>
-                <linearGradient id="syl-mount-front" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#006B63" stopOpacity="0.25" />
-                  <stop offset="100%" stopColor="#004D40" stopOpacity="0.45" />
-                </linearGradient>
-                <linearGradient id="syl-mount-back" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.15" />
-                  <stop offset="100%" stopColor="#0F766E" stopOpacity="0.25" />
-                </linearGradient>
-              </defs>
-              <circle cx="280" cy="85" r="45" fill="url(#syl-sun-glow)" />
-              <path d="M 80 160 Q 180 80 290 120 T 380 160 Z" fill="url(#syl-mount-back)" />
-              <path d="M 160 160 Q 250 95 380 130 L 380 160 Z" fill="url(#syl-mount-front)" />
-            </svg>
-          </div>
-        </div>
-
-        {/* Top Utility Strip: Eyebrow + Live Circadian Focus Dropdown */}
-        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2 border-b ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'}`}>
-          <div className="flex items-center gap-2 text-xs">
-            <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${circadian.isNight ? 'text-cyan-300' : 'text-teal-700'}`}>
-              STUDY PLAN • CURRICULUM
-            </span>
-            <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
-            <span className={`text-[10px] font-mono font-bold tracking-widest uppercase hidden sm:inline ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
-              DISCIPLINE TODAY · DOCTOR TOMORROW
-            </span>
-          </div>
-          <CircadianFocusDropdown circadian={circadian} />
-        </div>
-
-        {/* Main 2-Section Balanced Bento Layout */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 pt-2 items-center">
-          {/* ═══ LEFT SECTION: BRAND LOCKUP, TITLE, BADGES, SUBTITLE & TABS (Cols 1-7) ═══ */}
-          <div className="lg:col-span-7 space-y-2 sm:space-y-2.5 min-w-0">
-            <div className="flex items-center gap-3 sm:gap-3.5">
-              <HeaderGlassIcon icon={BookOpen} variant="teal" isNight={circadian.isNight} />
-
-              <div className="space-y-1 min-w-0">
-                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
-                    <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>Your Study </span>
-                    <span className={circadian.isNight ? 'text-teal-300' : 'text-[#00685F]'}>Plan</span>
-                  </h1>
-
-                  {/* Dual Badges with High-Contrast Crisp Borders */}
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${
-                      circadian.isNight
-                        ? 'bg-teal-950/70 text-teal-300 border-teal-700'
-                        : 'bg-teal-500/10 text-[#00685F] border-teal-300/80'
-                    }`}>
-                      <Layers className="w-3 h-3 text-[#00685F] dark:text-teal-300" />
-                      <span>19 Subjects</span>
-                    </span>
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${
-                      circadian.isNight
-                        ? 'bg-amber-950/60 text-amber-300 border-amber-700'
-                        : 'bg-amber-500/10 text-amber-900 border-amber-300/80'
-                    }`}>
-                      <BarChart3 className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                      <span>FMGE Blueprint</span>
-                    </span>
-                  </div>
-                </div>
-
-                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
-                  Master the 19 subjects systematically. Clinical depth, step by step.
-                </p>
-              </div>
+        {/* Content */}
+        <div className="relative z-10 p-5 sm:p-6 lg:p-8">
+          {/* Top row: label + tab switcher */}
+          <div className="flex items-center justify-between gap-3 mb-5 sm:mb-6">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-[#30D158]" strokeWidth={2.2} />
+              <span className="text-[13px] font-semibold text-[#1A7A35]">Study Plan</span>
             </div>
 
-            {/* Apple SwiftUI Segmented Subtab Switcher */}
-            <div className={`inline-flex p-1 rounded-full border shadow-2xs ${
-              circadian.isNight
-                ? 'bg-slate-900/90 border-slate-700/80'
-                : 'bg-slate-100/90 border-slate-200/80'
-            }`}>
-              <button
-                type="button"
-                onClick={() => handleSubTabChange('curriculum')}
-                className={`relative inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
-                  currentSubTab === 'curriculum'
-                    ? 'text-white'
-                    : circadian.isNight
-                    ? 'text-slate-300 hover:text-white'
-                    : 'text-slate-700 hover:text-slate-900'
-                }`}
-              >
-                {currentSubTab === 'curriculum' && (
-                  <motion.span
-                    layoutId="syllabus-active-subtab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    className="absolute inset-0 rounded-full bg-[#00685F] shadow-xs"
-                  />
-                )}
-                <BookOpen className="w-3.5 h-3.5 relative z-10" />
-                <span className="relative z-10">Curriculum</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSubTabChange('revision')}
-                className={`relative inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
-                  currentSubTab === 'revision'
-                    ? 'text-white'
-                    : circadian.isNight
-                    ? 'text-slate-300 hover:text-white'
-                    : 'text-slate-700 hover:text-slate-900'
-                }`}
-              >
-                {currentSubTab === 'revision' && (
-                  <motion.span
-                    layoutId="syllabus-active-subtab"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    className="absolute inset-0 rounded-full bg-[#00685F] shadow-xs"
-                  />
-                )}
-                <RotateCw className="w-3.5 h-3.5 relative z-10" />
-                <span className="relative z-10">Revision Matrix</span>
-              </button>
+            {/* Segmented tab switcher */}
+            <div className="inline-flex p-1 rounded-full bg-white/60 backdrop-blur-md border border-white/80 shadow-sm">
+              {(['curriculum', 'revision'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => handleSubTabChange(tab)}
+                  className={`relative px-3.5 sm:px-4 py-1.5 rounded-full text-[12px] font-semibold transition-all cursor-pointer ${
+                    currentSubTab === tab ? 'text-[#1D1D1F]' : 'text-[#3A3A3C]/70 hover:text-[#1D1D1F]'
+                  }`}
+                >
+                  {currentSubTab === tab && (
+                    <motion.span
+                      layoutId="study-subtab"
+                      transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+                      className="absolute inset-0 rounded-full bg-white shadow-sm"
+                    />
+                  )}
+                  <span className="relative z-10">{tab === 'curriculum' ? 'Curriculum' : 'Revision'}</span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* ═══ RIGHT SECTION: INTEGRATED APPLE BENTO TELEMETRY CARD (Cols 8-12) ═══ */}
-          <div className="lg:col-span-5">
-            <div className={`p-3 rounded-2xl border backdrop-blur-2xl transition-all ${
-              circadian.isNight
-                ? 'bg-slate-900/90 border-slate-800/80 shadow-[0_8px_24px_rgba(0,0,0,0.4)] text-slate-100'
-                : 'bg-white/95 border-slate-200/90 shadow-[0_8px_28px_rgba(0,107,99,0.08),inset_0_1px_1px_rgba(255,255,255,0.95)] text-slate-900'
-            }`}>
-              <div className="flex items-center justify-between gap-3 sm:gap-4">
-                {/* Circular Mastery Gauge */}
-                <div className="flex flex-col items-center shrink-0">
-                  <div className="relative w-16 h-16 sm:w-18 sm:h-18 flex items-center justify-center">
-                    <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="38"
-                        stroke="currentColor"
-                        strokeWidth="7"
-                        className={`fill-none ${circadian.isNight ? 'text-slate-800' : 'text-slate-100'}`}
-                      />
-                      <motion.circle
-                        cx="50"
-                        cy="50"
-                        r="38"
-                        stroke="#10B981"
-                        strokeWidth="7"
-                        strokeLinecap="round"
-                        className="fill-none"
-                        initial={{ strokeDashoffset: 2 * Math.PI * 38 }}
-                        animate={{ strokeDashoffset: 2 * Math.PI * 38 * (1 - overallStats.percentage / 100) }}
-                        transition={{ duration: 1.2, ease: 'easeOut' }}
-                        style={{ strokeDasharray: 2 * Math.PI * 38 }}
-                      />
-                    </svg>
-
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                      <span className={`text-lg sm:text-xl font-extrabold font-mono tracking-tight leading-none ${
-                        circadian.isNight ? 'text-white' : 'text-slate-900'
-                      }`}>
-                        {overallStats.percentage}%
-                      </span>
-                      <span className={`text-[9px] font-semibold uppercase tracking-wider mt-0.5 ${
-                        circadian.isNight ? 'text-slate-400' : 'text-slate-500'
-                      }`}>
-                        Completed
-                      </span>
-                    </div>
-                  </div>
-                  <span className={`text-[11px] font-mono font-bold mt-1 ${circadian.isNight ? 'text-slate-300' : 'text-slate-700'}`}>
-                    {overallStats.completedSubjectsCount}/{overallStats.totalSubjects} subjects
-                  </span>
+          {/* Main: title + stats */}
+          <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
+            {/* Left: heading + subtitle */}
+            <div className="flex-1 min-w-0 space-y-3">
+              <h1 className="text-[40px] sm:text-[52px] lg:text-[62px] font-black tracking-[-0.04em] leading-[0.88] text-[#1D1D1F]">
+                Master<br />
+                <span style={{ color: '#30D158' }}>19 Subjects</span>
+              </h1>
+              <p className="text-[14px] sm:text-[15px] font-medium text-[#3A3A3C] leading-snug max-w-xs">
+                FMGE Blueprint · Clinical depth, step by step.
+              </p>
+              {/* Overall progress bar */}
+              <div className="max-w-xs space-y-1.5">
+                <div className="flex items-center justify-between text-[12px] font-semibold text-[#3A3A3C]">
+                  <span>Overall Progress</span>
+                  <span style={{ color: '#30D158' }}>{overallStats.percentage}%</span>
                 </div>
+                <div className="h-2 w-full bg-white/50 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${overallStats.percentage}%` }}
+                    transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full rounded-full"
+                    style={{ background: 'linear-gradient(90deg, #30D158 0%, #25A244 100%)', boxShadow: '0 0 8px rgba(48,209,88,0.5)' }}
+                  />
+                </div>
+              </div>
+            </div>
 
-                {/* 3-Row Compact Telemetry Stack */}
-                <div className="flex-1 space-y-1.5 min-w-0">
-                  <div className={`flex items-center justify-between p-2 rounded-xl border transition-colors ${
-                    circadian.isNight
-                      ? 'bg-slate-800/70 border-slate-700/60'
-                      : 'bg-teal-500/[0.06] border-teal-200/70'
-                  }`}>
-                    <div className="flex items-center gap-2 min-w-0">
-                      <BookOpen className={`w-3.5 h-3.5 shrink-0 ${circadian.isNight ? 'text-teal-300' : 'text-[#00685F]'}`} />
-                      <span className={`text-[11px] font-semibold truncate ${
-                        circadian.isNight ? 'text-slate-200' : 'text-slate-700'
-                      }`}>Total Subjects</span>
-                    </div>
-                    <span className={`text-xs font-mono font-extrabold shrink-0 ml-2 ${
-                      circadian.isNight ? 'text-white' : 'text-slate-900'
-                    }`}>
-                      {overallStats.totalSubjects}
-                    </span>
-                  </div>
-
-                  <div className={`flex items-center justify-between p-2 rounded-xl border transition-colors ${
-                    circadian.isNight
-                      ? 'bg-slate-800/70 border-slate-700/60'
-                      : 'bg-emerald-500/[0.06] border-emerald-200/70'
-                  }`}>
-                    <div className="flex items-center gap-2 min-w-0">
-                      <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 ${circadian.isNight ? 'text-emerald-300' : 'text-emerald-600'}`} />
-                      <span className={`text-[11px] font-semibold truncate ${
-                        circadian.isNight ? 'text-slate-200' : 'text-slate-700'
-                      }`}>Mastered</span>
-                    </div>
-                    <span className={`text-xs font-mono font-extrabold shrink-0 ml-2 ${
-                      circadian.isNight ? 'text-emerald-300' : 'text-emerald-700'
-                    }`}>
-                      {overallStats.completedSubjectsCount}
-                    </span>
-                  </div>
-
-                  <div className={`flex items-center justify-between p-2 rounded-xl border transition-colors ${
-                    circadian.isNight
-                      ? 'bg-slate-800/70 border-slate-700/60'
-                      : 'bg-sky-500/[0.06] border-sky-200/70'
-                  }`}>
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Target className={`w-3.5 h-3.5 shrink-0 ${circadian.isNight ? 'text-cyan-300' : 'text-sky-600'}`} />
-                      <span className={`text-[11px] font-semibold truncate ${
-                        circadian.isNight ? 'text-slate-200' : 'text-slate-700'
-                      }`}>Target Score</span>
-                    </div>
-                    <span className={`text-xs font-mono font-extrabold shrink-0 ml-2 ${
-                      circadian.isNight ? 'text-white' : 'text-slate-900'
-                    }`}>
-                      {state.settings?.targetScore || 200}+
-                    </span>
-                  </div>
+            {/* Right: stat ring + 3 quick stats */}
+            <div className="flex items-center gap-5 sm:gap-7 shrink-0">
+              {/* Circular progress ring */}
+              <div className="relative w-[88px] h-[88px] sm:w-[100px] sm:h-[100px] flex items-center justify-center shrink-0">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="8" />
+                  <motion.circle
+                    cx="50" cy="50" r="42"
+                    fill="none" stroke="#30D158" strokeWidth="8" strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 42}
+                    initial={{ strokeDashoffset: 2 * Math.PI * 42 }}
+                    animate={{ strokeDashoffset: 2 * Math.PI * 42 * (1 - overallStats.percentage / 100) }}
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                    style={{ filter: 'drop-shadow(0 0 6px rgba(48,209,88,0.55))' }}
+                  />
+                </svg>
+                <div className="absolute flex flex-col items-center leading-none">
+                  <span className="text-[22px] sm:text-[26px] font-black tracking-tight text-[#1D1D1F]">{overallStats.percentage}%</span>
+                  <span className="text-[9px] font-semibold text-[#3A3A3C]/60 uppercase tracking-wider mt-0.5">done</span>
                 </div>
               </div>
 
-              {/* Micro-Quote Footer inside Bento Card */}
-              <div className={`mt-2.5 pt-2 border-t flex items-center justify-between text-[10px] ${
-                circadian.isNight ? 'border-slate-800/80' : 'border-slate-200/70'
-              }`}>
-                <p className={`italic font-medium truncate ${
-                  circadian.isNight ? 'text-slate-300' : 'text-slate-600'
-                }`}>
-                  &ldquo;Small steps make big doctors.&rdquo;
-                </p>
-                <span className={`font-mono font-bold tracking-wider shrink-0 ml-2 ${
-                  circadian.isNight ? 'text-cyan-300' : 'text-teal-700'
-                }`}>
-                  FMGE 2026
-                </span>
+              {/* 3 quick stats */}
+              <div className="space-y-3">
+                {[
+                  { label: 'Subjects', value: `${overallStats.completedSubjectsCount}/19`, color: '#30D158' },
+                  { label: 'Topics',   value: `${overallStats.completedNotes}/${overallStats.totalTopics}`, color: '#007AFF' },
+                  { label: 'Target',   value: `${state.settings?.targetScore || 200}+`, color: '#FF9500' },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="flex items-center gap-2.5">
+                    <div className="h-2 w-2 rounded-full shrink-0" style={{ background: color }} />
+                    <span className="text-[12px] font-medium text-[#3A3A3C] w-14">{label}</span>
+                    <span className="text-[13px] font-bold text-[#1D1D1F]">{value}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -454,401 +304,223 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
 
       {currentSubTab === 'curriculum' ? (
         <>
+          {/* ── Filter + Search row ── */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Phase pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {PHASE_FILTERS.map((p) => {
+                const active = phaseFilter === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPhaseFilter(p.id as any)}
+                    className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all cursor-pointer border ${
+                      active
+                        ? 'bg-[#1D1D1F] text-white border-[#1D1D1F] shadow-sm'
+                        : 'bg-white text-[#6E6E73] border-[rgba(60,60,67,0.12)] hover:text-[#1D1D1F] hover:border-[rgba(60,60,67,0.25)]'
+                    }`}
+                  >
+                    <span className="hidden sm:inline">{p.label}</span>
+                    <span className="sm:hidden">{p.short}</span>
+                  </button>
+                );
+              })}
+            </div>
 
-      {/* ================= 4 METRIC CARDS ROW (Apple Bento Style) ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1: Circular Gauge Progress — Sapphire Ultramarine */}
-        <motion.div
-          whileHover={{ y: -4, scale: 1.02 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center gap-4 group"
-        >
-          <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 76 76">
-              <circle
-                cx="38"
-                cy="38"
-                r={radius}
-                className="text-slate-100 dark:text-slate-800"
-                strokeWidth="6"
-                stroke="currentColor"
-                fill="transparent"
-              />
-              <motion.circle
-                cx="38"
-                cy="38"
-                r={radius}
-                className="text-blue-600 dark:text-blue-400"
-                strokeWidth="6"
-                strokeDasharray={circumference}
-                initial={{ strokeDashoffset: circumference }}
-                animate={{ strokeDashoffset }}
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                strokeLinecap="round"
-                stroke="currentColor"
-                fill="transparent"
-              />
-            </svg>
-            <span className="absolute font-display font-black text-sm text-slate-950 dark:text-white font-mono">
-              {overallStats.percentage}%
+            {/* Search + sort */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-56">
+                <Search className="h-3.5 w-3.5 text-[#8E8E93] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search subjects, topics…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-2xl border border-[rgba(60,60,67,0.12)] bg-white py-2 pl-9 pr-8 text-[12.5px] text-[#1D1D1F] placeholder:text-[#8E8E93] focus:border-[#30D158]/50 focus:ring-2 focus:ring-[#30D158]/15 focus:outline-none transition-all shadow-[0_1px_4px_rgba(0,0,0,0.05)]"
+                />
+                {searchQuery && (
+                  <button type="button" onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-[#C7C7CC] flex items-center justify-center text-white hover:bg-[#8E8E93] cursor-pointer transition-colors">
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+              <div className="relative shrink-0">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="appearance-none rounded-2xl border border-[rgba(60,60,67,0.12)] bg-white py-2 pl-3 pr-7 text-[12.5px] font-medium text-[#3A3A3C] focus:border-[#30D158]/50 focus:outline-none cursor-pointer transition-all shadow-[0_1px_4px_rgba(0,0,0,0.05)]"
+                >
+                  <option value="default">Default</option>
+                  <option value="weightage">By Weightage</option>
+                  <option value="progress">By Progress</option>
+                  <option value="alpha">A–Z</option>
+                </select>
+                <ChevronRight className="h-3 w-3 text-[#8E8E93] absolute right-2.5 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+
+          {/* ── Section label ── */}
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-[#8E8E93]">
+              {phaseFilter === 'all' ? 'All Subjects' : phaseFilter.replace('-', ' ')} · {filteredSubjects.length} disciplines
+            </span>
+            <span className="text-[11px] font-medium text-[#8E8E93]">
+              {overallStats.completedSubjectsCount} completed
             </span>
           </div>
 
-          <div className="min-w-0 space-y-0.5">
-            <h4 className="text-[10px] font-black text-blue-900 dark:text-blue-300 uppercase tracking-wider font-mono">
-              Curriculum Completed
-            </h4>
-            <div className="text-base sm:text-lg font-black font-display text-slate-950 dark:text-white">
-              {overallStats.completedNotes} / {overallStats.totalTopics}
-            </div>
-            <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
-              {overallStats.completedSubjectsCount} / 19 subjects covered
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Metric 2: Total Subjects — Iris Violet */}
-        <motion.div
-          whileHover={{ y: -4, scale: 1.02 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-violet-300 transition-all flex items-center gap-4 group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-500 to-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-violet-500/25">
-            <BookOpen className="h-5 w-5" />
-          </div>
-          <div className="min-w-0 space-y-0.5">
-            <div className="text-2xl font-black font-display text-slate-950 dark:text-white leading-tight">
-              19
-            </div>
-            <h4 className="text-xs font-bold text-violet-950 dark:text-violet-200 font-display">
-              Total Subjects
-            </h4>
-            <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
-              FMGE core blueprint
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Metric 3: Estimated Study Hours — Radiant Amber */}
-        <motion.div
-          whileHover={{ y: -4, scale: 1.02 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-amber-300 transition-all flex items-center gap-4 group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-amber-500/25">
-            <Clock className="h-5 w-5" />
-          </div>
-          <div className="min-w-0 space-y-0.5">
-            <div className="text-2xl font-black font-display text-slate-950 dark:text-white leading-tight">
-              ~ 480h
-            </div>
-            <h4 className="text-xs font-bold text-amber-950 dark:text-amber-200 font-display">
-              Estimated Study Hours
-            </h4>
-            <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
-              Personalized pacing
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Metric 4: Target Score — Mint Emerald */}
-        <motion.div
-          whileHover={{ y: -4, scale: 1.02 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex items-center gap-4 group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/25">
-            <Target className="h-5 w-5" />
-          </div>
-          <div className="min-w-0 space-y-0.5">
-            <div className="text-2xl font-black font-display text-slate-950 dark:text-white leading-tight">
-              {state.settings?.targetScore || 200}+
-            </div>
-            <h4 className="text-xs font-bold text-emerald-950 dark:text-emerald-200 font-display">
-              Target Score
-            </h4>
-            <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate">
-              Qualify with confidence
-            </p>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* ================= PHASE FILTERS & SEARCH & SORT ================= */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 pt-1">
-        {/* Phase Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
-          {[
-            { id: 'all', label: 'All Subjects (19)', shortLabel: 'All (19)' },
-            { id: 'pre-clinical', label: 'Pre-Clinical (5)', shortLabel: 'Pre (5)' },
-            { id: 'para-clinical', label: 'Para-Clinical (5)', shortLabel: 'Para (5)' },
-            { id: 'clinical', label: 'Clinical (9)', shortLabel: 'Clinical (9)' },
-          ].map((p) => {
-            const isActive = phaseFilter === p.id;
-            return (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setPhaseFilter(p.id as any)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold font-display transition-all cursor-pointer whitespace-nowrap border shadow-2xs ${
-                  isActive
-                    ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs font-bold'
-                    : 'bg-white/90 backdrop-blur-md hover:bg-white text-stone-600 hover:text-stone-900 border-slate-200/80 shadow-2xs'
-                }`}
-              >
-                <span className="hidden sm:inline">{p.label}</span>
-                <span className="sm:hidden">{p.shortLabel}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search & Sort Controls */}
-        <div className="flex items-center gap-2.5 w-full md:w-auto">
-          {/* Search Input */}
-          <div className="relative flex-1 md:w-64">
-            <Search className="h-4 w-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search subjects, topics..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white py-2 pl-9 pr-8 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none transition-all shadow-xs"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-stone-400 hover:text-stone-700"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Sort Dropdown */}
-          <div className="relative shrink-0">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="appearance-none rounded-full border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white py-2 pl-3.5 pr-8 text-xs font-semibold text-slate-700 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none cursor-pointer transition-all shadow-xs"
-            >
-              <option value="default">Sort: Default</option>
-              <option value="weightage">Weightage (High → Low)</option>
-              <option value="progress">Progress (Low → High)</option>
-              <option value="alpha">Alphabetical</option>
-            </select>
-            <ChevronRight className="h-3.5 w-3.5 text-stone-400 absolute right-3 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
-          </div>
-        </div>
-      </div>
-
-      {/* ================= SUBJECT CARDS LIST ================= */}
-      <div className="space-y-3.5">
-        <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono px-1">
-          <span>Subjects & Curriculum Weightage</span>
-          <span>{filteredSubjects.length} Disciplines</span>
-        </div>
-
-        {filteredSubjects.length === 0 ? (
-          <div className="p-8 sm:p-12 text-center bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#00685F] border border-teal-100/80 flex items-center justify-center mx-auto shadow-2xs">
-              <Compass className="h-6 w-6 stroke-[2]" />
-            </div>
-            <div className="space-y-1 max-w-md mx-auto">
-              <h3 className="text-base font-bold text-stone-900 font-display">
-                No subjects or topics match "{searchQuery}"
-              </h3>
-              <p className="text-xs text-stone-500 leading-relaxed max-w-sm mx-auto">
-                Try searching by subject name (e.g. "Anatomy", "Medicine") or specific clinical keywords.
-              </p>
-            </div>
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery('');
-                  setPhaseFilter('all');
-                }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#005750] text-white text-xs font-bold transition-colors cursor-pointer shadow-2xs"
-              >
+          {/* ── Subject list ── */}
+          {filteredSubjects.length === 0 ? (
+            <div className="py-16 flex flex-col items-center gap-5 text-center bg-white rounded-3xl border border-[rgba(60,60,67,0.08)] shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+              {/* Illustrated empty state icon */}
+              <div className="relative">
+                <div className="h-16 w-16 rounded-3xl bg-gradient-to-br from-[#E8F9EE] to-[#C6F0D7] flex items-center justify-center shadow-sm border border-[#30D158]/15">
+                  <Compass className="h-8 w-8 text-[#30D158]" strokeWidth={1.8} />
+                </div>
+                <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-[#FF9500] flex items-center justify-center border-2 border-white">
+                  <Search className="h-2.5 w-2.5 text-white" />
+                </div>
+              </div>
+              <div className="space-y-1.5 max-w-xs">
+                <h3 className="text-[16px] font-bold text-[#1D1D1F]">
+                  {searchQuery ? `No results for "${searchQuery}"` : 'No subjects in this phase'}
+                </h3>
+                <p className="text-[13px] text-[#8E8E93] leading-snug">
+                  {searchQuery ? 'Try a different subject name or topic keyword.' : 'Select a different phase filter above.'}
+                </p>
+              </div>
+              <button type="button"
+                onClick={() => { setSearchQuery(''); setPhaseFilter('all'); }}
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#30D158] text-white text-[12px] font-semibold cursor-pointer hover:bg-[#25A244] transition-colors shadow-sm">
                 <RotateCw className="h-3.5 w-3.5" />
-                <span>Reset Filters</span>
+                Reset filters
               </button>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredSubjects.map((sub) => {
-              const subProgress = state.subjectProgress[sub.id];
-              const allTopics = [...sub.topics, ...(subProgress?.customTopics || [])];
-              const notesDoneCount = allTopics.filter(
-                (t) => state.topicsState[`${sub.id}-${t.id}`]?.notesDone ?? t.notesDone
-              ).length;
-              const pct = Math.round((notesDoneCount / Math.max(1, allTopics.length)) * 100);
+          ) : (
+            <div className="space-y-2.5">
+              {filteredSubjects.map((sub, idx) => {
+                const subProgress = state.subjectProgress[sub.id];
+                const allTopics = [...sub.topics, ...(subProgress?.customTopics || [])];
+                const notesDoneCount = allTopics.filter(
+                  (t) => state.topicsState[`${sub.id}-${t.id}`]?.notesDone ?? t.notesDone
+                ).length;
+                const pct = Math.round((notesDoneCount / Math.max(1, allTopics.length)) * 100);
+                const nextTopic = allTopics.find((t) => !(state.topicsState[`${sub.id}-${t.id}`]?.notesDone ?? t.notesDone)) || allTopics[0];
+                const visual = getSubjectVisual(sub.id, sub.color);
+                const topicPreview = allTopics.slice(0, 3).map((t) => t.name).join(' · ');
+                const isComplete = pct === 100;
 
-              // First uncompleted topic for "Next topic" recommendation
-              const nextTopic =
-                allTopics.find((t) => !(state.topicsState[`${sub.id}-${t.id}`]?.notesDone ?? t.notesDone)) ||
-                allTopics[0];
+                return (
+                  <motion.div
+                    key={sub.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.28, delay: idx * 0.03, ease: [0.16, 1, 0.3, 1] }}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => onSelectSubject(sub.id)}
+                    className="relative group bg-white rounded-2xl border border-[rgba(60,60,67,0.08)] shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.09)] hover:border-[rgba(60,60,67,0.14)] transition-all cursor-pointer overflow-hidden"
+                  >
+                    {/* Left accent bar */}
+                    <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-2xl"
+                      style={{ background: isComplete ? '#30D158' : visual.color }} />
 
-              const visual = getSubjectVisual(sub.id, sub.color);
-              const appleTheme = getSubjectVisualTheme(sub.id);
-              const IconComponent = visual.icon;
+                    {/* Hover color wash */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"
+                      style={{ background: `${visual.color}05` }} />
 
-              // Preview of high-yield topics
-              const topicPreview = allTopics
-                .slice(0, 4)
-                .map((t) => t.name)
-                .join(', ') + (allTopics.length > 4 ? '...' : '');
-
-              return (
-                <motion.div
-                  key={sub.id}
-                  whileHover={{ y: -3, scale: 1.006 }}
-                  whileTap={{ scale: 0.985 }}
-                  transition={{ type: 'spring', stiffness: 420, damping: 26 }}
-                  onClick={() => onSelectSubject(sub.id)}
-                  className={`relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-white via-white to-slate-50/60 backdrop-blur-xl border border-slate-200/80 hover:${appleTheme.border} shadow-[0_4px_16px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.08)] transition-all cursor-pointer group flex flex-col lg:flex-row lg:items-center justify-between gap-4`}
-                >
-                  {/* Subject Theme Aura Light Leak on Hover */}
-                  <div
-                    className="absolute -top-12 -right-12 w-48 h-48 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none"
-                    style={{ backgroundColor: visual.color }}
-                  />
-
-                  {/* Left: Icon & Subject Metadata */}
-                  <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1 relative z-10">
-                    <motion.div
-                      whileHover={{ scale: 1.1, rotate: [-2, 2, 0] }}
-                      transition={{ type: 'spring', stiffness: 450, damping: 20 }}
-                      className="shrink-0"
-                    >
-                      <SubjectAppleIcon subjectId={sub.id} size="lg" className="shrink-0" />
-                    </motion.div>
-
-                    <div className="min-w-0 space-y-1 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-base sm:text-lg font-extrabold font-display text-slate-900 group-hover:text-slate-950 transition-colors truncate">
-                          {sub.name}
-                        </h3>
-                        {/* Marks Pill */}
-                        <span
-                          className="px-2.5 py-0.5 rounded-full text-[10.5px] font-mono font-bold uppercase tracking-wider border shadow-2xs"
-                          style={{
-                            backgroundColor: `${visual.color}12`,
-                            color: visual.color,
-                            borderColor: `${visual.color}35`,
-                          }}
-                        >
-                          {sub.weightage} Marks
-                        </span>
+                    <div className="relative z-10 flex items-center gap-3 sm:gap-4 pl-4 pr-3 sm:pr-4 py-3.5 sm:py-4">
+                      {/* Icon */}
+                      <div className="shrink-0">
+                        <SubjectAppleIcon subjectId={sub.id} size="md" />
                       </div>
 
-                      <p className="text-xs text-slate-500 line-clamp-1 max-w-xl">
-                        {topicPreview || sub.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Right: Progress, Marks, Next Topic & Open CTA */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6 shrink-0 justify-between pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 relative z-10">
-                    {/* Progress rail */}
-                    <div className="w-full sm:w-36 space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
-                        <span>{notesDoneCount} / {allTopics.length} covered</span>
-                        <span className="font-extrabold text-slate-900">{pct}%</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${Math.max(pct > 0 ? 8 : 0, pct)}%` }}
-                          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                          className="h-full rounded-full transition-all"
-                          style={{ backgroundColor: visual.color }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Priority / High-Yield Pill */}
-                    <div className="hidden sm:block shrink-0">
-                      {visual.badgeType === 'high' && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50/90 text-rose-700 border border-rose-200/80 text-xs font-semibold whitespace-nowrap shadow-2xs">
-                          <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
-                          High-Yield
-                        </span>
-                      )}
-                      {visual.badgeType === 'important' && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50/90 text-sky-700 border border-sky-200/80 text-xs font-semibold whitespace-nowrap shadow-2xs">
-                          <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
-                          Important
-                        </span>
-                      )}
-                      {visual.badgeType === 'core' && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80 text-xs font-semibold whitespace-nowrap shadow-2xs">
-                          <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
-                          Core
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Next Topic Pointer */}
-                    {nextTopic && (
-                      <div className="hidden xl:flex items-center gap-2 max-w-[170px] min-w-0 text-left shrink-0">
-                        <div
-                          className="p-1.5 rounded-xl shrink-0 shadow-2xs"
-                          style={{
-                            backgroundColor: `${visual.color}15`,
-                            color: visual.color,
-                          }}
-                        >
-                          <BookOpen className="h-3.5 w-3.5" />
+                      {/* Middle: name + topics */}
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-[14px] sm:text-[15px] font-bold text-[#1D1D1F] truncate">
+                            {sub.name}
+                          </h3>
+                          <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold border"
+                            style={{ color: visual.color, background: `${visual.color}10`, borderColor: `${visual.color}30` }}>
+                            {sub.weightage}M
+                          </span>
+                          {visual.badgeType === 'high' && (
+                            <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FF3B30]/8 text-[#FF3B30] border border-[#FF3B30]/20">
+                              <span className="h-1 w-1 rounded-full bg-[#FF3B30] animate-pulse" />
+                              High-yield
+                            </span>
+                          )}
                         </div>
-                        <div className="min-w-0">
-                          <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider leading-none">
-                            Next topic
+                        <p className="text-[11px] text-[#8E8E93] truncate hidden sm:block">{topicPreview}</p>
+                      </div>
+
+                      {/* Progress + CTA */}
+                      <div className="shrink-0 flex items-center gap-3 sm:gap-4">
+                        {/* Progress bar (md+) */}
+                        <div className="hidden md:block w-28 space-y-1">
+                          <div className="flex items-center justify-between text-[10.5px] font-medium text-[#8E8E93]">
+                            <span>{notesDoneCount}/{allTopics.length}</span>
+                            <span className="font-bold" style={{ color: isComplete ? '#30D158' : visual.color }}>{pct}%</span>
                           </div>
-                          <div className="text-xs font-semibold text-slate-800 truncate font-display">
-                            {nextTopic.name}
+                          <div className="h-1.5 w-full bg-[#F2F2F7] rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.max(pct > 0 ? 6 : 0, pct)}%` }}
+                              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                              className="h-full rounded-full"
+                              style={{ background: isComplete ? '#30D158' : visual.color }}
+                            />
                           </div>
                         </div>
-                      </div>
-                    )}
 
-                    {/* Open Button */}
-                    <motion.button
-                      type="button"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.94 }}
-                      transition={{ type: 'spring', stiffness: 450, damping: 22 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelectSubject(sub.id);
-                      }}
-                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-slate-950 hover:bg-[#006B63] text-white text-xs font-semibold font-display shadow-xs transition-all cursor-pointer shrink-0 min-h-[40px] sm:min-h-[36px]"
-                    >
-                      <span>Study</span>
-                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </motion.button>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </>
-    ) : (
-      <RevisionMatrixView
-        state={state}
-        stats={stats || calculateAppStats(state)}
-        onSelectSubject={onSelectSubject}
-        onToggleTopicState={onToggleTopicState}
-        onUpdateSubjectRevisionDate={onUpdateSubjectRevisionDate || (() => {})}
-        onBackToCurriculum={() => handleSubTabChange('curriculum')}
-        onNavigateTab={onNavigateTab}
-      />
-    )}
+                        {/* Next topic (xl+) */}
+                        {nextTopic && !isComplete && (
+                          <div className="hidden xl:block min-w-0 max-w-[130px]">
+                            <p className="text-[9.5px] font-semibold uppercase tracking-wider text-[#C7C7CC]">Next</p>
+                            <p className="text-[11.5px] font-semibold text-[#3A3A3C] truncate">{nextTopic.name}</p>
+                          </div>
+                        )}
+
+                        {/* CTA button */}
+                        <motion.button
+                          type="button"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.94 }}
+                          onClick={(e) => { e.stopPropagation(); onSelectSubject(sub.id); }}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-all shrink-0 shadow-sm"
+                          style={{
+                            background: isComplete
+                              ? 'linear-gradient(135deg, #30D158 0%, #25A244 100%)'
+                              : `linear-gradient(135deg, ${visual.color} 0%, ${visual.color}CC 100%)`,
+                            boxShadow: `0 2px 8px ${visual.color}35`,
+                          }}
+                        >
+                          <span>{isComplete ? 'Review' : 'Study'}</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      ) : (
+        <RevisionMatrixView
+          state={state}
+          stats={stats || calculateAppStats(state)}
+          onSelectSubject={onSelectSubject}
+          onToggleTopicState={onToggleTopicState}
+          onUpdateSubjectRevisionDate={onUpdateSubjectRevisionDate || (() => {})}
+          onBackToCurriculum={() => handleSubTabChange('curriculum')}
+          onNavigateTab={onNavigateTab}
+        />
+      )}
     </div>
   );
 };

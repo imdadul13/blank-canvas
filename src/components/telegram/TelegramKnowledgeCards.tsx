@@ -95,8 +95,8 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
         );
       case "image":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-teal-50 text-[#00685f] border border-teal-200">
-            <ImageIcon className="w-3 h-3 text-[#00685f]" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200">
+            <ImageIcon className="w-3 h-3 text-emerald-600" />
             Image Spotter
           </span>
         );
@@ -193,7 +193,7 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
               </div>
 
               {/* Subject and Topic tag */}
-              <div className="mb-2 text-[11px] font-semibold text-[#00685f] capitalize tracking-wide flex items-center gap-1.5">
+              <div className="mb-2 text-[11px] font-semibold text-[#0284C7] capitalize tracking-wide flex items-center gap-1.5">
                 <span>{item.subject}</span>
                 {item.topic && (
                   <>
@@ -234,7 +234,7 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
 
               {/* Title / Content */}
               {item.type === "pearl" ? (
-                <div className="p-3 rounded-xl bg-rose-50/40 border border-rose-100/70 mb-2.5 text-xs text-slate-900 leading-relaxed font-serif italic min-h-[52px]">
+                <div className="p-3 rounded-xl bg-rose-50/40 border border-rose-100/70 mb-2.5 text-xs text-slate-900 leading-relaxed font-sans italic min-h-[52px]">
                   “{item.content || item.title}”
                 </div>
               ) : (
@@ -302,16 +302,16 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
 
                   {/* Solved Explanation & Distractor Analysis */}
                   {isAnswered && explanation && (
-                    <div className="p-3 rounded-xl bg-teal-50/60 border border-teal-200/80 text-[11px] text-teal-950 leading-relaxed mt-2.5 space-y-1.5 animate-fadeIn">
+                    <div className="p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20 text-[11px] text-emerald-950 leading-relaxed mt-2.5 space-y-1.5 animate-fadeIn">
                       <div>
-                        <span className="font-bold text-[#00685f] block mb-0.5">
+                        <span className="font-bold text-emerald-800 block mb-0.5">
                           Correct Answer: Option {correctAnswer || "A"}
                         </span>
                         <p className="text-slate-700">{explanation}</p>
                       </div>
 
                       {distractorAnalysis && distractorAnalysis.length > 0 && (
-                        <div className="pt-1.5 border-t border-teal-200/60 mt-1.5 space-y-1">
+                        <div className="pt-1.5 border-t border-emerald-500/20 mt-1.5 space-y-1">
                           <span className="font-bold text-slate-800 block text-[10.5px]">Why Other Options Are Wrong:</span>
                           {distractorAnalysis.map((d: any, i: number) => (
                             <p key={i} className="text-slate-600 text-[10.5px]">
@@ -338,7 +338,7 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
                   <button
                     type="button"
                     onClick={() => toggleExpand(item.id)}
-                    className="text-[11px] font-bold text-[#00685f] hover:underline cursor-pointer flex items-center gap-0.5"
+                    className="text-[11px] font-bold text-[#007AFF] hover:underline cursor-pointer flex items-center gap-0.5"
                   >
                     {isExpanded ? (
                       <>
@@ -359,7 +359,7 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
                   <button
                     type="button"
                     onClick={() => onPracticeQuestion(item)}
-                    className="text-[11px] font-semibold text-[#00685f] hover:text-[#005049] hover:underline cursor-pointer"
+                    className="text-[11px] font-semibold text-[#007AFF] hover:text-[#0056CC] hover:underline cursor-pointer"
                   >
                     Practice Similar →
                   </button>
@@ -372,13 +372,13 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
                   onClick={() => onToggleSave(item)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all ${
                     isSaved
-                      ? "bg-[#ECF7F5] text-[#00685f] border border-[#d2ebe6]"
+                      ? "bg-[#5856D6]/10 text-[#5856D6] border border-[#5856D6]/25"
                       : "bg-stone-50 hover:bg-stone-100 text-slate-700 border border-stone-200"
                   }`}
                 >
                   <Bookmark
                     className={`w-3.5 h-3.5 ${
-                      isSaved ? "fill-[#00685f] text-[#00685f]" : "text-slate-400"
+                      isSaved ? "fill-[#5856D6] text-[#5856D6]" : "text-slate-400"
                     }`}
                   />
                   <span>{isSaved ? "Saved" : "Save"}</span>

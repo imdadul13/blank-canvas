@@ -39,7 +39,7 @@ export interface SubjectVisualTheme {
 /**
  * High-definition Apple HIG-style clinical icon themes for all 19 FMGE subjects.
  * Each specialty has an authentic medical SVG icon, a frosted squircle container,
- * and specular edge lighting that harmonizes with Deep Teal #006B63.
+ * and specular edge lighting that harmonizes with Deep Teal #007AFF.
  */
 export const SUBJECT_VISUAL_THEMES: Record<string, SubjectVisualTheme> = {
   anatomy: {
@@ -57,7 +57,7 @@ export const SUBJECT_VISUAL_THEMES: Record<string, SubjectVisualTheme> = {
   physiology: {
     icon: HeartPulse,
     label: 'Physiology',
-    color: '#0284C7',
+    color: '#007AFF',
     bgGradient: 'bg-gradient-to-br from-white via-sky-50/75 to-sky-100/40',
     border: 'border-sky-200/70',
     ring: 'ring-sky-950/5',
@@ -81,7 +81,7 @@ export const SUBJECT_VISUAL_THEMES: Record<string, SubjectVisualTheme> = {
   pathology: {
     icon: Microscope,
     label: 'Pathology',
-    color: '#0D9488',
+    color: '#60B3FF',
     bgGradient: 'bg-gradient-to-br from-white via-teal-50/75 to-teal-100/40',
     border: 'border-teal-200/70',
     ring: 'ring-teal-950/5',
@@ -165,11 +165,11 @@ export const SUBJECT_VISUAL_THEMES: Record<string, SubjectVisualTheme> = {
   medicine: {
     icon: Stethoscope,
     label: 'General Medicine',
-    color: '#006B63',
+    color: '#007AFF',
     bgGradient: 'bg-gradient-to-br from-white via-teal-50/80 to-teal-100/50',
     border: 'border-teal-200/70',
     ring: 'ring-teal-950/5',
-    text: 'text-[#006B63]',
+    text: 'text-[#007AFF]',
     badgeBg: 'bg-teal-50/90 border-teal-200/80',
     badgeText: 'text-teal-800',
     badgeType: 'high',
@@ -249,7 +249,7 @@ export const SUBJECT_VISUAL_THEMES: Record<string, SubjectVisualTheme> = {
   radiology: {
     icon: ScanLine,
     label: 'Radiology',
-    color: '#0F766E',
+    color: '#0056CC',
     bgGradient: 'bg-gradient-to-br from-white via-teal-50/75 to-teal-100/40',
     border: 'border-teal-200/70',
     ring: 'ring-teal-950/5',
@@ -305,11 +305,11 @@ export const getSubjectVisualTheme = (rawId: string): SubjectVisualTheme => {
     SUBJECT_VISUAL_THEMES[key] || {
       icon: BookOpen,
       label: 'Medicine',
-      color: '#006B63',
+      color: '#007AFF',
       bgGradient: 'bg-gradient-to-br from-white via-teal-50/80 to-teal-100/40',
       border: 'border-teal-200/70',
       ring: 'ring-teal-950/5',
-      text: 'text-[#006B63]',
+      text: 'text-[#007AFF]',
       badgeBg: 'bg-teal-50/90 border-teal-200/70',
       badgeText: 'text-teal-800',
       badgeType: 'core',

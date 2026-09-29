@@ -154,15 +154,15 @@ export const AccuracyTrendDetailModal: React.FC<AccuracyTrendDetailModalProps> =
         <div className="flex items-start justify-between p-6 sm:px-8 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#00685f]">
+              <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#007AFF]">
                 LONGITUDINAL DIAGNOSTIC
               </span>
-              <span className="w-1 h-1 rounded-full bg-[#00685f]/40" />
+              <span className="w-1 h-1 rounded-full bg-[#007AFF]/40" />
               <span className="text-xs text-stone-400 font-mono">
                 {sessions.length} SESSIONS RECORDED
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-['Outfit'] tracking-tight text-[#121E1B]">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
               Accuracy Trend & Trajectory
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 max-w-2xl leading-relaxed">
@@ -258,7 +258,7 @@ export const AccuracyTrendDetailModal: React.FC<AccuracyTrendDetailModalProps> =
           {/* Trajectory Verdict Banner */}
           <div className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200/80 flex items-start gap-4">
             <div className="p-2.5 rounded-xl bg-white border border-stone-200 shadow-2xs shrink-0">
-              <TrendIcon className="w-5 h-5 text-[#00685f]" />
+              <TrendIcon className="w-5 h-5 text-[#007AFF]" />
             </div>
             <div className="space-y-1 flex-1">
               <div className="flex items-center gap-2">
@@ -341,7 +341,7 @@ export const AccuracyTrendDetailModal: React.FC<AccuracyTrendDetailModalProps> =
                       onClose();
                       onLaunchPracticeSession();
                     }}
-                    className="px-4 py-2 rounded-full text-xs font-bold bg-[#00685f] hover:bg-[#005049] text-white transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-full text-xs font-bold bg-[#007AFF] hover:bg-[#0062CC] text-white transition-colors cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <Target className="w-3.5 h-3.5" />
                     <span>Launch First 10-MCQ Session</span>

@@ -68,11 +68,6 @@ import {
   mapTelegramAuthError,
 } from "../utils/phoneValidation";
 import { TelegramStatusCards } from "./telegram/TelegramStatusCards";
-import { useCircadianTheme } from "../hooks/useCircadianTheme";
-import { CircadianHeaderAtmosphere, CircadianPill } from "./CircadianHeaderAtmosphere";
-import { HeaderTabInsignia } from "./HeaderTabInsignia";
-import { CircadianFocusDropdown } from "./CircadianFocusDropdown";
-import { HeaderGlassIcon } from "./HeaderGlassIcon";
 import { TelegramOverviewCard } from "./telegram/TelegramOverviewCard";
 import { TelegramSubjectCollections } from "./telegram/TelegramSubjectCollections";
 import { TelegramQuickActions } from "./telegram/TelegramQuickActions";
@@ -107,8 +102,6 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   onAddToErrorNotebook,
   onSaveAsPearl,
 }) => {
-  const circadian = useCircadianTheme();
-
   // 1. Connection & Live Cloud Status State
   const [isConnected, setIsConnected] = useState(false);
   const [userProfile, setUserProfile] = useState<{ id: string; firstName: string; username?: string; phone: string } | null>(null);
@@ -1178,338 +1171,71 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6 sm:space-y-8 animate-fadeIn pb-56 sm:pb-40 lg:pb-16 font-['Plus_Jakarta_Sans'] min-w-0 max-w-full overflow-x-clip">
+    <div
+      className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6 sm:space-y-8 animate-fadeIn pb-56 sm:pb-40 lg:pb-16 font-sans antialiased min-w-0 max-w-full overflow-x-clip text-slate-900"
+      style={{ paddingBottom: 'max(9.5rem, calc(7rem + env(safe-area-inset-bottom, 2rem)))' }}
+    >
       {/* ========================================================================= */}
-      {/* 1. EDITORIAL HERO HEADER */}
+      {/* 1. APPLE HIG HERO HEADER */}
       {/* ========================================================================= */}
-      <div className="space-y-3">
-        {/* Hero Header Card with Motion & Visual Animations */}
-        <motion.header
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          className={`relative rounded-3xl border p-3.5 sm:px-5 sm:py-3.5 shadow-xs transition-colors duration-700 ${circadian.bannerBg} ${circadian.cardBorder}`}
-        >
-          {/* Background Atmosphere & Satellite Dish Artwork (isolated so dropdown never clips) */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
-            <CircadianHeaderAtmosphere circadian={circadian} />
-            {/* Dynamic Animated Ambient Effects */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-              {/* Luminous system theme top border shimmer track */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-sky-500/25 to-transparent" />
-              <motion.div
-                animate={{ x: ['-100%', '300%'] }}
-                transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.0 }}
-                className="w-48 sm:w-72 h-full bg-gradient-to-r from-transparent via-sky-400 to-transparent shadow-[0_0_14px_#38bdf8]"
-              />
+      {/* ========================================================================= */}
+      {/* 1. APPLE HIG DEEP AZURE HERO HEADER */}
+      {/* ========================================================================= */}
+      {/* 1. EDITORIAL HERO HEADER WITH LIVE STREAM TELEMETRY AESTHETIC */}
+      {/* ========================================================================= */}
+      <motion.header
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+        className="relative rounded-3xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 45%, #075985 80%, #0C4A6E 100%)',
+          boxShadow: '0 8px 40px rgba(2,132,199,0.24), 0 2px 8px rgba(0,0,0,0.10)',
+        }}
+      >
+        {/* Decorative right glow + top inner shine */}
+        <div
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-2/3"
+          style={{ background: 'radial-gradient(ellipse at 85% 40%, rgba(56,189,248,0.30) 0%, transparent 65%)' }}
+        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/15 to-transparent" />
+
+        <div className="relative z-10 px-5 sm:px-8 py-5 sm:py-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          <div className="space-y-2 min-w-0 max-w-xl">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-white/20 border border-white/25 flex items-center justify-center shrink-0">
+                <Send className="h-3.5 w-3.5 text-white" />
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 border border-white/20 text-[10.5px] font-mono font-bold uppercase tracking-wider text-sky-100">
+                <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live MTProto Stream · Noise Threshold ≥ 75
+              </span>
             </div>
 
-            {/* Subtle bottom border gradient luster */}
-            <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-sky-500/20 to-transparent" />
-
-            {/* Soft glowing corner radial gradient orbs with breathing motion */}
-            <motion.div
-              animate={{
-                scale: [1, 1.18, 1],
-                opacity: [0.35, 0.6, 0.35],
-                x: [0, 16, 0],
-              }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -top-16 -right-16 h-72 w-72 rounded-full bg-gradient-to-br from-sky-400/35 via-teal-200/25 to-transparent blur-3xl"
-            />
-            <motion.div
-              animate={{
-                scale: [1.1, 1, 1.1],
-                opacity: [0.2, 0.4, 0.2],
-                y: [0, -10, 0],
-              }}
-              transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -bottom-16 -left-12 h-60 w-60 rounded-full bg-gradient-to-tr from-cyan-300/25 via-sky-100/20 to-transparent blur-3xl"
-            />
-
-            {/* Subtle Community Matrix Grid */}
-            <svg
-              className="absolute inset-0 h-full w-full opacity-[0.035] text-sky-950 pointer-events-none select-none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                <pattern id="tg-hero-grid" width="28" height="28" patternUnits="userSpaceOnUse">
-                  <path d="M 28 0 L 0 0 0 28" fill="none" stroke="currentColor" strokeWidth="0.75" />
-                  <circle cx="28" cy="28" r="0.75" fill="currentColor" opacity="0.6" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#tg-hero-grid)" />
-            </svg>
-
-          {/* Premium Global Satellite Observatory & Cosmic Telemetry Artwork */}
-          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[520px] overflow-hidden opacity-45 sm:opacity-60 md:opacity-[0.72] select-none pointer-events-none block">
-            <svg viewBox="0 0 520 145" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
-              <defs>
-                <linearGradient id="tg-earth-limb" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#0369A1" stopOpacity="0.85" />
-                  <stop offset="50%" stopColor="#0284C7" stopOpacity="0.75" />
-                  <stop offset="100%" stopColor="#0F172A" stopOpacity="0.95" />
-                </linearGradient>
-                <linearGradient id="tg-dish-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#FFFFFF" />
-                  <stop offset="50%" stopColor="#BAE6FD" />
-                  <stop offset="100%" stopColor="#0284C7" />
-                </linearGradient>
-                <linearGradient id="tg-satellite-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#38BDF8" />
-                  <stop offset="100%" stopColor="#14B8A6" />
-                </linearGradient>
-                <radialGradient id="tg-atmosphere-glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.5" />
-                  <stop offset="50%" stopColor="#0284C7" stopOpacity="0.2" />
-                  <stop offset="100%" stopColor="#0284C7" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Distant Cosmos Nebula Glow */}
-              <motion.circle
-                cx="420"
-                cy="50"
-                r="65"
-                fill="url(#tg-atmosphere-glow)"
-                animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
-                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-              />
-
-              {/* Twinkling Constellation Stars */}
-              <g fill="#E0F2FE">
-                <motion.circle cx="240" cy="25" r="1.4" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 2.8, repeat: Infinity }} />
-                <motion.circle cx="285" cy="18" r="1.2" animate={{ opacity: [0.2, 0.9, 0.2] }} transition={{ duration: 3.4, repeat: Infinity, delay: 0.6 }} />
-                <motion.circle cx="330" cy="32" r="1.5" animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.2, repeat: Infinity, delay: 1.1 }} />
-                <motion.circle cx="470" cy="22" r="1.3" animate={{ opacity: [0.2, 0.85, 0.2] }} transition={{ duration: 3.1, repeat: Infinity, delay: 0.4 }} />
-                <motion.circle cx="505" cy="38" r="1.1" animate={{ opacity: [0.3, 0.9, 0.3] }} transition={{ duration: 2.5, repeat: Infinity, delay: 1.5 }} />
-                {/* Subtle Constellation Vector Links */}
-                <line x1="240" y1="25" x2="285" y2="18" stroke="#38BDF8" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.4" />
-                <line x1="285" y1="18" x2="330" y2="32" stroke="#38BDF8" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.4" />
-              </g>
-
-              {/* ═══ 1. CURVING PLANET EARTH ATMOSPHERIC LIMB ═══ */}
-              <path
-                d="M 120 145 C 240 105, 380 92, 520 102 L 520 145 Z"
-                fill="url(#tg-earth-limb)"
-              />
-              {/* Luminous Atmospheric Edge Aura */}
-              <path
-                d="M 120 145 C 240 105, 380 92, 520 102"
-                stroke="#38BDF8"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                opacity="0.85"
-              />
-              <path
-                d="M 120 145 C 240 105, 380 92, 520 102"
-                stroke="#7DD3FC"
-                strokeWidth="5"
-                strokeLinecap="round"
-                opacity="0.3"
-              />
-
-              {/* Terrestrial City Light Nodes along Horizon */}
-              <circle cx="260" cy="115" r="1.8" fill="#FDE047" opacity="0.8" />
-              <circle cx="340" cy="103" r="2.0" fill="#FDE047" opacity="0.9" />
-              <circle cx="410" cy="101" r="2.2" fill="#FDE047" opacity="0.85" />
-              <circle cx="460" cy="106" r="1.8" fill="#FDE047" opacity="0.75" />
-
-              {/* ═══ 2. HILLTOP OBSERVATORY DOME & PARABOLIC DISH ═══ */}
-              {/* Observatory Hill Silhouette */}
-              <path
-                d="M 320 145 C 360 110, 420 105, 480 145 Z"
-                fill="#0F172A"
-                opacity="0.9"
-              />
-
-              {/* Classical Astronomical Observatory Dome at (380, 112) */}
-              <g transform="translate(380, 112)">
-                {/* Cylindrical Base */}
-                <rect x="-14" y="0" width="28" height="16" fill="#1E293B" stroke="#38BDF8" strokeWidth="0.8" />
-                {/* Hemispherical Dome */}
-                <path d="M -14 0 A 14 14 0 0 1 14 0 Z" fill="#0284C7" stroke="#BAE6FD" strokeWidth="0.8" />
-                {/* Telescopic Observation Slit */}
-                <rect x="-3" y="-12" width="6" height="12" fill="#0F172A" />
-                <motion.line
-                  x1="0"
-                  y1="-10"
-                  x2="0"
-                  y2="0"
-                  stroke="#38BDF8"
-                  strokeWidth="1.2"
-                  animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ duration: 2.5, repeat: Infinity }}
-                />
-              </g>
-
-              {/* Large Deep-Space Parabolic Dish Antenna at (435, 105) */}
-              <g transform="translate(435, 105) rotate(-28)">
-                {/* Pylon Mount Stanchion */}
-                <path d="M -4 25 L 4 25 L 2 5 L -2 5 Z" fill="#334155" />
-                {/* Parabolic Reflector Dish Shell */}
-                <path
-                  d="M -26 0 C -18 16, 18 16, 26 0 C 18 6, -18 6, -26 0 Z"
-                  fill="url(#tg-dish-grad)"
-                  stroke="#0284C7"
-                  strokeWidth="1"
-                />
-                {/* Central Sub-reflector Feed Horn */}
-                <line x1="0" y1="8" x2="0" y2="-12" stroke="#0F172A" strokeWidth="1.5" />
-                <circle cx="0" cy="-12" r="3" fill="#38BDF8" />
-
-                {/* Radiating Microwave Transmission Wavefronts */}
-                <motion.path
-                  d="M -16 -18 C -8 -26, 8 -26, 16 -18"
-                  stroke="#38BDF8"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  fill="none"
-                  animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut' }}
-                />
-                <motion.path
-                  d="M -16 -18 C -8 -26, 8 -26, 16 -18"
-                  stroke="#7DD3FC"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  fill="none"
-                  animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut', delay: 0.7 }}
-                />
-              </g>
-
-              {/* ═══ 3. GLIDING ORBITAL SATELLITE WITH SOLAR PANELS ═══ */}
-              <motion.g
-                animate={{
-                  x: [0, 220],
-                  y: [0, -16],
-                }}
-                transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
-              >
-                <g transform="translate(180, 42) rotate(15)">
-                  {/* Central Satellite Body Bus */}
-                  <rect x="-7" y="-5" width="14" height="10" rx="1.5" fill="#E0F2FE" stroke="#0284C7" strokeWidth="0.8" />
-                  {/* Left Solar Panel Array Wing */}
-                  <rect x="-26" y="-6" width="16" height="12" rx="1" fill="#0369A1" stroke="#38BDF8" strokeWidth="0.7" />
-                  <line x1="-18" y1="-6" x2="-18" y2="6" stroke="#38BDF8" strokeWidth="0.5" />
-                  <line x1="-10" y1="-1" x2="-26" y2="-1" stroke="#38BDF8" strokeWidth="0.5" />
-                  <line x1="-10" y1="2" x2="-26" y2="2" stroke="#38BDF8" strokeWidth="0.5" />
-                  {/* Right Solar Panel Array Wing */}
-                  <rect x="10" y="-6" width="16" height="12" rx="1" fill="#0369A1" stroke="#38BDF8" strokeWidth="0.7" />
-                  <line x1="18" y1="-6" x2="18" y2="6" stroke="#38BDF8" strokeWidth="0.5" />
-                  <line x1="10" y1="-1" x2="26" y2="-1" stroke="#38BDF8" strokeWidth="0.5" />
-                  <line x1="10" y1="2" x2="26" y2="2" stroke="#38BDF8" strokeWidth="0.5" />
-                  {/* Telemetry Sensor Antenna */}
-                  <line x1="0" y1="5" x2="0" y2="12" stroke="#38BDF8" strokeWidth="1" />
-                  <circle cx="0" cy="12" r="1.5" fill="#34D399" />
-                  {/* Pulsing Beacon Light */}
-                  <motion.circle
-                    cx="0"
-                    cy="0"
-                    r="3.5"
-                    fill="#38BDF8"
-                    animate={{ scale: [1, 1.8], opacity: [0.85, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
-                  />
-                </g>
-              </motion.g>
-            </svg>
-          </div>
-        </div>
-        </div>
-
-        {/* Top Utility Bar: Eyebrow + MTProto Status + Circadian Focus Dropdown */}
-        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2 border-b ${
-          circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
-        }`}>
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${
-              circadian.isNight ? 'text-sky-300' : 'text-sky-700'
-            }`}>
-              TELEGRAM CLINICAL HUB
-            </span>
-            <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border shadow-2xs ${circadian.isNight ? 'bg-teal-950/70 text-teal-300 border-teal-800/80' : 'bg-teal-50 text-teal-800 border-teal-200'}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-teal-500'}`} />
-              {isConnected ? 'MTProto Synced' : 'Feed Active'}
-            </span>
-          </div>
-          <CircadianFocusDropdown circadian={circadian} />
-        </div>
-
-        {/* Header Content Body matching telegram-hub-banner.png */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 pt-2">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 max-w-3xl min-w-0">
-            <HeaderGlassIcon
-              icon={Send}
-              variant="blue"
-              isNight={circadian.isNight}
-            />
-
-            <div className="space-y-1.5 min-w-0">
-              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
-                  <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>TELEGRAM </span>
-                  <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>KNOWLEDGE BANK</span>
-                </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                  ONE SHOT CURATED
-                </span>
-              </div>
-
-              <p className={`text-xs sm:text-sm leading-relaxed max-w-xl ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
-                High-yield FMGE content, intelligently curated from your verified sources.
+            <div className="space-y-0.5">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                Telegram Knowledge Bank
+              </h1>
+              <p className="text-[12.5px] sm:text-[13px] text-sky-100/80 leading-relaxed max-w-lg font-medium">
+                High-yield FMGE content, clinical pearls, and image spotters intelligently curated from your verified sources.
               </p>
-
-              {/* Quick Metrics Bar with Apple Bento Capsules */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-slate-900/80 border-slate-800 text-slate-200' : 'bg-slate-100/90 border-slate-200/80 text-slate-700'}`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-600 font-sans font-semibold'}>Curated:</span>
-                  <span className={`font-extrabold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{curatedCounts.totalCurated || curatedItems.length}</span>
-                </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-amber-950/60 border-amber-800/60 text-amber-200' : 'bg-amber-500/10 border-amber-200/80 text-amber-900'}`}>
-                  <span className={circadian.isNight ? 'text-amber-300' : 'text-amber-700 font-sans font-semibold'}>Pearls:</span>
-                  <span className={`font-extrabold ${circadian.isNight ? 'text-amber-300' : 'text-amber-700'}`}>{curatedCounts.examPearls}</span>
-                </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-sky-950/60 border-sky-800/60 text-sky-200' : 'bg-sky-500/10 border-sky-200/80 text-sky-900'}`}>
-                  <span className={circadian.isNight ? 'text-sky-300' : 'text-sky-700 font-sans font-semibold'}>Questions:</span>
-                  <span className={`font-extrabold ${circadian.isNight ? 'text-sky-300' : 'text-sky-700'}`}>{curatedCounts.questions}</span>
-                </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-teal-950/60 border-teal-800/60 text-teal-200' : 'bg-teal-500/10 border-teal-200/80 text-teal-900'}`}>
-                  <span className={circadian.isNight ? 'text-teal-300' : 'text-teal-700 font-sans font-semibold'}>Spotters:</span>
-                  <span className={`font-extrabold ${circadian.isNight ? 'text-cyan-300' : 'text-teal-800'}`}>{curatedCounts.imageSpotters}</span>
-                </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xl border text-[11px] font-mono shadow-2xs ${circadian.isNight ? 'bg-emerald-950/60 border-emerald-800/60 text-emerald-200' : 'bg-emerald-500/10 border-emerald-200/80 text-emerald-900'}`}>
-                  <span className={circadian.isNight ? 'text-emerald-300' : 'text-emerald-700 font-sans font-semibold'}>Saved:</span>
-                  <span className={`font-extrabold ${circadian.isNight ? 'text-emerald-300' : 'text-emerald-700'}`}>{savedItems.length}</span>
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* Right Action Controls: Sync Feed & Connect MTProto in single row with Apple Tactile Spring */}
-          <div className="flex items-center gap-2.5 shrink-0 self-start lg:self-center">
-            <motion.button
-              whileHover={{ scale: 1.03, y: -1 }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          {/* Action Pills */}
+          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <button
               type="button"
               onClick={handleManualSyncNow}
               disabled={isManualSyncing}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#005B54] hover:bg-[#004D47] text-white text-xs font-bold shadow-md shadow-teal-900/20 ring-1 ring-white/20 transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 text-white border border-white/25 text-[12px] font-bold transition-all active:scale-95 cursor-pointer disabled:opacity-50 backdrop-blur-md shadow-xs"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isManualSyncing ? 'animate-spin' : ''}`} />
-              <span>{isManualSyncing ? 'Syncing...' : 'Sync Feed'}</span>
-            </motion.button>
+              <RefreshCw className={`size-3.5 text-sky-200 stroke-[2.4] ${isManualSyncing ? 'animate-spin' : ''}`} />
+              <span>{isManualSyncing ? 'Syncing...' : 'Sync Live Feed'}</span>
+            </button>
 
-            {!isConnected && (
-              <motion.button
-                whileHover={{ scale: 1.03, y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            {!isConnected ? (
+              <button
                 type="button"
                 onClick={() => {
                   setAuthMethod('qr');
@@ -1517,19 +1243,72 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   setAuthError(null);
                   setIsConnectModalOpen(true);
                 }}
-                className={`inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border text-xs font-bold shadow-2xs transition-all cursor-pointer ${
-                  circadian.isNight
-                    ? 'bg-slate-800/80 hover:bg-slate-700 border-slate-700/80 text-slate-200 hover:text-white'
-                    : 'bg-slate-100/90 hover:bg-slate-200/90 border-slate-200/90 text-slate-800'
-                }`}
+                className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-full bg-white hover:bg-[#F2F2F7] text-[#0369A1] text-[12px] font-bold shadow-sm transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
               >
-                <QrCode className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 stroke-[2.2]" />
+                <QrCode className="size-3.5 stroke-[2.6]" />
                 <span>Connect MTProto</span>
-              </motion.button>
+              </button>
+            ) : (
+              <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/25 text-white text-[12px] font-bold shadow-xs">
+                <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>MTProto Synced</span>
+              </div>
             )}
           </div>
         </div>
       </motion.header>
+
+      {/* 4 Metric Tiles Row Matching Screenshot 3 / ErrorsView / FmgePredictorView */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          {
+            label: 'Total Curated',
+            value: curatedCounts.totalCurated || curatedItems.length,
+            sub: 'Verified clinical entries',
+            icon: Layers,
+            color: '#0284C7',
+            bg: 'rgba(2,132,199,0.06)',
+            border: 'rgba(2,132,199,0.18)',
+          },
+          {
+            label: 'Exam Pearls',
+            value: curatedCounts.examPearls,
+            sub: 'High-yield takeaways',
+            icon: Star,
+            color: '#FF9500',
+            bg: 'rgba(255,149,0,0.06)',
+            border: 'rgba(255,149,0,0.18)',
+          },
+          {
+            label: 'Clinical MCQs',
+            value: curatedCounts.questions,
+            sub: 'Vignettes with rationale',
+            icon: HelpCircle,
+            color: '#30D158',
+            bg: 'rgba(48,209,88,0.06)',
+            border: 'rgba(48,209,88,0.18)',
+          },
+          {
+            label: 'Saved Vault',
+            value: savedItems.length,
+            sub: 'Student saved notes',
+            icon: Bookmark,
+            color: '#5856D6',
+            bg: 'rgba(88,86,214,0.06)',
+            border: 'rgba(88,86,214,0.18)',
+          },
+        ].map(({ label, value, sub, icon: Icon, color, bg, border }) => (
+          <div key={label} className="p-4 rounded-2xl border space-y-2" style={{ background: bg, borderColor: border }}>
+            <div className="flex items-center justify-between">
+              <span className="text-[10.5px] font-bold uppercase tracking-widest text-[#8E8E93]">{label}</span>
+              <div className="w-7 h-7 rounded-xl flex items-center justify-center" style={{ background: `${color}20` }}>
+                <Icon className="h-3.5 w-3.5" style={{ color }} />
+              </div>
+            </div>
+            <div className="text-[26px] font-black font-mono leading-none" style={{ color }}>{value}</div>
+            <p className="text-[11px] text-[#8E8E93]">{sub}</p>
+          </div>
+        ))}
       </div>
 
       {/* ========================================================================= */}
@@ -1580,7 +1359,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 text-xs">
           <div className="flex items-center gap-2 text-emerald-950 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-bold uppercase tracking-wider text-[11px] text-[#00685f]">
+            <span className="font-bold uppercase tracking-wider text-[11px] text-emerald-800">
               Educational Guardrails Active
             </span>
             <span className="hidden sm:inline text-emerald-700">
@@ -1656,16 +1435,16 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 px-0.5 scrollbar-none scroll-smooth w-full min-w-0"
           >
             {[
-              { id: "all", label: "Curated Feed", count: curatedCounts.totalCurated, icon: Layers },
-              { id: "pearls", label: "Exam Pearls", count: curatedCounts.examPearls, icon: Award },
-              { id: "questions", label: "Questions", count: curatedCounts.questions, icon: FileText },
-              { id: "images", label: "Spotters", count: curatedCounts.imageSpotters, icon: ImageIcon },
-              { id: "videos", label: "Videos", count: curatedCounts.videos, icon: Video },
-              { id: "tips", label: "Rapid Tips", count: curatedCounts.clinicalTips, icon: Lightbulb },
-              { id: "saved", label: "Vault", count: savedItems.length, icon: Star, highlight: true },
-              { id: "cross_checks", label: "AI Cross-Check", count: crossChecks.length, icon: ShieldCheck },
-              { id: "sources", label: "Channels", count: workerHealth.activeSourcesCount, icon: Layers },
-              { id: "debugger", label: "Source Library (Raw)", count: rawMessages.length, icon: Terminal },
+              { id: "all", label: "Curated Feed", count: curatedCounts.totalCurated, icon: Layers, activeBg: "#0284C7" },
+              { id: "pearls", label: "Exam Pearls", count: curatedCounts.examPearls, icon: Award, activeBg: "#D97706" },
+              { id: "questions", label: "Questions", count: curatedCounts.questions, icon: FileText, activeBg: "#059669" },
+              { id: "images", label: "Spotters", count: curatedCounts.imageSpotters, icon: ImageIcon, activeBg: "#7C3AED" },
+              { id: "videos", label: "Videos", count: curatedCounts.videos, icon: Video, activeBg: "#E11D48" },
+              { id: "tips", label: "Rapid Tips", count: curatedCounts.clinicalTips, icon: Lightbulb, activeBg: "#EA580C" },
+              { id: "saved", label: "Vault", count: savedItems.length, icon: Star, highlight: true, activeBg: "#4F46E5" },
+              { id: "cross_checks", label: "AI Cross-Check", count: crossChecks.length, icon: ShieldCheck, activeBg: "#007AFF" },
+              { id: "sources", label: "Channels", count: workerHealth.activeSourcesCount, icon: Layers, activeBg: "#5856D6" },
+              { id: "debugger", label: "Source Library (Raw)", count: rawMessages.length, icon: Terminal, activeBg: "#334155" },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -1678,9 +1457,10 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     if (tab.id === "sources") fetchSources();
                     e.currentTarget.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
                   }}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                  style={isActive ? { backgroundColor: tab.activeBg, color: 'white' } : undefined}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 shadow-2xs ${
                     isActive
-                      ? "bg-[#00685f] text-white shadow-xs"
+                      ? "text-white shadow-xs"
                       : tab.highlight && savedItems.length > 0
                       ? "bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200/80"
                       : "bg-white hover:bg-stone-50 text-slate-700 border border-stone-200/90"
@@ -1729,7 +1509,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   placeholder="Search the knowledge bank by clinical stem, drug, triad, or topic..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#006B63]/15 focus:border-[#006B63] transition-all shadow-xs"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/15 focus:border-[#007AFF] transition-all shadow-xs"
                 />
               </div>
 
@@ -1738,7 +1518,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 <select
                   value={selectedSubject}
                   onChange={(e) => setSelectedSubject(e.target.value)}
-                  className="rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none cursor-pointer transition-all shadow-xs"
+                  className="rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 focus:outline-none cursor-pointer transition-all shadow-xs"
                 >
                   <option value="all">All 19 Subjects</option>
                   {FMGE_SUBJECTS.map((sub) => (
@@ -1752,7 +1532,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 <select
                   value={selectedChannelId}
                   onChange={(e) => setSelectedChannelId(e.target.value)}
-                  className="rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none cursor-pointer max-w-[170px] truncate transition-all shadow-xs"
+                  className="rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 focus:outline-none cursor-pointer max-w-[170px] truncate transition-all shadow-xs"
                 >
                   <option value="all">All Channels ({sources.length})</option>
                   {sources.map((src) => (
@@ -1810,7 +1590,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           {/* Section Sub-Header with Category & High-Yield Indicators */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-stone-200/80">
             <div>
-              <h3 className="font-serif text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2 flex-wrap">
                 <span>
                   {activeTab === "pearls"
                     ? "Exam Pearls"
@@ -1826,7 +1606,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     ? "Official Bulletins"
                     : "ONE SHOT Curated Knowledge Bank"}
                 </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-[#00685f]/10 text-[#00685f] border border-[#00685f]/20">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-emerald-500/[0.08] text-emerald-800 border border-emerald-500/20">
                   {highYieldOnly ? "HIGH YIELD ONLY" : "HIGH YIELD ≥ 75"}
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-slate-600 font-mono font-bold">
@@ -1861,7 +1641,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   setHighYieldOnly(false);
                   setSortBy("newest");
                 }}
-                className="text-xs font-semibold text-[#00685f] hover:underline cursor-pointer flex items-center gap-1 self-start sm:self-auto"
+                className="text-xs font-semibold text-[#007AFF] hover:underline cursor-pointer flex items-center gap-1 self-start sm:self-auto"
               >
                 Reset Filters
               </button>
@@ -1901,11 +1681,11 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 }}
               />
             ) : (
-              <div className="rounded-3xl border border-stone-200/80 bg-white p-12 text-center space-y-3 shadow-2xs">
-                <div className="mx-auto w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center border border-teal-200 text-[#00685f]">
+              <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-2xs">
+                <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-500/[0.08] flex items-center justify-center border border-blue-500/20 text-[#007AFF]">
                   <Layers className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
+                <h3 className="font-bold text-base text-slate-900 tracking-tight">
                   Your Knowledge Bank is clean.
                 </h3>
                 <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
@@ -1922,7 +1702,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                       setSelectedChannelId("all");
                       setHighYieldOnly(false);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-teal-50 text-[#00685f] hover:bg-teal-100 text-xs font-bold transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-500/[0.08] text-[#007AFF] hover:bg-blue-500/15 border border-blue-500/20 text-xs font-bold transition-all cursor-pointer"
                   >
                     Clear Filters
                   </button>
@@ -1953,7 +1733,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                       fetchFeed(nextPage);
                     }}
                     disabled={isLoadingFeed}
-                    className="px-5 py-2.5 rounded-2xl bg-white border border-teal-200 hover:bg-teal-50 text-[#00685f] text-xs font-bold font-['Outfit'] shadow-2xs transition-all cursor-pointer flex items-center gap-2"
+                    className="px-5 py-2.5 rounded-full bg-white border border-slate-200/80 hover:bg-slate-50 text-[#007AFF] text-xs font-semibold shadow-2xs transition-all cursor-pointer flex items-center gap-2"
                   >
                     {isLoadingFeed ? (
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -2012,7 +1792,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
-                  <h3 className="font-bold font-['Outfit'] text-lg text-slate-900">
+                  <h3 className="font-bold text-lg text-slate-900">
                     High-Yield Saved Vault ({savedItems.length} Items)
                   </h3>
                 </div>
@@ -2023,12 +1803,12 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Content Type Filter */}
-                <div className="flex items-center bg-white rounded-xl border border-slate-200 p-1 text-xs">
+                <div className="flex items-center bg-white rounded-full border border-slate-200 p-1 text-xs">
                   {["all", "question", "pearl", "tip", "notice"].map((t) => (
                     <button
                       key={t}
                       onClick={() => setSavedFilterType(t)}
-                      className={`px-3 py-1 rounded-lg font-bold font-['Outfit'] capitalize transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded-full font-bold capitalize transition-all cursor-pointer ${
                         savedFilterType === t
                           ? "bg-slate-900 text-white shadow-xs"
                           : "text-slate-600 hover:text-slate-950"
@@ -2043,7 +1823,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 <select
                   value={savedFilterSubject}
                   onChange={(e) => setSavedFilterSubject(e.target.value)}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:outline-none cursor-pointer"
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 focus:outline-none cursor-pointer"
                 >
                   <option value="all">All Subjects</option>
                   {FMGE_SUBJECTS.map((sub) => (
@@ -2060,7 +1840,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           {filteredSavedItems.length === 0 ? (
             <div className="rounded-3xl border border-slate-200/90 bg-white/90 backdrop-blur-xl p-12 text-center space-y-3 shadow-[0_8px_30px_rgba(0,107,99,0.04)]">
               <Star className="h-10 w-10 text-amber-400 mx-auto" />
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">Your Saved Vault is Empty.</h3>
+              <h3 className="font-bold text-base text-slate-900">Your Saved Vault is Empty.</h3>
               <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
                 Click the <strong>Save to Vault (Star)</strong> button on any clinical MCQ, image-based question, exam notice, or medical pearl to organize your high-yield revision list here.
               </p>
@@ -2076,14 +1856,14 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     {/* Header: Subject Badge & Type */}
                     <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 flex-wrap gap-2">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-['Outfit'] bg-amber-50 text-amber-900 border border-amber-200 uppercase">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-200 uppercase">
                           {item.subject}
                         </span>
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold font-['Outfit'] uppercase bg-slate-100 text-slate-700">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-slate-100 text-slate-700">
                           {item.itemType}
                         </span>
                         {item.tags && item.tags.map((tag: string, tidx: number) => (
-                          <span key={tidx} className="px-2 py-0.5 rounded-full text-[9px] font-bold font-['Outfit'] bg-sky-50 text-sky-700 border border-sky-100">
+                          <span key={tidx} className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-sky-50 text-sky-700 border border-sky-100">
                             #{tag}
                           </span>
                         ))}
@@ -2148,7 +1928,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     {/* Student Custom Notes */}
                     <div className="p-3 rounded-2xl bg-amber-50/60 border border-amber-200 text-xs space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-[11px] font-['Outfit'] text-amber-900 flex items-center gap-1">
+                        <span className="font-bold text-[11px] text-amber-900 flex items-center gap-1">
                           <Edit3 className="h-3 w-3" /> My Student Note:
                         </span>
                         {editingNoteId !== item.id && (
@@ -2211,7 +1991,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                           } as any);
                           confetti({ particleCount: 20, spread: 45 });
                         }}
-                        className="px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
+                        className="px-3 py-1.5 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                         title="Export to Medical Pearls Vault"
                       >
                         <Bookmark className="h-3.5 w-3.5" /> To Pearls Vault
@@ -2230,7 +2010,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                           });
                           confetti({ particleCount: 20, spread: 45 });
                         }}
-                        className="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1 cursor-pointer"
+                        className="px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                         title="Export to Error Notebook"
                       >
                         <AlertTriangle className="h-3.5 w-3.5" /> To Error Vault
@@ -2260,14 +2040,14 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {(activeTab === "sources" || (mobileSegment === "browse" && sources.length > 0)) && (
         <div className={`rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-4 ${activeTab !== "sources" ? "sm:hidden" : ""}`}>
           <div className="sm:hidden flex items-center justify-between pb-1 border-b border-stone-200">
-            <h3 className="font-serif text-base font-bold text-slate-900 flex items-center gap-2">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
               <Layers className="w-4 h-4 text-indigo-600" />
               Telegram Sources ({sources.length})
             </h3>
           </div>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
+              <h3 className="font-bold text-base text-slate-900 tracking-tight">
                 Telegram Sources ({sources.length} Discovered • {workerHealth.activeSourcesCount} Monitored)
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -2285,7 +2065,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   setSourceSearchQuery(e.target.value);
                   fetchSources(e.target.value);
                 }}
-                className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none transition-all shadow-xs"
+                className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 focus:outline-none transition-all shadow-xs"
               />
             </div>
           </div>
@@ -2348,7 +2128,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
                     <button
                       onClick={() => handleToggleSource(src.id, src.isMonitored)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all cursor-pointer flex items-center gap-1.5 ${
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                         src.isMonitored
                           ? "bg-emerald-500 text-white shadow-xs"
                           : "bg-slate-100 hover:bg-slate-200 text-slate-700"
@@ -2369,7 +2149,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             </span>
             <button
               onClick={handleReset}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-colors cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <RotateCcw className="h-3.5 w-3.5" /> Reset Telegram Database
             </button>
@@ -2383,7 +2163,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {(activeTab === "cross_checks" || (mobileSegment === "browse" && filteredCrossChecks.length > 0)) && (
         <div className={`space-y-4 ${activeTab !== "cross_checks" ? "sm:hidden" : ""}`}>
           <div className="sm:hidden flex items-center justify-between pt-4 pb-1 border-b border-stone-200">
-            <h3 className="font-serif text-base font-bold text-slate-900 flex items-center gap-2">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               AI Cross-Checks ({filteredCrossChecks.length})
             </h3>
@@ -2391,7 +2171,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           {filteredCrossChecks.length === 0 ? (
             <div className="rounded-3xl border border-slate-200/80 bg-white p-12 text-center space-y-3 shadow-sm">
               <ShieldCheck className="h-8 w-8 text-slate-400 mx-auto" />
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
+              <h3 className="font-bold text-base text-slate-900 tracking-tight">
                 {crossChecks.length === 0 ? "No AI Cross-Checks Ingested Yet" : "No Cross-Checks Match Your Filter"}
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -2406,7 +2186,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 <div key={cc.id} className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-3">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-['Outfit'] ${
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                         isTrap
                           ? "bg-amber-100 text-amber-900 border border-amber-300"
                           : "bg-emerald-100 text-emerald-900 border border-emerald-300"
@@ -2414,7 +2194,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                         {isTrap ? "DISPUTED TRAP / CONFLICT" : "AI VERIFIED & AGREED"}
                       </span>
                       {q && (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-['Outfit'] bg-slate-100 text-slate-700 border border-slate-200">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
                           {q.subject}
                         </span>
                       )}
@@ -2433,7 +2213,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   <div className={`p-3.5 rounded-2xl text-xs leading-relaxed ${
                     isTrap ? "bg-amber-50/90 border border-amber-200 text-amber-950" : "bg-slate-50 border border-slate-200 text-slate-700"
                   }`}>
-                    <div className="font-bold font-['Outfit'] mb-1 text-[11px] uppercase tracking-wider text-slate-500">
+                    <div className="font-bold mb-1 text-[11px] uppercase tracking-wider text-slate-500">
                       Medical Audit & Clinical Rationale:
                     </div>
                     {cc.reason}
@@ -2452,7 +2232,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
-              <h3 className="font-bold font-['Outfit'] text-base text-slate-900 flex items-center gap-2">
+              <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
                 <span>Source Channel Library &amp; Ingestion Audit Trail</span>
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono font-bold">
                   {rawMessages.length || messages.length} Archived Posts
@@ -2513,7 +2293,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   <button
                     key={chip.key}
                     onClick={() => setRawStateFilter(chip.key as any)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                       isSelected
                         ? chip.activeColor || "bg-slate-900 text-white shadow-xs"
                         : "bg-slate-100 hover:bg-slate-200 text-slate-700"
@@ -2561,7 +2341,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               <div className="text-[10px] text-purple-600/80 mt-0.5">Cross-channel reposts</div>
             </div>
             <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-[#00685f]">Curated Bank Active</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Curated Bank Active</div>
               <div className="font-mono text-xl font-bold text-emerald-950 mt-1">
                 {curatedCounts.totalCurated || curatedItems.length || canonicalItems.length}
               </div>
@@ -2572,7 +2352,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           {/* Raw Messages Table */}
           {filteredRawMessages.length === 0 ? (
             <div className="p-10 text-center rounded-2xl border border-slate-200 bg-slate-50/60 space-y-2">
-              <div className="text-sm font-bold font-['Outfit'] text-slate-700">No Raw Messages Match Filter</div>
+              <div className="text-sm font-bold text-slate-700">No Raw Messages Match Filter</div>
               <p className="text-xs text-slate-400">
                 Try switching the status chip filter to &quot;All Posts&quot; or clearing your search term.
               </p>
@@ -2581,7 +2361,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             <div className="overflow-x-auto rounded-2xl border border-slate-200">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-500 font-['Outfit'] uppercase text-[10px] tracking-wider">
+                  <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-500 uppercase text-[10px] tracking-wider">
                     <th className="py-3 px-3.5 font-bold">Msg ID</th>
                     <th className="py-3 px-3.5 font-bold">Source Channel</th>
                     <th className="py-3 px-3.5 font-bold">Time</th>
@@ -2598,7 +2378,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     let reason = m.reason || m.errorMessage || (m.filterReason ? `Filtered: ${m.filterReason}` : null);
 
                     if (status === "CURATED" || status === "PROCESSED") {
-                      badgeClass = "bg-emerald-50 text-[#00685f] border-emerald-200";
+                      badgeClass = "bg-emerald-500/[0.08] text-emerald-800 border-emerald-500/20";
                       label = "Curated High-Yield";
                     } else if (status === "PROMOTIONAL") {
                       badgeClass = "bg-rose-50 text-rose-700 border-rose-200";
@@ -2624,13 +2404,13 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                         <td className="py-2.5 px-3.5 font-bold text-slate-900 whitespace-nowrap">
                           #{m.telegramMessageId}
                         </td>
-                        <td className="py-2.5 px-3.5 text-slate-600 font-['Outfit'] max-w-[160px] truncate">
+                        <td className="py-2.5 px-3.5 text-slate-600 max-w-[160px] truncate">
                           <span title={channelTitle}>{channelTitle}</span>
                         </td>
                         <td className="py-2.5 px-3.5 text-slate-400 text-[10px] whitespace-nowrap">
                           {m.messageDate ? new Date(m.messageDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
                         </td>
-                        <td className="py-2.5 px-3.5 text-slate-700 max-w-sm font-['Plus_Jakarta_Sans'] text-xs">
+                        <td className="py-2.5 px-3.5 text-slate-700 max-w-sm text-xs">
                           <div className="line-clamp-2 leading-relaxed">
                             {m.rawText || (m.mediaUrls?.length > 0 ? "[Media Attachment]" : "[Non-text telegram entity]")}
                           </div>
@@ -2642,12 +2422,12 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                         </td>
                         <td className="py-2.5 px-3.5 space-y-0.5">
                           <div>
-                            <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border font-['Outfit'] ${badgeClass}`}>
+                            <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}`}>
                               {label}
                             </span>
                           </div>
                           {reason && (
-                            <div className="text-[10px] text-slate-500 font-['Plus_Jakarta_Sans'] line-clamp-1 max-w-[200px]" title={reason}>
+                            <div className="text-[10px] text-slate-500 line-clamp-1 max-w-[200px]" title={reason}>
                               {reason}
                             </div>
                           )}
@@ -2662,8 +2442,6 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         </div>
       )}
 
-      {/* Mobile Bottom Navigation Safe Clearance Spacer */}
-      <div className="h-28 sm:hidden pointer-events-none" aria-hidden="true" />
 
       {/* ========================================================================= */}
       {/* AUTHENTICATION MODAL: QR CODE (Default) + PHONE NUMBER (Fallback) */}
@@ -2675,7 +2453,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Lock className="h-5 w-5 text-slate-700" />
-                <h3 className="font-bold font-['Outfit'] text-base text-slate-900">
+                <h3 className="font-bold text-base text-slate-900">
                   Telegram User Authentication
                 </h3>
               </div>
@@ -2695,7 +2473,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     setAuthMethod("qr");
                     setAuthError(null);
                   }}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     authMethod === "qr"
                       ? "bg-white text-slate-900 shadow-xs"
                       : "text-slate-500 hover:text-slate-800"
@@ -2709,7 +2487,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     setAuthMethod("phone");
                     setAuthError(null);
                   }}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold font-['Outfit'] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     authMethod === "phone"
                       ? "bg-white text-slate-900 shadow-xs"
                       : "text-slate-500 hover:text-slate-800"
@@ -2744,10 +2522,10 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 </div>
 
                 <div className="space-y-1 text-xs text-slate-600">
-                  <p className="font-bold text-slate-900 font-['Outfit']">How to Login with QR Code:</p>
+                  <p className="font-bold text-slate-900">How to Login with QR Code:</p>
                   <ol className="text-left list-decimal list-inside space-y-1 text-slate-500 max-w-xs mx-auto text-[11px]">
                     <li>Open <strong>Telegram</strong> on your phone</li>
-                    <li>Go to <strong>Settings</strong> $ightarrow$ <strong>Devices</strong></li>
+                    <li>Go to <strong>Settings</strong> → <strong>Devices</strong></li>
                     <li>Tap <strong>Link Desktop Device</strong></li>
                     <li>Point your camera at this QR code</li>
                   </ol>
@@ -2757,7 +2535,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                   <button
                     onClick={handleGenerateQr}
                     disabled={isQrLoading}
-                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold font-['Outfit'] transition-all cursor-pointer flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
                   >
                     <RefreshCw className={`h-3.5 w-3.5 ${isQrLoading ? "animate-spin" : ""}`} />
                     Refresh QR Code
@@ -2767,7 +2545,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                       setAuthMethod("phone");
                       setAuthError(null);
                     }}
-                    className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium transition-all cursor-pointer"
+                    className="px-4 py-2 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-medium transition-all cursor-pointer"
                   >
                     Use Phone Number instead
                   </button>
@@ -2780,7 +2558,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               <form onSubmit={handleSendCode} noValidate className="space-y-3">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs font-bold font-['Outfit'] uppercase tracking-wider text-slate-400">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
                       Phone Number (E.164 International Format)
                     </label>
                     {livePhoneValidation?.isValid && (
@@ -2808,7 +2586,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 <button
                   type="submit"
                   disabled={isAuthLoading}
-                  className="w-full py-2.5 bg-slate-900 text-white rounded-xl font-bold font-['Outfit'] text-xs hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
+                  className="w-full py-2.5 bg-slate-900 text-white rounded-full font-bold text-xs hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {isAuthLoading ? "Connecting to Telegram MTProto..." : "Send Verification Code"}
                 </button>
@@ -2819,7 +2597,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             {authStep === "code" && (
               <form onSubmit={handleVerifyCode} className="space-y-3">
                 <div>
-                  <label className="text-xs font-bold font-['Outfit'] uppercase tracking-wider text-slate-400 block mb-1">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
                     Telegram Verification Code
                   </label>
                   <input
@@ -2842,7 +2620,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 <button
                   type="submit"
                   disabled={isAuthLoading}
-                  className="w-full py-2.5 bg-slate-900 text-white rounded-xl font-bold font-['Outfit'] text-xs hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
+                  className="w-full py-2.5 bg-slate-900 text-white rounded-full font-bold text-xs hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {isAuthLoading ? "Verifying..." : "Verify Code"}
                 </button>
@@ -2853,7 +2631,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             {authStep === "2fa" && (
               <form onSubmit={handleVerify2FA} className="space-y-3">
                 <div>
-                  <label className="text-xs font-bold font-['Outfit'] uppercase tracking-wider text-slate-400 block mb-1">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
                     Telegram 2FA Cloud Password
                   </label>
                   <input
@@ -2876,7 +2654,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                 <button
                   type="submit"
                   disabled={isAuthLoading}
-                  className="w-full py-2.5 bg-slate-900 text-white rounded-xl font-bold font-['Outfit'] text-xs hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
+                  className="w-full py-2.5 bg-slate-900 text-white rounded-full font-bold text-xs hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {isAuthLoading ? "Authenticating..." : "Complete 2FA Login"}
                 </button>
@@ -2894,8 +2672,8 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           <div className="w-full max-w-md bg-white/95 backdrop-blur-2xl rounded-3xl p-6 border border-slate-200/90 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <Send className="w-5 h-5 text-[#229ED9]" />
-                <h3 className="font-serif text-lg font-bold text-slate-900">
+                <Send className="w-5 h-5 text-[#007AFF]" />
+                <h3 className="text-lg font-bold text-slate-900 tracking-tight">
                   Telegram Account Settings
                 </h3>
               </div>
@@ -2927,7 +2705,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     handleManualSyncNow();
                   }}
                   disabled={isManualSyncing}
-                  className="w-full py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-[#00685f] border border-teal-200 font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-2.5 rounded-xl bg-blue-500/[0.08] hover:bg-blue-500/15 text-[#007AFF] border border-blue-500/20 font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <RefreshCw className={`w-4 h-4 ${isManualSyncing ? "animate-spin" : ""}`} />
                   {isManualSyncing ? "Syncing MTProto..." : "Auto-Sync Channels Now"}

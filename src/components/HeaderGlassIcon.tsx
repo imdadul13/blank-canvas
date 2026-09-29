@@ -32,10 +32,10 @@ const VARIANT_CONFIG: Record<
   }
 > = {
   teal: {
-    bg: 'bg-gradient-to-tr from-[#005B54] via-[#006B63] to-teal-400 text-white',
-    halo: 'bg-teal-500/25',
-    shadow: 'shadow-[0_8px_20px_rgba(0,107,99,0.28),inset_0_1px_1.5px_rgba(255,255,255,0.4)]',
-    border: 'border-teal-400/30',
+    bg: 'bg-gradient-to-tr from-[#007AFF] via-[#32ADE6] to-[#34C759] text-white',
+    halo: 'bg-[#007AFF]/25',
+    shadow: 'shadow-[0_8px_20px_rgba(0,122,255,0.28),inset_0_1px_1.5px_rgba(255,255,255,0.4)]',
+    border: 'border-[#007AFF]/30',
     pipColor: 'bg-amber-400',
   },
   blue: {

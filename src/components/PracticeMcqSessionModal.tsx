@@ -364,9 +364,9 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
       })()
     : [];
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md overflow-y-auto font-['Plus_Jakarta_Sans'] text-[#121E1B]">
-      <div className="flex min-h-full items-center justify-center p-0 sm:p-4 md:p-6">
+  return (
+    <div className="overflow-y-auto text-[#1C1C1E]" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9200, backgroundColor: '#1D1D1F' }}>
+      <div className="flex items-center justify-center p-0 sm:p-4 md:p-6" style={{ minHeight: '100vh' }}>
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -380,7 +380,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
             {/* Circular Counter Badge 1/10 */}
             <div
               className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-mono font-bold text-xs sm:text-sm shrink-0 shadow-xs ${
-                sessionSummary ? 'bg-[#006B63] text-white' : 'bg-[#1A2E2B] text-white'
+                sessionSummary ? 'bg-[#30D158] text-white' : 'bg-[#007AFF] text-white'
               }`}
             >
               {sessionSummary ? (
@@ -392,16 +392,16 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
             {/* Subject & Topic Context */}
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-[11px] font-medium text-[#66716F]">
-                <span className="font-mono font-bold uppercase tracking-wider text-[#121E1B] bg-[#F1F5F4] px-2 py-0.5 rounded text-[10px] sm:text-[11px] border border-[#E2E8E6] shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-[11px] font-medium text-[#6E6E73]">
+                <span className="font-mono font-bold uppercase tracking-wider text-[#1C1C1E] bg-[#F1F5F4] px-2 py-0.5 rounded text-[10px] sm:text-[11px] border border-[#E2E8E6] shrink-0">
                   {context.subjectName}
                 </span>
                 <span className="text-[#A4B1AE] hidden xs:inline">/</span>
-                <span className="truncate max-w-[130px] xs:max-w-[180px] sm:max-w-[280px] md:max-w-md text-[#66716F]">
+                <span className="truncate max-w-[130px] xs:max-w-[180px] sm:max-w-[280px] md:max-w-md text-[#6E6E73]">
                   {context.topicName}
                 </span>
               </div>
-              <h3 className="text-xs sm:text-sm font-bold font-['Outfit'] text-[#121E1B] truncate mt-0.5">
+              <h3 className="text-xs sm:text-sm font-bold text-[#1C1C1E] truncate mt-0.5">
                 {sessionSummary
                   ? 'Session Performance Summary'
                   : `Question ${currentIdx + 1} of ${targetCount}`}
@@ -415,7 +415,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
             whileHover={{ scale: 1.05 }}
             transition={{ type: 'spring', stiffness: 450, damping: 25 }}
             onClick={onClose}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#F5F7F8] hover:bg-[#EAEFEA] text-[#66716F] hover:text-[#121E1B] flex items-center justify-center transition-colors cursor-pointer shrink-0 border border-[#DCE4E1]"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#F5F7F8] hover:bg-[#EBF3FF] text-[#6E6E73] hover:text-[#1C1C1E] flex items-center justify-center transition-colors cursor-pointer shrink-0 border border-[#DCE4E1]"
             title="Close practice session"
           >
             <X className="w-4 h-4" />
@@ -426,7 +426,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
         {!sessionSummary && !isLoading && (
           <div className="w-full bg-[#E8EDEB] h-1 overflow-hidden shrink-0">
             <div
-              className="bg-[#006B63] h-full transition-all duration-300 rounded-r-full"
+              className="bg-[#007AFF] h-full transition-all duration-300 rounded-r-full"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -434,12 +434,12 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
         {/* MOBILE COMPACT STATS STRIP (Screens <lg) */}
         {!sessionSummary && !isLoading && currentQ && (
-          <div className="flex lg:hidden items-center justify-between px-3.5 sm:px-4 py-2 bg-[#F5F7F8] border-b border-[#F0F3F2] text-[11px] sm:text-xs font-mono text-[#66716F] shrink-0">
+          <div className="flex lg:hidden items-center justify-between px-3.5 sm:px-4 py-2 bg-[#F5F7F8] border-b border-[#F0F3F2] text-[11px] sm:text-xs font-mono text-[#6E6E73] shrink-0">
             <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-[#006B63]" />
-              <span className="font-bold text-[#121E1B]">{formatSeconds(activeElapsedSeconds)}</span>
+              <Clock className="w-3.5 h-3.5 text-[#007AFF]" />
+              <span className="font-bold text-[#1C1C1E]">{formatSeconds(activeElapsedSeconds)}</span>
             </div>
-            <span className="font-medium text-[#121E1B]">
+            <span className="font-medium text-[#1C1C1E]">
               Q {currentIdx + 1} of {targetCount}
             </span>
             <span>
@@ -451,26 +451,37 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
         {/* MODAL BODY */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0">
           {isLoading ? (
-            <div className="py-16 text-center space-y-4">
-              <div className="w-8 h-8 border-2 border-[#006B63] border-t-transparent rounded-full animate-spin mx-auto" />
-              <div>
-                <p className="text-sm font-bold text-[#121E1B]">
-                  Preparing 10 Targeted High-Yield MCQs...
+            <div className="py-16 flex flex-col items-center gap-5 text-center">
+              <div className="relative w-16 h-16">
+                <div className="w-16 h-16 rounded-2xl bg-[#E8F0FF] flex items-center justify-center border border-[#007AFF]/15 shadow-sm">
+                  <BookOpen className="w-7 h-7 text-[#007AFF]" strokeWidth={1.8} />
+                </div>
+                <div className="absolute -top-1 -right-1 w-5 h-5 border-2 border-[#007AFF] border-t-transparent rounded-full animate-spin" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-[15px] font-bold text-[#1C1C1E]">
+                  Preparing High-Yield MCQs…
                 </p>
-                <p className="text-xs text-[#66716F] mt-1">
-                  Topic: {context.subjectName} → {context.topicName}
+                <p className="text-[12px] text-[#8E8E93]">
+                  {context.subjectName} · {context.topicName}
                 </p>
               </div>
             </div>
           ) : errorMessage ? (
-            <div className="py-12 text-center space-y-4">
-              <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
-              <p className="text-sm text-[#121E1B] font-semibold">{errorMessage}</p>
+            <div className="py-14 flex flex-col items-center gap-5 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-[#FFF0F0] border border-[#FF3B30]/20 flex items-center justify-center shadow-sm">
+                <AlertCircle className="w-7 h-7 text-[#FF3B30]" strokeWidth={1.8} />
+              </div>
+              <div className="space-y-1 max-w-xs">
+                <p className="text-[15px] font-bold text-[#1C1C1E]">Couldn't Load Questions</p>
+                <p className="text-[12px] text-[#8E8E93]">{errorMessage}</p>
+              </div>
               <button
                 type="button"
                 onClick={handlePracticeAgain}
-                className="px-4 py-2 rounded-xl bg-[#006B63] text-white text-xs font-bold hover:bg-[#005049] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#007AFF] text-white text-xs font-bold hover:bg-[#0056CC] transition-colors cursor-pointer shadow-sm"
               >
+                <RotateCcw className="w-3.5 h-3.5" />
                 Retry Loading
               </button>
             </div>
@@ -485,7 +496,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
               {/* 1. COMPLETION HEADER */}
               <div className="p-5 sm:p-7 bg-white rounded-2xl sm:rounded-3xl border border-[#DCE4E1] shadow-2xs space-y-3">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-[#E8F5F1] text-[#006B63] border border-[#006B63]/20 inline-flex items-center gap-1.5">
+                  <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-[#E8F5F1] text-[#007AFF] border border-[#007AFF]/20 inline-flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     SESSION COMPLETE
                   </span>
@@ -494,7 +505,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                   </span>
                 </div>
 
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold font-['Outfit'] text-[#121E1B] tracking-tight leading-snug">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#1C1C1E] tracking-tight leading-snug">
                   {sessionSummary.accuracy >= 80
                     ? 'Outstanding Clinical Mastery'
                     : sessionSummary.accuracy >= 60
@@ -502,10 +513,10 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                     : 'Clinical Review Recommended'}
                 </h2>
 
-                <p className="text-xs sm:text-sm text-[#66716F] leading-relaxed max-w-2xl">
+                <p className="text-xs sm:text-sm text-[#6E6E73] leading-relaxed max-w-2xl">
                   10-question targeted clinical reinforcement drill completed for{' '}
-                  <span className="font-semibold text-[#121E1B]">{context.subjectName}</span> ·{' '}
-                  <span className="font-medium text-[#121E1B]">{context.topicName}</span>.
+                  <span className="font-semibold text-[#1C1C1E]">{context.subjectName}</span> ·{' '}
+                  <span className="font-medium text-[#1C1C1E]">{context.topicName}</span>.
                 </p>
               </div>
 
@@ -517,7 +528,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                       OVERALL DRILL ACCURACY
                     </span>
                     <div className="flex items-baseline gap-3 mt-1.5 flex-wrap">
-                      <span className="font-['Outfit'] text-4xl sm:text-5xl font-extrabold text-slate-950 leading-none">
+                      <span className="text-4xl sm:text-5xl font-extrabold text-slate-950 leading-none">
                         {sessionSummary.accuracy}%
                       </span>
                       <span className="text-xs sm:text-sm text-slate-600">
@@ -583,7 +594,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                       <CheckCircle2 className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-xl sm:text-2xl font-extrabold font-['Outfit'] text-slate-900 leading-tight">
+                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
                     {sessionSummary.totalQuestions} Questions
                   </div>
                   <p className="text-[11px] sm:text-xs text-slate-500">
@@ -601,7 +612,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                       <Clock className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-xl sm:text-2xl font-extrabold font-['Outfit'] text-slate-900 leading-tight">
+                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
                     {sessionSummary.averageTimeSeconds}s <span className="text-xs font-normal text-slate-500">/ question</span>
                   </div>
                   <p className="text-[11px] sm:text-xs text-slate-500">
@@ -619,7 +630,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                       <Award className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-xl sm:text-2xl font-extrabold font-['Outfit'] text-slate-900 leading-tight">
+                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
                     {sessionSummary.accuracy >= 70 ? 'Target Met' : 'Review Suggested'}
                   </div>
                   <p className="text-[11px] sm:text-xs text-slate-500">
@@ -633,7 +644,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                 <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white border border-[#DCE4E1] shadow-2xs space-y-4">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-[#006B63]" />
+                      <BookOpen className="w-4 h-4 text-[#007AFF]" />
                       <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#4A5553]">
                         Performance by Topic & Subtopic
                       </span>
@@ -647,22 +658,22 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                     {topicBreakdown.map((item, idx) => (
                       <div
                         key={idx}
-                        className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-[#EAEFEA] bg-[#FBFDFB] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                        className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-[#EBF3FF] bg-[#FBFDFB] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                       >
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-xs sm:text-sm font-semibold text-[#121E1B] truncate">
+                          <h4 className="text-xs sm:text-sm font-semibold text-[#1C1C1E] truncate">
                             {item.name}
                           </h4>
-                          <div className="flex items-center gap-2 text-[11px] text-[#66716F] mt-1">
+                          <div className="flex items-center gap-2 text-[11px] text-[#6E6E73] mt-1">
                             <span>{item.correct} of {item.total} correct</span>
                             <span>·</span>
-                            <span className="font-mono font-medium text-[#121E1B]">{item.accuracy}% accuracy</span>
+                            <span className="font-mono font-medium text-[#1C1C1E]">{item.accuracy}% accuracy</span>
                           </div>
                           {/* Progress bar */}
                           <div className="w-full bg-[#E8EDEB] h-1.5 rounded-full overflow-hidden mt-2 max-w-md">
                             <div
                               className={`h-full rounded-full transition-all ${
-                                item.accuracy >= 70 ? 'bg-[#006B63]' : 'bg-rose-500'
+                                item.accuracy >= 70 ? 'bg-[#007AFF]' : 'bg-rose-500'
                               }`}
                               style={{ width: `${item.accuracy}%` }}
                             />
@@ -673,7 +684,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                           <span
                             className={`font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded border ${
                               item.accuracy >= 70
-                                ? 'bg-[#E8F5F1] text-[#006B63] border-[#006B63]/20'
+                                ? 'bg-[#E8F5F1] text-[#007AFF] border-[#007AFF]/20'
                                 : 'bg-[#FFF5F5] text-rose-700 border-rose-200'
                             }`}
                           >
@@ -713,7 +724,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                               prev > 0 ? prev - 1 : missedQuestionIndices.length - 1
                             )
                           }
-                          className="p-1.5 rounded-lg bg-white hover:bg-[#F1F5F4] text-[#121E1B] border border-[#DCE4E1] transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg bg-white hover:bg-[#F1F5F4] text-[#1C1C1E] border border-[#DCE4E1] transition-colors cursor-pointer"
                           title="Previous mistake"
                         >
                           <ChevronRight className="w-4 h-4 rotate-180" />
@@ -725,7 +736,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                               prev + 1 < missedQuestionIndices.length ? prev + 1 : 0
                             )
                           }
-                          className="p-1.5 rounded-lg bg-white hover:bg-[#F1F5F4] text-[#121E1B] border border-[#DCE4E1] transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg bg-white hover:bg-[#F1F5F4] text-[#1C1C1E] border border-[#DCE4E1] transition-colors cursor-pointer"
                           title="Next mistake"
                         >
                           <ChevronRight className="w-4 h-4" />
@@ -750,16 +761,16 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
                     return (
                       <div className="space-y-3.5 text-xs sm:text-sm">
-                        <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-[#EAEFEA] space-y-1.5">
-                          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#66716F]">
+                        <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-[#EBF3FF] space-y-1.5">
+                          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#6E6E73]">
                             Clinical Vignette
                           </span>
-                          <p className="text-xs sm:text-[13.5px] text-[#1E2B27] leading-relaxed">
+                          <p className="text-xs sm:text-[13.5px] text-[#1C1C1E] leading-relaxed">
                             {q.scenario}
                           </p>
                         </div>
 
-                        <h4 className="font-['Outfit'] font-bold text-sm sm:text-base text-[#121E1B] leading-snug">
+                        <h4 className="font-bold text-sm sm:text-base text-[#1C1C1E] leading-snug">
                           {q.question}
                         </h4>
 
@@ -770,11 +781,11 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                             const isUserWrong = opt.key === uAns?.selectedAnswer && !isCorrectOpt;
 
                             let optStyle = 'bg-white border-[#E2E8E6] text-[#4A5553]';
-                            let badgeStyle = 'bg-[#F1F5F4] text-[#66716F] border-[#DCE4E1]';
+                            let badgeStyle = 'bg-[#F1F5F4] text-[#6E6E73] border-[#DCE4E1]';
 
                             if (isCorrectOpt) {
                               optStyle = 'bg-[#F0FDF8] border-[#A7F3D0] text-[#0E3E36] font-semibold';
-                              badgeStyle = 'bg-[#006B63] text-white border-[#006B63]';
+                              badgeStyle = 'bg-[#007AFF] text-white border-[#007AFF]';
                             } else if (isUserWrong) {
                               optStyle = 'bg-[#FFF5F5] border-[#FECDD3] text-rose-950 font-semibold';
                               badgeStyle = 'bg-rose-600 text-white border-rose-600';
@@ -792,7 +803,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                                   <span className="leading-snug">{opt.text}</span>
                                 </div>
                                 {isCorrectOpt ? (
-                                  <CheckCircle2 className="w-4 h-4 text-[#006B63] shrink-0" />
+                                  <CheckCircle2 className="w-4 h-4 text-[#007AFF] shrink-0" />
                                 ) : isUserWrong ? (
                                   <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 shrink-0">
                                     Your Choice · Incorrect
@@ -804,9 +815,9 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         </div>
 
                         {/* Explanation */}
-                        <div className="p-4 bg-white rounded-xl border border-[#DCE4E1] text-xs sm:text-[13px] text-[#1E2B27] space-y-2 leading-relaxed">
+                        <div className="p-4 bg-white rounded-xl border border-[#DCE4E1] text-xs sm:text-[13px] text-[#1C1C1E] space-y-2 leading-relaxed">
                           <div className="flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#344E47]">
-                            <Stethoscope className="w-3.5 h-3.5 text-[#006B63]" />
+                            <Stethoscope className="w-3.5 h-3.5 text-[#007AFF]" />
                             <span>Explanation & Rationale</span>
                           </div>
                           <p>{q.explanation}</p>
@@ -851,7 +862,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 sm:flex-initial px-5 py-3 rounded-xl bg-white hover:bg-[#F1F5F4] text-[#121E1B] border border-[#DCE4E1] font-semibold text-xs sm:text-sm transition-colors flex items-center justify-center cursor-pointer min-h-[44px]"
+                    className="flex-1 sm:flex-initial px-5 py-3 rounded-xl bg-white hover:bg-[#F1F5F4] text-[#1C1C1E] border border-[#DCE4E1] font-semibold text-xs sm:text-sm transition-colors flex items-center justify-center cursor-pointer min-h-[44px]"
                   >
                     Return to Practice
                   </button>
@@ -859,7 +870,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                   <button
                     type="button"
                     onClick={handlePracticeAgain}
-                    className="flex-1 sm:flex-initial px-6 sm:px-7 py-3 rounded-xl bg-[#006B63] hover:bg-[#005049] active:scale-[0.98] text-white font-semibold text-xs sm:text-sm transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer min-h-[44px] font-display"
+                    className="flex-1 sm:flex-initial px-6 sm:px-7 py-3 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] active:scale-[0.98] text-white font-semibold text-xs sm:text-sm transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer min-h-[44px] font-display"
                   >
                     <RotateCcw className="w-4 h-4" />
                     <span>Start Another Drill</span>
@@ -873,7 +884,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
               {/* Left/Main: Question & Options Area (~70% width) */}
               <div className="flex-1 min-w-0 space-y-5">
                 {/* Dedicated Clinical Vignette Card */}
-                <div className="p-4 sm:p-6 lg:p-7 bg-white backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-[0_4px_20px_rgba(0,107,99,0.04)] space-y-4">
+                <div className="p-4 sm:p-6 lg:p-7 bg-white backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-[0_4px_20px_rgba(181,123,102,0.04)] space-y-4">
                   {/* Vignette Metadata Badge Row */}
                   <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
                     <div className="flex items-center gap-2">
@@ -892,7 +903,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                   </div>
 
                   {/* Clinical Scenario */}
-                  <div className="text-sm sm:text-[15px] lg:text-base text-[#1E2B27] leading-relaxed font-normal">
+                  <div className="text-sm sm:text-[15px] lg:text-base text-[#1C1C1E] leading-relaxed font-normal">
                     {currentQ.scenario}
                   </div>
 
@@ -933,7 +944,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                               whatToLookFor: currentQ.whatToLookFor,
                             })
                           }
-                          className="px-3 py-1.5 bg-[#121E1B]/85 hover:bg-[#121E1B] backdrop-blur-md rounded-xl text-[11px] font-mono font-medium text-white flex items-center gap-1.5 shadow-sm cursor-pointer border border-white/10 transition-colors"
+                          className="px-3 py-1.5 bg-[#1C1C1E]/85 hover:bg-[#1C1C1E] backdrop-blur-md rounded-xl text-[11px] font-mono font-medium text-white flex items-center gap-1.5 shadow-sm cursor-pointer border border-white/10 transition-colors"
                         >
                           <ZoomIn className="w-3.5 h-3.5 text-[#5EEAD4]" />
                           <span>Tap to Zoom</span>
@@ -957,7 +968,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
                   {/* Question Inquiry Stem — Strongest Visual Element */}
                   <div className="pt-3 border-t border-[#F0F3F2]">
-                    <h4 className="text-base sm:text-lg lg:text-xl font-bold font-['Outfit'] text-[#121E1B] leading-snug tracking-tight">
+                    <h4 className="text-base sm:text-lg lg:text-xl font-bold text-[#1C1C1E] leading-snug tracking-tight">
                       {currentQ.question}
                     </h4>
                   </div>
@@ -971,14 +982,14 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                       const isSelected = selectedOption === opt.key;
 
                       let cardStyle =
-                        'bg-white border-[#DCE4E1] hover:border-[#006B63]/40 hover:bg-[#F9FBFA] text-[#1E2B27] shadow-2xs';
+                        'bg-white border-[#DCE4E1] hover:border-[#007AFF]/40 hover:bg-[#F9FBFA] text-[#1C1C1E] shadow-2xs';
                       let badgeStyle =
                         'bg-[#F1F5F4] text-[#4A5553] border border-[#DCE4E1]';
 
                       if (isSelected) {
                         cardStyle =
-                          'bg-[#F7FCFA] border-[#006B63] text-[#004D47] font-semibold ring-1 ring-[#006B63] shadow-xs';
-                        badgeStyle = 'bg-[#006B63] text-white border border-[#006B63] shadow-2xs';
+                          'bg-[#F7FCFA] border-[#007AFF] text-[#003D99] font-semibold ring-1 ring-[#007AFF] shadow-xs';
+                        badgeStyle = 'bg-[#007AFF] text-white border border-[#007AFF] shadow-2xs';
                       }
 
                       return (
@@ -1001,7 +1012,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                           </div>
 
                           {isSelected && (
-                            <CheckCircle2 className="w-5 h-5 text-[#006B63] shrink-0" />
+                            <CheckCircle2 className="w-5 h-5 text-[#007AFF] shrink-0" />
                           )}
                         </motion.button>
                       );
@@ -1022,19 +1033,19 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                       <div className="p-5 sm:p-6 bg-[#F4FAF7] rounded-2xl sm:rounded-3xl border border-[#B7DFD2] shadow-2xs space-y-4">
                         <div className="flex items-start justify-between gap-3 flex-wrap">
                           <div className="flex items-start gap-3 min-w-0">
-                            <div className="w-8 h-8 rounded-xl bg-[#E8F5F1] text-[#006B63] flex items-center justify-center shrink-0 border border-[#006B63]/20 mt-0.5">
-                              <CheckCircle2 className="w-5 h-5 text-[#006B63]" />
+                            <div className="w-8 h-8 rounded-xl bg-[#E8F5F1] text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20 mt-0.5">
+                              <CheckCircle2 className="w-5 h-5 text-[#007AFF]" />
                             </div>
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-base sm:text-lg font-bold font-['Outfit'] text-[#0E3E36] leading-snug">
+                                <h3 className="text-base sm:text-lg font-bold text-[#0E3E36] leading-snug">
                                   Correct Answer: Option {currentQ.correctAnswer}
                                 </h3>
-                                <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#E8F5F1] text-[#006B63] border border-[#006B63]/20">
+                                <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#E8F5F1] text-[#007AFF] border border-[#007AFF]/20">
                                   Well Done
                                 </span>
                               </div>
-                              <p className="text-xs text-[#006B63] mt-0.5 font-medium">
+                              <p className="text-xs text-[#007AFF] mt-0.5 font-medium">
                                 You selected Option {selectedOption}
                               </p>
                             </div>
@@ -1044,10 +1055,10 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         {/* Clinical Explanation Section */}
                         <div className="pt-3 border-t border-[#D5E6E0] space-y-2">
                           <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#344E47]">
-                            <Stethoscope className="w-3.5 h-3.5 text-[#006B63]" />
+                            <Stethoscope className="w-3.5 h-3.5 text-[#007AFF]" />
                             <span>Clinical Rationale & Pathophysiology</span>
                           </div>
-                          <div className="text-xs sm:text-[13.5px] text-[#1E2B27] leading-relaxed sm:leading-relaxed font-normal space-y-2">
+                          <div className="text-xs sm:text-[13.5px] text-[#1C1C1E] leading-relaxed sm:leading-relaxed font-normal space-y-2">
                             {currentQ.explanation.split('\n\n').map((paragraph, pIdx) => (
                               <p key={pIdx}>{paragraph}</p>
                             ))}
@@ -1056,13 +1067,13 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
                         {/* What to look for in image (if image insights present) */}
                         {(currentQ.whatToLookFor || currentQ.imageAsset?.whatToLookFor) && (
-                          <div className="p-3.5 sm:p-4 bg-white/90 rounded-2xl border border-[#DCE4E1] text-xs text-[#1E2B27] space-y-2.5 shadow-2xs">
+                          <div className="p-3.5 sm:p-4 bg-white/90 rounded-2xl border border-[#DCE4E1] text-xs text-[#1C1C1E] space-y-2.5 shadow-2xs">
                             <div className="flex items-start gap-2.5">
-                              <div className="w-6 h-6 rounded-lg bg-[#E8F5F1] text-[#006B63] flex items-center justify-center shrink-0 border border-[#006B63]/20 mt-0.5">
-                                <Eye className="w-3.5 h-3.5 text-[#006B63]" />
+                              <div className="w-6 h-6 rounded-lg bg-[#E8F5F1] text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20 mt-0.5">
+                                <Eye className="w-3.5 h-3.5 text-[#007AFF]" />
                               </div>
                               <div className="min-w-0">
-                                <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#006B63] block">
+                                <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#007AFF] block">
                                   Key Visual Finding / Image Inspection
                                 </span>
                                 <p className="mt-1 leading-relaxed text-[#2D3748]">
@@ -1086,9 +1097,9 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                                       whatToLookFor: currentQ.whatToLookFor,
                                     })
                                   }
-                                  className="px-3 py-1.5 rounded-xl bg-[#F1F5F4] hover:bg-[#E2E8E6] border border-[#DCE4E1] text-[#121E1B] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                                  className="px-3 py-1.5 rounded-xl bg-[#F1F5F4] hover:bg-[#E2E8E6] border border-[#DCE4E1] text-[#1C1C1E] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                                 >
-                                  <Eye className="w-3.5 h-3.5 text-[#006B63]" />
+                                  <Eye className="w-3.5 h-3.5 text-[#007AFF]" />
                                   <span>Open Annotated Visual Inspection</span>
                                 </button>
                               </div>
@@ -1106,7 +1117,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                             </div>
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-base sm:text-lg font-bold font-['Outfit'] text-[#4F131A] leading-snug">
+                                <h3 className="text-base sm:text-lg font-bold text-[#4F131A] leading-snug">
                                   Incorrect · Correct Answer is Option {currentQ.correctAnswer}
                                 </h3>
                                 <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-200">
@@ -1126,7 +1137,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                             <Stethoscope className="w-3.5 h-3.5 text-rose-600" />
                             <span>Clinical Rationale & Pathophysiology</span>
                           </div>
-                          <div className="text-xs sm:text-[13.5px] text-[#1E2B27] leading-relaxed sm:leading-relaxed font-normal space-y-2">
+                          <div className="text-xs sm:text-[13.5px] text-[#1C1C1E] leading-relaxed sm:leading-relaxed font-normal space-y-2">
                             {currentQ.explanation.split('\n\n').map((paragraph, pIdx) => (
                               <p key={pIdx}>{paragraph}</p>
                             ))}
@@ -1135,13 +1146,13 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
                         {/* What to look for in image (if image insights present) */}
                         {(currentQ.whatToLookFor || currentQ.imageAsset?.whatToLookFor) && (
-                          <div className="p-3.5 sm:p-4 bg-white/90 rounded-2xl border border-[#DCE4E1] text-xs text-[#1E2B27] space-y-2.5 shadow-2xs">
+                          <div className="p-3.5 sm:p-4 bg-white/90 rounded-2xl border border-[#DCE4E1] text-xs text-[#1C1C1E] space-y-2.5 shadow-2xs">
                             <div className="flex items-start gap-2.5">
-                              <div className="w-6 h-6 rounded-lg bg-[#E8F5F1] text-[#006B63] flex items-center justify-center shrink-0 border border-[#006B63]/20 mt-0.5">
-                                <Eye className="w-3.5 h-3.5 text-[#006B63]" />
+                              <div className="w-6 h-6 rounded-lg bg-[#E8F5F1] text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/20 mt-0.5">
+                                <Eye className="w-3.5 h-3.5 text-[#007AFF]" />
                               </div>
                               <div className="min-w-0">
-                                <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#006B63] block">
+                                <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#007AFF] block">
                                   Key Visual Finding / Image Inspection
                                 </span>
                                 <p className="mt-1 leading-relaxed text-[#2D3748]">
@@ -1165,9 +1176,9 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                                       whatToLookFor: currentQ.whatToLookFor,
                                     })
                                   }
-                                  className="px-3 py-1.5 rounded-xl bg-[#F1F5F4] hover:bg-[#E2E8E6] border border-[#DCE4E1] text-[#121E1B] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                                  className="px-3 py-1.5 rounded-xl bg-[#F1F5F4] hover:bg-[#E2E8E6] border border-[#DCE4E1] text-[#1C1C1E] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                                 >
-                                  <Eye className="w-3.5 h-3.5 text-[#006B63]" />
+                                  <Eye className="w-3.5 h-3.5 text-[#007AFF]" />
                                   <span>Open Annotated Visual Inspection</span>
                                 </button>
                               </div>
@@ -1203,7 +1214,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                     <div className="space-y-3 pt-1">
                       <div className="flex items-center justify-between">
                         <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#4A5553] flex items-center gap-1.5">
-                          <ListFilter className="w-3.5 h-3.5 text-[#006B63]" />
+                          <ListFilter className="w-3.5 h-3.5 text-[#007AFF]" />
                           <span>Option Analysis</span>
                         </span>
                         <span className="text-[11px] font-mono text-[#8C9895]">
@@ -1223,15 +1234,15 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
                           if (isCorrect) {
                             cardClass = 'bg-[#F0FDF8] border-[#A7F3D0] shadow-2xs';
-                            badgeClass = 'bg-[#006B63] text-white border border-[#006B63] shadow-2xs';
-                            textClass = 'text-[#121E1B] font-semibold';
+                            badgeClass = 'bg-[#007AFF] text-white border border-[#007AFF] shadow-2xs';
+                            textClass = 'text-[#1C1C1E] font-semibold';
                           } else if (isSelected) {
                             cardClass = 'bg-[#FFF5F5] border-[#FECDD3] shadow-2xs';
                             badgeClass = 'bg-rose-600 text-white border border-rose-600 shadow-2xs';
-                            textClass = 'text-[#121E1B] font-semibold';
+                            textClass = 'text-[#1C1C1E] font-semibold';
                           } else {
                             cardClass = 'bg-white border-[#E2E8E6] text-[#4A5553] opacity-80';
-                            badgeClass = 'bg-[#F1F5F4] text-[#66716F] border border-[#DCE4E1]';
+                            badgeClass = 'bg-[#F1F5F4] text-[#6E6E73] border border-[#DCE4E1]';
                             textClass = 'text-[#3D4947]';
                           }
 
@@ -1255,10 +1266,10 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                                     <p
                                       className={`text-[11px] sm:text-xs mt-1 leading-relaxed ${
                                         isCorrect
-                                          ? 'text-[#006B63] font-medium'
+                                          ? 'text-[#007AFF] font-medium'
                                           : isSelected
                                           ? 'text-rose-700 font-medium'
-                                          : 'text-[#66716F]'
+                                          : 'text-[#6E6E73]'
                                       }`}
                                     >
                                       <span className="font-semibold">
@@ -1274,7 +1285,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                                   ) : (
                                     <div className="mt-1 flex items-center gap-1.5">
                                       {isCorrect && (
-                                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#E8F5F1] text-[#006B63] border border-[#006B63]/20">
+                                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#E8F5F1] text-[#007AFF] border border-[#007AFF]/20">
                                           Correct Answer
                                         </span>
                                       )}
@@ -1290,7 +1301,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
                               <div className="shrink-0 mt-1">
                                 {isCorrect ? (
-                                  <CheckCircle2 className="w-5 h-5 text-[#006B63]" />
+                                  <CheckCircle2 className="w-5 h-5 text-[#007AFF]" />
                                 ) : isSelected ? (
                                   <AlertCircle className="w-5 h-5 text-rose-600" />
                                 ) : (
@@ -1314,7 +1325,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                         onClick={handleSkipQuestion}
-                        className="text-xs sm:text-sm font-semibold text-[#66716F] hover:text-[#121E1B] px-3.5 py-2.5 rounded-xl hover:bg-[#F1F5F4] transition-colors cursor-pointer"
+                        className="text-xs sm:text-sm font-semibold text-[#6E6E73] hover:text-[#1C1C1E] px-3.5 py-2.5 rounded-xl hover:bg-[#F1F5F4] transition-colors cursor-pointer"
                       >
                         Skip Question
                       </motion.button>
@@ -1326,7 +1337,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                         onClick={handleSubmitAnswer}
                         disabled={!selectedOption}
-                        className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl bg-[#1A2E2B] hover:bg-[#122421] text-white text-xs sm:text-sm font-semibold shadow-xs disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-display"
+                        className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs sm:text-sm font-semibold shadow-xs disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-display"
                       >
                         <span>Submit Answer</span>
                         <ArrowRight className="w-4 h-4 stroke-[2.5]" />
@@ -1334,8 +1345,8 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                     </>
                   ) : (
                     <div className="flex items-center justify-between w-full">
-                      <div className="hidden sm:flex items-center gap-2 text-xs text-[#66716F]">
-                        <span className="font-mono font-bold text-[#121E1B]">
+                      <div className="hidden sm:flex items-center gap-2 text-xs text-[#6E6E73]">
+                        <span className="font-mono font-bold text-[#1C1C1E]">
                           Question {currentIdx + 1} of {targetCount}
                         </span>
                         <span>·</span>
@@ -1354,7 +1365,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         whileTap={{ scale: 0.96 }}
                         transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                         onClick={handleNextQuestion}
-                        className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-[#006B63] hover:bg-[#005049] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer font-display ml-auto"
+                        className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer font-display ml-auto"
                       >
                         <span>
                           {currentIdx + 1 < targetCount
@@ -1373,17 +1384,17 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                 {/* 10-Question Step Map */}
                 <div className="p-4 rounded-2xl bg-white border border-[#DCE4E1] shadow-2xs space-y-3">
                   <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-[#121E1B] font-bold">
+                    <span className="text-[#1C1C1E] font-bold">
                       Clinical Drill Progress
                     </span>
-                    <span className="text-[#66716F] text-[11px] font-mono">
+                    <span className="text-[#6E6E73] text-[11px] font-mono">
                       {answeredCount} of {targetCount} completed
                     </span>
                   </div>
 
                   <div className="w-full bg-[#E8EDEB] h-1.5 rounded-full overflow-hidden">
                     <div
-                      className="bg-[#006B63] h-full transition-all duration-300 rounded-full"
+                      className="bg-[#007AFF] h-full transition-all duration-300 rounded-full"
                       style={{ width: `${(answeredCount / targetCount) * 100}%` }}
                     />
                   </div>
@@ -1399,16 +1410,16 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                       if (isCurrent) {
                         if (isAnswerSubmitted && ans) {
                           stepClass = ans.isCorrect
-                            ? 'bg-[#006B63] text-white border-[#006B63] ring-2 ring-[#006B63]/40 font-bold shadow-xs'
+                            ? 'bg-[#007AFF] text-white border-[#007AFF] ring-2 ring-[#007AFF]/40 font-bold shadow-xs'
                             : 'bg-rose-600 text-white border-rose-600 ring-2 ring-rose-300 font-bold shadow-xs';
                         } else {
                           stepClass =
-                            'bg-[#1A2E2B] text-white border-[#1A2E2B] ring-2 ring-[#006B63] font-bold shadow-xs';
+                            'bg-[#007AFF] text-white border-[#007AFF] ring-2 ring-[#007AFF]/40 font-bold shadow-xs';
                         }
                       } else if (isAnswered) {
                         if (isCorrect) {
                           stepClass =
-                            'bg-[#006B63] text-white border-[#006B63] font-bold';
+                            'bg-[#007AFF] text-white border-[#007AFF] font-bold';
                         } else {
                           stepClass = 'bg-rose-600 text-white border-rose-600 font-bold';
                         }
@@ -1428,18 +1439,18 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
                 {/* Current Topic Context */}
                 <div className="p-4 rounded-2xl bg-white border border-[#DCE4E1] shadow-2xs space-y-2">
-                  <span className="font-mono text-[#66716F] uppercase tracking-wider text-[10px] font-bold block">
+                  <span className="font-mono text-[#6E6E73] uppercase tracking-wider text-[10px] font-bold block">
                     CURRENT TOPIC
                   </span>
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#E8F5F1] text-[#006B63] flex items-center justify-center shrink-0 border border-[#006B63]/15">
+                    <div className="w-9 h-9 rounded-xl bg-[#E8F5F1] text-[#007AFF] flex items-center justify-center shrink-0 border border-[#007AFF]/15">
                       <BookOpen className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-xs sm:text-[13px] font-bold text-[#121E1B] leading-snug line-clamp-2">
+                      <h4 className="text-xs sm:text-[13px] font-bold text-[#1C1C1E] leading-snug line-clamp-2">
                         {context.topicName}
                       </h4>
-                      <p className="text-[11px] text-[#66716F] mt-0.5">
+                      <p className="text-[11px] text-[#6E6E73] mt-0.5">
                         {context.subjectName}
                       </p>
                     </div>
@@ -1450,28 +1461,28 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                 <div className="p-4 rounded-2xl bg-white border border-[#DCE4E1] shadow-2xs space-y-3">
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[#66716F] flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-[#006B63]" />
+                      <span className="text-[#6E6E73] flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-[#007AFF]" />
                         <span>Time Elapsed</span>
                       </span>
-                      <span className="font-mono font-bold text-[#121E1B]">
+                      <span className="font-mono font-bold text-[#1C1C1E]">
                         {formatSeconds(totalRecordedTime + activeElapsedSeconds)}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[#66716F]">Average Time / Q</span>
-                      <span className="font-mono font-bold text-[#121E1B]">
+                      <span className="text-[#6E6E73]">Average Time / Q</span>
+                      <span className="font-mono font-bold text-[#1C1C1E]">
                         {liveAvgTime !== null ? `${liveAvgTime}s` : '—'}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between text-xs pt-1 border-t border-[#F0F3F2]">
-                      <span className="text-[#66716F] flex items-center gap-1.5">
-                        <BarChart2 className="w-3.5 h-3.5 text-[#006B63]" />
+                      <span className="text-[#6E6E73] flex items-center gap-1.5">
+                        <BarChart2 className="w-3.5 h-3.5 text-[#007AFF]" />
                         <span>Accuracy (Current)</span>
                       </span>
-                      <span className="font-mono font-bold text-[#006B63]">
+                      <span className="font-mono font-bold text-[#007AFF]">
                         {liveAccuracy !== null ? `${liveAccuracy}%` : '—'}
                       </span>
                     </div>
@@ -1482,10 +1493,10 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                 <div className="p-3.5 rounded-2xl bg-[#F0FDF8] border border-[#D5E4DE] text-[11px] text-[#3D4947] leading-relaxed flex items-start gap-2.5">
                   <Sprout className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <p className="italic font-medium text-[#121E1B]">
+                    <p className="italic font-medium text-[#1C1C1E]">
                       "Every question you solve builds a better doctor."
                     </p>
-                    <p className="text-[10px] font-semibold text-[#006B63]">
+                    <p className="text-[10px] font-semibold text-[#007AFF]">
                       Keep going. You're improving.
                     </p>
                   </div>
@@ -1507,7 +1518,6 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
         title={activeModalImage.title}
         whatToLookFor={activeModalImage.whatToLookFor}
       />
-    </div>,
-    document.body
+    </div>
   );
 };

@@ -806,7 +806,7 @@ function AppInner() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white relative">
+    <div className="min-h-screen bg-[#F2F2F7] text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white relative">
       {/* Desktop Left Navigation Spacer (Smoothly pushes workspace when sidebar is ON or hovered) */}
       <div
         className={`hidden lg:block shrink-0 pointer-events-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
@@ -868,67 +868,85 @@ function AppInner() {
             onMouseLeave={handleSidebarHoverLeave}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={`hidden lg:flex items-center gap-2 fixed top-3 left-3.5 z-40 h-9 px-3 rounded-xl bg-white/90 backdrop-blur-2xl border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#006B63]/40 text-slate-700 hover:text-[#006B63] transition-colors cursor-pointer select-none group ${
+            className={`hidden lg:flex items-center gap-2 fixed top-3 left-3.5 z-40 h-9 px-3 rounded-xl bg-white/90 backdrop-blur-2xl border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#007AFF]/40 text-slate-700 hover:text-[#007AFF] transition-colors cursor-pointer select-none group ${
               !isNavVisible || isSidebarHovered ? 'pointer-events-none' : 'pointer-events-auto'
             }`}
             title="Turn sidebar ON (⌘B) · Hover to peek"
             aria-label="Turn sidebar ON"
           >
-            <PanelLeftOpen className="h-4.5 w-4.5 stroke-[2] group-hover:scale-110 transition-transform text-[#006B63]" />
-            <span className="text-xs font-bold text-slate-700 group-hover:text-[#006B63]">Sidebar</span>
+            <PanelLeftOpen className="h-4.5 w-4.5 stroke-[2] group-hover:scale-110 transition-transform text-[#007AFF]" />
+            <span className="text-xs font-bold text-slate-700 group-hover:text-[#007AFF]">Sidebar</span>
           </motion.button>
         </>
       )}
 
       {/* Main Workspace Column */}
-      <div className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden z-10">
-        {/* SwiftUI Floating Dynamic Island: Local Practice Mode Banner with Quick Exit */}
+      <div className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden">
+        {/* Local Practice Mode — banner */}
         {isGuest && (
           <motion.div
-            initial={false}
-            animate={{
-              y: isNavVisible ? 0 : -80,
-              opacity: isNavVisible ? 1 : 0,
+            initial={{ y: -52, opacity: 0 }}
+            animate={{ y: isNavVisible ? 0 : -52, opacity: isNavVisible ? 1 : 0 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+            className="hidden sm:block sticky top-0 z-[30] select-none overflow-hidden"
+            style={{
+              background: 'rgba(255,255,255,0.88)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
             }}
-            transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-            className="hidden sm:block sticky top-2 sm:top-3 z-30 px-3 sm:px-6 pt-1 pointer-events-none"
           >
-            <motion.div
-              initial={{ y: -30, opacity: 0, scale: 0.96 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-              className="pointer-events-auto mx-auto w-full max-w-4xl px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white/80 backdrop-blur-2xl saturate-[180%] border border-black/[0.06] shadow-[inset_0_1px_1px_rgba(255,255,255,0.95),0_8px_24px_rgba(0,0,0,0.04)] flex items-center justify-between gap-3 text-slate-800 select-none"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="relative flex h-2.5 w-2.5 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#006B63]" />
-                </span>
-                <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold uppercase tracking-wider bg-teal-50/80 backdrop-blur-md text-[#006B63] border border-teal-200/70 shadow-2xs shrink-0">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[46px] flex items-center justify-between gap-4">
+
+              {/* Left: status dot + text */}
+              <div className="flex items-center gap-3 min-w-0">
+                {/* Pulsing offline dot */}
+                <div className="relative shrink-0 flex items-center justify-center h-6 w-6">
+                  <span className="absolute inset-0 rounded-full bg-[#FF9500]/20 animate-ping" style={{ animationDuration: '2.5s' }} />
+                  <div
+                    className="relative h-6 w-6 rounded-full flex items-center justify-center"
+                    style={{ background: 'linear-gradient(135deg, #FFF4E0 0%, #FFE8B8 100%)', border: '1px solid rgba(255,149,0,0.25)', boxShadow: '0 1px 4px rgba(255,149,0,0.15)' }}
+                  >
+                    {/* device/phone icon */}
+                    <svg viewBox="0 0 14 14" className="h-3 w-3" fill="none">
+                      <rect x="3" y="1" width="8" height="12" rx="1.5" stroke="#FF9500" strokeWidth="1.4"/>
+                      <path d="M5.5 10.5h3" stroke="#FF9500" strokeWidth="1.4" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
+                  <span className="text-[12.5px] font-bold text-[#1D1D1F] tracking-tight leading-none shrink-0">
                     Local Practice Mode
                   </span>
-                  <span className="text-xs text-stone-500 hidden md:inline truncate font-medium">
-                    Offline access · All attempts saved locally
+                  {/* divider */}
+                  <span className="text-[#C7C7CC] hidden sm:inline leading-none select-none">·</span>
+                  <span className="text-[11.5px] text-[#8E8E93] hidden sm:inline leading-none truncate">
+                    Progress saved on this device · Sign in to unlock cloud sync
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.05, y: -1 }}
-                  whileTap={{ scale: 0.94 }}
-                  transition={{ type: 'spring', stiffness: 450, damping: 24 }}
-                  onClick={() => signOutUser()}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold text-white bg-gradient-to-r from-[#006B63] via-[#0D9488] to-[#10B981] hover:from-[#005750] hover:to-[#059669] shadow-sm shadow-teal-950/20 hover:shadow-md hover:shadow-teal-900/25 cursor-pointer transition-all"
-                  title="Return to Welcome & Sign In"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5 stroke-[2.5]" />
-                  <span>Exit to Sign In</span>
-                </motion.button>
-              </div>
-            </motion.div>
+              {/* Right: Sign in pill */}
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => signOutUser()}
+                className="relative inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-semibold cursor-pointer shrink-0 overflow-hidden transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, #007AFF 0%, #0062CC 100%)',
+                  boxShadow: '0 2px 8px rgba(0,122,255,0.32), inset 0 1px 0 rgba(255,255,255,0.18)',
+                  color: 'white',
+                }}
+              >
+                <span className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.14) 0%, transparent 55%)' }} />
+                <svg viewBox="0 0 13 13" className="relative h-3 w-3" fill="none">
+                  <path d="M4.5 1H2a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h2.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M8.5 9.5 11 6.5 8.5 3.5M5 6.5h6" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="relative">Sign In</span>
+              </motion.button>
+            </div>
           </motion.div>
         )}
 
@@ -953,7 +971,7 @@ function AppInner() {
         />
 
         {/* Main Content Area */}
-        <main className="workspace-main relative z-10 flex-1 w-full mx-auto">
+        <main className="workspace-main relative flex-1 w-full mx-auto">
           <ErrorBoundary resetKey={activeTab}>
             <AnimatePresence mode="wait">
               <motion.div
@@ -989,6 +1007,7 @@ function AppInner() {
                       if (tab === 'overview') handleSetActiveTab('dashboard');
                       if (tab === 'planner') handleSetActiveTab('daily');
                     }}
+                    isGuest={isGuest}
                   />
                 )}
 
@@ -1183,6 +1202,7 @@ function AppInner() {
                       if (tab === 'overview') handleSetActiveTab('dashboard');
                       if (tab === 'planner') handleSetActiveTab('daily');
                     }}
+                    isGuest={isGuest}
                   />
                 )}
 

@@ -324,7 +324,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-[120] flex flex-col font-['Plus_Jakarta_Sans'] select-none ${
+      className={`fixed inset-0 z-[120] flex flex-col select-none ${
         isTcsIonSkin ? 'bg-[#f4f7f9] text-slate-800' : 'bg-slate-950/95 backdrop-blur-md text-slate-100'
       }`}
     >
@@ -347,7 +347,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
             <Award className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-xs sm:text-sm font-bold font-['Outfit'] text-white">
+            <h2 className="text-xs sm:text-sm font-bold text-white tracking-tight">
               {isTcsIonSkin
                 ? `TCS iON CBT Assessment Simulation (${questions.length} Questions)`
                 : `NBE Computer-Based Test Simulation (${questions.length} MCQs)`}
@@ -428,7 +428,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
               <div className="inline-flex p-3 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-400/20 mb-1">
                 <Award className="h-7 w-7" />
               </div>
-              <h3 className="text-lg sm:text-xl font-black text-white font-['Outfit']">
+              <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
                 {examMode}-MCQ NBE Exam Simulation
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed">
@@ -568,7 +568,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                           onClick={() => handleSelectOption(opt.key)}
                           className={`flex items-start gap-3.5 p-3.5 rounded-lg border transition-colors cursor-pointer text-xs sm:text-sm ${
                             isSelected
-                              ? 'bg-[#eff6ff] border-[#0284c7] text-[#003b6a] font-semibold'
+                              ? 'bg-[#eff6ff] border-[#007AFF] text-[#003b6a] font-semibold'
                               : 'bg-white hover:bg-slate-50 border-slate-300 text-slate-800'
                           }`}
                         >
@@ -577,7 +577,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                             name={`q_${currentQ.id}`}
                             checked={isSelected}
                             onChange={() => handleSelectOption(opt.key)}
-                            className="mt-1 h-4 w-4 text-[#0284c7] border-slate-400 focus:ring-0 cursor-pointer"
+                            className="mt-1 h-4 w-4 text-[#007AFF] border-slate-400 focus:ring-0 cursor-pointer"
                           />
                           <span className="leading-relaxed">
                             <strong className="mr-1.5 font-bold font-mono">{opt.key}.</strong>
@@ -719,7 +719,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowSubmitConfirm(true)}
-                className="w-full py-2.5 rounded-md bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-md bg-[#007AFF] hover:bg-[#0369a1] text-white font-bold text-xs shadow-md transition-all cursor-pointer"
               >
                 SUBMIT TEST
               </button>
@@ -953,7 +953,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                 <span className="text-xs font-bold uppercase tracking-wider text-teal-400 font-mono">
                   EXAMINATION RESULTS &amp; PASS GAP
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-black text-white font-['Outfit'] mt-0.5">
+                <h3 className="text-2xl sm:text-3xl font-black text-white mt-0.5 tracking-tight">
                   {totalCorrect} / {questions.length} Correct ({accuracy}%)
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">

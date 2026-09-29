@@ -279,7 +279,7 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
               <button
                 type="button"
                 onClick={handleCreateSnapshot}
-                className="text-xs font-bold text-[#006B63] hover:text-teal-700 cursor-pointer"
+                className="text-xs font-bold text-[#007AFF] hover:text-teal-700 cursor-pointer"
               >
                 + Create Snapshot Now
               </button>

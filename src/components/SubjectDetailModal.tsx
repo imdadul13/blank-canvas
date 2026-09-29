@@ -124,26 +124,29 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
     if (filterTab === 'qbank') {
       return isQBank;
     }
+    // On the default "all" tab with no search, hide the recommended topic from the
+    // list since it's already featured in the "Recommended Study Target" callout above.
+    if (recommendedTopic && !searchQuery.trim() && t.id === recommendedTopic.id) {
+      return false;
+    }
     return true;
   });
 
   const currentConfidence: ConfidenceLevel = progress?.confidence || 'not-started';
   const subjectTheme = getSubjectVisualTheme(subject.id);
 
-  return createPortal(
+  return (
     <>
-      <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md overflow-y-auto font-sans text-slate-900 animate-in fade-in duration-200">
-        <div className="flex min-h-full items-center justify-center p-2 sm:p-4 md:p-6">
-          <div className="bg-[#F8FAFA] backdrop-blur-2xl rounded-3xl max-w-4xl w-full my-auto max-h-[92vh] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80 overflow-hidden">
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9000, backgroundColor: '#1D1D1F', overflowY: 'auto' }} className="font-sans text-slate-900">
+        <div className="flex items-center justify-center p-2 sm:p-4 md:p-6" style={{ minHeight: '100vh' }}>
+          <div className="bg-[#F8FAFA] rounded-3xl max-w-4xl w-full my-auto flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80" style={{ maxHeight: '92vh' }}>
             {/* ================= 1. WORKSPACE HEADER & NAVIGATION HIERARCHY ================= */}
-            <div className="relative shrink-0 p-4 sm:px-6 sm:py-4.5 border-b border-slate-200/80 bg-gradient-to-br from-white via-white to-slate-50/70 backdrop-blur-md space-y-3.5">
-              {/* Subtle Subject Light Leak (isolated with overflow-hidden so modal contents never clip) */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-t-3xl" aria-hidden="true">
-                <div
-                  className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl opacity-20 pointer-events-none"
-                  style={{ backgroundColor: subjectTheme.color }}
-                />
-              </div>
+            <div className="relative shrink-0 overflow-hidden p-4 sm:p-6 border-b border-slate-200/80 bg-gradient-to-br from-white via-white to-slate-50/70 space-y-4">
+              {/* Subtle Subject Light Leak */}
+              <div
+                className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl opacity-20 pointer-events-none"
+                style={{ backgroundColor: subjectTheme.color }}
+              />
 
               {/* Navigation Location Bar: Study → Subject */}
               <div className="flex items-center justify-between gap-3 relative z-10">
@@ -236,7 +239,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
               </div>
 
               {/* Subject Progress & Mastery Bar — Apple Bento Container */}
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-white/95 border border-slate-200/90 space-y-2.5 shadow-xs relative z-10">
+              <div className="p-4 rounded-2xl sm:rounded-3xl bg-white/95 border border-slate-200/90 space-y-3.5 shadow-xs relative z-10">
                 {/* Progress track */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
@@ -276,23 +279,24 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                   </div>
 
                   {/* Confidence Rating Selector */}
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] font-mono uppercase text-slate-400 font-semibold">Confidence:</span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] font-semibold text-[#8E8E93] shrink-0">Confidence:</span>
                     {[
-                      { id: 'low' as ConfidenceLevel, label: 'Low', activeClass: 'bg-rose-50 text-rose-800 border-rose-200' },
-                      { id: 'moderate' as ConfidenceLevel, label: 'Moderate', activeClass: 'bg-amber-50 text-amber-800 border-amber-200' },
-                      { id: 'strong' as ConfidenceLevel, label: 'Strong', activeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
-                      { id: 'mastered' as ConfidenceLevel, label: 'Mastered', activeClass: 'bg-slate-900 text-white border-slate-900' },
+                      { id: 'low' as ConfidenceLevel, label: 'Low', color: '#FF3B30' },
+                      { id: 'moderate' as ConfidenceLevel, label: 'Moderate', color: '#FF9500' },
+                      { id: 'strong' as ConfidenceLevel, label: 'Strong', color: '#30D158' },
+                      { id: 'mastered' as ConfidenceLevel, label: 'Mastered', color: '#007AFF' },
                     ].map((opt) => (
                       <button
                         key={opt.id}
                         type="button"
                         onClick={() => onUpdateConfidence(subject.id, opt.id)}
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase transition-all cursor-pointer border ${
+                        className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold transition-all cursor-pointer border ${
                           currentConfidence === opt.id
-                            ? `${opt.activeClass} shadow-2xs`
-                            : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200/90'
+                            ? 'text-white border-transparent shadow-sm'
+                            : 'bg-white text-[#6E6E73] border-[rgba(60,60,67,0.12)] hover:text-[#1D1D1F]'
                         }`}
+                        style={currentConfidence === opt.id ? { background: opt.color, borderColor: opt.color } : undefined}
                       >
                         {opt.label}
                       </button>
@@ -307,10 +311,10 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
               {/* ================= RECOMMENDED NEXT TOPIC TARGET ================= */}
               {recommendedTopic && (
                 <div className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
-                    RECOMMENDED STUDY TARGET
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#8E8E93]">
+                    Recommended Study Target
                   </span>
-                  <div className="p-4 sm:p-5 rounded-2xl bg-white border border-teal-300/80 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="p-4 sm:p-5 rounded-2xl bg-white shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4" style={{ border: `1.5px solid ${subjectTheme.color}40` }}>
                     <div
                       className="space-y-1.5 min-w-0 flex-1 cursor-pointer"
                       onClick={() =>
@@ -322,7 +326,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                       }
                     >
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] font-mono font-semibold uppercase text-[#006B63] bg-teal-50 border border-teal-200/70 px-2 py-0.5 rounded-md shadow-2xs">
+                        <span className="text-[10px] font-mono font-semibold uppercase text-[#007AFF] bg-teal-50 border border-teal-200/70 px-2 py-0.5 rounded-md shadow-2xs">
                           NEXT UP
                         </span>
                         {recommendedTopic.isHighYield && (
@@ -331,7 +335,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                           </span>
                         )}
                       </div>
-                      <h3 className="text-base sm:text-lg font-bold font-display text-stone-900 hover:text-[#006B63] transition-colors">
+                      <h3 className="text-base sm:text-lg font-bold font-display text-stone-900 hover:text-[#007AFF] transition-colors">
                         {recommendedTopic.name}
                       </h3>
                       <p className="text-xs text-stone-500">
@@ -351,12 +355,13 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                             topicName: recommendedTopic.name,
                           })
                         }
-                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display shadow-2xs cursor-pointer active:scale-[0.98] transition-all min-h-[38px]"
+                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-white text-xs font-semibold font-display shadow-sm cursor-pointer active:scale-[0.98] transition-all min-h-[38px]"
+                        style={{ background: `linear-gradient(135deg, ${subjectTheme.color} 0%, ${subjectTheme.color}CC 100%)`, boxShadow: `0 3px 10px ${subjectTheme.color}40` }}
                         title="Rapid Revision (Fast · Board-tested)"
                       >
-                        <RotateCcw className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                        <RotateCcw className="h-3.5 w-3.5 text-white/80 shrink-0" />
                         <span>Rapid Revision</span>
-                        <span className="text-[10px] font-mono text-stone-400 pl-1 border-l border-stone-700 hidden sm:inline">FAST</span>
+                        <span className="text-[10px] font-mono text-white/60 pl-1 border-l border-white/25 hidden sm:inline">FAST</span>
                       </button>
 
                       {/* Deepen High-Yield (Comprehensive Gemini clinical pack) */}
@@ -370,19 +375,20 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                             autoDeepen: true,
                           })
                         }
-                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-teal-50/50 text-stone-900 border border-teal-200/90 text-xs font-semibold font-display shadow-2xs cursor-pointer active:scale-[0.98] transition-all min-h-[38px] group"
+                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-[#F0F6FF] text-[#1D1D1F] border border-[#007AFF]/25 text-xs font-semibold font-display shadow-sm cursor-pointer active:scale-[0.98] transition-all min-h-[38px] group"
                         title="Comprehensive Gemini-powered study pack"
                       >
-                        <Brain className="h-3.5 w-3.5 text-[#006B63] shrink-0 group-hover:scale-110 transition-transform" />
+                        <Brain className="h-3.5 w-3.5 text-[#007AFF] shrink-0 group-hover:scale-110 transition-transform" />
                         <span>Deepen High-Yield</span>
-                        <span className="text-[10px] font-mono font-semibold text-[#006B63] pl-1 border-l border-teal-100 hidden sm:inline">DEEP</span>
+                        <span className="text-[10px] font-mono font-semibold text-[#007AFF] pl-1 border-l border-[#007AFF]/20 hidden sm:inline">DEEP</span>
                       </button>
 
                       {/* 10-MCQs Drill */}
                       {onLaunchPracticeMcq && (
                         <button
                           type="button"
-                          onClick={() =>
+                          onClick={() => {
+                            onClose();
                             onLaunchPracticeMcq({
                               sessionId: `session-${Date.now()}`,
                               subjectId: subject.id,
@@ -391,9 +397,9 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                               topicName: recommendedTopic.name,
                               source: 'dashboard_weak_topic',
                               targetQuestionCount: 10,
-                            })
-                          }
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-xs font-semibold font-display cursor-pointer active:scale-[0.98] transition-all min-h-[38px]"
+                            });
+                          }}
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-[#FFF8F0] text-[#3A3A3C] border border-[rgba(60,60,67,0.14)] text-xs font-semibold font-display cursor-pointer active:scale-[0.98] transition-all min-h-[38px]"
                         >
                           <Activity className="h-3.5 w-3.5 text-stone-500 shrink-0" />
                           <span>10-MCQs</span>
@@ -407,25 +413,26 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
               {/* ================= 3. SYLLABUS MODULES & TOPICS LIST ================= */}
               <div className="space-y-3">
                 {/* Search & Filter Toolbar */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-slate-200/80">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-[rgba(60,60,67,0.1)]">
                   {/* Filter Tabs */}
                   <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5">
                     {[
                       { id: 'all', label: `All (${allTopics.length})` },
                       { id: 'high-yield', label: `High-Yield (${highYieldTopics.length})` },
-                      { id: 'incomplete', label: `Incomplete (${allTopics.length - notesCount})` },
-                      { id: 'notes', label: `Notes (${notesCount})` },
-                      { id: 'qbank', label: `QBank (${qBankCount})` },
+                      { id: 'incomplete', label: `To-Do (${allTopics.length - notesCount})` },
+                      { id: 'notes', label: `Notes Done (${notesCount})` },
+                      { id: 'qbank', label: `QBank Done (${qBankCount})` },
                     ].map((tab) => (
                       <button
                         key={tab.id}
                         type="button"
                         onClick={() => setFilterTab(tab.id as any)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold font-display whitespace-nowrap transition-all cursor-pointer ${
+                        className={`px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer border ${
                           filterTab === tab.id
-                            ? 'bg-stone-900 text-white shadow-2xs'
-                            : 'bg-white text-stone-600 border border-slate-200/80 hover:bg-slate-50'
+                            ? 'text-white border-transparent shadow-sm'
+                            : 'bg-white text-[#6E6E73] border-[rgba(60,60,67,0.12)] hover:text-[#1D1D1F] hover:border-[rgba(60,60,67,0.22)]'
                         }`}
+                        style={filterTab === tab.id ? { background: `linear-gradient(135deg, ${subjectTheme.color} 0%, ${subjectTheme.color}CC 100%)` } : undefined}
                       >
                         {tab.label}
                       </button>
@@ -440,7 +447,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                       placeholder="Filter topics..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 transition-all shadow-xs"
+                      className="w-full rounded-xl border border-slate-200/90 bg-slate-100/90 hover:bg-slate-100 focus:bg-white pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 transition-all shadow-xs"
                     />
                   </div>
                 </div>
@@ -448,8 +455,27 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                 {/* Topic Cards List */}
                 <div className="space-y-2.5">
                   {displayedTopics.length === 0 ? (
-                    <div className="p-8 text-center rounded-2xl bg-white border border-slate-200/80 text-xs text-stone-500 shadow-2xs">
-                      No topics matched the selected filter.
+                    <div className="py-12 flex flex-col items-center gap-4 text-center bg-white rounded-2xl border border-[rgba(60,60,67,0.08)] shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                      <div className="h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm" style={{ background: `${subjectTheme.color}15`, border: `1.5px solid ${subjectTheme.color}30` }}>
+                        <Search className="h-7 w-7" style={{ color: subjectTheme.color }} strokeWidth={1.8} />
+                      </div>
+                      <div className="space-y-1 max-w-xs">
+                        <h3 className="text-[15px] font-bold text-[#1D1D1F]">
+                          {searchQuery ? `No topics for "${searchQuery}"` : 'No topics in this filter'}
+                        </h3>
+                        <p className="text-[12px] text-[#8E8E93] leading-snug">
+                          {searchQuery ? 'Try a different keyword or clear the search.' : 'Switch to another filter tab to see topics.'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setSearchQuery(''); setFilterTab('all'); }}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-semibold cursor-pointer transition-colors shadow-sm"
+                        style={{ background: `linear-gradient(135deg, ${subjectTheme.color} 0%, ${subjectTheme.color}CC 100%)` }}
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        Show all topics
+                      </button>
                     </div>
                   ) : (
                     displayedTopics.map((topic, index) => {
@@ -466,14 +492,16 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                       return (
                         <div
                           key={topic.id}
-                          className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-3.5 ${
-                            isNextRecommended
-                              ? 'bg-teal-50/70 border-teal-300 shadow-xs'
-                              : isFullyCovered
-                              ? 'bg-white/90 border-slate-200/70 shadow-2xs'
-                              : 'bg-white border-slate-200/80 hover:border-teal-300 hover:shadow-xs shadow-2xs'
+                          className={`relative pl-4 pr-3.5 sm:pr-4 py-3.5 sm:py-4 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-3.5 overflow-hidden ${
+                            isFullyCovered
+                              ? 'bg-white/90 border-[rgba(60,60,67,0.08)] shadow-2xs'
+                              : 'bg-white border-[rgba(60,60,67,0.10)] hover:shadow-xs shadow-2xs'
                           }`}
+                          style={isNextRecommended ? { borderColor: `${subjectTheme.color}45` } : (topic.isHighYield && !isFullyCovered ? { borderColor: 'rgba(245,158,11,0.28)' } : undefined)}
                         >
+                          {/* Left accent bar */}
+                          <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-2xl"
+                            style={{ background: isNextRecommended ? subjectTheme.color : topic.isHighYield && !isFullyCovered ? '#F59E0B' : isFullyCovered ? '#30D158' : 'transparent' }} />
                           {/* Topic Details Left Column */}
                           <div
                             className="min-w-0 space-y-1.5 cursor-pointer flex-1"
@@ -491,14 +519,14 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                               </span>
                               <span
                                 className={`text-sm font-bold font-display transition-colors ${
-                                  isFullyCovered ? 'text-stone-700' : 'text-stone-900 hover:text-[#006B63]'
+                                  isFullyCovered ? 'text-stone-700' : 'text-stone-900 hover:text-[#007AFF]'
                                 }`}
                               >
                                 {topic.name}
                               </span>
 
                               {isNextRecommended && (
-                                <span className="px-2 py-0.5 rounded-md bg-teal-50 text-[#006B63] border border-teal-200/70 text-[9px] font-mono font-semibold uppercase">
+                                <span className="px-2 py-0.5 rounded-md bg-teal-50 text-[#007AFF] border border-teal-200/70 text-[9px] font-mono font-semibold uppercase">
                                   NEXT UP
                                 </span>
                               )}
@@ -527,7 +555,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                                 onClick={() => onToggleTopicState(subject.id, topic.id, 'notesDone')}
                                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold font-display border transition-all cursor-pointer ${
                                   isNotes
-                                    ? 'bg-[#006B63] text-white border-[#006B63] shadow-2xs'
+                                    ? 'bg-[#007AFF] text-white border-[#007AFF] shadow-2xs'
                                     : 'bg-stone-50 text-stone-600 border-stone-200/90 hover:bg-stone-100'
                                 }`}
                               >
@@ -541,7 +569,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                                 onClick={() => onToggleTopicState(subject.id, topic.id, 'qBankDone')}
                                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold font-display border transition-all cursor-pointer ${
                                   isQBank
-                                    ? 'bg-[#006B63] text-white border-[#006B63] shadow-2xs'
+                                    ? 'bg-[#007AFF] text-white border-[#007AFF] shadow-2xs'
                                     : 'bg-stone-50 text-stone-600 border-stone-200/90 hover:bg-stone-100'
                                 }`}
                               >
@@ -560,9 +588,10 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                                       onClick={() => onToggleTopicState(subject.id, topic.id, rKey)}
                                       className={`px-2 py-1 text-[10px] font-mono font-semibold rounded-md transition-all cursor-pointer ${
                                         isDone
-                                          ? 'bg-stone-900 text-white'
-                                          : 'bg-stone-100 text-stone-400 hover:text-stone-700'
+                                          ? 'text-white shadow-sm'
+                                          : 'bg-[#F2F2F7] text-[#8E8E93] hover:text-[#3A3A3C]'
                                       }`}
+                                      style={isDone ? { background: subjectTheme.color } : undefined}
                                       title={`Revision round ${idx + 1}`}
                                     >
                                       R{idx + 1}
@@ -585,10 +614,11 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                                   topicName: topic.name,
                                 })
                               }
-                              className="flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-2xs h-[34px] active:scale-[0.98]"
+                              className="flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 rounded-xl text-white text-xs font-semibold font-display transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-sm h-[34px] active:scale-[0.98]"
+                              style={{ background: `linear-gradient(135deg, ${subjectTheme.color} 0%, ${subjectTheme.color}CC 100%)`, boxShadow: `0 2px 8px ${subjectTheme.color}35` }}
                               title="Rapid Revision (Fast · Board-tested)"
                             >
-                              <RotateCcw className="h-3 w-3 text-amber-400 shrink-0" />
+                              <RotateCcw className="h-3 w-3 text-white/80 shrink-0" />
                               <span>Rapid Revision</span>
                             </button>
 
@@ -603,10 +633,10 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                                   autoDeepen: true,
                                 })
                               }
-                              className="flex-1 sm:flex-none px-2.5 py-1.5 rounded-xl bg-white hover:bg-teal-50/60 text-stone-900 border border-teal-200/80 text-xs font-semibold font-display transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 h-[34px] active:scale-[0.98] group"
+                              className="flex-1 sm:flex-none px-2.5 py-1.5 rounded-xl bg-white hover:bg-[#F0F6FF] text-[#1D1D1F] border border-[#007AFF]/22 text-xs font-semibold font-display transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 h-[34px] active:scale-[0.98] group"
                               title="Deepen High-Yield (Comprehensive Gemini study pack)"
                             >
-                              <Brain className="h-3 w-3 text-[#006B63] shrink-0 group-hover:scale-110 transition-transform" />
+                              <Brain className="h-3 w-3 text-[#007AFF] shrink-0 group-hover:scale-110 transition-transform" />
                               <span>Deepen</span>
                             </button>
 
@@ -615,6 +645,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                               type="button"
                               onClick={() => {
                                 if (onLaunchPracticeMcq) {
+                                  onClose();
                                   onLaunchPracticeMcq({
                                     sessionId: `session-${Date.now()}`,
                                     subjectId: subject.id,
@@ -626,7 +657,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                                   });
                                 }
                               }}
-                              className="flex-1 sm:flex-none px-2.5 py-1.5 rounded-xl bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-xs font-semibold font-display transition-all cursor-pointer inline-flex items-center justify-center gap-1 h-[34px] active:scale-[0.98]"
+                              className="flex-1 sm:flex-none px-2.5 py-1.5 rounded-xl bg-white hover:bg-[#FFF8F0] text-[#3A3A3C] border border-[rgba(60,60,67,0.14)] text-xs font-semibold font-display transition-all cursor-pointer inline-flex items-center justify-center gap-1 h-[34px] active:scale-[0.98]"
                               title="Launch 10-MCQ Diagnostic Drill"
                             >
                               <Activity className="h-3 w-3 text-stone-500" />
@@ -650,7 +681,7 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                     placeholder="Add custom topic to syllabus..."
                     value={newTopicName}
                     onChange={(e) => setNewTopicName(e.target.value)}
-                    className="flex-1 rounded-xl border border-slate-200/90 bg-white px-4 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#006B63] min-h-[38px] shadow-2xs backdrop-blur-sm"
+                    className="flex-1 rounded-xl border border-slate-200/90 bg-white px-4 py-2 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#007AFF] min-h-[38px] shadow-2xs backdrop-blur-sm"
                   />
                   <div className="flex items-center gap-2">
                     <label className="flex items-center gap-1.5 text-xs text-stone-600 px-2 cursor-pointer select-none">
@@ -658,14 +689,14 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                         type="checkbox"
                         checked={isHighYieldTopic}
                         onChange={(e) => setIsHighYieldTopic(e.target.checked)}
-                        className="rounded border-stone-300 text-[#006B63] focus:ring-0 h-3.5 w-3.5"
+                        className="rounded border-stone-300 text-[#007AFF] focus:ring-0 h-3.5 w-3.5"
                       />
                       <span>High Yield</span>
                     </label>
                     <button
                       type="submit"
                       disabled={!newTopicName.trim()}
-                      className="inline-flex items-center justify-center gap-1 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#00554E] text-white text-xs font-semibold font-display disabled:opacity-40 cursor-pointer min-h-[38px] shadow-xs"
+                      className="inline-flex items-center justify-center gap-1 px-4 py-2 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display disabled:opacity-40 cursor-pointer min-h-[38px] shadow-xs"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       <span>Add Topic</span>
@@ -696,7 +727,6 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
           onOpenAiCoach={onOpenAiCoach}
         />
       )}
-    </>,
-    document.body
+    </>
   );
 };

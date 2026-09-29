@@ -41,8 +41,8 @@ export const AnimatedMountainInsignia: React.FC<AnimatedMountainInsigniaProps> =
             <stop offset="100%" stopColor="#10B981" stopOpacity="0.25" />
           </linearGradient>
           <linearGradient id="dawnFrontPeak" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#006B63" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#0D9488" stopOpacity="0.45" />
+            <stop offset="0%" stopColor="#007AFF" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.45" />
           </linearGradient>
           <linearGradient id="dawnSunGlow" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#FDE047" />
@@ -52,10 +52,10 @@ export const AnimatedMountainInsignia: React.FC<AnimatedMountainInsigniaProps> =
           {/* Afternoon Zenith Gradients */}
           <linearGradient id="noonRearPeak" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#0284C7" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#006B63" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#007AFF" stopOpacity="0.3" />
           </linearGradient>
           <linearGradient id="noonFrontPeak" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#006B63" stopOpacity="0.85" />
+            <stop offset="0%" stopColor="#007AFF" stopOpacity="0.85" />
             <stop offset="100%" stopColor="#0284C7" stopOpacity="0.6" />
           </linearGradient>
 

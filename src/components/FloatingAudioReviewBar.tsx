@@ -79,7 +79,7 @@ export const FloatingAudioReviewBar: React.FC = () => {
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#006B63]">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#007AFF]">
                   {currentItem.subjectName || 'Clinical Recall'}
                 </span>
                 <span className="text-[10px] text-slate-400 tabular-nums font-mono font-medium">
@@ -101,7 +101,7 @@ export const FloatingAudioReviewBar: React.FC = () => {
               className="flex items-center gap-1 px-2 py-1 rounded-lg bg-black/[0.04] hover:bg-black/[0.08] text-[11px] font-bold text-slate-700 transition-colors cursor-pointer"
               title="Change playback speed"
             >
-              <Gauge className="h-3 w-3 text-[#006B63]" />
+              <Gauge className="h-3 w-3 text-[#007AFF]" />
               <span>{rate}x</span>
             </button>
 

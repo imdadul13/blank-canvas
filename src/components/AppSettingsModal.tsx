@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import {
   X,
   Palette,
@@ -29,6 +28,7 @@ import {
 import { AppSettings, AppState } from '../types';
 import { getInitialAppState } from '../data/sampleData';
 import { usePwaInstall } from '../hooks/usePwaInstall';
+import { Modal, ModalBody, ModalFooter } from './ui/Modal';
 
 interface AppSettingsModalProps {
   isOpen: boolean;
@@ -63,25 +63,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
       setTypedConfirm('');
     }
   }, [isOpen, state.settings]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      }
-    };
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
 
   const updatePreference = (updated: AppSettings) => {
     setSettings(updated);
@@ -131,108 +112,80 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
       ? 'Evening Dusk'
       : 'Night Moonlit';
 
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[100] bg-slate-950/45 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 font-sans select-none animate-in fade-in duration-150"
-      style={{
-        paddingTop: 'max(0.75rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
-        paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))',
+  return (
+    <Modal
+      open={isOpen}
+      onOpenChange={(next) => {
+        if (!next) onClose();
       }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="app-settings-title"
+      title="Preferences & Settings"
+      description="Circadian atmosphere, examination pacing, cognitive breaks & storage"
+      accent="#007AFF"
+      size="xl"
+      header={
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-tr from-[#007AFF] to-teal-500 text-white ring-2 ring-white">
+            <Settings2 className="h-5 w-5 stroke-[2]" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="t-title-sm truncate text-slate-900">Preferences &amp; Settings</h2>
+              <span className="shrink-0 rounded-full border border-teal-200/70 bg-teal-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#007AFF]">
+                FMGE 2026
+              </span>
+            </div>
+            <p className="t-label mt-0.5 truncate text-slate-500">
+              Circadian atmosphere, examination pacing, cognitive breaks &amp; storage
+            </p>
+          </div>
+        </div>
+      }
     >
-      <div className="relative bg-white/95 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[0_24px_64px_rgba(0,0,0,0.14)] border border-slate-200/80 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[88vh] before:absolute before:inset-0 before:bg-gradient-to-tr before:from-teal-500/[0.03] before:via-white/0 before:to-emerald-500/[0.02] before:pointer-events-none animate-in zoom-in-95 duration-150">
-        
-        {/* Specular Top Shimmer Edge */}
-        <div
-          className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-teal-400/40 to-transparent pointer-events-none"
-          aria-hidden="true"
-        />
-
-        {/* ── Modal Header ── */}
-        <div className="p-4 sm:p-5 border-b border-slate-200/80 bg-white/90 backdrop-blur-md flex items-center justify-between relative z-10 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-tr from-[#006B63] to-teal-500 text-white shadow-xs shadow-teal-900/20 shrink-0 ring-2 ring-white">
-              <Settings2 className="h-5 w-5 text-white stroke-[2]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3
-                  id="app-settings-title"
-                  className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 font-display"
-                >
-                  Preferences &amp; Settings
-                </h3>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-teal-50 text-[#006B63] border border-teal-200/70">
-                  FMGE 2026
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Circadian atmosphere, examination pacing, cognitive breaks &amp; storage
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
-            aria-label="Close settings"
-          >
-            <X className="h-5 w-5" />
-          </button>
+      <div className="hairline-b flex shrink-0 items-center justify-between gap-1.5 overflow-x-auto bg-slate-50/70 px-4 py-2.5 scrollbar-none">
+        <div className="flex w-full items-center gap-1 rounded-2xl bg-slate-200/60 p-1 sm:w-auto">
+          {[
+            { id: 'theme', label: 'Atmosphere & Themes', shortLabel: 'Atmosphere', icon: Palette },
+            { id: 'mcq', label: 'Pacing & Goals', shortLabel: 'Pacing', icon: Clock },
+            { id: 'wellness', label: 'Wellness & Audio', shortLabel: 'Wellness', icon: Droplet },
+            { id: 'storage', label: 'Storage & PWA', shortLabel: 'Storage', icon: HardDrive },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className={`hit-expand flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all sm:flex-initial sm:inline-flex ${
+                  active ? 'bg-white font-bold text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-[#007AFF]' : 'text-slate-400'}`} />
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.shortLabel}</span>
+              </button>
+            );
+          })}
         </div>
+      </div>
 
-        {/* ── Segmented Tab Switcher (iOS Segmented Style) ── */}
-        <div className="px-4 sm:px-6 py-2.5 border-b border-slate-200/80 bg-slate-50/70 flex items-center justify-between gap-1.5 overflow-x-auto scrollbar-none shrink-0">
-          <div className="p-1 bg-slate-200/60 rounded-2xl flex items-center gap-1 w-full sm:w-auto">
-            {[
-              { id: 'theme', label: 'Atmosphere & Themes', shortLabel: 'Atmosphere', icon: Palette },
-              { id: 'mcq', label: 'Pacing & Goals', shortLabel: 'Pacing', icon: Clock },
-              { id: 'wellness', label: 'Wellness & Audio', shortLabel: 'Wellness', icon: Droplet },
-              { id: 'storage', label: 'Storage & PWA', shortLabel: 'Storage', icon: HardDrive },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const active = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    active
-                      ? 'bg-white text-slate-900 shadow-xs font-bold'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-[#006B63]' : 'text-slate-400'}`} />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.shortLabel}</span>
-                </button>
-              );
-            })}
-          </div>
+      {/* Save confirmation toast */}
+      {saveSuccess && (
+        <div className="mx-4 mt-3 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800 animate-in fade-in">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+          <span className="font-semibold">Preferences saved and applied successfully.</span>
         </div>
+      )}
 
-        {/* Save confirmation toast */}
-        {saveSuccess && (
-          <div className="mx-4 sm:mx-5 mt-3 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-            <span className="font-semibold">Preferences saved and applied successfully.</span>
-          </div>
-        )}
-
-        {/* ── Tab Body ── */}
-        <div className="p-4 sm:p-6 pb-6 overflow-y-auto flex-1 space-y-5 bg-white">
-          {/* ═════════════ TAB 1: THEMES & ATMOSPHERE ═════════════ */}
+      <ModalBody className="space-y-5 bg-white p-4 sm:p-6">
+        {/* ═════════════ TAB 1: THEMES & ATMOSPHERE ═════════════ */}
           {activeTab === 'theme' && (
             <div className="space-y-5 animate-in fade-in duration-150">
               {/* Circadian Atmosphere Mode */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#006B63]">
+                    <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#007AFF]">
                       Circadian Lighting &amp; Tone
                     </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
@@ -288,7 +241,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                         onClick={() => updatePreference({ ...settings, bgTheme: item.id as any })}
                         className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
                           selected
-                            ? 'border-[#006B63] bg-[#E8F5F3]/50 shadow-2xs ring-1 ring-[#006B63]/30'
+                            ? 'border-[#007AFF] bg-[#E8F5F3]/50 shadow-2xs ring-1 ring-[#007AFF]/30'
                             : 'border-slate-200/80 bg-white hover:bg-slate-50/80 hover:border-slate-300 text-slate-800'
                         }`}
                       >
@@ -298,7 +251,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                             <span className="text-xs font-bold text-slate-900">{item.label}</span>
                           </div>
                           {selected ? (
-                            <div className="h-4 w-4 rounded-full bg-[#006B63] text-white flex items-center justify-center">
+                            <div className="h-4 w-4 rounded-full bg-[#007AFF] text-white flex items-center justify-center">
                               <Check className="h-2.5 w-2.5 stroke-[3]" />
                             </div>
                           ) : (
@@ -318,7 +271,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
               <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex items-center justify-between gap-3">
                 <div className="space-y-0.5 pr-2">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                    <BookOpen className="h-4 w-4 text-[#006B63]" />
+                    <BookOpen className="h-4 w-4 text-[#007AFF]" />
                     <span>Auto-Save Mastered High-Yield Pearls</span>
                   </div>
                   <p className="text-xs text-slate-500">
@@ -333,9 +286,9 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                       autoSaveHighYield: !(settings.autoSaveHighYield ?? true),
                     })
                   }
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                  className={`hit-expand px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                     (settings.autoSaveHighYield ?? true)
-                      ? 'bg-[#006B63] text-white shadow-2xs'
+                      ? 'bg-[#007AFF] text-white shadow-2xs'
                       : 'bg-slate-200 text-slate-600'
                   }`}
                 >
@@ -347,7 +300,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
               <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200/70 flex items-center justify-between gap-3">
                 <div className="space-y-0.5 pr-2">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                    <Compass className="h-4 w-4 text-[#006B63]" />
+                    <Compass className="h-4 w-4 text-[#007AFF]" />
                     <span>FMGE Clinical Strategy Blueprint</span>
                   </div>
                   <p className="text-xs text-slate-500">
@@ -360,7 +313,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                     onClose();
                     onOpenOnboarding?.();
                   }}
-                  className="px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#00544E] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer shrink-0"
+                  className="hit-expand px-4 py-2 rounded-xl bg-[#007AFF] hover:bg-[#0071E3] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer shrink-0"
                 >
                   Recalibrate
                 </button>
@@ -374,8 +327,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
               {/* Timer Pacing */}
               <div className="space-y-3">
                 <div>
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#006B63] flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5 text-[#006B63]" />
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#007AFF] flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5 text-[#007AFF]" />
                     MCQ Practice Timer Pacing
                   </h4>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -398,7 +351,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                         onClick={() => updatePreference({ ...settings, mcqTimerSeconds: preset.val })}
                         className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                           active
-                            ? 'border-[#006B63] bg-[#006B63] text-white shadow-2xs'
+                            ? 'border-[#007AFF] bg-[#007AFF] text-white shadow-2xs'
                             : 'border-slate-200/80 bg-white hover:bg-slate-50 text-slate-800'
                         }`}
                       >
@@ -418,8 +371,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
               {/* Explanation Reveal Mode */}
               <div className="space-y-3 pt-3 border-t border-slate-200/80">
                 <div>
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#006B63] flex items-center gap-1.5">
-                    <Brain className="h-3.5 w-3.5 text-[#006B63]" />
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#007AFF] flex items-center gap-1.5">
+                    <Brain className="h-3.5 w-3.5 text-[#007AFF]" />
                     Explanation Reveal Behavior
                   </h4>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -440,13 +393,13 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                         onClick={() => updatePreference({ ...settings, explanationMode: mode.id as any })}
                         className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                           active
-                            ? 'border-[#006B63] bg-[#E8F5F3]/50 text-slate-900 ring-1 ring-[#006B63]/30'
+                            ? 'border-[#007AFF] bg-[#E8F5F3]/50 text-slate-900 ring-1 ring-[#007AFF]/30'
                             : 'border-slate-200/80 bg-white hover:bg-slate-50 text-slate-800'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs font-bold">{mode.label}</span>
-                          {active && <CheckCircle2 className="h-4 w-4 text-[#006B63]" />}
+                          {active && <CheckCircle2 className="h-4 w-4 text-[#007AFF]" />}
                         </div>
                         <div className="text-[11px] text-slate-500">{mode.desc}</div>
                       </button>
@@ -458,8 +411,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
               {/* Daily Goals Pacing */}
               <div className="space-y-3 pt-3 border-t border-slate-200/80">
                 <div>
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#006B63] flex items-center gap-1.5">
-                    <Target className="h-3.5 w-3.5 text-[#006B63]" />
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#007AFF] flex items-center gap-1.5">
+                    <Target className="h-3.5 w-3.5 text-[#007AFF]" />
                     Daily Target Goals
                   </h4>
                   <p className="text-xs text-slate-500 mt-0.5">Benchmark quotas for mission control</p>
@@ -481,7 +434,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                             onClick={() => updatePreference({ ...settings, dailyQuestionGoal: q })}
                             className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                               selected
-                                ? 'bg-[#006B63] text-white shadow-2xs'
+                                ? 'bg-[#007AFF] text-white shadow-2xs'
                                 : 'bg-white border border-slate-200/80 text-slate-600 hover:bg-slate-100'
                             }`}
                           >
@@ -507,7 +460,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                             onClick={() => updatePreference({ ...settings, dailyStudyHourGoal: h })}
                             className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                               selected
-                                ? 'bg-[#006B63] text-white shadow-2xs'
+                                ? 'bg-[#007AFF] text-white shadow-2xs'
                                 : 'bg-white border border-slate-200/80 text-slate-600 hover:bg-slate-100'
                             }`}
                           >
@@ -527,8 +480,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
             <div className="space-y-5 animate-in fade-in duration-150">
               <div className="space-y-3">
                 <div>
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#006B63] flex items-center gap-1.5">
-                    <Droplet className="h-3.5 w-3.5 text-[#006B63]" />
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#007AFF] flex items-center gap-1.5">
+                    <Droplet className="h-3.5 w-3.5 text-[#007AFF]" />
                     Hydration &amp; 20-20-20 Eye Rest Cadence
                   </h4>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -551,7 +504,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                         onClick={() => updatePreference({ ...settings, breakReminderInterval: preset.val })}
                         className={`py-2 px-2.5 rounded-xl text-xs font-semibold border text-center transition-all cursor-pointer ${
                           active
-                            ? 'border-[#006B63] bg-[#006B63] text-white shadow-2xs font-bold'
+                            ? 'border-[#007AFF] bg-[#007AFF] text-white shadow-2xs font-bold'
                             : 'border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700'
                         }`}
                       >
@@ -566,7 +519,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
               <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex items-center justify-between gap-3">
                 <div className="space-y-0.5 pr-2">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                    <Volume2 className="h-4 w-4 text-[#006B63]" />
+                    <Volume2 className="h-4 w-4 text-[#007AFF]" />
                     <span>Audio Feedback &amp; Timer Chimes</span>
                   </div>
                   <p className="text-xs text-slate-500">
@@ -583,7 +536,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                   }
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                     (settings.hapticSoundEnabled ?? true)
-                      ? 'bg-[#006B63] text-white shadow-2xs'
+                      ? 'bg-[#007AFF] text-white shadow-2xs'
                       : 'bg-slate-200 text-slate-600'
                   }`}
                 >
@@ -600,7 +553,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
               <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200/70 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-[#006B63] text-white flex items-center justify-center shadow-2xs shrink-0">
+                    <div className="w-8 h-8 rounded-xl bg-[#007AFF] text-white flex items-center justify-center shadow-2xs shrink-0">
                       <Smartphone className="w-4 h-4" />
                     </div>
                     <div>
@@ -630,7 +583,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                       <button
                         type="button"
                         onClick={promptInstall}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#00544E] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#007AFF] hover:bg-[#00544E] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer"
                       >
                         <Download className="w-3.5 h-3.5" />
                         <span>Install ONE SHOT FMGE</span>
@@ -639,7 +592,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
 
                     {isIos && !canInstall && (
                       <div className="flex items-start gap-2 p-2.5 rounded-xl bg-white/90 border border-teal-200/60 text-[11px] text-slate-600">
-                        <Share className="w-4 h-4 text-[#006B63] shrink-0 mt-0.5" />
+                        <Share className="w-4 h-4 text-[#007AFF] shrink-0 mt-0.5" />
                         <span>
                           To install on iPhone/iPad: tap the Safari <strong>Share</strong> button in the toolbar, then scroll down and select <strong>&quot;Add to Home Screen&quot;</strong>.
                         </span>
@@ -776,38 +729,32 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
               </div>
             </div>
           )}
+      </ModalBody>
+
+      <ModalFooter className="bg-slate-50/80">
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
+          <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse" />
+          <span>Preferences sync live</span>
         </div>
 
-        {/* ── Footer ── */}
-        <div
-          className="p-3.5 sm:p-4 bg-slate-50/80 backdrop-blur-md border-t border-slate-200/80 flex items-center justify-between shrink-0"
-          style={{ paddingBottom: 'max(0.875rem, calc(0.625rem + env(safe-area-inset-bottom, 0px)))' }}
-        >
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
-            <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse" />
-            <span>Preferences sync live</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-200/60 transition-colors cursor-pointer"
-            >
-              Close
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSave()}
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#006B63] hover:bg-[#00544E] text-white transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
-            >
-              <Save className="h-3.5 w-3.5" />
-              <span>Save Changes</span>
-            </button>
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="hit-expand cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-200/60 hover:text-slate-900"
+          >
+            Close
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSave()}
+            className="hit-expand inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#007AFF] px-5 py-2 text-xs font-bold text-white shadow-2xs transition-all hover:bg-[#0071E3] active:scale-[0.98]"
+          >
+            <Save className="h-3.5 w-3.5" />
+            <span>Save Changes</span>
+          </button>
         </div>
-      </div>
-    </div>,
-    document.body
+      </ModalFooter>
+    </Modal>
   );
-};
+}

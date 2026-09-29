@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   TrendingUp,
   AlertTriangle,
@@ -126,7 +126,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
     const scoresList: SubjectScoreItem[] = FMGE_SUBJECTS.map((sub) => {
       const subTopics = topicsBySub.get(sub.id) || [];
       const totalTopics = subTopics.length || 1;
-      
+
       const completionSum = subTopics.reduce((acc, t) => acc + t.prepStatus.completionRate, 0);
       const avgCompletion = Math.round(completionSum / totalTopics);
 
@@ -179,8 +179,8 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
 
     // Subject Group contributions for Score Breakdown
     const groupMap: Record<string, { name: string; marks: number; color: string }> = {
-      medicine: { name: 'Medicine & Allied', marks: 0, color: '#00685f' },
-      surgery: { name: 'Surgery & Allied', marks: 0, color: '#0284c7' },
+      medicine: { name: 'Medicine & Allied', marks: 0, color: '#0071E3' },
+      surgery: { name: 'Surgery & Allied', marks: 0, color: '#007AFF' },
       obgyn: { name: 'OBGYN', marks: 0, color: '#8b5cf6' },
       pediatrics: { name: 'Pediatrics', marks: 0, color: '#f97316' },
       path_micro: { name: 'Pathology & Microbiology', marks: 0, color: '#f43f5e' },
@@ -328,23 +328,32 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
     if (totalPredictedScore >= 180) {
       return {
         label: 'High Chance of Clearing',
-        classes: 'bg-emerald-50 text-emerald-800 border-emerald-200/90',
+        color: '#30D158',
+        bg: 'rgba(48,209,88,0.12)',
+        border: 'rgba(48,209,88,0.3)',
         icon: TrendingUp,
       };
     }
     if (totalPredictedScore >= 150) {
       return {
         label: 'On Track to Clear (≥150)',
-        classes: 'bg-teal-50 text-teal-800 border-teal-200/90',
+        color: '#30D158',
+        bg: 'rgba(48,209,88,0.10)',
+        border: 'rgba(48,209,88,0.25)',
         icon: CheckCircle2,
       };
     }
     return {
       label: 'Focus Needed (<150 Pass)',
-      classes: 'bg-amber-50 text-amber-800 border-amber-200/90',
+      color: '#FF9500',
+      bg: 'rgba(255,149,0,0.12)',
+      border: 'rgba(255,149,0,0.3)',
       icon: AlertTriangle,
     };
   }, [totalPredictedScore]);
+
+  // Gauge color by score
+  const gaugeColor = totalPredictedScore >= 150 ? '#30D158' : totalPredictedScore >= 120 ? '#FF9500' : '#FF3B30';
 
   // Dynamic calculations for Confidence, Range, and Delta
   const confidenceLevel = Math.min(88, Math.max(55, Math.round(58 + (metrics.immediateRevisions.length ? 14 : 20))));
@@ -370,556 +379,589 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
 
   return (
     <div
-      className="space-y-6 sm:space-y-8 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 animate-in fade-in duration-150 pb-36 sm:pb-20"
-      style={{ paddingBottom: 'max(9.5rem, calc(7rem + env(safe-area-inset-bottom, 2rem)))' }}
+      className="font-['Plus_Jakarta_Sans'] space-y-5 max-w-7xl mx-auto px-3 sm:px-5 py-4 pb-36"
+      style={{ paddingBottom: 'max(9rem, calc(6rem + env(safe-area-inset-bottom, 1.5rem)))' }}
     >
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-24 right-4 sm:right-8 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-2.5 animate-in slide-in-from-bottom-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
-      {/* 1. Breadcrumb & Navigation */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider font-mono">
-          {onBackToPerformance ? (
-            <button
-              type="button"
-              onClick={onBackToPerformance}
-              className="text-stone-500 hover:text-stone-900 transition-colors cursor-pointer flex items-center gap-1.5"
-            >
-              <span>PERFORMANCE</span>
-            </button>
-          ) : (
-            <span className="text-stone-500">PERFORMANCE</span>
-          )}
-          <span className="text-stone-400">•</span>
-          <span className="text-[#00685f] font-bold">SCORE PREDICTOR</span>
-        </div>
-      </div>
-
-      {/* 2. Editorial Header: "Your FMGE Score, Clarity Today." */}
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-        <div className="flex items-start gap-3 sm:gap-3.5 max-w-2xl">
+      {/* ── Toast Notification ── */}
+      <AnimatePresence>
+        {toastMessage && (
           <motion.div
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.94 }}
-            animate={{ y: [0, -2, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            className="relative flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-teal-50/90 border border-teal-100/90 text-[#00685F] shadow-2xs shrink-0 mt-0.5 cursor-default"
+            key="toast"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            className="fixed bottom-24 right-4 sm:right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl border shadow-xl"
+            style={{ background: '#1D1D1F', borderColor: 'rgba(255,255,255,0.1)' }}
           >
-            <BarChart3 className="h-5 w-5 text-[#00685F] stroke-[2]" />
+            <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: '#30D158' }} />
+            <span className="text-[13px] font-semibold text-white">{toastMessage}</span>
           </motion.div>
+        )}
+      </AnimatePresence>
 
-          <div className="space-y-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-              <h1 className="font-serif text-2xl sm:text-3xl lg:text-[32px] font-bold uppercase tracking-tight leading-tight bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-900 bg-clip-text text-transparent">
-                Your FMGE Score, Clarity Today.
+      {/* ── 1. Breadcrumb ── */}
+      <div className="flex items-center gap-1.5">
+        {onBackToPerformance ? (
+          <button
+            type="button"
+            onClick={onBackToPerformance}
+            className="text-[12px] font-semibold transition-colors cursor-pointer"
+            style={{ color: '#8E8E93' }}
+          >
+            Performance
+          </button>
+        ) : (
+          <span className="text-[12px] font-semibold" style={{ color: '#8E8E93' }}>
+            Performance
+          </span>
+        )}
+        <ChevronRight className="w-3 h-3" style={{ color: '#8E8E93' }} />
+        <span className="text-[12px] font-bold" style={{ color: '#007AFF' }}>
+          Score Predictor
+        </span>
+      </div>
+
+      {/* ── 2. Gradient Header Card ── */}
+      <div
+        className="relative overflow-hidden rounded-3xl p-6 sm:p-8"
+        style={{
+          background: 'linear-gradient(135deg, #001824 0%, #00324A 40%, #005A78 70%, #2B9FC4 100%)',
+        }}
+      >
+        {/* Decorative glow blobs */}
+        <div
+          className="pointer-events-none absolute -top-10 -right-10 w-56 h-56 rounded-full opacity-20"
+          style={{ background: 'radial-gradient(circle, #2B9FC4 0%, transparent 70%)' }}
+        />
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 w-40 h-40 rounded-full opacity-10"
+          style={{ background: 'radial-gradient(circle, #007AFF 0%, transparent 70%)' }}
+        />
+
+        <div className="relative z-10 space-y-5">
+          {/* Eyebrow + title row */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="space-y-2">
+              {/* Eyebrow */}
+              <div className="flex items-center gap-2">
+                <div
+                  className="flex items-center justify-center w-8 h-8 rounded-xl"
+                  style={{ background: 'rgba(255,255,255,0.12)' }}
+                >
+                  <TrendingUp className="w-4 h-4 text-white" />
+                </div>
+                <span
+                  className="text-[11px] font-bold tracking-[0.12em] uppercase"
+                  style={{ color: 'rgba(255,255,255,0.6)' }}
+                >
+                  FMGE Score Predictor
+                </span>
+              </div>
+              {/* Bold title */}
+              <h1 className="text-[26px] sm:text-[32px] font-bold text-white leading-tight">
+                Your Predicted Score
               </h1>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-bold font-mono tracking-[0.14em] uppercase bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-cyan-500/10 border border-teal-200/80 text-teal-800 shadow-2xs shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                Probability Engine · AI Forecast
-              </span>
-            </div>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              AI-powered prediction based on your practice, performance, and revision activity. Focus smarter. Improve faster. Be exam-ready.
-            </p>
-          </div>
-        </div>
-
-        {/* Editorial Quote Card (matching Stage 4C reference) */}
-        <div className="bg-[#ECF7F5] border border-[#CBEBE5] rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 max-w-md shrink-0 self-stretch sm:self-start">
-          <div className="w-8 h-8 rounded-xl bg-[#D4F0EB] text-[#00685f] flex items-center justify-center shrink-0 font-serif text-xl font-bold leading-none select-none">
-            “
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs sm:text-sm text-slate-800 font-medium leading-snug">
-              “Plan with evidence. Prepare with purpose. Succeed with confidence.”
-            </p>
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#00685f] block">
-              — ONE SHOT FMGE
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Prediction Mode Tabs: Combined / Exam Focus / Personal Focus */}
-      <div className="flex flex-wrap items-center gap-2.5">
-        {[
-          {
-            id: 'combined' as PredictionMode,
-            label: 'Combined Prediction',
-            shortLabel: 'Combined',
-            icon: BarChart3,
-            accentColor: 'text-emerald-500',
-          },
-          {
-            id: 'exam' as PredictionMode,
-            label: 'Exam Focus',
-            shortLabel: 'Exam Focus',
-            icon: Target,
-            accentColor: 'text-rose-500',
-          },
-          {
-            id: 'personal' as PredictionMode,
-            label: 'Personal Focus',
-            shortLabel: 'Personal Focus',
-            icon: User,
-            accentColor: 'text-sky-500',
-          },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const active = mode === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setMode(tab.id)}
-              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
-                active
-                  ? 'bg-[#00685f] text-white shadow-xs'
-                  : 'bg-white border border-slate-200/90 text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              <Icon className={`w-4 h-4 ${active ? 'text-white' : tab.accentColor}`} />
-              <span className="hidden sm:inline">{tab.label}</span>
-              <span className="sm:hidden">{tab.shortLabel}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* 4. Top Dashboard Section: Predicted Score Hero & Score Breakdown (2 Columns) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (col-span-7): Predicted FMGE Score Hero */}
-        <div className="relative overflow-hidden lg:col-span-7 bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-emerald-200/80 shadow-[0_4px_24px_rgba(16,185,129,0.06)] flex flex-col justify-between space-y-6 before:absolute before:inset-0 before:bg-gradient-to-tr before:from-emerald-500/[0.04] before:via-white/0 before:to-teal-500/[0.04] before:pointer-events-none">
-          {/* Header */}
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-xs shadow-emerald-500/25">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900 font-['Outfit']">
-                Predicted FMGE Score
-              </h2>
-              <p className="text-xs text-slate-500">Live calibration against 300 marks baseline</p>
-            </div>
-          </div>
-
-          {/* Central Score Display: Circular Gauge + Status & Description */}
-          <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 py-2">
-            {/* Circular Score Gauge */}
-            <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 128 128">
-                {/* Background track */}
-                <circle
-                  cx="64"
-                  cy="64"
-                  r={gaugeRadius}
-                  fill="none"
-                  stroke="#F1F5F9"
-                  strokeWidth="10"
-                />
-                {/* Progress arc */}
-                <circle
-                  cx="64"
-                  cy="64"
-                  r={gaugeRadius}
-                  fill="none"
-                  stroke="#10b981"
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                  strokeDasharray={gaugeCircumference}
-                  strokeDashoffset={gaugeOffset}
-                  style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.22, 1, 0.36, 1)' }}
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-4xl font-extrabold font-mono text-slate-900 leading-none">
-                  {totalPredictedScore}
-                </span>
-                <span className="text-xs text-slate-400 font-mono mt-1">/ 300</span>
-              </div>
-            </div>
-
-            {/* Verdict & Supporting Text */}
-            <div className="space-y-2.5 text-center sm:text-left flex-1">
-              <div>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold border inline-flex items-center gap-1.5 ${scoreStatus.classes}`}>
-                  <StatusIcon className="w-3.5 h-3.5" />
-                  <span>{scoreStatus.label}</span>
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Based on your practice performance, subject mastery and revision activity.
+              <p className="text-[13px] leading-relaxed max-w-lg" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                AI-powered forecast based on your practice performance, subject mastery, and revision activity.
               </p>
             </div>
-          </div>
-
-          {/* Bottom Metrics Row (3 compact Apple Bento tiles: Confidence, Likely Range, vs. Last) */}
-          <div className="relative z-10 grid grid-cols-3 gap-2.5 sm:gap-4 pt-2 border-t border-slate-100">
-            {/* Confidence Level */}
-            <div className="bg-gradient-to-tr from-sky-500/[0.06] via-white to-indigo-500/[0.02] p-3 sm:p-3.5 rounded-2xl border border-sky-200/80 shadow-2xs flex flex-col justify-between">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 mb-1">
-                <div className="flex items-center justify-center h-6 w-6 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-2xs shrink-0">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                </div>
-                <span className="truncate font-bold">Confidence</span>
-              </div>
-              <div className="text-base sm:text-lg font-extrabold font-mono text-slate-900">
-                {confidenceLevel}%
-              </div>
-              <span className="text-[10px] text-slate-400 hidden sm:block">Model Precision</span>
-            </div>
-
-            {/* Likely Score Range */}
-            <div className="bg-gradient-to-tr from-purple-500/[0.06] via-white to-pink-500/[0.02] p-3 sm:p-3.5 rounded-2xl border border-purple-200/80 shadow-2xs flex flex-col justify-between">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 mb-1">
-                <div className="flex items-center justify-center h-6 w-6 rounded-lg bg-gradient-to-tr from-purple-500 to-pink-600 text-white shadow-2xs shrink-0">
-                  <BarChart2 className="w-3.5 h-3.5" />
-                </div>
-                <span className="truncate font-bold">Likely Range</span>
-              </div>
-              <div className="text-base sm:text-lg font-extrabold font-mono text-slate-900 whitespace-nowrap">
-                {scoreRangeLow} – {scoreRangeHigh}
-              </div>
-              <span className="text-[10px] text-slate-400 hidden sm:block">95% Interval</span>
-            </div>
-
-            {/* vs. Last Prediction */}
-            <div className="bg-gradient-to-tr from-emerald-500/[0.06] via-white to-teal-500/[0.02] p-3 sm:p-3.5 rounded-2xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 mb-1">
-                <div className="flex items-center justify-center h-6 w-6 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-2xs shrink-0">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                </div>
-                <span className="truncate font-bold">Delta</span>
-              </div>
-              <div className="text-base sm:text-lg font-extrabold font-mono text-emerald-700">
-                +{scoreDelta}
-              </div>
-              <span className="text-[10px] text-slate-400 hidden sm:block">vs. Baseline</span>
+            {/* Date badge */}
+            <div
+              className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-full shrink-0"
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
+            >
+              <Calendar className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.7)' }} />
+              <span className="text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.8)' }}>
+                {formattedToday}
+              </span>
             </div>
           </div>
 
-          {/* Footer Metadata */}
-          <div className="relative z-10 flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-slate-400" />
-              <span>Last updated: {formattedToday}</span>
+          {/* Mode tabs inside header */}
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: 'combined' as PredictionMode, label: 'Combined', icon: BarChart3 },
+              { id: 'exam' as PredictionMode, label: 'Exam Focus', icon: Target },
+              { id: 'personal' as PredictionMode, label: 'Personal Focus', icon: User },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const active = mode === tab.id;
+              return (
+                <motion.button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setMode(tab.id)}
+                  whileTap={{ scale: 0.96 }}
+                  className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold transition-all cursor-pointer"
+                  style={
+                    active
+                      ? { background: '#007AFF', color: '#fff', border: '1.5px solid #007AFF' }
+                      : {
+                          background: 'rgba(255,255,255,0.1)',
+                          color: 'rgba(255,255,255,0.75)',
+                          border: '1.5px solid rgba(255,255,255,0.18)',
+                        }
+                  }
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {tab.label}
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ── 3. Score Hero Card ── */}
+      <div
+        className="rounded-2xl bg-white border shadow-sm p-6 sm:p-8"
+        style={{ borderColor: 'rgba(60,60,67,0.1)' }}
+      >
+        <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+          {/* Circular SVG Gauge */}
+          <div className="relative w-40 h-40 shrink-0 flex items-center justify-center">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 128 128">
+              <circle cx="64" cy="64" r={gaugeRadius} fill="none" stroke="#F2F2F7" strokeWidth="10" />
+              <circle
+                cx="64"
+                cy="64"
+                r={gaugeRadius}
+                fill="none"
+                stroke={gaugeColor}
+                strokeWidth="10"
+                strokeLinecap="round"
+                strokeDasharray={gaugeCircumference}
+                strokeDashoffset={gaugeOffset}
+                style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.22,1,0.36,1), stroke 0.4s ease' }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span
+                className="text-[42px] font-bold leading-none font-['Plus_Jakarta_Sans']"
+                style={{ color: '#1D1D1F' }}
+              >
+                {totalPredictedScore}
+              </span>
+              <span className="text-[13px] font-semibold mt-0.5" style={{ color: '#8E8E93' }}>
+                / 300
+              </span>
             </div>
-            <span className="hidden sm:inline">Prediction updates automatically</span>
+          </div>
+
+          {/* Verdict + details */}
+          <div className="flex-1 space-y-4 text-center sm:text-left">
+            {/* Verdict badge */}
+            <div className="flex justify-center sm:justify-start">
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold border"
+                style={{ color: scoreStatus.color, background: scoreStatus.bg, borderColor: scoreStatus.border }}
+              >
+                <StatusIcon className="w-3.5 h-3.5" />
+                {scoreStatus.label}
+              </span>
+            </div>
+            <p className="text-[13px] leading-relaxed" style={{ color: '#8E8E93' }}>
+              Based on your practice performance, subject mastery, and revision activity.
+            </p>
+
+            {/* Metric tiles */}
+            <div className="grid grid-cols-3 gap-3">
+              {/* Confidence */}
+              <div
+                className="rounded-2xl p-3 flex flex-col gap-1 border"
+                style={{ background: 'rgba(0,122,255,0.06)', borderColor: 'rgba(0,122,255,0.15)' }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" style={{ color: '#007AFF' }} />
+                  <span className="text-[11px] font-bold" style={{ color: '#8E8E93' }}>Confidence</span>
+                </div>
+                <span className="text-[20px] font-bold leading-none" style={{ color: '#1D1D1F' }}>
+                  {confidenceLevel}%
+                </span>
+                <span className="text-[11px]" style={{ color: '#8E8E93' }}>Model precision</span>
+              </div>
+
+              {/* Likely Range */}
+              <div
+                className="rounded-2xl p-3 flex flex-col gap-1 border"
+                style={{ background: 'rgba(88,86,214,0.06)', borderColor: 'rgba(88,86,214,0.15)' }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <BarChart2 className="w-3.5 h-3.5 shrink-0" style={{ color: '#5856D6' }} />
+                  <span className="text-[11px] font-bold" style={{ color: '#8E8E93' }}>Likely Range</span>
+                </div>
+                <span className="text-[16px] font-bold leading-none whitespace-nowrap" style={{ color: '#1D1D1F' }}>
+                  {scoreRangeLow}–{scoreRangeHigh}
+                </span>
+                <span className="text-[11px]" style={{ color: '#8E8E93' }}>95% interval</span>
+              </div>
+
+              {/* Delta */}
+              <div
+                className="rounded-2xl p-3 flex flex-col gap-1 border"
+                style={{ background: 'rgba(48,209,88,0.06)', borderColor: 'rgba(48,209,88,0.2)' }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <TrendingUp className="w-3.5 h-3.5 shrink-0" style={{ color: '#30D158' }} />
+                  <span className="text-[11px] font-bold" style={{ color: '#8E8E93' }}>Delta</span>
+                </div>
+                <span className="text-[20px] font-bold leading-none" style={{ color: '#30D158' }}>
+                  +{scoreDelta}
+                </span>
+                <span className="text-[11px]" style={{ color: '#8E8E93' }}>vs baseline</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Right Column (col-span-5): Score Breakdown by Subject Group */}
-        <div className="relative overflow-hidden lg:col-span-5 bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-teal-200/80 shadow-[0_4px_24px_rgba(13,148,136,0.06)] flex flex-col justify-between space-y-4 before:absolute before:inset-0 before:bg-gradient-to-tr before:from-teal-500/[0.04] before:via-white/0 before:to-sky-500/[0.03] before:pointer-events-none">
-          {/* Header */}
-          <div className="relative z-10 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-600 text-white shadow-xs shadow-teal-500/25">
-                <PieChart className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-slate-900 font-['Outfit']">
-                  Score Breakdown
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Estimated contribution by subject group
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Group Progress Bars */}
-          <div className="space-y-3.5 py-1">
+        {/* Subject group breakdown bars */}
+        <div className="mt-6 pt-5" style={{ borderTop: '1px solid rgba(60,60,67,0.1)' }}>
+          <h3 className="text-[15px] font-bold mb-4" style={{ color: '#1D1D1F' }}>
+            Score Breakdown by Group
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {scoreGroups.map((grp) => (
               <div key={grp.id} className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-slate-700">{grp.name}</span>
-                  <span className="font-mono text-slate-900">{grp.percentage}%</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] font-semibold" style={{ color: '#1D1D1F' }}>
+                    {grp.name}
+                  </span>
+                  <span className="text-[12px] font-bold" style={{ color: '#8E8E93' }}>
+                    {grp.percentage}%
+                  </span>
                 </div>
-                <div className="h-2 w-full rounded-full bg-slate-200/70 overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.min(100, Math.max(3, grp.percentage))}%`,
-                      backgroundColor: grp.color,
-                    }}
+                <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: '#F2F2F7' }}>
+                  <motion.div
+                    className="h-full rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(100, Math.max(3, grp.percentage))}%` }}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ backgroundColor: grp.color }}
                   />
                 </div>
               </div>
             ))}
           </div>
-
-          {/* Info footnote */}
-          <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-100 flex items-center justify-between">
-            <span>High-weightage clinical subjects dominate pass margin.</span>
-          </div>
         </div>
       </div>
 
-      {/* 5. Middle Dashboard Section: Biggest Risks & Strategic Actions (2 Columns) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Card: Biggest Risks */}
-        <div className="relative overflow-hidden bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-rose-200/80 shadow-[0_4px_24px_rgba(244,63,94,0.06)] flex flex-col justify-between space-y-4 before:absolute before:inset-0 before:bg-gradient-to-tr before:from-rose-500/[0.04] before:via-white/0 before:to-pink-500/[0.03] before:pointer-events-none">
+      {/* ── 4. Two-Column Grid: Biggest Risks + Strategic Actions ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Biggest Risks */}
+        <div
+          className="rounded-2xl bg-white border shadow-sm p-5 flex flex-col gap-4"
+          style={{ borderColor: 'rgba(60,60,67,0.1)' }}
+        >
           {/* Header */}
-          <div className="relative z-10 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-600 text-white shadow-xs shadow-rose-500/25">
-                <AlertTriangle className="w-5 h-5" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div
+                className="flex items-center justify-center w-9 h-9 rounded-xl"
+                style={{ background: 'rgba(255,59,48,0.1)' }}
+              >
+                <AlertTriangle className="w-4.5 h-4.5" style={{ color: '#FF3B30' }} />
               </div>
               <div>
-                <h2 className="text-base font-bold text-slate-900 font-['Outfit']">
+                <h2 className="text-[15px] font-bold" style={{ color: '#1D1D1F' }}>
                   Biggest Risks
                 </h2>
-                <p className="text-xs text-slate-500">
-                  Focus on these areas to improve your score
+                <p className="text-[12px]" style={{ color: '#8E8E93' }}>
+                  Focus here to protect your passing margin
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setShowAllRisks(!showAllRisks)}
-              className="text-xs font-bold text-[#00685f] hover:text-teal-800 transition-colors cursor-pointer inline-flex items-center gap-1"
+              className="flex items-center gap-1 text-[12px] font-bold cursor-pointer transition-opacity hover:opacity-70"
+              style={{ color: '#007AFF' }}
             >
-              <span>{showAllRisks ? 'Show Less' : 'View All'}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              {showAllRisks ? 'Show Less' : 'View All'}
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Ranked Risks List */}
-          <div className="relative z-10 space-y-2.5 divide-y divide-slate-100">
-            {displayedRisks.map((item, idx) => (
+          {/* Risk rows */}
+          {displayedRisks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 gap-3">
               <div
-                key={item.topicId}
-                onClick={() => handleOpenModal(item)}
-                className="pt-2.5 first:pt-0 flex items-center justify-between gap-3 cursor-pointer group hover:bg-rose-50/40 p-2 rounded-xl transition-all"
+                className="w-14 h-14 rounded-full flex items-center justify-center"
+                style={{ background: '#F2F2F7' }}
               >
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  {/* Rank number badge */}
-                  <div className="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 font-mono text-xs font-bold flex items-center justify-center shrink-0 group-hover:bg-[#00685f] group-hover:text-white transition-colors">
-                    {idx + 1}
-                  </div>
-
-                  {/* Subject and Topic Description */}
-                  <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                    <span className="text-xs sm:text-sm font-bold text-slate-900 w-28 sm:w-32 shrink-0 truncate">
-                      {item.subjectName}
-                    </span>
-                    <span className="text-xs text-slate-600 truncate flex-1">
-                      {item.topicName}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Right Status Badge & Arrow */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-600 border border-rose-100">
-                    High Risk
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" />
-                </div>
+                <ShieldCheck className="w-7 h-7" style={{ color: '#30D158' }} />
               </div>
-            ))}
-          </div>
+              <p className="text-[13px] font-semibold text-center" style={{ color: '#8E8E93' }}>
+                No high-risk topics found.
+                <br />Great prep work!
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {displayedRisks.map((item, idx) => {
+                const isVeryHigh = item.level === 'VERY_HIGH';
+                return (
+                  <motion.div
+                    key={item.topicId}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleOpenModal(item)}
+                    className="relative flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all hover:bg-[#F2F2F7] group overflow-hidden"
+                  >
+                    {/* Left accent bar */}
+                    <div
+                      className="absolute left-0 top-2 bottom-2 w-1 rounded-full"
+                      style={{ background: isVeryHigh ? '#FF3B30' : '#FF9500' }}
+                    />
+                    {/* Rank */}
+                    <div
+                      className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0 ml-2"
+                      style={{ background: '#F2F2F7', color: '#8E8E93' }}
+                    >
+                      {idx + 1}
+                    </div>
+                    {/* Text */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-bold truncate" style={{ color: '#1D1D1F' }}>
+                        {item.topicName}
+                      </p>
+                      <p className="text-[12px]" style={{ color: '#8E8E93' }}>
+                        {item.subjectName}
+                      </p>
+                    </div>
+                    {/* Badge */}
+                    <span
+                      className="shrink-0 rounded-full px-3 py-1.5 text-[12px] font-bold"
+                      style={
+                        isVeryHigh
+                          ? { background: 'rgba(255,59,48,0.1)', color: '#FF3B30' }
+                          : { background: 'rgba(255,149,0,0.1)', color: '#FF9500' }
+                      }
+                    >
+                      {isVeryHigh ? 'Very High' : 'High'}
+                    </span>
+                    <ChevronRight className="w-4 h-4 shrink-0" style={{ color: '#8E8E93' }} />
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
 
-          {/* Bottom Footnote */}
-          <div className="relative z-10 text-[11px] text-slate-400 pt-2 border-t border-slate-100">
-            Click any risk topic to view full concept diagnosis & AI strategy.
-          </div>
+          <p className="text-[12px] pt-1" style={{ color: '#8E8E93', borderTop: '1px solid rgba(60,60,67,0.08)' }}>
+            Tap any topic to view AI analysis and study strategy.
+          </p>
         </div>
 
-        {/* Right Card: Strategic Actions */}
-        <div className="relative overflow-hidden bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-amber-200/80 shadow-[0_4px_24px_rgba(245,158,11,0.06)] flex flex-col justify-between space-y-4 before:absolute before:inset-0 before:bg-gradient-to-tr before:from-amber-500/[0.04] before:via-white/0 before:to-orange-500/[0.03] before:pointer-events-none">
+        {/* Strategic Actions */}
+        <div
+          className="rounded-2xl bg-white border shadow-sm p-5 flex flex-col gap-4"
+          style={{ borderColor: 'rgba(60,60,67,0.1)' }}
+        >
           {/* Header */}
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white shadow-xs shadow-amber-500/25">
-              <Activity className="w-5 h-5 animate-pulse" />
+          <div className="flex items-center gap-2.5">
+            <div
+              className="flex items-center justify-center w-9 h-9 rounded-xl"
+              style={{ background: 'rgba(255,149,0,0.1)' }}
+            >
+              <Activity className="w-4.5 h-4.5" style={{ color: '#FF9500' }} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900 font-['Outfit']">
+              <h2 className="text-[15px] font-bold" style={{ color: '#1D1D1F' }}>
                 Strategic Actions
               </h2>
-              <p className="text-xs text-slate-500">
-                Personalised recommendations to boost your score
+              <p className="text-[12px]" style={{ color: '#8E8E93' }}>
+                Personalised steps to boost your score
               </p>
             </div>
           </div>
 
-          {/* 3 Strategic Action Cards */}
-          <div className="relative z-10 space-y-3">
+          {/* Action cards */}
+          <div className="space-y-3 flex-1">
             {/* Action 1: Revise High-Risk Topics */}
-            <div
+            <motion.div
+              whileTap={{ scale: 0.98 }}
               onClick={handleAddAllTodaysToPlanner}
-              className="p-4 rounded-2xl bg-gradient-to-tr from-emerald-500/[0.04] via-white to-teal-500/[0.02] hover:bg-white border border-emerald-200/70 hover:border-emerald-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
+              className="flex items-center gap-3 p-4 rounded-2xl cursor-pointer border transition-all group"
+              style={{ background: 'rgba(48,209,88,0.05)', borderColor: 'rgba(48,209,88,0.2)' }}
             >
-              <div className="flex items-center gap-3.5">
-                <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-2xs group-hover:scale-105 transition-transform">
-                  <BookOpen className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#00685f] transition-colors">
-                    Revise High-Risk Topics
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Focus on {highRiskTopics.length} priority high-yield topics
-                  </p>
-                </div>
+              <div
+                className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0"
+                style={{ background: '#30D158' }}
+              >
+                <BookOpen className="w-5 h-5 text-white" />
               </div>
-              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-[#00685f] group-hover:border-[#00685f] transition-colors shrink-0 shadow-2xs">
-                <ArrowRight className="w-4 h-4" />
+              <div className="flex-1 min-w-0">
+                <h3 className="text-[14px] font-bold" style={{ color: '#1D1D1F' }}>
+                  Revise High-Risk Topics
+                </h3>
+                <p className="text-[12px]" style={{ color: '#8E8E93' }}>
+                  Focus on {highRiskTopics.length} priority high-yield topics
+                </p>
               </div>
-            </div>
+              <ArrowRight className="w-4 h-4 shrink-0" style={{ color: '#8E8E93' }} />
+            </motion.div>
 
             {/* Action 2: Take a Grand Test */}
-            <div
+            <motion.div
+              whileTap={{ scale: 0.98 }}
               onClick={() => {
                 if (onLaunchPracticeSession) {
                   onLaunchPracticeSession('all', undefined, 'FMGE Full Grand Test Mock', undefined, 'predictor_grand_test');
                 }
               }}
-              className="p-4 rounded-2xl bg-gradient-to-tr from-teal-500/[0.04] via-white to-sky-500/[0.02] hover:bg-white border border-teal-200/70 hover:border-teal-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
+              className="flex items-center gap-3 p-4 rounded-2xl cursor-pointer border transition-all group"
+              style={{ background: 'rgba(0,122,255,0.05)', borderColor: 'rgba(0,122,255,0.2)' }}
             >
-              <div className="flex items-center gap-3.5">
-                <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-600 text-white shadow-2xs group-hover:scale-105 transition-transform">
-                  <CheckCircle2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#00685f] transition-colors">
-                    Take a Grand Test
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Benchmark full 300 marks under exam conditions
-                  </p>
-                </div>
+              <div
+                className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0"
+                style={{ background: '#007AFF' }}
+              >
+                <CheckCircle2 className="w-5 h-5 text-white" />
               </div>
-              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-[#00685f] group-hover:border-[#00685f] transition-colors shrink-0 shadow-2xs">
-                <ArrowRight className="w-4 h-4" />
+              <div className="flex-1 min-w-0">
+                <h3 className="text-[14px] font-bold" style={{ color: '#1D1D1F' }}>
+                  Take a Grand Test
+                </h3>
+                <p className="text-[12px]" style={{ color: '#8E8E93' }}>
+                  Benchmark full 300 marks under exam conditions
+                </p>
               </div>
-            </div>
+              <ArrowRight className="w-4 h-4 shrink-0" style={{ color: '#8E8E93' }} />
+            </motion.div>
 
             {/* Action 3: Review Error Vault */}
-            <div
+            <motion.div
+              whileTap={{ scale: 0.98 }}
               onClick={() => {
-                // Typically navigation to errors view
                 const errTab = document.querySelector('[data-tab="errors"]') as HTMLElement;
                 if (errTab) errTab.click();
               }}
-              className="p-4 rounded-2xl bg-gradient-to-tr from-purple-500/[0.04] via-white to-pink-500/[0.02] hover:bg-white border border-purple-200/70 hover:border-purple-300 transition-all cursor-pointer flex items-center justify-between gap-4 group shadow-2xs"
+              className="flex items-center gap-3 p-4 rounded-2xl cursor-pointer border transition-all group"
+              style={{ background: 'rgba(88,86,214,0.05)', borderColor: 'rgba(88,86,214,0.2)' }}
             >
-              <div className="flex items-center gap-3.5">
-                <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-600 text-white shadow-2xs group-hover:scale-105 transition-transform">
-                  <RotateCcw className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-purple-600 transition-colors">
-                    Review Error Vault
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Clear active mistakes to safeguard marks
-                  </p>
-                </div>
+              <div
+                className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0"
+                style={{ background: '#5856D6' }}
+              >
+                <RotateCcw className="w-5 h-5 text-white" />
               </div>
-              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-purple-600 group-hover:border-purple-600 transition-colors shrink-0 shadow-2xs">
-                <ArrowRight className="w-4 h-4" />
+              <div className="flex-1 min-w-0">
+                <h3 className="text-[14px] font-bold" style={{ color: '#1D1D1F' }}>
+                  Review Error Vault
+                </h3>
+                <p className="text-[12px]" style={{ color: '#8E8E93' }}>
+                  Clear active mistakes to safeguard marks
+                </p>
               </div>
-            </div>
+              <ArrowRight className="w-4 h-4 shrink-0" style={{ color: '#8E8E93' }} />
+            </motion.div>
           </div>
 
-          {/* Bottom Footnote */}
-          <div className="relative z-10 text-[11px] text-slate-400 pt-2 border-t border-slate-100">
-            Recommended actions adapt automatically to your latest activity.
-          </div>
+          <p className="text-[12px] pt-1" style={{ color: '#8E8E93', borderTop: '1px solid rgba(60,60,67,0.08)' }}>
+            Recommendations adapt automatically to your latest activity.
+          </p>
         </div>
       </div>
 
-      {/* 6. Bottom Section: Subject-wise Prediction */}
-      <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-[0_4px_24px_rgba(0,107,99,0.04)] space-y-6">
-        {/* Header & Sort Dropdown */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-teal-50 text-[#00685f] shadow-2xs">
-              <BarChart3 className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900">
-                Subject-wise Prediction
-              </h2>
-              <p className="text-xs text-slate-500">
-                Your estimated score by subject (out of respective FMGE weightages)
-              </p>
-            </div>
+      {/* ── 5. Subject Prediction Chart ── */}
+      <div
+        className="rounded-2xl bg-white border shadow-sm p-5 sm:p-6"
+        style={{ borderColor: 'rgba(60,60,67,0.1)' }}
+      >
+        {/* Header + sort */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div>
+            <h2 className="text-[15px] font-bold" style={{ color: '#1D1D1F' }}>
+              Subject-wise Prediction
+            </h2>
+            <p className="text-[12px]" style={{ color: '#8E8E93' }}>
+              Estimated score out of each subject's FMGE weightage
+            </p>
           </div>
-
-          {/* Sort Dropdown */}
-          <div className="flex items-center gap-2 self-start sm:self-auto">
-            <span className="text-xs text-slate-500 font-medium hidden md:inline">Sort by:</span>
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="w-4 h-4 shrink-0" style={{ color: '#8E8E93' }} />
             <select
               value={subjectSortBy}
               onChange={(e) => setSubjectSortBy(e.target.value as any)}
-              className="h-9 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+              className="h-9 px-3 rounded-xl text-[12px] font-bold focus:outline-none cursor-pointer border"
+              style={{
+                background: '#F2F2F7',
+                borderColor: 'rgba(60,60,67,0.12)',
+                color: '#1D1D1F',
+              }}
             >
-              <option value="score">Predicted Score</option>
-              <option value="weightage">Weightage</option>
-              <option value="name">Subject Name</option>
-              <option value="risk">Risk Level</option>
+              <option value="score">By Score</option>
+              <option value="weightage">By Weightage</option>
+              <option value="name">By Name</option>
+              <option value="risk">By Risk</option>
             </select>
           </div>
         </div>
 
-        {/* Visual Columns of Subject Scores (matching reference) */}
-        <div className="overflow-x-auto pb-2 scrollbar-thin">
-          <div className="flex items-end gap-3 sm:gap-4 min-w-[720px] pt-4">
-            {sortedSubjectScores.map((sub) => {
-              const heightPct = Math.max(15, Math.round((sub.predictedScore / sub.weightage) * 100));
-              return (
-                <div
-                  key={sub.id}
-                  onClick={() => {
-                    setSelectedSubjectId(sub.id);
-                    // scroll into view or filter topics
-                  }}
-                  className="flex-1 flex flex-col items-center gap-2 cursor-pointer group"
-                  title={`${sub.name}: ${sub.predictedScore}/${sub.weightage} marks (${sub.riskLevel} risk)`}
+        {/* Horizontal bars */}
+        <div className="space-y-2.5">
+          {sortedSubjectScores.map((sub) => {
+            const pct = Math.max(6, Math.round((sub.predictedScore / sub.weightage) * 100));
+            const barColor =
+              sub.riskLevel === 'LOW' ? '#30D158' : sub.riskLevel === 'MODERATE' ? '#FF9500' : '#FF3B30';
+            return (
+              <motion.div
+                key={sub.id}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => setSelectedSubjectId(sub.id === selectedSubjectId ? 'all' : sub.id)}
+                className="flex items-center gap-3 group cursor-pointer rounded-xl px-2 py-1.5 transition-all hover:bg-[#F2F2F7]"
+              >
+                {/* Name */}
+                <span
+                  className="text-[12px] font-bold w-24 shrink-0 truncate"
+                  style={{ color: '#1D1D1F' }}
                 >
-                  {/* Score on Top */}
-                  <span className="text-xs sm:text-sm font-bold font-mono text-slate-900 group-hover:text-[#00685f] transition-colors">
-                    {sub.predictedScore}
-                  </span>
-
-                  {/* Vertical bar / pill */}
-                  <div className="w-full max-w-[54px] h-20 sm:h-24 bg-slate-100 rounded-2xl flex flex-col justify-end p-1 overflow-hidden">
-                    <div
-                      className="w-full rounded-xl transition-all duration-500 group-hover:opacity-90"
-                      style={{
-                        height: `${heightPct}%`,
-                        backgroundColor: sub.color || '#00685f',
-                      }}
-                    />
-                  </div>
-
-                  {/* Label underneath */}
-                  <span className="text-[11px] font-semibold text-slate-600 group-hover:text-slate-900 transition-colors text-center truncate max-w-[64px]">
-                    {sub.shortName}
-                  </span>
+                  {sub.shortName}
+                </span>
+                {/* Bar */}
+                <div
+                  className="flex-1 h-6 rounded-full overflow-hidden"
+                  style={{ background: '#F2F2F7' }}
+                >
+                  <motion.div
+                    className="h-full rounded-full flex items-center justify-end pr-2"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${pct}%` }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ backgroundColor: barColor }}
+                  >
+                    <span className="text-[10px] font-bold text-white leading-none">
+                      {pct > 20 ? `${sub.predictedScore}` : ''}
+                    </span>
+                  </motion.div>
                 </div>
-              );
-            })}
-          </div>
+                {/* Score */}
+                <span
+                  className="text-[12px] font-bold w-12 text-right shrink-0"
+                  style={{ color: '#1D1D1F' }}
+                >
+                  {sub.predictedScore}
+                  <span className="font-normal" style={{ color: '#8E8E93' }}>
+                    /{sub.weightage}
+                  </span>
+                </span>
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* Active Subject Filter Badge */}
+        {/* Active filter badge */}
         {selectedSubjectId !== 'all' && (
-          <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
-            <span className="text-xs text-slate-500">Filtered to:</span>
-            <span className="px-2.5 py-1 rounded-lg bg-[#00685f] text-white text-xs font-bold flex items-center gap-1.5">
-              <span>{FMGE_SUBJECTS.find((s) => s.id === selectedSubjectId)?.name}</span>
+          <div className="flex items-center gap-2 mt-4 pt-3" style={{ borderTop: '1px solid rgba(60,60,67,0.08)' }}>
+            <span className="text-[12px]" style={{ color: '#8E8E93' }}>Filtered:</span>
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold"
+              style={{ background: '#007AFF', color: '#fff' }}
+            >
+              {FMGE_SUBJECTS.find((s) => s.id === selectedSubjectId)?.name}
               <button
                 type="button"
                 onClick={() => setSelectedSubjectId('all')}
-                className="hover:text-emerald-200 cursor-pointer text-sm leading-none ml-1"
+                className="leading-none hover:opacity-70 cursor-pointer"
               >
                 ×
               </button>
@@ -928,96 +970,161 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
         )}
       </div>
 
-      {/* 7. Detailed High-Yield Topics Ledger & Filters */}
-      <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,107,99,0.04)] p-5 sm:p-7 space-y-4">
-        {/* Search & Filter Controls */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-          {/* Search Bar */}
-          <div className="relative w-full md:w-80">
+      {/* ── 6. Topic Ledger ── */}
+      <div
+        className="rounded-2xl bg-white border shadow-sm p-5 sm:p-6 space-y-4"
+        style={{ borderColor: 'rgba(60,60,67,0.1)' }}
+      >
+        {/* Section header */}
+        <div>
+          <h2 className="text-[15px] font-bold" style={{ color: '#1D1D1F' }}>
+            High-Yield Topic Ledger
+          </h2>
+          <p className="text-[12px]" style={{ color: '#8E8E93' }}>
+            Search, filter and explore all predicted exam topics
+          </p>
+        </div>
+
+        {/* Search + filters */}
+        <div className="flex flex-col gap-3">
+          {/* Search bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#8E8E93' }} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search high-yield topics or keywords..."
-              className="w-full h-10 pl-9 pr-3 rounded-xl bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 transition-all shadow-xs"
+              placeholder="Search topics, subjects or keywords…"
+              className="w-full h-10 pl-9 pr-3 rounded-xl text-[13px] font-semibold focus:outline-none border transition-all"
+              style={{
+                background: '#F2F2F7',
+                borderColor: 'transparent',
+                color: '#1D1D1F',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.background = '#fff';
+                e.currentTarget.style.borderColor = '#007AFF';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.background = '#F2F2F7';
+                e.currentTarget.style.borderColor = 'transparent';
+              }}
             />
-            <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
           </div>
 
-          {/* Filters: Subject & Tier */}
-          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-            {/* Subject Dropdown */}
+          {/* Filter pills row */}
+          <div className="flex flex-wrap gap-2">
+            {/* Subject */}
             <select
               value={selectedSubjectId}
               onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 text-xs font-semibold text-slate-700 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none cursor-pointer transition-all shadow-xs"
+              className="h-9 px-3 rounded-full text-[12px] font-bold focus:outline-none cursor-pointer border"
+              style={{
+                background: selectedSubjectId !== 'all' ? '#007AFF' : '#F2F2F7',
+                color: selectedSubjectId !== 'all' ? '#fff' : '#1D1D1F',
+                borderColor: 'transparent',
+              }}
             >
-              <option value="all">All 19 Subjects</option>
+              <option value="all">All Subjects</option>
               {FMGE_SUBJECTS.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name} ({s.weightage} marks)
+                  {s.name}
                 </option>
               ))}
             </select>
 
-            {/* Tier Filters */}
+            {/* Tier pills */}
             {[
               { id: 'all', label: 'All Ranked' },
               { id: 'top', label: 'Top Tier 90+' },
               { id: 'high', label: 'High Yield 80–89' },
-              { id: 'risk', label: 'High Risk <70' },
-            ].map((tier) => (
-              <button
-                key={tier.id}
-                type="button"
-                onClick={() => setSelectedTier(tier.id as any)}
-                className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  selectedTier === tier.id
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {tier.label}
-              </button>
-            ))}
+              { id: 'risk', label: 'High Risk' },
+            ].map((tier) => {
+              const active = selectedTier === tier.id;
+              return (
+                <button
+                  key={tier.id}
+                  type="button"
+                  onClick={() => setSelectedTier(tier.id as any)}
+                  className="rounded-full px-3 py-1.5 text-[12px] font-bold cursor-pointer transition-all border"
+                  style={
+                    active
+                      ? { background: '#1D1D1F', color: '#fff', borderColor: '#1D1D1F' }
+                      : { background: '#F2F2F7', color: '#1D1D1F', borderColor: 'transparent' }
+                  }
+                >
+                  {tier.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Topics List */}
-        <div className="space-y-2.5 pt-2">
+        {/* Topic rows */}
+        <div className="space-y-2">
           {filteredPredictions.length === 0 ? (
-            <div className="text-center py-12 text-slate-400 text-xs font-medium">
-              No predicted topics match your search criteria.
+            <div className="flex flex-col items-center justify-center py-14 gap-3">
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center"
+                style={{ background: '#F2F2F7' }}
+              >
+                <FileText className="w-8 h-8" style={{ color: '#8E8E93' }} />
+              </div>
+              <p className="text-[14px] font-semibold text-center" style={{ color: '#8E8E93' }}>
+                No topics match your search.
+                <br />
+                <span className="text-[12px] font-normal">Try adjusting your filters.</span>
+              </p>
             </div>
           ) : (
             filteredPredictions.slice(0, 30).map((topic) => (
-              <div
+              <motion.div
                 key={topic.topicId}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => handleOpenModal(topic)}
-                className="p-4 rounded-2xl bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 hover:border-slate-300 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl cursor-pointer border transition-all group"
+                style={{ background: '#F2F2F7', borderColor: 'transparent' }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = '#fff';
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(60,60,67,0.12)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = '#F2F2F7';
+                  (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
+                }}
               >
-                {/* Left: Rank, Title, Subject & Rationale */}
-                <div className="flex items-start sm:items-center gap-3 min-w-0">
-                  <div className="h-8 w-8 rounded-xl bg-slate-200/80 text-slate-700 font-bold font-mono text-xs flex items-center justify-center shrink-0 group-hover:bg-[#00685f] group-hover:text-white transition-colors">
+                {/* Left */}
+                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                  {/* Rank badge */}
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center text-[11px] font-bold shrink-0"
+                    style={{ background: 'rgba(0,122,255,0.1)', color: '#007AFF' }}
+                  >
                     #{topic.rank}
                   </div>
-
                   <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h4 className="text-sm font-bold text-slate-900 truncate group-hover:text-[#00685f] transition-colors">
+                      <h4 className="text-[14px] font-bold truncate" style={{ color: '#1D1D1F' }}>
                         {topic.topicName}
                       </h4>
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono uppercase bg-slate-200/70 text-slate-700 shrink-0">
-                        {topic.subjectName} ({topic.subjectWeightage}m)
+                      <span
+                        className="text-[11px] font-bold rounded-full px-2 py-0.5 shrink-0"
+                        style={{ background: 'rgba(60,60,67,0.08)', color: '#8E8E93' }}
+                      >
+                        {topic.subjectName}
                       </span>
                     </div>
-
-                    {/* Quick Rationale Chips */}
-                    <div className="flex flex-wrap items-center gap-1.5">
+                    {/* Why reasons */}
+                    <div className="flex flex-wrap gap-1.5">
                       {topic.whyReasons.slice(0, 2).map((reason, i) => (
                         <span
                           key={i}
-                          className="text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200/60"
+                          className="text-[11px] rounded-md px-2 py-0.5 border"
+                          style={{
+                            background: '#fff',
+                            color: '#8E8E93',
+                            borderColor: 'rgba(60,60,67,0.1)',
+                          }}
                         >
                           {reason}
                         </span>
@@ -1026,49 +1133,56 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                   </div>
                 </div>
 
-                {/* Right: Score Progress Bar & Action Buttons */}
-                <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
-                  {/* Score */}
-                  <div className="text-right hidden md:block">
-                    <div className="text-xs font-bold font-mono text-slate-900">
-                      {topic.score}<span className="text-slate-400 text-[10px]">/100</span>
-                    </div>
-                    <span className="text-[10px] text-slate-400 uppercase font-mono">
-                      {topic.level === 'VERY_HIGH' ? 'Tier 1' : 'Tier 2'}
+                {/* Right */}
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                  {/* Score chip */}
+                  <div className="text-right hidden sm:block">
+                    <span className="text-[13px] font-bold" style={{ color: '#1D1D1F' }}>
+                      {topic.score}
+                      <span style={{ color: '#8E8E93' }}>/100</span>
                     </span>
+                    <p className="text-[11px]" style={{ color: '#8E8E93' }}>
+                      {topic.level === 'VERY_HIGH' ? 'Tier 1' : 'Tier 2'}
+                    </p>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={(e) => handleAddSingleToPlanner(topic, e)}
-                      className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-white border border-slate-200/60 transition-all cursor-pointer"
-                      title="Add to Daily Planner"
-                    >
-                      <CalendarPlus className="w-4 h-4" />
-                    </button>
+                  {/* Action buttons */}
+                  <button
+                    type="button"
+                    onClick={(e) => handleAddSingleToPlanner(topic, e)}
+                    className="w-8 h-8 rounded-xl flex items-center justify-center border transition-all cursor-pointer"
+                    style={{ background: '#F2F2F7', borderColor: 'rgba(60,60,67,0.1)', color: '#8E8E93' }}
+                    title="Add to Daily Planner"
+                  >
+                    <CalendarPlus className="w-4 h-4" />
+                  </button>
 
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenAiCoach('concept', topic.subjectId, topic.topicName);
-                      }}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#00685f] hover:bg-teal-800 text-white transition-all cursor-pointer shadow-xs"
-                    >
-                      <Stethoscope className="w-3.5 h-3.5 text-emerald-300" />
-                      <span>Mentor</span>
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenAiCoach('concept', topic.subjectId, topic.topicName);
+                    }}
+                    className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold cursor-pointer transition-all"
+                    style={{ background: '#007AFF', color: '#fff' }}
+                  >
+                    <Stethoscope className="w-3.5 h-3.5" />
+                    Mentor
+                  </button>
                 </div>
-              </div>
+              </motion.div>
             ))
           )}
         </div>
+
+        {filteredPredictions.length > 30 && (
+          <p className="text-[12px] text-center pt-2" style={{ color: '#8E8E93' }}>
+            Showing 30 of {filteredPredictions.length} topics. Use filters to narrow down.
+          </p>
+        )}
       </div>
 
-      {/* Deep Dive Explanation Modal */}
+      {/* ── Deep Dive Explanation Modal ── */}
       <PredictionExplanationModal
         topic={selectedTopicForModal}
         isOpen={isModalOpen}

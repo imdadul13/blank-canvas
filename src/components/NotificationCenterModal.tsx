@@ -245,7 +245,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               <span className="text-[9.5px] uppercase font-semibold text-slate-400 tracking-wider block">
                 Daily Goal
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#006B63] font-display">
+              <span className="text-xs sm:text-sm font-bold text-[#007AFF] font-display">
                 {state.settings?.dailyStudyHourGoal || 6}h/d
               </span>
             </div>
@@ -305,7 +305,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
             /* Proactive System Intelligence Briefing (When all caught up) */
             <div className="space-y-4 animate-in fade-in duration-150">
               <div className="p-4 sm:p-5 rounded-3xl bg-teal-50/70 border border-teal-200/80 flex items-start gap-3.5 shadow-2xs">
-                <div className="h-10 w-10 rounded-2xl bg-[#006B63] text-white flex items-center justify-center shrink-0 shadow-xs shadow-teal-900/20">
+                <div className="h-10 w-10 rounded-2xl bg-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-xs shadow-teal-900/20">
                   <CheckCircle2 className="h-5 w-5" />
                 </div>
                 <div className="space-y-0.5">
@@ -327,12 +327,12 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                 {/* Card 1: Today's High-Yield Vignettes */}
                 <div className="p-4 rounded-3xl bg-white hover:bg-slate-50/80 border border-slate-200/80 shadow-2xs hover:border-teal-300 transition-all flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-10 w-10 rounded-2xl bg-teal-50 text-[#006B63] border border-teal-200/70 flex items-center justify-center shrink-0">
+                    <div className="h-10 w-10 rounded-2xl bg-teal-50 text-[#007AFF] border border-teal-200/70 flex items-center justify-center shrink-0">
                       <BookOpen className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#006B63]">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#007AFF]">
                           {recommendedFocus.subjectName} (~{recommendedFocus.weightage}M)
                         </span>
                       </div>
@@ -352,7 +352,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                         recommendedFocus.topicName
                       );
                     }}
-                    className="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold bg-[#00685F] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs shrink-0 active:scale-[0.98]"
+                    className="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold bg-[#0071E3] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs shrink-0 active:scale-[0.98]"
                   >
                     <span>Solve 10 MCQs</span>
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -477,7 +477,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
                       <button
                         type="button"
                         onClick={n.onAction}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#00685F] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#0071E3] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs active:scale-[0.98]"
                       >
                         <span>{n.actionLabel}</span>
                         <ArrowRight className="h-3.5 w-3.5" />

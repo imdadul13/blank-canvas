@@ -93,7 +93,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         title: 'Ask Faculty Mentor',
         subtitle: 'Consult senior faculty AI for clinical case dilemmas, ECGs, and DOCs',
         badge: 'AI Coach',
-        badgeColor: '#00685F',
+        badgeColor: '#0071E3',
         icon: GraduationCap,
         onSelect: () => {
           onNavigateTab('aicoach');
@@ -106,7 +106,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         title: 'Start Practice QBank Session',
         subtitle: 'Solve exam-pattern MCQs with active distractor analysis',
         badge: 'QBank',
-        badgeColor: '#0284C7',
+        badgeColor: '#007AFF',
         icon: Award,
         onSelect: () => {
           if (onLaunchPractice) {
@@ -123,7 +123,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         title: 'Start 60s IBQ Rapid Recall Drill',
         subtitle: 'Timed image spotters, histopath, ECGs, and pathognomonic findings',
         badge: '40-50 Marks',
-        badgeColor: '#006B63',
+        badgeColor: '#007AFF',
         icon: Eye,
         onSelect: () => {
           if (onOpenIbqDrill) {
@@ -157,7 +157,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         title: 'Toggle Desktop Sidebar (⌘B)',
         subtitle: 'Collapse or expand navigation sidebar with hover-to-peek',
         badge: '⌘B',
-        badgeColor: '#006B63',
+        badgeColor: '#007AFF',
         icon: PanelLeft,
         onSelect: () => {
           onToggleSidebar?.();
@@ -196,7 +196,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         title: 'Toggle Ambient Focus Sound',
         subtitle: 'Brown noise, gentle rain, and 40Hz binaural beats for concentration',
         badge: 'Audio',
-        badgeColor: '#0D9488',
+        badgeColor: '#60B3FF',
         icon: Zap,
         onSelect: () => {
           ambientAudioEngine.toggle();
@@ -471,7 +471,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
             {filteredCommands.length === 0 ? (
               <div className="py-12 text-center space-y-2">
                 <Search className="w-8 h-8 text-slate-300 mx-auto" />
-                <p className="text-sm font-bold text-slate-700 font-['Outfit']">No results found</p>
+                <p className="text-sm font-bold text-slate-700">No results found</p>
                 <p className="text-xs text-slate-400 font-sans">
                   Try searching for a subject like "Pharma", "OBG", or "Anatomy"
                 </p>
@@ -487,30 +487,30 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                     onMouseEnter={() => setSelectedIndex(idx)}
                     className={`flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-2xl cursor-pointer transition-all ${
                       isSelected
-                        ? 'bg-teal-50/90 text-teal-950 ring-1 ring-[#00685F]/20'
+                        ? 'bg-blue-50/90 text-blue-950 ring-1 ring-[#007AFF]/25'
                         : 'hover:bg-slate-50 text-slate-800'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div
                         className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                          isSelected ? 'bg-[#00685F] text-white' : 'bg-slate-100 text-slate-600'
+                          isSelected ? 'bg-[#007AFF] text-white' : 'bg-slate-100 text-slate-600'
                         }`}
                       >
                         <Icon className="w-4 h-4" />
                       </div>
                       <div className="min-w-0 space-y-0.5">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs sm:text-sm font-bold font-['Outfit'] truncate">
+                          <span className="text-xs sm:text-sm font-bold truncate">
                             {cmd.title}
                           </span>
                           {cmd.badge && (
                             <span
                               className="text-[9.5px] font-bold font-mono px-2 py-0.5 rounded-full uppercase border shrink-0"
                               style={{
-                                color: cmd.badgeColor || '#00685F',
-                                backgroundColor: `${cmd.badgeColor || '#00685F'}15`,
-                                borderColor: `${cmd.badgeColor || '#00685F'}35`,
+                                color: cmd.badgeColor || '#0071E3',
+                                backgroundColor: `${cmd.badgeColor || '#0071E3'}15`,
+                                borderColor: `${cmd.badgeColor || '#0071E3'}35`,
                               }}
                             >
                               {cmd.badge}
@@ -525,7 +525,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
 
                     <div className="flex items-center gap-1 shrink-0 text-slate-400">
                       {isSelected && (
-                        <div className="flex items-center gap-1 text-[10px] font-mono text-[#00685F] font-bold">
+                        <div className="flex items-center gap-1 text-[10px] font-mono text-[#0071E3] font-bold">
                           <span>Select</span>
                           <ChevronRight className="w-3.5 h-3.5" />
                         </div>

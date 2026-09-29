@@ -12,6 +12,7 @@ import {
   MessageCircle,
   Send,
   Award,
+  Stethoscope,
 } from 'lucide-react';
 import { AppState } from '../types';
 import { AppStats } from '../utils/storage';
@@ -105,7 +106,7 @@ ${appUrl}`;
           className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-teal-100 overflow-hidden"
         >
           {/* Top Decorative Header */}
-          <div className="bg-gradient-to-br from-[#006B63] to-[#0D3833] text-white p-6 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-[#007AFF] to-[#0D3833] text-white p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4">
               <button
                 type="button"
@@ -124,7 +125,7 @@ ${appUrl}`;
               </span>
             </div>
 
-            <h2 className="text-xl font-bold font-['Plus_Jakarta_Sans']">
+            <h2 className="text-xl font-bold tracking-tight">
               Share Your Progress
             </h2>
             <p className="text-xs text-teal-100/80 mt-1">
@@ -137,7 +138,8 @@ ${appUrl}`;
             <div className="rounded-2xl bg-[#F0FAF7] border border-[#CDEAE3] p-4.5 space-y-3 font-mono text-xs text-slate-800 relative">
               <div className="flex items-center justify-between pb-2 border-b border-[#CDEAE3]/70 font-sans">
                 <span className="font-bold text-slate-900 flex items-center gap-1.5 text-sm">
-                  🩺 {userName}
+                  <Stethoscope className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{userName}</span>
                 </span>
                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
                   ONE SHOT FMGE
@@ -154,7 +156,7 @@ ${appUrl}`;
                 </div>
 
                 <div className="flex items-center gap-2 p-2 rounded-xl bg-white/80 border border-[#DCEEE9]">
-                  <Calendar className="w-4 h-4 text-[#006B63] shrink-0" />
+                  <Calendar className="w-4 h-4 text-[#007AFF] shrink-0" />
                   <div>
                     <span className="block text-[10px] text-slate-500 uppercase font-semibold">Countdown</span>
                     <span className="text-xs font-bold text-slate-900">{daysRemaining} Days Left</span>
@@ -178,7 +180,7 @@ ${appUrl}`;
                 </div>
               </div>
 
-              <p className="text-[11px] text-[#006B63] font-sans font-medium text-center pt-1">
+              <p className="text-[11px] text-[#007AFF] font-sans font-medium text-center pt-1">
                 &ldquo;Consistent study today builds the doctor you&apos;ll be tomorrow.&rdquo;
               </p>
             </div>

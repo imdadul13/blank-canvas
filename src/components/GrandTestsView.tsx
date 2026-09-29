@@ -25,18 +25,15 @@ import {
   HelpCircle,
   X,
   Target,
+  ChevronDown,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { GrandTest, AppState } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { getLocalDateKey } from '../utils/date';
-import { useCircadianTheme } from '../hooks/useCircadianTheme';
-import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
-import { HeaderTabInsignia } from './HeaderTabInsignia';
-import { CircadianFocusDropdown } from './CircadianFocusDropdown';
-import { HeaderGlassIcon } from './HeaderGlassIcon';
 import { NbeMockExamModal } from './NbeMockExamModal';
+import { GrandTestDiagnosticModal } from './GrandTestDiagnosticModal';
 import { ErrorNotebookItem } from '../types';
 
 interface GrandTestsViewProps {
@@ -56,8 +53,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 }) => {
   const [showAddGTModal, setShowAddGTModal] = useState(false);
   const [showMockModal, setShowMockModal] = useState(false);
+  const [showDiagnosticModal, setShowDiagnosticModal] = useState(false);
+  const [selectedTestForDiagnostic, setSelectedTestForDiagnostic] = useState<GrandTest | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const circadian = useCircadianTheme(state.settings?.bgTheme);
+  const [expandedGTId, setExpandedGTId] = useState<string | null>(null);
 
   // Filters & Search
   const [platformFilter, setPlatformFilter] = useState<string>('all');
@@ -289,1054 +288,1033 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         </div>
       )}
 
-      {/* 1. Top Breadcrumb & Navigation */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider font-mono">
-          {onNavigateTab ? (
-            <button
-              type="button"
-              onClick={() => onNavigateTab('progress')}
-              className="text-stone-500 hover:text-stone-900 transition-colors cursor-pointer flex items-center gap-1.5"
-            >
-              <span>PERFORMANCE</span>
-            </button>
-          ) : (
-            <span className="text-stone-500">PERFORMANCE</span>
-          )}
-          <span className="text-stone-400">•</span>
-          <span className="text-[#006B63] font-bold">GRAND TESTS &amp; MOCK EXAMS</span>
-        </div>
-
-        <div className="hidden sm:flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-teal-50 text-teal-800 border border-teal-200">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500 animate-pulse" />
-            NBE Cutoff: 150/300
-          </span>
-        </div>
-      </div>
-
-      {/* 2. Hero Header Card with Motion & Visual Animations */}
+      {/* Apple HIG Luminous Pastel Indigo Hero Header matching Figma (media_1790581286730.png & media_1790580523066.png) */}
       <motion.header
-        initial={{ opacity: 0, y: -12 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-3xl border p-3.5 sm:px-5 sm:py-3.5 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
+        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+        className="relative rounded-3xl overflow-hidden border border-[#C7D2FE]/70"
+        style={{
+          background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 40%, #C7D2FE 100%)',
+          boxShadow: '0 4px 24px rgba(79,70,229,0.08), 0 1px 3px rgba(0,0,0,0.03)',
+        }}
       >
-        {/* Background Atmosphere & Mountain Colonnade (isolated so dropdown never clips) */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
-          {/* Dynamic Circadian Ambient Mock Exam Atmosphere & 2px Shimmer Track */}
-          <CircadianHeaderAtmosphere circadian={circadian} />
+        {/* Ambient Highlights */}
+        <div
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-2/3"
+          style={{ background: 'radial-gradient(ellipse at 85% 30%, rgba(129,140,248,0.22) 0%, transparent 65%)' }}
+        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/40 to-transparent" />
 
-          {/* Dynamic Animated Ambient Effects */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {/* Subtle Coordinate Grid */}
-          <svg
-            className="absolute inset-0 h-full w-full opacity-[0.035] text-teal-950 pointer-events-none select-none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <pattern id="gt-hero-grid" width="28" height="28" patternUnits="userSpaceOnUse">
-                <path d="M 28 0 L 0 0 0 28" fill="none" stroke="currentColor" strokeWidth="0.75" />
-                <circle cx="28" cy="28" r="0.75" fill="currentColor" opacity="0.6" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#gt-hero-grid)" />
-          </svg>
-
-          {/* Premium Alpine Summit of Triumph & Victory Colonnade Artwork */}
-          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[520px] overflow-hidden opacity-45 sm:opacity-60 md:opacity-[0.72] select-none pointer-events-none block">
-            <svg viewBox="0 0 520 145" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
-              <defs>
-                <linearGradient id="gt-sky-dawn" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#FEF3C7" stopOpacity="0.6" />
-                  <stop offset="40%" stopColor="#FDE68A" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#E0F2FE" stopOpacity="0" />
-                </linearGradient>
-                <linearGradient id="gt-mtn-far" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#94A3B8" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#334155" stopOpacity="0.55" />
-                </linearGradient>
-                <linearGradient id="gt-summit-cliff" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1E293B" stopOpacity="0.85" />
-                  <stop offset="50%" stopColor="#0F766E" stopOpacity="0.95" />
-                  <stop offset="100%" stopColor="#044E48" stopOpacity="0.95" />
-                </linearGradient>
-                <linearGradient id="gt-column-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#FFFFFF" />
-                  <stop offset="40%" stopColor="#E2E8F0" />
-                  <stop offset="80%" stopColor="#CBD5E1" />
-                  <stop offset="100%" stopColor="#94A3B8" />
-                </linearGradient>
-                <radialGradient id="gt-dawn-sun" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.75" />
-                  <stop offset="45%" stopColor="#FBBF24" stopOpacity="0.4" />
-                  <stop offset="85%" stopColor="#10B981" stopOpacity="0.15" />
-                  <stop offset="100%" stopColor="#1E293B" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Golden Dawn Sun Corona behind the Summit */}
-              <motion.circle
-                cx="430"
-                cy="48"
-                r="55"
-                fill="url(#gt-dawn-sun)"
-                animate={{ scale: [1, 1.15, 1], opacity: [0.55, 0.85, 0.55] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-              />
-
-              {/* ═══ 1. DISTANT ALPINE RIDGES & ROLLING HORIZON ═══ */}
-              <path
-                d="M 120 145 L 200 95 L 260 120 L 330 75 L 420 110 L 520 85 L 520 145 Z"
-                fill="url(#gt-mtn-far)"
-              />
-
-              {/* Low Valley Mist Drifting horizontally */}
-              <motion.path
-                d="M 100 125 Q 220 112 340 122 Q 440 115 520 122"
-                stroke="#FFFFFF"
-                strokeWidth="5"
-                strokeLinecap="round"
-                opacity="0.35"
-                animate={{ x: [-15, 15, -15] }}
-                transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-              />
-
-              {/* ═══ 2. FOREGROUND ASCENDING SUMMIT CLIFF (PAST 150 CUTOFF) ═══ */}
-              <path
-                d="M 180 145 L 270 115 L 340 85 L 400 62 L 470 58 L 520 70 L 520 145 Z"
-                fill="url(#gt-summit-cliff)"
-              />
-
-              {/* 150-Mark Milestone Inscription Plaque on Cliff Face */}
-              <g transform="translate(285, 112) rotate(-18)">
-                <rect x="0" y="0" width="58" height="15" rx="3" fill="#0F172A" opacity="0.6" />
-                <rect x="1" y="1" width="56" height="13" rx="2" stroke="#F59E0B" strokeWidth="0.8" fill="none" />
-                <text x="29" y="10.5" textAnchor="middle" fill="#FDE68A" fontSize="8" fontWeight="800" fontFamily="monospace" letterSpacing="0.8">
-                  150 CUTOFF
-                </text>
-              </g>
-
-              {/* ═══ 3. TRIUMPHAL VICTORY COLONNADE & LAUREL ARCHWAY ═══ */}
-              <g transform="translate(425, 20)">
-                {/* Archway Pediment / Entablature Top */}
-                <polygon points="0,8 38,0 76,8" fill="url(#gt-column-grad)" />
-                <rect x="2" y="8" width="72" height="5" rx="1" fill="url(#gt-column-grad)" />
-                {/* Golden Inscribed Star of Excellence */}
-                <circle cx="38" cy="4" r="2.5" fill="#F59E0B" />
-
-                {/* Left Classical Column */}
-                <rect x="8" y="13" width="7" height="36" fill="url(#gt-column-grad)" />
-                <rect x="6" y="13" width="11" height="2" fill="url(#gt-column-grad)" />
-                <rect x="6" y="47" width="11" height="2" fill="url(#gt-column-grad)" />
-
-                {/* Right Classical Column */}
-                <rect x="61" y="13" width="7" height="36" fill="url(#gt-column-grad)" />
-                <rect x="59" y="13" width="11" height="2" fill="url(#gt-column-grad)" />
-                <rect x="59" y="47" width="11" height="2" fill="url(#gt-column-grad)" />
-
-                {/* Central Arch Curve */}
-                <path
-                  d="M 15 28 C 15 18, 61 18, 61 28"
-                  stroke="url(#gt-column-grad)"
-                  strokeWidth="2.5"
-                  fill="none"
-                />
-
-                {/* Golden Triumph Beacon Light in Center Arch */}
-                <circle cx="38" cy="27" r="3.5" fill="#F59E0B" />
-                <motion.circle
-                  cx="38"
-                  cy="27"
-                  r="7"
-                  stroke="#F59E0B"
-                  strokeWidth="1.2"
-                  fill="none"
-                  animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
-                  transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut' }}
-                />
-              </g>
-
-              {/* ═══ 4. VICTORIOUS DOCTOR SILHOUETTE ON SUMMIT PRECIPICE ═══ */}
-              <g transform="translate(390, 32) scale(0.65)">
-                {/* Head with Stethoscope around neck */}
-                <ellipse cx="14" cy="8" rx="5.5" ry="6.5" fill="#0F172A" />
-                {/* Body in White Coat */}
-                <path d="M 9 15 L 19 15 L 22 40 L 6 40 Z" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="0.8" />
-                {/* Stethoscope */}
-                <path d="M 11 15 C 11 21, 17 21, 17 15" stroke="#0D9488" strokeWidth="1.5" fill="none" />
-                <circle cx="14" cy="23" r="1.8" fill="#0D9488" />
-                {/* Billowing White Coat Tail in Mountain Breeze */}
-                <motion.path
-                  d="M 6 32 Q -4 34 -8 40 Q -2 36 6 38"
-                  fill="#FFFFFF"
-                  stroke="#CBD5E1"
-                  strokeWidth="0.8"
-                  animate={{ scaleX: [1, 1.15, 1], skewX: [0, -3, 0] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-                />
-                {/* Legs Standing Firmly on Plateau */}
-                <rect x="9" y="40" width="3.5" height="18" fill="#1E293B" />
-                <rect x="15" y="40" width="3.5" height="18" fill="#1E293B" />
-              </g>
-
-              {/* ═══ 5. SOARING EAGLE / BIRDS OVER DAWN SUMMIT ═══ */}
-              <motion.g
-                animate={{
-                  x: [0, 180],
-                  y: [0, -14],
-                }}
-                transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-              >
-                <g transform="translate(210, 35) scale(0.7)">
-                  <motion.path
-                    d="M 0 0 Q 6 -8 14 -3 Q 22 -8 28 0 Q 18 -2 14 3 Q 10 -2 0 0 Z"
-                    fill="#1E293B"
-                    animate={{ scaleY: [1, 0.4, 1] }}
-                    transition={{ duration: 0.9, repeat: Infinity, ease: 'easeInOut' }}
-                  />
-                </g>
-              </motion.g>
-
-              {/* Second High-Altitude Bird */}
-              <motion.g
-                animate={{
-                  x: [0, 150],
-                  y: [0, -8],
-                }}
-                transition={{ duration: 15, repeat: Infinity, ease: 'linear', delay: 3 }}
-              >
-                <g transform="translate(280, 20) scale(0.5)">
-                  <motion.path
-                    d="M 0 0 Q 6 -7 12 -2 Q 18 -7 24 0 Q 15 -2 12 2 Q 9 -2 0 0 Z"
-                    fill="#334155"
-                    animate={{ scaleY: [1, 0.4, 1] }}
-                    transition={{ duration: 0.8, repeat: Infinity, ease: 'easeInOut' }}
-                  />
-                </g>
-              </motion.g>
-            </svg>
-          </div>
-        </div>
-        </div>
-
-        {/* Top Utility Bar: Eyebrow + Live Circadian Focus Dropdown */}
-        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2 border-b ${
-          circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'
-        }`}>
-          <div className="flex items-center gap-2">
-            <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${
-              circadian.isNight ? 'text-cyan-300' : 'text-teal-700'
-            }`}>
-              PRACTICE • SIMULATE • IMPROVE
-            </span>
-            <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
-            <span className={`text-[10px] font-mono font-bold tracking-widest uppercase hidden sm:inline ${
-              circadian.isNight ? 'text-slate-300' : 'text-slate-600'
-            }`}>
-              300-QUESTION NBE SIMULATION
-            </span>
-          </div>
-          <CircadianFocusDropdown circadian={circadian} />
-        </div>
-
-        {/* Header Content Body matching grand-tests-banner.png */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 pt-2">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 min-w-0 max-w-3xl">
-            <HeaderGlassIcon
-              icon={Target}
-              variant="rose"
-              isNight={circadian.isNight}
-            />
-
-            <div className="space-y-1.5 min-w-0">
-              <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
-                  <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>GRAND TESTS </span>
-                  <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>&amp; MOCKS</span>
-                </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-indigo-500'}`} />
-                  NBE Simulation · 300 Questions
-                </span>
+        <div className="relative z-10 px-5 sm:px-8 py-5 sm:py-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          {/* Left: Eyebrow, Title, Subtitle, and Pill Tabs */}
+          <div className="space-y-3 min-w-0 max-w-xl">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-white/80 shadow-2xs border border-[#C7D2FE] flex items-center justify-center shrink-0">
+                <Target className="h-3.5 w-3.5 text-[#4338CA]" />
               </div>
+              <span className="font-mono text-[10.5px] font-bold uppercase tracking-widest text-[#4338CA]">
+                NBE SIMULATION · 300 QUESTIONS · BENCHMARK
+              </span>
+            </div>
 
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
-                Simulate 300-Q NBE exams &amp; track your trajectory past the 150-mark cutoff.
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-black tracking-tight text-[#1D1D1F] leading-tight">
+                <span className="text-[#4338CA]">Grand Tests </span> &amp; Mock Exams
+              </h1>
+              <p className="text-[12.5px] sm:text-[13px] text-[#475569] leading-relaxed max-w-lg font-medium">
+                Simulate 300-Q NBE exam sessions and benchmark your trajectory against the 150-mark pass threshold.
               </p>
+            </div>
 
-              {/* Quick Metrics Bar with High-Contrast Apple Capsules */}
-              <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-slate-900/80 border-slate-800 text-slate-200' : 'bg-slate-100/90 border-slate-200/80 text-slate-700'
-                }`}>
-                  <span className={circadian.isNight ? 'text-slate-400' : 'text-slate-600 font-sans font-semibold'}>Tests:</span>
-                  <span className={`font-extrabold ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{stats.totalTests}</span>
-                </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-blue-950/60 border-blue-800/60 text-blue-200' : 'bg-blue-500/10 border-blue-200/80 text-blue-900'
-                }`}>
-                  <span className={circadian.isNight ? 'text-blue-300' : 'text-blue-700 font-sans font-semibold'}>Latest:</span>
-                  <span className={`font-extrabold ${stats.latestPassed ? 'text-emerald-400' : stats.latestScore > 0 ? (circadian.isNight ? 'text-amber-300' : 'text-amber-800') : (circadian.isNight ? 'text-white' : 'text-slate-900')}`}>
-                    {stats.latestScore > 0 ? `${stats.latestScore}/300` : 'None'}
-                  </span>
-                </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-teal-950/60 border-teal-800/60 text-teal-200' : 'bg-teal-500/10 border-teal-200/80 text-teal-900'
-                }`}>
-                  <span className={circadian.isNight ? 'text-teal-300' : 'text-teal-700 font-sans font-semibold'}>Peak:</span>
-                  <span className={`font-extrabold ${circadian.isNight ? 'text-cyan-300' : 'text-teal-800'}`}>
-                    {stats.highestScore > 0 ? `${stats.highestScore}/300` : '-'}
-                  </span>
-                </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono shadow-2xs border ${
-                  circadian.isNight ? 'bg-emerald-950/60 border-emerald-800/60 text-emerald-200' : 'bg-emerald-500/10 border-emerald-200/80 text-emerald-900'
-                }`}>
-                  <span className={circadian.isNight ? 'text-emerald-300' : 'text-emerald-700 font-sans font-semibold'}>Pass Rate:</span>
-                  <span className={`font-extrabold ${circadian.isNight ? 'text-emerald-300' : 'text-emerald-600'}`}>
-                    {stats.clearanceRate}%
-                  </span>
-                </div>
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono font-bold shadow-2xs border ${
-                  circadian.isNight
-                    ? 'bg-amber-950/60 text-amber-200 border-amber-800/80'
-                    : 'bg-amber-500/10 text-amber-900 border-amber-300/80'
-                }`}>
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  <span>Cutoff: 150/300</span>
-                </div>
-              </div>
+            {/* Apple Segmented Pill Switch (Matching media_1790580523066.png) */}
+            <div className="inline-flex items-center gap-1 p-1 bg-white/75 backdrop-blur-md rounded-full border border-[#C7D2FE]/70 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setStatusFilter('all')}
+                className={`px-3.5 py-1 rounded-full text-[11.5px] font-bold transition-all cursor-pointer ${
+                  statusFilter === 'all'
+                    ? 'bg-white text-[#1D1D1F] shadow-xs'
+                    : 'text-[#64748B] hover:text-[#1D1D1F]'
+                }`}
+              >
+                Overview
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowMockModal(true)}
+                className="px-3.5 py-1 rounded-full text-[11.5px] font-bold text-[#64748B] hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Clock className="w-3 h-3 text-[#4338CA]" />
+                <span>50Q Mini-Mock</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowDiagnosticModal(true)}
+                className="px-3.5 py-1 rounded-full text-[11.5px] font-bold text-[#64748B] hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <BarChart3 className="w-3 h-3 text-[#4338CA]" />
+                <span>Diagnostics</span>
+              </button>
             </div>
           </div>
 
-          {/* Right Action: Action Buttons with tactile Apple spring physics */}
-          <div className="flex items-center gap-2.5 shrink-0 self-start lg:self-center">
-            {/* Take 50-MCQ Timed Mini-Mock */}
-            <motion.button
-              whileHover={{ scale: 1.03, y: -1 }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              type="button"
-              onClick={() => setShowMockModal(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-bold shadow-md shadow-amber-500/25 transition-all cursor-pointer select-none"
-              title="Launch 50-MCQ timed NBE exam simulation"
-            >
-              <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Take Mini-Mock (50Q)</span>
-            </motion.button>
+          {/* Right: Actions + CBT Stadium Benchmark Card */}
+          <div className="flex flex-col sm:flex-row lg:flex-col sm:items-center lg:items-end gap-3.5 shrink-0">
+            {/* Action Buttons Row */}
+            <div className="flex items-center gap-2">
+              <div className="px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-[#4338CA] border border-[#C7D2FE] text-[11.5px] font-bold flex items-center gap-1.5 shadow-2xs">
+                <Clock className="w-3.5 h-3.5 text-[#4338CA]" />
+                <span>{stats.totalTests} {stats.totalTests === 1 ? 'Mock Logged' : 'Mocks Logged'}</span>
+              </div>
 
-            <motion.button
-              whileHover={{ scale: 1.03, y: -1 }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              type="button"
-              onClick={() => setShowAddGTModal(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#005B54] hover:bg-[#004D47] text-white text-xs font-bold shadow-md shadow-teal-900/20 ring-1 ring-white/20 transition-all cursor-pointer select-none"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Log Grand Test</span>
-            </motion.button>
+              <button
+                type="button"
+                onClick={() => setShowAddGTModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#3730A3] hover:bg-[#312E81] text-white text-[12px] font-bold shadow-sm transition-all cursor-pointer active:scale-95"
+              >
+                <Plus className="h-3.5 w-3.5 stroke-[2.8]" />
+                <span>Log Grand Test</span>
+              </button>
+            </div>
+
+            {/* Examination Stadium Benchmark Badge (Tailored specifically for Grand Tests) */}
+            <div className="flex items-center gap-3.5 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-[#C7D2FE]/80 shadow-2xs">
+              <div className="flex flex-col items-start">
+                <div className="flex items-center gap-1.5">
+                  <span className="size-2 rounded-full bg-[#30D158] animate-pulse" />
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#4338CA]">
+                    NBE CBT Pass Benchmark
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="text-[20px] font-black font-mono text-[#1D1D1F] leading-none">
+                    150
+                  </span>
+                  <span className="text-[11px] font-mono font-bold text-[#6366F1]">/ 300 Marks (50%)</span>
+                </div>
+              </div>
+
+              <div className="h-8 w-px bg-[#C7D2FE]/60 shrink-0" />
+
+              <div className="text-right">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-[#64748B]">Latest Mock</div>
+                <div className="text-[14px] font-mono font-black text-[#1D1D1F]">
+                  {stats.latestScore > 0 ? (
+                    <span className={stats.latestPassed ? 'text-emerald-700' : 'text-amber-700'}>
+                      {stats.latestScore} <span className="text-[10px] font-sans font-bold text-[#64748B]">({stats.latestScore >= 150 ? `+${stats.latestScore - 150}` : `${stats.latestScore - 150}`})</span>
+                    </span>
+                  ) : (
+                    <span className="text-[#94A3B8]">Not taken</span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </motion.header>
 
-      {/* 3. Primary Actions & Benchmark Bar: Clear NBE benchmark card (300 questions / 150 pass mark) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Card: NBE 300-Question / 150-Pass Mark Benchmark Blueprint — Apple Teal/Emerald Aura */}
-        <div className="lg:col-span-8 bg-gradient-to-br from-teal-500/[0.05] via-white to-emerald-500/[0.02] backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-teal-200/80 shadow-[0_8px_30px_rgba(0,107,99,0.06)] flex flex-col justify-between space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-[#00685f] to-teal-500 text-white flex items-center justify-center shadow-xs shadow-teal-500/25">
-                <GraduationCap className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-base font-bold text-slate-900">
-                    NBE Examination Benchmark
-                  </h2>
-                  <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#00685f] to-teal-600 text-white text-[10px] font-mono font-bold shadow-2xs">
-                    OFFICIAL SCHEME
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  National Board of Examinations (NBE) FMGE Screening Standard
-                </p>
-              </div>
-            </div>
-
-            {/* CTA Button */}
-            <button
-              type="button"
-              onClick={() => setShowAddGTModal(true)}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#00685f] to-teal-700 hover:from-[#005049] hover:to-teal-800 text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Log Grand Test</span>
-            </button>
-          </div>
-
-          {/* Scheme Breakdown Grid (3 Pillars: Total Qs, Pass Mark, No Negative Marking) — Apple Vibrant Bento */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            {/* 300 Questions — Apple Ultramarine */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/[0.08] via-white to-cyan-500/[0.04] backdrop-blur-sm border border-blue-200/80 shadow-[0_4px_16px_rgba(59,130,246,0.06)] flex flex-col justify-between">
-              <div className="text-[11px] font-mono uppercase font-bold text-blue-800 mb-1 flex items-center justify-between">
-                <span>Format</span>
-                <Clock className="w-3.5 h-3.5 text-blue-600" />
-              </div>
-              <div className="text-2xl font-extrabold font-mono text-slate-900">
-                300 <span className="text-xs font-normal text-blue-800 font-sans">Questions</span>
-              </div>
-              <div className="text-[11px] text-blue-900/70 mt-1">
-                Paper 1 (150 Qs) + Paper 2 (150 Qs)
-              </div>
-            </div>
-
-            {/* 150 Pass Mark — Apple Mint / Emerald */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.04] backdrop-blur-sm border border-emerald-200/80 shadow-[0_4px_16px_rgba(16,185,129,0.06)] flex flex-col justify-between">
-              <div className="text-[11px] font-mono uppercase font-bold text-emerald-800 mb-1 flex items-center justify-between">
-                <span>Pass Benchmark</span>
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-              </div>
-              <div className="text-2xl font-extrabold font-mono text-emerald-800">
-                150 <span className="text-xs font-normal text-emerald-700 font-sans">Marks (50%)</span>
-              </div>
-              <div className="text-[11px] text-emerald-700 mt-1">
-                Strict qualifying standard, no negative marking
-              </div>
-            </div>
-
-            {/* Timing & Discipline — Apple Amber */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.04] backdrop-blur-sm border border-amber-200/80 shadow-[0_4px_16px_rgba(245,158,11,0.06)] flex flex-col justify-between">
-              <div className="text-[11px] font-mono uppercase font-bold text-amber-800 mb-1 flex items-center justify-between">
-                <span>Stamina Target</span>
-                <Layers className="w-3.5 h-3.5 text-amber-600" />
-              </div>
-              <div className="text-2xl font-extrabold font-mono text-slate-900">
-                300 <span className="text-xs font-normal text-amber-800 font-sans">Minutes</span>
-              </div>
-              <div className="text-[11px] text-amber-900/70 mt-1">
-                2.5 hours Paper 1 • 2.5 hours Paper 2
-              </div>
+      {/* 3 High-Impact Assorted Examination Bento Cards (Distinct from standard 4-tile rows) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        {/* Card 1: NBE Clearance Trajectory (Apple Emerald) */}
+        <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.03] border border-emerald-200/80 shadow-[0_2px_12px_rgba(16,185,129,0.04)] space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10.5px] font-bold font-mono uppercase tracking-wider text-emerald-800">
+              Clearance Trajectory
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-2xs">
+              <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
-
-          {/* Visual Benchmark Scale: 0 to 300 with 150 Cutoff Marker */}
-          <div className="space-y-2 pt-2 border-t border-slate-100">
-            <div className="flex items-center justify-between text-xs font-semibold">
-              <span className="text-slate-600">Cutoff Trajectory Scale</span>
-              {stats.totalTests > 0 ? (
-                <span className="font-mono text-[#00685f]">
-                  Latest: {stats.latestScore}/300 ({stats.latestScore >= 150 ? `+${stats.latestScore - 150} above cutoff` : `${150 - stats.latestScore} to pass`})
-                </span>
-              ) : (
-                <span className="text-slate-400">Aim for ≥150 in every full mock</span>
-              )}
-            </div>
-
-            <div className="relative w-full h-3.5 rounded-full bg-slate-100 overflow-hidden">
-              {/* Passing threshold indicator (50% mark) */}
-              <div
-                className="absolute top-0 bottom-0 w-0.5 bg-slate-900 z-10"
-                style={{ left: '50%' }}
-                title="150 Pass Cutoff (50%)"
-              />
-
-              {/* Progress bar based on latest score */}
-              {stats.totalTests > 0 && (
-                <div
-                  className={`h-full rounded-full transition-all duration-700 ${
-                    stats.latestScore >= 150 ? 'bg-[#00685f]' : 'bg-amber-500'
-                  }`}
-                  style={{ width: `${Math.min(100, Math.max(5, (stats.latestScore / 300) * 100))}%` }}
-                />
-              )}
-            </div>
-
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-              <span>0 M</span>
-              <span className="text-slate-900 font-bold flex items-center gap-1">
-                ▲ 150 CUTOFF (50%)
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-3xl font-black font-mono text-emerald-800 leading-none">
+                {stats.clearanceRate}%
               </span>
-              <span>300 M</span>
+              <span className="text-[11.5px] font-medium text-emerald-700">
+                ({stats.clearedCount}/{stats.totalTests || 0} Cleared)
+              </span>
             </div>
+            <p className="text-[11.5px] text-[#64748B] mt-1 font-medium">
+              {stats.clearedCount > 0
+                ? 'Consistently meeting NBE 150-mark threshold'
+                : stats.totalTests > 0
+                ? 'Targeting 150 pass mark on upcoming mock'
+                : 'Log initial 300Q mock to benchmark trajectory'}
+            </p>
           </div>
         </div>
 
-        {/* Right Card: Student Mock Portfolio Summary — Apple Iris/Indigo */}
-        <div className="lg:col-span-4 bg-gradient-to-br from-indigo-500/[0.05] via-white to-blue-500/[0.02] backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-indigo-200/80 shadow-[0_8px_30px_rgba(99,102,241,0.06)] flex flex-col justify-between space-y-4">
+        {/* Card 2: Paper 1 vs Paper 2 Balance (Cobalt & Iris Split) */}
+        <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/[0.08] via-white to-indigo-500/[0.03] border border-blue-200/80 shadow-[0_2px_12px_rgba(59,130,246,0.04)] space-y-2.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-blue-600 text-white flex items-center justify-center shadow-xs shadow-indigo-500/20">
-                <BarChart3 className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-slate-900">
-                  Mock Performance
-                </h2>
-                <p className="text-[10px] text-indigo-800/80 font-medium">Full Simulator Record</p>
-              </div>
-            </div>
-            <span className="text-xs font-mono font-bold text-indigo-700 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-200/60">
-              {stats.totalTests} {stats.totalTests === 1 ? 'MOCK' : 'MOCKS'}
+            <span className="text-[10.5px] font-bold font-mono uppercase tracking-wider text-[#0056CC]">
+              Paper Balance (Pre/Para vs Clinical)
             </span>
+            <div className="w-8 h-8 rounded-xl bg-[#007AFF] text-white flex items-center justify-center shadow-2xs">
+              <BookOpen className="w-4 h-4" />
+            </div>
           </div>
-
-          {stats.totalTests > 0 ? (
-            <div className="space-y-3.5">
-              {/* Latest Score Tile */}
-              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-indigo-500/[0.08] via-white to-blue-500/[0.04] backdrop-blur-sm border border-indigo-200/80 shadow-2xs flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-mono uppercase font-bold text-indigo-700 block">
-                    Latest Mock Result
-                  </span>
-                  <div className="flex items-baseline gap-1.5 mt-0.5">
-                    <span className="text-2xl font-extrabold font-mono text-slate-900">
-                      {stats.latestScore}
-                    </span>
-                    <span className="text-xs text-indigo-600/70 font-mono">/ 300</span>
-                  </div>
-                </div>
-                <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
-                    stats.latestScore >= 150
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200/90'
-                      : 'bg-amber-50 text-amber-800 border-amber-200/90'
-                  }`}
-                >
-                  {stats.latestScore >= 150 ? 'PASS' : 'NEEDS BOOST'}
-                </span>
-              </div>
-
-              {/* 2x2 Grid: Highest, Average, Clearance Rate, Delta */}
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.03] backdrop-blur-sm border border-emerald-200/80 shadow-2xs">
-                  <span className="text-[10px] font-mono uppercase text-slate-400 block">
-                    Highest Mock
-                  </span>
-                  <span className="text-base font-bold font-mono text-slate-900">
-                    {stats.highestScore} <span className="text-[10px] text-slate-400">/300</span>
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="text-[10px] font-mono uppercase text-slate-400 block">
-                    Average Score
-                  </span>
-                  <span className="text-base font-bold font-mono text-slate-900">
-                    {stats.averageScore} <span className="text-[10px] text-slate-400">/300</span>
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="text-[10px] font-mono uppercase text-slate-400 block">
-                    Clearance Rate
-                  </span>
-                  <span className="text-base font-bold font-mono text-emerald-700">
-                    {stats.clearanceRate}%
-                  </span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="text-[10px] font-mono uppercase text-slate-400 block">
-                    Trajectory Delta
-                  </span>
-                  <span
-                    className={`text-base font-bold font-mono ${
-                      stats.scoreDelta >= 0 ? 'text-emerald-700' : 'text-rose-600'
-                    }`}
-                  >
-                    {stats.scoreDelta >= 0 ? `+${stats.scoreDelta}` : stats.scoreDelta}
-                  </span>
-                </div>
-              </div>
-
-              {/* Paper 1 vs Paper 2 Balance */}
-              <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 flex items-center justify-between">
-                <span>Avg Paper 1: <strong className="font-mono text-slate-900">{stats.averagePaper1}m</strong></span>
-                <span>Avg Paper 2: <strong className="font-mono text-slate-900">{stats.averagePaper2}m</strong></span>
-              </div>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-[#1D1D1F] flex items-center gap-1">
+                <span className="size-2 rounded-full bg-[#007AFF]" />
+                Paper 1: <strong className="font-mono">{stats.averagePaper1 || 75}/150</strong>
+              </span>
+              <span className="font-semibold text-[#1D1D1F] flex items-center gap-1">
+                <span className="size-2 rounded-full bg-[#5856D6]" />
+                Paper 2: <strong className="font-mono">{stats.averagePaper2 || 75}/150</strong>
+              </span>
             </div>
-          ) : (
-            <div className="text-center py-6 space-y-2">
-              <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                <FileText className="w-5 h-5" />
-              </div>
-              <p className="text-xs text-slate-500 font-medium">
-                No mock data recorded yet. Log your first test to see automatic trend insights and paper splits.
-              </p>
+            <div className="w-full h-2 rounded-full bg-[#E2E8F0] overflow-hidden flex">
+              <div
+                className="bg-[#007AFF] h-full"
+                style={{ width: `${stats.averagePaper1 ? Math.round((stats.averagePaper1 / ((stats.averagePaper1 + stats.averagePaper2) || 150)) * 100) : 50}%` }}
+                title="Paper 1 Proportion"
+              />
+              <div
+                className="bg-[#5856D6] h-full"
+                style={{ width: `${stats.averagePaper2 ? Math.round((stats.averagePaper2 / ((stats.averagePaper1 + stats.averagePaper2) || 150)) * 100) : 50}%` }}
+                title="Paper 2 Proportion"
+              />
             </div>
-          )}
+            <p className="text-[11px] text-[#64748B] flex items-center justify-between">
+              <span>Pre &amp; Para-Clinical</span>
+              <span>Clinical Disciplines</span>
+            </p>
+          </div>
+        </div>
 
-          <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-100 flex items-center justify-between">
-            <span>Evaluated against NBE 150 pass mark</span>
+        {/* Card 3: 300-Q CBT Speed & Stamina (Amber & Orange) */}
+        <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.03] border border-amber-200/80 shadow-[0_2px_12px_rgba(245,158,11,0.04)] space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10.5px] font-bold font-mono uppercase tracking-wider text-amber-800">
+              Exam Stamina &amp; Pacing
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-2xs">
+              <Clock className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-3xl font-black font-mono text-amber-800 leading-none">
+                ~55s
+              </span>
+              <span className="text-[11.5px] font-medium text-amber-700">/ Question target</span>
+            </div>
+            <p className="text-[11.5px] text-[#64748B] mt-1 font-medium">
+              300 minutes across two 150-min CBT sessions (No negative marking)
+            </p>
           </div>
         </div>
       </div>
 
-      {/* 4. Score Trajectory Progression (Visible when >= 2 tests logged) */}
-      {gts.length >= 2 && (
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-[0_8px_30px_rgba(0,107,99,0.04)] space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      {/* 3. Main Workspace: 2-Column Architecture (Matching ErrorsView & Figma Screenshots) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Left Column (8 cols): Benchmark Desk, Trajectory, Filters, and Test Records Feed */}
+        <div className="lg:col-span-8 space-y-4">
+          
+          {/* NBE Score Predictor & Circular Benchmark Desk (Matching media_1790582425866.png) */}
+          <div className="rounded-3xl border border-[rgba(60,60,67,0.1)] bg-white p-6 sm:p-7 shadow-[0_2px_16px_rgba(0,0,0,0.04)] space-y-5">
+            {/* Top row with Dial & Bento Stats */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+              {/* Circular Dial Gauge */}
+              <div className="relative inline-flex items-center justify-center shrink-0 self-center sm:self-auto">
+                <svg width="130" height="130" viewBox="0 0 130 130" className="-rotate-90">
+                  <circle cx="65" cy="65" r="52" fill="none" stroke="#F2F2F7" strokeWidth="10" />
+                  <circle
+                    cx="65"
+                    cy="65"
+                    r="52"
+                    fill="none"
+                    stroke={stats.latestScore >= 150 ? '#30D158' : stats.latestScore > 0 ? '#FF9500' : '#4338CA'}
+                    strokeWidth="10"
+                    strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 52}
+                    strokeDashoffset={2 * Math.PI * 52 * (1 - Math.min(1, Math.max(0.05, (stats.latestScore || 150) / 300)))}
+                    style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+                  />
+                </svg>
+                <div className="absolute text-center flex flex-col items-center">
+                  <span className="text-3xl font-black font-mono text-[#1D1D1F] leading-none">
+                    {stats.latestScore > 0 ? stats.latestScore : 150}
+                  </span>
+                  <span className="text-[11px] text-[#8E8E93] font-mono mt-0.5">/ 300</span>
+                </div>
+              </div>
+
+              {/* Status Header + 3 Bento Stat Cards */}
+              <div className="flex-1 space-y-3">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+                      stats.latestScore >= 150
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        : stats.latestScore > 0
+                        ? 'bg-amber-50 text-amber-800 border-amber-200'
+                        : 'bg-[#3730A3]/10 text-[#3730A3] border-[#3730A3]/20'
+                    }`}
+                  >
+                    {stats.latestScore >= 150 ? (
+                      <>
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>On Track to Clear (≥150)</span>
+                      </>
+                    ) : stats.latestScore > 0 ? (
+                      <>
+                        <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+                        <span>{150 - stats.latestScore} Marks to Pass Cutoff</span>
+                      </>
+                    ) : (
+                      <>
+                        <Target className="w-3.5 h-3.5 text-[#3730A3]" />
+                        <span>Cutoff Target: 150 / 300 (50%)</span>
+                      </>
+                    )}
+                  </span>
+
+                  <span className="text-[11px] text-[#8E8E93] font-medium hidden sm:inline">
+                    NBE 300-Q CBT Standard
+                  </span>
+                </div>
+
+                <p className="text-[12.5px] text-[#6E6E73] leading-relaxed">
+                  Based on your full 300-mark mock test results, paper distribution, and CBT time management.
+                </p>
+
+                {/* 3 Apple Bento Stat Cards (Confidence, Likely Range, Delta style from media_1790582425866.png) */}
+                <div className="grid grid-cols-3 gap-2.5 pt-1">
+                  <div className="p-3 rounded-2xl bg-blue-50/40 border border-blue-100 flex flex-col justify-between">
+                    <span className="text-[10px] font-mono uppercase font-bold text-[#007AFF] flex items-center gap-1">
+                      <BookOpen className="w-3 h-3 text-[#007AFF]" />
+                      Avg Paper 1
+                    </span>
+                    <span className="text-base font-extrabold font-mono text-[#1D1D1F] mt-1">
+                      {stats.averagePaper1 || 75} <span className="text-[10px] text-[#8E8E93] font-sans">/150</span>
+                    </span>
+                    <span className="text-[10px] text-[#8E8E93]">Pre &amp; Para-Clinical</span>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-purple-50/40 border border-purple-100 flex flex-col justify-between">
+                    <span className="text-[10px] font-mono uppercase font-bold text-[#5856D6] flex items-center gap-1">
+                      <BarChart3 className="w-3 h-3 text-[#5856D6]" />
+                      Avg Paper 2
+                    </span>
+                    <span className="text-base font-extrabold font-mono text-[#1D1D1F] mt-1">
+                      {stats.averagePaper2 || 75} <span className="text-[10px] text-[#8E8E93] font-sans">/150</span>
+                    </span>
+                    <span className="text-[10px] text-[#8E8E93]">Clinical Disciplines</span>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-emerald-50/40 border border-emerald-100 flex flex-col justify-between">
+                    <span className="text-[10px] font-mono uppercase font-bold text-emerald-700 flex items-center gap-1">
+                      <TrendingUp className="w-3 h-3 text-emerald-600" />
+                      Delta
+                    </span>
+                    <span className="text-base font-extrabold font-mono text-emerald-700 mt-1">
+                      {stats.scoreDelta >= 0 ? `+${stats.scoreDelta}` : stats.scoreDelta}
+                    </span>
+                    <span className="text-[10px] text-[#8E8E93]">vs initial mock</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cutoff Trajectory Progress Bar (Scale 0 to 300) */}
+            <div className="space-y-1.5 pt-3 border-t border-[rgba(60,60,67,0.07)]">
+              <div className="flex items-center justify-between text-xs font-semibold">
+                <span className="text-[#6E6E73]">NBE Examination Clearance Margin</span>
+                <span className="font-mono text-[#3730A3] font-bold">
+                  {stats.totalTests > 0
+                    ? `Latest: ${stats.latestScore}/300 (${stats.latestScore >= 150 ? `+${stats.latestScore - 150} above cutoff` : `${150 - stats.latestScore} to pass`})`
+                    : 'Target: 150/300 to qualify'}
+                </span>
+              </div>
+
+              <div className="relative w-full h-3 rounded-full bg-[#E5E5EA] overflow-hidden">
+                <div
+                  className="absolute top-0 bottom-0 w-0.5 bg-[#1D1D1F] z-10"
+                  style={{ left: '50%' }}
+                  title="150 Pass Cutoff (50%)"
+                />
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${
+                    stats.latestScore >= 150 ? 'bg-[#30D158]' : stats.latestScore > 0 ? 'bg-[#FF9500]' : 'bg-[#3730A3]'
+                  }`}
+                  style={{ width: `${Math.min(100, Math.max(5, ((stats.latestScore || 150) / 300) * 100))}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[10.5px] font-mono text-[#8E8E93]">
+                <span>0 M</span>
+                <span className="text-[#1D1D1F] font-bold">▲ 150 PASS CUTOFF (50%)</span>
+                <span>300 M</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Chronological Score Progression (Visible when >= 2 tests logged) */}
+          {gts.length >= 2 && (
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-[rgba(60,60,67,0.1)] shadow-[0_2px_16px_rgba(0,0,0,0.04)] space-y-3.5">
+              <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[rgba(60,60,67,0.07)]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-xl bg-[#3730A3]/10 text-[#3730A3] flex items-center justify-center shrink-0">
+                    <TrendingUp className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h3 className="text-[13.5px] font-bold text-[#1D1D1F]">
+                      Score Progression Trajectory
+                    </h3>
+                    <p className="text-[11px] text-[#8E8E93]">
+                      Chronological mock performance relative to the 150-mark cutoff
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-[11px] font-mono font-bold text-[#3730A3] bg-[#3730A3]/10 px-2.5 py-0.5 rounded-full border border-[#3730A3]/20">
+                  {stats.scoreDelta >= 0 ? `+${stats.scoreDelta} PTS IMPROVEMENT` : `${stats.scoreDelta} PTS TREND`}
+                </div>
+              </div>
+
+              <div className="overflow-x-auto pb-1 scrollbar-thin">
+                <div className="flex items-center gap-3 min-w-[500px] pt-1">
+                  {[...gts]
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                    .map((gt, idx) => {
+                      const isPass = gt.score >= 150;
+                      const deltaTo150 = gt.score - 150;
+                      return (
+                        <div
+                          key={gt.id}
+                          className="flex-1 bg-[#F2F2F7]/50 hover:bg-white border border-[rgba(60,60,67,0.08)] hover:border-[#3730A3]/30 p-3 rounded-2xl transition-all space-y-1.5 group shadow-xs hover:shadow-md"
+                        >
+                          <div className="flex items-center justify-between text-[10.5px] font-mono text-[#8E8E93]">
+                            <span className="font-bold text-[#1D1D1F]">GT #{idx + 1}</span>
+                            <span>{gt.date}</span>
+                          </div>
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-lg font-black font-mono text-[#1D1D1F] group-hover:text-[#3730A3] transition-colors">
+                              {gt.score}
+                            </span>
+                            <span
+                              className={`text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+                                isPass
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200/80'
+                                  : 'bg-rose-50 text-rose-800 border-rose-200/80'
+                              }`}
+                            >
+                              {isPass ? `+${deltaTo150}` : `${deltaTo150}`}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-[#6E6E73] truncate font-medium">
+                            {gt.title}
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-[#E5E5EA] overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${isPass ? 'bg-[#30D158]' : 'bg-[#FF9500]'}`}
+                              style={{ width: `${Math.min(100, Math.max(10, (gt.score / 300) * 100))}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Filter & Search Bar matching Error Vault (media_1790582425871.png) */}
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[rgba(60,60,67,0.1)] shadow-sm space-y-3">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+              {/* Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+                {[
+                  { id: 'all', label: `All Tests (${gts.length})` },
+                  { id: 'pass', label: `Cleared (${stats.clearedCount})` },
+                  { id: 'fail', label: `Needs Boost (${gts.length - stats.clearedCount})` },
+                ].map((st) => (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => setStatusFilter(st.id as any)}
+                    className={`px-3 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                      statusFilter === st.id
+                        ? 'bg-[#3730A3] text-white shadow-sm'
+                        : 'bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#E5E5EA]'
+                    }`}
+                  >
+                    {st.label}
+                  </button>
+                ))}
+
+                <div className="h-4 w-px bg-[rgba(60,60,67,0.12)] shrink-0 mx-0.5" />
+
+                <select
+                  value={platformFilter}
+                  onChange={(e) => setPlatformFilter(e.target.value)}
+                  className="h-8 px-3 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] border border-transparent text-[11.5px] font-bold text-[#1D1D1F] focus:outline-none cursor-pointer"
+                >
+                  <option value="all">All Platforms</option>
+                  {platforms.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="h-8 px-3 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] border border-transparent text-[11.5px] font-bold text-[#1D1D1F] focus:outline-none cursor-pointer"
+                >
+                  <option value="date-desc">Newest First</option>
+                  <option value="date-asc">Oldest First</option>
+                  <option value="score-desc">Highest Score</option>
+                  <option value="score-asc">Lowest Score</option>
+                </select>
+              </div>
+
+              {/* Search Input */}
+              <div className="relative w-full md:w-56 shrink-0">
+                <Search className="w-4 h-4 text-[#8E8E93] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search grand tests…"
+                  className="w-full rounded-full bg-[#F2F2F7] border border-transparent focus:border-[#3730A3] focus:bg-white pl-9 pr-8 py-1.5 text-[12px] text-[#1D1D1F] placeholder:text-[#C7C7CC] focus:outline-none focus:ring-2 focus:ring-[#3730A3]/15 transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#C7C7CC] hover:text-[#8E8E93]"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Grand Tests Records List (Matching Biggest Risks item styling in media_1790582458273.png) */}
+          {filteredGTs.length > 0 ? (
+            <div className="space-y-3">
+              {filteredGTs.map((gt, idx) => {
+                const isPassed = gt.score >= 150;
+                const accuracy = Math.round(
+                  (gt.correctCount / (gt.correctCount + gt.incorrectCount || 1)) * 100
+                );
+                const delta = gt.score - 150;
+                const p1 = gt.paper1Score ?? Math.round(gt.score / 2);
+                const p2 = gt.paper2Score ?? (gt.score - p1);
+                const isDeleting = deleteConfirmId === gt.id;
+                const isExpanded = expandedGTId === gt.id;
+
+                return (
+                  <div
+                    key={gt.id}
+                    className={`bg-white rounded-2xl sm:rounded-3xl border transition-all ${
+                      isExpanded
+                        ? 'border-[#3730A3]/30 shadow-[0_8px_30px_rgba(55,48,163,0.08)]'
+                        : 'border-[rgba(60,60,67,0.08)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.04)] hover:border-[rgba(60,60,67,0.14)]'
+                    }`}
+                  >
+                    {/* Collapsed Sleek Row Header (Click anywhere to expand/collapse) */}
+                    <div
+                      onClick={() => setExpandedGTId(isExpanded ? null : gt.id)}
+                      className="p-4 sm:p-5 flex items-center justify-between gap-3 cursor-pointer group select-none"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Accent Bar */}
+                        <div
+                          className={`w-1.5 h-10 rounded-full shrink-0 transition-all group-hover:scale-y-110 ${
+                            isPassed ? 'bg-[#30D158]' : 'bg-[#FF9500]'
+                          }`}
+                        />
+                        {/* Number Squircle */}
+                        <div className="w-8 h-8 rounded-xl bg-[#F2F2F7] text-[#1D1D1F] font-mono text-[11px] font-bold flex items-center justify-center shrink-0">
+                          #{idx + 1}
+                        </div>
+                        {/* Title & Info */}
+                        <div className="min-w-0 space-y-0.5">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-bold text-[15px] text-[#1D1D1F] group-hover:text-[#3730A3] transition-colors leading-snug truncate">
+                              {gt.title}
+                            </h3>
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[#3730A3]/10 text-[#3730A3] border border-[#3730A3]/15">
+                              {gt.platform}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-[#8E8E93] flex-wrap">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-[#8E8E93]" />
+                              {gt.date}
+                            </span>
+                            <span>•</span>
+                            <span>P1: <strong className="text-[#1D1D1F] font-mono">{p1}</strong></span>
+                            <span>•</span>
+                            <span>P2: <strong className="text-[#1D1D1F] font-mono">{p2}</strong></span>
+                            <span>•</span>
+                            <span>Acc: <strong className="text-[#1D1D1F] font-mono">{accuracy}%</strong></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: Score Mono + Pass Badge + Expand Chevron */}
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className="text-right">
+                          <div className="flex items-baseline justify-end gap-1">
+                            <span
+                              className={`text-2xl font-black font-mono leading-none ${
+                                isPassed ? 'text-emerald-700' : 'text-amber-700'
+                              }`}
+                            >
+                              {gt.score}
+                            </span>
+                            <span className="text-[11px] font-mono text-[#8E8E93]">/300</span>
+                          </div>
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase mt-1 border ${
+                              isPassed
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : 'bg-amber-50 text-amber-800 border-amber-200'
+                            }`}
+                          >
+                            {isPassed ? `PASS (+${delta})` : `NEEDS BOOST (${Math.abs(delta)} to pass)`}
+                          </span>
+                        </div>
+
+                        {/* Rotating Chevron */}
+                        <div className="w-7 h-7 rounded-full bg-[#F2F2F7] group-hover:bg-[#E5E5EA] flex items-center justify-center transition-colors">
+                          <ChevronDown
+                            className={`w-4 h-4 text-[#8E8E93] transition-transform duration-200 ${
+                              isExpanded ? 'rotate-180 text-[#3730A3]' : ''
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Expanded Deep Layer */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.25, ease: 'easeInOut' }}
+                          className="overflow-hidden border-t border-[rgba(60,60,67,0.07)] bg-[#FAFBFD] px-4 sm:px-6 py-5 space-y-4"
+                        >
+                          {/* Paper 1 vs Paper 2 Mini Bento Cards */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="p-3.5 rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] space-y-1.5 shadow-2xs">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="font-semibold text-[#1D1D1F] flex items-center gap-1.5">
+                                  <BookOpen className="w-3.5 h-3.5 text-[#007AFF]" />
+                                  Paper 1 (Pre &amp; Para-Clinical)
+                                </span>
+                                <span className="font-mono font-bold text-[#1D1D1F]">{p1} / 150</span>
+                              </div>
+                              <div className="w-full h-1.5 rounded-full bg-[#E5E5EA] overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-[#007AFF] transition-all"
+                                  style={{ width: `${Math.round((p1 / 150) * 100)}%` }}
+                                />
+                              </div>
+                              <div className="flex items-center justify-between text-[10px] text-[#8E8E93]">
+                                <span>Anat, Phys, Biochem, Path, Micro, Pharm, FMT</span>
+                                <span className="font-mono font-bold">{Math.round((p1 / 150) * 100)}%</span>
+                              </div>
+                            </div>
+
+                            <div className="p-3.5 rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] space-y-1.5 shadow-2xs">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="font-semibold text-[#1D1D1F] flex items-center gap-1.5">
+                                  <BarChart3 className="w-3.5 h-3.5 text-[#5856D6]" />
+                                  Paper 2 (Clinical Disciplines)
+                                </span>
+                                <span className="font-mono font-bold text-[#1D1D1F]">{p2} / 150</span>
+                              </div>
+                              <div className="w-full h-1.5 rounded-full bg-[#E5E5EA] overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-[#5856D6] transition-all"
+                                  style={{ width: `${Math.round((p2 / 150) * 100)}%` }}
+                                />
+                              </div>
+                              <div className="flex items-center justify-between text-[10px] text-[#8E8E93]">
+                                <span>Med, Surg, OBG, Peds, PSM, ENT, Ophtha, Allied</span>
+                                <span className="font-mono font-bold">{Math.round((p2 / 150) * 100)}%</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Question Distribution Bar (Correct / Incorrect / Skipped) */}
+                          <div className="p-3.5 rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] space-y-2 shadow-2xs">
+                            <div className="flex items-center justify-between text-xs font-semibold text-[#1D1D1F]">
+                              <span>Question Breakdown (300 Total)</span>
+                              <span className="font-mono text-[11px] text-[#6E6E73]">
+                                Accuracy: <strong className="text-emerald-700">{accuracy}%</strong>
+                              </span>
+                            </div>
+                            <div className="w-full h-2 rounded-full bg-[#E5E5EA] overflow-hidden flex">
+                              <div
+                                className="bg-[#30D158] h-full"
+                                style={{ width: `${Math.max(0, (gt.correctCount / 300) * 100)}%` }}
+                                title={`${gt.correctCount} Correct`}
+                              />
+                              <div
+                                className="bg-[#FF3B30] h-full"
+                                style={{ width: `${Math.max(0, (gt.incorrectCount / 300) * 100)}%` }}
+                                title={`${gt.incorrectCount} Incorrect`}
+                              />
+                              <div
+                                className="bg-[#C7C7CC] h-full"
+                                style={{ width: `${Math.max(0, (gt.skippedCount / 300) * 100)}%` }}
+                                title={`${gt.skippedCount} Skipped`}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between text-[10.5px] font-mono">
+                              <span className="text-emerald-700 font-bold flex items-center gap-1">
+                                <span className="size-1.5 rounded-full bg-[#30D158]" />
+                                {gt.correctCount} Correct ({Math.round((gt.correctCount / 300) * 100)}%)
+                              </span>
+                              <span className="text-rose-600 font-bold flex items-center gap-1">
+                                <span className="size-1.5 rounded-full bg-[#FF3B30]" />
+                                {gt.incorrectCount} Incorrect ({Math.round((gt.incorrectCount / 300) * 100)}%)
+                              </span>
+                              <span className="text-[#8E8E93] flex items-center gap-1">
+                                <span className="size-1.5 rounded-full bg-[#C7C7CC]" />
+                                {gt.skippedCount} Skipped ({Math.round((gt.skippedCount / 300) * 100)}%)
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Weak Subjects Tags if any */}
+                          {gt.weakSubjectIds && gt.weakSubjectIds.length > 0 && (
+                            <div className="space-y-1.5">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700 flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" />
+                                High-Yield Weak Areas Identified:
+                              </span>
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                {gt.weakSubjectIds.map((id) => {
+                                  const sub = FMGE_SUBJECTS.find((s) => s.id === id);
+                                  return (
+                                    <span
+                                      key={id}
+                                      className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200/80"
+                                    >
+                                      {sub?.name || id}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Key Mistakes Notes */}
+                          {gt.keyMistakesNotes && (
+                            <div className="p-3 rounded-xl bg-white border border-[rgba(60,60,67,0.06)] text-xs text-[#6E6E73] leading-relaxed">
+                              <strong className="text-[#1D1D1F] block mb-0.5 font-sans">Exam Retrospective:</strong>
+                              {gt.keyMistakesNotes}
+                            </div>
+                          )}
+
+                          {/* Deep Diagnostic and Delete Actions */}
+                          <div className="pt-2 flex items-center justify-between border-t border-[rgba(60,60,67,0.06)]">
+                            {/* Delete Action */}
+                            {isDeleting ? (
+                              <div className="flex items-center gap-1.5 bg-rose-50 p-1 rounded-xl border border-rose-200">
+                                <span className="text-[10.5px] text-rose-800 font-semibold px-1.5">Confirm delete?</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDelete(gt.id, gt.title)}
+                                  className="px-2.5 py-1 rounded-lg bg-rose-600 text-white text-[10.5px] font-bold cursor-pointer"
+                                >
+                                  Yes, Delete
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setDeleteConfirmId(null)}
+                                  className="px-2.5 py-1 rounded-lg bg-white text-slate-600 text-[10.5px] font-bold border border-slate-200 cursor-pointer"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setDeleteConfirmId(gt.id)}
+                                className="inline-flex items-center gap-1.5 text-xs text-[#8E8E93] hover:text-rose-600 p-1.5 rounded-xl hover:bg-rose-50 transition-colors cursor-pointer"
+                                title="Delete mock record"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Delete Record</span>
+                              </button>
+                            )}
+
+                            {/* Launch Deep Diagnostic Modal */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedTestForDiagnostic(gt);
+                                setShowDiagnosticModal(true);
+                              }}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#3730A3] hover:bg-[#312E81] text-white text-[12px] font-bold cursor-pointer shadow-xs transition-all active:scale-95"
+                            >
+                              <span>Deep Diagnostic Breakdown</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Apple HIG Empty State matching Error Vault */
+            <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[rgba(60,60,67,0.1)] shadow-sm text-center space-y-6">
+              <div className="w-14 h-14 rounded-2xl bg-[#3730A3]/10 text-[#3730A3] flex items-center justify-center mx-auto shadow-xs">
+                <CheckCircle2 className="w-8 h-8 text-[#30D158]" />
+              </div>
+              <div className="space-y-1.5 max-w-md mx-auto">
+                <h3 className="text-xl font-bold text-[#1D1D1F]">
+                  No mock exams recorded yet
+                </h3>
+                <p className="text-xs text-[#6E6E73] leading-relaxed">
+                  Start logging your 300-question grand tests from Marrow, Prepladder, Cerebellum, or offline mocks to build your NBE clearance trajectory.
+                </p>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddGTModal(true)}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1D1D1F] hover:bg-black text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Log Grand Test</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column (4 cols): Sidebar matching Error Vault & Predictor */}
+        <div className="lg:col-span-4 space-y-4">
+          
+          {/* Exam Stamina & Paper Balance Card (Matching media_1790582425871.png) */}
+          <div className="p-5 rounded-2xl bg-white border border-[rgba(60,60,67,0.1)] shadow-sm space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-emerald-50 text-[#00685f] shadow-2xs">
-                <TrendingUp className="w-5 h-5" />
+              <div className="w-8 h-8 rounded-xl bg-[#3730A3]/10 flex items-center justify-center">
+                <BarChart3 className="w-4 h-4 text-[#3730A3]" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">
-                  Score Progression Trajectory
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Chronological mock exam progression relative to the 150-mark cutoff
+                <h2 className="text-[13px] font-bold text-[#1D1D1F]">Paper &amp; Stamina Insights</h2>
+                <p className="text-[11px] text-[#8E8E93]">Understand your exam balance</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                {
+                  label: 'Paper 1 (Pre & Para-Clinical)',
+                  value: stats.totalTests > 0 ? Math.round((stats.averagePaper1 / 150) * 100) : 50,
+                  sub: `${stats.averagePaper1 || 75} / 150 marks`,
+                  color: '#007AFF',
+                },
+                {
+                  label: 'Paper 2 (Clinical Disciplines)',
+                  value: stats.totalTests > 0 ? Math.round((stats.averagePaper2 / 150) * 100) : 50,
+                  sub: `${stats.averagePaper2 || 75} / 150 marks`,
+                  color: '#30D158',
+                },
+                {
+                  label: '300-Q CBT Endurance',
+                  value: stats.totalTests > 0 ? Math.min(100, Math.round((stats.clearedCount / (stats.totalTests || 1)) * 100) + 20) : 60,
+                  sub: 'Stamina on final 50 Qs',
+                  color: '#5856D6',
+                },
+                {
+                  label: 'Qualifying Clearance Margin',
+                  value: stats.totalTests > 0 ? Math.min(100, Math.round(((stats.highestScore || 150) / 300) * 100)) : 50,
+                  sub: `Peak score: ${stats.highestScore || 150}/300`,
+                  color: '#FF9500',
+                },
+              ].map(({ label, value, sub, color }) => (
+                <div key={label} className="space-y-1">
+                  <div className="flex items-center justify-between text-[12px]">
+                    <span className="text-[#3A3A3C] font-medium">{label}</span>
+                    <span className="font-mono font-bold text-[#1D1D1F]">{value}%</span>
+                  </div>
+                  <div className="h-1.5 w-full rounded-full bg-[#F2F2F7] overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${value}%`, background: color }}
+                    />
+                  </div>
+                  <div className="text-[10px] text-[#8E8E93] text-right">{sub}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Clearance progress ring */}
+            <div className="pt-3 border-t border-[rgba(60,60,67,0.06)] flex items-center gap-3">
+              <div className="relative inline-flex items-center justify-center shrink-0">
+                <svg width="52" height="52" viewBox="0 0 52 52" className="-rotate-90">
+                  <circle cx="26" cy="26" r="20" fill="none" stroke="#F2F2F7" strokeWidth="5" />
+                  <circle
+                    cx="26"
+                    cy="26"
+                    r="20"
+                    fill="none"
+                    stroke={stats.clearanceRate >= 60 ? '#30D158' : stats.clearanceRate > 0 ? '#FF9500' : '#4338CA'}
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 20}
+                    strokeDashoffset={2 * Math.PI * 20 * (1 - (stats.clearanceRate || 50) / 100)}
+                    style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+                  />
+                </svg>
+                <span className="absolute text-[11px] font-black font-mono text-[#1D1D1F]">
+                  {stats.clearanceRate}%
+                </span>
+              </div>
+              <div>
+                <p className="text-[12px] font-bold text-[#1D1D1F]">Mock Clearance Rate</p>
+                <p className="text-[11px] text-[#8E8E93]">
+                  {stats.clearedCount} of {stats.totalTests} cleared (≥150)
                 </p>
               </div>
             </div>
-
-            <div className="text-xs font-mono font-bold text-slate-600 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-slate-200/90 shadow-2xs self-start sm:self-auto">
-              {stats.scoreDelta >= 0 ? `+${stats.scoreDelta} PTS IMPROVEMENT` : `${stats.scoreDelta} PTS TREND`}
-            </div>
           </div>
 
-          {/* Visual Timeline Nodes */}
-          <div className="overflow-x-auto pb-2 scrollbar-thin">
-            <div className="flex items-center gap-3 sm:gap-4 min-w-[560px] pt-4">
-              {[...gts]
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                .map((gt, idx) => {
-                  const isPass = gt.score >= 150;
-                  const deltaTo150 = gt.score - 150;
-
-                  return (
-                    <div
-                      key={gt.id}
-                      className="flex-1 bg-slate-50/70 hover:bg-white backdrop-blur-sm border border-slate-200/90 p-3.5 rounded-2xl transition-all space-y-2 group shadow-2xs"
-                    >
-                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
-                        <span className="font-bold text-slate-700">GT #{idx + 1}</span>
-                        <span>{gt.date}</span>
-                      </div>
-
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-xl font-extrabold font-mono text-slate-900 group-hover:text-[#00685f] transition-colors">
-                          {gt.score}
-                        </span>
-                        <span
-                          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                            isPass ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                          }`}
-                        >
-                          {isPass ? `+${deltaTo150}` : `${deltaTo150}`}
-                        </span>
-                      </div>
-
-                      <div className="text-[11px] text-slate-600 truncate font-medium">
-                        {gt.title}
-                      </div>
-
-                      {/* Mini bar */}
-                      <div className="w-full h-1.5 rounded-full bg-slate-200/70 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${isPass ? 'bg-[#00685f]' : 'bg-amber-500'}`}
-                          style={{ width: `${Math.min(100, Math.max(10, (gt.score / 300) * 100))}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 5. Filter & Search Controls (Visible when tests exist) */}
-      {gts.length > 0 && (
-        <div className="bg-slate-50/70 backdrop-blur-xl rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col md:flex-row items-center justify-between gap-3">
-          {/* Search Bar */}
-          <div className="relative w-full md:w-80">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search tests, platforms, or weak areas..."
-              className="w-full h-10 pl-9 pr-3 rounded-xl bg-white hover:bg-white focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all shadow-xs"
-            />
-            <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
-          </div>
-
-          {/* Filter Pills & Sort */}
-          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-            {/* Platform Dropdown */}
-            <select
-              value={platformFilter}
-              onChange={(e) => setPlatformFilter(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-white border border-slate-200/90 hover:border-slate-300 text-xs font-semibold text-slate-700 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 focus:outline-none cursor-pointer shadow-xs"
-            >
-              <option value="all">All Platforms</option>
-              {platforms.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-
-            {/* Status Filter */}
-            {[
-              { id: 'all', label: 'All Status' },
-              { id: 'pass', label: 'Pass (≥150)' },
-              { id: 'fail', label: 'Needs Boost' },
-            ].map((st) => (
-              <button
-                key={st.id}
-                type="button"
-                onClick={() => setStatusFilter(st.id as any)}
-                className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  statusFilter === st.id
-                    ? 'bg-[#00685f] text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {st.label}
-              </button>
-            ))}
-
-            {/* Sort Dropdown */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer ml-auto md:ml-0"
-            >
-              <option value="date-desc">Newest First</option>
-              <option value="date-asc">Oldest First</option>
-              <option value="score-desc">Highest Score</option>
-              <option value="score-asc">Lowest Score</option>
-            </select>
-          </div>
-        </div>
-      )}
-
-      {/* 6. Grand Test History Cards Grid or Empty State */}
-      {filteredGTs.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredGTs.map((gt) => {
-            const isPassed = gt.score >= 150;
-            const accuracy = Math.round(
-              (gt.correctCount / (gt.correctCount + gt.incorrectCount || 1)) * 100
-            );
-            const delta = gt.score - 150;
-
-            const p1 = gt.paper1Score ?? Math.round(gt.score / 2);
-            const p2 = gt.paper2Score ?? (gt.score - p1);
-
-            const isDeleting = deleteConfirmId === gt.id;
-
-            return (
-              <div
-                key={gt.id}
-                className={`bg-white/80 backdrop-blur-xl rounded-3xl p-6 border transition-all flex flex-col justify-between space-y-4 relative ${
-                  isPassed
-                    ? 'border-emerald-200/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_6px_20px_rgba(0,107,99,0.04)]'
-                    : 'border-slate-200/90 shadow-[0_6px_20px_rgba(0,107,99,0.03)]'
-                }`}
-              >
-                {/* Card Top: Platform Tag, Title, Date & Delete Action */}
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-1">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-100 text-[#00685f]">
-                        {gt.platform}
-                      </span>
-                      <h3 className="text-base font-bold text-slate-900 leading-snug">
-                        {gt.title}
-                      </h3>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{gt.date}</span>
-                      </div>
-                    </div>
-
-                    {/* Delete with inline confirmation */}
-                    {isDeleting ? (
-                      <div className="flex items-center gap-1 bg-rose-50 p-1 rounded-xl border border-rose-200 shrink-0">
-                        <span className="text-[10px] font-bold text-rose-700 px-1">Delete?</span>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(gt.id, gt.title)}
-                          className="px-2 py-0.5 rounded-lg bg-rose-600 text-white text-[10px] font-bold hover:bg-rose-700 cursor-pointer"
-                        >
-                          Yes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteConfirmId(null)}
-                          className="px-2 py-0.5 rounded-lg bg-white text-slate-600 text-[10px] font-bold border border-slate-200 hover:bg-slate-50 cursor-pointer"
-                        >
-                          No
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setDeleteConfirmId(gt.id)}
-                        className="text-slate-400 hover:text-rose-600 p-1.5 rounded-xl hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
-                        title="Delete test record"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Score Callout Card */}
-                  <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-2">
-                    <div className="flex items-baseline justify-between">
-                      <div>
-                        <div className="text-[10px] font-mono font-bold uppercase text-slate-400">
-                          TOTAL SCORE
-                        </div>
-                        <div className="flex items-baseline gap-1">
-                          <span
-                            className={`text-3xl font-extrabold font-mono ${
-                              isPassed ? 'text-emerald-800' : 'text-amber-700'
-                            }`}
-                          >
-                            {gt.score}
-                          </span>
-                          <span className="text-xs font-mono text-slate-400">/ 300</span>
-                        </div>
-                      </div>
-
-                      <div className="text-right space-y-1">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
-                            isPassed
-                              ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                              : 'bg-amber-100 text-amber-800 border-amber-300'
-                          }`}
-                        >
-                          {isPassed ? (
-                            <>
-                              <ShieldCheck className="w-3 h-3" />
-                              <span>PASS (≥150)</span>
-                            </>
-                          ) : (
-                            <>
-                              <ShieldAlert className="w-3 h-3" />
-                              <span>NEEDS BOOST</span>
-                            </>
-                          )}
-                        </span>
-                        <div className="text-[11px] font-mono font-semibold text-slate-600">
-                          {isPassed ? `+${delta} marks above cutoff` : `${Math.abs(delta)} marks to pass`}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Secondary Metrics: Accuracy & Percentile */}
-                    <div className="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-200/60">
-                      <span>Accuracy: <strong>{accuracy}%</strong></span>
-                      {gt.percentile !== undefined && (
-                        <span>Percentile: <strong className="font-mono text-[#00685f]">{gt.percentile}th</strong></span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Paper 1 & Paper 2 Breakdown */}
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/60 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono font-bold uppercase text-slate-400">
-                          Paper 1 (Pre/Para)
-                        </span>
-                      </div>
-                      <div className="flex items-baseline justify-between">
-                        <span className="font-mono font-bold text-slate-900 text-sm">{p1} / 150</span>
-                        <span className="text-[10px] font-mono text-slate-500">
-                          {Math.round((p1 / 150) * 100)}%
-                        </span>
-                      </div>
-                      <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-[#00685f]"
-                          style={{ width: `${Math.min(100, Math.max(5, (p1 / 150) * 100))}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/60 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono font-bold uppercase text-slate-400">
-                          Paper 2 (Clinical)
-                        </span>
-                      </div>
-                      <div className="flex items-baseline justify-between">
-                        <span className="font-mono font-bold text-slate-900 text-sm">{p2} / 150</span>
-                        <span className="text-[10px] font-mono text-slate-500">
-                          {Math.round((p2 / 150) * 100)}%
-                        </span>
-                      </div>
-                      <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-sky-600"
-                          style={{ width: `${Math.min(100, Math.max(5, (p2 / 150) * 100))}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Question Distribution Bar (Correct / Incorrect / Skipped) */}
-                  <div className="space-y-1.5 pt-1">
-                    <div className="flex items-center justify-between text-[11px] text-slate-500">
-                      <span>Questions Breakdown</span>
-                      <span className="font-mono font-medium">
-                        {gt.correctCount + gt.incorrectCount + gt.skippedCount} Qs
-                      </span>
-                    </div>
-
-                    <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden flex">
-                      <div
-                        className="bg-emerald-500 h-full"
-                        style={{ width: `${Math.max(0, (gt.correctCount / 300) * 100)}%` }}
-                        title={`${gt.correctCount} Correct`}
-                      />
-                      <div
-                        className="bg-rose-500 h-full"
-                        style={{ width: `${Math.max(0, (gt.incorrectCount / 300) * 100)}%` }}
-                        title={`${gt.incorrectCount} Incorrect`}
-                      />
-                      <div
-                        className="bg-slate-300 h-full"
-                        style={{ width: `${Math.max(0, (gt.skippedCount / 300) * 100)}%` }}
-                        title={`${gt.skippedCount} Skipped`}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
-                      <span className="text-emerald-700 font-bold">{gt.correctCount} Correct</span>
-                      <span className="text-rose-700 font-bold">{gt.incorrectCount} Incorrect</span>
-                      <span className="text-slate-500">{gt.skippedCount} Skipped</span>
-                    </div>
-                  </div>
-
-                  {/* Weak Subjects Tags */}
-                  {gt.weakSubjectIds && gt.weakSubjectIds.length > 0 && (
-                    <div className="pt-2 border-t border-slate-100 space-y-1.5">
-                      <div className="text-[10px] font-bold uppercase text-rose-700 flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" />
-                        <span>Tagged Weak Areas ({gt.weakSubjectIds.length}):</span>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {gt.weakSubjectIds.map((id) => {
-                          const sub = FMGE_SUBJECTS.find((s) => s.id === id);
-                          return (
-                            <span
-                              key={id}
-                              className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200"
-                            >
-                              {sub?.name || id}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Notes / Reflections */}
-                  {gt.keyMistakesNotes && (
-                    <div className="pt-2 border-t border-slate-100">
-                      <div className="text-xs text-slate-700 bg-amber-50/60 p-3 rounded-2xl border border-amber-200/70 space-y-0.5">
-                        <span className="font-bold text-amber-900 block text-[10px] uppercase font-mono">
-                          Clinical Reflections:
-                        </span>
-                        <p className="text-xs text-slate-700 leading-relaxed line-clamp-3">
-                          {gt.keyMistakesNotes}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+          {/* Strategic Next Actions Card (Matching media_1790582458273.png) */}
+          <div className="p-5 rounded-2xl bg-white border border-[rgba(60,60,67,0.1)] shadow-sm space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#007AFF]/10 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-[#007AFF]" />
               </div>
-            );
-          })}
-        </div>
-      ) : (
-        /* 5. Empty State: Intentional & Guiding */
-        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/80 shadow-xs text-center space-y-8">
-          <div className="max-w-xl mx-auto space-y-3">
-            <div className="w-14 h-14 rounded-3xl bg-emerald-50 text-[#00685f] flex items-center justify-center mx-auto shadow-xs">
-              <GraduationCap className="w-7 h-7" />
+              <div>
+                <h2 className="text-[13px] font-bold text-[#1D1D1F]">Strategic Actions</h2>
+                <p className="text-[11px] text-[#8E8E93]">Personalised steps to boost your score</p>
+              </div>
             </div>
-            <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-mono font-bold uppercase tracking-wider inline-block">
-              NO GRAND TESTS LOGGED YET
-            </span>
-            <h3 className="font-serif text-2xl sm:text-3xl font-semibold text-slate-900">
-              Ready to benchmark your FMGE preparation?
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Grand Tests are the single highest-yield diagnostic for FMGE success. Record your 300-question mock results from Marrow, Prepladder, Cerebellum, or offline mocks to unlock passing probability and paper balance analytics.
+
+            <div className="space-y-2.5">
+              {/* Action 1: 50-MCQ Mini Mock */}
+              <button
+                type="button"
+                onClick={() => setShowMockModal(true)}
+                className="w-full p-3.5 rounded-2xl border border-blue-200/80 bg-blue-50/40 hover:bg-blue-50/70 text-left flex items-center justify-between gap-3 cursor-pointer group transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-[12.5px] font-bold text-[#1D1D1F] leading-snug">
+                      Take 50-MCQ Mini-Mock
+                    </h4>
+                    <p className="text-[10.5px] text-[#6E6E73]">
+                      Timed sprint under strict exam pressure
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#007AFF] opacity-70 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
+              {/* Action 2: Error Vault */}
+              <button
+                type="button"
+                onClick={() => onNavigateTab ? onNavigateTab('errors') : null}
+                className="w-full p-3.5 rounded-2xl border border-purple-200/80 bg-purple-50/40 hover:bg-purple-50/70 text-left flex items-center justify-between gap-3 cursor-pointer group transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#5856D6] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <ShieldAlert className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-[12.5px] font-bold text-[#1D1D1F] leading-snug">
+                      Review Error Vault
+                    </h4>
+                    <p className="text-[10.5px] text-[#6E6E73]">
+                      Clear active mistakes from previous mocks
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#5856D6] opacity-70 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
+              {/* Action 3: Deep Diagnostic */}
+              <button
+                type="button"
+                onClick={() => setShowDiagnosticModal(true)}
+                className="w-full p-3.5 rounded-2xl border border-indigo-200/80 bg-indigo-50/40 hover:bg-indigo-50/70 text-left flex items-center justify-between gap-3 cursor-pointer group transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#3730A3] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <BarChart3 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-[12.5px] font-bold text-[#1D1D1F] leading-snug">
+                      19-Subject Diagnostics
+                    </h4>
+                    <p className="text-[10.5px] text-[#6E6E73]">
+                      Full weakness breakdown &amp; recommendations
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#3730A3] opacity-70 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
+            <p className="text-[10.5px] text-[#8E8E93] text-center pt-1">
+              Recommendations adapt automatically to your latest activity.
             </p>
           </div>
 
-          {/* 3 Step Action Guide */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-2">
-              <div className="w-7 h-7 rounded-xl bg-[#00685f] text-white font-mono font-bold text-xs flex items-center justify-center">
-                1
+          {/* NBE Protocol Blueprint Card */}
+          <div className="p-4 rounded-2xl bg-[#F2F2F7]/50 border border-[rgba(60,60,67,0.06)] space-y-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8E8E93] block">
+              OFFICIAL NBE PROTOCOL
+            </span>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="p-2.5 rounded-xl bg-white border border-[rgba(60,60,67,0.06)]">
+                <span className="text-[10px] text-[#8E8E93] block">Paper 1</span>
+                <span className="font-bold font-mono text-[#1D1D1F]">150 Qs · 150 Mins</span>
               </div>
-              <h4 className="text-sm font-bold text-slate-900">Simulate 300 Questions</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Take a full timed mock test under strict CBT conditions: 150 Qs Paper 1, 150 Qs Paper 2.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-2">
-              <div className="w-7 h-7 rounded-xl bg-[#00685f] text-white font-mono font-bold text-xs flex items-center justify-center">
-                2
+              <div className="p-2.5 rounded-xl bg-white border border-[rgba(60,60,67,0.06)]">
+                <span className="text-[10px] text-[#8E8E93] block">Paper 2</span>
+                <span className="font-bold font-mono text-[#1D1D1F]">150 Qs · 150 Mins</span>
               </div>
-              <h4 className="text-sm font-bold text-slate-900">Log Your Breakdown</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Record your total score, correct vs incorrect counts, and Paper 1 vs Paper 2 splits.
-              </p>
             </div>
-
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-2">
-              <div className="w-7 h-7 rounded-xl bg-[#00685f] text-white font-mono font-bold text-xs flex items-center justify-center">
-                3
-              </div>
-              <h4 className="text-sm font-bold text-slate-900">Triage Weak Subjects</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Tag your weak areas to automatically feed into the Adaptive Planner &amp; AI Coach.
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="button"
-              onClick={() => setShowAddGTModal(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#00685f] hover:bg-[#005049] text-white text-sm font-bold shadow-xs transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Log Your First Grand Test</span>
-            </button>
+            <p className="text-[10.5px] text-[#8E8E93] leading-relaxed pt-1">
+              No negative marking. A candidate must secure at least 150 out of 300 marks to qualify for provisional or permanent registration.
+            </p>
           </div>
         </div>
-      )}
+      </div>
 
       {/* 6. REDESIGNED LOG GRAND TEST MODAL */}
       {showAddGTModal &&
         createPortal(
-          <div className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150">
-          <div className="bg-white/95 backdrop-blur-2xl rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200/90 max-h-[92vh] overflow-y-auto space-y-6">
+          <div className="fixed inset-0 z-[100] bg-slate-950/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[rgba(60,60,67,0.12)] max-h-[92vh] overflow-y-auto space-y-6">
             {/* Modal Header */}
-            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+            <div className="flex items-start justify-between border-b border-[rgba(60,60,67,0.08)] pb-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#00685f] text-[10px] font-mono font-bold shadow-2xs">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#3730A3]/10 text-[#3730A3] text-[10px] font-mono font-bold border border-[#3730A3]/20">
                     NBE 300-MARK RECORD
                   </span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold font-serif text-slate-900">
+                <h3 className="text-xl sm:text-2xl font-bold text-[#1D1D1F]">
                   Log Grand Test Result
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#8E8E93]">
                   Record your full 300-mark mock test score to evaluate your trajectory against the 150-mark pass mark.
                 </p>
               </div>
@@ -1344,9 +1322,9 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowAddGTModal(false)}
-                className="p-2 rounded-xl text-slate-500 hover:text-slate-800 bg-slate-100/90 hover:bg-slate-200/80 border border-slate-200/90 shadow-2xs transition-colors cursor-pointer backdrop-blur-sm"
+                className="w-8 h-8 rounded-full text-[#8E8E93] hover:text-[#1D1D1F] bg-[#F2F2F7] hover:bg-[#E5E5EA] flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1354,13 +1332,13 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             <form onSubmit={handleSaveGT} className="space-y-5 text-xs">
               {/* Section 1: Test Identity */}
               <div className="space-y-3">
-                <div className="text-[11px] font-mono font-bold uppercase text-slate-400">
+                <div className="text-[11px] font-mono font-bold uppercase text-[#8E8E93]">
                   1. Test Identity &amp; Platform
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1 text-[11px]">
+                    <label className="block font-bold text-[#1D1D1F] mb-1 text-[11px]">
                       Test Title *
                     </label>
                     <input
@@ -1369,12 +1347,12 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       placeholder="e.g. Marrow GT 18 or Prepladder CBT 3"
                       value={newGT.title}
                       onChange={(e) => setNewGT({ ...newGT, title: e.target.value })}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#00685f] focus:outline-none transition-all"
+                      className="w-full h-10 px-3.5 bg-[#F2F2F7] border border-transparent focus:border-[#3730A3] focus:bg-white rounded-xl text-xs font-semibold text-[#1D1D1F] focus:outline-none transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1 text-[11px]">
+                    <label className="block font-bold text-[#1D1D1F] mb-1 text-[11px]">
                       Test Date *
                     </label>
                     <input
@@ -1382,14 +1360,14 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       required
                       value={newGT.date}
                       onChange={(e) => setNewGT({ ...newGT, date: e.target.value })}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:border-[#00685f] focus:outline-none transition-all"
+                      className="w-full h-10 px-3.5 bg-[#F2F2F7] border border-transparent focus:border-[#3730A3] focus:bg-white rounded-xl text-xs font-semibold text-[#1D1D1F] focus:outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 {/* Platform selector pills */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1 text-[11px]">
+                  <label className="block font-bold text-[#1D1D1F] mb-1 text-[11px]">
                     Platform / Coaching Source
                   </label>
                   <div className="flex flex-wrap gap-1.5">
@@ -1400,10 +1378,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                           key={p}
                           type="button"
                           onClick={() => setNewGT({ ...newGT, platform: p })}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                             isSel
-                              ? 'bg-[#00685f] text-white shadow-xs'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                              ? 'bg-[#3730A3] text-white shadow-sm'
+                              : 'bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#E5E5EA]'
                           }`}
                         >
                           {p}
@@ -1415,16 +1393,16 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               </div>
 
               {/* Section 2: Score & Cutoff Comparison */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div className="p-4 rounded-2xl bg-[#F2F2F7]/50 border border-[rgba(60,60,67,0.06)] space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono font-bold uppercase text-slate-500">
+                  <span className="text-[11px] font-mono font-bold uppercase text-[#8E8E93]">
                     2. Overall Score &amp; Percentile
                   </span>
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
                       (newGT.score || 0) >= 150
-                        ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                        : 'bg-amber-100 text-amber-800 border-amber-300'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200/90'
+                        : 'bg-amber-50 text-amber-800 border-amber-200/90'
                     }`}
                   >
                     {(newGT.score || 0) >= 150
@@ -1435,7 +1413,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1 text-[11px]">
+                    <label className="block font-bold text-[#1D1D1F] mb-1 text-[11px]">
                       Final Score (out of 300) *
                     </label>
                     <input
@@ -1448,12 +1426,12 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                         const val = Number(e.target.value);
                         setNewGT({ ...newGT, score: val });
                       }}
-                      className="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-base font-extrabold font-mono text-slate-900 focus:border-[#00685f] focus:outline-none transition-all"
+                      className="w-full h-11 px-3.5 bg-white border border-[rgba(60,60,67,0.1)] focus:border-[#3730A3] rounded-xl text-base font-extrabold font-mono text-[#1D1D1F] focus:outline-none transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1 text-[11px]">
+                    <label className="block font-bold text-[#1D1D1F] mb-1 text-[11px]">
                       Percentile (Optional)
                     </label>
                     <input
@@ -1468,7 +1446,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                           percentile: e.target.value ? Number(e.target.value) : undefined,
                         })
                       }
-                      className="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-sm font-bold font-mono text-slate-900 focus:border-[#00685f] focus:outline-none transition-all"
+                      className="w-full h-11 px-3.5 bg-white border border-[rgba(60,60,67,0.1)] focus:border-[#3730A3] rounded-xl text-sm font-bold font-mono text-[#1D1D1F] focus:outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -1476,16 +1454,16 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
               {/* Section 3: Paper 1 & Paper 2 Breakdown */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase text-slate-400">
+                <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase text-[#8E8E93]">
                   <span>3. Paper Splits (150 Marks Each)</span>
-                  <span className="text-slate-500 font-normal">
+                  <span className="text-[#8E8E93] font-normal">
                     P1 + P2 = {(Number(newGT.paper1Score) || 0) + (Number(newGT.paper2Score) || 0)}/300
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1 text-[11px]">
+                    <label className="block font-semibold text-[#1D1D1F] mb-1 text-[11px]">
                       Paper 1 (Pre/Para) / 150
                     </label>
                     <input
@@ -1494,12 +1472,12 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       max="150"
                       value={newGT.paper1Score}
                       onChange={(e) => setNewGT({ ...newGT, paper1Score: Number(e.target.value) })}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-900 focus:bg-white focus:border-[#00685f] focus:outline-none transition-all"
+                      className="w-full h-10 px-3.5 bg-[#F2F2F7] border border-transparent focus:border-[#3730A3] focus:bg-white rounded-xl text-xs font-bold font-mono text-[#1D1D1F] focus:outline-none transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1 text-[11px]">
+                    <label className="block font-semibold text-[#1D1D1F] mb-1 text-[11px]">
                       Paper 2 (Clinical) / 150
                     </label>
                     <input
@@ -1508,7 +1486,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       max="150"
                       value={newGT.paper2Score}
                       onChange={(e) => setNewGT({ ...newGT, paper2Score: Number(e.target.value) })}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-900 focus:bg-white focus:border-[#00685f] focus:outline-none transition-all"
+                      className="w-full h-10 px-3.5 bg-[#F2F2F7] border border-transparent focus:border-[#3730A3] focus:bg-white rounded-xl text-xs font-bold font-mono text-[#1D1D1F] focus:outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -1516,7 +1494,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
               {/* Section 4: Question Count Distribution */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase text-slate-400">
+                <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase text-[#8E8E93]">
                   <span>4. Question Breakdown (Total 300 Qs)</span>
                   <span
                     className={`font-normal ${
@@ -1547,7 +1525,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       max="300"
                       value={newGT.correctCount}
                       onChange={(e) => setNewGT({ ...newGT, correctCount: Number(e.target.value) })}
-                      className="w-full h-10 px-3 bg-emerald-50/50 border border-emerald-200 rounded-xl text-xs font-bold font-mono text-emerald-900 focus:bg-white focus:border-emerald-600 focus:outline-none"
+                      className="w-full h-10 px-3.5 bg-emerald-50/50 border border-emerald-200 rounded-xl text-xs font-bold font-mono text-emerald-900 focus:bg-white focus:border-emerald-600 focus:outline-none"
                     />
                   </div>
 
@@ -1561,12 +1539,12 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       max="300"
                       value={newGT.incorrectCount}
                       onChange={(e) => setNewGT({ ...newGT, incorrectCount: Number(e.target.value) })}
-                      className="w-full h-10 px-3 bg-rose-50/50 border border-rose-200 rounded-xl text-xs font-bold font-mono text-rose-900 focus:bg-white focus:border-rose-600 focus:outline-none"
+                      className="w-full h-10 px-3.5 bg-rose-50/50 border border-rose-200 rounded-xl text-xs font-bold font-mono text-rose-900 focus:bg-white focus:border-rose-600 focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-slate-600 mb-1 text-[11px]">
+                    <label className="block font-semibold text-[#6E6E73] mb-1 text-[11px]">
                       Skipped
                     </label>
                     <input
@@ -1575,7 +1553,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       max="300"
                       value={newGT.skippedCount}
                       onChange={(e) => setNewGT({ ...newGT, skippedCount: Number(e.target.value) })}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-700 focus:bg-white focus:border-slate-400 focus:outline-none"
+                      className="w-full h-10 px-3.5 bg-[#F2F2F7] border border-transparent focus:border-[rgba(60,60,67,0.2)] focus:bg-white rounded-xl text-xs font-bold font-mono text-[#1D1D1F] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1584,13 +1562,13 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               {/* Section 5: Tag Weak Subjects */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="block font-bold text-slate-700 text-[11px]">
+                  <label className="block font-bold text-[#1D1D1F] text-[11px]">
                     5. Tag Weak Areas in this GT ({newGT.weakSubjectIds?.length || 0} selected)
                   </label>
-                  <span className="text-[10px] text-slate-400">Click to toggle</span>
+                  <span className="text-[10px] text-[#8E8E93]">Click to toggle</span>
                 </div>
 
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 max-h-36 overflow-y-auto space-y-2">
+                <div className="p-3 bg-[#F2F2F7]/50 rounded-2xl border border-[rgba(60,60,67,0.06)] max-h-36 overflow-y-auto space-y-2">
                   <div className="flex flex-wrap gap-1.5">
                     {FMGE_SUBJECTS.map((sub) => {
                       const isSelected = newGT.weakSubjectIds?.includes(sub.id);
@@ -1599,10 +1577,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                           type="button"
                           key={sub.id}
                           onClick={() => toggleWeakSubject(sub.id)}
-                          className={`px-3 py-1 rounded-xl text-[11px] font-semibold transition-all cursor-pointer ${
+                          className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
                             isSelected
                               ? 'bg-rose-600 text-white shadow-xs'
-                              : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300'
+                              : 'bg-white text-[#1D1D1F] border border-[rgba(60,60,67,0.1)] hover:border-[rgba(60,60,67,0.2)]'
                           }`}
                         >
                           {sub.name} (~{sub.weightage}m)
@@ -1615,7 +1593,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
               {/* Section 6: Key Reflections / Mistakes Notes */}
               <div className="space-y-1">
-                <label className="block font-bold text-slate-700 text-[11px]">
+                <label className="block font-bold text-[#1D1D1F] text-[11px]">
                   6. Clinical Reflections &amp; Time Management Takeaways
                 </label>
                 <textarea
@@ -1623,22 +1601,22 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                   placeholder="e.g. Ran out of time in Paper 2 last 20 questions. Need to review OBG partograms and PSM formulas..."
                   value={newGT.keyMistakesNotes}
                   onChange={(e) => setNewGT({ ...newGT, keyMistakesNotes: e.target.value })}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-[#00685f] focus:outline-none transition-all leading-relaxed"
+                  className="w-full p-3.5 bg-[#F2F2F7] border border-transparent focus:border-[#3730A3] focus:bg-white rounded-xl text-xs text-[#1D1D1F] focus:outline-none transition-all leading-relaxed"
                 />
               </div>
 
               {/* Footer Actions */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[rgba(60,60,67,0.08)]">
                 <button
                   type="button"
                   onClick={() => setShowAddGTModal(false)}
-                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all cursor-pointer"
+                  className="px-5 py-2.5 bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#6E6E73] hover:text-[#1D1D1F] rounded-full font-bold transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-[#00685f] hover:bg-[#005049] text-white rounded-xl font-bold shadow-xs transition-all cursor-pointer"
+                  className="px-6 py-2.5 bg-[#3730A3] hover:bg-[#2E2882] text-white rounded-full font-bold shadow-sm transition-all cursor-pointer"
                 >
                   Save Grand Test Result
                 </button>
@@ -1655,6 +1633,17 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         onClose={() => setShowMockModal(false)}
         onLogGrandTest={onAddGrandTest}
         onAddErrorItem={onAddErrorItem}
+      />
+
+      {/* Grand Test Deep Diagnostic Modal */}
+      <GrandTestDiagnosticModal
+        isOpen={showDiagnosticModal}
+        onClose={() => {
+          setShowDiagnosticModal(false);
+          setSelectedTestForDiagnostic(null);
+        }}
+        grandTests={selectedTestForDiagnostic ? [selectedTestForDiagnostic] : gts}
+        onNavigateTab={onNavigateTab}
       />
     </div>
   );

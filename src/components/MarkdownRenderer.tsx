@@ -159,7 +159,7 @@ const renderCalloutBlock = (
           <div className="h-6 w-6 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center shrink-0">
             <Compass className="h-3.5 w-3.5" />
           </div>
-          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-teal-100/90 text-teal-900 border border-teal-300/80 font-['Outfit']">
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-teal-100/90 text-teal-900 border border-teal-300/80">
             {badge}
           </span>
         </div>
@@ -180,7 +180,7 @@ const renderCalloutBlock = (
           <div className="h-5 w-5 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
             <AlertTriangle className="h-3 w-3" />
           </div>
-          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300/80 font-['Outfit']">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300/80">
             {badge}
           </span>
         </div>
@@ -201,7 +201,7 @@ const renderCalloutBlock = (
           <div className="h-5 w-5 rounded-full bg-emerald-100 text-emerald-900 flex items-center justify-center shrink-0">
             <Lightbulb className="h-3 w-3" />
           </div>
-          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-900 border border-emerald-300/80 font-['Outfit']">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-900 border border-emerald-300/80">
             {badge}
           </span>
         </div>
@@ -222,7 +222,7 @@ const renderCalloutBlock = (
           <div className="h-5 w-5 rounded-full bg-sky-100 text-sky-800 flex items-center justify-center shrink-0">
             {badge.includes('Drug') ? <Pill className="h-3 w-3" /> : <Award className="h-3 w-3" />}
           </div>
-          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-sky-100 text-sky-800 border border-sky-200 font-['Outfit']">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-sky-100 text-sky-800 border border-sky-200">
             {badge}
           </span>
         </div>
@@ -243,7 +243,7 @@ const renderCalloutBlock = (
           <div className="h-5 w-5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
             <Bookmark className="h-3 w-3" />
           </div>
-          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200 font-['Outfit']">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
             {badge}
           </span>
         </div>
@@ -260,7 +260,7 @@ const renderCalloutBlock = (
       className="w-full my-3 p-3.5 sm:p-4 rounded-2xl bg-sky-50/70 border border-sky-200/80 shadow-2xs space-y-1.5 break-words"
     >
       <div className="flex items-center gap-1.5">
-        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-sky-100 text-sky-800 border border-sky-200 font-['Outfit']">
+        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-sky-100 text-sky-800 border border-sky-200">
           {badge}
         </span>
       </div>
@@ -343,9 +343,9 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
           tokens.push(
             <span
               key={`b-${keyIdx++}`}
-              className="inline-flex items-center gap-1 font-bold text-slate-900 bg-teal-50/80 px-1.5 py-0.5 rounded border border-teal-200/70 shadow-2xs font-['Outfit']"
+              className="inline-flex items-center gap-1 font-bold text-slate-900 bg-blue-500/[0.08] px-1.5 py-0.5 rounded border border-blue-500/20 shadow-2xs"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#006B63] shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#007AFF] shrink-0" />
               {innerText}
             </span>
           );
@@ -429,7 +429,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
                     {headerCells.map((h, hIdx) => (
-                      <th key={`th-${hIdx}`} className="py-2.5 px-3.5 font-bold text-slate-900 font-['Outfit'] uppercase tracking-wider text-[11px]">
+                      <th key={`th-${hIdx}`} className="py-2.5 px-3.5 font-bold text-slate-900 uppercase tracking-wider text-[11px]">
                         {formatInline(h)}
                       </th>
                     ))}
@@ -547,7 +547,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
                       <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
                           {headerCells.map((h, hIdx) => (
-                            <th key={`th-${hIdx}`} className="py-2 px-3 font-bold text-slate-900 font-['Outfit'] uppercase tracking-wider text-[11px]">
+                            <th key={`th-${hIdx}`} className="py-2 px-3 font-bold text-slate-900 uppercase tracking-wider text-[11px]">
                               {formatInline(h)}
                             </th>
                           ))}
@@ -662,7 +662,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             if (subHeadingMatch && subHeadingMatch[1].length < 80) {
               sectionInnerBlocks.push(
                 <div key={`sec-sub-${sectionInnerBlocks.length}`} className="pt-1.5 pb-0.5">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#e8f4fc] text-[#006080] border border-sky-200/70 font-['Outfit']">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#e8f4fc] text-[#006080] border border-sky-200/70">
                     {formatInline(subHeadingMatch[1].trim())}
                   </span>
                 </div>
@@ -720,10 +720,10 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
                     <Compass className="h-3.5 w-3.5" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800 font-['Outfit']">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800">
                       Faculty Coaching & Strategy
                     </span>
-                    <h3 className="font-['Outfit'] font-bold text-teal-950 text-sm sm:text-base leading-snug">
+                    <h3 className="font-bold text-teal-950 text-sm sm:text-base leading-snug">
                       {formatInline(cleanHeadingText)}
                     </h3>
                   </div>
@@ -731,7 +731,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
 
                 {capsuleText && (
                   <div className="pt-0.5">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-teal-100/70 text-teal-900 border border-teal-200/80 font-['Outfit']">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-teal-100/70 text-teal-900 border border-teal-200/80">
                       {formatInline(capsuleText)}
                     </span>
                   </div>
@@ -754,14 +754,14 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
                   <div className="h-7 w-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
                     <ClinicalIcon title={cleanHeadingText} />
                   </div>
-                  <h3 className="font-['Outfit'] font-bold text-slate-900 text-sm sm:text-base leading-snug">
+                  <h3 className="font-bold text-slate-900 text-sm sm:text-base leading-snug">
                     {formatInline(cleanHeadingText)}
                   </h3>
                 </div>
 
                 {capsuleText && (
                   <div className="pt-0.5">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#e8f4fc] text-[#006080] border border-sky-200/70 font-['Outfit']">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#e8f4fc] text-[#006080] border border-sky-200/70">
                       {formatInline(capsuleText)}
                     </span>
                   </div>
@@ -779,7 +779,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
         } else {
           // Level 4+ heading outside section
           blocks.push(
-            <h4 key={`h4-${blocks.length}`} className="w-full text-xs sm:text-sm font-bold font-['Outfit'] text-slate-900 mt-3 mb-1">
+            <h4 key={`h4-${blocks.length}`} className="w-full text-xs sm:text-sm font-bold text-slate-900 mt-3 mb-1">
               {formatInline(cleanHeadingText)}
             </h4>
           );
@@ -914,14 +914,14 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
     }
 
     return (
-      <div className={`w-full max-w-none text-slate-800 space-y-2 font-['Plus_Jakarta_Sans'] ${className}`}>
+      <div className={`w-full max-w-none text-slate-800 space-y-2 ${className}`}>
         {blocks}
       </div>
     );
   } catch (err) {
     console.warn('Markdown parsing fallback activated:', err);
     return (
-      <div className={`w-full max-w-none text-slate-800 space-y-2 font-['Plus_Jakarta_Sans'] ${className}`}>
+      <div className={`w-full max-w-none text-slate-800 space-y-2 ${className}`}>
         <p className="whitespace-pre-wrap text-xs sm:text-sm leading-relaxed text-slate-700 break-words font-sans">{content}</p>
       </div>
     );

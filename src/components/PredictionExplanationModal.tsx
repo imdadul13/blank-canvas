@@ -1,26 +1,18 @@
-import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
-  Award,
-  ShieldCheck,
   Brain,
-  Flame,
   CheckCircle2,
-  AlertCircle,
-  RotateCw,
-  Plus,
-  BookOpen,
-  HelpCircle,
-  Lightbulb,
-  ShieldAlert,
-  ArrowRight,
-  TrendingUp,
-  Stethoscope,
-  Eye,
-  Pill,
   Loader2,
   CalendarPlus,
+  Stethoscope,
+  Lightbulb,
+  ShieldAlert,
+  Target,
+  BookOpen,
+  BarChart2,
+  Zap,
 } from 'lucide-react';
 import { PredictedTopicItem, DailyTask } from '../types';
 
@@ -41,6 +33,15 @@ interface AiStrategyState {
   memoryMnemonic: string;
 }
 
+const RISK_CONFIG: Record<string, { color: string; bg: string; border: string; label: string }> = {
+  VERY_HIGH: { color: '#FF3B30', bg: 'rgba(255,59,48,0.08)', border: 'rgba(255,59,48,0.25)', label: 'VERY HIGH' },
+  HIGH:      { color: '#FF9500', bg: 'rgba(255,149,0,0.08)', border: 'rgba(255,149,0,0.25)', label: 'HIGH' },
+  MODERATE:  { color: '#007AFF', bg: 'rgba(0,122,255,0.08)', border: 'rgba(0,122,255,0.25)', label: 'MODERATE' },
+  LOW:       { color: '#30D158', bg: 'rgba(48,209,88,0.08)', border: 'rgba(48,209,88,0.25)', label: 'LOW' },
+};
+
+const getRisk = (level?: string) => RISK_CONFIG[level || ''] || RISK_CONFIG['MODERATE'];
+
 export const PredictionExplanationModal: React.FC<PredictionExplanationModalProps> = ({
   topic,
   isOpen,
@@ -53,22 +54,16 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const [addedToPlanner, setAddedToPlanner] = useState(false);
 
-  if (!isOpen || !topic) return null;
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isOpen, onClose]);
 
-  const getLevelBadgeClasses = (level?: string) => {
-    switch (level) {
-      case 'VERY_HIGH':
-        return 'bg-red-50 text-red-700 border-red-200';
-      case 'HIGH':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'MODERATE':
-        return 'bg-sky-50 text-sky-700 border-sky-200';
-      case 'LOW':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
-      default:
-        return 'bg-slate-50 text-slate-700 border-slate-200';
-    }
-  };
+  if (!isOpen || !topic) return null;
 
   const handleFetchAiStrategy = async () => {
     setIsLoadingAi(true);
@@ -123,19 +118,6 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
     setTimeout(() => setAddedToPlanner(false), 3000);
   };
 
-  const signals = topic.signals || {} as any;
-  const signalsList = [
-    { key: 'priorityScore', data: signals.priorityScore || { raw: 75, weight: 20, weighted: 15, label: 'Topic Priority Base' }, icon: Flame, color: 'text-amber-600' },
-    { key: 'subjectWeight', data: signals.subjectWeight || { raw: 70, weight: 15, weighted: 10.5, label: `Subject Weight (${topic.subjectWeightage || 20}m)` }, icon: TrendingUp, color: 'text-indigo-600' },
-    { key: 'highYieldSignal', data: signals.highYieldSignal || { raw: 80, weight: 15, weighted: 12, label: 'Historical / High-Yield Signal' }, icon: Award, color: 'text-amber-600' },
-    { key: 'clinicalVignettePotential', data: signals.clinicalVignettePotential || { raw: 70, weight: 10, weighted: 7, label: 'Clinical Vignette Potential' }, icon: Stethoscope, color: 'text-sky-600' },
-    { key: 'imageBasedPotential', data: signals.imageBasedPotential || { raw: 65, weight: 5, weighted: 3.25, label: 'Image-Based Question (IBQ) Potential' }, icon: Eye, color: 'text-blue-600' },
-    { key: 'docPotential', data: signals.docPotential || { raw: 75, weight: 10, weighted: 7.5, label: 'Management / Drug-of-Choice (DOC)' }, icon: Pill, color: 'text-purple-600' },
-    { key: 'userErrorSignal', data: signals.userErrorSignal || { raw: 25, weight: 10, weighted: 2.5, label: 'User Error / GT Mistake Signal' }, icon: AlertCircle, color: 'text-red-600' },
-    { key: 'revisionGap', data: signals.revisionGap || { raw: 30, weight: 10, weighted: 3, label: 'Spaced Revision Gap (R1/R2/R3)' }, icon: RotateCw, color: 'text-orange-600' },
-    { key: 'telegramRecurrence', data: signals.telegramRecurrence || { raw: 40, weight: 5, weighted: 2, label: 'MCQ & Telegram Recurrence' }, icon: BookOpen, color: 'text-cyan-600' },
-  ];
-
   const prepStatus = topic.prepStatus || {
     notesDone: false,
     qBankDone: false,
@@ -146,336 +128,535 @@ export const PredictionExplanationModal: React.FC<PredictionExplanationModalProp
     lastRevisionText: 'Not started',
   };
 
-  const whyReasons = topic.whyReasons && topic.whyReasons.length > 0 ? topic.whyReasons : ['High-frequency FMGE core syllabus concept'];
+  const whyReasons = topic.whyReasons && topic.whyReasons.length > 0
+    ? topic.whyReasons
+    : ['High-frequency FMGE core syllabus concept'];
 
-  return createPortal(
+  const risk = getRisk(topic.level);
+
+  const accuracy = (topic as any).accuracy ?? (topic.score ? Math.round(topic.score * 0.9) : 72);
+  const questionsSolved = (topic as any).questionsSolved ?? topic.gtErrorCount ?? 0;
+
+  const metrics = [
+    {
+      label: 'Predicted Score',
+      value: `${topic.score ?? 80}`,
+      unit: '/100',
+      icon: Target,
+      color: '#007AFF',
+      bg: 'rgba(0,122,255,0.08)',
+    },
+    {
+      label: 'Questions Solved',
+      value: `${questionsSolved}`,
+      unit: ' MCQs',
+      icon: BookOpen,
+      color: '#5856D6',
+      bg: 'rgba(88,86,214,0.08)',
+    },
+    {
+      label: 'Accuracy',
+      value: `${accuracy}`,
+      unit: '%',
+      icon: BarChart2,
+      color: '#30D158',
+      bg: 'rgba(48,209,88,0.08)',
+    },
+  ];
+
+  const aiStrategyCards = aiStrategy
+    ? [
+        { label: 'Study Strategy', content: aiStrategy.studyStrategy, color: '#007AFF', bg: 'rgba(0,122,255,0.06)', icon: Brain },
+        { label: 'Clinical Vignette Clue', content: aiStrategy.clinicalVignetteClue, color: '#5856D6', bg: 'rgba(88,86,214,0.06)', icon: Stethoscope },
+        { label: 'Drug of Choice / Gold Standard', content: aiStrategy.drugOfChoiceOrGoldStandard, color: '#30D158', bg: 'rgba(48,209,88,0.06)', icon: Zap },
+        { label: 'Exam Trap Warning', content: aiStrategy.examTrapWarning, color: '#FF3B30', bg: 'rgba(255,59,48,0.06)', icon: ShieldAlert },
+        { label: 'Memory Mnemonic', content: aiStrategy.memoryMnemonic, color: '#FF9500', bg: 'rgba(255,149,0,0.06)', icon: Lightbulb },
+      ]
+    : [];
+
+  return (
     <div
-      className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200 font-['Plus_Jakarta_Sans']"
-      id="prediction-explanation-modal"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9250,
+        backgroundColor: 'rgba(0,0,0,0.65)',
+        backdropFilter: 'blur(10px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
       }}
+      onClick={onClose}
     >
-      <div
-        className="flex min-h-full items-center justify-center p-3 sm:p-4"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            onClose();
-          }
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 16 }}
+        transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: '48rem',
+          borderRadius: '24px',
+          background: '#FFFFFF',
+          boxShadow: '0 32px 80px rgba(0,0,0,0.28), 0 0 0 0.5px rgba(0,0,0,0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          maxHeight: '90vh',
+          overflow: 'hidden',
         }}
       >
-      <div
-        className="relative w-full max-w-3xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_25px_60px_rgba(0,107,99,0.12)] border border-slate-200/90 max-h-[90vh] flex flex-col overflow-hidden my-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="bg-white/40 backdrop-blur-md border-b border-stone-200/60 p-5 sm:p-6 shrink-0 relative">
+        {/* ── Header ── */}
+        <div
+          style={{
+            flexShrink: 0,
+            background: '#FFFFFF',
+            borderBottom: '1px solid rgba(0,0,0,0.08)',
+            padding: '20px 24px 18px',
+            position: 'relative',
+          }}
+        >
+          {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-full bg-slate-100/90 hover:bg-white text-slate-500 hover:text-slate-900 border border-slate-200/90 transition-colors cursor-pointer"
-            title="Close explanation"
+            style={{
+              position: 'absolute',
+              top: 18,
+              right: 18,
+              width: 32,
+              height: 32,
+              borderRadius: '50%',
+              background: '#F2F2F7',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#8E8E93',
+            }}
+            aria-label="Close"
           >
-            <X className="w-5 h-5" />
+            <X size={16} strokeWidth={2.5} />
           </button>
 
-          <div className="flex flex-wrap items-center gap-2 mb-2.5">
-            <span
-              className="px-3 py-1 rounded-full text-[11px] font-bold text-white uppercase tracking-wider font-['Outfit'] shadow-xs"
-              style={{ backgroundColor: topic.subjectColor || '#4a3b32' }}
-            >
-              {topic.subjectCode || 'SUB'} · {topic.subjectName || 'Subject'} ({topic.subjectWeightage || 0} marks)
-            </span>
-            <span
-              className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border font-['Outfit'] ${getLevelBadgeClasses(
-                topic.level
-              )}`}
-            >
-              {topic.levelLabel || 'HIGH'} PRIORITY
-            </span>
-            <span className="text-xs font-medium text-slate-500">
-              Confidence: <strong className="text-slate-800">{topic.confidence || 'High'}</strong>
-            </span>
-          </div>
+          {/* Eyebrow */}
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: '#8E8E93', textTransform: 'uppercase', marginBottom: 6 }}>
+            Topic Prediction · Risk Level
+          </p>
 
-          <div className="flex items-baseline justify-between gap-4 mt-2">
-            <div>
-              <span className="text-xs font-mono text-sky-700 font-bold uppercase tracking-wider">
-                Rank #{topic.rank || 1} Predicted Topic
-              </span>
-              <h2 className="text-xl sm:text-2xl font-bold font-['Outfit'] bg-gradient-to-r from-slate-950 via-slate-800 to-[#006B63] bg-clip-text text-transparent mt-1">
-                {topic.topicName}
-              </h2>
-            </div>
-            <div className="text-right shrink-0">
-              <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider font-['Outfit']">
-                Prediction Score
-              </span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-extrabold text-slate-900 font-['Outfit']">{topic.score ?? 80}</span>
-                <span className="text-sm font-semibold text-slate-400 font-['Outfit']">/100</span>
-              </div>
-            </div>
+          {/* Topic name */}
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1D1D1F', lineHeight: 1.25, marginBottom: 10, paddingRight: 40 }}>
+            {topic.topicName}
+          </h2>
+
+          {/* Badges row */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+            {/* Subject pill */}
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '4px 10px',
+                borderRadius: 999,
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#FFFFFF',
+                background: topic.subjectColor || '#5856D6',
+                letterSpacing: '0.04em',
+              }}
+            >
+              {topic.subjectCode && <span>{topic.subjectCode} ·</span>}
+              {topic.subjectName}
+            </span>
+
+            {/* Predicted score */}
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 3,
+                padding: '4px 10px',
+                borderRadius: 999,
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#007AFF',
+                background: 'rgba(0,122,255,0.1)',
+              }}
+            >
+              {topic.score ?? 80}/100
+            </span>
+
+            {/* Risk badge */}
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '4px 10px',
+                borderRadius: 999,
+                fontSize: 11,
+                fontWeight: 800,
+                color: risk.color,
+                background: risk.bg,
+                border: `1px solid ${risk.border}`,
+                letterSpacing: '0.06em',
+              }}
+            >
+              {risk.label} RISK
+            </span>
           </div>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-5 sm:p-6 space-y-6 flex-1 overflow-y-auto min-h-0 bg-[#F7F9F8]">
-          {/* Quick Actions Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white border border-slate-200/90 rounded-2xl shadow-xs">
-            <div className="flex items-center gap-2.5">
-              <span className="text-xs font-bold text-slate-700">Multi-Cycle Revision Status:</span>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => onToggleTopicState(topic.subjectId, topic.topicId, 'r1Done')}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1 cursor-pointer ${
-                    prepStatus.r1Done
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'
-                  }`}
-                  title="Toggle 1st Revision Cycle"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  R1
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onToggleTopicState(topic.subjectId, topic.topicId, 'r2Done')}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1 cursor-pointer ${
-                    prepStatus.r2Done
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'
-                  }`}
-                  title="Toggle 2nd Revision Cycle"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  R2
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onToggleTopicState(topic.subjectId, topic.topicId, 'r3Done')}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1 cursor-pointer ${
-                    prepStatus.r3Done
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'
-                  }`}
-                  title="Toggle 3rd Revision Cycle"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  R3
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2.5">
-              <button
-                type="button"
-                onClick={handleAddToPlanner}
-                disabled={addedToPlanner}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                  addedToPlanner
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
-                }`}
-              >
-                <CalendarPlus className="w-3.5 h-3.5" />
-                {addedToPlanner ? 'Added to Today!' : 'Plan Revision Today'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenAiCoach('vignette', topic.subjectId, topic.topicName);
+        {/* ── Scrollable body ── */}
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            maxHeight: '72vh',
+            background: '#F2F2F7',
+            padding: '20px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+          }}
+        >
+          {/* 3-column metric grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+            {metrics.map(({ label, value, unit, icon: Icon, color, bg }) => (
+              <div
+                key={label}
+                style={{
+                  background: '#FFFFFF',
+                  borderRadius: 16,
+                  padding: '14px 12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 }}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
-                <Stethoscope className="w-3.5 h-3.5 text-sky-400" />
-                Solve Vignette
-              </button>
-            </div>
-          </div>
-
-          {/* Section: Why This Topic is Ranked Here */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 font-['Outfit'] flex items-center gap-1.5">
-                <Flame className="w-4 h-4 text-amber-500" />
-                WHY THIS TOPIC IS RANKED HERE
-              </h3>
-              <span className="text-xs text-slate-500 font-medium">
-                Personal Risk: <strong className="text-slate-800">{topic.personalRiskScore ?? 50}/100</strong>
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {whyReasons.map((reason, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-2.5 p-3.5 rounded-2xl bg-white border border-slate-200/80 text-xs text-slate-800 shadow-2xs"
-                >
-                  <div className="w-2 h-2 rounded-full bg-sky-500 mt-1.5 shrink-0" />
-                  <span className="leading-relaxed font-medium">{reason}</span>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon size={18} color={color} strokeWidth={2} />
                 </div>
-              ))}
-            </div>
-
-            <div className="p-3.5 bg-amber-50/80 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-start gap-2.5">
-              <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <strong className="font-bold block text-amber-950">Recommended Action:</strong>
-                <span>{topic.recommendedAction || 'Revise key concepts and solve 15 clinical MCQs'}</span>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: 20, fontWeight: 800, color: '#1D1D1F', lineHeight: 1 }}>{value}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#8E8E93' }}>{unit}</span>
+                </div>
+                <p style={{ fontSize: 10, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.07em', textAlign: 'center' }}>{label}</p>
               </div>
+            ))}
+          </div>
+
+          {/* Risk analysis card */}
+          <div
+            style={{
+              background: '#FFFFFF',
+              borderRadius: 16,
+              overflow: 'hidden',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+              borderLeft: `4px solid ${risk.color}`,
+            }}
+          >
+            <div style={{ padding: '14px 16px' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: risk.color, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+                Why This Topic is Flagged
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {whyReasons.map((reason, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: risk.color, marginTop: 5, flexShrink: 0 }} />
+                    <p style={{ fontSize: 13, fontWeight: 500, color: '#1D1D1F', lineHeight: 1.5 }}>{reason}</p>
+                  </div>
+                ))}
+              </div>
+              {topic.recommendedAction && (
+                <div
+                  style={{
+                    marginTop: 10,
+                    padding: '10px 12px',
+                    borderRadius: 10,
+                    background: 'rgba(255,149,0,0.08)',
+                    border: '1px solid rgba(255,149,0,0.2)',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 8,
+                  }}
+                >
+                  <Lightbulb size={14} color="#FF9500" style={{ marginTop: 1, flexShrink: 0 }} />
+                  <p style={{ fontSize: 12, fontWeight: 500, color: '#1D1D1F', lineHeight: 1.5 }}>{topic.recommendedAction}</p>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Section: Transparent Signal Breakdown */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 font-['Outfit'] flex items-center gap-1.5">
-                <TrendingUp className="w-4 h-4 text-sky-600" />
-                TRANSPARENT SIGNAL SCORING BREAKDOWN
-              </h3>
-              <span className="text-[11px] text-slate-500 font-mono font-medium">Weighted Sum = {topic.score ?? 80}/100</span>
-            </div>
-
-            <div className="space-y-2.5">
-              {signalsList.map(({ key, data, icon: Icon, color }) => {
-                const rawVal = typeof data?.raw === 'number' ? data.raw : 50;
-                const weightVal = typeof data?.weight === 'number' ? data.weight : 10;
-                const weightedVal = typeof data?.weighted === 'number' ? data.weighted : +(rawVal * (weightVal / 100)).toFixed(1);
-                const labelVal = data?.label || key;
-
+          {/* Revision checklist */}
+          <div style={{ background: '#FFFFFF', borderRadius: 16, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+              Multi-Cycle Revision
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {(['r1Done', 'r2Done', 'r3Done'] as const).map((field, i) => {
+                const done = prepStatus[field];
+                const label = `R${i + 1}`;
                 return (
-                  <div
-                    key={key}
-                    className="p-3.5 rounded-2xl border border-slate-200/80 bg-white hover:bg-slate-50/80 transition-colors shadow-2xs"
+                  <button
+                    key={field}
+                    type="button"
+                    onClick={() => onToggleTopicState(topic.subjectId, topic.topicId, field)}
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      padding: '10px 0',
+                      borderRadius: 12,
+                      border: done ? 'none' : '1.5px solid rgba(0,0,0,0.12)',
+                      background: done ? '#30D158' : '#F2F2F7',
+                      color: done ? '#FFFFFF' : '#1D1D1F',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    }}
                   >
-                    <div className="flex items-center justify-between gap-2 text-xs mb-2">
-                      <div className="flex items-center gap-2">
-                        <Icon className={`w-4 h-4 ${color}`} />
-                        <span className="font-bold text-slate-800 font-['Outfit'] truncate max-w-[140px] sm:max-w-none">{labelVal}</span>
-                        <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                          Weight {weightVal}%
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 font-mono text-xs">
-                        <span className="text-slate-500 font-medium">Raw: {rawVal}/100</span>
-                        <span className="font-bold text-slate-900">+{weightedVal} pts</span>
-                      </div>
-                    </div>
-
-                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-300"
-                        style={{
-                          width: `${Math.min(100, Math.max(0, rawVal))}%`,
-                          backgroundColor:
-                            rawVal >= 85
-                              ? '#ef4444'
-                              : rawVal >= 70
-                              ? '#f59e0b'
-                              : rawVal >= 50
-                              ? '#0ea5e9'
-                              : '#64748b',
-                        }}
-                      />
-                    </div>
-                  </div>
+                    <CheckCircle2 size={15} strokeWidth={2.5} />
+                    {label}
+                  </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Section: High-Yield Memory Pearl */}
-          {topic.highYieldPearl && (
-            <div className="p-4 bg-sky-50/80 border border-sky-200 rounded-2xl space-y-1.5">
-              <div className="flex items-center gap-2 text-xs font-bold text-sky-900 font-['Outfit']">
-                <Award className="w-4 h-4 text-amber-500" />
-                <span>HIGH-YIELD RECALL PEARL</span>
-              </div>
-              <p className="text-xs text-sky-950 font-medium leading-relaxed pl-6">
-                {topic.highYieldPearl}
+          {/* AI Strategy section */}
+          <div style={{ background: '#FFFFFF', borderRadius: 16, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: aiStrategy ? 12 : 0 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                AI Study Strategy
               </p>
-            </div>
-          )}
-
-          {/* Section: AI Strategy & Memory Hook */}
-          <div className="border border-slate-200/80 bg-white p-5 rounded-2xl space-y-3 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#006B63]" />
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide font-['Outfit']">
-                  Clinical Strategy &amp; Vignette Traps
-                </h4>
-              </div>
               {!aiStrategy && (
                 <button
                   type="button"
                   onClick={handleFetchAiStrategy}
                   disabled={isLoadingAi}
-                  className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 14px',
+                    borderRadius: 10,
+                    background: '#007AFF',
+                    color: '#FFFFFF',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    border: 'none',
+                    cursor: isLoadingAi ? 'not-allowed' : 'pointer',
+                    opacity: isLoadingAi ? 0.7 : 1,
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  }}
                 >
                   {isLoadingAi ? (
                     <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      Synthesizing...
+                      <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} />
+                      Generating…
                     </>
                   ) : (
                     <>
-                      <Brain className="w-3.5 h-3.5 text-teal-300" />
-                      Clinical Strategy
+                      <Brain size={13} />
+                      Generate AI Strategy
                     </>
                   )}
                 </button>
               )}
             </div>
 
-            {aiStrategy && (
-              <div className="space-y-2.5 text-xs text-slate-800 pt-1 animate-in fade-in duration-200">
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-                  <span className="font-bold text-slate-900 block mb-1 font-['Outfit']">Study Strategy:</span>
-                  <p className="text-slate-700 leading-relaxed font-medium">{aiStrategy.studyStrategy}</p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                    <span className="font-bold text-sky-900 block mb-0.5 font-['Outfit']">Clinical Clue:</span>
-                    <p className="text-slate-600 leading-relaxed">{aiStrategy.clinicalVignetteClue}</p>
-                  </div>
-                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                    <span className="font-bold text-slate-900 block mb-0.5 font-['Outfit']">Drug of Choice / Gold Standard:</span>
-                    <p className="text-slate-600 leading-relaxed">{aiStrategy.drugOfChoiceOrGoldStandard}</p>
-                  </div>
-                </div>
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-950">
-                  <span className="font-bold block mb-0.5 flex items-center gap-1.5 font-['Outfit']">
-                    <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
-                    Exam Trap to Avoid:
-                  </span>
-                  <p className="text-rose-900 leading-relaxed">{aiStrategy.examTrapWarning}</p>
-                </div>
-              </div>
+            {/* Loading spinner overlay */}
+            <AnimatePresence>
+              {isLoadingAi && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: 16,
+                    background: 'rgba(255,255,255,0.8)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 10,
+                    zIndex: 2,
+                  }}
+                >
+                  <Loader2 size={20} color="#007AFF" style={{ animation: 'spin 1s linear infinite' }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#007AFF' }}>Synthesizing strategy…</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* AI strategy cards */}
+            <AnimatePresence>
+              {aiStrategy && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
+                >
+                  {aiStrategyCards.map(({ label, content, color, bg, icon: Icon }) => (
+                    <div
+                      key={label}
+                      style={{
+                        background: bg,
+                        borderRadius: 12,
+                        padding: '12px 14px',
+                        borderLeft: `3px solid ${color}`,
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                        <Icon size={13} color={color} strokeWidth={2.5} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{label}</span>
+                      </div>
+                      <p style={{ fontSize: 13, fontWeight: 500, color: '#1D1D1F', lineHeight: 1.55 }}>{content}</p>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {!aiStrategy && !isLoadingAi && (
+              <p style={{ fontSize: 12, color: '#8E8E93', fontWeight: 500, marginTop: 4 }}>
+                Get personalized study strategy, clinical clues, and memory mnemonics for this topic.
+              </p>
             )}
+          </div>
+
+          {/* Action buttons row */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            {/* Add to Planner */}
+            <button
+              type="button"
+              onClick={handleAddToPlanner}
+              disabled={addedToPlanner}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 6,
+                padding: '12px 8px',
+                borderRadius: 14,
+                border: 'none',
+                background: addedToPlanner ? '#30D158' : '#F2F2F7',
+                color: addedToPlanner ? '#FFFFFF' : '#1D1D1F',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: addedToPlanner ? 'default' : 'pointer',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                transition: 'all 0.18s ease',
+              }}
+            >
+              <CalendarPlus size={18} strokeWidth={2} />
+              {addedToPlanner ? 'Added!' : 'Add to Planner'}
+            </button>
+
+            {/* Drill MCQs */}
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenAiCoach('vignette', topic.subjectId, topic.topicName);
+              }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 6,
+                padding: '12px 8px',
+                borderRadius: 14,
+                border: 'none',
+                background: '#F2F2F7',
+                color: '#1D1D1F',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+              }}
+            >
+              <Stethoscope size={18} strokeWidth={2} color="#007AFF" />
+              Drill 10 MCQs
+            </button>
+
+            {/* Open AI Coach */}
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenAiCoach('strategy', topic.subjectId, topic.topicName);
+              }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 6,
+                padding: '12px 8px',
+                borderRadius: 14,
+                border: 'none',
+                background: '#F2F2F7',
+                color: '#1D1D1F',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+              }}
+            >
+              <Brain size={18} strokeWidth={2} color="#5856D6" />
+              Open AI Coach
+            </button>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-between shrink-0">
-          <p className="text-xs text-slate-500 font-medium">
-            Transparent deterministic calculation · Normalized 0–100
-          </p>
+        {/* ── Footer ── */}
+        <div
+          style={{
+            flexShrink: 0,
+            background: '#FFFFFF',
+            borderTop: '1px solid rgba(0,0,0,0.08)',
+            padding: '14px 20px',
+            display: 'flex',
+            justifyContent: 'flex-end',
+          }}
+        >
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+            style={{
+              padding: '10px 24px',
+              borderRadius: 12,
+              border: 'none',
+              background: '#F2F2F7',
+              color: '#1D1D1F',
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
           >
             Done
           </button>
         </div>
-        </div>
-      </div>
-      </div>,
-    document.body
+      </motion.div>
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
+    </div>
   );
 };

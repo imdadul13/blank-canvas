@@ -3,53 +3,271 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ═══════════════════════════════════════════════════════════════════════
+   TAILWIND THEME — SF PRO FONT STACK + iOS SYSTEM BLUE PALETTE
+   ═══════════════════════════════════════════════════════════════════════ */
+
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* ── Type: two canonical SF Pro stacks, Display for headings, Text for body ── */
+  --font-sans:    -apple-system, BlinkMacSystemFont, "SF Pro Text",    "SF Pro", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-apple-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
-  --font-apple-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --font-outfit: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
-  --font-jakarta: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
-  --font-newsreader: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
-  --font-inter: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
+  --font-mono:    ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-  --color-terracotta: #B57B66;
-  --color-terracotta-50: #FAF5F2;
-  --color-terracotta-100: #F4E8E3;
-  --color-terracotta-200: #EAD3CA;
-  --color-terracotta-300: #DCB8AC;
-  --color-terracotta-400: #C99B8B;
-  --color-terracotta-500: #B57B66;
-  --color-terracotta-600: #9E634F;
-  --color-terracotta-700: #83503F;
-  --color-terracotta-800: #6D4336;
-  --color-terracotta-900: #5A392F;
-}
+  /* Legacy font aliases — all resolve to the canonical stacks above */
+  --font-apple-display: var(--font-display);
+  --font-apple-text:    var(--font-sans);
+  --font-outfit:        var(--font-display);
+  --font-jakarta:       var(--font-sans);
+  --font-newsreader:    var(--font-sans);
+  --font-inter:         var(--font-sans);
 
-:root {
-  --interactive-terracotta: #B57B66;
-  --interactive-terracotta-hover: #9E634F;
-  --interactive-terracotta-subtle: rgba(181, 123, 102, 0.12);
-  --interactive-terracotta-glow: rgba(181, 123, 102, 0.28);
+  /* ══════════════════════════════════════════════════════════════════
+     CANVAS — the iOS grouped background every screen sits on.
+     White cards float on this. It is the core device of the system.
+     ══════════════════════════════════════════════════════════════════ */
+  --color-canvas:        #F2F2F7;   /* app shell + grouped background */
+  --color-surface:       #FFFFFF;   /* card / panel                      */
+  --color-surface-sunken:#F5F5F7;   /* chart track, inset wells         */
+  --color-surface-muted: #E5E5EA;   /* segmented-control track          */
+  --color-surface-row:   #F9F9F9;   /* table header, hover row          */
+  --color-scrim:         rgba(0, 0, 0, 0.65);
 
-  /* Apple Design System Tokens */
-  --apple-bg-base: #FFFFFF;
-  --apple-bg-secondary: #EEF2F2;
-  --apple-bg-tertiary: #FFFFFF;
-  --apple-bg-sidebar: rgba(246, 246, 246, 0.85);
-  --apple-separator: rgba(60, 60, 67, 0.12);
-  --apple-separator-opaque: #E5E5EA;
-  --apple-label-primary: #1D1D1F;
-  --apple-label-secondary: #6E6E73;
-  --apple-label-tertiary: #86868B;
-  --apple-fill-quaternary: rgba(116, 116, 128, 0.08);
-  --apple-blue: #0071E3;
-  --apple-blue-hover: #0077ED;
+  /* ══════════════════════════════════════════════════════════════════
+     INK — the four-step Apple label ramp. Never hardcode greys.
+     ══════════════════════════════════════════════════════════════════ */
+  --color-ink:        #1D1D1F;  /* primary   — titles, values          */
+  --color-ink-2:      #6E6E73;  /* secondary — labels, body copy       */
+  --color-ink-3:      #8E8E93;  /* tertiary  — metadata, eyebrows     */
+  --color-ink-4:      #AEAEB2;  /* quaternary— timestamps, disabled    */
+
+  /* Hairlines */
+  --color-hairline:        rgba(60, 60, 67, 0.12);
+  --color-hairline-strong: rgba(60, 60, 67, 0.20);
+  --color-hairline-soft:   rgba(60, 60, 67, 0.06);
+
+  /* ══════════════════════════════════════════════════════════════════
+     VIEW IDENTITY — each top-level tab owns exactly one accent hue.
+     The hue propagates: hero gradient → segmented control → icon chip
+     → focus tint → active pill → accent-tinted shadow.
+     ══════════════════════════════════════════════════════════════════ */
+  --color-home:        #007AFF;  --color-home-ink:   #0056CC;  --color-home-tint:  #EBF4FF;  --color-home-wash:  #EEF5FF;
+  --color-study:       #30D158;  --color-study-ink:  #1A7A35;  --color-study-tint: #E8F9EE;  --color-study-wash: #E8F9EE;
+  --color-practice:    #FF9500;  --color-practice-ink:#C85000; --color-practice-tint:#FFF5E6; --color-practice-wash:#FFF5E6;
+  --color-performance: #5AC8FA;  --color-performance-ink:#0A7FA8; --color-performance-tint:#EAF8FF; --color-performance-wash:#EAF8FF;
+  --color-knowledge:   #BF5AF2;  --color-knowledge-ink:#5B006E; --color-knowledge-tint:#F5EAFF; --color-knowledge-wash:#F5EAFF;
+  /* Mentor — Apple Indigo. */
+  --color-mentor:      #5856D6;  --color-mentor-ink: #3634A3;
+  --color-mentor-tint: #F0F0FE;  --color-mentor-wash:#F5F5FF;
+
+  /* Semantic status — used for thresholds, never for decoration */
+  --color-pass:   #30D158;  /* ≥ 75%  */
+  --color-warn:   #FF9500;  /* ≥ 50%  */
+  --color-fail:   #FF3B30;  /* else   */
+
+  /* Status needs three steps, not one: a saturated mark, an ink that passes
+     contrast on its own wash, and the wash itself. A single hex forces a
+     choice between "readable" and "on-brand". */
+  --color-pass-ink: #147A38;  --color-pass-wash:   #E9F9EE;
+  --color-warn-ink: #96500A;  --color-warn-wash:   #FFF4E5;
+  --color-fail-ink: #B3261E;  --color-fail-wash:   #FFECEB;
+
+  /* iOS system palette — the legal colour set */
+  --color-ios-blue:   #007AFF;  --color-ios-green:  #30D158;
+  --color-ios-red:    #FF3B30;  --color-ios-orange: #FF9500;
+  --color-ios-yellow: #FFCC00;  --color-ios-teal:   #30B0C7;
+  --color-ios-indigo: #5856D6;  --color-ios-purple: #AF52DE;
+  --color-ios-pink:   #FF2D55;  --color-ios-cyan:   #5AC8FA;
+
+  /* Blue ramp — monotonic. Base is 500; 600/700 are the AA-safe text steps. */
+  --color-blue-50:  #F0F6FF;  --color-blue-100: #EBF3FF;  --color-blue-200: #D6E8FF;
+  --color-blue-300: #B8D9FF;  --color-blue-400: #60B3FF;  --color-blue-500: #007AFF;
+  --color-blue-600: #0071E3;  --color-blue-700: #0056CC;  --color-blue-800: #003D99;
+
+  /* ══════════════════════════════════════════════════════════════════
+     ELEVATION — the shadow ladder. Always two-stop: a tight contact
+     shadow plus a soft ambient one. Never a single hard shadow.
+     ══════════════════════════════════════════════════════════════════ */
+  --shadow-e1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.03);
+  --shadow-e2: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-e3: 0 2px 10px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-e4: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-e5: 0 4px 24px rgba(0, 0, 0, 0.14), 0 1px 4px rgba(0, 0, 0, 0.08);
+  --shadow-e6: 0 8px 32px rgba(0, 0, 0, 0.20);
+  --shadow-e7: 0 24px 64px rgba(0, 0, 0, 0.14);
+  --shadow-e8: 0 32px 80px rgba(0, 0, 0, 0.35);
+
+  /* ══════════════════════════════════════════════════════════════════
+     RADIUS — the corner ladder. Squircles derive radius = size/4.
+     ══════════════════════════════════════════════════════════════════ */
+  --radius-chip: 0.375rem;  /*  6px — micro tags only            */
+  --radius-sm:   0.5rem;    /*  8px                             */
+  --radius-md:   0.75rem;   /* 12px — inline controls, nested    */
+  --radius-lg:   1rem;      /* 16px — interactive surfaces      */
+  --radius-xl:   1.5rem;    /* 24px — section cards              */
+  --radius-2xl:  2rem;      /* 32px — hero banner                */
+  --radius-3xl:  2.5rem;    /* 40px — hero banner large          */
+
+  /* ══════════════════════════════════════════════════════════════════
+     STACKING — one scale. Overlays live here, toasts above them.
+     ══════════════════════════════════════════════════════════════════ */
+  --z-base: 0;        --z-sticky: 20;    --z-nav: 40;
+  --z-dropdown: 60;   --z-scrim: 9000;   --z-dialog: 9100;
+  --z-dialog-nested: 9200;               --z-sheet: 9400;
+  --z-popover: 9300;
+  --z-toast: 9500;    --z-tooltip: 9600;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   APPLE SF PRO SYSTEM-WIDE TYPOGRAPHY ENGINE
+   RUNTIME TOKENS — the parts that must be readable from JS/canvas
+   (accent-tinted shadows, scrim alpha, safe-area insets).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Accent pair: the system pairs every tinted surface with an
+        accent-coloured shadow. This is the single most recognisable
+        move in the whole design language. ── */
+  --accent:        var(--color-home);
+  --accent-ink:    var(--color-home-ink);
+  --accent-tint:   var(--color-home-tint);
+  --accent-wash:   var(--color-home-wash);
+  --accent-glow:   rgba(0, 122, 255, 0.40);
+  --accent-lift:   rgba(0, 122, 255, 0.20);
+
+  /* ── Accent scopes ──
+     A tab sets `data-accent="mentor"` once, at its root, and every
+     `.bg-accent` / `.text-accent` / `.shadow-accent` below it re-themes
+     itself. That is how a tab gets an identity without any component
+     knowing which tab it is rendered in. */
+  [data-accent='mentor'] {
+    --accent:      var(--color-mentor);
+    --accent-ink:  var(--color-mentor-ink);
+    --accent-tint: var(--color-mentor-tint);
+    --accent-wash: var(--color-mentor-wash);
+    --accent-glow: rgba(0, 169, 155, 0.40);
+    --accent-lift: rgba(0, 169, 155, 0.20);
+  }
+  [data-accent='study'] {
+    --accent:      var(--color-study);
+    --accent-ink:  var(--color-study-ink);
+    --accent-tint: var(--color-study-tint);
+    --accent-wash: var(--color-study-wash);
+    --accent-glow: rgba(48, 209, 88, 0.40);
+    --accent-lift: rgba(48, 209, 88, 0.20);
+  }
+  [data-accent='practice'] {
+    --accent:      var(--color-practice);
+    --accent-ink:  var(--color-practice-ink);
+    --accent-tint: var(--color-practice-tint);
+    --accent-wash: var(--color-practice-wash);
+    --accent-glow: rgba(255, 149, 0, 0.40);
+    --accent-lift: rgba(255, 149, 0, 0.20);
+  }
+  [data-accent='performance'] {
+    --accent:      var(--color-performance);
+    --accent-ink:  var(--color-performance-ink);
+    --accent-tint: var(--color-performance-tint);
+    --accent-wash: var(--color-performance-wash);
+    --accent-glow: rgba(90, 200, 250, 0.45);
+    --accent-lift: rgba(90, 200, 250, 0.25);
+  }
+  [data-accent='knowledge'] {
+    --accent:      var(--color-knowledge);
+    --accent-ink:  var(--color-knowledge-ink);
+    --accent-tint: var(--color-knowledge-tint);
+    --accent-wash: var(--color-knowledge-wash);
+    --accent-glow: rgba(191, 90, 242, 0.40);
+    --accent-lift: rgba(191, 90, 242, 0.20);
+  }
+
+  /* ── Scrim: one value for every overlay. ── */
+  --scrim:         rgba(0, 0, 0, 0.65);
+  --scrim-blur:    10px;
+
+  /* ── Safe areas ── */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+
+  /* ── iOS grouped surfaces ── */
+  --apple-bg-base:      #FFFFFF;
+  --apple-bg-secondary: #F2F2F7;
+  --apple-bg-tertiary:  #FFFFFF;
+  --apple-bg-sidebar:   rgba(246, 246, 246, 0.85);
+
+  /* ── iOS Labels ── */
+  --apple-label-primary:   #1D1D1F;
+  --apple-label-secondary: #6E6E73;
+  --apple-label-tertiary:  #AEAEB2;
+  --apple-label-quaternary: rgba(60, 60, 67, 0.18);
+
+  /* ── iOS Separators ── */
+  --apple-separator:       rgba(60, 60, 67, 0.12);
+  --apple-separator-opaque: #C6C6C8;
+
+  /* ── iOS Fills ── */
+  --apple-fill-primary:    rgba(120, 120, 128, 0.20);
+  --apple-fill-secondary:  rgba(120, 120, 128, 0.16);
+  --apple-fill-tertiary:   rgba(118, 118, 128, 0.12);
+  --apple-fill-quaternary: rgba(116, 116, 128, 0.08);
+
+  /* ── iOS System Colors ── */
+  --apple-red:    #FF3B30;
+  --apple-orange: #FF9500;
+  --apple-yellow: #FFCC00;
+  --apple-green:  #30D158;
+  --apple-teal:   #30B0C7;
+  --apple-indigo: #5856D6;
+  --apple-purple: #AF52DE;
+  --apple-pink:   #FF2D55;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DARK MODE TOKENS — Night Circadian = Dark Mode
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.dark {
+  --color-canvas:        #1C1C1E;
+  --color-surface:       #2C2C2E;
+  --color-surface-sunken:#3A3A3C;
+  --color-surface-muted: #3A3A3C;
+  --color-surface-row:   #2C2C2E;
+
+  --color-ink:   #F5F5F7;
+  --color-ink-2: #AEAEB2;
+  --color-ink-3: #6E6E73;
+  --color-ink-4: #48484A;
+
+  --color-hairline:        rgba(84, 84, 88, 0.65);
+  --color-hairline-strong: rgba(84, 84, 88, 0.85);
+  --color-hairline-soft:   rgba(84, 84, 88, 0.35);
+
+  --scrim: rgba(0, 0, 0, 0.80);
+
+  --accent-glow: rgba(64, 156, 255, 0.45);
+  --accent-lift: rgba(64, 156, 255, 0.25);
+
+  --apple-bg-base:      #1C1C1E;
+  --apple-bg-secondary: #2C2C2E;
+  --apple-bg-tertiary:  #3A3A3C;
+  --apple-bg-sidebar:   rgba(28, 28, 30, 0.85);
+
+  --apple-label-primary:    #F5F5F7;
+  --apple-label-secondary:  #AEAEB2;
+  --apple-label-tertiary:   #6E6E73;
+  --apple-label-quaternary: rgba(235, 235, 245, 0.18);
+
+  --apple-separator:        rgba(84, 84, 88, 0.65);
+  --apple-separator-opaque: #38383A;
+
+  --apple-fill-primary:    rgba(120, 120, 128, 0.36);
+  --apple-fill-secondary:  rgba(120, 120, 128, 0.28);
+  --apple-fill-tertiary:   rgba(118, 118, 128, 0.24);
+  --apple-fill-quaternary: rgba(116, 116, 128, 0.18);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BASE — SF PRO SYSTEM TYPOGRAPHY ENGINE
    ═══════════════════════════════════════════════════════════════════════ */
 
 html {
@@ -57,9 +275,9 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  letter-spacing: -0.012em;
-  color: #1D1D1F;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: -0.015em;
+  color: #1D1D1F;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   overscroll-behavior-x: none;
@@ -67,6 +285,13 @@ html {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+/* `.dark` is set on <html>, so target the element itself — `.dark html`
+   can never match, since no element is a descendant of itself. */
+.dark {
+  color: #F5F5F7;
+  background-color: var(--color-canvas);
 }
 
 body {
@@ -82,144 +307,117 @@ body {
   -ms-overflow-style: none;
 }
 
-/* Hide scrollbars across all WebKit browsers while preserving native scrolling */
 ::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
 }
 
-/* Remove default iOS tap highlight rectangle */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Remove 300ms delay & accidental zooming on rapid button taps */
 button, [role="button"], a, input, select, textarea {
   touch-action: manipulation;
 }
 
-/* Prevent unwanted Safari touch callout previews on navigation icons and buttons */
 button, [role="button"], nav, header {
   -webkit-touch-callout: none;
 }
 
-/* Native App overscroll protection for standalone PWA mode (phones & tablets) */
 @media all and (display-mode: standalone) {
-  html, body {
-    overscroll-behavior-y: none;
+  html, body { overscroll-behavior-y: none; }
+}
+
+/* ── SF Pro Display: size-aware tracking (Apple HIG values) ─────────────
+   These are element DEFAULTS, so they live in @layer base. Un-layered they
+   outrank every Tailwind text utility — which silently capped the reference
+   tabs' display type: SyllabusView's `lg:text-[62px] font-black` h1 was
+   rendering at 34px/700 because of this rule. In base, a bare h1 still gets
+   the clamp, and any explicit text-* / font-* utility wins again.
+   ────────────────────────────────────────────────────────────────────── */
+@layer base {
+  /* ── SF Pro Display: size-aware tracking (Apple HIG values) ── */
+  h1 {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
+    font-size: clamp(28px, 5vw, 34px);
+    font-weight: 700;
+    letter-spacing: -0.022em;
+    line-height: 1.08;
+    text-rendering: optimizeLegibility;
+  }
+  h2 {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
+    font-size: clamp(22px, 4vw, 28px);
+    font-weight: 700;
+    letter-spacing: -0.020em;
+    line-height: 1.10;
+    text-rendering: optimizeLegibility;
+  }
+  h3 {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
+    font-size: clamp(18px, 3vw, 22px);
+    font-weight: 700;
+    letter-spacing: -0.018em;
+    line-height: 1.12;
+    text-rendering: optimizeLegibility;
+  }
+  h4 {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.016em;
+    line-height: 1.15;
+  }
+  h5 {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.014em;
+    line-height: 1.20;
+  }
+  h6 {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.010em;
+    line-height: 1.25;
   }
 }
 
-/* Display Headings match Apple SF Pro Display signature tight negative tracking & optical weight */
-h1, h2, h3, h4, h5, h6 {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  letter-spacing: -0.028em;
-  line-height: 1.12;
-  text-rendering: optimizeLegibility;
-}
-
-/* System-wide override to redirect font-* classes to Apple SF Pro Typography */
+/* Redirect any named font classes to the canonical SF Pro stacks */
 [class*="font-['Outfit']"],
 [class*="font-['Plus_Jakarta_Sans']"],
 [class*="font-['Inter']"],
-[class*="font-['Newsreader']"],
-.font-sans,
-.font-display {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Inter", sans-serif !important;
-  letter-spacing: -0.022em;
+[class*="font-['Newsreader']"] {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif !important;
 }
 
-/* Tabular Numbers & Monospace for Clinical Telemetry, Stats & Timers */
+.font-sans {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif !important;
+  letter-spacing: -0.011em;
+}
+
+.font-display {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif !important;
+  letter-spacing: -0.028em;
+}
+
 .tabular-nums {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
 
-code,
-kbd,
-samp,
-pre,
-.font-mono,
-[class*="font-mono"] {
+code, kbd, samp, pre, .font-mono, [class*="font-mono"] {
   font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
 }
 
-/* Apple-style Form Controls Typography */
 button, input, textarea, select {
   font-family: inherit;
   letter-spacing: inherit;
 }
 
-/* Apple Typography Utility Classes */
-.apple-display {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif !important;
-  letter-spacing: -0.032em !important;
-  line-height: 1.08 !important;
-  font-weight: 700;
-  color: #1D1D1F;
-}
-
-.apple-headline {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif !important;
-  letter-spacing: -0.025em !important;
-  line-height: 1.15 !important;
-  font-weight: 600;
-  color: #1D1D1F;
-}
-
-.apple-subhead {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Inter", sans-serif !important;
-  letter-spacing: -0.006em !important;
-  line-height: 1.38 !important;
-  font-weight: 400;
-  color: #6E6E73;
-}
-
-.apple-pill-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", sans-serif;
-  font-weight: 500;
-  font-size: 13.5px;
-  letter-spacing: -0.01em;
-  padding: 8px 18px;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.apple-pill-btn-blue {
-  background-color: #0071E3;
-  color: #FFFFFF;
-}
-
-.apple-pill-btn-blue:hover {
-  background-color: #0077ED;
-  transform: scale(1.02);
-}
-
-.apple-pill-btn-dark {
-  background-color: #1D1D1F;
-  color: #FFFFFF;
-}
-
-.apple-pill-btn-dark:hover {
-  background-color: #000000;
-  transform: scale(1.02);
-}
-
-.apple-pill-btn-subtle {
-  background-color: rgba(0, 0, 0, 0.05);
-  color: #1D1D1F;
-}
-
-.apple-pill-btn-subtle:hover {
-  background-color: rgba(0, 0, 0, 0.08);
-  transform: scale(1.02);
-}
-
-/* iOS Safari font-size 16px minimum to prevent auto-zoom on input focus */
+/* iOS Safari auto-zoom prevention */
 @media screen and (max-width: 768px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
   textarea,
@@ -228,43 +426,159 @@ button, input, textarea, select {
   }
 }
 
-/* iOS Keyboard Scroll Margins: Keeps focused inputs visible above keyboard & dock */
 input, textarea, select {
   scroll-margin-bottom: max(5rem, calc(4rem + env(safe-area-inset-bottom, 0px)));
-  scroll-margin-top: max(4.5rem, calc(3.5rem + env(safe-area-inset-top, 0px)));
+  scroll-margin-top:    max(4.5rem, calc(3.5rem + env(safe-area-inset-top, 0px)));
 }
 
-/* Eliminate 300ms mobile tap delay */
-button,
-a,
-[role="button"],
-input[type="submit"],
-input[type="button"] {
-  touch-action: manipulation;
-}
-
-/* Subtle Apple-style tactile pressed response for buttons and interactive controls */
+/* Tactile press — matches SwiftUI .buttonStyle(.plain) feel */
 button:active:not(:disabled),
 [role="button"]:active:not([aria-disabled="true"]) {
-  transform: scale(0.98);
+  transform: scale(0.97);
   transition: transform 0.08s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Modern Dynamic Viewport Units for iOS (100dvh) with fallback */
 @supports (min-height: 100dvh) {
-  .min-h-screen {
-    min-height: 100dvh;
-  }
-  .h-screen {
-    height: 100dvh;
-  }
+  .min-h-screen { min-height: 100dvh; }
+  .h-screen     { height: 100dvh; }
 }
 
-/* Touch momentum scrolling and safe tap boundaries */
 .touch-scroll {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TYPE SCALE — extracted from the shipped UI, not from the HIG.
+   ───────────────────────────────────────────────────────────────────────
+   The app's real scale is two ladders that cross:
+
+   Prose / chrome        Display numerics
+   ────────────────     ─────────────────
+   .t-display  44/56/68   .t-num-xl  54   gauge
+   .t-title    22/28      .t-num-lg  38   hero tile
+   .t-section  17         .t-num-md  32   KPI tile
+   .t-title-sm 15/16      .t-num-sm  28
+   .t-body     14         .t-num-xs  22   bento cell
+   .t-meta     13         .t-num-xxs 15   inline data
+   .t-label    12
+   .t-caption  11   ← hard floor. Nothing below this ships.
+
+   Numerics are always font-mono + tabular so columns align, and are
+   tinted by threshold (--color-pass / --color-warn / --color-fail).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.t-display {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.88;
+  color: var(--color-ink);
+}
+@media (min-width: 640px)  { .t-display { font-size: 56px; } }
+@media (min-width: 1024px) { .t-display { font-size: 68px; } }
+
+.t-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--color-ink);
+}
+@media (min-width: 640px) { .t-title { font-size: 28px; } }
+
+/* Section card title — the workhorse heading inside a card */
+.t-section {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.014em;
+  line-height: 1.25;
+  color: var(--color-ink);
+}
+
+.t-title-sm {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  line-height: 1.38;
+}
+@media (min-width: 640px) { .t-title-sm { font-size: 16px; } }
+
+.t-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.47;
+  color: var(--color-ink-2);
+}
+
+.t-meta {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.004em;
+  line-height: 1.38;
+  color: var(--color-ink-3);
+}
+
+.t-label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.33;
+  color: var(--color-ink-2);
+}
+
+/* Eyebrow — the uppercase micro-label above a hero or section. One style. */
+.t-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+/* Caption — the hard floor. 11px, never smaller. */
+.t-caption {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.006em;
+  line-height: 1.36;
+  color: var(--color-ink-3);
+}
+
+/* ── Display numerics ── */
+.t-num-xl, .t-num-lg, .t-num-md, .t-num-sm, .t-num-xs, .t-num-xxs {
+  font-family: var(--font-mono);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.t-num-xl  { font-size: 54px; }
+.t-num-lg  { font-size: 38px; }
+.t-num-md  { font-size: 32px; }
+.t-num-sm  { font-size: 28px; }
+.t-num-xs  { font-size: 22px; }
+.t-num-xxs { font-size: 15px; letter-spacing: -0.01em; }
+
+/* Data-ink modifier — colours a numeric by its threshold */
+.t-num-pass { color: var(--color-pass); }
+.t-num-warn { color: var(--color-warn); }
+.t-num-fail { color: var(--color-fail); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LAYOUT UTILITIES
+   ═══════════════════════════════════════════════════════════════════════ */
 
 .page-container {
   width: 100%;
@@ -291,109 +605,252 @@ button:active:not(:disabled),
   }
 }
 
-/* Responsive mobile workspace padding to account for floating dock + iOS safe areas */
 .workspace-main {
   padding-bottom: max(6.5rem, calc(5.5rem + env(safe-area-inset-bottom, 0px)));
 }
 
 @media (min-width: 1024px) {
-  .workspace-main {
-    padding-bottom: 0;
-  }
+  .workspace-main { padding-bottom: 0; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   APPLE-INSPIRED GLASSMORPHYSIN SURFACE SYSTEM
-   Restrained, tactile, frosted translucency with specular edge highlights
+   MATERIAL SYSTEM — 3 tiers, specular top-edge on every level
+   ───────────────────────────────────────────────────────────────────────
+   The signature of an Apple surface is not the blur, it is the 1px
+   inner highlight along the top edge. That reads as a lit bevel and is
+   what separates a material from a translucent rectangle.
    ═══════════════════════════════════════════════════════════════════════ */
 
 @layer utilities {
-  .glass-panel {
-    background-color: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), 0 8px 28px 0 rgba(0, 0, 0, 0.04);
-  }
 
-  .glass-card {
-    background-color: rgba(255, 255, 255, 0.82);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), 0 4px 16px 0 rgba(0, 0, 0, 0.03);
-  }
-
-  .glass-pill {
-    background-color: rgba(255, 255, 255, 0.84);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
-  }
-
-  .glass-floating {
-    background-color: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.98), 0 16px 40px 0 rgba(0, 0, 0, 0.08);
-  }
-
-  .glass-modal {
-    background-color: rgba(255, 255, 255, 0.90);
-    backdrop-filter: blur(32px) saturate(180%);
-    -webkit-backdrop-filter: blur(32px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.98), 0 25px 60px 0 rgba(0, 0, 0, 0.12);
-  }
-
-  .glass-modal-deep {
-    background-color: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(36px) saturate(180%);
-    -webkit-backdrop-filter: blur(36px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.98), 0 30px 70px 0 rgba(0, 0, 0, 0.14);
-  }
-
-  .glass-surface-subtle {
+  /* ── Level 1 · Thin — inline cards, chips, list rows ── */
+  .material-thin {
     background-color: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: inset 0 1px 0.5px 0 rgba(255, 255, 255, 0.9), 0 2px 8px 0 rgba(0, 0, 0, 0.02);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.90),
+      0 2px 8px rgba(0, 0, 0, 0.03);
   }
 
-  .glass-input {
-    background-color: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(14px) saturate(180%);
-    -webkit-backdrop-filter: blur(14px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  /* ── Level 2 · Regular — nav bar, sticky headers, floating panels ── */
+  .material-regular {
+    background-color: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 8px 24px rgba(0, 0, 0, 0.06);
   }
 
-  /* Apple Music Specific Surface Materials */
-  .apple-music-canvas {
-    background-color: #FFFFFF;
+  /* ── Level 3 · Thick — dialogs, sheets, command palette ── */
+  .material-thick {
+    background-color: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(36px) saturate(200%);
+    -webkit-backdrop-filter: blur(36px) saturate(200%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.98),
+      0 24px 60px rgba(0, 0, 0, 0.14);
   }
 
-  .apple-secondary-grouped {
-    background-color: #F2F2F7;
-    border: 1px solid rgba(60, 60, 67, 0.08);
+  .dark .material-thin    { background-color: rgba(44, 44, 46, 0.72); }
+  .dark .material-regular { background-color: rgba(44, 44, 46, 0.82); }
+  .dark .material-thick   { background-color: rgba(28, 28, 30, 0.94); }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     DARK ROOM — deliberately dark, opt-in surfaces.
+     ───────────────────────────────────────────────────────────────────────
+     Not every takeover wants to be white. Radiology, ECG tracing and exam
+     mode all need a light-absorbing backdrop so the image is the only thing
+     emitting light.
+
+     Rather than hardcode a second palette per component, the room re-points
+     the *same* semantic tokens at dark values. Every surface inside then
+     keeps using `text-[var(--color-ink-2)]`, `bg-[var(--color-surface-2)]`
+     and friends, and only this one block has to change if the room shifts.
+
+     Opt in with `data-surface="darkroom"` on any subtree.
+     ═══════════════════════════════════════════════════════════════════════ */
+  [data-surface='darkroom'] {
+    --color-ink:        #F3F6F9;
+    --color-ink-2:      #C6D0DA;
+    --color-ink-3:      #8D98A5;
+    --color-hairline:        rgba(255, 255, 255, 0.10);
+    --color-hairline-soft:   rgba(255, 255, 255, 0.06);
+    --color-hairline-strong: rgba(255, 255, 255, 0.20);
+    --color-surface:        #0A0D12;
+    --color-surface-2:      #141A22;
+    --color-surface-sunken: #1E2632;
+    --color-surface-muted:  #262F3C;
+    --accent:      var(--color-mentor);
+    --accent-ink:  #5FE3D4;
+    --accent-tint: rgba(0, 169, 155, 0.18);
+    --accent-wash: rgba(0, 169, 155, 0.10);
+    color: var(--color-ink);
+    color-scheme: dark;
   }
 
-  .apple-sidebar-vibrant {
-    background-color: rgba(246, 246, 246, 0.85);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border-right: 1px solid rgba(0, 0, 0, 0.06);
+  /* ── Hairlines ── */
+  .hairline-b      { border-bottom: 1px solid var(--color-hairline); }
+  .hairline-t      { border-top:    1px solid var(--color-hairline); }
+  .hairline-soft-b { border-bottom: 1px solid var(--color-hairline-soft); }
+
+  /* ── Safe areas ── */
+  .pt-safe { padding-top: var(--safe-t); }
+  .pb-safe { padding-bottom: var(--safe-b); }
+  .px-safe { padding-left: var(--safe-l); padding-right: var(--safe-r); }
+  .mb-safe { margin-bottom: var(--safe-b); }
+
+  /* ── Accent helpers — read the runtime --accent, so a component can
+        adopt a view's identity without knowing which view it is in. ── */
+  .bg-accent       { background-color: var(--accent); }
+  .text-accent     { color: var(--accent); }
+  .border-accent   { border-color: var(--accent); }
+  .ring-accent     { --tw-ring-color: var(--accent); }
+  .bg-accent-tint  { background-color: var(--accent-tint); }
+  .shadow-accent   { box-shadow: 0 2px 10px var(--accent-glow); }
+  .shadow-accent-lift { box-shadow: 0 8px 32px var(--accent-lift); }
+
+  /* ── Stacking scale ──
+     Tailwind v4 has no `--z-*` theme namespace, so the scale declared in
+     @theme has to be bound to utilities by hand. Keep both in sync. */
+  .z-base            { z-index: var(--z-base); }
+  .z-sticky          { z-index: var(--z-sticky); }
+  .z-nav             { z-index: var(--z-nav); }
+  .z-dropdown        { z-index: var(--z-dropdown); }
+  .z-scrim           { z-index: var(--z-scrim); }
+  .z-dialog          { z-index: var(--z-dialog); }
+  .z-dialog-nested   { z-index: var(--z-dialog-nested); }
+  .z-sheet           { z-index: var(--z-sheet); }
+  .z-popover         { z-index: var(--z-popover); }
+  .z-toast           { z-index: var(--z-toast); }
+  .z-tooltip         { z-index: var(--z-tooltip); }
+
+  /* ── Hit-area expansion ──
+     Apple asks for 44pt targets, but the visual language uses 28–32px
+     controls; padding them out to 44 would wreck the density the design
+     depends on. So grow the *touch* area without touching the *layout*:
+     a transparent pseudo-element that spills past the box. The pixels look
+     identical, the target is compliant. */
+  .hit-expand { position: relative; }
+  .hit-expand::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -8px;
+    bottom: -8px;
+  }
+  /* Horizontal variant, for icon buttons and chip rails. */
+  .hit-expand-x { position: relative; }
+  .hit-expand-x::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -8px;
+    right: -8px;
+  }
+  /* Suppress the spill when it would cross a scroll container's clip edge. */
+  .scroll-quiet > .hit-expand::after,
+  .scroll-x-quiet > .hit-expand-x::after { pointer-events: none; }
+
+  /* Scroll containers that must not chain-scroll or show a scrollbar */
+  .scroll-quiet {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .scroll-quiet::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+  .scroll-x-quiet {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .scroll-x-quiet::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+  /* Fade the right edge of a horizontal chip rail so overflow reads as
+     scrollable without a scrollbar. */
+  .fade-right {
+    mask-image: linear-gradient(to right, black 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 92%, transparent 100%);
   }
 
-  .apple-hairline-b {
-    border-bottom: 1px solid rgba(60, 60, 67, 0.12);
-  }
+  .anim-pop-in  { animation: pop-in  180ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .anim-pop-out { animation: pop-out 120ms cubic-bezier(0.4, 0, 1, 1) forwards; }
+}
 
-  .apple-hairline-t {
-    border-top: 1px solid rgba(60, 60, 67, 0.12);
-  }
+@keyframes ecgDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Popover in / out.
+   CSS animations rather than a Motion `AnimatePresence`: Radix's Presence
+   holds the node until the running animation ends, but it does not forward
+   `exit` props through a `Content asChild` wrapper, so a JS-driven exit
+   never completes and the popover stays mounted after dismissal. */
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.94) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes pop-out {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.97) translateY(-2px); }
+}
+
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes heroBlink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(0.1); }
+}
+
+@keyframes steam1 {
+  0%   { opacity: 0.6; transform: translateY(0) translateX(0); }
+  50%  { opacity: 0.3; transform: translateY(-8px) translateX(-3px); }
+  100% { opacity: 0;   transform: translateY(-16px) translateX(2px); }
+}
+
+@keyframes steam2 {
+  0%   { opacity: 0.4; transform: translateY(0) translateX(0); }
+  50%  { opacity: 0.2; transform: translateY(-8px) translateX(3px); }
+  100% { opacity: 0;   transform: translateY(-16px) translateX(-2px); }
+}
+
+@keyframes noteFloat {
+  0%   { opacity: 0;   transform: translateY(0) rotate(-5deg); }
+  20%  { opacity: 0.7; }
+  80%  { opacity: 0.4; }
+  100% { opacity: 0;   transform: translateY(-28px) rotate(8deg); }
+}
+
+@keyframes orbRotate1 {
+  from { transform-origin: 185px 112px; transform: rotate(0deg); }
+  to   { transform-origin: 185px 112px; transform: rotate(360deg); }
+}
+
+@keyframes orbRotate2 {
+  from { transform-origin: 185px 112px; transform: rotate(0deg); }
+  to   { transform-origin: 185px 112px; transform: rotate(-360deg); }
+}
+
+@keyframes aurora1 {
+  0%, 100% { d: path("M14 82 Q80 55 150 72 Q210 88 280 62"); opacity: 0.22; }
+  50%       { d: path("M14 90 Q80 62 150 80 Q210 96 280 70"); opacity: 0.14; }
+}
+
+@keyframes aurora2 {
+  0%, 100% { d: path("M14 68 Q70 48 140 58 Q200 68 280 48"); opacity: 0.12; }
+  50%       { d: path("M14 76 Q70 55 140 66 Q200 76 280 55"); opacity: 0.07; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
 }

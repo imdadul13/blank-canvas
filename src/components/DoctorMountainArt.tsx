@@ -484,8 +484,8 @@ export const DoctorMountainArt: React.FC<DoctorMountainArtProps> = ({
       {/* Quote callout content on left */}
       {showQuote && (
         <div className="relative z-10 max-w-sm sm:max-w-md pr-16 sm:pr-24">
-          <div className="inline-flex items-center gap-1.5 text-[#006B63] font-semibold text-xs mb-1 font-mono uppercase tracking-wider">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#006B63]" />
+          <div className="inline-flex items-center gap-1.5 text-[#007AFF] font-semibold text-xs mb-1 font-mono uppercase tracking-wider">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#007AFF]" />
             Doctor's Creed
           </div>
           <p className="text-sm sm:text-base font-display font-medium text-slate-800 leading-snug">

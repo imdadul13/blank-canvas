@@ -174,7 +174,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
 
   return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-xl font-['Plus_Jakarta_Sans'] select-none">
+      <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-xl select-none">
         <motion.div
           initial={{ opacity: 0, y: 40, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -194,7 +194,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base sm:text-lg font-black tracking-tight text-white font-['Outfit']">
+                  <h3 className="text-base sm:text-lg font-bold tracking-tight text-white">
                     Hands-Free Hospital Commute Audio Recall
                   </h3>
                   <span className="px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-400/30 text-[10px] font-bold text-purple-300 uppercase tracking-wider font-mono">
@@ -281,7 +281,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
 
             {/* Main Clinical Content Display */}
             <div className="space-y-3">
-              <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight font-['Outfit']">
+              <h4 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                 {currentItem?.name}
               </h4>
               <p className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed bg-black/20 p-3.5 rounded-xl border border-white/5">
@@ -303,7 +303,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
                     <Sparkles className="h-3 w-3 text-emerald-400" />
                     <span>Diagnosis / Solution</span>
                   </div>
-                  <div className="text-base sm:text-lg font-bold text-white font-['Outfit']">
+                  <div className="text-base sm:text-lg font-bold text-white">
                     {currentItem?.diagnosis}
                   </div>
                 </motion.div>

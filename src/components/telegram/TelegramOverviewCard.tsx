@@ -20,16 +20,16 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
   const tips = counts?.clinicalTips ?? 0;
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-teal-200/80 bg-gradient-to-br from-teal-500/[0.04] via-white to-emerald-500/[0.02] p-4 sm:p-5 shadow-2xs">
+    <div className="rounded-2xl sm:rounded-3xl border border-[#BAE6FD]/80 bg-gradient-to-br from-[#0284C7]/[0.05] via-white to-[#38BDF8]/[0.02] p-4 sm:p-5 shadow-2xs">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-5">
         {/* Left: ONE SHOT CURATED Branding */}
         <div className="flex items-start sm:items-center gap-3 sm:gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-600 text-white shadow-xs shadow-teal-500/25 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#0284C7] to-[#007AFF] text-white shadow-xs shadow-sky-500/20 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
             <Award className="w-5 h-5 stroke-[2.2]" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-bold font-mono uppercase tracking-widest text-[#00685f]">
+              <span className="text-xs font-bold font-mono uppercase tracking-widest text-[#0284C7]">
                 ONE SHOT CURATED
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
@@ -37,10 +37,10 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
                 {total > 0 ? "Noise Filtered" : "Ready to Sync"}
               </span>
             </div>
-            <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 font-['Outfit'] mt-0.5">
+            <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 mt-0.5">
               {total > 0 ? (
                 <span>
-                  <strong className="text-[#00685f]">{total}</strong> worth reviewing
+                  <strong className="text-[#0284C7]">{total}</strong> worth reviewing
                 </span>
               ) : (
                 <span className="text-slate-600 font-medium text-sm sm:text-base">Nothing new worth reviewing yet.</span>
@@ -69,8 +69,8 @@ export const TelegramOverviewCard: React.FC<TelegramOverviewCardProps> = ({
 
             {questions > 0 && (
               <div className={`text-left ${pearls > 0 ? "pl-3 sm:pl-4 lg:pl-6" : "pl-0"}`}>
-                <div className="flex items-center gap-1.5 font-mono text-lg lg:text-xl font-bold text-[#00685f] tracking-tight">
-                  <FileText className="w-4 h-4 text-[#00685f]" />
+                <div className="flex items-center gap-1.5 font-mono text-lg lg:text-xl font-bold text-[#0284C7] tracking-tight">
+                  <FileText className="w-4 h-4 text-[#0284C7]" />
                   <span>{questions}</span>
                 </div>
                 <div className="text-[11px] font-medium text-slate-500">Clinical Questions</div>

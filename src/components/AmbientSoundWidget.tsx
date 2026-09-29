@@ -1,301 +1,215 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import {
-  Volume2,
-  VolumeX,
-  CloudRain,
-  Wind,
-  Activity,
-  BookOpen,
-  X,
-  Play,
-  Pause,
-  Headphones,
-} from 'lucide-react';
-import {
-  ambientAudioEngine,
-  AMBIENT_MODES,
-  AmbientSoundMode,
-} from '../utils/ambientAudioEngine';
+import { CloudRain, Wind, Activity, BookOpen, X, Play, Pause, Volume2, VolumeX, Headphones } from 'lucide-react';
+import { ambientAudioEngine, AMBIENT_MODES, AmbientSoundMode } from '../utils/ambientAudioEngine';
 
 interface AmbientSoundWidgetProps {
   className?: string;
   onOpenZenFocus?: () => void;
+  isDark?: boolean;
 }
+
+const MODE_META: Record<AmbientSoundMode, { icon: React.ReactNode; color: string; label: string }> = {
+  rain:     { icon: <CloudRain className="h-3.5 w-3.5" />, color: '#5AC8FA', label: 'Rain' },
+  brown:    { icon: <Wind className="h-3.5 w-3.5" />,      color: '#FF9500', label: 'Brown Noise' },
+  gamma40:  { icon: <Activity className="h-3.5 w-3.5" />, color: '#BF5AF2', label: '40 Hz Gamma' },
+  library:  { icon: <BookOpen className="h-3.5 w-3.5" />, color: '#30D158', label: 'Library' },
+};
 
 export const AmbientSoundWidget: React.FC<AmbientSoundWidgetProps> = ({
   className = '',
   onOpenZenFocus,
+  isDark = true,
 }) => {
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [currentMode, setCurrentMode] = useState<AmbientSoundMode>('rain');
-  const [volume, setVolume] = useState<number>(0.35);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const popoverRef = useRef<HTMLDivElement>(null);
+  const [volume, setVolume] = useState(0.35);
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const unsubscribe = ambientAudioEngine.subscribe((active, mode, vol) => {
+    return ambientAudioEngine.subscribe((active, mode, vol) => {
       setIsPlaying(active);
       setCurrentMode(mode);
       setVolume(vol);
     });
-    return () => unsubscribe();
   }, []);
 
-  // Handle outside click & Escape key to close popover
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
+    if (!isOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false);
     };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-      }
-    };
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleKeyDown);
-    }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
     };
   }, [isOpen]);
 
-  const handleToggle = () => {
-    ambientAudioEngine.toggle();
-  };
-
-  const handleSelectMode = (mode: AmbientSoundMode) => {
-    if (currentMode === mode && isPlaying) {
-      ambientAudioEngine.toggle();
-    } else {
-      ambientAudioEngine.start(mode);
-    }
-  };
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVol = parseFloat(e.target.value);
-    ambientAudioEngine.setVolume(newVol);
-  };
-
-  const getModeDetails = (mode: AmbientSoundMode) => {
-    switch (mode) {
-      case 'rain':
-        return {
-          icon: <CloudRain className="h-4 w-4" />,
-          colorBg: 'bg-sky-50 text-sky-700 border-sky-200/80',
-          activeBg: 'bg-sky-100/80 text-sky-800 border-sky-300',
-        };
-      case 'brown':
-        return {
-          icon: <Wind className="h-4 w-4" />,
-          colorBg: 'bg-amber-50 text-amber-700 border-amber-200/80',
-          activeBg: 'bg-amber-100/80 text-amber-800 border-amber-300',
-        };
-      case 'gamma40':
-        return {
-          icon: <Activity className="h-4 w-4" />,
-          colorBg: 'bg-teal-50 text-[#006B63] border-teal-200/80',
-          activeBg: 'bg-teal-100/80 text-[#004D47] border-teal-300',
-        };
-      case 'library':
-        return {
-          icon: <BookOpen className="h-4 w-4" />,
-          colorBg: 'bg-indigo-50 text-indigo-700 border-indigo-200/80',
-          activeBg: 'bg-indigo-100/80 text-indigo-800 border-indigo-300',
-        };
-      default:
-        return {
-          icon: <CloudRain className="h-4 w-4" />,
-          colorBg: 'bg-teal-50 text-[#006B63] border-teal-200/80',
-          activeBg: 'bg-teal-100/80 text-[#004D47] border-teal-300',
-        };
-    }
-  };
+  const meta = MODE_META[currentMode];
 
   return (
-    <div ref={popoverRef} className={`relative inline-block ${className}`}>
-      {/* Frosted Apple Button matching Top Bar Controls */}
+    <div ref={ref} className={`relative inline-block ${className}`}>
+      {/* Trigger button */}
       <motion.button
         type="button"
-        whileTap={{ scale: 0.94 }}
-        onClick={() => setIsOpen(!isOpen)}
-        className={`relative flex items-center justify-center h-10 w-10 rounded-full border transition-all cursor-pointer select-none ${
-          isPlaying
-            ? 'bg-[#006B63] text-white border-[#005750] shadow-md shadow-teal-900/20'
-            : 'bg-slate-100/90 hover:bg-white border-slate-200/90 hover:border-slate-300 text-slate-600 hover:text-[#006B63] shadow-xs'
-        }`}
-        title={isPlaying ? 'Focus Audio Playing (Tap to configure)' : 'Focus Ambient Audio (Rain, Brown Noise, 40Hz)'}
+        whileTap={{ scale: 0.93 }}
+        onClick={() => setIsOpen(v => !v)}
+        title={isPlaying ? `${meta.label} playing` : 'Focus Audio'}
         aria-label="Focus Audio"
-        aria-expanded={isOpen}
+        className={`relative flex items-center justify-center h-10 w-10 rounded-full cursor-pointer transition-all duration-200 ${
+          isPlaying
+            ? 'bg-[#007AFF] text-white shadow-[0_2px_12px_rgba(0,122,255,0.45)]'
+            : isDark
+            ? 'bg-white/[0.10] hover:bg-white/[0.18] text-white/70 hover:text-white'
+            : 'bg-[#E5E5EA] hover:bg-[#D1D1D6] text-[#1D1D1F]'
+        }`}
       >
         {isPlaying ? (
-          <span className="flex items-end justify-center gap-[2.5px] h-3.5 w-3.5">
-            <span className="w-[2.5px] bg-white rounded-full animate-[pulse_1s_ease-in-out_infinite] h-full" />
-            <span className="w-[2.5px] bg-white rounded-full animate-[pulse_1.2s_ease-in-out_infinite_0.2s] h-3/4" />
-            <span className="w-[2.5px] bg-white rounded-full animate-[pulse_0.9s_ease-in-out_infinite_0.4s] h-1/2" />
+          <span className="flex items-end justify-center gap-[2px] h-3.5 w-3.5">
+            {[1, 0.75, 1, 0.55].map((h, i) => (
+              <span
+                key={i}
+                className="w-[2px] bg-white rounded-full"
+                style={{
+                  height: `${h * 100}%`,
+                  animation: `pulse ${0.8 + i * 0.15}s ease-in-out infinite ${i * 0.12}s`,
+                }}
+              />
+            ))}
           </span>
         ) : (
-          <Volume2 className="h-4.5 w-4.5 stroke-[1.8]" />
+          <Volume2 className="h-4 w-4 stroke-[1.8]" />
         )}
       </motion.button>
 
-      {/* Popover Card */}
+      {/* Popover */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.96 }}
+            initial={{ opacity: 0, y: 6, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-            className="absolute right-0 top-full mt-2.5 w-80 max-w-[calc(100vw-1.5rem)] p-4 bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-[0_20px_50px_rgba(0,107,99,0.14),0_2px_8px_rgba(0,0,0,0.06)] z-[110] space-y-3.5 font-sans text-slate-800"
+            exit={{ opacity: 0, y: 4, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+            className="absolute right-0 top-full mt-2.5 w-72 bg-[#1C1C1E]/95 backdrop-blur-3xl border border-white/[0.10] rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.55),0_4px_16px_rgba(0,0,0,0.30)] z-[300] overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between pb-2 border-b border-stone-200/60">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-teal-50 text-[#006B63] flex items-center justify-center border border-teal-200/50">
-                  <Volume2 className="w-3.5 h-3.5 stroke-[2]" />
+            <div className="flex items-center justify-between px-4 pt-3.5 pb-2.5 border-b border-white/[0.07]">
+              <div className="flex items-center gap-2.5">
+                <div className="h-7 w-7 rounded-xl bg-[#007AFF]/20 flex items-center justify-center">
+                  <Volume2 className="h-3.5 w-3.5 text-[#5AC8FA]" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold font-['Outfit'] text-slate-900 leading-tight">
-                    Focus Audio Engine
-                  </h4>
-                  <p className="text-[10px] text-slate-400 leading-tight">
-                    Calibrated acoustics for study flow
-                  </p>
+                  <p className="text-[12px] font-bold text-white leading-tight">Focus Audio</p>
+                  <p className="text-[10px] text-white/40 leading-tight">Calibrated for study flow</p>
                 </div>
               </div>
-
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="w-6 h-6 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
-                title="Close"
-                aria-label="Close popover"
+                className="h-6 w-6 rounded-full bg-white/[0.08] hover:bg-white/[0.16] flex items-center justify-center text-white/50 hover:text-white transition-colors cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="h-3 w-3" />
               </button>
             </div>
 
-            {/* Ambient Presets Grid */}
-            <div className="space-y-1.5">
+            {/* Mode list */}
+            <div className="p-2 space-y-0.5">
               {AMBIENT_MODES.map((mode) => {
+                const m = MODE_META[mode.id];
                 const isActive = currentMode === mode.id && isPlaying;
-                const modeDetail = getModeDetails(mode.id);
-
                 return (
                   <button
                     key={mode.id}
                     type="button"
-                    onClick={() => handleSelectMode(mode.id)}
-                    className={`w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition-all cursor-pointer border ${
+                    onClick={() => {
+                      if (currentMode === mode.id && isPlaying) ambientAudioEngine.toggle();
+                      else ambientAudioEngine.start(mode.id);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-gradient-to-r from-teal-50/90 to-emerald-50/70 border-teal-200 shadow-xs'
-                        : 'bg-stone-50/50 hover:bg-white border-stone-200/60 hover:border-teal-200/80 hover:shadow-xs'
+                        ? 'bg-white/[0.10]'
+                        : 'hover:bg-white/[0.06]'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className={`flex items-center justify-center h-8 w-8 rounded-xl shrink-0 border transition-colors ${
-                          isActive ? modeDetail.activeBg : modeDetail.colorBg
-                        }`}
+                        className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: `${m.color}22`, color: m.color }}
                       >
-                        {modeDetail.icon}
+                        {m.icon}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-xs font-bold font-['Outfit'] text-slate-800 leading-tight">
-                          {mode.label}
-                        </div>
-                        <div className="text-[10px] text-slate-500 truncate leading-tight mt-0.5">
-                          {mode.description}
-                        </div>
+                        <p className="text-[12px] font-semibold text-white leading-tight">{mode.label}</p>
+                        <p className="text-[10px] text-white/40 truncate leading-tight">{mode.description}</p>
                       </div>
                     </div>
-
-                    <div className="shrink-0 ml-2">
-                      {isActive ? (
-                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#006B63] text-white text-[9px] font-bold font-mono uppercase tracking-wider shadow-2xs">
-                          <span className="flex items-end gap-[1.5px] h-2">
-                            <span className="w-[1.5px] bg-white rounded-full animate-[pulse_0.8s_ease-in-out_infinite] h-full" />
-                            <span className="w-[1.5px] bg-white rounded-full animate-[pulse_1s_ease-in-out_infinite_0.2s] h-2/3" />
-                            <span className="w-[1.5px] bg-white rounded-full animate-[pulse_0.7s_ease-in-out_infinite_0.4s] h-1/2" />
-                          </span>
-                          <span>Live</span>
-                        </div>
-                      ) : (
-                        <div className="w-6 h-6 rounded-full bg-white/80 border border-stone-200 flex items-center justify-center text-slate-400 group-hover:text-[#006B63]">
-                          <Play className="w-2.5 h-2.5 fill-current ml-0.5" />
-                        </div>
-                      )}
-                    </div>
+                    {isActive ? (
+                      <span className="flex items-end gap-[1.5px] h-3 shrink-0 ml-2">
+                        {[1, 0.6, 0.9, 0.5].map((h, i) => (
+                          <span
+                            key={i}
+                            className="w-[1.5px] rounded-full"
+                            style={{
+                              height: `${h * 100}%`,
+                              backgroundColor: m.color,
+                              animation: `pulse ${0.7 + i * 0.15}s ease-in-out infinite ${i * 0.1}s`,
+                            }}
+                          />
+                        ))}
+                      </span>
+                    ) : (
+                      <div className="h-5 w-5 rounded-full bg-white/[0.08] flex items-center justify-center shrink-0 ml-2">
+                        <Play className="h-2.5 w-2.5 fill-white/50 text-white/50 ml-0.5" />
+                      </div>
+                    )}
                   </button>
                 );
               })}
             </div>
 
-            {/* Volume Control */}
-            <div className="pt-2 border-t border-stone-200/60 space-y-2">
-              <div className="flex items-center justify-between text-[11px] font-medium text-slate-600">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
-                  Volume Output
-                </span>
-                <span className="font-mono text-xs font-bold text-[#006B63] tabular-nums">
-                  {Math.round(volume * 100)}%
-                </span>
+            {/* Volume */}
+            <div className="px-4 pb-3 pt-1 border-t border-white/[0.07] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-semibold text-white/40 uppercase tracking-wider">Volume</span>
+                <span className="text-[11px] font-bold text-white/70 tabular-nums">{Math.round(volume * 100)}%</span>
               </div>
               <div className="flex items-center gap-2">
-                <VolumeX className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <VolumeX className="h-3.5 w-3.5 text-white/30 shrink-0" />
                 <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={volume}
-                  onChange={handleVolumeChange}
-                  className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#006B63]"
+                  type="range" min="0" max="1" step="0.01" value={volume}
+                  onChange={e => ambientAudioEngine.setVolume(parseFloat(e.target.value))}
+                  className="flex-1 h-1 rounded-full appearance-none cursor-pointer accent-[#007AFF]"
+                  style={{ background: `linear-gradient(to right, #007AFF ${volume * 100}%, rgba(255,255,255,0.12) ${volume * 100}%)` }}
                 />
-                <Volume2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <Volume2 className="h-3.5 w-3.5 text-white/30 shrink-0" />
               </div>
             </div>
 
-            {/* Master Action Button */}
-            <div className="pt-1">
+            {/* Actions */}
+            <div className="px-2 pb-2 space-y-1.5">
               <button
                 type="button"
-                onClick={handleToggle}
-                className={`w-full py-2 px-3 rounded-2xl text-xs font-bold font-['Outfit'] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
+                onClick={() => ambientAudioEngine.toggle()}
+                className={`w-full py-2 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   isPlaying
-                    ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'
-                    : 'bg-[#006B63] hover:bg-[#005750] text-white shadow-teal-900/10'
+                    ? 'bg-[#FF3B30]/15 text-[#FF3B30] hover:bg-[#FF3B30]/25'
+                    : 'bg-[#007AFF] text-white hover:bg-[#0056CC] shadow-[0_2px_10px_rgba(0,122,255,0.35)]'
                 }`}
               >
-                {isPlaying ? (
-                  <>
-                    <Pause className="w-3.5 h-3.5 fill-current" />
-                    <span>Pause Audio</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Start Ambient Audio</span>
-                  </>
-                )}
+                {isPlaying ? <><Pause className="h-3.5 w-3.5 fill-current" /><span>Pause</span></> : <><Play className="h-3.5 w-3.5 fill-current" /><span>Start Audio</span></>}
               </button>
-
               {onOpenZenFocus && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsOpen(false);
-                    onOpenZenFocus();
-                  }}
-                  className="w-full mt-2 py-1.5 px-3 rounded-2xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200/80 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  onClick={() => { setIsOpen(false); onOpenZenFocus(); }}
+                  className="w-full py-2 rounded-xl text-[12px] font-semibold flex items-center justify-center gap-2 bg-white/[0.06] hover:bg-white/[0.10] text-white/70 hover:text-white transition-all cursor-pointer"
                 >
-                  <Headphones className="w-3.5 h-3.5 text-teal-700" />
-                  <span>Enter Zen Focus Sanctuary</span>
+                  <Headphones className="h-3.5 w-3.5" />
+                  <span>Zen Focus Sanctuary</span>
                 </button>
               )}
             </div>

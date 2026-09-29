@@ -92,30 +92,31 @@ const ContentUnavailableCard: React.FC<{
   secondaryActionLabel,
   onSecondaryAction,
 }) => (
-  <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/90 text-center space-y-4 my-4">
-    <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-700">
-      <AlertCircle className="h-6 w-6" />
+  <div className="py-14 flex flex-col items-center gap-5 text-center rounded-3xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.08)] my-4">
+    <div className="mx-auto w-14 h-14 rounded-2xl bg-[#FFF3E0] border border-[#FF9500]/25 flex items-center justify-center shadow-sm">
+      <AlertCircle className="h-7 w-7 text-[#FF9500]" strokeWidth={1.8} />
     </div>
-    <div className="space-y-1.5 max-w-md mx-auto">
-      <h3 className="text-base font-semibold font-display text-slate-900">{title}</h3>
-      <p className="text-xs text-slate-600 leading-relaxed">{message}</p>
+    <div className="space-y-1.5 max-w-sm px-4">
+      <h3 className="text-[15px] font-bold text-[#1D1D1F]">{title}</h3>
+      <p className="text-[12px] text-[#8E8E93] leading-relaxed">{message}</p>
     </div>
     {(actionLabel || secondaryActionLabel) && (
-      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+      <div className="flex flex-wrap items-center justify-center gap-3">
         {actionLabel && onAction && (
           <button
             type="button"
             onClick={onAction}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold transition-colors cursor-pointer shadow-sm"
           >
             {actionLabel}
+            <ArrowRight className="h-3.5 w-3.5" />
           </button>
         )}
         {secondaryActionLabel && onSecondaryAction && (
           <button
             type="button"
             onClick={onSecondaryAction}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold font-display transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[rgba(60,60,67,0.14)] text-[#3A3A3C] bg-white hover:bg-[#F2F2F7] text-xs font-semibold transition-colors cursor-pointer"
           >
             {secondaryActionLabel}
           </button>
@@ -398,9 +399,9 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
   const activeRevisionTable = aiMasteryData?.rapidRevisionTable;
   const activeKeyTakeaways = aiMasteryData?.keyTakeaways || activeCoreConcepts?.slice(0, 4);
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-md overflow-y-auto font-sans text-slate-900">
-      <div className="flex min-h-full items-center justify-center p-0 sm:p-4 md:p-6">
+  return (
+    <div className="overflow-y-auto font-sans text-slate-900" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9100, backgroundColor: '#1D1D1F' }}>
+      <div className="flex items-center justify-center p-0 sm:p-4 md:p-6" style={{ minHeight: '100vh' }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -415,8 +416,8 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 <span className="font-mono text-xs font-semibold uppercase tracking-wider text-stone-400">
                   {subjectId.toUpperCase()} · NBE BLUEPRINT
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-stone-900 text-white text-[10px] font-mono font-medium flex items-center gap-1.5 shadow-2xs">
-                  <Activity className="h-3 w-3 text-amber-400 animate-pulse" />
+                <span className="px-2.5 py-0.5 rounded-full text-white text-[10px] font-mono font-medium flex items-center gap-1.5 shadow-sm" style={{ background: 'linear-gradient(135deg, #007AFF 0%, #0056CC 100%)' }}>
+                  <Activity className="h-3 w-3 text-white/80 animate-pulse" />
                   RAPID REVISION HUB
                 </span>
                 {aiMasteryData && (
@@ -497,8 +498,8 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
           )}
 
           {/* ================= 6-STEP ROADMAP RAIL ================= */}
-          <div ref={stageRailRef} className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3 sm:px-6 py-2.5 overflow-x-auto scrollbar-none">
-            <div className="flex items-center justify-start min-w-max gap-1 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60">
+          <div ref={stageRailRef} className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-3 sm:px-5 py-2.5 overflow-x-auto scrollbar-none shrink-0">
+            <div className="flex items-center justify-start min-w-max gap-1 p-1 bg-[#F2F2F7] rounded-2xl border border-[rgba(60,60,67,0.08)]">
               {STEPS.map((step, idx) => {
                 const isActive = activeStep === step.id;
                 const isPast = STEPS.findIndex((s) => s.id === activeStep) > idx;
@@ -512,17 +513,17 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                     whileTap={{ scale: 0.96 }}
                     transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                     onClick={() => setActiveStep(step.id)}
-                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold font-display transition-all cursor-pointer min-h-[34px] ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all cursor-pointer min-h-[32px] whitespace-nowrap ${
                       isActive
-                        ? 'bg-white text-slate-950 font-bold shadow-xs border border-slate-200/60'
+                        ? 'bg-white text-[#1D1D1F] font-bold shadow-sm border border-[rgba(60,60,67,0.1)]'
                         : isPast
-                        ? 'text-slate-800 bg-white/40 hover:bg-white/80'
-                        : 'text-slate-500 hover:text-slate-900 hover:bg-white/50'
+                        ? 'text-[#3A3A3C] bg-white/50 hover:bg-white/80'
+                        : 'text-[#8E8E93] hover:text-[#3A3A3C] hover:bg-white/50'
                     }`}
                   >
-                    <span className="font-mono text-[10px] opacity-75">{step.num}</span>
+                    <span className="font-mono text-[9px] opacity-60 font-bold">{step.num}</span>
                     <span>{step.label}</span>
-                    {isPast && <Check className="h-3 w-3 text-emerald-600" />}
+                    {isPast && <Check className="h-2.5 w-2.5 text-[#30D158]" strokeWidth={2.5} />}
                   </motion.button>
                 );
               })}
@@ -555,7 +556,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
 
                   {/* High-Yield Clinical Summary */}
                   <div className="space-y-1.5 p-4 rounded-xl bg-stone-50/70 border border-stone-200/60">
-                    <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-stone-400">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93]">
                       High-Yield Pathophysiology & Core Mechanism
                     </span>
                     <p className="text-xs sm:text-sm text-stone-800 leading-relaxed font-normal">
@@ -613,13 +614,13 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   {/* Core Concept Takeaways */}
                   {activeCoreConcepts && activeCoreConcepts.length > 0 && (
                     <div className="pt-2 border-t border-stone-100 space-y-2">
-                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-stone-400">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93]">
                         Essential Board High-Yield Takeaways
                       </span>
                       <ul className="space-y-1.5 text-xs text-stone-700">
                         {activeCoreConcepts.map((concept: string, idx: number) => (
                           <li key={idx} className="flex items-start gap-2">
-                            <span className="h-1.5 w-1.5 rounded-full bg-stone-900 mt-1.5 shrink-0" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#8E8E93] mt-1.5 shrink-0" />
                             <span>{concept}</span>
                           </li>
                         ))}
@@ -660,7 +661,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                       transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                       onClick={fetchGeminiMastery}
                       disabled={isAiLoading}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-semibold font-display transition-all shadow-2xs cursor-pointer shrink-0 disabled:opacity-60 min-h-[42px]"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-white text-xs sm:text-sm font-semibold font-display transition-all shadow-sm cursor-pointer shrink-0 disabled:opacity-60 min-h-[42px]" style={{ background: 'linear-gradient(135deg, #5856D6 0%, #007AFF 100%)', boxShadow: '0 3px 12px rgba(88,86,214,0.35)' }}
                     >
                       {isAiLoading ? (
                         <>
@@ -822,7 +823,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                         href={videos[0].youtubeUrl || `https://www.youtube.com/watch?v=${videos[0].id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer shrink-0 w-fit min-h-[36px] active:scale-[0.98]"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display transition-colors cursor-pointer shrink-0 w-fit min-h-[36px] active:scale-[0.98]"
                       >
                         <Play className="h-3.5 w-3.5 fill-current" />
                         <span>Watch Lecture</span>
@@ -874,7 +875,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                         <ul className="space-y-1.5 pt-1 text-xs sm:text-sm text-stone-700">
                           {slideDeck.slides[currentSlideIndex].bullets.map((bp, i) => (
                             <li key={i} className="flex items-start gap-2.5">
-                              <span className="h-1.5 w-1.5 rounded-full bg-stone-900 mt-2 shrink-0" />
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#8E8E93] mt-2 shrink-0" />
                               <span>{bp}</span>
                             </li>
                           ))}
@@ -896,7 +897,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   <button
                     type="button"
                     onClick={() => setActiveStep('recall')}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[42px] shadow-2xs active:scale-[0.98]"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[42px] shadow-2xs active:scale-[0.98]"
                   >
                     <span>Next: Active Recall ({flashcardDeck.cards.length} Flashcards)</span>
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -987,7 +988,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                                   setActiveStep('apply');
                                 }
                               }}
-                              className="px-5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[40px] shadow-2xs active:scale-[0.98]"
+                              className="px-5 py-2 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[40px] shadow-2xs active:scale-[0.98]"
                             >
                               I Know This
                             </button>
@@ -1022,7 +1023,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                       <button
                         type="button"
                         onClick={() => setActiveStep('apply')}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[42px] shadow-2xs active:scale-[0.98]"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[42px] shadow-2xs active:scale-[0.98]"
                       >
                         <span>Next: Clinical Vignettes</span>
                         <ArrowRight className="h-3.5 w-3.5" />
@@ -1118,7 +1119,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                                   style = 'bg-rose-50 border-rose-300 text-rose-900';
                                 }
                               } else if (isSelected) {
-                                style = 'bg-stone-900 border-stone-900 text-white';
+                                style = 'bg-[#007AFF] border-[#007AFF] text-white';
                               }
 
                               return (
@@ -1146,7 +1147,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                               type="button"
                               disabled={!selectedCaseOption}
                               onClick={() => setIsCaseSubmitted(true)}
-                              className="px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display transition-colors disabled:opacity-40 cursor-pointer min-h-[40px] active:scale-[0.98]"
+                              className="px-5 py-2.5 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display transition-colors disabled:opacity-40 cursor-pointer min-h-[40px] active:scale-[0.98]"
                             >
                               Submit Diagnosis
                             </button>
@@ -1179,7 +1180,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                       <button
                         type="button"
                         onClick={() => setActiveStep('test')}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[42px] shadow-2xs active:scale-[0.98]"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[42px] shadow-2xs active:scale-[0.98]"
                       >
                         <span>Next: 10-MCQ Diagnostic Drill</span>
                         <ArrowRight className="h-3.5 w-3.5" />
@@ -1202,23 +1203,27 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
             {/* ================= STEP 4: TEST ================= */}
             {activeStep === 'test' && (
               <div className="space-y-6">
-                <div className="p-6 sm:p-8 rounded-2xl bg-stone-50/70 border border-stone-200/90 text-center space-y-4">
-                  <div className="h-12 w-12 rounded-xl bg-stone-900 text-white flex items-center justify-center mx-auto shadow-2xs">
-                    <Activity className="h-6 w-6" />
+                <div className="relative overflow-hidden p-6 sm:p-8 rounded-3xl text-center space-y-5 border" style={{ background: 'linear-gradient(135deg, #E8F0FF 0%, #F0F8FF 60%, #E8F5FF 100%)', borderColor: 'rgba(0,122,255,0.2)' }}>
+                  {/* Decorative circles */}
+                  <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-20 pointer-events-none" style={{ background: 'radial-gradient(circle, #007AFF 0%, transparent 70%)' }} />
+                  <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full opacity-15 pointer-events-none" style={{ background: 'radial-gradient(circle, #5856D6 0%, transparent 70%)' }} />
+                  <div className="relative z-10 h-14 w-14 rounded-2xl bg-gradient-to-tr from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center mx-auto shadow-[0_4px_16px_rgba(0,122,255,0.35)]">
+                    <Activity className="h-7 w-7" />
                   </div>
-                  <div className="space-y-1">
-                    <h3 className="text-lg sm:text-xl font-bold font-display text-stone-900">
-                      10-MCQ Adaptive Examination Drill
+                  <div className="relative z-10 space-y-2">
+                    <h3 className="text-[18px] sm:text-[20px] font-bold text-[#1D1D1F] tracking-tight">
+                      10-MCQ Adaptive Drill
                     </h3>
-                    <p className="text-xs text-stone-500 max-w-md mx-auto">
-                      Authentic FMGE/NBE clinical stems covering {topicName} with distractor rationale and Error Vault logging.
+                    <p className="text-[13px] text-[#3A3A3C] max-w-sm mx-auto leading-snug">
+                      Authentic FMGE/NBE clinical stems on {topicName} · distractor rationale · Error Vault logging
                     </p>
                   </div>
 
-                  <div className="pt-2">
+                  <div className="relative z-10 pt-1">
                     <button
                       type="button"
                       onClick={() => {
+                        onClose();
                         onLaunchPracticeMcq({
                           sessionId: `drill-${Date.now()}`,
                           source: 'dashboard_weak_topic',
@@ -1229,10 +1234,10 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                           targetQuestionCount: 10,
                         });
                       }}
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-semibold font-display transition-all shadow-xs cursor-pointer min-h-[44px] active:scale-[0.98]"
+                      className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-sm font-bold transition-all shadow-[0_4px_16px_rgba(0,122,255,0.35)] cursor-pointer min-h-[48px] active:scale-[0.98]"
                     >
-                      <Play className="h-3.5 w-3.5 fill-current" />
-                      <span>Launch 10-MCQ Test Session</span>
+                      <Play className="h-4 w-4 fill-current" />
+                      <span>Launch Test Session</span>
                     </button>
                   </div>
                 </div>
@@ -1254,24 +1259,16 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
             {activeStep === 'review' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-3 gap-3 sm:gap-4 text-center">
-                  <div className="p-4 rounded-xl bg-stone-50/70 border border-stone-200/80">
-                    <span className="text-xl sm:text-2xl font-bold font-display text-stone-900">
-                      {topicMetrics.accuracy}%
-                    </span>
-                    <p className="text-[11px] sm:text-xs text-stone-500 mt-0.5">Topic Accuracy</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-stone-50/70 border border-stone-200/80">
-                    <span className="text-xl sm:text-2xl font-bold font-display text-stone-900">
-                      {topicMetrics.totalAttempts}
-                    </span>
-                    <p className="text-[11px] sm:text-xs text-stone-500 mt-0.5">MCQs Solved</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-stone-50/70 border border-stone-200/80">
-                    <span className="text-xl sm:text-2xl font-bold font-display text-stone-900">
-                      {topicMetrics.masteryStatus.toUpperCase()}
-                    </span>
-                    <p className="text-[11px] sm:text-xs text-stone-500 mt-0.5">Mastery Grade</p>
-                  </div>
+                  {[
+                    { value: `${topicMetrics.accuracy}%`, label: 'Topic Accuracy', color: topicMetrics.accuracy >= 70 ? '#30D158' : '#FF9500' },
+                    { value: `${topicMetrics.totalAttempts}`, label: 'MCQs Solved', color: '#007AFF' },
+                    { value: topicMetrics.masteryStatus.toUpperCase(), label: 'Mastery Grade', color: '#5856D6' },
+                  ].map(({ value, label, color }) => (
+                    <div key={label} className="p-4 rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] shadow-[0_1px_6px_rgba(0,0,0,0.04)] space-y-1">
+                      <span className="text-xl sm:text-2xl font-black tracking-tight" style={{ color }}>{value}</span>
+                      <p className="text-[11px] text-[#8E8E93] font-medium">{label}</p>
+                    </div>
+                  ))}
                 </div>
 
                 {/* What Needs Review */}
@@ -1307,7 +1304,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   <button
                     type="button"
                     onClick={() => setActiveStep('master')}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[42px] shadow-2xs active:scale-[0.98]"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[42px] shadow-2xs active:scale-[0.98]"
                   >
                     <span>Next: Master Topic & Pearls</span>
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -1322,17 +1319,26 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 {/* FMGE Pearls */}
                 {pearls.length > 0 ? (
                   <div className="space-y-3">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-[#8E8E93]">
                       High-Yield Pearls & Mnemonics
                     </span>
-                    <div className="divide-y divide-stone-100">
+                    <div className="space-y-2.5">
                       {pearls.map((p, i) => (
-                        <div key={i} className="py-3 text-xs text-stone-800 space-y-1">
-                          <strong className="font-bold text-stone-900 font-display text-sm block">
-                            {p.statement}
-                          </strong>
-                          {p.discriminatorTip && <p className="text-stone-500">{p.discriminatorTip}</p>}
-                          {p.examTrapWarning && <p className="text-rose-600 font-medium">Exam Trap: {p.examTrapWarning}</p>}
+                        <div key={i} className="p-4 rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] shadow-[0_1px_6px_rgba(0,0,0,0.04)] space-y-1.5">
+                          <div className="flex items-start gap-2.5">
+                            <div className="h-5 w-5 rounded-full bg-[#FFF3E0] border border-[#FF9500]/25 flex items-center justify-center shrink-0 mt-0.5">
+                              <Award className="h-3 w-3 text-[#FF9500]" />
+                            </div>
+                            <strong className="font-bold text-[#1D1D1F] text-[13px] leading-snug">{p.statement}</strong>
+                          </div>
+                          {p.discriminatorTip && (
+                            <p className="text-[12px] text-[#3A3A3C] pl-7 leading-snug">{p.discriminatorTip}</p>
+                          )}
+                          {p.examTrapWarning && (
+                            <p className="text-[11px] text-[#FF3B30] font-semibold pl-7">
+                              Exam Trap: {p.examTrapWarning}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1373,6 +1379,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   <button
                     type="button"
                     onClick={() => {
+                      onClose();
                       onLaunchPracticeMcq({
                         sessionId: `drill-${Date.now()}`,
                         source: 'dashboard_weak_topic',
@@ -1394,7 +1401,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                       handleMarkMastered();
                       onClose();
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-[#006B63] hover:bg-[#00554E] text-white text-xs font-semibold font-display shadow-2xs transition-colors cursor-pointer min-h-[40px] active:scale-[0.98]"
+                    className="px-5 py-2.5 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display shadow-2xs transition-colors cursor-pointer min-h-[40px] active:scale-[0.98]"
                   >
                     Mark Mastered
                   </button>
@@ -1415,7 +1422,6 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
           whatToLookFor="Verified diagnostic visual finding for this clinical concept."
         />
       )}
-    </div>,
-    document.body
+    </div>
   );
 };

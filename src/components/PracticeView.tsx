@@ -13,16 +13,17 @@ import {
   Zap,
   BarChart3,
   Brain,
+  Star,
+  Activity,
+  Award,
+  Filter,
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { AppState, ErrorNotebookItem, DailyTask } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
-import { useCircadianTheme } from '../hooks/useCircadianTheme';
-import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
-import { HeaderTabInsignia } from './HeaderTabInsignia';
-import { CircadianFocusDropdown } from './CircadianFocusDropdown';
-import { HeaderGlassIcon } from './HeaderGlassIcon';
-import { useScrollDirection } from '../hooks/useScrollDirection';
+import { getSubjectVisualTheme } from './SubjectAppleIcon';
 
 interface PracticeViewProps {
   state: AppState;
@@ -38,606 +39,434 @@ interface PracticeViewProps {
   onAddTask?: (task: DailyTask) => void;
 }
 
+const PILLARS = [
+  { icon: Target,       label: 'Real Exam Format',      sub: '10-MCQ clinical drills',   color: '#007AFF', grad: 'from-blue-500 to-cyan-500'    },
+  { icon: BookOpen,     label: 'Deep Explanations',     sub: 'Distractor breakdown',      color: '#5856D6', grad: 'from-violet-500 to-purple-600' },
+  { icon: Layers,       label: 'Distractor Analysis',   sub: 'Learn why traps fail',      color: '#30D158', grad: 'from-emerald-500 to-teal-600'  },
+  { icon: TrendingUp,   label: 'Track Progress',        sub: 'Live pacing & accuracy',    color: '#FF9500', grad: 'from-amber-500 to-orange-500'   },
+  { icon: Stethoscope,  label: 'Clinical Retention',    sub: 'High-yield recalls',        color: '#FF3B30', grad: 'from-rose-500 to-red-600'       },
+];
+
 export const PracticeView: React.FC<PracticeViewProps> = ({
   state,
   onLaunchPracticeSession,
 }) => {
-  const circadian = useCircadianTheme(state?.settings?.bgTheme);
-  const { isVisible: isHeaderVisible, scrollY, isAtTop } = useScrollDirection(12);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('medicine');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterHighYield, setFilterHighYield] = useState(false);
 
-  const selectedSubject = useMemo(() => {
-    if (selectedSubjectId === 'all') return null;
-    return FMGE_SUBJECTS.find((s) => s.id === selectedSubjectId) || FMGE_SUBJECTS[0];
-  }, [selectedSubjectId]);
+  const selectedSubject = useMemo(
+    () => FMGE_SUBJECTS.find((s) => s.id === selectedSubjectId) || FMGE_SUBJECTS[0],
+    [selectedSubjectId]
+  );
 
-  // Filter topics based on subject and search query
+  const allTopicsList = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const all: Array<{
+      subjectId: string; subjectName: string; subjectWeightage: number;
+      id: string; name: string; isHighYield: boolean;
+    }> = [];
+    FMGE_SUBJECTS.forEach((sub) => {
+      sub.topics.forEach((t) => {
+        if (!query || t.name.toLowerCase().includes(query) || sub.name.toLowerCase().includes(query)) {
+          all.push({
+            subjectId: sub.id, subjectName: sub.name, subjectWeightage: sub.weightage,
+            id: t.id, name: t.name, isHighYield: Boolean(t.isHighYield),
+          });
+        }
+      });
+    });
+    return all;
+  }, [searchQuery]);
+
   const displayedTopics = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-
-    if (selectedSubjectId === 'all') {
-      const all: Array<{
-        subjectId: string;
-        subjectName: string;
-        subjectWeightage: number;
-        id: string;
-        name: string;
-        isHighYield: boolean;
-      }> = [];
-
-      FMGE_SUBJECTS.forEach((sub) => {
-        sub.topics.forEach((t) => {
-          if (!query || t.name.toLowerCase().includes(query) || sub.name.toLowerCase().includes(query)) {
-            all.push({
-              subjectId: sub.id,
-              subjectName: sub.name,
-              subjectWeightage: sub.weightage,
-              id: t.id,
-              name: t.name,
-              isHighYield: Boolean(t.isHighYield),
-            });
-          }
-        });
-      });
-      return all;
-    }
-
-    if (!selectedSubject) return [];
-
-    return selectedSubject.topics
+    let topics = selectedSubject.topics
       .filter((t) => !query || t.name.toLowerCase().includes(query))
       .map((t) => ({
-        subjectId: selectedSubject.id,
-        subjectName: selectedSubject.name,
-        subjectWeightage: selectedSubject.weightage,
-        id: t.id,
-        name: t.name,
-        isHighYield: Boolean(t.isHighYield),
+        subjectId: selectedSubject.id, subjectName: selectedSubject.name,
+        subjectWeightage: selectedSubject.weightage, id: t.id,
+        name: t.name, isHighYield: Boolean(t.isHighYield),
       }));
-  }, [selectedSubjectId, selectedSubject, searchQuery]);
+    if (filterHighYield) topics = topics.filter((t) => t.isHighYield);
+    return topics;
+  }, [selectedSubject, searchQuery, filterHighYield]);
+
+  const highYieldCount = displayedTopics.filter((t) => t.isHighYield).length;
+  const subjectTheme = getSubjectVisualTheme(selectedSubject.id);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-20 space-y-4 sm:space-y-6 font-['Plus_Jakarta_Sans'] text-[#121e1b]">
-      {/* ================= 1. PRACTICE EDITORIAL HEADER CARD ================= */}
-      <motion.header
-        initial={{ opacity: 0, y: -12 }}
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 space-y-5 font-['Plus_Jakarta_Sans'] text-[#1D1D1F]">
+
+      {/* ═══ HERO ═══ */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`relative rounded-3xl border p-3.5 sm:px-5 sm:py-3.5 backdrop-blur-2xl transition-all duration-700 ${circadian.bannerBg}`}
+        className="relative rounded-[1.75rem] sm:rounded-[2.25rem] overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #FFF5E6 0%, #FFE0A0 40%, #FFC860 70%, #FF9500 100%)',
+          boxShadow: '0 8px 40px rgba(255,149,0,0.14), 0 2px 8px rgba(0,0,0,0.06)',
+        }}
       >
-        {/* Background Atmosphere & Stethoscope Art (isolated so dropdown never clips) */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
-          {/* Dynamic Circadian Ambient Clinical Atmosphere & 2px Shimmer Track */}
-          <CircadianHeaderAtmosphere circadian={circadian} />
+        {/* Decorative right glow */}
+        <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(255,149,0,0.28) 0%, transparent 70%)' }} />
+        {/* Top inner shine */}
+        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
 
-          {/* Clinical Calibration Pattern Background */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
-
-          {/* Subtle Precision Clinical Calibration Dot & Cross Pattern */}
-          <svg
-            className="absolute inset-0 h-full w-full opacity-[0.04] text-teal-950 pointer-events-none select-none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <pattern id="practice-calibration-grid" width="30" height="30" patternUnits="userSpaceOnUse">
-                <path d="M 15 11 L 15 19 M 11 15 L 19 15" stroke="currentColor" strokeWidth="0.75" />
-                <circle cx="15" cy="15" r="0.8" fill="currentColor" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#practice-calibration-grid)" />
-          </svg>
-
-          {/* Premium Doctor's Clinical Diagnostic Desk & Stethoscope Artwork */}
-          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[480px] overflow-hidden opacity-25 sm:opacity-35 dark:opacity-50 [mask-image:linear-gradient(to_left,black_50%,transparent_100%)] select-none pointer-events-none block">
-            <svg viewBox="0 0 480 140" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
-              <defs>
-                <linearGradient id="practice-chart-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
-                  <stop offset="60%" stopColor="#E6FFFA" stopOpacity="0.85" />
-                  <stop offset="100%" stopColor="#B2F5EA" stopOpacity="0.75" />
-                </linearGradient>
-                <linearGradient id="practice-metal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#E2E8F0" />
-                  <stop offset="40%" stopColor="#94A3B8" />
-                  <stop offset="70%" stopColor="#CBD5E1" />
-                  <stop offset="100%" stopColor="#64748B" />
-                </linearGradient>
-                <linearGradient id="steth-tube-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#0284C7" />
-                  <stop offset="45%" stopColor="#0D9488" />
-                  <stop offset="100%" stopColor="#004D40" />
-                </linearGradient>
-                <radialGradient id="chestpiece-glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.5" />
-                  <stop offset="60%" stopColor="#14B8A6" stopOpacity="0.18" />
-                  <stop offset="100%" stopColor="#0284C7" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Ambient Diagnostic Halo */}
-              <motion.circle
-                cx="375"
-                cy="72"
-                r="62"
-                fill="url(#chestpiece-glow)"
-                animate={{ scale: [1, 1.18, 1], opacity: [0.35, 0.65, 0.35] }}
-                transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-
-              {/* ═══ 1. CLINICAL VIGNETTE CASE CHART / CLIPBOARD ═══ */}
-              <g transform="translate(350, 42) rotate(-5)">
-                {/* Clipboard Backing Plate */}
-                <rect x="-65" y="-10" width="130" height="92" rx="7" fill="#0F766E" opacity="0.35" />
-                {/* Medical Paper Sheet */}
-                <rect x="-60" y="-6" width="120" height="85" rx="5" fill="url(#practice-chart-grad)" stroke="#99F6E4" strokeWidth="0.8" />
-                {/* Metal Clip at Top */}
-                <rect x="-24" y="-12" width="48" height="12" rx="3" fill="url(#practice-metal-grad)" />
-                <circle cx="0" cy="-6" r="2.5" fill="#334155" />
-
-                {/* Patient Case Vignette Text Line Simulation */}
-                <g stroke="#0F766E" strokeOpacity="0.25" strokeWidth="1" strokeLinecap="round">
-                  <line x1="-50" y1="12" x2="10" y2="12" />
-                  <line x1="-50" y1="18" x2="35" y2="18" />
-                  <line x1="-50" y1="24" x2="45" y2="24" />
-                  <line x1="-50" y1="30" x2="-5" y2="30" />
-                </g>
-
-                {/* Printed Clinical Vitals / Electrocardiogram Ribbon on Sheet */}
-                <path
-                  d="M -50 52 L -32 52 L -28 44 L -24 62 L -20 38 L -16 58 L -12 52 L 2 52 L 6 46 L 10 56 L 14 52 L 48 52"
-                  stroke="#0284C7"
-                  strokeWidth="1.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  fill="none"
-                  opacity="0.85"
-                />
-              </g>
-
-              {/* ═══ 2. LITTMANN-STYLE ACOUSTIC STETHOSCOPE ═══ */}
-              <g transform="translate(370, 75)">
-                {/* Binaural Chrome Headset Arch */}
-                <path
-                  d="M -85 -35 C -75 -65, -35 -70, -10 -60"
-                  stroke="url(#practice-metal-grad)"
-                  strokeWidth="2.6"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-                <path
-                  d="M -60 -30 C -52 -55, -20 -62, 5 -55"
-                  stroke="url(#practice-metal-grad)"
-                  strokeWidth="2.6"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-                {/* Soft Rubber Eartips */}
-                <ellipse cx="-85" cy="-35" rx="3.5" ry="5" fill="#0F172A" />
-                <ellipse cx="-60" cy="-30" rx="3.5" ry="5" fill="#0F172A" />
-                {/* Binaural Spring Yoke Junction */}
-                <path d="M -10 -60 Q 0 -58 10 -46" stroke="url(#practice-metal-grad)" strokeWidth="3" fill="none" />
-                <path d="M 5 -55 Q 8 -52 10 -46" stroke="url(#practice-metal-grad)" strokeWidth="3" fill="none" />
-
-                {/* Flexible Rubber Stethoscope Tubing S-Curve */}
-                <path
-                  d="M 10 -46 C 25 -25, 45 -5, 30 20 C 15 45, -20 35, -25 10 C -30 -12, 5 -10, 20 5 C 32 18, 48 24, 65 20"
-                  stroke="url(#steth-tube-grad)"
-                  strokeWidth="4.2"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-
-                {/* Stethoscope Dual-Sided Chestpiece at (65, 20) */}
-                <g transform="translate(65, 20)">
-                  {/* Stem Connection */}
-                  <rect x="-8" y="-3" width="8" height="6" rx="1.5" fill="url(#practice-metal-grad)" />
-                  {/* Outer Diaphragm Rim */}
-                  <circle r="16" fill="url(#practice-metal-grad)" stroke="#0F766E" strokeWidth="1" />
-                  {/* Inner Acoustic Diaphragm Surface */}
-                  <circle r="12.5" fill="#004D40" />
-                  <circle r="10.5" fill="url(#practice-metal-grad)" opacity="0.4" />
-                  {/* Acoustic Center Core */}
-                  <circle r="4" fill="#0284C7" />
-                  <circle r="1.5" fill="#FFFFFF" />
-
-                  {/* Gentle Rhythmic Pulse Ring */}
-                  <motion.circle
-                    r="16"
-                    stroke="#38BDF8"
-                    strokeWidth="1.5"
-                    fill="none"
-                    animate={{ scale: [1, 1.8], opacity: [0.85, 0] }}
-                    transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
-                  />
-                  <motion.circle
-                    r="16"
-                    stroke="#14B8A6"
-                    strokeWidth="1.2"
-                    fill="none"
-                    animate={{ scale: [1, 2.3], opacity: [0.65, 0] }}
-                    transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut', delay: 0.5 }}
-                  />
-                </g>
-              </g>
-
-              {/* ═══ 3. HOLOGRAPHIC DIAGNOSTIC PULSE WAVE & VITAL NODES ═══ */}
-              <motion.path
-                d="M 170 115 L 210 115 L 218 100 L 226 130 L 234 92 L 242 125 L 248 115 L 290 115"
-                stroke="#0EA5E9"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-                opacity="0.8"
-                animate={{
-                  opacity: [0.4, 0.95, 0.4],
-                }}
-                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-
-              {/* Traveling Cardiac Vitals Signal */}
-              <motion.circle
-                r="3"
-                fill="#0284C7"
-                animate={{
-                  cx: [170, 210, 218, 226, 234, 242, 248, 290],
-                  cy: [115, 115, 100, 130, 92, 125, 115, 115],
-                  opacity: [0, 0.8, 1, 1, 1, 1, 0.8, 0],
-                }}
-                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-
-              {/* Floating Clinical Particle Blips */}
-              <motion.circle cx="310" cy="45" r="2" fill="#38BDF8" animate={{ opacity: [0.2, 0.8, 0.2] }} transition={{ duration: 3, repeat: Infinity }} />
-              <motion.circle cx="440" cy="55" r="1.5" fill="#14B8A6" animate={{ opacity: [0.1, 0.7, 0.1] }} transition={{ duration: 3.8, repeat: Infinity, delay: 0.8 }} />
-              <motion.circle cx="280" cy="85" r="1.8" fill="#0D9488" animate={{ opacity: [0.2, 0.75, 0.2] }} transition={{ duration: 2.7, repeat: Infinity, delay: 1.4 }} />
-            </svg>
+        {/* Animated pulse rings (top-right) */}
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 w-40 h-40 sm:w-56 sm:h-56 pointer-events-none">
+          <motion.div className="absolute inset-0 rounded-full border border-[#FF9500]/[0.15]"
+            animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} />
+          <motion.div className="absolute inset-4 rounded-full border border-[#FF9500]/[0.10]"
+            animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <motion.div
+              animate={{ opacity: [0.25, 0.5, 0.25] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="w-14 h-14 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(255,149,0,0.12)' }}
+            >
+              <Stethoscope className="h-7 w-7" style={{ color: 'rgba(180,80,0,0.4)' }} />
+            </motion.div>
           </div>
         </div>
-        </div>
 
-        {/* Top Utility Bar: Eyebrow + Live Circadian Focus Dropdown */}
-        <div className={`relative z-20 flex items-center justify-between gap-3 pb-2 border-b ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/80'}`}>
-          <div className="flex items-center gap-2">
-            <span className={`text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase ${circadian.isNight ? 'text-cyan-300' : 'text-teal-700'}`}>
-              PRACTICE • LEARN • MASTER
-            </span>
-            <span className={circadian.isNight ? 'text-sky-800' : 'text-stone-300'}>•</span>
-            <span className={`text-[10px] font-mono font-bold tracking-widest uppercase hidden sm:inline ${circadian.isNight ? 'text-slate-300' : 'text-slate-600'}`}>
-              10-MCQ CLINICAL DRILLS
+        <div className="relative z-10 p-5 sm:p-7 lg:p-8">
+          {/* Eyebrow */}
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-7 h-7 rounded-xl border flex items-center justify-center"
+              style={{ background: 'rgba(255,149,0,0.15)', borderColor: 'rgba(180,80,0,0.2)' }}>
+              <Activity className="h-3.5 w-3.5" style={{ color: '#7A3A00' }} />
+            </div>
+            <span className="font-mono text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: '#7A3A00' }}>
+              PRACTICE ENGINE · 10-MCQ CLINICAL DRILLS
             </span>
           </div>
-          <CircadianFocusDropdown circadian={circadian} />
-        </div>
 
-        {/* Bento Content Layout matching practice-vignettes-banner.png */}
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 pt-2">
-          {/* Left Column: Glass Icon, Two-Tone Title, Badges, Subtitle & Feature Pills */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 max-w-3xl min-w-0">
-            <HeaderGlassIcon
-              icon={Stethoscope}
-              variant="teal"
-              isNight={circadian.isNight}
-            />
-
-            <div className="space-y-1.5 min-w-0">
-              {/* Two-Tone Title & Badge */}
-              <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-tight">
-                  <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>CLINICAL </span>
-                  <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>VIGNETTES &amp; DRILLS</span>
-                </h1>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-sky-500'}`} />
-                  Practice Engine · 10 MCQs
-                </span>
-              </div>
-
-              {/* Subtitle */}
-              <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
-                10-MCQ clinical drills with instant distractor breakdowns &amp; active recall.
+          <div className="flex flex-col lg:flex-row lg:items-end gap-6 lg:gap-12">
+            {/* Left: headline */}
+            <div className="flex-1 min-w-0 space-y-3">
+              <h1 className="text-[36px] sm:text-[50px] font-black tracking-[-0.04em] leading-[0.88] text-[#1D1D1F]">
+                Clinical<br />
+                <span style={{ color: '#FF9500' }}>Vignettes</span>
+                <span className="text-[#1D1D1F]"> &amp; Drills</span>
+              </h1>
+              <p className="text-[13px] sm:text-[14px] leading-snug max-w-sm" style={{ color: '#3A3A3C' }}>
+                FMGE-style 10-MCQ sessions with active recall, distractor breakdown &amp; instant feedback.
               </p>
 
-              {/* Feature Pills with Apple Saturated Tints & SwiftUI Spring Hover */}
-              <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                <motion.span
-                  whileHover={{ scale: 1.04, y: -1 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border shadow-2xs cursor-default ${
-                    circadian.isNight
-                      ? 'bg-amber-500/15 border-amber-400/30 text-amber-200'
-                      : 'bg-amber-500/10 border-amber-300/80 text-amber-900'
-                  }`}
-                >
-                  <Zap className="w-3.5 h-3.5 text-amber-500" />
-                  Active Recall
-                </motion.span>
-                <motion.span
-                  whileHover={{ scale: 1.04, y: -1 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border shadow-2xs cursor-default ${
-                    circadian.isNight
-                      ? 'bg-teal-500/15 border-teal-400/30 text-teal-200'
-                      : 'bg-teal-500/10 border-teal-300/80 text-teal-900'
-                  }`}
-                >
-                  <BarChart3 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                  Performance Insights
-                </motion.span>
-                <motion.span
-                  whileHover={{ scale: 1.04, y: -1 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border shadow-2xs cursor-default ${
-                    circadian.isNight
-                      ? 'bg-emerald-500/15 border-emerald-400/30 text-emerald-200'
-                      : 'bg-emerald-500/10 border-emerald-300/80 text-emerald-900'
-                  }`}
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  Exam-Ready
-                </motion.span>
+              {/* Feature pills */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {[
+                  { icon: Zap,          label: 'Active Recall',       color: '#FF9500' },
+                  { icon: BarChart3,    label: 'Performance Insights', color: '#30D158' },
+                  { icon: CheckCircle2, label: 'Exam-Ready',           color: '#007AFF' },
+                ].map(({ icon: Icon, label, color }) => (
+                  <span key={label}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11.5px] font-semibold"
+                    style={{ background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(180,80,0,0.15)' }}>
+                    <Icon className="h-3 w-3" style={{ color }} />
+                    <span style={{ color: '#3A3A3C' }}>{label}</span>
+                  </span>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Right Column: Telemetry Bento Capsule */}
-          <div className="shrink-0 self-start lg:self-center">
-            <div className={`flex items-center gap-3.5 px-4 py-2.5 rounded-2xl border text-xs font-mono backdrop-blur-2xl ${
-              circadian.isNight
-                ? 'bg-slate-900/90 border-slate-800 text-slate-200 shadow-xs'
-                : 'bg-white/95 border-slate-200/90 text-slate-700 shadow-[0_8px_24px_rgba(0,107,99,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)]'
-            }`}>
-              <div className="flex items-center gap-2">
-                <Target className={`w-3.5 h-3.5 shrink-0 ${circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}`} />
-                <span className={`font-extrabold text-xs sm:text-[13px] ${circadian.isNight ? 'text-white' : 'text-slate-900'}`}>{displayedTopics.length}</span>
-                <span className={`text-[11px] font-semibold font-sans ${circadian.isNight ? 'text-slate-300' : 'text-slate-700'}`}>Drill Topics</span>
+            {/* Right: stat capsules */}
+            <div className="flex items-center gap-3 shrink-0 flex-wrap lg:flex-nowrap">
+              <div className="flex flex-col items-center px-5 py-3.5 rounded-2xl text-center"
+                style={{ background: 'rgba(255,255,255,0.50)', border: '1px solid rgba(180,80,0,0.15)' }}>
+                <span className="font-black text-[28px] text-[#1D1D1F] leading-none">{allTopicsList.length}</span>
+                <span className="text-[11px] font-medium mt-0.5" style={{ color: '#6E6E73' }}>Topics</span>
               </div>
-              <span className={circadian.isNight ? 'text-slate-600' : 'text-slate-300'}>•</span>
-              <div className="flex items-center gap-2">
-                <Brain className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                <span className={`font-extrabold text-xs sm:text-[13px] ${circadian.isNight ? 'text-amber-300' : 'text-amber-700'}`}>
-                  {displayedTopics.filter((t) => t.isHighYield).length}
+              <div className="flex flex-col items-center px-5 py-3.5 rounded-2xl text-center"
+                style={{ background: 'rgba(255,149,0,0.12)', border: '1px solid rgba(255,149,0,0.25)' }}>
+                <span className="font-black text-[28px] leading-none" style={{ color: '#C85000' }}>
+                  {allTopicsList.filter((t) => t.isHighYield).length}
                 </span>
-                <span className={`text-[11px] font-semibold font-sans ${circadian.isNight ? 'text-amber-200' : 'text-amber-800'}`}>High-Yield</span>
+                <span className="text-[11px] font-medium mt-0.5" style={{ color: '#C85000' }}>High-Yield</span>
+              </div>
+              <div className="flex flex-col items-center px-5 py-3.5 rounded-2xl text-center"
+                style={{ background: 'rgba(48,209,88,0.10)', border: '1px solid rgba(48,209,88,0.2)' }}>
+                <span className="font-black text-[28px] leading-none" style={{ color: '#1A7A35' }}>19</span>
+                <span className="text-[11px] font-medium mt-0.5" style={{ color: '#1A7A35' }}>Subjects</span>
               </div>
             </div>
-          </div>
-        </div>
-      </motion.header>
-
-      {/* ================= SUBJECT NAVIGATION & CONTROLS with Dynamic Auto-Hide ================= */}
-      <motion.div
-        initial={false}
-        animate={{
-          y: isHeaderVisible || isAtTop || scrollY <= 240 ? 0 : -90,
-          opacity: isHeaderVisible || isAtTop || scrollY <= 240 ? 1 : 0,
-        }}
-        transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-        className={`sticky top-0 z-20 py-2.5 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 space-y-3 transition-colors duration-200 ${
-          scrollY > 240
-            ? 'bg-white/85 backdrop-blur-2xl border-b border-stone-200/60 shadow-xs'
-            : 'bg-transparent'
-        } ${isHeaderVisible || isAtTop || scrollY <= 240 ? 'pointer-events-auto' : 'pointer-events-none'}`}
-      >
-        {/* Horizontal Subject Scrollbar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
-          <button
-            type="button"
-            onClick={() => setSelectedSubjectId('all')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer border ${
-              selectedSubjectId === 'all'
-                ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs font-bold'
-                : 'bg-white/90 backdrop-blur-md hover:bg-white text-[#3d4947] hover:text-[#121e1b] border-slate-200/80 shadow-2xs'
-            }`}
-          >
-            <span>All Subjects</span>
-          </button>
-
-          {FMGE_SUBJECTS.map((sub) => {
-            const isSelected = sub.id === selectedSubjectId;
-            return (
-              <button
-                key={sub.id}
-                type="button"
-                onClick={() => setSelectedSubjectId(sub.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer border ${
-                  isSelected
-                    ? 'bg-[#006B63] text-white border-[#006B63] shadow-xs font-bold'
-                    : 'bg-white/90 backdrop-blur-md hover:bg-white text-[#3d4947] hover:text-[#121e1b] border-slate-200/80 shadow-2xs'
-                }`}
-              >
-                <span>{sub.name}</span>
-                <span className="ml-1 text-[10px] font-mono opacity-80">({sub.weightage}M)</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search & Filter Toolbar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search topics or modules..."
-              className="w-full pl-10 pr-9 py-2 sm:py-2.5 rounded-xl bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 transition-all outline-none shadow-xs"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#66716F] hover:text-[#121e1b] transition-colors cursor-pointer"
-                title="Clear search"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Subject Selector Dropdown */}
-          <div className="relative shrink-0 sm:w-56">
-            <select
-              value={selectedSubjectId}
-              onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="w-full appearance-none pl-3.5 pr-8 py-2 sm:py-2.5 rounded-xl bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 text-xs sm:text-sm font-medium text-slate-800 cursor-pointer outline-none transition-all shadow-xs"
-            >
-              <option value="all">All Subjects ({FMGE_SUBJECTS.length})</option>
-              {FMGE_SUBJECTS.map((sub) => (
-                <option key={sub.id} value={sub.id}>
-                  {sub.name} ({sub.weightage}M)
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-4 h-4 text-[#66716F] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
       </motion.div>
 
-      {/* ================= TOPICS & DRILLS CONTAINER ================= */}
-      <div className="clinical-card p-5 sm:p-7 lg:p-8 space-y-4 sm:space-y-6 bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)]">
-        {/* Container Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 text-xs font-semibold uppercase tracking-wider text-[#66716F] font-mono">
-          <span>
-            {selectedSubject ? `${selectedSubject.name} High-Yield Modules` : 'High-Yield Clinical Modules'}
-          </span>
-          <span className="hidden sm:inline">10-MCQ Clinical Drill</span>
+      {/* ═══ STICKY SUBJECT SELECTOR + CONTROLS ═══ */}
+      <div className="sticky top-0 z-20 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 py-3 space-y-3 bg-[#F2F2F7]/90 backdrop-blur-xl border-b border-[rgba(60,60,67,0.1)]">
+        {/* Subject pill scroller */}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none -mx-1 px-1 pb-0.5">
+          {FMGE_SUBJECTS.map((sub) => {
+            const isSelected = sub.id === selectedSubjectId;
+            const theme = getSubjectVisualTheme(sub.id);
+            return (
+              <motion.button
+                key={sub.id}
+                type="button"
+                whileTap={{ scale: 0.95 }}
+                onClick={() => { setSelectedSubjectId(sub.id); setSearchQuery(''); setFilterHighYield(false); }}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-semibold shrink-0 transition-all cursor-pointer border ${
+                  isSelected
+                    ? 'text-white shadow-sm'
+                    : 'bg-white text-[#3A3A3C] border-[rgba(60,60,67,0.12)] hover:text-[#1D1D1F] hover:border-[rgba(60,60,67,0.22)] shadow-xs'
+                }`}
+                style={isSelected ? { background: theme.color, borderColor: theme.color, boxShadow: `0 2px 8px ${theme.color}40` } : {}}
+              >
+                <span>{sub.name}</span>
+                <span className={`text-[10px] font-mono ${isSelected ? 'text-white/70' : 'text-[#8E8E93]'}`}>{sub.weightage}M</span>
+              </motion.button>
+            );
+          })}
         </div>
 
-        {/* Topics List */}
-        {displayedTopics.length === 0 ? (
-          <div className="py-12 text-center space-y-3">
-            <p className="text-sm font-medium text-[#66716F]">
-              No modules found matching &ldquo;{searchQuery}&rdquo;.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedSubjectId('medicine');
-              }}
-              className="text-xs font-semibold text-[#006B63] hover:underline cursor-pointer"
-            >
-              Reset filters to Medicine
-            </button>
+        {/* Search + filters row */}
+        <div className="flex items-center gap-2.5">
+          {/* Search */}
+          <div className="relative flex-1">
+            <Search className="h-3.5 w-3.5 text-[#8E8E93] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Search ${selectedSubject.name} topics…`}
+              className="w-full pl-9 pr-9 py-2 text-[13px] text-[#1D1D1F] placeholder:text-[#8E8E93] bg-white border border-[rgba(60,60,67,0.12)] rounded-xl outline-none focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 transition-all shadow-xs"
+            />
+            {searchQuery && (
+              <button type="button" onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#C7C7CC] flex items-center justify-center text-white cursor-pointer hover:bg-[#8E8E93] transition-colors">
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3">
-            {displayedTopics.map((topic) => (
-              <motion.div
-                key={`${topic.subjectId}-${topic.id}`}
-                whileHover={{ y: -2, scale: 1.004 }}
-                whileTap={{ scale: 0.985 }}
-                transition={{ type: 'spring', stiffness: 420, damping: 26 }}
-                onClick={() => onLaunchPracticeSession(topic.subjectId, topic.id, topic.name)}
-                className="relative overflow-hidden p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-white via-white to-slate-50/60 backdrop-blur-xl border border-slate-200/80 hover:border-teal-300 shadow-[0_4px_16px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_25px_rgba(0,107,99,0.08)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all group cursor-pointer"
-              >
-                {/* Topic Info */}
-                <div className="min-w-0 pr-2 space-y-1.5 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-base font-extrabold font-['Outfit'] text-slate-900 group-hover:text-teal-900 transition-colors leading-snug">
-                      {topic.name}
-                    </span>
-                    {topic.isHighYield && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-mono font-bold uppercase tracking-wider shadow-2xs shrink-0">
-                        High Yield
-                      </span>
-                    )}
-                    {selectedSubjectId === 'all' && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-mono font-bold border border-slate-200/80 shrink-0">
-                        {topic.subjectName} · {topic.subjectWeightage}M
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Standard FMGE clinical vignette distribution · 10 questions with distractor analysis
-                  </p>
-                </div>
 
-                {/* Primary Action Button */}
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.94 }}
-                  transition={{ type: 'spring', stiffness: 450, damping: 22 }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onLaunchPracticeSession(topic.subjectId, topic.id, topic.name);
-                  }}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-slate-950 hover:bg-[#006B63] text-white text-xs font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer shrink-0 self-start sm:self-center min-h-[40px] sm:min-h-[38px]"
-                >
-                  <Play className="h-3.5 w-3.5 fill-current" />
-                  <span>Start 10-MCQs</span>
-                </motion.button>
-              </motion.div>
-            ))}
-          </div>
-        )}
+          {/* High-yield filter toggle */}
+          <motion.button
+            type="button"
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setFilterHighYield(!filterHighYield)}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-[12px] font-semibold transition-all cursor-pointer shrink-0 ${
+              filterHighYield
+                ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
+                : 'bg-white text-[#3A3A3C] border-[rgba(60,60,67,0.12)] hover:border-amber-300 shadow-xs'
+            }`}
+          >
+            <Star className={`h-3.5 w-3.5 ${filterHighYield ? 'fill-white' : 'text-amber-500'}`} />
+            <span className="hidden sm:inline">High-Yield</span>
+            {highYieldCount > 0 && (
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${filterHighYield ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-700'}`}>
+                {highYieldCount}
+              </span>
+            )}
+          </motion.button>
+        </div>
       </div>
 
-      {/* ================= EXAM VALUE PILLARS (Apple Bento Grid) ================= */}
-      <div className="pt-2 border-t border-slate-200/80">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 items-stretch">
-          {/* Pillar 1: Real Exam Format — Sapphire Ultramarine */}
-          <div className="relative overflow-hidden p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/[0.08] via-white to-cyan-500/[0.03] border border-blue-200/80 flex items-center gap-3.5 shadow-[0_4px_20px_rgba(59,130,246,0.06)] hover:shadow-[0_8px_25px_rgba(59,130,246,0.14)] hover:border-blue-300 transition-all group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-blue-500/25">
-              <Target className="w-5 h-5 stroke-[2.2]" />
+      {/* ═══ SUBJECT CONTEXT CARD ═══ */}
+      <motion.div
+        key={selectedSubjectId}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="relative overflow-hidden rounded-2xl sm:rounded-3xl border p-4 sm:p-5"
+        style={{
+          background: `linear-gradient(135deg, ${subjectTheme.color}08 0%, white 60%)`,
+          borderColor: `${subjectTheme.color}25`,
+        }}
+      >
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 pointer-events-none"
+          style={{ background: `radial-gradient(ellipse at 80% 50%, ${subjectTheme.color}10 0%, transparent 70%)` }} />
+
+        <div className="relative flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3.5 min-w-0">
+            {/* Color accent block */}
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 text-white font-black text-lg shadow-sm"
+              style={{ background: `linear-gradient(135deg, ${subjectTheme.color} 0%, ${subjectTheme.color}CC 100%)`, boxShadow: `0 4px 14px ${subjectTheme.color}40` }}>
+              {selectedSubject.name.charAt(0)}
             </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 font-['Outfit']">Real Exam Format</h4>
-              <p className="text-[11px] text-slate-500">10-MCQ clinical drills</p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="font-black text-[17px] text-[#1D1D1F] truncate">{selectedSubject.name}</h2>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border font-mono shrink-0"
+                  style={{ color: subjectTheme.color, background: `${subjectTheme.color}12`, borderColor: `${subjectTheme.color}30` }}>
+                  {selectedSubject.weightage} Marks
+                </span>
+              </div>
+              <p className="text-[12px] text-[#8E8E93] mt-0.5">
+                {displayedTopics.length} topics · {highYieldCount} high-yield · 10 MCQs per session
+              </p>
             </div>
           </div>
 
-          {/* Pillar 2: Detailed Explanations — Iris Violet */}
-          <div className="relative overflow-hidden p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-violet-500/[0.08] via-white to-purple-500/[0.03] border border-violet-200/80 flex items-center gap-3.5 shadow-[0_4px_20px_rgba(139,92,246,0.06)] hover:shadow-[0_8px_25px_rgba(139,92,246,0.14)] hover:border-violet-300 transition-all group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-violet-500 to-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-violet-500/25">
-              <BookOpen className="w-5 h-5 stroke-[2.2]" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 font-['Outfit']">Detailed Explanations</h4>
-              <p className="text-[11px] text-slate-500">Distractor breakdown</p>
-            </div>
+          <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+            <span className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-white border border-[rgba(60,60,67,0.12)] text-[#3A3A3C] shadow-xs whitespace-nowrap">
+              FMGE Blueprint
+            </span>
           </div>
+        </div>
+      </motion.div>
 
-          {/* Pillar 3: Distractor Analysis — Mint Emerald */}
-          <div className="relative overflow-hidden p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.03] border border-emerald-200/80 flex items-center gap-3.5 shadow-[0_4px_20px_rgba(16,185,129,0.06)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.14)] hover:border-emerald-300 transition-all group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/25">
-              <Layers className="w-5 h-5 stroke-[2.2]" />
+      {/* ═══ TOPIC DRILLS LIST ═══ */}
+      <div className="rounded-2xl sm:rounded-3xl border border-[rgba(60,60,67,0.09)] bg-white shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
+        {/* List header */}
+        <div className="px-4 sm:px-6 py-4 border-b border-[rgba(60,60,67,0.07)] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0"
+              style={{ background: `linear-gradient(135deg, ${subjectTheme.color} 0%, ${subjectTheme.color}CC 100%)`, boxShadow: `0 2px 8px ${subjectTheme.color}35` }}>
+              <Activity className="h-4 w-4" />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-slate-900 font-['Outfit']">Distractor Analysis</h4>
-              <p className="text-[11px] text-slate-500">Learn why traps fail</p>
+              <span className="font-bold text-[14px] text-[#1D1D1F]">
+                {filterHighYield ? 'High-Yield ' : ''}{selectedSubject.name} Topics
+              </span>
+              <span className="ml-2 text-[11px] text-[#8E8E93] font-mono">{displayedTopics.length} modules</span>
             </div>
           </div>
+          <span className="hidden sm:flex items-center gap-1 text-[11px] font-mono font-semibold text-[#8E8E93] bg-[#F2F2F7] px-2.5 py-1 rounded-lg">
+            10-MCQ / session
+          </span>
+        </div>
 
-          {/* Pillar 4: Track Progress — Radiant Amber */}
-          <div className="relative overflow-hidden p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.03] border border-amber-200/80 flex items-center gap-3.5 shadow-[0_4px_20px_rgba(245,158,11,0.06)] hover:shadow-[0_8px_25px_rgba(245,158,11,0.14)] hover:border-amber-300 transition-all group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-amber-500/25">
-              <TrendingUp className="w-5 h-5 stroke-[2.2]" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 font-['Outfit']">Track Your Progress</h4>
-              <p className="text-[11px] text-slate-500">Live pacing and accuracy</p>
-            </div>
-          </div>
+        {/* Topics */}
+        <AnimatePresence mode="wait">
+          {displayedTopics.length === 0 ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="py-16 flex flex-col items-center gap-4 text-center px-6"
+            >
+              {/* Illustrated empty state */}
+              <div className="relative w-16 h-16">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                  style={{ background: `${subjectTheme.color}15` }}>
+                  <Search className="h-7 w-7" style={{ color: subjectTheme.color }} />
+                </div>
+                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#FF3B30] border-2 border-white flex items-center justify-center">
+                  <X className="h-2.5 w-2.5 text-white" />
+                </div>
+              </div>
+              <div>
+                <h3 className="font-bold text-[15px] text-[#1D1D1F]">
+                  {filterHighYield ? 'No high-yield topics here' : `No topics match "${searchQuery}"`}
+                </h3>
+                <p className="text-[12px] text-[#8E8E93] mt-1">
+                  {filterHighYield ? 'Try turning off the High-Yield filter' : 'Try a different search term or subject'}
+                </p>
+              </div>
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.97 }}
+                onClick={() => { setSearchQuery(''); setFilterHighYield(false); }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-[13px] font-semibold cursor-pointer shadow-sm transition-all"
+                style={{ background: subjectTheme.color, boxShadow: `0 3px 10px ${subjectTheme.color}40` }}
+              >
+                Clear filters
+              </motion.button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="divide-y divide-[rgba(60,60,67,0.06)]"
+            >
+              {displayedTopics.map((topic, idx) => (
+                <motion.div
+                  key={`${topic.subjectId}-${topic.id}`}
+                  initial={{ opacity: 0, x: -4 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.22, delay: idx * 0.02, ease: [0.16, 1, 0.3, 1] }}
+                  onClick={() => onLaunchPracticeSession(topic.subjectId, topic.id, topic.name)}
+                  className="group flex items-center justify-between gap-3 px-4 sm:px-6 py-4 hover:bg-[#F2F2F7]/60 transition-colors cursor-pointer"
+                >
+                  {/* Left: accent + topic info */}
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    {/* Subject color accent bar */}
+                    <div className="w-1 h-10 rounded-full shrink-0 transition-all group-hover:h-12"
+                      style={{ background: topic.isHighYield ? '#FF9500' : subjectTheme.color }} />
 
-          {/* Pillar 5: Clinical Retention — Apple Health Coral */}
-          <div className="relative overflow-hidden p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-rose-500/[0.08] via-white to-red-500/[0.03] border border-rose-200/80 flex items-center gap-3.5 sm:col-span-2 lg:col-span-1 shadow-[0_4px_20px_rgba(244,63,94,0.06)] hover:shadow-[0_8px_25px_rgba(244,63,94,0.14)] hover:border-rose-300 transition-all group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-500 to-red-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-rose-500/25">
-              <Stethoscope className="w-5 h-5 stroke-[2.2]" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 font-['Outfit']">Clinical Retention</h4>
-              <p className="text-[11px] text-slate-500">High-yield recalls</p>
-            </div>
-          </div>
+                    {/* Index */}
+                    <span className="w-6 h-6 rounded-md bg-[#F2F2F7] text-[#8E8E93] font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
+                      {idx + 1}
+                    </span>
+
+                    {/* Topic name + badges */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-[14px] text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors leading-snug">
+                          {topic.name}
+                        </span>
+                        {topic.isHighYield && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/80 shrink-0">
+                            <Star className="h-2.5 w-2.5 fill-amber-500 text-amber-500" />
+                            High-Yield
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11.5px] text-[#8E8E93] mt-0.5">
+                        10 clinical vignettes · FMGE pattern · instant breakdown
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right: CTA */}
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.94 }}
+                    transition={{ type: 'spring', stiffness: 450, damping: 22 }}
+                    onClick={(e) => { e.stopPropagation(); onLaunchPracticeSession(topic.subjectId, topic.id, topic.name); }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-semibold text-white shrink-0 cursor-pointer transition-all shadow-xs group-hover:shadow-sm"
+                    style={{
+                      background: `linear-gradient(135deg, ${subjectTheme.color} 0%, ${subjectTheme.color}CC 100%)`,
+                      boxShadow: `0 2px 8px ${subjectTheme.color}35`,
+                    }}
+                  >
+                    <Play className="h-3.5 w-3.5 fill-white" />
+                    <span>Start</span>
+                  </motion.button>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* ═══ FEATURE PILLARS ═══ */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 px-1">
+          <Sparkles className="h-3.5 w-3.5 text-[#8E8E93]" />
+          <span className="text-[11px] font-bold uppercase tracking-widest text-[#8E8E93]">Why Practice Here</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {PILLARS.map(({ icon: Icon, label, sub, color, grad }, i) => (
+            <motion.div
+              key={label}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.05 }}
+              className="relative overflow-hidden p-4 rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:border-[rgba(60,60,67,0.14)] transition-all group"
+            >
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"
+                style={{ background: `${color}05` }} />
+              <div className={`w-10 h-10 rounded-2xl bg-gradient-to-tr ${grad} text-white flex items-center justify-center mb-3 shadow-sm`}
+                style={{ boxShadow: `0 3px 10px ${color}35` }}>
+                <Icon className="h-5 w-5" />
+              </div>
+              <h4 className="font-bold text-[13px] text-[#1D1D1F] leading-tight">{label}</h4>
+              <p className="text-[11px] text-[#8E8E93] mt-0.5">{sub}</p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </div>
   );
 };
-

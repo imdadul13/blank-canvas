@@ -3,28 +3,26 @@ import { motion } from 'motion/react';
 import {
   BarChart3,
   TrendingUp,
+  TrendingDown,
+  Minus,
   Clock,
   CheckCircle2,
   AlertTriangle,
-  AlertCircle,
   ArrowRight,
   ChevronRight,
-  ChevronDown,
-  ChevronUp,
   RotateCcw,
-  ShieldCheck,
   Award,
   Compass,
   BookOpen,
   Search,
-  HelpCircle,
   Activity,
-  FileText,
   Brain,
   Layers,
   Eye,
   Calendar,
   Target,
+  ShieldCheck,
+  Flame,
 } from 'lucide-react';
 import { AppState, DailyTask, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -43,11 +41,6 @@ import { AccuracyTrendDetailModal } from './AccuracyTrendDetailModal';
 import { GrandTestDiagnosticModal } from './GrandTestDiagnosticModal';
 import { ErrorVaultDiagnosticModal } from './ErrorVaultDiagnosticModal';
 import { ErrorsView } from './ErrorsView';
-import { useCircadianTheme } from '../hooks/useCircadianTheme';
-import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
-import { HeaderTabInsignia } from './HeaderTabInsignia';
-import { CircadianFocusDropdown } from './CircadianFocusDropdown';
-import { HeaderGlassIcon } from './HeaderGlassIcon';
 import { FmgePredictorView } from './FmgePredictorView';
 
 interface ProgressViewProps {
@@ -102,23 +95,15 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   const [currentSubTab, setCurrentSubTab] = useState<'overview' | 'errors' | 'predictor'>(
     subTab || 'overview'
   );
-
-  React.useEffect(() => {
-    if (subTab) {
-      setCurrentSubTab(subTab);
-    }
-  }, [subTab]);
+  React.useEffect(() => { if (subTab) setCurrentSubTab(subTab); }, [subTab]);
 
   const handleSubTabChange = (tab: 'overview' | 'errors' | 'predictor') => {
     setCurrentSubTab(tab);
     onSubTabChange?.(tab);
   };
-  // Filter and Search States
+
   const [selectedDiscipline, setSelectedDiscipline] = useState<'all' | 'clinical' | 'preclinical' | 'paraclinical'>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showReadinessBreakdown, setShowReadinessBreakdown] = useState(false);
-
-  // 3C Drill-down Modal States
   const [isReadinessModalOpen, setIsReadinessModalOpen] = useState(false);
   const [selectedDiagnosticSubjectId, setSelectedDiagnosticSubjectId] = useState<string | null>(null);
   const [isTopicMasteryModalOpen, setIsTopicMasteryModalOpen] = useState(false);
@@ -126,44 +111,25 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   const [isGrandTestModalOpen, setIsGrandTestModalOpen] = useState(false);
   const [isErrorVaultModalOpen, setIsErrorVaultModalOpen] = useState(false);
 
-  // 1. CALCULATE REAL READINESS (0-100 & 8 Pillars)
   const readiness = useMemo(() => calculateStudyReadiness(state), [state]);
-
-  // 2. CALCULATE OVERALL PERFORMANCE (Accuracy, Speed, Errors, Topic States)
   const overallPerf = useMemo(() => calculateOverallPerformance(state), [state]);
   const hasPerformanceHistory = overallPerf.totalAttempts > 0 || (state.errorNotebook?.length || 0) > 0;
-
-  // 3. RETRIEVE TOP ADAPTIVE WEAK / REVISION-DUE TOPICS
   const topPriorityTopics = useMemo(() => getTopPriorityTopics(state, 4), [state]);
-
-  // 4. IMAGE-BASED MCQ ANALYTICS
   const imageSummary = useMemo(() => calculateImagePerformanceSummary(state), [state]);
 
-  // 5. SUBJECT PERFORMANCE AGGREGATES ACROSS ALL 19 SUBJECTS
   const subjectList = useMemo(() => {
     return FMGE_SUBJECTS.map((sub) => {
       let disciplineType: 'clinical' | 'preclinical' | 'paraclinical' = 'clinical';
-      if (sub.phase === 'pre-clinical') {
-        disciplineType = 'preclinical';
-      } else if (sub.phase === 'para-clinical') {
-        disciplineType = 'paraclinical';
-      }
-
+      if (sub.phase === 'pre-clinical') disciplineType = 'preclinical';
+      else if (sub.phase === 'para-clinical') disciplineType = 'paraclinical';
       const metrics = overallPerf.subjectMetrics?.[sub.id] || calculateSubjectPerformanceMetrics(sub.id, state);
-      return {
-        ...sub,
-        disciplineType,
-        metrics,
-      };
+      return { ...sub, disciplineType, metrics };
     });
   }, [overallPerf.subjectMetrics, state]);
 
-  // Filtered Subject List
   const filteredSubjects = useMemo(() => {
     return subjectList.filter((s) => {
-      if (selectedDiscipline !== 'all' && s.disciplineType !== selectedDiscipline) {
-        return false;
-      }
+      if (selectedDiscipline !== 'all' && s.disciplineType !== selectedDiscipline) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         return s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q);
@@ -172,1570 +138,818 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
     });
   }, [subjectList, selectedDiscipline, searchQuery]);
 
-  // Discipline Counts for Filter Pills
-  const counts = useMemo(() => {
-    const clinical = subjectList.filter((s) => s.disciplineType === 'clinical').length;
-    const paraclinical = subjectList.filter((s) => s.disciplineType === 'paraclinical').length;
-    const preclinical = subjectList.filter((s) => s.disciplineType === 'preclinical').length;
-    return { all: subjectList.length, clinical, paraclinical, preclinical };
-  }, [subjectList]);
+  const counts = useMemo(() => ({
+    all: subjectList.length,
+    clinical: subjectList.filter((s) => s.disciplineType === 'clinical').length,
+    paraclinical: subjectList.filter((s) => s.disciplineType === 'paraclinical').length,
+    preclinical: subjectList.filter((s) => s.disciplineType === 'preclinical').length,
+  }), [subjectList]);
 
-  // 6. REAL ACCURACY TREND SAMPLES (Chronological Attempts)
   const accuracyTrendPoints = useMemo(() => {
     const attempts = state.mcqAttempts || [];
     if (attempts.length < 2) return [];
-
-    // Sort attempts by timestamp ascending
-    const sorted = [...attempts].sort(
-      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    );
-
-    // Group into chronological chunks of 5-10 attempts to represent meaningful sessions
+    const sorted = [...attempts].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     const chunkSize = Math.max(3, Math.floor(sorted.length / 6));
     const points: { label: string; accuracy: number; count: number }[] = [];
-
     for (let i = 0; i < sorted.length; i += chunkSize) {
       const chunk = sorted.slice(i, i + chunkSize);
       const correct = chunk.filter((a) => a.isCorrect).length;
       const acc = Math.round((correct / chunk.length) * 100);
-      const dateStr = new Date(chunk[chunk.length - 1].timestamp).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      });
-      points.push({
-        label: dateStr,
-        accuracy: acc,
-        count: chunk.length,
-      });
+      const dateStr = new Date(chunk[chunk.length - 1].timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      points.push({ label: dateStr, accuracy: acc, count: chunk.length });
     }
-
-    return points.slice(-6); // Keep last 6 session points
+    return points.slice(-6);
   }, [state.mcqAttempts]);
 
-  // 7. REAL GRAND TESTS DATA
   const grandTests = useMemo(() => {
     const gts = Array.isArray(state.grandTests) ? state.grandTests : [];
     return [...gts].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [state.grandTests]);
-
   const latestGT = grandTests.length > 0 ? grandTests[grandTests.length - 1] : null;
 
-  // Formatted Current / Live Date for Header
-  const formattedToday = useMemo(() => {
-    return new Date().toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  }, []);
+  const formattedToday = useMemo(() => new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }), []);
 
-  // Readiness Verdict Stage Label
   const readinessStage = useMemo(() => {
-    const s = readiness.score;
-    if (s >= 75) return { label: 'Exam Ready', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' };
-    if (s >= 50) return { label: 'Developing', color: 'text-amber-700 bg-amber-50 border-amber-200' };
-    return { label: 'Needs Focus', color: 'text-rose-700 bg-rose-50 border-rose-200' };
+    const s = readiness.score ?? 0;
+    if (s >= 75) return { label: 'Exam Ready', color: '#30D158' };
+    if (s >= 50) return { label: 'Developing', color: '#FF9500' };
+    return { label: 'Needs Focus', color: '#FF3B30' };
   }, [readiness.score]);
 
-  // Dynamic Accuracy Delta
   const accuracyDelta = overallPerf.recentAccuracy - overallPerf.overallAccuracy;
-  const circadian = useCircadianTheme(state.settings?.bgTheme);
+
+  // Pillar icon map
+  const pillarIcons: Record<string, React.ElementType> = {
+    accuracy: Target,
+    time: Clock,
+    concept: Brain,
+    practice: Activity,
+    notes: BookOpen,
+    revision: RotateCcw,
+    coverage: CheckCircle2,
+    streak: Flame,
+  };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 space-y-5 sm:space-y-6 text-[#121E1B] font-sans antialiased">
-      {/* ================= 1. PERFORMANCE HEADER CARD & SECONDARY SWITCHER ================= */}
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 font-['Plus_Jakarta_Sans'] text-[#1D1D1F]">
+
+      {/* ── HEADER ── */}
       <motion.header
-        initial={{ opacity: 0, y: 16, scale: 0.99 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className={`relative rounded-3xl border ${circadian.cardBorder} p-3.5 sm:px-5 sm:py-3.5 transition-colors duration-700 ${circadian.bannerBg}`}
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+        className="relative rounded-3xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #EAF8FF 0%, #C2EAFE 40%, #80D4F8 70%, #5AC8FA 100%)',
+          boxShadow: '0 8px 40px rgba(90,200,250,0.18), 0 2px 8px rgba(0,0,0,0.06)',
+        }}
       >
-        {/* Background Atmosphere & Lighthouse Art (isolated with overflow-hidden so dropdown never clips) */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl" aria-hidden="true">
-          {/* Dynamic Circadian Ambient Diagnostics Atmosphere & 2px Shimmer Track */}
-          <CircadianHeaderAtmosphere circadian={circadian} />
+        {/* Decorative right glow */}
+        <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(90,200,250,0.35) 0%, transparent 70%)' }} />
+        {/* Top inner shine */}
+        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
 
-          {/* High-Tech Diagnostic Data Matrix Background */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
-
-          {/* High-Tech Diagnostic Data Dot Matrix Backdrop */}
-          <svg
-            className="absolute inset-0 h-full w-full opacity-[0.035] text-violet-950 pointer-events-none select-none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <pattern id="performance-dot-matrix" width="24" height="24" patternUnits="userSpaceOnUse">
-                <circle cx="12" cy="12" r="1.1" fill="currentColor" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#performance-dot-matrix)" />
-          </svg>
-
-          {/* Premium Lighthouse of Insight & Navigational Celestial Compass Artwork */}
-          <div className="absolute right-0 top-0 bottom-0 w-80 sm:w-[520px] overflow-hidden opacity-25 sm:opacity-30 dark:opacity-60 select-none pointer-events-none block [mask-image:linear-gradient(to_left,black_60%,transparent_100%)]">
-            <svg viewBox="0 0 520 145" className="w-full h-full" fill="none" preserveAspectRatio="xMaxYMid meet">
-              <defs>
-                <linearGradient id="progress-cliff-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#312E81" stopOpacity="0.85" />
-                  <stop offset="60%" stopColor="#1E1B4B" stopOpacity="0.95" />
-                  <stop offset="100%" stopColor="#0F172A" stopOpacity="0.95" />
-                </linearGradient>
-                <linearGradient id="progress-tower-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#FFFFFF" />
-                  <stop offset="40%" stopColor="#EDE9FE" />
-                  <stop offset="80%" stopColor="#C4B5FD" />
-                  <stop offset="100%" stopColor="#818CF8" />
-                </linearGradient>
-                <linearGradient id="progress-beam-grad" x1="0%" y1="50%" x2="100%" y2="50%">
-                  <stop offset="0%" stopColor="#FDE047" stopOpacity="0.85" />
-                  <stop offset="35%" stopColor="#FACC15" stopOpacity="0.45" />
-                  <stop offset="70%" stopColor="#818CF8" stopOpacity="0.15" />
-                  <stop offset="100%" stopColor="#818CF8" stopOpacity="0" />
-                </linearGradient>
-                <radialGradient id="progress-lantern-core" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#FFFFFF" />
-                  <stop offset="40%" stopColor="#FEF08A" />
-                  <stop offset="80%" stopColor="#F59E0B" />
-                  <stop offset="100%" stopColor="#4338CA" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Twinkling Diagnostic Constellation Stars in Indigo Sky */}
-              <g fill="#E0E7FF">
-                <motion.circle cx="180" cy="28" r="1.4" animate={{ opacity: [0.2, 0.9, 0.2] }} transition={{ duration: 2.8, repeat: Infinity }} />
-                <motion.circle cx="230" cy="18" r="1.2" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 3.4, repeat: Infinity, delay: 0.7 }} />
-                <motion.circle cx="270" cy="35" r="1.6" animate={{ opacity: [0.2, 0.85, 0.2] }} transition={{ duration: 2.4, repeat: Infinity, delay: 1.2 }} />
-                <motion.circle cx="315" cy="22" r="1.3" animate={{ opacity: [0.4, 0.95, 0.4] }} transition={{ duration: 3.1, repeat: Infinity, delay: 0.4 }} />
-                <motion.circle cx="490" cy="26" r="1.2" animate={{ opacity: [0.2, 0.8, 0.2] }} transition={{ duration: 2.7, repeat: Infinity, delay: 1.5 }} />
-                {/* Constellation Guide Trajectory Lines */}
-                <line x1="180" y1="28" x2="230" y2="18" stroke="#818CF8" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.4" />
-                <line x1="230" y1="18" x2="270" y2="35" stroke="#818CF8" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.4" />
-                <line x1="270" y1="35" x2="315" y2="22" stroke="#818CF8" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.4" />
-              </g>
-
-              {/* ═══ 1. NAVIGATIONAL SEXTANT / STAR COMPASS OVERLAY ═══ */}
-              <g transform="translate(260, 48) scale(0.65)" opacity="0.65">
-                {/* Graduated Index Arc */}
-                <path d="M -35 30 A 50 50 0 0 1 35 30" stroke="#818CF8" strokeWidth="1.6" fill="none" strokeDasharray="3 2" />
-                {/* Radial Index Arms */}
-                <line x1="0" y1="-10" x2="-35" y2="30" stroke="#818CF8" strokeWidth="1.2" />
-                <line x1="0" y1="-10" x2="35" y2="30" stroke="#818CF8" strokeWidth="1.2" />
-                <line x1="0" y1="-10" x2="0" y2="32" stroke="#C4B5FD" strokeWidth="1.4" />
-                {/* Index Mirror Pivot */}
-                <circle cx="0" cy="-10" r="3.5" fill="#4338CA" stroke="#C4B5FD" strokeWidth="1" />
-              </g>
-
-              {/* ═══ 2. COASTAL BLUFF & OCEAN SURF ═══ */}
-              {/* Rolling Wave Surf */}
-              <path
-                d="M 120 145 C 180 135, 260 138, 340 130 C 400 124, 460 132, 520 128 L 520 145 Z"
-                fill="#1E1B4B"
-                opacity="0.8"
-              />
-              <path
-                d="M 120 142 Q 220 134 320 138 Q 420 130 520 134"
-                stroke="#A5B4FC"
-                strokeWidth="1.4"
-                strokeDasharray="8 6"
-                opacity="0.5"
-              />
-
-              {/* Rocky Coastal Cliff Silhouette */}
-              <path
-                d="M 320 145 L 365 110 L 410 88 L 465 72 L 520 80 L 520 145 Z"
-                fill="url(#progress-cliff-grad)"
-              />
-
-              {/* ═══ 3. ARCHITECTURAL LIGHTHOUSE OF INSIGHT ═══ */}
-              <g transform="translate(460, 24)">
-                {/* Classical Tapered Stone Tower */}
-                <polygon points="-11,54 11,54 8,14 -8,14" fill="url(#progress-tower-grad)" stroke="#4338CA" strokeWidth="0.8" />
-                {/* Tower Horizontal Indigo Stripe Accent */}
-                <polygon points="-10,38 10,38 9,28 -9,28" fill="#4338CA" />
-
-                {/* Gallery Observation Deck & Railing */}
-                <rect x="-14" y="12" width="28" height="3" rx="1" fill="#1E1B4B" stroke="#818CF8" strokeWidth="0.8" />
-                <line x1="-13" y1="9" x2="13" y2="9" stroke="#818CF8" strokeWidth="1" />
-                <line x1="-10" y1="9" x2="-10" y2="12" stroke="#818CF8" strokeWidth="0.8" />
-                <line x1="0" y1="9" x2="0" y2="12" stroke="#818CF8" strokeWidth="0.8" />
-                <line x1="10" y1="9" x2="10" y2="12" stroke="#818CF8" strokeWidth="0.8" />
-
-                {/* Lantern Room Glass Enclosure */}
-                <rect x="-8" y="0" width="16" height="12" fill="#FEF08A" fillOpacity="0.4" stroke="#1E1B4B" strokeWidth="0.8" />
-                <line x1="-4" y1="0" x2="-4" y2="12" stroke="#1E1B4B" strokeWidth="0.8" />
-                <line x1="4" y1="0" x2="4" y2="12" stroke="#1E1B4B" strokeWidth="0.8" />
-
-                {/* Domed Roof Cupola & Lightning Rod */}
-                <path d="M -8 0 A 8 8 0 0 1 8 0 Z" fill="#4338CA" stroke="#818CF8" strokeWidth="0.8" />
-                <line x1="0" y1="-8" x2="0" y2="-1" stroke="#FDE047" strokeWidth="1.2" />
-                <circle cx="0" cy="-8" r="1.5" fill="#FDE047" />
-
-                {/* ═══ 4. RADIANT SWEEPING LIGHTHOUSE BEACON BEAM ═══ */}
-                <motion.g
-                  animate={{ rotate: [-26, 18, -26] }}
-                  transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-                  style={{ transformOrigin: '0px 6px' }}
-                >
-                  <polygon
-                    points="0,6 -260,-45 -260,65"
-                    fill="url(#progress-beam-grad)"
-                    opacity="0.85"
-                  />
-                  {/* Secondary Back Light Cone */}
-                  <polygon
-                    points="0,6 70,-8 70,20"
-                    fill="url(#progress-beam-grad)"
-                    opacity="0.4"
-                  />
-                </motion.g>
-
-                {/* Pulsing Central Lantern Core */}
-                <circle cx="0" cy="6" r="4.5" fill="url(#progress-lantern-core)" />
-                <motion.circle
-                  cx="0"
-                  cy="6"
-                  r="8"
-                  stroke="#FEF08A"
-                  strokeWidth="1.4"
-                  fill="none"
-                  animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut' }}
-                />
-              </g>
-            </svg>
-          </div>
-        </div>
-        </div>
-
-        {/* Main Content Layout matching performance-diagnostics-banner.png */}
-        <div className="relative z-10 space-y-2.5">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3.5 min-w-0 max-w-3xl">
-              <HeaderGlassIcon
-                icon={BarChart3}
-                variant="indigo"
-                isNight={circadian.isNight}
-              />
-
-              <div className="space-y-1.5 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className={`text-[10px] sm:text-[11px] font-mono font-black tracking-[0.2em] uppercase ${
-                    circadian.isNight ? 'text-cyan-300' : 'text-indigo-950'
-                  }`}>
-                    ANALYZE • IDENTIFY • IMPROVE
-                  </span>
+        <div className="relative z-10 px-5 sm:px-7 py-5 space-y-4">
+          {/* Top row */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl border flex items-center justify-center"
+                  style={{ background: 'rgba(90,200,250,0.15)', borderColor: 'rgba(0,90,130,0.2)' }}>
+                  <BarChart3 className="h-3.5 w-3.5" style={{ color: '#0A5A7A' }} />
                 </div>
-
-                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl lg:text-[26px] font-black tracking-tight font-display leading-tight">
-                    <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>PERFORMANCE </span>
-                    <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>&amp; DIAGNOSTICS</span>
-                  </h1>
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${circadian.isNight ? 'bg-cyan-400 shadow-[0_0_6px_#38bdf8]' : 'bg-indigo-600'}`} />
-                    Diagnostic Engine
-                  </span>
-                </div>
-
-                <p className={`text-xs sm:text-sm leading-relaxed ${circadian.isNight ? 'text-slate-200' : 'text-slate-700 font-semibold'}`}>
-                  Know exactly where you stand. Diagnose preparation depth, clinical solving accuracy, and high-yield retention.
-                </p>
-              </div>
-            </div>
-
-            {/* Live Circadian Phase Dropdown & Date Badge */}
-            <div className="flex items-center gap-2 self-start lg:self-center shrink-0 flex-wrap sm:flex-nowrap">
-              <CircadianFocusDropdown circadian={circadian} align="right" />
-              <motion.div
-                whileHover={{ scale: 1.03, y: -1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono shadow-2xs backdrop-blur-md shrink-0 border font-bold ${
-                  circadian.isNight
-                    ? 'bg-slate-900/90 border-sky-500/40 text-cyan-200'
-                    : 'bg-indigo-500/15 border-indigo-300 text-indigo-950'
-                }`}
-              >
-                <Calendar className={`w-3.5 h-3.5 ${circadian.isNight ? 'text-cyan-400' : 'text-indigo-700'} stroke-[2.2]`} />
-                <span>Updated: {formattedToday}</span>
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Secondary Switcher: [ Overview ] [ Error Vault ] [ Score Predictor ] with SwiftUI Slide Pill */}
-          <div className={`flex items-center justify-between gap-2 pt-2 border-t flex-wrap ${circadian.isNight ? 'border-sky-800/60' : 'border-slate-200/90'}`}>
-            <div className={`inline-flex p-1 rounded-2xl shadow-2xs backdrop-blur-xl border ${
-              circadian.isNight
-                ? 'bg-slate-900/95 border-sky-800/70'
-                : 'bg-white/98 border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.06)]'
-            }`}>
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                onClick={() => handleSubTabChange('overview')}
-                className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  currentSubTab === 'overview'
-                    ? 'text-white'
-                    : circadian.isNight
-                    ? 'text-slate-300 hover:text-white'
-                    : 'text-slate-700 hover:text-slate-950'
-                }`}
-              >
-                {currentSubTab === 'overview' && (
-                  <motion.div
-                    layoutId="progress-active-subtab"
-                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-                    className="absolute inset-0 rounded-xl bg-[#005B54] shadow-md shadow-teal-900/25 ring-1 ring-white/20"
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-1.5">
-                  <BarChart3 className={`w-3.5 h-3.5 ${currentSubTab === 'overview' ? 'text-teal-200' : (circadian.isNight ? 'text-cyan-400' : 'text-indigo-600')} stroke-[2.2]`} />
-                  <span>Overview</span>
+                <span className="font-mono text-[10px] font-bold uppercase tracking-widest" style={{ color: '#0A5A7A' }}>
+                  Analyze · Identify · Improve
                 </span>
-              </motion.button>
+              </div>
+              <h1 className="text-[22px] sm:text-[28px] font-black tracking-tight leading-tight text-[#1D1D1F]">
+                Performance &amp; Diagnostics
+              </h1>
+              <p className="text-[12px] max-w-lg leading-relaxed" style={{ color: '#3A3A3C' }}>
+                Diagnose preparation depth, clinical accuracy, and high-yield retention across all 19 FMGE subjects.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono font-bold"
+                style={{ background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(0,90,130,0.15)', color: '#3A3A3C' }}>
+                <Calendar className="w-3.5 h-3.5" style={{ color: '#0A5A7A' }} />
+                {formattedToday}
+              </span>
+            </div>
+          </div>
 
-              <motion.button
+          {/* Sub-tab switcher */}
+          <div className="flex items-center gap-1 p-1 rounded-2xl w-fit backdrop-blur-md border border-white/80 shadow-sm"
+            style={{ background: 'rgba(255,255,255,0.60)' }}>
+            {([
+              { id: 'overview' as const, label: 'Overview', icon: BarChart3, badge: undefined as number | undefined },
+              { id: 'errors' as const, label: 'Error Vault', icon: AlertTriangle, badge: state.errorNotebook?.length },
+              { id: 'predictor' as const, label: 'Score Predictor', icon: TrendingUp, badge: undefined as number | undefined },
+            ]).map(({ id, label, icon: Icon, badge }) => (
+              <button
+                key={id}
                 type="button"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                onClick={() => handleSubTabChange('errors')}
-                className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  currentSubTab === 'errors'
-                    ? 'text-white'
-                    : circadian.isNight
-                    ? 'text-slate-300 hover:text-white'
-                    : 'text-slate-700 hover:text-slate-950'
+                onClick={() => handleSubTabChange(id)}
+                className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[12px] font-bold transition-all cursor-pointer ${
+                  currentSubTab === id ? 'text-[#1D1D1F]' : 'text-[#3A3A3C]/70 hover:text-[#1D1D1F]'
                 }`}
               >
-                {currentSubTab === 'errors' && (
+                {currentSubTab === id && (
                   <motion.div
-                    layoutId="progress-active-subtab"
+                    layoutId="perf-tab-pill"
+                    className="absolute inset-0 rounded-xl bg-white shadow-sm"
                     transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-                    className="absolute inset-0 rounded-xl bg-[#005B54] shadow-md shadow-teal-900/25 ring-1 ring-white/20"
                   />
                 )}
                 <span className="relative z-10 flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 text-rose-500 stroke-[2.2]" />
-                  <span>Error Vault</span>
-                  {(state.errorNotebook?.length || 0) > 0 && (
-                    <span className={`font-mono text-[9px] font-black px-1.5 py-0.5 rounded-full ${
-                      currentSubTab === 'errors'
-                        ? 'bg-rose-500/30 text-rose-100 border border-rose-400/40'
-                        : circadian.isNight
-                        ? 'bg-rose-950/70 text-rose-200 border border-rose-700/60'
-                        : 'bg-rose-100 text-rose-900 border border-rose-300/60'
-                    }`}>
-                      {state.errorNotebook?.length}
-                    </span>
+                  <Icon className={`w-3.5 h-3.5 ${currentSubTab === id ? 'text-[#5AC8FA]' : ''}`} />
+                  {label}
+                  {badge != null && badge > 0 && (
+                    <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black font-mono ${
+                      currentSubTab === id ? 'bg-[#FF3B30]/15 text-[#FF3B30]' : 'bg-[#FF3B30]/20 text-[#FF3B30]'
+                    }`}>{badge}</span>
                   )}
                 </span>
-              </motion.button>
-
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                onClick={() => handleSubTabChange('predictor')}
-                className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  currentSubTab === 'predictor'
-                    ? 'text-white'
-                    : circadian.isNight
-                    ? 'text-slate-300 hover:text-white'
-                    : 'text-slate-700 hover:text-slate-950'
-                }`}
-              >
-                {currentSubTab === 'predictor' && (
-                  <motion.div
-                    layoutId="progress-active-subtab"
-                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-                    className="absolute inset-0 rounded-xl bg-[#005B54] shadow-md shadow-teal-900/25 ring-1 ring-white/20"
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-1.5">
-                  <TrendingUp className={`w-3.5 h-3.5 ${currentSubTab === 'predictor' ? 'text-teal-200' : (circadian.isNight ? 'text-emerald-300' : 'text-emerald-600')} stroke-[2.2]`} />
-                  <span>Score Predictor</span>
-                </span>
-              </motion.button>
-            </div>
+              </button>
+            ))}
           </div>
         </div>
       </motion.header>
 
       {currentSubTab === 'overview' && (
         <>
-          {/* ================= 2. EXAM READINESS HERO ================= */}
-      <section className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm p-6 sm:p-8 transition-shadow">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* Left Column: Readiness Dial & High-Yield Verdict */}
-          <div className="lg:col-span-5 flex flex-col items-center sm:items-start text-center sm:text-left space-y-5 lg:border-r lg:border-slate-200/80 dark:lg:border-slate-800 lg:pr-8">
-            <div className="flex items-center justify-between w-full">
-              <span className="font-mono text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-300">
-                FMGE READINESS
-              </span>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${readinessStage.color}`}>
-                {readinessStage.label}
-              </span>
-            </div>
+          {/* ── READINESS COMMAND ── */}
+          <section
+            className="relative rounded-3xl overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, #050E1A 0%, #0A1E35 50%, #0D2748 100%)', boxShadow: '0 20px 60px rgba(0,0,0,0.2), 0 4px 16px rgba(0,0,0,0.1)' }}
+          >
+            {/* Radial glow */}
+            <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
+              style={{ background: `radial-gradient(ellipse at 80% 40%, ${readinessStage.color}22 0%, transparent 65%)` }} />
+            <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/[0.05] to-transparent pointer-events-none" />
 
-            <div className="flex flex-col sm:flex-row items-center gap-6 w-full py-2">
-              {/* Circular Gauge */}
-              <div className="relative inline-flex items-center justify-center shrink-0">
-                <svg width="120" height="120" viewBox="0 0 120 120" className="-rotate-90">
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" className="text-slate-100 dark:text-slate-800" strokeWidth="10" />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="50"
-                    fill="none"
-                    stroke="currentColor"
-                    className="text-teal-600 dark:text-teal-400"
-                    strokeWidth="10"
-                    strokeLinecap="round"
-                    strokeDasharray={2 * Math.PI * 50}
-                    strokeDashoffset={2 * Math.PI * 50 * (1 - Math.min(100, Math.max(0, readiness.score)) / 100)}
-                    style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.22, 1, 0.36, 1)' }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-3xl sm:text-4xl font-black font-mono text-slate-950 dark:text-white leading-none">
-                    {readiness.score}
-                  </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono font-bold mt-1">/ 100</span>
-                </div>
-              </div>
-
-              {/* Clinical Verdict Text */}
-              <div className="space-y-2 text-center sm:text-left">
-                <p className="text-sm text-slate-800 dark:text-slate-200 font-medium leading-relaxed">
-                  {readiness.summaryText}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setIsReadinessModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-300 hover:text-teal-900 dark:hover:text-teal-100 transition-colors cursor-pointer py-1"
-                >
-                  <span>View Full Readiness Breakdown</span>
-                  <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: 8-Pillar Readiness Progress Bars */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="flex items-center justify-between pb-1">
-              <span className="font-mono text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-300">
-                8-Pillar Readiness
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsReadinessModalOpen(true)}
-                className="text-xs text-teal-700 dark:text-teal-300 hover:underline font-mono font-bold flex items-center gap-1 cursor-pointer"
-              >
-                <span>Drill-Down</span>
-                <ChevronRight className="w-3 h-3 stroke-[2.5]" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5">
-              {readiness.components.map((comp) => {
-                const scoreVal = comp.status === 'no_data' ? 0 : comp.score;
-                return (
-                  <div key={comp.id} className="space-y-1.5" title={comp.details}>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-800 dark:text-slate-200 font-semibold truncate max-w-[150px]">{comp.name}</span>
-                      <span className="font-mono font-black text-slate-950 dark:text-white ml-2">
-                        {comp.status === 'no_data' ? '—' : scoreVal}
-                      </span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                      <div
-                        className="h-full bg-teal-600 dark:bg-teal-400 rounded-full transition-all duration-600"
-                        style={{ width: `${Math.min(100, Math.max(0, scoreVal))}%` }}
-                      />
+            <div className="relative z-10 p-6 sm:p-8">
+              <div className="flex flex-col lg:flex-row lg:items-center gap-8">
+                {/* Gauge */}
+                <div className="flex flex-col items-center gap-4 shrink-0">
+                  <div className="relative">
+                    <svg width="160" height="160" viewBox="0 0 160 160" className="-rotate-90">
+                      <circle cx="80" cy="80" r="66" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="13" />
+                      <circle cx="80" cy="80" r="66" fill="none"
+                        stroke={readinessStage.color} strokeWidth="13" strokeLinecap="round"
+                        strokeDasharray={2 * Math.PI * 66}
+                        strokeDashoffset={2 * Math.PI * 66 * (1 - (readiness.score ?? 0) / 100)}
+                        style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.22,1,0.36,1)', filter: `drop-shadow(0 0 14px ${readinessStage.color}90)` }} />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-[54px] font-black font-mono text-white leading-none">{readiness.score ?? 0}</span>
+                      <span className="text-[12px] text-white/35 font-mono font-bold tracking-wider">/ 100</span>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Expandable Explanation Drawer */}
-        {showReadinessBreakdown && (
-          <div className="mt-6 pt-6 border-t border-slate-200/80 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-200">
-            {readiness.components.map((c) => (
-              <div key={c.id} className="p-3 rounded-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 text-xs space-y-1">
-                <span className="font-bold text-slate-900 dark:text-slate-100 block">{c.name}</span>
-                <span className="text-slate-500 dark:text-slate-400 font-semibold text-[11px] block">{c.label}</span>
-                <p className="text-slate-700 dark:text-slate-300 font-medium text-[11px] leading-snug">{c.details}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* ================= 3. WHERE YOU STAND (Metric Cards) ================= */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-black text-slate-950 dark:text-white font-['Outfit'] tracking-tight">Where You Stand</h2>
-          <span className="text-xs text-teal-800 dark:text-teal-300 font-mono font-bold bg-teal-500/10 dark:bg-teal-950/80 px-2 py-0.5 rounded-md border border-teal-300/40">Live MCQ Diagnostics</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* 1. Overall Accuracy — Sapphire Ultramarine */}
-          <motion.div
-            whileHover={{ y: -4, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/[0.12] via-white to-cyan-500/[0.04] backdrop-blur-xl border border-blue-300/90 hover:border-blue-400 shadow-[0_4px_20px_rgba(59,130,246,0.08)] hover:shadow-[0_8px_25px_rgba(59,130,246,0.18)] transition-all space-y-2 group cursor-default"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black uppercase tracking-wider text-blue-950 dark:text-blue-200 font-mono">
-                Overall Accuracy
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-blue-500/25 group-hover:scale-110 transition-transform">
-                <Target className="w-4 h-4 stroke-[2.2]" />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black font-['Outfit'] tabular-nums text-slate-950 dark:text-white">
-                {overallPerf.overallAccuracy}%
-              </span>
-              {overallPerf.totalAttempts > 0 && (
-                <span
-                  className={`inline-flex items-center text-xs font-black font-mono px-2 py-0.5 rounded-full border shadow-2xs ${
-                    accuracyDelta >= 0
-                      ? 'bg-emerald-500/15 text-emerald-950 dark:text-emerald-200 border-emerald-300/80'
-                      : 'bg-rose-500/15 text-rose-950 dark:text-rose-200 border-rose-300/80'
-                  }`}
-                >
-                  {accuracyDelta >= 0 ? `+${accuracyDelta}%` : `${accuracyDelta}%`}
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-slate-700 dark:text-slate-300 font-bold font-mono">
-              {overallPerf.totalAttempts > 0
-                ? `Last 15 attempts: ${overallPerf.recentAccuracy}%`
-                : 'Complete drills to establish baseline'}
-            </p>
-          </motion.div>
-
-          {/* 2. Questions Attempted — Mint Emerald */}
-          <motion.div
-            whileHover={{ y: -4, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500/[0.12] via-white to-teal-500/[0.04] backdrop-blur-xl border border-emerald-300/90 hover:border-emerald-400 shadow-[0_4px_20px_rgba(16,185,129,0.08)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.18)] transition-all space-y-2 group cursor-default"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black uppercase tracking-wider text-emerald-950 dark:text-emerald-200 font-mono">
-                Questions Attempted
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/25 group-hover:scale-110 transition-transform">
-                <Activity className="w-4 h-4 stroke-[2.2]" />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl sm:text-4xl font-black font-['Outfit'] tabular-nums text-slate-950 dark:text-white">
-                {overallPerf.totalAttempts.toLocaleString()}
-              </span>
-            </div>
-            <p className="text-xs text-slate-700 dark:text-slate-300 font-bold font-mono truncate">
-              QBank, Grand Tests, Practice
-            </p>
-          </motion.div>
-
-          {/* 3. Average Response Pace — Radiant Amber */}
-          <motion.div
-            whileHover={{ y: -4, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/[0.12] via-white to-orange-500/[0.04] backdrop-blur-xl border border-amber-300/90 hover:border-amber-400 shadow-[0_4px_20px_rgba(245,158,11,0.08)] hover:shadow-[0_8px_25px_rgba(245,158,11,0.18)] transition-all space-y-2 group cursor-default"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black uppercase tracking-wider text-amber-950 dark:text-amber-200 font-mono">
-                Avg. Response Time
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs shadow-amber-500/25 group-hover:scale-110 transition-transform">
-                <Clock className="w-4 h-4 stroke-[2.2]" />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl sm:text-4xl font-black font-['Outfit'] tabular-nums text-slate-950 dark:text-white">
-                {overallPerf.avgResponseTimeSeconds > 0 ? `${overallPerf.avgResponseTimeSeconds}s` : '—'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-700 dark:text-slate-300 font-bold font-mono">
-              {overallPerf.avgResponseTimeSeconds > 0
-                ? overallPerf.avgResponseTimeSeconds <= 60
-                  ? 'Optimal FMGE exam pace (≤60s)'
-                  : 'Slightly slow (target ≤60s)'
-                : 'Target 60s per question'}
-            </p>
-          </motion.div>
-
-          {/* 4. Repeated Errors — Apple Health Coral */}
-          <motion.div
-            whileHover={{ y: -4, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="relative overflow-hidden p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-rose-500/[0.12] via-white to-red-500/[0.04] backdrop-blur-xl border border-rose-300/90 hover:border-rose-400 shadow-[0_4px_20px_rgba(244,63,94,0.08)] hover:shadow-[0_8px_25px_rgba(244,63,94,0.18)] transition-all space-y-2 group cursor-default"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black uppercase tracking-wider text-rose-950 dark:text-rose-200 font-mono">
-                Repeated Errors
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-red-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-rose-500/25 group-hover:scale-110 transition-transform">
-                <AlertTriangle className="w-4 h-4 stroke-[2.2]" />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black font-['Outfit'] tabular-nums text-slate-950 dark:text-white">
-                {overallPerf.totalRepeatedErrors}
-              </span>
-              {overallPerf.totalRepeatedErrors > 0 && (
-                <span className="text-[10px] font-extrabold font-mono px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-950 dark:text-rose-200 border border-rose-300/80 shadow-2xs">
-                  Revision due
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-slate-700 dark:text-slate-300 font-bold font-mono">
-              {overallPerf.totalRepeatedErrors > 0
-                ? 'Concepts missed ≥2 times'
-                : 'Zero repeated errors logged'}
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ================= 4. WHAT NEEDS ATTENTION & QUICK ACTIONS ================= */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column (65%): Adaptive Priority Weak Topics */}
-        <div className="lg:col-span-8 bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <h2 className="text-base font-bold text-[#121E1B]">
-                {hasPerformanceHistory ? 'What Needs Attention' : 'Recommended Starter Topics'}
-              </h2>
-              <p className="text-xs text-stone-500">
-                {hasPerformanceHistory
-                  ? 'Prioritized from your actual attempt errors and spaced revision intervals'
-                  : 'Suggested high-yield starting points to establish your baseline preparation'}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                if (topPriorityTopics.length > 0) {
-                  onSelectSubject(topPriorityTopics[0].subjectId);
-                }
-              }}
-              className="text-xs font-bold text-[#00685f] hover:underline flex items-center gap-1 cursor-pointer"
-            >
-              <span>View All</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="divide-y divide-stone-100">
-            {topPriorityTopics.map((topic) => {
-              const hasAttempts = topic.attemptCount > 0;
-              const hasErrors = topic.errorCount > 0 || topic.repeatedErrorCount > 0;
-              const hasRepeatedMistake = hasAttempts && topic.repeatedErrorCount >= 1;
-              const isConfirmedWeakness = hasAttempts && (topic.status === 'critical' || topic.accuracy < 50);
-              const isHighPriority = hasAttempts && (topic.status === 'high_priority' || topic.accuracy < 60);
-              const isRevision = hasAttempts && topic.revisionDue;
-              const isStarter = !hasAttempts && !hasErrors;
-
-              // Action label from engine
-              const actionType = topic.recommendedAction?.type;
-              let actionHint = topic.recommendedAction?.actionLabel || 'Study';
-              if (actionType === 'review_errors') {
-                actionHint = 'Review Mistakes';
-              } else if (actionType === 'practice_mcqs') {
-                actionHint = 'Clinical Drill';
-              } else if (actionType === 'rapid_review') {
-                actionHint = 'Rapid Recall';
-              } else if (actionType === 'complete_revision') {
-                actionHint = 'Spaced Revision';
-              }
-
-              let iconBg = 'bg-stone-50 text-stone-600 border border-stone-200/80';
-              if (hasRepeatedMistake || isConfirmedWeakness) {
-                iconBg = 'bg-rose-50 text-rose-700 border border-rose-200/70';
-              } else if (isHighPriority) {
-                iconBg = 'bg-orange-50 text-orange-700 border border-orange-200/70';
-              } else if (isRevision) {
-                iconBg = 'bg-amber-50 text-amber-700 border border-amber-200/70';
-              } else {
-                iconBg = 'bg-teal-50 text-[#00685f] border border-teal-200/70';
-              }
-
-              return (
-                <div
-                  key={`${topic.subjectId}-${topic.topicId}`}
-                  className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group hover:bg-stone-50/50 rounded-xl px-2.5 transition-colors"
-                >
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${iconBg}`}>
-                      {hasRepeatedMistake ? (
-                        <AlertTriangle className="w-4 h-4" />
-                      ) : isConfirmedWeakness ? (
-                        <AlertTriangle className="w-4 h-4" />
-                      ) : isRevision ? (
-                        <RotateCcw className="w-4 h-4" />
-                      ) : isStarter ? (
-                        <Compass className="w-4 h-4" />
-                      ) : (
-                        <Activity className="w-4 h-4" />
-                      )}
-                    </div>
-
-                    <div className="space-y-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-sm font-bold text-stone-900 group-hover:text-[#00685f] transition-colors truncate">
-                          {topic.topicName}
-                        </h3>
-                        {hasRepeatedMistake && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                            REPEATED ERROR (≥2x)
-                          </span>
-                        )}
-                        {isConfirmedWeakness && !hasRepeatedMistake && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-100 text-rose-800">
-                            CRITICAL WEAKNESS
-                          </span>
-                        )}
-                        {isHighPriority && !isConfirmedWeakness && !hasRepeatedMistake && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-orange-100 text-orange-800">
-                            NEEDS WORK
-                          </span>
-                        )}
-                        {isRevision && !isConfirmedWeakness && !hasRepeatedMistake && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 text-amber-800">
-                            REVISION DUE
-                          </span>
-                        )}
-                        {isStarter && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-teal-50 text-[#00685f] border border-teal-200/60">
-                            RECOMMENDED STARTER
-                          </span>
-                        )}
-                        {topic.isHighYield && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-100 text-stone-700">
-                            HIGH-YIELD
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-stone-500 line-clamp-1">
-                        <span className="font-medium text-stone-700">{topic.subjectName}</span>
-                        {' · '}
-                        {isStarter
-                          ? `High-yield curriculum anchor (~${topic.subjectWeightage}M weightage)`
-                          : topic.explanation}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:shrink-0 self-stretch sm:self-center pt-1 sm:pt-0 border-t sm:border-t-0 border-stone-50">
-                    {!isStarter && (
-                      <span className="text-[10px] font-mono text-stone-400 hidden sm:inline-block">
-                        {actionHint}
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDiagnosticSubjectId(topic.subjectId)}
-                      className="w-full sm:w-auto px-3.5 py-1.5 rounded-full text-xs font-bold border border-stone-200 hover:border-[#00685f] hover:bg-stone-50 text-[#00685f] transition-all cursor-pointer flex items-center justify-center gap-1"
-                    >
-                      <span>Diagnose & Study</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
+                  <div className="flex flex-col items-center gap-2.5">
+                    <span className="px-4 py-1.5 rounded-full text-[13px] font-bold text-white"
+                      style={{ background: readinessStage.color, boxShadow: `0 4px 16px ${readinessStage.color}55` }}>
+                      {readinessStage.label}
+                    </span>
+                    <button type="button" onClick={() => setIsReadinessModalOpen(true)}
+                      className="text-[11px] font-bold text-white/40 hover:text-white/70 cursor-pointer transition-colors flex items-center gap-1">
+                      Full Breakdown <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* Right Column (35%): Quick Actions */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="space-y-0.5">
-            <h2 className="text-base font-bold text-[#121E1B]">Quick Actions</h2>
-            <p className="text-xs text-stone-500">Targeted remediation and diagnostic workflows</p>
-          </div>
-
-          <div className="space-y-3">
-            {/* Action 1: Review Error Vault */}
-            {(() => {
-              const errorCount = state.errorNotebook?.length || 0;
-              const isPrimary = errorCount > 0;
-
-              return (
-                <div
-                  onClick={() => setIsErrorVaultModalOpen(true)}
-                  className={`p-4 rounded-2xl transition-all cursor-pointer flex items-center gap-3.5 ${
-                    isPrimary
-                      ? 'bg-white border-2 border-rose-300/80 shadow-[0_4px_16px_rgba(225,29,72,0.06)] hover:border-rose-400'
-                      : 'bg-white border border-slate-200/80 shadow-2xs hover:border-[#00685f]'
-                  }`}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                      isPrimary
-                        ? 'bg-rose-100 text-rose-800 border border-rose-300/80'
-                        : 'bg-rose-50 text-rose-700 border border-rose-200/60'
-                    }`}
-                  >
-                    <AlertTriangle className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-xs font-bold text-stone-900">Review Error Vault</h3>
-                      {isPrimary && (
-                        <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                          PRIMARY
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-stone-500 truncate">
-                      {errorCount > 0
-                        ? `${errorCount} logged mistake${errorCount > 1 ? 's' : ''} to triage`
-                        : 'Zero errors logged • Clean record'}
-                    </p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
-                </div>
-              );
-            })()}
-
-            {/* Action 2: Continue Practice */}
-            {(() => {
-              const errorCount = state.errorNotebook?.length || 0;
-              const isPrimary = errorCount === 0;
-
-              return (
-                <div
-                  onClick={() => {
-                    if (topPriorityTopics.length > 0) {
-                      onLaunchPracticeSession?.(
-                        topPriorityTopics[0].subjectId,
-                        topPriorityTopics[0].topicId,
-                        topPriorityTopics[0].topicName,
-                        undefined,
-                        'dashboard_weak_topic'
-                      );
-                    } else if (FMGE_SUBJECTS.length > 0) {
-                      onLaunchPracticeSession?.(
-                        FMGE_SUBJECTS[0].id,
-                        FMGE_SUBJECTS[0].topics[0]?.id || 't-1',
-                        FMGE_SUBJECTS[0].topics[0]?.name || 'Clinical Drill',
-                        undefined,
-                        'dashboard_weak_topic'
-                      );
-                    }
-                  }}
-                  className={`p-4 rounded-2xl transition-all cursor-pointer flex items-center gap-3.5 ${
-                    isPrimary
-                      ? 'bg-white border-2 border-teal-300/80 shadow-[0_4px_16px_rgba(0,107,99,0.06)] hover:border-[#00685f]'
-                      : 'bg-white border border-slate-200/80 shadow-2xs hover:border-[#00685f]'
-                  }`}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                      isPrimary
-                        ? 'bg-teal-100 text-[#00685f] border border-teal-300/80'
-                        : 'bg-teal-50 text-[#00685f] border border-teal-200/60'
-                    }`}
-                  >
-                    <Target className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-xs font-bold text-stone-900">Continue Practice</h3>
-                      {isPrimary && (
-                        <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-teal-50 text-[#00685f] border border-teal-200">
-                          RECOMMENDED
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-stone-500 truncate">
-                      Launch a 10-MCQ clinical drill
-                    </p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
-                </div>
-              );
-            })()}
-
-            {/* Action 3: Plan My Revision */}
-            <div
-              onClick={() => {
-                onNavigateTab?.('revision');
-              }}
-              className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:border-[#00685f] transition-all cursor-pointer flex items-center gap-3.5"
-            >
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-200/60 flex items-center justify-center shrink-0">
-                <RotateCcw className="w-5 h-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-xs font-bold text-stone-900">Plan My Revision</h3>
-                <p className="text-[11px] text-stone-500 truncate">
-                  Targeted spaced recall roadmap
-                </p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-stone-400" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= 5. SUBJECT PERFORMANCE MATRIX ================= */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-bold text-[#121E1B]">Subject Performance</h2>
-            <p className="text-xs text-stone-500">
-              Diagnostic performance breakdown across all 19 NBE medical disciplines
-            </p>
-          </div>
-
-          {/* Search Box */}
-          <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search subjects..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-full text-xs bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200/90 hover:border-slate-300 focus:outline-none focus:border-[#006B63] focus:ring-2 focus:ring-[#006B63]/15 text-slate-800 placeholder:text-slate-400 transition-all shadow-xs"
-            />
-          </div>
-        </div>
-
-        {/* Discipline Filter Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
-          {[
-            { id: 'all', label: `All Subjects (${counts.all})` },
-            { id: 'clinical', label: `Clinical (${counts.clinical})` },
-            { id: 'paraclinical', label: `Para-Clinical (${counts.paraclinical})` },
-            { id: 'preclinical', label: `Pre-Clinical (${counts.preclinical})` },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setSelectedDiscipline(tab.id as any)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                selectedDiscipline === tab.id
-                  ? 'bg-[#00685F] text-white shadow-xs font-bold'
-                  : 'bg-white/90 backdrop-blur-md text-stone-600 border border-slate-200/80 hover:bg-white shadow-2xs'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Subject Table / Card Ledger */}
-        <div className="bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] divide-y divide-slate-100 overflow-hidden">
-          {/* Table Header on Desktop */}
-          <div className="hidden sm:grid sm:grid-cols-12 px-6 py-3 bg-stone-50/70 text-[11px] font-mono font-bold uppercase tracking-wider text-stone-400">
-            <div className="sm:col-span-4">Subject</div>
-            <div className="sm:col-span-2 text-center">Accuracy</div>
-            <div className="sm:col-span-2 text-center">Recent Trend</div>
-            <div className="sm:col-span-2 text-center">Status</div>
-            <div className="sm:col-span-2 text-right">Action</div>
-          </div>
-
-          {filteredSubjects.length > 0 ? (
-            filteredSubjects.map((sub) => {
-              const hasAttempts = sub.metrics.totalAttempts > 0;
-              const acc = sub.metrics.accuracy;
-              const recent = sub.metrics.recentAccuracy;
-
-              // Status Badge
-              let statusLabel = 'Unattempted';
-              let statusStyle = 'bg-stone-100 text-stone-600';
-              if (hasAttempts) {
-                if (acc >= 75) {
-                  statusLabel = 'Strong';
-                  statusStyle = 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
-                } else if (acc >= 60) {
-                  statusLabel = 'Developing';
-                  statusStyle = 'bg-amber-50 text-amber-700 border border-amber-200/60';
-                } else {
-                  statusLabel = 'Needs Attention';
-                  statusStyle = 'bg-rose-50 text-rose-700 border border-rose-200/60';
-                }
-              }
-
-              // Trend indicator
-              const trendDelta = recent - acc;
-
-              return (
-                <div
-                  key={sub.id}
-                  className="p-4 sm:px-6 sm:py-4 hover:bg-stone-50/70 transition-colors flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-3 sm:gap-0"
-                >
-                  {/* Subject Info: Subject → FMGE Weight */}
-                  <div className="sm:col-span-4 space-y-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#00685f] font-mono">
-                        {sub.weightage} MARKS
-                      </span>
-                      <span className="text-stone-300">·</span>
-                      <span className="text-[10px] font-mono text-stone-400 uppercase">
-                        {sub.disciplineType}
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-bold text-stone-900 truncate">{sub.name}</h3>
-                    <p className="text-xs text-stone-400 font-mono">
-                      {sub.metrics.totalAttempts > 0
-                        ? `${sub.metrics.totalAttempts} questions solved`
-                        : `${sub.topics.length} topics unattempted`}
-                    </p>
-                  </div>
-
-                  {/* Accuracy */}
-                  <div className="sm:col-span-2 flex sm:justify-center items-center justify-between">
-                    <span className="text-xs font-mono text-stone-400 sm:hidden">Accuracy:</span>
-                    <span
-                      className={`font-mono text-sm font-bold ${
-                        hasAttempts
-                          ? acc >= 75
-                            ? 'text-emerald-700'
-                            : acc >= 50
-                            ? 'text-stone-900'
-                            : 'text-rose-700'
-                          : 'text-stone-400'
-                      }`}
-                    >
-                      {hasAttempts ? `${acc}%` : '—'}
-                    </span>
-                  </div>
-
-                  {/* Recent Trend */}
-                  <div className="sm:col-span-2 flex sm:justify-center items-center justify-between">
-                    <span className="text-xs font-mono text-stone-400 sm:hidden">Recent Trend:</span>
-                    {hasAttempts ? (
-                      <div className="flex items-center gap-1 font-mono text-sm font-bold">
-                        <span className="text-stone-800">{recent}%</span>
-                        {trendDelta > 0 ? (
-                          <span className="text-[10px] text-emerald-600 font-bold">
-                            ↑+{trendDelta}%
-                          </span>
-                        ) : trendDelta < 0 ? (
-                          <span className="text-[10px] text-rose-600 font-bold">
-                            ↓{trendDelta}%
-                          </span>
-                        ) : (
-                          <span className="text-[10px] text-stone-400 font-normal">
-                            =
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="font-mono text-sm text-stone-400">—</span>
-                    )}
-                  </div>
-
-                  {/* Status Badge */}
-                  <div className="sm:col-span-2 flex sm:justify-center items-center justify-between">
-                    <span className="text-xs font-mono text-stone-400 sm:hidden">Mastery Status:</span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold font-mono ${statusStyle}`}>
-                      {statusLabel}
-                    </span>
-                  </div>
-
-                  {/* Open Roadmap Action Button */}
-                  <div className="sm:col-span-2 flex items-center justify-end pt-1 sm:pt-0">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDiagnosticSubjectId(sub.id)}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-stone-100 hover:bg-stone-900 hover:text-white text-stone-800 transition-all cursor-pointer"
-                    >
-                      <span>Open Roadmap</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="py-12 text-center space-y-2 px-4">
-              <Search className="w-8 h-8 text-stone-300 mx-auto" />
-              <h3 className="text-xs font-bold text-stone-700">No matching subjects found</h3>
-              <p className="text-xs text-stone-400 max-w-sm mx-auto">
-                No disciplines match "{searchQuery}". Clear your search query or reset discipline filters to view all 19 subjects.
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ================= 6. TRENDS & GRAND TEST PERFORMANCE ================= */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Accuracy Trend */}
-        <div className="bg-white rounded-3xl border border-[#DCE4E1] shadow-xs p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-bold text-[#121E1B]">Accuracy Trend</h2>
-              <p className="text-xs text-stone-500">Historical performance across practice sessions</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-stone-100 text-stone-600 border border-stone-200/60 hidden sm:inline-block">
-                FMGE Min Pass: 50%
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsAccuracyTrendModalOpen(true)}
-                className="text-xs font-bold text-[#00685f] hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <span>Trend Detail</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {accuracyTrendPoints.length >= 2 ? (
-            <div className="space-y-4 pt-2">
-              {/* Reference indicator banner */}
-              {(() => {
-                const first = accuracyTrendPoints[0].accuracy;
-                const last = accuracyTrendPoints[accuracyTrendPoints.length - 1].accuracy;
-                const delta = last - first;
-
-                return (
-                  <div
-                    onClick={() => setIsAccuracyTrendModalOpen(true)}
-                    className="flex items-center justify-between px-3 py-2 rounded-xl bg-stone-50 border border-stone-200/70 hover:border-[#00685f]/60 transition-colors text-xs font-mono cursor-pointer"
-                  >
-                    <span className="text-stone-600">Trajectory Diagnosis:</span>
-                    {delta > 0 ? (
-                      <span className="text-emerald-700 font-bold flex items-center gap-1">
-                        Improving (+{delta}% across recent drills)
-                      </span>
-                    ) : delta < 0 ? (
-                      <span className="text-rose-700 font-bold flex items-center gap-1">
-                        Declining ({delta}% across recent drills)
-                      </span>
-                    ) : (
-                      <span className="text-stone-700 font-bold">
-                        Stable accuracy across logged drills
-                      </span>
-                    )}
-                  </div>
-                );
-              })()}
-
-              {/* Visual Trend Chart with 50% Benchmark Line */}
-              <div
-                onClick={() => setIsAccuracyTrendModalOpen(true)}
-                className="relative h-48 w-full px-2 pt-6 pb-2 border-b border-stone-200/80 cursor-pointer group"
-                title="Click to view deep accuracy trend breakdown"
-              >
-                {/* 50% Min Pass Line */}
-                <div
-                  className="absolute left-0 right-0 border-t border-dashed border-stone-300 pointer-events-none flex items-center justify-end pr-2"
-                  style={{ bottom: 'calc(50% + 24px)' }}
-                >
-                  <span className="text-[9px] font-mono text-stone-400 bg-white px-1 -translate-y-1/2">
-                    50% Pass Benchmark
-                  </span>
-                </div>
-
-                <div className="h-full w-full flex items-end justify-between gap-3 relative z-10">
-                  {accuracyTrendPoints.map((pt, idx) => {
-                    const barHeight = Math.max(12, Math.min(100, pt.accuracy));
-                    const isPass = pt.accuracy >= 50;
-
-                    return (
-                      <div key={idx} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                        <span
-                          className={`text-[11px] font-mono font-bold ${
-                            isPass ? 'text-stone-900' : 'text-rose-600'
-                          }`}
-                        >
-                          {pt.accuracy}%
-                        </span>
-                        <div className="w-full max-w-[42px] h-32 bg-stone-100 rounded-t-lg relative flex items-end overflow-hidden group-hover:opacity-90">
-                          <div
-                            className={`w-full rounded-t-lg transition-all duration-500 ${
-                              isPass ? 'bg-[#00685f]' : 'bg-rose-500'
-                            }`}
-                            style={{ height: `${barHeight}%` }}
-                          />
-                        </div>
-                        <div className="text-center w-full truncate">
-                          <span className="text-[10px] font-mono text-stone-600 block truncate">
-                            {pt.label}
-                          </span>
-                          <span className="text-[9px] font-mono text-stone-400 block">
-                            {pt.count} Qs
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-xs text-stone-400 font-mono">
-                <span>Chronological accuracy curve</span>
-                <span className="text-[#00685f] font-bold hover:underline cursor-pointer" onClick={() => setIsAccuracyTrendModalOpen(true)}>
-                  Explore historical points →
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="py-8 text-center space-y-3 px-4 bg-[#F4FAF8] rounded-2xl border border-dashed border-[#C5E8E1]">
-              <div className="h-10 w-10 rounded-full bg-teal-50 border border-teal-200/80 flex items-center justify-center mx-auto text-[#006B63]">
-                <TrendingUp className="w-5 h-5 text-[#006B63]" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-slate-800">Trajectory Ready to Calibrate</h3>
-                <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1">
-                  Solve your first 10 High-Yield MCQs to unlock your historical accuracy curve and passing trendline.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => onLaunchPracticeSession ? onLaunchPracticeSession('medicine', 'med-cardio', 'Cardiology') : onNavigateTab?.('study')}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#005750] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-              >
-                <span>Start 10-Q Micro Drill</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Right: Grand Test Performance */}
-        <div className="bg-white rounded-3xl border border-[#DCE4E1] shadow-xs p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-bold text-[#121E1B]">Grand Test Performance</h2>
-              <p className="text-xs text-stone-500">Full-length 300-Q NBE mock exam records</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {grandTests.length > 0 && (
-                <span className="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-teal-50 text-[#00685f] border border-teal-200/60">
-                  {grandTests.length} Logged
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={() => setIsGrandTestModalOpen(true)}
-                className="text-xs font-bold text-[#00685f] hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <span>GT Diagnostics</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {grandTests.length > 0 ? (
-            <div className="space-y-4">
-              {/* Latest GT Highlight Card */}
-              {latestGT && (
-                <div
-                  onClick={() => setIsGrandTestModalOpen(true)}
-                  className="p-4 rounded-2xl bg-stone-50 border border-stone-200 hover:border-[#00685f]/70 transition-all cursor-pointer flex items-center justify-between group"
-                  title="Click to view full Grand Test audit"
-                >
+                {/* Right: summary + 8-pillar grid */}
+                <div className="flex-1 space-y-5 min-w-0">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono uppercase font-bold text-[#00685f]">
-                        LATEST GRAND TEST ({latestGT.platform})
-                      </span>
-                      <ChevronRight className="w-3 h-3 text-stone-400 group-hover:text-[#00685f] transition-colors" />
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-extrabold font-mono text-stone-900">
-                        {latestGT.score} / 300
-                      </span>
-                      <span className="text-xs font-mono font-bold text-stone-500">
-                        ({Math.round((latestGT.score / (latestGT.totalMarks || 300)) * 100)}%)
-                      </span>
-                    </div>
-                    <span className="text-xs text-stone-400 font-mono block">
-                      {new Date(latestGT.date).toLocaleDateString('en-US', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
-                    </span>
+                    <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-white/30">FMGE Readiness · {formattedToday}</p>
+                    <p className="text-[14px] text-white/70 leading-relaxed max-w-lg">{readiness.summaryText}</p>
                   </div>
-
-                  <div className="text-right space-y-1">
-                    <span className="text-xs font-mono text-stone-500 block">Percentile</span>
-                    <span className="text-xl font-bold font-mono text-[#00685f]">
-                      {latestGT.percentile ? `${latestGT.percentile}th` : 'Calculated'}
-                    </span>
-                    <span
-                      className={`text-[10px] font-bold font-mono block ${
-                        latestGT.score >= 150 ? 'text-emerald-600' : 'text-rose-600'
-                      }`}
-                    >
-                      {latestGT.score >= 150
-                        ? `+${latestGT.score - 150} above pass mark`
-                        : `${150 - latestGT.score} marks to pass`}
-                    </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {readiness.components.map((comp) => {
+                      const scoreVal = comp.status === 'no_data' ? 0 : comp.score;
+                      const isGood = comp.status === 'good';
+                      const isMod = comp.status === 'moderate' || comp.status === 'neutral';
+                      const dotColor = isGood ? '#30D158' : isMod ? '#FF9500' : '#FF3B30';
+                      return (
+                        <div key={comp.id} className="p-3 rounded-2xl space-y-2.5"
+                          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)', backdropFilter: 'blur(4px)' }}>
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-[10px] font-mono font-bold text-white/45 truncate">{comp.name}</span>
+                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor, boxShadow: `0 0 6px ${dotColor}` }} />
+                          </div>
+                          <div className="text-[22px] font-black font-mono text-white leading-none">{comp.status === 'no_data' ? '—' : scoreVal}</div>
+                          <div className="h-[3px] rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${scoreVal}%`, background: dotColor }} />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              )}
+              </div>
+            </div>
+          </section>
 
-              {/* GT Progression Bar List */}
+          {/* ── PERFORMANCE SNAPSHOT ── */}
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[15px] font-black text-[#1D1D1F]">Performance Snapshot</h2>
+              <span className="text-[10px] font-mono font-bold text-[#007AFF] bg-[#007AFF]/10 px-2.5 py-1 rounded-lg border border-[#007AFF]/20 uppercase tracking-wide">Live Diagnostics</span>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {/* Hero accuracy tile — full color */}
+              <motion.div whileHover={{ y: -2 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="col-span-2 lg:col-span-1 p-5 rounded-2xl relative overflow-hidden cursor-default"
+                style={{ background: 'linear-gradient(135deg, #007AFF 0%, #0148C4 100%)', boxShadow: '0 8px 28px rgba(0,122,255,0.30)' }}>
+                <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full opacity-20"
+                  style={{ background: 'radial-gradient(circle, white 0%, transparent 70%)' }} />
+                <div className="relative z-10 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">Overall Accuracy</span>
+                    <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center">
+                      <Target className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                  <div className="flex items-baseline gap-2.5">
+                    <span className="text-[38px] font-black font-mono text-white leading-none">
+                      {overallPerf.totalAttempts > 0 ? `${overallPerf.overallAccuracy}%` : '—'}
+                    </span>
+                    {overallPerf.totalAttempts > 0 && (
+                      <span className="text-[11px] font-bold font-mono px-2 py-0.5 rounded-full bg-white/15 text-white">
+                        {accuracyDelta >= 0 ? `+${accuracyDelta}%` : `${accuracyDelta}%`}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-white/55">
+                    {overallPerf.totalAttempts > 0 ? `Recent 15: ${overallPerf.recentAccuracy}%` : 'Complete drills to see baseline'}
+                  </p>
+                </div>
+              </motion.div>
+
+              {[
+                { label: 'Questions', value: overallPerf.totalAttempts.toLocaleString(), sub: 'QBank · Grand Tests · Practice', icon: Activity, color: '#30D158' },
+                { label: 'Avg. Time', value: overallPerf.avgResponseTimeSeconds > 0 ? `${overallPerf.avgResponseTimeSeconds}s` : '—', sub: overallPerf.avgResponseTimeSeconds > 0 ? (overallPerf.avgResponseTimeSeconds <= 60 ? 'Optimal pace ≤60s' : 'Target ≤60s / Q') : 'Target 60s per question', icon: Clock, color: '#FF9500' },
+                { label: 'Repeat Errors', value: String(overallPerf.totalRepeatedErrors), sub: overallPerf.totalRepeatedErrors > 0 ? 'Missed ≥2 times' : 'Zero repeated errors', icon: AlertTriangle, color: overallPerf.totalRepeatedErrors > 0 ? '#FF3B30' : '#8E8E93' },
+              ].map(({ label, value, sub, icon: Icon, color }) => (
+                <motion.div key={label} whileHover={{ y: -2 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  className="p-5 rounded-2xl border bg-white space-y-3 cursor-default"
+                  style={{ borderColor: 'rgba(60,60,67,0.1)', borderTop: `3px solid ${color}` }}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93]">{label}</span>
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${color}15` }}>
+                      <Icon className="h-4 w-4" style={{ color }} />
+                    </div>
+                  </div>
+                  <div className="text-[32px] font-black font-mono leading-none" style={{ color }}>{value}</div>
+                  <p className="text-[11px] text-[#8E8E93]">{sub}</p>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* ── FOCUS AREAS + QUICK ACTIONS ── */}
+          <section className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            {/* Focus topics */}
+            <div className="lg:col-span-7 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-[15px] font-bold text-[#1D1D1F]">{hasPerformanceHistory ? 'Focus Areas' : 'Start Here'}</h2>
+                  <p className="text-[11.5px] text-[#8E8E93] mt-0.5">
+                    {hasPerformanceHistory ? 'Ranked by error rate and revision urgency' : 'High-yield anchor topics to build your baseline'}
+                  </p>
+                </div>
+                {topPriorityTopics.length > 0 && (
+                  <button type="button" onClick={() => onSelectSubject(topPriorityTopics[0].subjectId)}
+                    className="text-[12px] font-bold text-[#007AFF] cursor-pointer flex items-center gap-0.5 shrink-0">
+                    All Subjects <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
               <div className="space-y-2">
-                {grandTests.slice(-4).map((gt, idx) => {
-                  const pct = Math.round((gt.score / (gt.totalMarks || 300)) * 100);
-                  const isPass = gt.score >= 150;
-
+                {topPriorityTopics.map((topic, idx) => {
+                  const hasAttempts = topic.attemptCount > 0;
+                  const hasErrors = topic.errorCount > 0 || topic.repeatedErrorCount > 0;
+                  const hasRepeatedMistake = hasAttempts && topic.repeatedErrorCount >= 1;
+                  const isConfirmedWeakness = hasAttempts && (topic.status === 'critical' || topic.accuracy < 50);
+                  const isHighPriority = hasAttempts && (topic.status === 'high_priority' || topic.accuracy < 60);
+                  const isRevision = hasAttempts && topic.revisionDue;
+                  const isStarter = !hasAttempts && !hasErrors;
+                  const actionType = topic.recommendedAction?.type;
+                  let actionHint = topic.recommendedAction?.actionLabel || 'Study';
+                  if (actionType === 'review_errors') actionHint = 'Review Mistakes';
+                  else if (actionType === 'practice_mcqs') actionHint = 'Clinical Drill';
+                  else if (actionType === 'rapid_review') actionHint = 'Rapid Recall';
+                  else if (actionType === 'complete_revision') actionHint = 'Spaced Revision';
+                  const urgencyColor = hasRepeatedMistake || isConfirmedWeakness ? '#FF3B30' : isHighPriority || isRevision ? '#FF9500' : '#007AFF';
+                  const badge = hasRepeatedMistake ? { label: 'Repeated Error', color: '#FF3B30' }
+                    : isConfirmedWeakness ? { label: 'Critical', color: '#FF3B30' }
+                    : isHighPriority ? { label: 'Needs Work', color: '#FF9500' }
+                    : isRevision ? { label: 'Due', color: '#FF9500' }
+                    : isStarter ? { label: 'Start Here', color: '#007AFF' }
+                    : null;
                   return (
-                    <div
-                      key={gt.id || idx}
-                      onClick={() => setIsGrandTestModalOpen(true)}
-                      className="space-y-1 cursor-pointer group"
-                    >
-                      <div className="flex items-center justify-between text-xs font-mono">
-                        <span className="font-medium text-stone-700 group-hover:text-[#00685f] transition-colors">
-                          {gt.title || `GT ${idx + 1}`}
-                        </span>
-                        <span className="font-bold text-stone-900">
-                          {gt.score} / 300 ({pct}%)
-                        </span>
+                    <div key={`${topic.subjectId}-${topic.topicId}`}
+                      className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white border hover:shadow-sm transition-all"
+                      style={{ borderColor: 'rgba(60,60,67,0.1)', borderLeft: `3px solid ${urgencyColor}` }}>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-[13px] font-black font-mono text-white"
+                        style={{ background: urgencyColor }}>
+                        {idx + 1}
                       </div>
-                      <div className="w-full h-2 rounded-full bg-stone-100 overflow-hidden relative">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            isPass ? 'bg-[#00685f]' : 'bg-amber-600'
-                          }`}
-                          style={{ width: `${pct}%` }}
-                        />
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[13px] font-bold text-[#1D1D1F] truncate">{topic.topicName}</span>
+                          {badge && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                              style={{ color: badge.color, background: `${badge.color}12`, border: `1px solid ${badge.color}25` }}>
+                              {badge.label}
+                            </span>
+                          )}
+                          {topic.isHighYield && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/20">HY</span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-[#8E8E93] truncate">
+                          {topic.subjectName} · {isStarter ? `${topic.subjectWeightage}M weightage` : actionHint}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2.5 shrink-0">
+                        {hasAttempts && (
+                          <span className="text-[15px] font-black font-mono" style={{ color: topic.accuracy >= 75 ? '#30D158' : topic.accuracy >= 50 ? '#FF9500' : '#FF3B30' }}>
+                            {topic.accuracy}%
+                          </span>
+                        )}
+                        <button type="button" onClick={() => setSelectedDiagnosticSubjectId(topic.subjectId)}
+                          className="w-8 h-8 rounded-full bg-[#F2F2F7] hover:bg-[#1D1D1F] hover:text-white text-[#6E6E73] flex items-center justify-center transition-all cursor-pointer">
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   );
                 })}
               </div>
             </div>
-          ) : (
-            <div className="py-8 text-center space-y-3 px-4 bg-[#F4FAF8] rounded-2xl border border-dashed border-[#C5E8E1]">
-              <div className="h-10 w-10 rounded-full bg-teal-50 border border-teal-200/80 flex items-center justify-center mx-auto text-[#006B63]">
-                <Award className="w-5 h-5 text-[#006B63]" />
-              </div>
+
+            {/* Quick Actions */}
+            <div className="lg:col-span-5 space-y-3">
               <div>
-                <h3 className="text-sm font-bold text-slate-800">No Grand Tests Logged Yet</h3>
-                <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1">
-                  Log scores from your Marrow, PrepLadder, or Cerebellum GTs to unlock percentile benchmarks and pass-mark safety tracking.
-                </p>
+                <h2 className="text-[15px] font-bold text-[#1D1D1F]">Quick Actions</h2>
+                <p className="text-[11.5px] text-[#8E8E93] mt-0.5">Targeted remediation workflows</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsGrandTestModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#006B63] hover:bg-[#005750] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-              >
-                <span>Log First Mock Score</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              <div className="bg-white rounded-3xl border border-[rgba(60,60,67,0.1)] shadow-sm divide-y divide-[rgba(60,60,67,0.06)] overflow-hidden">
+                {[
+                  { icon: AlertTriangle, label: 'Error Vault', sub: (() => { const n = state.errorNotebook?.length || 0; return n > 0 ? `${n} mistakes to triage` : 'No pending errors'; })(), color: '#FF3B30', badge: (state.errorNotebook?.length || 0) > 0 ? state.errorNotebook!.length : null, onClick: () => setIsErrorVaultModalOpen(true) },
+                  { icon: Target, label: 'Practice Drill', sub: 'Launch a 10-MCQ clinical session', color: '#007AFF', badge: null, onClick: () => { if (topPriorityTopics.length > 0) onLaunchPracticeSession?.(topPriorityTopics[0].subjectId, topPriorityTopics[0].topicId, topPriorityTopics[0].topicName, undefined, 'dashboard_weak_topic'); else if (FMGE_SUBJECTS.length > 0) onLaunchPracticeSession?.(FMGE_SUBJECTS[0].id, FMGE_SUBJECTS[0].topics[0]?.id || 't-1', FMGE_SUBJECTS[0].topics[0]?.name || 'Clinical Drill', undefined, 'dashboard_weak_topic'); } },
+                  { icon: RotateCcw, label: 'Revision Planner', sub: 'Build spaced recall schedule', color: '#FF9500', badge: null, onClick: () => onNavigateTab?.('revision') },
+                  { icon: ShieldCheck, label: 'Topic Mastery', sub: 'Filter topics by mastery tier', color: '#30D158', badge: null, onClick: () => setIsTopicMasteryModalOpen(true) },
+                ].map(({ icon: Icon, label, sub, color, badge, onClick }) => (
+                  <button key={label} type="button" onClick={onClick}
+                    className="w-full px-4 py-3.5 flex items-center gap-3.5 cursor-pointer hover:bg-[#F9F9F9] transition-colors text-left group">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"
+                      style={{ background: `${color}12` }}>
+                      <Icon className="w-5 h-5" style={{ color }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13px] font-bold text-[#1D1D1F]">{label}</span>
+                        {badge != null && (
+                          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-black font-mono text-white"
+                            style={{ background: color }}>{badge}</span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-[#8E8E93] mt-0.5">{sub}</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-[#C7C7CC] group-hover:text-[#8E8E93] shrink-0 transition-colors" />
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
-      </section>
+          </section>
 
-      {/* ================= 7. DEEPER DIAGNOSTICS ================= */}
-      <section className="space-y-3">
-        <div>
-          <h2 className="text-base font-bold text-[#121E1B]">Deeper Diagnostics</h2>
-          <p className="text-xs text-stone-500">Core clinical competencies evaluated against NBE exam patterns</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1: Image-Based MCQ Diagnostic */}
-          <div className="p-5 rounded-2xl bg-white border border-[#DCE4E1] shadow-xs flex flex-col justify-between space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 font-mono">
-                  Image-Based MCQs
-                </span>
-                <Eye className="w-4 h-4 text-[#00685f]" />
+          {/* ── SUBJECT BREAKDOWN ── */}
+          <section className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-[15px] font-bold text-[#1D1D1F]">Subject Breakdown</h2>
+                <p className="text-[11.5px] text-[#8E8E93]">All 19 NBE disciplines · Click any row to diagnose</p>
               </div>
+              <div className="relative w-full sm:w-56 shrink-0">
+                <Search className="w-4 h-4 text-[#8E8E93] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search subjects..."
+                  className="w-full pl-9 pr-3 py-1.5 rounded-full text-[12px] bg-[#F2F2F7] border border-transparent focus:border-[#007AFF] focus:bg-white focus:outline-none text-[#1D1D1F] placeholder:text-[#C7C7CC] transition-all" />
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
+              {[
+                { id: 'all', label: `All (${counts.all})` },
+                { id: 'clinical', label: `Clinical (${counts.clinical})` },
+                { id: 'paraclinical', label: `Para-Clinical (${counts.paraclinical})` },
+                { id: 'preclinical', label: `Pre-Clinical (${counts.preclinical})` },
+              ].map((tab) => (
+                <button key={tab.id} type="button" onClick={() => setSelectedDiscipline(tab.id as any)}
+                  className={`px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap cursor-pointer shrink-0 transition-all ${
+                    selectedDiscipline === tab.id ? 'bg-[#1D1D1F] text-white shadow-sm' : 'bg-white text-[#6E6E73] border border-[rgba(60,60,67,0.12)] hover:bg-[#F2F2F7]'
+                  }`}>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            <div className="bg-white rounded-3xl border border-[rgba(60,60,67,0.1)] shadow-sm overflow-hidden divide-y divide-[rgba(60,60,67,0.05)]">
+              <div className="hidden sm:grid sm:grid-cols-12 px-5 py-3 bg-[#F9F9F9] text-[10px] font-mono font-black uppercase tracking-widest text-[#8E8E93]">
+                <div className="sm:col-span-5">Subject</div>
+                <div className="sm:col-span-3 text-center">Accuracy</div>
+                <div className="sm:col-span-2 text-center">Status</div>
+                <div className="sm:col-span-2 text-right">Action</div>
+              </div>
+              {filteredSubjects.length > 0 ? filteredSubjects.map((sub) => {
+                const hasAttempts = sub.metrics.totalAttempts > 0;
+                const acc = sub.metrics.accuracy;
+                const recent = sub.metrics.recentAccuracy;
+                const trendDelta = recent - acc;
+                let statusLabel = 'Unattempted'; let statusColor = '#8E8E93';
+                if (hasAttempts) {
+                  if (acc >= 75) { statusLabel = 'Strong'; statusColor = '#30D158'; }
+                  else if (acc >= 60) { statusLabel = 'Developing'; statusColor = '#FF9500'; }
+                  else { statusLabel = 'Weak'; statusColor = '#FF3B30'; }
+                }
+                return (
+                  <div key={sub.id}
+                    className="hover:bg-[#F9F9F9] transition-colors flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-2 sm:gap-0 px-5 py-3.5"
+                    style={{ borderLeft: `3px solid ${statusColor}` }}>
+                    <div className="sm:col-span-5 space-y-0.5 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13px] font-bold text-[#1D1D1F] truncate">{sub.name}</span>
+                        <span className="text-[10px] font-mono text-[#8E8E93] shrink-0">{sub.weightage}M</span>
+                      </div>
+                      <p className="text-[11px] text-[#8E8E93] font-mono">
+                        {hasAttempts ? `${sub.metrics.totalAttempts} Qs attempted` : `${sub.topics.length} topics`}
+                      </p>
+                    </div>
+                    <div className="sm:col-span-3 flex sm:flex-col sm:items-center justify-between sm:justify-center gap-1">
+                      <span className="font-mono text-[15px] font-black"
+                        style={{ color: hasAttempts ? (acc >= 75 ? '#30D158' : acc >= 50 ? '#FF9500' : '#FF3B30') : '#C7C7CC' }}>
+                        {hasAttempts ? `${acc}%` : '—'}
+                      </span>
+                      {hasAttempts && (
+                        <span className="flex items-center gap-0.5 text-[10px] font-mono font-bold"
+                          style={{ color: trendDelta > 0 ? '#30D158' : trendDelta < 0 ? '#FF3B30' : '#8E8E93' }}>
+                          {trendDelta > 0 ? <TrendingUp className="w-3 h-3" /> : trendDelta < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                          {trendDelta > 0 ? `+${trendDelta}%` : trendDelta < 0 ? `${trendDelta}%` : 'Stable'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="sm:col-span-2 flex sm:justify-center">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold"
+                        style={{ color: statusColor, background: `${statusColor}12`, border: `1px solid ${statusColor}25` }}>
+                        {statusLabel}
+                      </span>
+                    </div>
+                    <div className="sm:col-span-2 flex sm:justify-end">
+                      <button type="button" onClick={() => setSelectedDiagnosticSubjectId(sub.id)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11.5px] font-bold bg-[#F2F2F7] hover:bg-[#1D1D1F] hover:text-white text-[#1D1D1F] transition-all cursor-pointer">
+                        Diagnose <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              }) : (
+                <div className="py-12 text-center space-y-3 px-4">
+                  <div className="w-10 h-10 rounded-2xl bg-[#F2F2F7] flex items-center justify-center mx-auto">
+                    <Search className="w-5 h-5 text-[#8E8E93]" />
+                  </div>
+                  <p className="text-[13px] font-bold text-[#1D1D1F]">No matching subjects</p>
+                  <button type="button" onClick={() => { setSearchQuery(''); setSelectedDiscipline('all'); }}
+                    className="text-[12px] font-bold text-[#007AFF] cursor-pointer">Clear Filters</button>
+                </div>
+              )}
+            </div>
+          </section>
 
-              <div className="space-y-1">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-extrabold font-mono text-[#121E1B]">
+          {/* ── TRENDS + GRAND TEST ── */}
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Accuracy Trend */}
+            <div className="bg-white rounded-3xl border border-[rgba(60,60,67,0.1)] shadow-sm p-5 sm:p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-[14px] font-bold text-[#1D1D1F]">Accuracy Trend</h2>
+                  <p className="text-[11.5px] text-[#8E8E93]">Performance across practice sessions</p>
+                </div>
+                <button type="button" onClick={() => setIsAccuracyTrendModalOpen(true)}
+                  className="text-[12px] font-bold text-[#007AFF] cursor-pointer flex items-center gap-0.5">
+                  Detail <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              {accuracyTrendPoints.length >= 2 ? (
+                <div className="space-y-3">
+                  {(() => {
+                    const first = accuracyTrendPoints[0].accuracy;
+                    const last = accuracyTrendPoints[accuracyTrendPoints.length - 1].accuracy;
+                    const delta = last - first;
+                    const Icon = delta > 0 ? TrendingUp : delta < 0 ? TrendingDown : Minus;
+                    const color = delta > 0 ? '#30D158' : delta < 0 ? '#FF3B30' : '#8E8E93';
+                    return (
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                        style={{ background: `${color}0A`, border: `1px solid ${color}20` }}>
+                        <Icon className="w-4 h-4 shrink-0" style={{ color }} />
+                        <span className="text-[12px] font-bold flex-1" style={{ color }}>
+                          {delta > 0 ? `Improving +${delta}%` : delta < 0 ? `Declining ${delta}%` : 'Stable trajectory'}
+                        </span>
+                        <button type="button" onClick={() => setIsAccuracyTrendModalOpen(true)} className="text-[11px] font-bold text-[#007AFF] cursor-pointer shrink-0">
+                          Full Report
+                        </button>
+                      </div>
+                    );
+                  })()}
+                  <div className="relative h-44 w-full cursor-pointer" onClick={() => setIsAccuracyTrendModalOpen(true)}>
+                    {[75, 50, 25].map((pct) => (
+                      <div key={pct} className="absolute left-0 right-6 flex items-center"
+                        style={{ bottom: `calc(${pct * 0.72}% + 14px)` }}>
+                        <div className="border-t border-dashed border-[rgba(60,60,67,0.08)] flex-1" />
+                        <span className="text-[9px] font-mono text-[#C7C7CC] pl-1.5">{pct}%</span>
+                      </div>
+                    ))}
+                    <div className="h-full flex items-end gap-2 pt-4 pb-2 pr-2">
+                      {accuracyTrendPoints.map((pt, idx) => {
+                        const barH = Math.max(8, Math.min(100, pt.accuracy));
+                        const clr = pt.accuracy >= 50 ? '#007AFF' : '#FF3B30';
+                        return (
+                          <div key={idx} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                            <span className="text-[10px] font-mono font-bold" style={{ color: clr }}>{pt.accuracy}%</span>
+                            <div className="w-full h-28 flex items-end overflow-hidden rounded-t-xl bg-[#F5F5F7]">
+                              <div className="w-full rounded-t-xl transition-all duration-700"
+                                style={{ height: `${barH}%`, background: `linear-gradient(to top, ${clr}, ${clr}77)` }} />
+                            </div>
+                            <span className="text-[9px] font-mono text-[#8E8E93] truncate w-full text-center">{pt.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-8 flex flex-col items-center gap-3 text-center rounded-2xl border-2 border-dashed border-[rgba(0,122,255,0.18)] bg-[#F0F7FF]">
+                  <div className="w-10 h-10 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-[#007AFF]" />
+                  </div>
+                  <div>
+                    <h3 className="text-[13px] font-bold text-[#1D1D1F]">Calibrating Trajectory</h3>
+                    <p className="text-[11.5px] text-[#8E8E93] max-w-xs mt-0.5">Solve your first 10 MCQs to unlock your accuracy curve.</p>
+                  </div>
+                  <button type="button" onClick={() => onLaunchPracticeSession?.('medicine', 'med-cardio', 'Cardiology', undefined, 'trend_empty_state')}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] text-white text-[12px] font-bold cursor-pointer shadow-sm">
+                    Start Drill <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Grand Test */}
+            <div className="bg-white rounded-3xl border border-[rgba(60,60,67,0.1)] shadow-sm p-5 sm:p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-[14px] font-bold text-[#1D1D1F]">Grand Test Score</h2>
+                  <p className="text-[11.5px] text-[#8E8E93]">Full-length 300-Q NBE mock records</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {grandTests.length > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">{grandTests.length} logged</span>
+                  )}
+                  <button type="button" onClick={() => setIsGrandTestModalOpen(true)}
+                    className="text-[12px] font-bold text-[#007AFF] cursor-pointer flex items-center gap-0.5">
+                    Diagnostics <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+              {grandTests.length > 0 ? (
+                <div className="space-y-3">
+                  {latestGT && (
+                    <div onClick={() => setIsGrandTestModalOpen(true)}
+                      className="relative rounded-2xl overflow-hidden p-5 cursor-pointer"
+                      style={{ background: 'linear-gradient(135deg, #007AFF 0%, #0A2463 100%)', boxShadow: '0 8px 24px rgba(0,122,255,0.25)' }}>
+                      <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
+                        style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.12) 0%, transparent 65%)' }} />
+                      <div className="relative z-10 flex items-center justify-between">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono font-bold text-white/50 uppercase">{latestGT.platform}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${latestGT.score >= 150 ? 'bg-[#30D158] text-white' : 'bg-[#FF3B30] text-white'}`}>
+                              {latestGT.score >= 150 ? 'PASS' : 'FAIL'}
+                            </span>
+                          </div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-[38px] font-black font-mono text-white leading-none">{latestGT.score}</span>
+                            <span className="text-[14px] font-mono text-white/40">/ 300</span>
+                          </div>
+                          <span className="text-[11px] text-white/40 font-mono">
+                            {new Date(latestGT.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
+                        </div>
+                        <div className="text-right space-y-1">
+                          <p className="text-[10px] font-mono text-white/40">vs pass mark</p>
+                          <p className="text-[26px] font-black font-mono text-white">
+                            {latestGT.score >= 150 ? `+${latestGT.score - 150}` : `−${150 - latestGT.score}`}
+                          </p>
+                          <p className="text-[11px] font-mono font-bold" style={{ color: latestGT.score >= 150 ? '#30D158' : '#FF8080' }}>
+                            {latestGT.score >= 150 ? 'above pass' : 'below pass'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-2.5">
+                    {grandTests.slice(-4).map((gt, idx) => {
+                      const pct = Math.round((gt.score / (gt.totalMarks || 300)) * 100);
+                      const isPass = gt.score >= 150;
+                      return (
+                        <div key={gt.id || idx} onClick={() => setIsGrandTestModalOpen(true)} className="cursor-pointer group space-y-1">
+                          <div className="flex items-center justify-between text-[12px] font-mono">
+                            <span className="font-semibold text-[#3A3A3C] group-hover:text-[#007AFF] transition-colors">{gt.title || `GT ${idx + 1}`}</span>
+                            <span className="font-bold" style={{ color: isPass ? '#30D158' : '#FF3B30' }}>{gt.score}/300</span>
+                          </div>
+                          <div className="w-full h-2 rounded-full bg-[#F2F2F7] overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-500"
+                              style={{ width: `${pct}%`, background: isPass ? '#007AFF' : '#FF9500' }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="py-8 flex flex-col items-center gap-3 text-center rounded-2xl border-2 border-dashed border-[rgba(48,209,88,0.2)] bg-[#F0FFF4]">
+                  <div className="w-10 h-10 rounded-2xl bg-[#30D158]/10 flex items-center justify-center">
+                    <Award className="w-5 h-5 text-[#30D158]" />
+                  </div>
+                  <div>
+                    <h3 className="text-[13px] font-bold text-[#1D1D1F]">No Grand Tests Logged</h3>
+                    <p className="text-[11.5px] text-[#8E8E93] max-w-xs mt-0.5">Log Marrow, PrepLadder, or Cerebellum GT scores to track pass-mark safety.</p>
+                  </div>
+                  <button type="button" onClick={() => setIsGrandTestModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1D1D1F] text-white text-[12px] font-bold cursor-pointer shadow-sm">
+                    Log First Score <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* ── CLINICAL DIAGNOSTICS ── */}
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-[15px] font-bold text-[#1D1D1F]">Clinical Diagnostics</h2>
+              <p className="text-[11.5px] text-[#8E8E93]">Core NBE competency breakdown</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              {/* Image MCQs */}
+              <div className="p-5 rounded-2xl bg-white border border-[rgba(60,60,67,0.1)] shadow-sm flex flex-col gap-4"
+                style={{ borderTop: '3px solid #5AC8FA' }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10.5px] font-bold uppercase tracking-widest text-[#8E8E93]">Image-Based MCQs</span>
+                  <Eye className="w-4 h-4 text-[#5AC8FA]" />
+                </div>
+                <div>
+                  <div className="text-[28px] font-black font-mono text-[#1D1D1F]">
                     {imageSummary.totalImageAttempts > 0 ? `${imageSummary.overallImageAccuracy}%` : '—'}
-                  </span>
-                  <span className="text-xs text-stone-400 font-mono">
-                    {imageSummary.totalImageAttempts > 0
-                      ? `(${imageSummary.totalImageAttempts} attempted)`
-                      : '(0 attempted • Calibrating)'}
-                  </span>
+                  </div>
+                  <p className="text-[11.5px] text-[#8E8E93] mt-1 leading-snug">
+                    {imageSummary.weakestCategory ? `Weakest: ${imageSummary.weakestCategory}` : imageSummary.totalImageAttempts > 0 ? 'Balanced across categories' : 'Drill radiology and pathology slides'}
+                  </p>
                 </div>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  {imageSummary.weakestCategory
-                    ? `Weakest visual category: ${imageSummary.weakestCategory.toUpperCase()}`
-                    : imageSummary.totalImageAttempts > 0
-                    ? 'Balanced performance across Radiology, Histology, and Clinical Photos'
-                    : 'Visual pattern calibration pending. Drill radiology and gross pathology slides to establish baseline.'}
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-stone-100 text-[11px] text-stone-400 font-mono">
-              Impact: ~35–45 visual questions on FMGE exam paper.
-            </div>
-          </div>
-
-          {/* Card 2: Curriculum Mastery Distribution */}
-          <div
-            onClick={() => setIsTopicMasteryModalOpen(true)}
-            className="p-5 rounded-2xl bg-white border border-[#DCE4E1] hover:border-[#00685f]/70 transition-all shadow-xs flex flex-col justify-between space-y-4 cursor-pointer group"
-          >
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 font-mono">
-                  Topic Mastery Status
-                </span>
-                <Layers className="w-4 h-4 text-[#00685f]" />
-              </div>
-
-              <div className="space-y-2">
-                {/* Segmented Bar */}
-                <div className="w-full h-2.5 rounded-full bg-stone-100 flex overflow-hidden">
-                  <div
-                    title={`Mastered: ${overallPerf.totalMasteredTopics}`}
-                    className="bg-[#00685f] h-full"
-                    style={{ width: `${(overallPerf.totalMasteredTopics / Math.max(1, overallPerf.totalTopics)) * 100}%` }}
-                  />
-                  <div
-                    title={`Proficient: ${overallPerf.totalProficientTopics}`}
-                    className="bg-emerald-600 h-full"
-                    style={{ width: `${(overallPerf.totalProficientTopics / Math.max(1, overallPerf.totalTopics)) * 100}%` }}
-                  />
-                  <div
-                    title={`Developing: ${overallPerf.totalDevelopingTopics}`}
-                    className="bg-amber-500 h-full"
-                    style={{ width: `${(overallPerf.totalDevelopingTopics / Math.max(1, overallPerf.totalTopics)) * 100}%` }}
-                  />
-                  <div
-                    title={`Struggling: ${overallPerf.totalStrugglingTopics}`}
-                    className="bg-rose-500 h-full"
-                    style={{ width: `${(overallPerf.totalStrugglingTopics / Math.max(1, overallPerf.totalTopics)) * 100}%` }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-1 text-[11px] font-mono text-stone-500">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#00685f] inline-block" />
-                    Mastered: {overallPerf.totalMasteredTopics}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block" />
-                    Proficient: {overallPerf.totalProficientTopics}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
-                    Developing: {overallPerf.totalDevelopingTopics}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />
-                    Struggling: {overallPerf.totalStrugglingTopics}
-                  </span>
+                <div className="flex gap-1.5 mt-auto pt-2 border-t border-[rgba(60,60,67,0.06)]">
+                  {[['Radiology','#5AC8FA'],['Histology','#5856D6'],['Clinical','#30D158']].map(([lbl,clr]) => (
+                    <div key={lbl} className="flex-1 py-1.5 rounded-xl text-center text-[9.5px] font-bold font-mono"
+                      style={{ background: `${clr}12`, color: clr, border: `1px solid ${clr}25` }}>{lbl}</div>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-mono">
-              <span>Impact: Full syllabus breadth</span>
-              <span className="text-[#00685f] font-bold group-hover:underline flex items-center gap-1">
-                Deep Drill-Down <ChevronRight className="w-3 h-3" />
-              </span>
-            </div>
-          </div>
-
-          {/* Card 3: Error Notebook Burden */}
-          <div
-            onClick={() => setIsErrorVaultModalOpen(true)}
-            className="p-5 rounded-2xl bg-white border border-[#DCE4E1] hover:border-rose-300 transition-all shadow-xs flex flex-col justify-between space-y-4 cursor-pointer group"
-          >
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 font-mono">
-                  Error Notebook Burden
-                </span>
-                <Brain className="w-4 h-4 text-purple-700" />
+              {/* Topic Mastery */}
+              <div onClick={() => setIsTopicMasteryModalOpen(true)}
+                className="p-5 rounded-2xl bg-white border border-[rgba(60,60,67,0.1)] hover:shadow-md shadow-sm flex flex-col gap-4 cursor-pointer group transition-all"
+                style={{ borderTop: '3px solid #007AFF' }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10.5px] font-bold uppercase tracking-widest text-[#8E8E93]">Topic Mastery</span>
+                  <Layers className="w-4 h-4 text-[#007AFF] group-hover:scale-110 transition-transform" />
+                </div>
+                <div className="space-y-3">
+                  <div className="w-full h-3 rounded-full bg-[#F2F2F7] flex overflow-hidden">
+                    {[
+                      { count: overallPerf.totalMasteredTopics, color: '#007AFF' },
+                      { count: overallPerf.totalProficientTopics, color: '#30D158' },
+                      { count: overallPerf.totalDevelopingTopics, color: '#FF9500' },
+                      { count: overallPerf.totalStrugglingTopics, color: '#FF3B30' },
+                    ].map(({ count, color }) => (
+                      <div key={color} className="h-full transition-all duration-700"
+                        style={{ width: `${(count / Math.max(1, overallPerf.totalTopics)) * 100}%`, background: color }} />
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {[
+                      { label: 'Mastered', count: overallPerf.totalMasteredTopics, color: '#007AFF' },
+                      { label: 'Proficient', count: overallPerf.totalProficientTopics, color: '#30D158' },
+                      { label: 'Developing', count: overallPerf.totalDevelopingTopics, color: '#FF9500' },
+                      { label: 'Struggling', count: overallPerf.totalStrugglingTopics, color: '#FF3B30' },
+                    ].map(({ label, count, color }) => (
+                      <div key={label} className="flex items-center gap-1.5 text-[11px]">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
+                        <span className="text-[#8E8E93]">{label}:</span>
+                        <span className="font-bold font-mono text-[#1D1D1F]">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-[11px] border-t border-[rgba(60,60,67,0.06)] pt-2.5 mt-auto">
+                  <span className="text-[#C7C7CC]">Full syllabus breadth</span>
+                  <span className="text-[#007AFF] font-bold flex items-center gap-0.5">Drill-Down <ChevronRight className="w-3 h-3" /></span>
+                </div>
               </div>
 
-              <div className="space-y-1">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-extrabold font-mono text-[#121E1B]">
-                    {state.errorNotebook?.length || 0}
-                  </span>
-                  <span className="text-xs text-stone-400 font-mono">logged cards</span>
+              {/* Error Notebook */}
+              <div onClick={() => setIsErrorVaultModalOpen(true)}
+                className="p-5 rounded-2xl bg-white border border-[rgba(60,60,67,0.1)] hover:shadow-md shadow-sm flex flex-col gap-4 cursor-pointer group transition-all"
+                style={{ borderTop: '3px solid #FF3B30' }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10.5px] font-bold uppercase tracking-widest text-[#8E8E93]">Error Notebook</span>
+                  <Brain className="w-4 h-4 text-[#5856D6] group-hover:scale-110 transition-transform" />
                 </div>
-
-                <p className="text-xs text-stone-500 leading-relaxed">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[28px] font-black font-mono text-[#1D1D1F]">{state.errorNotebook?.length || 0}</div>
+                    <p className="text-[11.5px] text-[#8E8E93] mt-0.5 leading-snug">
+                      {(() => {
+                        const total = state.errorNotebook?.length || 0;
+                        const reviewed = state.errorNotebook?.filter((e) => e.isReviewed).length || 0;
+                        if (total === 0) return 'No errors logged yet';
+                        return `${reviewed} / ${total} remediated`;
+                      })()}
+                    </p>
+                    {overallPerf.totalRepeatedErrors > 0 && (
+                      <p className="text-[11px] font-bold text-[#FF3B30] flex items-center gap-1 mt-1.5">
+                        <Flame className="w-3 h-3" /> {overallPerf.totalRepeatedErrors} repeat{overallPerf.totalRepeatedErrors > 1 ? 's' : ''}
+                      </p>
+                    )}
+                  </div>
                   {(() => {
                     const total = state.errorNotebook?.length || 0;
                     const reviewed = state.errorNotebook?.filter((e) => e.isReviewed).length || 0;
-                    if (total === 0) {
-                      return 'Zero error cards logged. Capture mistakes from GTs and drills to build your 20th notebook.';
-                    }
-                    const pct = Math.round((reviewed / total) * 100);
-                    return `${reviewed} of ${total} (${pct}%) mistake concepts remediated and retained.`;
+                    const pct = total > 0 ? reviewed / total : 0;
+                    const r = 18; const circ = 2 * Math.PI * r;
+                    const ringColor = pct >= 0.7 ? '#30D158' : pct >= 0.4 ? '#FF9500' : '#FF3B30';
+                    return (
+                      <div className="relative shrink-0">
+                        <svg width="50" height="50" viewBox="0 0 50 50" className="-rotate-90">
+                          <circle cx="25" cy="25" r={r} fill="none" stroke="#F2F2F7" strokeWidth="5" />
+                          <circle cx="25" cy="25" r={r} fill="none" stroke={ringColor}
+                            strokeWidth="5" strokeLinecap="round"
+                            strokeDasharray={circ} strokeDashoffset={circ * (1 - pct)}
+                            style={{ transition: 'stroke-dashoffset 0.8s ease' }} />
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black font-mono text-[#1D1D1F]">
+                          {total > 0 ? `${Math.round(pct * 100)}%` : '—'}
+                        </span>
+                      </div>
+                    );
                   })()}
-                </p>
-                {overallPerf.totalRepeatedErrors > 0 && (
-                  <p className="text-[11px] font-mono text-rose-700 font-bold flex items-center gap-1">
-                    <span className="text-rose-600">Notice:</span> {overallPerf.totalRepeatedErrors} repeat error{overallPerf.totalRepeatedErrors > 1 ? 's' : ''} require immediate triage
-                  </p>
-                )}
+                </div>
+                <div className="flex items-center justify-between text-[11px] border-t border-[rgba(60,60,67,0.06)] pt-2.5 mt-auto">
+                  <span className="text-[#C7C7CC]">Triage missed concepts</span>
+                  <span className="text-[#FF3B30] font-bold flex items-center gap-0.5">Error Vault <ChevronRight className="w-3 h-3" /></span>
+                </div>
               </div>
             </div>
+          </section>
+        </>
+      )}
 
-            <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-mono">
-              <span>Impact: Eliminating repeat errors</span>
-              <span className="text-rose-600 font-bold group-hover:underline flex items-center gap-1">
-                Error Vault Audit <ChevronRight className="w-3 h-3" />
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
-  )}
+      {currentSubTab === 'errors' && (
+        <ErrorsView
+          state={state}
+          onAddErrorItem={onAddErrorItem || (() => {})}
+          onToggleErrorReviewed={onToggleErrorReviewed || (() => {})}
+          onDeleteErrorItem={onDeleteErrorItem || (() => {})}
+          onUpdateAppState={onUpdateAppState || (() => {})}
+          onLaunchPracticeSession={onLaunchPracticeSession}
+          onOpenAiCoach={onOpenAiCoach}
+          onSelectSubject={onSelectSubject}
+          onToggleTopicState={onToggleTopicState}
+          onBackToPerformance={() => handleSubTabChange('overview')}
+        />
+      )}
 
-  {currentSubTab === 'errors' && (
-    <ErrorsView
-      state={state}
-      onAddErrorItem={onAddErrorItem || (() => {})}
-      onToggleErrorReviewed={onToggleErrorReviewed || (() => {})}
-      onDeleteErrorItem={onDeleteErrorItem || (() => {})}
-      onUpdateAppState={onUpdateAppState || (() => {})}
-      onLaunchPracticeSession={onLaunchPracticeSession}
-      onOpenAiCoach={onOpenAiCoach}
-      onSelectSubject={onSelectSubject}
-      onToggleTopicState={onToggleTopicState}
-      onBackToPerformance={() => handleSubTabChange('overview')}
-    />
-  )}
+      {currentSubTab === 'predictor' && (
+        <FmgePredictorView
+          state={state}
+          onSelectSubject={onSelectSubject}
+          onOpenAiCoach={onOpenAiCoach}
+          onToggleTopicState={onToggleTopicState}
+          onAddTask={onAddTask || (() => {})}
+          onBackToPerformance={() => handleSubTabChange('overview')}
+          onLaunchPracticeSession={onLaunchPracticeSession as any}
+        />
+      )}
 
-  {currentSubTab === 'predictor' && (
-    <FmgePredictorView
-      state={state}
-      onSelectSubject={onSelectSubject}
-      onOpenAiCoach={onOpenAiCoach}
-      onToggleTopicState={onToggleTopicState}
-      onAddTask={onAddTask || (() => {})}
-      onBackToPerformance={() => handleSubTabChange('overview')}
-      onLaunchPracticeSession={onLaunchPracticeSession}
-    />
-  )}
-
-      {/* ================= PERFORMANCE 3C: DEEP DIAGNOSTIC DRILL-DOWNS ================= */}
+      {/* ── DEEP LAYER MODALS ── */}
       <ReadinessBreakdownModal
         isOpen={isReadinessModalOpen}
         onClose={() => setIsReadinessModalOpen(false)}
@@ -1755,10 +969,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         onClose={() => setSelectedDiagnosticSubjectId(null)}
         subjectId={selectedDiagnosticSubjectId}
         state={state}
-        onOpenStudyWorkspace={(id) => {
-          setSelectedDiagnosticSubjectId(null);
-          onSelectSubject(id);
-        }}
+        onOpenStudyWorkspace={(id) => { setSelectedDiagnosticSubjectId(null); onSelectSubject(id); }}
         onLaunchPracticeSession={onLaunchPracticeSession}
         onNavigateTab={onNavigateTab}
       />
@@ -1767,10 +978,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         isOpen={isTopicMasteryModalOpen}
         onClose={() => setIsTopicMasteryModalOpen(false)}
         state={state}
-        onOpenSubjectDiagnostic={(id) => {
-          setIsTopicMasteryModalOpen(false);
-          setSelectedDiagnosticSubjectId(id);
-        }}
+        onOpenSubjectDiagnostic={(id) => { setIsTopicMasteryModalOpen(false); setSelectedDiagnosticSubjectId(id); }}
         onLaunchPracticeSession={onLaunchPracticeSession}
       />
 
@@ -1783,21 +991,9 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         onLaunchPracticeSession={() => {
           setIsAccuracyTrendModalOpen(false);
           if (topPriorityTopics.length > 0) {
-            onLaunchPracticeSession?.(
-              topPriorityTopics[0].subjectId,
-              topPriorityTopics[0].topicId,
-              topPriorityTopics[0].topicName,
-              undefined,
-              'dashboard_weak_topic'
-            );
+            onLaunchPracticeSession?.(topPriorityTopics[0].subjectId, topPriorityTopics[0].topicId, topPriorityTopics[0].topicName, undefined, 'dashboard_weak_topic');
           } else if (FMGE_SUBJECTS.length > 0) {
-            onLaunchPracticeSession?.(
-              FMGE_SUBJECTS[0].id,
-              FMGE_SUBJECTS[0].topics[0]?.id || 't-1',
-              FMGE_SUBJECTS[0].topics[0]?.name || 'Clinical Drill',
-              undefined,
-              'dashboard_weak_topic'
-            );
+            onLaunchPracticeSession?.(FMGE_SUBJECTS[0].id, FMGE_SUBJECTS[0].topics[0]?.id || 't-1', FMGE_SUBJECTS[0].topics[0]?.name || 'Clinical Drill', undefined, 'dashboard_weak_topic');
           }
         }}
       />
@@ -1819,4 +1015,3 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
     </div>
   );
 };
-

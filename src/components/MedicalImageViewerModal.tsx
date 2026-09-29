@@ -15,8 +15,9 @@ import {
   Crosshair,
   Sparkles,
 } from 'lucide-react';
-import { createPortal } from 'react-dom';
+import { Modal } from './ui/Modal';
 import { MedicalImageAsset } from '../types';
+import { cn } from '@/lib/utils';
 
 export interface MedicalImageViewerModalProps {
   isOpen: boolean;
@@ -27,6 +28,77 @@ export interface MedicalImageViewerModalProps {
   title?: string;
   whatToLookFor?: string;
   showAnnotatedOption?: boolean;
+}
+
+/**
+ * Toolbar primitives.
+ *
+ * The five diagnostic tools used to carry five different active colours
+ * (cyan / amber / indigo / amber / emerald), which read as five competing
+ * design languages rather than one control. Shape and colour now carry a
+ * single meaning — accent means "on" — and the icon plus label carry what
+ * the tool is.
+ */
+function Tool({
+  active,
+  onClick,
+  title,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-pressed={active}
+      className={cn(
+        'hit-expand inline-flex h-9 items-center gap-1.5 rounded-xl border px-3',
+        'text-[13px] font-semibold transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+        active
+          ? 'border-accent/40 bg-accent-tint text-accent-ink'
+          : 'border-[var(--color-hairline)] bg-[var(--color-surface-2)] text-[var(--color-ink-2)] hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-ink)]',
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ZoomButton({
+  onClick,
+  title,
+  label,
+  children,
+  className,
+}: {
+  onClick: () => void;
+  title: string;
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-label={label}
+      className={cn(
+        'hit-expand grid size-8 place-items-center rounded-lg text-[var(--color-ink-2)] transition-colors',
+        'hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-ink)]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+        className,
+      )}
+    >
+      {children}
+    </button>
+  );
 }
 
 export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = ({
@@ -219,148 +291,129 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
   if (isHighContrast) imageFilter = 'contrast(170%) brightness(105%)';
   if (isInvertedXray) imageFilter = 'invert(100%) hue-rotate(180%) contrast(150%)';
 
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[100] flex flex-col bg-slate-950/95 backdrop-blur-md animate-in fade-in duration-200 select-none font-['Plus_Jakarta_Sans']"
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+  return (
+    <Modal
+      open={isOpen}
+      onOpenChange={(o) => !o && onClose()}
+      variant="fullscreen"
+      accent="var(--color-mentor)"
+      title={title || imageAsset?.medicalFinding || 'High-Yield Medical Image Finding'}
+      hideClose
     >
+      <div
+        data-surface="darkroom"
+        className="flex h-full min-h-0 flex-col bg-[#080B0F] select-none"
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-3 bg-slate-900/90 border-b border-white/10 text-white shrink-0">
-        <div className="flex items-center gap-3">
-          <span className="px-2.5 py-1 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-[10px] sm:text-[11px] font-bold tracking-wider font-mono">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 bg-[var(--color-surface-2)]/90 px-4 py-3 hairline-b sm:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="shrink-0 rounded-full border border-accent/30 bg-accent-tint px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-wider text-accent-ink">
             {displayCategory}
           </span>
-          <div>
-            <h3 className="text-xs sm:text-sm font-bold font-['Outfit'] text-white line-clamp-1">
+          <div className="min-w-0">
+            <h3 className="t-title-sm line-clamp-1 text-[var(--color-ink)]">
               {title || imageAsset?.medicalFinding || 'High-Yield Medical Image Finding'}
             </h3>
-            <p className="text-[11px] text-slate-400 hidden sm:block">
+            <p className="t-caption hidden text-[var(--color-ink-3)] sm:block">
               {showAnnotated ? 'Annotated Diagnostic Review Mode' : 'Clean Exam Investigation Tracing'}
             </p>
           </div>
         </div>
 
         {/* Toolbar Controls */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* ECG Caliper Tool Toggle */}
-          <button
-            type="button"
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Tool
+            active={isCaliperActive}
             onClick={() => setIsCaliperActive(!isCaliperActive)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
-              isCaliperActive
-                ? 'bg-cyan-500 text-slate-950 font-bold border-cyan-400 shadow-md shadow-cyan-500/20'
-                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
-            }`}
             title="Draggable Digital ECG Calipers (ms / mm measure)"
           >
-            <Activity className="w-3.5 h-3.5" />
+            <Activity className="size-3.5" />
             <span>ECG Calipers</span>
-          </button>
+          </Tool>
 
-          {/* Pathology Hotspots Toggle */}
-          <button
-            type="button"
+          <Tool
+            active={showHotspots}
             onClick={() => setShowHotspots(!showHotspots)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
-              showHotspots
-                ? 'bg-amber-500 text-slate-950 font-bold border-amber-400 shadow-sm'
-                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
-            }`}
             title="Highlight Pathognomonic Areas"
           >
-            <Crosshair className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Pathology Hotspots</span>
-          </button>
+            <Crosshair className="size-3.5" />
+            <span className="hidden sm:inline">Hotspots</span>
+          </Tool>
 
-          {/* Invert X-Ray / Bone Window */}
-          <button
-            type="button"
+          <Tool
+            active={isInvertedXray}
             onClick={() => setIsInvertedXray(!isInvertedXray)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
-              isInvertedXray
-                ? 'bg-indigo-500 text-white border-indigo-400 shadow-sm'
-                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
-            }`}
             title="Invert Grayscale (Radiography Bone Window)"
           >
-            <Layers className="w-3.5 h-3.5" />
+            <Layers className="size-3.5" />
             <span className="hidden sm:inline">{isInvertedXray ? 'Standard' : 'Bone Window'}</span>
-          </button>
+          </Tool>
 
-          {/* High Contrast Toggle */}
-          <button
-            type="button"
+          <Tool
+            active={isHighContrast}
             onClick={() => setIsHighContrast(!isHighContrast)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
-              isHighContrast
-                ? 'bg-amber-400 text-slate-900 border-amber-300 shadow-sm'
-                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
-            }`}
             title="Toggle High Contrast for ECG / Radiology inspection"
           >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{isHighContrast ? 'Normal Contrast' : 'High Contrast'}</span>
-          </button>
+            <Eye className="size-3.5" />
+            <span className="hidden sm:inline">{isHighContrast ? 'Normal' : 'High Contrast'}</span>
+          </Tool>
 
-          {/* 2.8x Diagnostic Loupe Tool */}
-          <button
-            type="button"
+          <Tool
+            active={isLoupeActive}
             onClick={() => setIsLoupeActive(!isLoupeActive)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
-              isLoupeActive
-                ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-400 shadow-sm'
-                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
-            }`}
             title="Toggle 2.8x Diagnostic Magnifier Loupe"
           >
-            <Scan className="w-3.5 h-3.5" />
+            <Scan className="size-3.5" />
             <span className="hidden sm:inline">2.8x Loupe</span>
-          </button>
+          </Tool>
 
-          {/* Zoom Buttons */}
-          <div className="flex items-center bg-slate-800 border border-slate-700 rounded-xl p-1 text-slate-300">
-            <button
-              type="button"
+          {/* Zoom stepper */}
+          <div className="flex items-center gap-0.5 rounded-xl border border-[var(--color-hairline)] bg-[var(--color-surface-2)] px-1 py-0.5">
+            <ZoomButton
               onClick={() => setZoomLevel((z) => Math.max(0.6, +(z - 0.25).toFixed(2)))}
-              className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
               title="Zoom Out (-)"
+              label="Zoom out"
             >
-              <ZoomOut className="w-4 h-4" />
-            </button>
-            <span className="px-2 font-mono text-xs font-bold text-slate-200">
+              <ZoomOut className="size-4" />
+            </ZoomButton>
+            <span
+              aria-live="polite"
+              className="min-w-[3.5ch] px-1 text-center font-mono text-[13px] font-bold tabular-nums text-[var(--color-ink)]"
+            >
               {Math.round(zoomLevel * 100)}%
             </span>
-            <button
-              type="button"
+            <ZoomButton
               onClick={() => setZoomLevel((z) => Math.min(3.5, +(z + 0.25).toFixed(2)))}
-              className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
               title="Zoom In (+)"
+              label="Zoom in"
             >
-              <ZoomIn className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
+              <ZoomIn className="size-4" />
+            </ZoomButton>
+            <span aria-hidden="true" className="mx-0.5 h-5 w-px bg-[var(--color-hairline)]" />
+            <ZoomButton
               onClick={() => {
                 setZoomLevel(1);
                 setPosition({ x: 0, y: 0 });
               }}
-              className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors border-l border-slate-700 ml-1 cursor-pointer"
               title="Reset View (0)"
+              label="Reset view"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
+              <RotateCcw className="size-4" />
+            </ZoomButton>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer ml-1"
+            aria-label="Close image viewer"
             title="Close (Esc)"
+            className="hit-expand ml-1 grid size-11 shrink-0 place-items-center rounded-xl text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
-            <X className="w-5 h-5" />
+            <X className="size-5 stroke-[2.2]" />
           </button>
         </div>
       </div>
@@ -369,7 +422,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
       <div
         ref={containerRef}
         onWheel={handleWheel}
-        className={`flex-1 overflow-hidden relative flex items-center justify-center p-4 sm:p-6 ${
+        className={`relative flex min-h-0 flex-1 items-stretch justify-center overflow-hidden p-4 sm:p-6 ${
           zoomLevel > 1 && !isCaliperActive ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
         }`}
         onMouseDown={handleMouseDown}
@@ -383,7 +436,15 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
         }}
       >
         <div
-          className="relative transition-transform duration-100 ease-out origin-center"
+          /*
+           * Fills the viewport rather than shrink-wrapping the image.
+           * Every asset in /assets/medical-images is an SVG declared
+           * `width="100%" height="100%"`, so its percentages resolve against
+           * the <img>'s content box — and an auto-sized box has no definite
+           * size for them to resolve against, collapsing the image to 0x0.
+           * A definite box plus `object-contain` letterboxes instead.
+           */
+          className="relative h-full w-full transition-transform duration-100 ease-out origin-center"
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${zoomLevel})`,
             filter: imageFilter,
@@ -395,7 +456,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
             alt={title || imageAsset?.medicalFinding || 'FMGE Medical Image'}
             referrerPolicy="no-referrer"
             crossOrigin="anonymous"
-            className="max-h-[70vh] max-w-[92vw] object-contain rounded-xl shadow-2xl select-none"
+            className="h-full w-full select-none object-contain"
             onError={(e) => {
               const target = e.currentTarget;
               if (!target.src.includes('/assets/medical-images/')) {
@@ -429,7 +490,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
                     <Crosshair className="w-3 h-3 text-slate-950 font-bold" />
                   </span>
                 </div>
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-7 hidden group-hover:block bg-black/90 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-amber-400/40 whitespace-nowrap shadow-xl">
+                <div className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-amber-400/40 bg-black/90 px-2.5 py-1 text-[11px] font-semibold text-white shadow-xl group-hover:block">
                   Primary Pathognomonic Finding
                 </div>
               </div>
@@ -442,7 +503,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
                   <span className="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-teal-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-4 w-4 bg-teal-400 border-2 border-white items-center justify-center shadow-lg" />
                 </div>
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-6 hidden group-hover:block bg-black/90 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-teal-400/40 whitespace-nowrap shadow-xl">
+                <div className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-teal-400/40 bg-black/90 px-2.5 py-1 text-[11px] font-semibold text-white shadow-xl group-hover:block">
                   Secondary Associated Sign
                 </div>
               </div>
@@ -543,7 +604,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
                   <span className="font-mono text-base font-black text-cyan-300">
                     {caliperMs} ms
                   </span>
-                  <span className="text-[10px] text-slate-400 font-mono">
+                  <span className="text-[11px] text-slate-400 font-mono">
                     ({caliperMm} mm / small squares)
                   </span>
                 </div>
@@ -557,21 +618,22 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
       </div>
 
       {/* Bottom Info Banner */}
-      <div className="bg-slate-900/90 border-t border-slate-800 px-4 sm:px-6 py-3 text-xs text-slate-300 flex flex-col md:flex-row md:items-center justify-between gap-2.5 shrink-0">
-        <div className="flex items-start md:items-center gap-2">
-          <Eye className="w-4 h-4 text-teal-400 shrink-0 mt-0.5 md:mt-0" />
-          <div>
-            <span className="font-bold text-white font-['Outfit'] mr-1">Visual Clue:</span>
-            <span>
-              {activeHotspot || whatToLookFor || imageAsset?.whatToLookFor || 'Observe morphological patterns and clinical signs carefully.'}
-            </span>
-          </div>
+      <div className="flex shrink-0 flex-col justify-between gap-2.5 bg-[var(--color-surface-2)]/90 px-4 py-3 hairline-t sm:px-6 md:flex-row md:items-center">
+        <div className="flex items-start gap-2 md:items-center">
+          <Eye aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-accent md:mt-0" />
+          <p className="t-caption text-[var(--color-ink-2)]">
+            <span className="font-semibold text-[var(--color-ink)]">Visual Clue: </span>
+            {activeHotspot ||
+              whatToLookFor ||
+              imageAsset?.whatToLookFor ||
+              'Observe morphological patterns and clinical signs carefully.'}
+          </p>
         </div>
 
         {imageAsset && (
-          <div className="flex items-center gap-3 text-[11px] text-slate-400 shrink-0">
+          <div className="t-caption flex shrink-0 flex-wrap items-center gap-3 text-[var(--color-ink-3)]">
             <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <ShieldCheck aria-hidden="true" className="size-3.5 text-[var(--color-pass-ink)]" />
               {imageAsset.license || 'Verified Educational Asset'}
             </span>
             {imageAsset.sourceUrl && (
@@ -579,10 +641,10 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
                 href={imageAsset.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-teal-400 hover:underline flex items-center gap-1"
+                className="inline-flex items-center gap-1 text-accent-ink underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 <span>{imageAsset.sourceName || 'Source Archive'}</span>
-                <ExternalLink className="w-3 h-3" />
+                <ExternalLink aria-hidden="true" className="size-3" />
               </a>
             )}
           </div>
@@ -592,7 +654,7 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
       {/* Interactive 2.8x Circular Loupe Magnifier */}
       {isLoupeActive && isHoveringImage && (
         <div
-          className="fixed pointer-events-none z-[120] rounded-full border-2 border-emerald-400 shadow-2xl overflow-hidden"
+          className="pointer-events-none fixed z-tooltip overflow-hidden rounded-full border-2 border-emerald-400 shadow-2xl"
           style={{
             width: 170,
             height: 170,
@@ -608,13 +670,13 @@ export const MedicalImageViewerModal: React.FC<MedicalImageViewerModalProps> = (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-2.5 h-2.5 rounded-full border border-emerald-400 bg-emerald-400/40" />
           </div>
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-black/80 text-[9px] font-mono font-bold text-emerald-300 tracking-wider">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-black/80 text-[11px] font-mono font-bold text-emerald-300 tracking-wider">
             2.8x LOUPE
           </div>
         </div>
       )}
-    </div>,
-    document.body
+      </div>
+    </Modal>
   );
 };
 

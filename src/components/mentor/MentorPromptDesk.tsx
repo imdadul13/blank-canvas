@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
+import { cn } from '@/lib/utils';
+import { MENTOR_HUES, type MentorHueKey } from './mentorPalette';
+import { motion, useReducedMotion } from 'motion/react';
+import { ICON_HOVER, SPRING_SNAPPY } from '@/utils/motionTokens';
 import {
   ImageIcon,
   Send,
@@ -61,6 +64,20 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
 }) => {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
+
+  const reduced = useReducedMotion();
+
+  /* SwiftUI-style press response. Every control in the dock used to hand-roll
+     `scale: 0.96` with no transition, so presses snapped linearly and never
+     settled; the component also never read `useReducedMotion`, so the entire
+     dock animated for users who asked it not to. */
+  const chipPress = reduced
+    ? {}
+    : {
+        whileHover: { scale: 1.03, y: -1, transition: SPRING_SNAPPY },
+        whileTap: { scale: 0.96, transition: SPRING_SNAPPY },
+      };
+  const toolPress = reduced ? {} : ICON_HOVER(false);
 
   const toggleVoiceDictation = () => {
     if (isListening) {
@@ -142,6 +159,17 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
     return Activity;
   };
 
+  /* Both icon and hue key off the label rather than the array index, so a rail
+     that reorders or drops an item keeps every remaining chip on its own
+     colour instead of shifting the whole palette. */
+  const getActionHue = (label: string, idx: number): MentorHueKey => {
+    const l = label.toLowerCase();
+    if (l.includes('concept') || idx === 0) return 'blue';
+    if (l.includes('compare') || l.includes('differ') || idx === 1) return 'purple';
+    if (l.includes('mcq') || l.includes('vignette') || idx === 2) return 'orange';
+    return 'green';
+  };
+
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -174,99 +202,100 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
           initial={{ opacity: 0, y: 4, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="flex items-center gap-3 p-2 bg-teal-50/90 border border-teal-200/90 rounded-2xl w-fit max-w-full shadow-2xs backdrop-blur-md"
+          className="flex w-fit max-w-full items-center gap-3 rounded-2xl border border-[rgba(60,60,67,0.12)] bg-white p-2 shadow-sm"
         >
           <div
-            className="relative h-11 w-11 rounded-xl overflow-hidden border border-teal-300 bg-slate-900 cursor-zoom-in group shrink-0 shadow-2xs"
+            className="group relative size-11 shrink-0 cursor-zoom-in overflow-hidden rounded-xl border border-[rgba(60,60,67,0.1)] bg-black"
             onClick={() => onOpenImageModal(attachedImage.previewUrl, attachedImage.fileName)}
             title="Click to zoom image"
           >
             <img
               src={attachedImage.previewUrl}
               alt="Attached clinical investigation"
-              className="h-full w-full object-cover group-hover:scale-110 transition-transform"
+              className="size-full object-cover transition-transform group-hover:scale-110"
             />
           </div>
           <div className="min-w-0 pr-1">
-            <p className="text-xs font-bold text-teal-950 truncate max-w-[180px] sm:max-w-xs font-['Outfit']">
+            <p className="text-[13px] max-w-[180px] truncate font-semibold text-[#1D1D1F] sm:max-w-xs">
               {attachedImage.fileName}
             </p>
-            <p className="text-[10px] text-teal-700 font-sans">
-              Clinical Investigation Attached
-            </p>
+            <p className="text-[10.5px] font-mono font-bold uppercase tracking-wider text-[#007AFF]">Clinical investigation attached</p>
           </div>
           <button
             type="button"
             onClick={onRemoveImage}
-            className="p-1.5 hover:bg-teal-200/80 rounded-full text-teal-800 transition-colors cursor-pointer shrink-0"
+            className="shrink-0 cursor-pointer rounded-full p-1.5 text-[#8E8E93] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] transition-colors"
             title="Remove image"
             aria-label="Remove image"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="size-3.5" />
           </button>
         </motion.div>
       )}
 
-      {/* Quick Action Suggestion Chips (Docked above input with refined clinical pill styling) */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar text-xs touch-pan-x">
+      {/* Quick Action Suggestion Chips (Docked above input with Apple HIG Frosted Capsules) */}
+      <div className="no-scrollbar flex touch-pan-x items-center gap-1.5 overflow-x-auto pb-1">
         {/* Faculty Viva Quick Action Chip */}
         <motion.button
           type="button"
-          whileHover={{ scale: 1.03, y: -1 }}
-          whileTap={{ scale: 0.96 }}
+          {...chipPress}
           onClick={() =>
             onSendMessage(
               'Conduct a high-yield FMGE bedside Viva with me. Present a 35yo patient presenting in the emergency room with acute symptoms. Give me ONLY the initial scenario and ask for my immediate first step. Wait for my answer, then critique and proceed to stage 2.'
             )
           }
           disabled={isLoading}
-          className="whitespace-nowrap px-3 py-1.5 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 border border-amber-300 rounded-full text-[11px] font-bold text-amber-900 transition-all cursor-pointer shadow-2xs hover:shadow-xs disabled:opacity-50 shrink-0 flex items-center gap-1.5 group"
+          className="group flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-amber-300/80 bg-amber-50 px-3.5 py-1.5 text-[11.5px] font-bold text-amber-900 shadow-xs transition-all hover:bg-amber-100 active:scale-[0.97] disabled:opacity-50"
         >
-          <Stethoscope className="h-3.5 w-3.5 text-amber-600 group-hover:scale-110 transition-transform" />
-          <span className="font-['Outfit']">🩺 Start Faculty Viva</span>
+          <Stethoscope className="size-3.5 text-amber-700 transition-transform group-hover:scale-110" />
+          <span>Start faculty viva</span>
         </motion.button>
 
         {quickActions.map((action, idx) => {
           const Icon = getActionIcon(action.label, idx);
+          const hue = MENTOR_HUES[getActionHue(action.label, idx)];
           return (
             <motion.button
               key={idx}
               type="button"
-              whileHover={{ scale: 1.03, y: -1 }}
-              whileTap={{ scale: 0.96 }}
+              {...chipPress}
               onClick={() => onSendMessage(action.query)}
               disabled={isLoading}
-              className="whitespace-nowrap px-3 py-1.5 bg-white/90 hover:bg-teal-50/90 border border-slate-200/80 hover:border-teal-300 rounded-full text-[11px] font-semibold text-slate-700 hover:text-[#006B63] transition-all cursor-pointer shadow-2xs hover:shadow-xs disabled:opacity-50 shrink-0 flex items-center gap-1.5 group backdrop-blur-xs"
+              className="group flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-[rgba(60,60,67,0.1)] bg-[#F2F2F7] hover:bg-[#E5E5EA] px-3.5 py-1.5 text-[11.5px] font-semibold text-[#1D1D1F] shadow-xs transition-all active:scale-[0.97] disabled:opacity-50"
             >
-              <Icon className="h-3.5 w-3.5 text-[#006B63] group-hover:scale-110 transition-transform" />
-              <span className="font-['Outfit']">{action.label}</span>
+              <span
+                className="grid size-4 place-items-center rounded-full"
+                style={{ background: hue.tint }}
+              >
+                <Icon className="size-2.5 transition-transform group-hover:scale-110" style={{ color: hue.bar }} />
+              </span>
+              <span>{action.label}</span>
             </motion.button>
           );
         })}
         <motion.button
           type="button"
-          whileHover={{ scale: 1.03, y: -1 }}
-          whileTap={{ scale: 0.96 }}
+          {...chipPress}
           onClick={() => onSendMessage('Give me 5 high-yield clinical MCQs across different FMGE subjects with distractor analysis.')}
           disabled={isLoading}
-          className="whitespace-nowrap px-2.5 py-1.5 bg-white/90 hover:bg-teal-50/90 border border-slate-200/80 hover:border-teal-300 rounded-full text-[11px] font-semibold text-slate-500 hover:text-[#006B63] transition-all cursor-pointer shadow-2xs shrink-0 flex items-center gap-1"
+          className="flex shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(60,60,67,0.1)] bg-[#F2F2F7] hover:bg-[#E5E5EA] px-3 py-1.5 text-[11.5px] font-semibold text-[#6E6E73] hover:text-[#1D1D1F] transition-all active:scale-[0.97]"
           title="More suggestions"
         >
-          <MoreHorizontal className="h-3.5 w-3.5" />
-          <span className="font-['Outfit']">More</span>
+          <MoreHorizontal className="size-3.5" />
+          <span>More</span>
         </motion.button>
       </div>
 
-      {/* Main Clinical Prompt & Inquiry Bar (Refined Executive Dock) */}
+      {/* Main Clinical Prompt & Inquiry Bar (Apple Executive Floating Dock) */}
       <div
-        className={`relative rounded-3xl border transition-all duration-300 ${
+        className={cn(
+          'relative rounded-2xl sm:rounded-3xl border bg-white p-2 sm:p-2.5 transition-all duration-200',
+          'shadow-[0_4px_20px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.02)]',
           isHighlighted
-            ? 'border-[#006B63] ring-4 ring-teal-500/25 shadow-[0_0_30px_rgba(0,107,99,0.22)] bg-white'
-            : 'border-slate-200/90 bg-gradient-to-b from-white via-white to-slate-50/60 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] focus-within:border-[#006B63] focus-within:ring-3 focus-within:ring-teal-500/15 focus-within:shadow-[0_8px_30px_rgba(0,107,99,0.1)]'
-        } p-2 sm:p-2.5`}
+            ? 'border-[#007AFF] ring-4 ring-[#007AFF]/15'
+            : 'border-[rgba(60,60,67,0.12)] focus-within:border-[#007AFF] focus-within:ring-4 focus-within:ring-[#007AFF]/12',
+        )}
       >
-        {/* Top luminous accent shimmer line */}
-        <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-teal-500/30 to-transparent" />
 
         {/* Textarea Input Row */}
         <div className="flex items-center gap-2">
@@ -282,35 +311,35 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
           {/* Medical Asset Attachment Tool Button */}
           <motion.button
             type="button"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.94 }}
+            {...toolPress}
             onClick={() => fileInputRef.current?.click()}
-            className={`flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-2xl transition-all shrink-0 cursor-pointer ${
+            className={cn(
+              'grid size-10 shrink-0 cursor-pointer place-items-center rounded-xl border transition-colors',
               attachedImage
-                ? 'bg-teal-100 text-[#006B63] hover:bg-teal-200 shadow-2xs'
-                : 'bg-slate-50 hover:bg-teal-50/80 text-slate-400 hover:text-[#006B63] border border-slate-200/70 hover:border-teal-200'
-            }`}
-            title="Attach Medical Image (ECG, X-Ray, Slide, Histopathology, Clinical Photo)"
+                ? 'border-[#007AFF]/40 bg-[#007AFF]/10 text-[#007AFF]'
+                : 'border-[rgba(60,60,67,0.12)] bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#E5E5EA] hover:text-[#1D1D1F]',
+            )}
+            title="Attach medical image (ECG, X-ray, slide, histopathology, clinical photo)"
             aria-label="Attach medical image"
           >
-            <ImageIcon className="h-4 w-4" />
+            <ImageIcon className="size-4" />
           </motion.button>
 
           {/* Hands-Free Voice Dictation Button */}
           <motion.button
             type="button"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.94 }}
+            {...toolPress}
             onClick={toggleVoiceDictation}
-            className={`flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-2xl transition-all shrink-0 cursor-pointer ${
+            className={cn(
+              'grid size-10 shrink-0 cursor-pointer place-items-center rounded-xl border transition-colors',
               isListening
-                ? 'bg-rose-500 text-white shadow-md animate-pulse'
-                : 'bg-slate-50 hover:bg-teal-50/80 text-slate-400 hover:text-[#006B63] border border-slate-200/70 hover:border-teal-200'
-            }`}
+                ? 'animate-pulse border-transparent bg-rose-500 text-white'
+                : 'border-[rgba(60,60,67,0.12)] bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#E5E5EA] hover:text-[#1D1D1F]',
+            )}
             title={isListening ? 'Stop listening' : 'Dictate question (Speech-to-Text)'}
-            aria-label="Dictate question"
+            aria-label="Dictate question (Speech-to-Text)"
           >
-            {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            {isListening ? <MicOff className="size-4" /> : <Mic className="size-4" />}
           </motion.button>
 
           {/* Auto-resizing Question Textarea */}
@@ -323,34 +352,34 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
             onPaste={handlePaste}
             placeholder={
               attachedImage
-                ? 'Ask about this attached investigation...'
+                ? 'Ask about this attached investigation…'
                 : isNarrowScreen
-                ? 'Ask your Faculty Mentor...'
-                : 'Ask your Faculty Mentor anything (e.g., Nephrotic vs Nephritic, ECG in Hyperkalemia, DOC for status epilepticus)...'
+                ? 'Ask your faculty mentor…'
+                : 'Ask anything — e.g. nephrotic vs nephritic, ECG in hyperkalaemia, DOC for status epilepticus'
             }
-            className="flex-1 bg-transparent border-0 focus:outline-none focus:ring-0 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 resize-none py-1.5 sm:py-2 px-1 min-h-[38px] max-h-[140px] leading-relaxed font-sans"
+            className="min-h-[38px] max-h-[140px] min-w-0 flex-1 resize-none border-0 bg-transparent px-2 py-1.5 text-sm leading-relaxed text-[#1D1D1F] placeholder:text-[#8E8E93] focus:outline-none focus:ring-0 sm:py-2"
           />
 
           {/* Compact Send Button (Desktop/Mobile) */}
           <motion.button
             type="button"
-            whileHover={!hasContent || isLoading ? undefined : { scale: 1.04 }}
-            whileTap={!hasContent || isLoading ? undefined : { scale: 0.94 }}
+            {...(hasContent && !isLoading ? toolPress : {})}
             onClick={() => onSendMessage()}
             disabled={!hasContent || isLoading}
             aria-label="Send clinical inquiry"
-            className={`flex items-center justify-center gap-1.5 h-9 px-3.5 sm:px-4.5 rounded-2xl text-xs font-bold font-['Outfit'] transition-all shrink-0 cursor-pointer ${
+            className={cn(
+              'flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full px-4 text-xs font-bold transition-all',
               hasContent && !isLoading
-                ? 'bg-gradient-to-r from-[#006B63] via-[#00746b] to-[#008f84] hover:from-[#00544e] hover:to-[#00746b] text-white shadow-xs hover:shadow-md'
-                : 'bg-slate-100 text-slate-400 border border-slate-200/60 cursor-not-allowed'
-            }`}
+                ? 'bg-[#007AFF] hover:bg-[#0066D6] text-white shadow-[0_4px_14px_rgba(0,122,255,0.3)]'
+                : 'cursor-not-allowed border border-[rgba(60,60,67,0.1)] bg-[#F2F2F7] text-[#C7C7CC]',
+            )}
           >
             {isLoading ? (
-              <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#006B63]" />
+              <RefreshCw className="size-3.5 animate-spin text-[#007AFF]" />
             ) : (
               <>
                 <span className="hidden xs:inline">Ask</span>
-                <ArrowUp className="h-3.5 w-3.5 stroke-[2.5]" />
+                <ArrowUp className="size-3.5 stroke-[2.5]" />
               </>
             )}
           </motion.button>

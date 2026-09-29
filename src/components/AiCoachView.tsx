@@ -43,8 +43,24 @@ import {
   Download,
   Volume2,
   VolumeX,
+  Sparkles,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import { cn } from '@/lib/utils';
+import { SPRING_SMOOTH, SPRING_SNAPPY } from '@/utils/motionTokens';
+import { Button } from './ui/Button';
+import { IconTile } from './ui/surface';
+import { MENTOR_HUES, RECALL_HUE, type MentorHueKey } from './mentor/mentorPalette';
+
+/** 10% wash + 18% hairline + full-strength text, matching Dashboard's badge triple. */
+const chipStyle = (key: MentorHueKey) => {
+  const h = MENTOR_HUES[key];
+  return {
+    color: `color-mix(in srgb, ${h.bar} 84%, black)`,
+    background: h.tint,
+    borderColor: `color-mix(in srgb, ${h.bar} 20%, transparent)`,
+  } as React.CSSProperties;
+};
 import { speechEngine } from '../utils/speechEngine';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -55,15 +71,25 @@ import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { GrandTest, AppState, MedicalImageAsset, MedicalPearl, ErrorNotebookItem } from '../types';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
 import { buildMentorContext, resolveMedicalTopic, detectMentorMode } from '../utils/mentorContextEngine';
+import type { LucideIcon } from 'lucide-react';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { MedicalImageViewerModal } from './MedicalImageViewerModal';
 import { MentorHeader } from './mentor/MentorHeader';
 import { MentorHistoryDrawer } from './mentor/MentorHistoryDrawer';
 import { MentorPromptDesk } from './mentor/MentorPromptDesk';
-import { MentorValuePropsBanner } from './mentor/MentorValuePropsBanner';
 import { MentorClinicalChallengeCard } from './mentor/MentorClinicalChallengeCard';
 import { MentorQuizRunner } from './mentor/MentorQuizRunner';
 import { AiKeyConfigModal } from './mentor/AiKeyConfigModal';
+
+interface Starter {
+  category: string;
+  /** Bound to the mode of asking, so a card keeps its colour when reordered. */
+  hue: MentorHueKey;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  query: string;
+}
 
 export interface QuizQuestionItem {
   id: string;
@@ -483,7 +509,6 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   });
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [historySearch, setHistorySearch] = useState('');
   const [isPromptHighlighted, setIsPromptHighlighted] = useState(false);
   
   // Interactive Multi-Question Quiz Mode State
@@ -1650,16 +1675,6 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     messages,
   };
 
-  const filteredSessions = useMemo(() => {
-    if (!historySearch.trim()) return sessions;
-    const q = historySearch.toLowerCase();
-    return sessions.filter(
-      (s) =>
-        s.title.toLowerCase().includes(q) ||
-        (s.messages || []).some((m) => m.content.toLowerCase().includes(q))
-    );
-  }, [sessions, historySearch]);
-
   // Dynamic contextual quick prompt chips based on current consultation topic
   const quickActions = useMemo(() => {
     if (messages.length > 0) {
@@ -1724,22 +1739,24 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   }, [messages, computedStudentContext.weakSubjects]);
 
   // Contextual consultation starters using real application data (never fabricated)
-  const contextualStarters = useMemo(() => {
+  const reducedMotion = useReducedMotion();
+
+  const contextualStarters = useMemo<Starter[]>(() => {
     // 1. Explain a Concept: intelligently suggests the student's actual logged weak topic or recent error
     const weakTopic = computedStudentContext.weakTopics[0];
     const weakSub = computedStudentContext.weakSubjects[0];
     const conceptStarter = weakTopic
       ? {
-          category: 'BASED ON YOUR WEAK TOPICS',
-          badgeStyle: 'bg-amber-50 text-amber-900 border-amber-200/80',
+          category: 'Weak Topic Focus',
+          hue: 'red' as const,
           icon: Brain,
           title: `Master ${weakTopic}`,
           description: `Pathophysiology, clinical presentation, and high-yield FMGE diagnostic criteria in ${weakSub || 'Medicine'}.`,
           query: `Explain ${weakTopic} in ${weakSub || 'General Medicine'} with high-yield FMGE diagnostic criteria, biopsy findings, and classic exam traps.`,
         }
       : {
-          category: 'EXPLAIN A CONCEPT',
-          badgeStyle: 'bg-emerald-50 text-[#006B63] border-emerald-200/60',
+          category: 'Concept Deep-Dive',
+          hue: 'blue' as const,
           icon: Brain,
           title: 'Nephrotic vs Nephritic Syndrome',
           description: 'Pathophysiology, clinical hallmarks, and biopsy/urinalysis discriminators.',
@@ -1748,8 +1765,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
     // 2. Compare Two Conditions
     const compareStarter = {
-      category: 'COMPARE TWO CONDITIONS',
-      badgeStyle: 'bg-sky-50 text-sky-800 border-sky-200/60',
+      category: 'Condition Comparison',
+      hue: 'purple' as const,
       icon: Stethoscope,
       title: 'Crohn’s vs Ulcerative Colitis',
       description: 'Endoscopy findings, skip lesions, histology, and high-yield complications.',
@@ -1759,8 +1776,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     // 3. Clinical MCQ Challenge: Contextual when close to exam
     const isExamClose = typeof daysRemaining === 'number' && daysRemaining <= 30;
     const mcqStarter = {
-      category: isExamClose ? 'HIGH-YIELD MODE · EXAM FOCUS' : 'CLINICAL MCQ CHALLENGE',
-      badgeStyle: isExamClose ? 'bg-rose-50 text-rose-800 border-rose-200/80' : 'bg-teal-50 text-[#006B63] border-teal-200/60',
+      category: isExamClose ? 'High-Yield Exam Focus' : 'Clinical MCQ Challenge',
+      hue: (isExamClose ? 'red' : 'orange') as MentorHueKey,
       icon: Award,
       title: 'Clinical MCQ Challenge',
       description: isExamClose
@@ -1773,16 +1790,16 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     const topWeakList = computedStudentContext.weakSubjects.slice(0, 2);
     const quizStarter = topWeakList.length > 0
       ? {
-          category: 'BASED ON YOUR WEAK AREAS',
-          badgeStyle: 'bg-purple-50 text-purple-900 border-purple-200/80',
+          category: 'Weak Area Targeted',
+          hue: 'green' as const,
           icon: Activity,
           title: `Targeted Quiz: ${topWeakList.join(' & ')}`,
           description: `5 high-yield clinical questions tailored to your tracked performance in ${topWeakList.join(', ')}.`,
           query: `Quiz me on 5 high-yield clinical MCQs from my weakest subjects (${topWeakList.join(', ')}) with faculty distractor analysis.`,
         }
       : {
-          category: 'QUIZ MY WEAK AREAS',
-          badgeStyle: 'bg-emerald-50 text-[#006B63] border-emerald-200/60',
+          category: 'Targeted Clinical Quiz',
+          hue: 'green' as const,
           icon: Activity,
           title: 'Targeted Subject Quiz',
           description: '5 high-yield clinical questions tailored to weak subjects.',
@@ -1793,7 +1810,11 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   }, [computedStudentContext, daysRemaining]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-4 sm:space-y-6 font-sans text-slate-900 pb-6 md:pb-8">
+    <div
+      data-accent="mentor"
+      className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5 pb-36 sm:pb-20 font-sans text-slate-900"
+      style={{ paddingBottom: 'max(9.5rem, calc(7rem + env(safe-area-inset-bottom, 2rem)))' }}
+    >
       {/* ================= EDITORIAL FACULTY MENTOR HEADER ================= */}
       <MentorHeader
         daysRemaining={state?.settings?.examDate ? daysRemaining : null}
@@ -1805,29 +1826,47 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         onToggleGoldenHour={() => setIsGoldenHourActive((prev) => !prev)}
         onOpenKeyConfig={() => setIsKeyModalOpen(true)}
         isAiConfigured={aiConfigured ?? true}
+        activeMode={quizSession ? 'quiz' : 'consultation'}
+        onModeChange={(mode) => {
+          if (mode === 'consultation') {
+            if (quizSession) setQuizSession(null);
+            setTimeout(() => textareaRef.current?.focus(), 50);
+          } else if (mode === 'quiz') {
+            startQuizMode();
+          } else if (mode === 'viva') {
+            if (quizSession) setQuizSession(null);
+            handleSendMessage(
+              'Conduct a high-yield FMGE bedside Viva with me. Present a 35yo patient presenting in the emergency room with acute symptoms. Give me ONLY the initial scenario and ask for my immediate first step. Wait for my answer, then critique and proceed to stage 2.'
+            );
+          }
+        }}
       />
+
+
 
       {/* Render AI Engine Notice Banner (shown only if GEMINI_API_KEY is not configured on server) */}
       {aiConfigured === false && (
-        <div className="w-full max-w-5xl xl:max-w-6xl mx-auto flex items-center justify-between gap-3 p-3.5 sm:px-4.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-900 dark:text-amber-200 text-xs shadow-2xs">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
-            <span className="leading-snug">
-              <strong>Gemini API Key Required:</strong> Live faculty reasoning is running in offline mode on this server. Configure your key to activate real-time AI.
-            </span>
+        <div className="flex flex-col gap-3 rounded-2xl border border-amber-200/70 bg-amber-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="size-2 shrink-0 animate-pulse rounded-full bg-amber-500" />
+            <p className="t-caption text-amber-900">
+              <strong className="font-semibold">Gemini API key required.</strong> Faculty
+              reasoning is running offline on this server — connect a key for real-time AI.
+            </p>
           </div>
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => setIsKeyModalOpen(true)}
-            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#006B63] to-teal-600 hover:from-[#00554E] hover:to-teal-700 text-white font-bold text-xs shrink-0 cursor-pointer shadow-xs transition-all whitespace-nowrap"
+            className="shrink-0 whitespace-nowrap"
           >
-            Connect Key
-          </button>
+            Connect key
+          </Button>
         </div>
       )}
 
       {/* ================= MAIN CLINICAL CONSULTATION WORKSPACE ================= */}
-      <main className="w-full max-w-5xl xl:max-w-6xl mx-auto space-y-3 sm:space-y-4 min-w-0">
+      <main className="w-full min-w-0 space-y-5">
       {/* 2. Interactive Multi-Question Clinical Challenge Runner */}
       {quizSession && (
         <MentorQuizRunner
@@ -1841,98 +1880,101 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         />
       )}
 
-      {/* 3. Main Clinical Consultation Workspace Card — ChatGPT/Gemini-Style Docked Layout */}
-      <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200/90 shadow-[0_8px_30px_rgba(0,107,99,0.04)] flex flex-col h-[calc(100dvh-250px)] min-h-[400px] sm:h-[calc(100vh-185px)] sm:min-h-[540px] max-h-[850px] overflow-hidden relative font-['Plus_Jakarta_Sans']">
+      {/* 3. Main Clinical Consultation Workspace Card — Apple HIG Layered Surface */}
+      <div className="relative flex flex-col overflow-hidden rounded-[2rem] border border-black/[0.06] bg-[#FBFBFD] shadow-[0_4px_24px_rgba(0,0,0,0.03),0_1px_3px_rgba(0,0,0,0.02)] h-[calc(100dvh-250px)] min-h-[400px] sm:h-[calc(100vh-185px)] sm:min-h-[540px] max-h-[850px]">
         {/* Scrollable Conversational Message Stream */}
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="mentor-messages-scroller flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-6 scroll-smooth overscroll-contain relative"
+          className="mentor-messages-scroller flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 space-y-5 scroll-smooth overscroll-contain relative"
         >
           {messages.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, ease: 'easeOut' }}
-              className="flex flex-col items-center justify-start py-5 sm:py-8 px-4 text-center space-y-4 sm:space-y-5 w-full relative"
+              className="w-full px-2 py-4 sm:py-6"
             >
-              {/* Subtle Clinical Background Architecture Grid & Faint Waveform */}
-              <div className="pointer-events-none absolute inset-0 opacity-[0.03] bg-[radial-gradient(#006b63_1px,transparent_1px)] [background-size:20px_20px]" aria-hidden="true" />
-              <div className="pointer-events-none absolute top-12 left-1/2 -translate-x-1/2 w-96 h-44 rounded-full bg-teal-500/5 blur-3xl" aria-hidden="true" />
-
-              {/* Faint Decorative ECG Trace Motif */}
-              <div className="pointer-events-none absolute top-20 left-0 right-0 h-16 opacity-[0.04] overflow-hidden flex items-center justify-center select-none" aria-hidden="true">
-                <svg viewBox="0 0 1000 60" className="w-full h-full text-[#006B63]" fill="none">
-                  <path
-                    d="M 0 30 L 180 30 L 195 18 L 210 44 L 225 6 L 240 52 L 255 26 L 270 34 L 285 30 L 480 30 L 495 18 L 510 44 L 525 6 L 540 52 L 555 26 L 570 34 L 585 30 L 780 30 L 795 18 L 810 44 L 825 6 L 840 52 L 855 26 L 870 34 L 885 30 L 1000 30"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-
-              {/* Faculty Insignia with Animated Ambient Glow */}
-              <motion.div
-                initial={{ scale: 0.85, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', damping: 16, stiffness: 200 }}
-                className="relative flex items-center justify-center z-10"
-              >
-                <div className="absolute inset-0 rounded-2xl bg-teal-500/20 blur-xl animate-pulse" />
-                <div className="relative h-14 w-14 rounded-2xl bg-gradient-to-tr from-[#006B63] to-[#008f84] text-white flex items-center justify-center shadow-lg shadow-teal-900/15">
-                  <GraduationCap className="h-7 w-7 stroke-[2.2]" />
+              <div className="flex items-center justify-between pb-3.5 max-w-3xl mx-auto px-1">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-[#007AFF] animate-pulse" />
+                  <span className="text-[12px] font-bold uppercase tracking-wider text-[#6E6E73]">
+                    High-Yield Clinical Scenarios
+                  </span>
                 </div>
-              </motion.div>
-
-              <div className="max-w-lg space-y-1.5 z-10">
-                <h2 className="text-2xl sm:text-3xl font-extrabold font-['Outfit'] text-slate-900 tracking-tight">
-                  Faculty Clinical Desk
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-sans max-w-md mx-auto">
-                  Instant FMGE clinical guidance, disease mechanisms, differential dilemmas, and real-time distractor analysis.
-                </p>
+                <span className="text-[12px] text-[#8E8E93] font-medium hidden sm:inline">
+                  Select a scenario to start consultation
+                </span>
               </div>
 
-              {/* 4 Contextual Quick Starters with Staggered Motion */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full max-w-2xl sm:max-w-3xl text-left pt-1 z-10">
+              {/* Bento Grid: 2x2 Clean Apple Bento Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-w-3xl mx-auto">
                 {contextualStarters.map((starter, sIdx) => {
                   const Icon = starter.icon;
+                  const h = MENTOR_HUES[starter.hue];
                   return (
                     <motion.button
                       key={sIdx}
                       type="button"
-                      initial={{ opacity: 0, y: 12 }}
+                      initial={reducedMotion ? false : { opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.06 * sIdx, duration: 0.25 }}
-                      whileHover={{ y: -3, scale: 1.01 }}
-                      whileTap={{ scale: 0.98 }}
+                      transition={
+                        reducedMotion
+                          ? { duration: 0 }
+                          : { ...SPRING_SMOOTH, delay: Math.min(sIdx * 0.045, 0.3) }
+                      }
+                      whileHover={
+                        reducedMotion ? undefined : { y: -3, transition: SPRING_SMOOTH }
+                      }
+                      whileTap={
+                        reducedMotion ? undefined : { scale: 0.985, transition: SPRING_SNAPPY }
+                      }
                       onClick={() => handleSendMessage(starter.query)}
-                      className="relative p-4 sm:p-4.5 rounded-2xl bg-slate-50/70 hover:bg-white backdrop-blur-md border border-slate-200/90 hover:border-teal-300 transition-all duration-200 text-left group cursor-pointer shadow-2xs hover:shadow-md flex flex-col justify-between overflow-hidden"
+                      className={cn(
+                        'group relative flex flex-col justify-between rounded-2xl border border-black/[0.06] bg-white p-5 text-left',
+                        'shadow-[0_2px_8px_rgba(0,0,0,0.02),0_1px_2px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.02)]',
+                        'hover:border-black/[0.12] transition-all duration-200 cursor-pointer',
+                        'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent',
+                      )}
                     >
-                      {/* Subtle hover accent shimmer */}
-                      <div className="absolute top-0 left-4 right-4 h-[2px] bg-transparent group-hover:bg-gradient-to-r group-hover:from-transparent group-hover:via-teal-400 group-hover:to-transparent transition-all" />
-
                       <div>
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className={`text-[9.5px] font-bold tracking-wider uppercase font-mono px-2.5 py-0.5 rounded-full inline-block border ${starter.badgeStyle}`}>
+                        <div className="flex items-start justify-between gap-3 mb-3.5">
+                          <span
+                            aria-hidden="true"
+                            className="grid size-10 shrink-0 place-items-center rounded-xl shadow-xs transition-transform duration-200 group-hover:scale-105"
+                            style={{
+                              background: h.tint,
+                              border: `1px solid color-mix(in srgb, ${h.bar} 24%, transparent)`,
+                            }}
+                          >
+                            <Icon className="size-5 stroke-[2]" style={{ color: h.bar }} />
+                          </span>
+                          <span
+                            className="text-[11px] font-semibold tracking-normal px-2.5 py-0.5 rounded-full"
+                            style={{
+                              background: h.tint,
+                              color: h.bar,
+                            }}
+                          >
                             {starter.category}
                           </span>
-                          <div className="h-6 w-6 rounded-lg bg-teal-50/80 border border-teal-100 flex items-center justify-center text-[#006B63] group-hover:scale-110 transition-transform">
-                            <Icon className="h-3.5 w-3.5" />
-                          </div>
                         </div>
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-teal-950 font-['Outfit'] leading-snug">
-                          {starter.title}
-                        </h4>
-                        <p className="text-[11.5px] text-slate-500 mt-1 line-clamp-2 leading-relaxed font-sans">
-                          {starter.description}
-                        </p>
+
+                        <div className="space-y-1.5">
+                          <div className="text-[15px] sm:text-[16px] font-bold leading-snug text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors">
+                            {starter.title}
+                          </div>
+                          <p className="text-[12.5px] sm:text-[13px] leading-relaxed text-[#6E6E73] line-clamp-2">
+                            {starter.description}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#006B63] group-hover:text-[#005049] pt-3">
+
+                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-black/[0.05] text-[12px] font-semibold text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors">
                         <span>Start consultation</span>
-                        <span className="transition-transform group-hover:translate-x-1">→</span>
+                        <span className="grid size-6 place-items-center rounded-full bg-black/[0.04] group-hover:bg-[#007AFF] group-hover:text-white transition-all">
+                          <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+                        </span>
                       </div>
                     </motion.button>
                   );
@@ -1951,57 +1993,56 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             {/* User Bubble */}
             {msg.role === 'user' ? (
               <div className="flex items-start gap-2.5 sm:gap-3 max-w-2xl sm:max-w-3xl justify-start">
-                <div className="h-8 w-8 rounded-full bg-slate-800 text-white text-xs font-bold font-['Outfit'] flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                <div className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-[var(--color-ink)] text-[11px] font-semibold text-white">
                   {userInitials}
                 </div>
-                <div className="flex flex-col items-start space-y-1 min-w-0 max-w-full">
-                  <div className="bg-[#ebf5fb]/90 backdrop-blur-xs border border-sky-100/90 text-slate-800 rounded-2xl px-3.5 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_6px_rgba(0,0,0,0.02)] leading-relaxed space-y-2 break-words max-w-full">
+                <div className="flex min-w-0 max-w-full flex-col items-start gap-1">
+                  <div className="max-w-full space-y-2 break-words rounded-2xl border border-[color-mix(in_srgb,var(--accent)_22%,transparent)] bg-[color-mix(in_srgb,var(--accent)_8%,white)] px-3.5 py-2.5 text-sm leading-relaxed text-[var(--color-ink)] sm:px-5 sm:py-3">
                     {msg.userAttachedImage && (
                       <div
-                        className="relative group rounded-xl overflow-hidden border border-slate-300 max-w-xs cursor-zoom-in bg-slate-950 shadow-inner"
+                        className="group relative max-w-xs cursor-zoom-in overflow-hidden rounded-xl border border-[var(--color-hairline)] bg-black"
                         onClick={() => setActiveModalImage({ isOpen: true, imageUrl: msg.userAttachedImage!.url, title: msg.userAttachedImage!.fileName || 'Uploaded Medical Investigation' })}
                       >
                         <img
                           src={msg.userAttachedImage.url}
                           alt={msg.userAttachedImage.fileName || 'Attached Investigation'}
-                          className="w-full h-auto max-h-48 object-cover rounded-xl transition-transform duration-200 group-hover:scale-105"
+                          className="max-h-48 w-full rounded-xl object-cover transition-transform duration-200 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-xs font-semibold">
-                          <Maximize2 className="h-3.5 w-3.5" />
-                          <span>Click to Zoom</span>
+                        <div className="absolute inset-0 flex items-center justify-center gap-1.5 bg-black/45 text-xs font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100">
+                          <Maximize2 className="size-3.5" />
+                          <span>Click to zoom</span>
                         </div>
                       </div>
                     )}
-                    {msg.content && <p className="font-sans whitespace-pre-wrap">{msg.content}</p>}
-                    <div className="flex items-center justify-end gap-1 pt-0.5 text-[10px] font-mono text-slate-400">
+                    {msg.content && <p className="whitespace-pre-wrap">{msg.content}</p>}
+                    <div className="t-num-xxs flex items-center justify-end gap-1 pt-0.5 text-[var(--color-ink-4)]">
                       <span>{formatMessageTime(msg.timestamp)}</span>
-                      <CheckCheck className="h-3.5 w-3.5 text-sky-500" />
+                      <CheckCheck className="size-3.5 text-accent" />
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
               /* Faculty Mentor Card */
-              <div className="flex items-start gap-2.5 sm:gap-3 w-full">
-                <div className="h-8 w-8 rounded-full bg-[#182329] text-white flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
-                  <GraduationCap className="h-4 w-4" />
-                </div>
-                <div className="flex-1 min-w-0 space-y-3">
+              <div className="flex w-full items-start gap-2.5 sm:gap-3">
+                <IconTile icon={GraduationCap} size={32} color="var(--accent)" className="mt-0.5 rounded-full" />
+                <div className="min-w-0 flex-1 space-y-3">
                   <div className="flex items-center justify-between pb-1">
                     <div className="flex flex-col">
-                      <span className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit']">Faculty Mentor</span>
+                      <span className="t-section text-[var(--color-ink)]">Faculty Mentor</span>
                       {isLoading && !msg.content ? (
-                        <div className="flex items-center gap-1.5 text-xs text-[#006080] font-medium pt-0.5">
-                          <span>Faculty Mentor: Reviewing the clinical reasoning…</span>
-                          <span className="inline-flex gap-1 items-center">
-                            <span className="h-1.5 w-1.5 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <span className="h-1.5 w-1.5 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <span className="h-1.5 w-1.5 rounded-full bg-teal-600 animate-bounce" style={{ animationDelay: '300ms' }} />
+                        <div className="flex items-center gap-1.5 pt-0.5 text-xs font-medium text-accent">
+                          <span className="sr-only">Faculty Mentor: Reviewing the clinical reasoning…</span>
+                          <span aria-hidden="true">Reviewing the clinical reasoning…</span>
+                          <span className="inline-flex items-center gap-1" aria-hidden="true">
+                            <span className="size-1.5 animate-bounce rounded-full bg-accent" style={{ animationDelay: '0ms' }} />
+                            <span className="size-1.5 animate-bounce rounded-full bg-accent" style={{ animationDelay: '150ms' }} />
+                            <span className="size-1.5 animate-bounce rounded-full bg-accent" style={{ animationDelay: '300ms' }} />
                           </span>
                         </div>
                       ) : isLoading && msg.content ? (
-                        <div className="flex items-center gap-1.5 text-xs text-[#006B63] font-medium pt-0.5">
-                          <span>Responding...</span>
+                        <div className="flex items-center gap-1.5 pt-0.5 text-xs font-medium text-accent">
+                          <span>Responding…</span>
                           <span className="inline-flex gap-1 items-center">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
                           </span>
@@ -2093,25 +2134,17 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
                   {/* Proper Markdown Output via MarkdownRenderer, Error Notice with Retry, or Streaming Indicator */}
                   {msg.isError ? (
-                    <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-slate-800 space-y-2.5">
-                      <div className="flex items-center gap-2 text-amber-900 font-bold font-['Outfit'] text-xs sm:text-sm">
-                        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                        <span>Faculty Mentor Notice</span>
+                    <div className="space-y-2.5 rounded-2xl border border-amber-200/70 bg-amber-50/60 p-4">
+                      <div className="flex items-center gap-2 text-amber-900">
+                        <IconTile icon={AlertCircle} size={22} color="var(--color-warn-ink)" />
+                        <span className="t-section">Faculty Mentor notice</span>
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
-                        {msg.content}
-                      </p>
+                      <p className="text-sm leading-relaxed text-[var(--color-ink-2)]">{msg.content}</p>
                       {msg.retryQuery && (
-                        <div className="pt-1">
-                          <button
-                            type="button"
-                            onClick={() => handleRetry(msg.retryQuery)}
-                            className="px-4 py-1.5 rounded-xl bg-[#006B63] hover:bg-[#00524c] text-white text-xs font-bold font-['Outfit'] transition-all shadow-2xs hover:shadow-xs cursor-pointer active:scale-95 flex items-center gap-1.5"
-                          >
-                            <RotateCw className="w-3 h-3" />
-                            <span>Try Again</span>
-                          </button>
-                        </div>
+                        <Button variant="primary" size="sm" onClick={() => handleRetry(msg.retryQuery)}>
+                          <RotateCw className="size-3.5" />
+                          Try again
+                        </Button>
                       )}
                     </div>
                   ) : msg.content ? (
@@ -2120,10 +2153,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
 
                       {/* Contextual High-Yield Active Recall Chips */}
                       {!isLoading && !msg.isError && msg.content && (
-                        <div className="flex flex-wrap items-center gap-2 pt-2.5 border-t border-slate-100/90 mt-3.5">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
-                            Active Recall:
-                          </span>
+                        <div className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-[var(--color-hairline-soft)] pt-3">
+                          <span className="t-eyebrow text-[var(--color-ink-4)]">Active Recall:</span>
                           <button
                             type="button"
                             onClick={() =>
@@ -2131,10 +2162,11 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                                 'Generate a high-yield FMGE clinical vignette MCQ on this topic with 4 options (A, B, C, D) and distractor analysis.'
                               )
                             }
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-teal-50/80 hover:bg-teal-100/90 text-[#006B63] border border-teal-200/60 text-[11px] font-bold font-['Outfit'] transition-all active:scale-95 cursor-pointer shadow-2xs"
+                            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors hover:brightness-95 active:scale-[0.97]"
+                            style={chipStyle(RECALL_HUE.mcq)}
                             title="Test your recall with an exam-style MCQ"
                           >
-                            <HelpCircle className="w-3 h-3 text-[#006B63]" />
+                            <HelpCircle className="size-3" />
                             <span>Quiz me on this</span>
                           </button>
                           <button
@@ -2144,10 +2176,11 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                                 'What are the common FMGE examiner traps, high-yield look-alikes, and distractor pitfalls for this condition?'
                               )
                             }
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-50/80 hover:bg-amber-100/90 text-amber-800 border border-amber-200/60 text-[11px] font-bold font-['Outfit'] transition-all active:scale-95 cursor-pointer shadow-2xs"
+                            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors hover:brightness-95 active:scale-[0.97]"
+                            style={chipStyle(RECALL_HUE.traps)}
                             title="See common exam tricks and traps"
                           >
-                            <ShieldAlert className="w-3 h-3 text-amber-600" />
+                            <ShieldAlert className="size-3" />
                             <span>FMGE Traps</span>
                           </button>
                           <button
@@ -2157,22 +2190,23 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                                 'What is the first-line Drug of Choice (DOC) and emergency management protocol for this condition according to latest guidelines?'
                               )
                             }
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50/80 hover:bg-emerald-100/90 text-emerald-800 border border-emerald-200/60 text-[11px] font-bold font-['Outfit'] transition-all active:scale-95 cursor-pointer shadow-2xs"
+                            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors hover:brightness-95 active:scale-[0.97]"
+                            style={chipStyle(RECALL_HUE.doc)}
                             title="First-line pharmacotherapy & management"
                           >
-                            <Pill className="w-3 h-3 text-emerald-600" />
+                            <Pill className="size-3" />
                             <span>DOC & Protocol</span>
                           </button>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="flex items-center gap-3 py-3 px-4 rounded-2xl bg-teal-50/60 border border-teal-100 text-xs font-medium text-teal-900 shadow-2xs animate-fadeIn">
-                      <span className="flex h-2.5 w-2.5 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#006B63] opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#006B63]" />
+                    <div className="flex items-center gap-3 rounded-2xl border border-[color-mix(in_srgb,var(--accent)_22%,transparent)] bg-[color-mix(in_srgb,var(--accent)_8%,white)] px-4 py-3 text-xs font-medium text-accent">
+                      <span className="relative flex size-2.5">
+                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-75" />
+                        <span className="relative inline-flex size-2.5 rounded-full bg-accent" />
                       </span>
-                      <span className="font-semibold">Reviewing clinical guidelines and differential points...</span>
+                      <span className="font-semibold">Reviewing clinical guidelines and differential points…</span>
                     </div>
                   )}
 
@@ -2198,10 +2232,10 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                         type="button"
                         onClick={() => handleSendMessage(followUp)}
                         disabled={isLoading}
-                        className="px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-slate-300 rounded-full text-xs text-slate-700 font-medium transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer disabled:opacity-50 flex items-center gap-1.5 max-w-full text-left"
+                        className="flex max-w-full cursor-pointer items-center gap-1.5 rounded-full border border-[var(--color-hairline)] bg-white px-3.5 py-1.5 text-xs font-medium text-[var(--color-ink-2)] shadow-e1 transition-colors hover:border-accent/30 hover:text-[var(--color-ink)] active:scale-[0.97] disabled:opacity-50"
                       >
-                        <span className="truncate max-w-[260px] sm:max-w-lg">{followUp}</span>
-                        <span className="text-slate-400 text-xs shrink-0">→</span>
+                        <span className="max-w-[260px] truncate sm:max-w-lg">{followUp}</span>
+                        <ArrowRight className="size-3 shrink-0 text-[var(--color-ink-4)]" />
                       </button>
                     ))}
                   </div>
@@ -2217,28 +2251,42 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       </div>
 
       {/* 4. Bottom Docked ChatGPT / Gemini Dynamic Asking Bar & Floating Cursor */}
-      <div className="relative shrink-0 border-t border-slate-200/80 bg-white/90 backdrop-blur-xl px-3 sm:px-5 py-2 sm:py-2.5 z-20 shadow-[0_-4px_20px_rgba(0,107,99,0.03)]">
-        {/* Soft upward gradient scrim so scrolling text fades smoothly behind the bar */}
-        <div className="pointer-events-none absolute -top-7 left-0 right-0 h-7 bg-gradient-to-t from-white via-white/80 to-transparent" />
+      <div className="relative z-20 shrink-0 border-t border-[var(--color-hairline)] bg-white px-3 py-2 sm:px-5 sm:py-2.5">
+        {/* Soft upward scrim so scrolling text fades smoothly behind the bar */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-7 inset-x-0 h-7 bg-gradient-to-t from-white via-white/80 to-transparent"
+        />
 
         {/* Quick "Ask New" Jump Button — only shown when user is scrolled up away from bottom */}
         <AnimatePresence>
           {showScrollBottom && (
             <motion.button
               type="button"
-              initial={{ opacity: 0, y: 8, scale: 0.88 }}
+              initial={reducedMotion ? false : { opacity: 0, y: 8, scale: 0.88 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 6, scale: 0.88 }}
-              transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+              exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.88 }}
+              transition={
+                reducedMotion ? { duration: 0 } : { ...SPRING_SNAPPY, mass: 0.7 }
+              }
+              whileHover={reducedMotion ? undefined : { scale: 1.04, transition: SPRING_SNAPPY }}
+              whileTap={reducedMotion ? undefined : { scale: 0.94, transition: SPRING_SNAPPY }}
               onClick={handleQuickAskNew}
-              className="absolute right-5 sm:right-7 -top-11 z-30 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#00685F] hover:bg-[#00554E] text-white shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer group text-xs font-bold font-['Outfit']"
+              className="group absolute -top-11 right-5 z-30 flex cursor-pointer items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_4px_14px_color-mix(in_srgb,var(--accent)_38%,transparent)] transition-transform hover:brightness-105 active:scale-95 sm:right-7"
               title="Jump to ask bar to ask something new"
               aria-label="Ask new question"
             >
-              <Plus className="h-3.5 w-3.5 stroke-[2.5] group-hover:rotate-90 transition-transform duration-150" />
-              <span className="text-[11px] font-bold font-['Outfit']">Ask New</span>
+              <motion.span
+                className="inline-flex"
+                {...(reducedMotion
+                  ? {}
+                  : { whileHover: { rotate: 90 }, transition: SPRING_SNAPPY })}
+              >
+                <Plus className="size-3.5 stroke-[2.5]" />
+              </motion.span>
+              <span className="text-[11px] font-semibold">Ask new</span>
               <span className="sr-only">Latest message</span>
-              <ChevronDown className="h-3.5 w-3.5 text-teal-200/90 group-hover:translate-y-0.5 transition-transform" />
+              <ChevronDown className="size-3.5 text-white/80 transition-transform group-hover:translate-y-0.5" />
             </motion.button>
           )}
         </AnimatePresence>
@@ -2263,9 +2311,6 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       </div>
       </main>
 
-      {/* 5. Editorial Clinical Value Propositions Banner */}
-      <MentorValuePropsBanner />
-
       {/* Modal Image Zoom Lightbox */}
       <MedicalImageViewerModal
         isOpen={activeModalImage.isOpen}
@@ -2283,10 +2328,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         onClose={() => setIsHistoryOpen(false)}
         onNewSession={handleNewSession}
         sessions={sessions}
-        filteredSessions={filteredSessions}
         activeSessionId={activeSessionId}
-        searchQuery={historySearch}
-        onSearchChange={setHistorySearch}
         onSelectSession={handleSelectSession}
         onDeleteSession={handleDeleteSession}
         onTogglePinSession={handleTogglePinSession}

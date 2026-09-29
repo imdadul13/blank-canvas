@@ -76,7 +76,7 @@ export const TelegramSubjectCollections: React.FC<TelegramSubjectCollectionsProp
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-serif text-base sm:text-lg font-bold text-slate-900">
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
             Recently Added Subjects
           </h3>
           <p className="text-xs text-slate-500">
@@ -86,7 +86,7 @@ export const TelegramSubjectCollections: React.FC<TelegramSubjectCollectionsProp
         <button
           type="button"
           onClick={() => setShowAll(!showAll)}
-          className="text-xs font-semibold text-[#00685f] hover:text-[#005049] flex items-center gap-1 cursor-pointer transition-colors"
+          className="text-xs font-semibold text-[#0284C7] hover:text-[#0369A1] flex items-center gap-1 cursor-pointer transition-colors"
         >
           {showAll ? "Show Less ↑" : "View All Subjects →"}
         </button>
@@ -115,7 +115,7 @@ export const TelegramSubjectCollections: React.FC<TelegramSubjectCollectionsProp
               }}
               className={`h-full rounded-2xl border p-3 sm:p-3.5 text-left transition-all cursor-pointer flex items-center justify-between group ${
                 isSelected
-                  ? "bg-[#ECF7F5] border-[#00685f] shadow-xs ring-1 ring-[#00685f]"
+                  ? "bg-sky-500/[0.08] border-[#0284C7] shadow-xs ring-1 ring-[#0284C7]"
                   : "bg-white border-stone-200/90 hover:border-stone-300 hover:shadow-2xs"
               }`}
             >
@@ -136,7 +136,7 @@ export const TelegramSubjectCollections: React.FC<TelegramSubjectCollectionsProp
               <ChevronRight
                 className={`w-3.5 h-3.5 transition-transform ${
                   isSelected
-                    ? "text-[#00685f] translate-x-0.5"
+                    ? "text-[#0284C7] translate-x-0.5"
                     : "text-stone-300 group-hover:text-stone-500"
                 }`}
               />

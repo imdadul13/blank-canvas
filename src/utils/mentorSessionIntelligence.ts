@@ -39,7 +39,7 @@ const SUBJECT_KEYWORDS: Array<{
   {
     name: 'Pharmacology',
     code: 'PHARM',
-    color: '#0D9488',
+    color: '#10B981',
     patterns: [
       /\b(drug|doc|pharmacology|pharm|mechanism of action|toxicity|adverse effect|side effect|contraindicated|beta blocker|antibiotic|pritchard|adenosine|amiodarone|steroid|aspirin)\b/i,
     ],
@@ -167,7 +167,7 @@ const SUBJECT_KEYWORDS: Array<{
   {
     name: 'General Medicine',
     code: 'MED',
-    color: '#006B63',
+    color: '#007AFF',
     patterns: [
       /\b(medicine|cardio|ecg|heart block|stemi|nstemi|myocardial|diabetes|hypertension|nephrotic|nephritic|crohn|colitis|sle|sjögren|sjogren|stroke|status epilepticus)\b/i,
     ],
@@ -238,7 +238,7 @@ export function extractSessionIntelligence(session: CoachSession): SessionIntell
   // 4. Detect Subject
   let subjectName = session.quizSession?.subject || session.subject || '';
   let subjectCode = 'FMGE';
-  let subjectColor = '#006B63';
+  let subjectColor = '#007AFF';
 
   if (!subjectName) {
     for (const sub of SUBJECT_KEYWORDS) {
@@ -260,7 +260,7 @@ export function extractSessionIntelligence(session: CoachSession): SessionIntell
   if (!subjectName) {
     subjectName = 'Clinical Medicine';
     subjectCode = 'MED';
-    subjectColor = '#006B63';
+    subjectColor = '#007AFF';
   }
 
   // 5. Detect Intent

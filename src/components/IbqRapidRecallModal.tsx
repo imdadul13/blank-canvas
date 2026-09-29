@@ -141,7 +141,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-base font-bold text-slate-900 font-['Outfit']">
+                  <h2 className="text-base font-bold text-slate-900 tracking-tight">
                     IBQ Rapid Recall Drill
                   </h2>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 uppercase tracking-wider">
@@ -279,7 +279,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
 
                   {/* Vignette Stem */}
                   <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-sm text-slate-800 leading-relaxed font-sans">
-                    <span className="font-bold text-teal-950 font-['Outfit'] block mb-1">
+                    <span className="font-bold text-slate-900 block mb-1">
                       Clinical Vignette:
                     </span>
                     {currentItem.vignette}
@@ -291,9 +291,9 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                   {drillMode === 'flashcard' ? (
                     /* FLASHCARD MODE */
                     <div className="space-y-4">
-                      <div className="p-4 bg-teal-50/50 rounded-2xl border border-teal-200/60 text-xs text-teal-900 space-y-1">
-                        <p className="font-bold text-teal-950 flex items-center gap-1.5">
-                          <Eye className="h-4 w-4 text-teal-700" />
+                      <div className="p-4 bg-blue-500/[0.04] rounded-2xl border border-blue-500/15 text-xs text-blue-950 space-y-1">
+                        <p className="font-bold text-blue-950 flex items-center gap-1.5">
+                          <Eye className="h-4 w-4 text-[#007AFF]" />
                           <span>Active Recall Challenge</span>
                         </p>
                         <p>
@@ -307,7 +307,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setIsRevealed(true)}
-                          className="w-full py-4 bg-teal-700 hover:bg-teal-800 text-white rounded-2xl font-bold font-['Outfit'] text-sm shadow-md shadow-teal-700/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                          className="w-full py-3.5 bg-[#007AFF] hover:bg-[#0062CC] text-white rounded-full font-bold text-sm shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                         >
                           <Zap className="h-4 w-4 text-amber-300" />
                           <span>Reveal Diagnosis & Buzzwords</span>
@@ -323,7 +323,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                             <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">
                               Diagnostic Answer
                             </span>
-                            <h3 className="text-base font-extrabold text-emerald-950 font-['Outfit'] mt-0.5">
+                            <h3 className="text-base font-extrabold text-emerald-950 tracking-tight mt-0.5">
                               {currentItem.options.find((o) => o.id === currentItem.correctOptionId)?.text ||
                                 currentItem.topic}
                             </h3>
@@ -332,7 +332,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                           {/* Image Finding */}
                           {currentItem.explanation.imageFinding && (
                             <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
-                              <span className="font-bold text-slate-900 block font-['Outfit']">
+                              <span className="font-bold text-slate-900 block">
                                 Key Visual Finding:
                               </span>
                               <p className="text-slate-700 leading-relaxed">
@@ -344,7 +344,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                           {/* High-Yield Buzzwords */}
                           {currentItem.explanation.highYieldBuzzwords && (
                             <div className="p-3.5 bg-amber-50/70 rounded-2xl border border-amber-200/80 text-xs space-y-2">
-                              <span className="font-bold text-amber-950 block font-['Outfit'] flex items-center gap-1.5">
+                              <span className="font-bold text-amber-950 block flex items-center gap-1.5">
                                 <Flame className="h-3.5 w-3.5 text-amber-600" />
                                 <span>High-Yield Buzzwords:</span>
                               </span>
@@ -376,7 +376,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                   ) : (
                     /* TIMED MCQ MODE */
                     <div className="space-y-2.5">
-                      <p className="text-xs font-bold text-slate-700 font-['Outfit'] mb-1">
+                      <p className="text-xs font-bold text-slate-700 mb-1">
                         Select the correct diagnosis:
                       </p>
                       {currentItem.options.map((option) => {
@@ -425,8 +425,8 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                           animate={{ opacity: 1, y: 0 }}
                           className="mt-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-2"
                         >
-                          <div className="flex items-center gap-1.5 font-bold text-slate-900 font-['Outfit']">
-                            <Award className="h-4 w-4 text-teal-700" />
+                          <div className="flex items-center gap-1.5 font-bold text-slate-900">
+                            <Award className="h-4 w-4 text-[#007AFF]" />
                             <span>Diagnostic Takeaway</span>
                           </div>
                           <p className="text-slate-700 leading-relaxed">
@@ -448,9 +448,9 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                           currentItem.topic
                         );
                       }}
-                      className="mt-2 py-2 px-3 bg-teal-50 hover:bg-teal-100 border border-teal-200/80 rounded-xl text-teal-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      className="mt-2 py-2 px-3 bg-blue-500/[0.08] hover:bg-blue-500/15 border border-blue-500/20 rounded-xl text-[#007AFF] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
-                      <MessageSquare className="h-3.5 w-3.5 text-teal-700" />
+                      <MessageSquare className="h-3.5 w-3.5 text-[#007AFF]" />
                       <span>Ask Faculty Mentor about this sign</span>
                     </button>
                   )}
@@ -484,7 +484,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
 
             <button
               onClick={handleNext}
-              className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold font-['Outfit'] shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
             >
               <span>{currentIndex < filteredQuestions.length - 1 ? 'Next Image' : 'Start Over'}</span>
               <ChevronRight className="h-4 w-4" />
@@ -505,7 +505,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                 className="max-h-[85vh] max-w-full object-contain rounded-2xl shadow-2xl border border-white/20"
               />
               <div className="absolute bottom-4 left-4 right-4 p-3 bg-black/75 backdrop-blur-md rounded-xl text-white text-xs font-sans text-center">
-                <span className="font-bold text-teal-300 font-['Outfit'] mr-2">{currentItem.topic}:</span>
+                <span className="font-bold text-sky-300 mr-2">{currentItem.topic}:</span>
                 {currentItem.explanation.imageFinding || currentItem.vignette}
               </div>
             </div>

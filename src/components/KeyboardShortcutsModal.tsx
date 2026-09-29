@@ -116,11 +116,11 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ 
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/60">
             <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-xl bg-teal-50 border border-teal-200/80 flex items-center justify-center text-[#006B63] shadow-2xs">
+              <div className="h-8 w-8 rounded-xl bg-blue-500/[0.08] border border-blue-500/20 flex items-center justify-center text-[#007AFF] shadow-2xs">
                 <Keyboard className="h-4 w-4" />
               </div>
               <div>
-                <h3 id="shortcuts-title" className="text-sm font-bold text-slate-900 font-['Outfit']">
+                <h3 id="shortcuts-title" className="text-sm font-bold text-slate-900 tracking-tight">
                   Keyboard Shortcuts
                 </h3>
                 <p className="text-[11px] text-slate-400">Power-user keybindings for high-speed FMGE revision</p>

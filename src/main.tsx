@@ -6,7 +6,7 @@ import './index.css';
 // Dynamic favicon cache buster to force Chrome/Safari to refresh tab icon immediately
 if (typeof window !== 'undefined') {
   try {
-    const buildTs = '20260909c';
+    const buildTs = '20260929_apple_blue';
     const iconLinks = document.querySelectorAll<HTMLLinkElement>(
       "link[rel*='icon'], link[rel='apple-touch-icon'], link[rel='shortcut icon']"
     );

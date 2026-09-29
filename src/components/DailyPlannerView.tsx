@@ -440,8 +440,8 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <stop offset="100%" stopColor="#78350F" />
                 </linearGradient>
                 <linearGradient id="planner-hills" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#0F766E" stopOpacity="0.55" />
-                  <stop offset="100%" stopColor="#064E3B" stopOpacity="0.85" />
+                  <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.55" />
+                  <stop offset="100%" stopColor="#1D4ED8" stopOpacity="0.85" />
                 </linearGradient>
                 <radialGradient id="planner-sun-glow" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.75" />
@@ -586,9 +586,9 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               {/* ═══ 4. STEAMING MORNING TEA / COFFEE MUG ═══ */}
               <g transform="translate(285, 118)">
                 {/* Porcelain Cup Body */}
-                <rect x="-8" y="0" width="16" height="14" rx="2" fill="#FFFFFF" stroke="#0F766E" strokeWidth="0.8" />
+                <rect x="-8" y="0" width="16" height="14" rx="2" fill="#FFFFFF" stroke="#94A3B8" strokeWidth="0.8" />
                 {/* Handle */}
-                <path d="M -8 3 C -13 3, -13 11, -8 11" stroke="#0F766E" strokeWidth="1.2" fill="none" />
+                <path d="M -8 3 C -13 3, -13 11, -8 11" stroke="#94A3B8" strokeWidth="1.2" fill="none" />
 
                 {/* Rising Fragrant Steam Curl 1 */}
                 <motion.path
@@ -635,7 +635,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer border ${
                     circadian.isNight
                       ? 'bg-slate-900/90 text-cyan-300 border-sky-800/70 hover:bg-slate-800'
-                      : 'bg-white/95 text-[#006B63] border-teal-200/80 hover:bg-teal-50/80 shadow-2xs'
+                      : 'bg-white/95 text-[#007AFF] border-black/[0.08] hover:bg-black/[0.03] shadow-2xs'
                   }`}
                   title="Return to Home Overview"
                 >
@@ -707,7 +707,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             <div className="space-y-1.5 min-w-0">
               <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
                 <h1 className="text-xl sm:text-2xl lg:text-[26px] font-extrabold tracking-tight font-display leading-snug">
-                  <span className={circadian.isNight ? 'text-teal-300' : 'text-[#005B54]'}>TODAY’S PLAN </span>
+                  <span className={circadian.isNight ? 'text-blue-300' : 'text-[#007AFF]'}>TODAY’S PLAN </span>
                   <span className={circadian.isNight ? 'text-white' : 'text-slate-950'}>&amp; FOCUS</span>
                 </h1>
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase border shadow-2xs ${circadian.badgeBg} ${circadian.badgeBorder} ${circadian.badgeText}`}>
@@ -789,7 +789,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             onClick={() => setMobileTab('planner')}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               mobileTab === 'planner'
-                ? 'bg-[#00685f] text-white shadow-xs'
+                ? 'bg-[#007AFF] text-white shadow-xs'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
@@ -802,7 +802,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             onClick={() => setMobileTab('focus')}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               mobileTab === 'focus'
-                ? 'bg-[#00685f] text-white shadow-xs'
+                ? 'bg-[#007AFF] text-white shadow-xs'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
@@ -816,9 +816,9 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           <button
             type="button"
             onClick={() => setShowCalendarModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-stone-200/80 hover:border-stone-300 text-stone-700 hover:text-stone-900 text-xs font-bold shadow-2xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200/80 hover:border-stone-300 text-stone-700 hover:text-stone-900 text-xs font-bold shadow-2xs transition-all cursor-pointer"
           >
-            <Calendar className="w-3.5 h-3.5 text-[#00685f]" />
+            <Calendar className="w-3.5 h-3.5 text-[#007AFF]" />
             <span>View Calendar</span>
           </button>
         </div>
@@ -833,11 +833,11 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           }`}
         >
           {/* Card 1: Today's Personalized Plan + Top Priority */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] space-y-6">
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-6">
             {/* Card Header */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="p-2.5 rounded-2xl bg-[#ECF7F5] text-[#00685f] shrink-0 mt-0.5">
+                <div className="p-2.5 rounded-2xl bg-blue-500/[0.08] text-[#007AFF] border border-blue-500/20 shrink-0 mt-0.5">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
@@ -854,9 +854,9 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowAddTask(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold shadow-2xs transition-all cursor-pointer shrink-0"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer shrink-0 active:scale-95"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 stroke-[2.6]" />
                 <span>Add Task</span>
               </button>
             </div>
@@ -906,7 +906,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleStartTopPriority(topPriorityTask)}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#00685f] hover:bg-[#005049] text-white text-xs font-bold shadow-xs transition-all cursor-pointer self-stretch sm:self-auto"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white text-xs font-bold shadow-xs transition-all cursor-pointer self-stretch sm:self-auto active:scale-95"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
                     <span>Start Now</span>
@@ -919,7 +919,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <button
                   type="button"
                   onClick={handlePopulateFromPlan}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#00685f] text-white text-xs font-bold hover:bg-[#005049]"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#007AFF] text-white text-xs font-bold hover:bg-[#0062CC] transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Load More From Syllabus Plan</span>
@@ -929,12 +929,12 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           </div>
 
           {/* Card 2: Today's Tasks List with Progress */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] space-y-5">
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-5">
             {/* Header with Progress Bar */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-[#ECF7F5] text-[#00685f]">
+                  <div className="p-2 rounded-xl bg-blue-500/[0.08] text-[#007AFF] border border-blue-500/20">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
@@ -955,7 +955,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               {/* Progress Bar */}
               <div className="w-full h-2 rounded-full bg-stone-100 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-[#00685f] transition-all duration-500"
+                  className="h-full rounded-full bg-[#007AFF] transition-all duration-500"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -974,7 +974,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                       key={task.id}
                       className={`p-4 rounded-2xl border transition-all flex items-start justify-between gap-3 group ${
                         isActive
-                          ? 'border-[#00685f] bg-teal-50/30 ring-1 ring-[#00685f]/20'
+                          ? 'border-[#007AFF] bg-blue-500/[0.03] ring-1 ring-[#007AFF]/20'
                           : isCompleted
                           ? 'border-stone-200/70 bg-stone-50/50'
                           : 'border-stone-200/80 bg-white hover:border-stone-300'
@@ -988,7 +988,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                           aria-label={isCompleted ? 'Mark uncompleted' : 'Mark completed'}
                           className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-all cursor-pointer ${
                             isCompleted
-                              ? 'bg-[#00685f] text-white'
+                              ? 'bg-[#059669] text-white'
                               : 'border-2 border-stone-300 hover:border-stone-500 bg-white'
                           }`}
                         >
@@ -1063,7 +1063,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <button
                   type="button"
                   onClick={handlePopulateFromPlan}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00685f] hover:bg-[#005049] text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Load Today's Personalized Plan</span>
@@ -1114,26 +1114,26 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             mobileTab === 'focus' ? 'block' : 'hidden lg:block'
           }`}
         >
-          <div className="relative overflow-hidden bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,107,99,0.04)] space-y-6">
+          <div className="relative overflow-hidden bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-6">
             {/* Luminous Top Shimmer Track */}
             <div className="absolute top-0 left-0 right-0 h-[2px] overflow-hidden pointer-events-none" aria-hidden="true">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-500/25 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/25 to-transparent" />
               <motion.div
                 animate={{ x: ['-100%', '300%'] }}
                 transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1.2 }}
-                className="w-36 sm:w-56 h-full bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_12px_#2dd4bf]"
+                className="w-36 sm:w-56 h-full bg-gradient-to-r from-transparent via-blue-400 to-transparent shadow-[0_0_12px_rgba(0,122,255,0.4)]"
               />
             </div>
 
             {/* Card Header with Rotating Gyroscope & Status */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="relative p-2.5 rounded-2xl bg-teal-50/90 text-[#00685f] shrink-0 mt-0.5 border border-teal-200/70 shadow-2xs">
+                <div className="relative p-2.5 rounded-2xl bg-blue-500/[0.08] text-[#007AFF] shrink-0 mt-0.5 border border-blue-500/20 shadow-2xs">
                   {/* Rotating focus ring reticle */}
                   <motion.div
                     animate={{ rotate: isRunning ? 360 : 0 }}
                     transition={isRunning ? { duration: 12, repeat: Infinity, ease: 'linear' } : { duration: 0.4 }}
-                    className="absolute inset-0 rounded-2xl border border-dashed border-teal-400/60 pointer-events-none"
+                    className="absolute inset-0 rounded-2xl border border-dashed border-blue-400/60 pointer-events-none"
                   />
                   <motion.div
                     animate={isRunning ? { scale: [1, 1.08, 1], opacity: [0.85, 1, 0.85] } : { scale: 1, opacity: 1 }}
@@ -1179,7 +1179,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <button
                     type="button"
                     onClick={onOpenZenFocus}
-                    className="p-2 rounded-xl border border-teal-200/80 bg-teal-50/80 hover:bg-teal-100 text-[#006B63] text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs group"
+                    className="p-2 rounded-xl border border-black/[0.08] bg-white hover:bg-black/[0.03] text-[#007AFF] text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs group"
                     title="Enter Fullscreen Zen Study Sanctuary (⌘J)"
                   >
                     <Headphones className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
@@ -1229,7 +1229,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                       onClick={() => handleSoundToggle(s.id as any)}
                       className={`py-1.5 px-2 rounded-xl transition-all cursor-pointer ${
                         soundMode === s.id
-                          ? 'bg-[#00685f] text-white shadow-xs'
+                          ? 'bg-[#007AFF] text-white shadow-xs'
                           : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
                       }`}
                     >
@@ -1248,7 +1248,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                         onClick={() => handleModeChange('pomodoro', mins * 60)}
                         className={`px-2 py-0.5 rounded-lg font-mono text-[10px] font-bold ${
                           totalDuration === mins * 60 && timerMode === 'pomodoro'
-                            ? 'bg-[#00685f] text-white'
+                            ? 'bg-[#007AFF] text-white'
                             : 'bg-white border border-stone-200 text-stone-600'
                         }`}
                       >
@@ -1278,7 +1278,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                     cx="80"
                     cy="80"
                     r={radius}
-                    className="stroke-[#00685f] transition-all duration-300 ease-linear"
+                    className="stroke-[#007AFF] transition-all duration-300 ease-linear"
                     strokeWidth={strokeWidth}
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
@@ -1289,7 +1289,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
                 {/* Inside Circle Content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center space-y-1">
-                  <span className="text-[11px] font-mono font-extrabold uppercase tracking-widest text-[#00685f]">
+                  <span className="text-[11px] font-mono font-extrabold uppercase tracking-widest text-[#007AFF]">
                     {timerMode === 'pomodoro'
                       ? 'FOCUS'
                       : timerMode === 'short_break'
@@ -1313,7 +1313,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             {/* Current Study Task Banner */}
             {activeFocusTask && (
               <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#ECF7F5] text-[#00685f] flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/[0.08] text-[#007AFF] border border-blue-500/20 flex items-center justify-center shrink-0">
                   <BookOpen className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -1336,7 +1336,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsRunning(!isRunning)}
-                className="col-span-1 py-2.5 px-3 rounded-xl bg-[#00685f] hover:bg-[#005049] text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                className="col-span-1 py-2.5 px-3 rounded-xl bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
                 {isRunning ? (
                   <>
@@ -1411,48 +1411,48 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
 
               {/* 4 Metric Tiles Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {/* 1. Tasks completed */}
-                <div className="p-3 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-1">
-                  <div className="text-emerald-700">
-                    <CheckCircle2 className="w-4 h-4" />
+                {/* 1. Tasks completed (Emerald) */}
+                <div className="p-3.5 rounded-2xl bg-emerald-500/[0.06] border border-emerald-500/20 space-y-1.5 shadow-2xs">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                    <CheckCircle2 className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div className="font-mono text-base font-extrabold text-slate-900">
+                  <div className="font-mono text-base font-extrabold text-emerald-800 leading-tight">
                     {completedTaskCount}/{totalTaskCount}
                   </div>
-                  <div className="text-[10px] text-stone-500 font-medium">Tasks completed</div>
+                  <div className="text-[10.5px] text-emerald-700/80 font-medium">Tasks completed</div>
                 </div>
 
-                {/* 2. Study time */}
-                <div className="p-3 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-1">
-                  <div className="text-[#00685f]">
-                    <Clock className="w-4 h-4" />
+                {/* 2. Study time (Blue) */}
+                <div className="p-3.5 rounded-2xl bg-blue-500/[0.06] border border-blue-500/20 space-y-1.5 shadow-2xs">
+                  <div className="w-7 h-7 rounded-xl bg-blue-100 text-[#007AFF] flex items-center justify-center">
+                    <Clock className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div className="font-mono text-base font-extrabold text-slate-900">
+                  <div className="font-mono text-base font-extrabold text-[#007AFF] leading-tight">
                     {studyTimeFormatted}
                   </div>
-                  <div className="text-[10px] text-stone-500 font-medium">Study time</div>
+                  <div className="text-[10.5px] text-blue-700/80 font-medium">Study time</div>
                 </div>
 
-                {/* 3. Subjects covered */}
-                <div className="p-3 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-1">
-                  <div className="text-sky-600">
-                    <BookOpen className="w-4 h-4" />
+                {/* 3. Subjects covered (Indigo) */}
+                <div className="p-3.5 rounded-2xl bg-indigo-500/[0.06] border border-indigo-500/20 space-y-1.5 shadow-2xs">
+                  <div className="w-7 h-7 rounded-xl bg-indigo-100 text-[#5856D6] flex items-center justify-center">
+                    <BookOpen className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div className="font-mono text-base font-extrabold text-slate-900">
+                  <div className="font-mono text-base font-extrabold text-[#5856D6] leading-tight">
                     {uniqueSubjectsCount}
                   </div>
-                  <div className="text-[10px] text-stone-500 font-medium">Subjects covered</div>
+                  <div className="text-[10.5px] text-indigo-700/80 font-medium">Subjects covered</div>
                 </div>
 
-                {/* 4. Daily goal */}
-                <div className="p-3 rounded-2xl bg-stone-50 border border-stone-200/70 space-y-1">
-                  <div className="text-rose-600">
-                    <Target className="w-4 h-4" />
+                {/* 4. Daily goal (Amber) */}
+                <div className="p-3.5 rounded-2xl bg-amber-500/[0.06] border border-amber-500/20 space-y-1.5 shadow-2xs">
+                  <div className="w-7 h-7 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                    <Target className="w-4 h-4 stroke-[2.2]" />
                   </div>
-                  <div className="font-mono text-base font-extrabold text-slate-900">
+                  <div className="font-mono text-base font-extrabold text-amber-800 leading-tight">
                     {dailyGoalPercent}%
                   </div>
-                  <div className="text-[10px] text-stone-500 font-medium">Daily goal</div>
+                  <div className="text-[10.5px] text-amber-700/80 font-medium">Daily goal</div>
                 </div>
               </div>
             </div>
@@ -1469,7 +1469,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           }}
           aria-label="Focus Engine Quick Controls"
         >
-          <div className="px-4 py-2.5 rounded-2xl bg-white/95 backdrop-blur-md border border-stone-200/90 shadow-[0_8px_30px_rgba(0,0,0,0.10)] flex items-center justify-between gap-3 font-['Plus_Jakarta_Sans']">
+          <div className="px-4 py-2.5 rounded-2xl bg-white/95 backdrop-blur-md border border-stone-200/90 shadow-[0_8px_30px_rgba(0,0,0,0.10)] flex items-center justify-between gap-3 font-sans text-slate-900">
             {/* Left: Tappable to open the full Focus Engine */}
             <button
               type="button"
@@ -1477,8 +1477,8 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               className="flex items-center gap-2.5 min-w-0 flex-1 text-left cursor-pointer group"
               title="Open full Focus Engine"
             >
-              <div className="w-8 h-8 rounded-full bg-[#ECF7F5] text-[#00685f] flex items-center justify-center shrink-0 group-hover:bg-[#d8f0ec] transition-colors">
-                <Clock className="w-4 h-4 text-[#00685f]" />
+              <div className="w-8 h-8 rounded-full bg-blue-500/[0.08] text-[#007AFF] border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/15 transition-colors">
+                <Clock className="w-4 h-4 text-[#007AFF]" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
@@ -1501,7 +1501,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsRunning(!isRunning)}
-                className="w-10 h-10 rounded-full bg-[#00685f] hover:bg-[#005049] text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-95 transition-all"
+                className="w-10 h-10 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-95 transition-all"
                 title={isRunning ? 'Pause Focus Session' : 'Start Focus Session'}
                 aria-label={isRunning ? 'Pause' : 'Start'}
               >
@@ -1534,7 +1534,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-stone-200 space-y-4 animate-in zoom-in-95 duration-150">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 font-serif">Add Today’s Study Task</h3>
+                  <h3 className="text-lg font-bold text-slate-900">Add Today’s Study Task</h3>
                   <p className="text-xs text-stone-500 mt-0.5">Plan a high-yield study or MCQ block.</p>
                 </div>
                 <button
@@ -1555,7 +1555,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                     placeholder="e.g. Solve 50 MCQs of Cardiology ECGs"
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
-                    className="w-full h-10 px-3 bg-stone-50 border border-stone-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-[#00685f] focus:outline-none transition-all"
+                    className="w-full h-10 px-3 bg-stone-50 border border-stone-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-[#007AFF] focus:outline-none transition-all"
                   />
                 </div>
 
@@ -1629,7 +1629,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-[#00685f] hover:bg-[#005049] text-white rounded-xl font-bold shadow-xs cursor-pointer"
+                    className="px-5 py-2 bg-[#007AFF] hover:bg-[#0062CC] text-white rounded-xl font-bold shadow-xs cursor-pointer transition-colors"
                   >
                     Add Task
                   </button>
@@ -1647,10 +1647,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-stone-200 space-y-5 animate-in zoom-in-95 duration-150">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#00685f]">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#007AFF]">
                     STUDY CONSISTENCY CALENDAR
                   </span>
-                  <h3 className="text-xl font-bold font-serif text-slate-900 mt-0.5">
+                  <h3 className="text-xl font-bold text-slate-900 tracking-tight mt-0.5">
                     Daily Study Habit Tracker
                   </h3>
                 </div>
@@ -1664,7 +1664,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               </div>
 
               {/* Streak Hero Card */}
-              <div className="p-4 rounded-2xl bg-[#ECF7F5] border border-[#CBEBE5] flex items-center justify-between">
+              <div className="p-4 rounded-2xl bg-amber-500/[0.08] border border-amber-500/20 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
                     <Flame className="w-6 h-6 fill-amber-500 text-amber-500" />
@@ -1678,7 +1678,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                     </div>
                   </div>
                 </div>
-                <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-white text-[#00685f] border border-[#CBEBE5]">
+                <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-white text-amber-800 border border-amber-500/20">
                   {streakDays > 0 ? 'ACTIVE' : 'START TODAY'}
                 </span>
               </div>

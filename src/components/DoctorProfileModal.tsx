@@ -278,7 +278,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
             <div className="flex items-center gap-3.5 min-w-0">
               {/* Doctor Avatar with Apple ID-style Squircle */}
               <div className="relative shrink-0">
-                <div className="h-13 w-13 sm:h-14 sm:w-14 rounded-2xl bg-gradient-to-tr from-[#006B63] to-teal-500 text-white flex items-center justify-center font-display font-bold text-base sm:text-lg shadow-sm shadow-teal-900/20 overflow-hidden ring-2 ring-white">
+                <div className="h-13 w-13 sm:h-14 sm:w-14 rounded-2xl bg-gradient-to-tr from-[#007AFF] to-teal-500 text-white flex items-center justify-center font-display font-bold text-base sm:text-lg shadow-sm shadow-teal-900/20 overflow-hidden ring-2 ring-white">
                   {user?.photoURL || profile?.photoURL ? (
                     <img
                       src={user?.photoURL || profile?.photoURL || ''}
@@ -302,8 +302,8 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   <h3 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 truncate">
                     {formData.userName || 'Dr. Aspirant'}
                   </h3>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-teal-50 text-[#006B63] border border-teal-200/70 shrink-0">
-                    <ShieldCheck className="h-3 w-3 text-[#00685F]" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-teal-50 text-[#007AFF] border border-teal-200/70 shrink-0">
+                    <ShieldCheck className="h-3 w-3 text-[#0071E3]" />
                     FMGE 2026
                   </span>
                 </div>
@@ -356,7 +356,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
               <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">
                 Daily Goal
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#006B63] font-display">
+              <span className="text-xs sm:text-sm font-bold text-[#007AFF] font-display">
                 {formData.dailyStudyHourGoal || 6}h <span className="text-[10px] text-slate-400 font-normal">/day</span>
               </span>
             </div>
@@ -384,7 +384,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-[#006B63]' : 'text-slate-400'}`} />
+                  <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-[#007AFF]' : 'text-slate-400'}`} />
                   <span className="hidden sm:inline">{tab.label}</span>
                   <span className="sm:hidden">{tab.shortLabel}</span>
                 </button>
@@ -429,7 +429,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
               <div className="p-4 rounded-3xl bg-slate-50/70 border border-slate-200/70 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-[#006B63]" />
+                    <Calendar className="h-4 w-4 text-[#007AFF]" />
                     <label className="text-xs font-bold text-slate-900">
                       Target FMGE Exam Date
                     </label>
@@ -474,7 +474,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                           onClick={() => setFormData({ ...formData, examDate: preset.date })}
                           className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                             isSelected
-                              ? 'bg-[#006B63] text-white shadow-2xs font-bold'
+                              ? 'bg-[#007AFF] text-white shadow-2xs font-bold'
                               : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100'
                           }`}
                         >
@@ -562,7 +562,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
               {/* Onboarding Study Signals & Style — Grouped Inset Card */}
               <div className="rounded-3xl border border-slate-200/80 bg-slate-50/70 p-4 sm:p-5 space-y-4">
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-xl bg-teal-500/10 text-[#006B63] flex items-center justify-center shrink-0">
+                  <div className="h-8 w-8 rounded-xl bg-teal-500/10 text-[#007AFF] flex items-center justify-center shrink-0">
                     <BookOpen className="h-4 w-4" />
                   </div>
                   <span className="text-xs font-bold text-slate-900">
@@ -602,7 +602,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                           onClick={() => toggleStudyPref(pref.id)}
                           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                             active
-                              ? 'bg-[#006B63] text-white shadow-2xs font-bold'
+                              ? 'bg-[#007AFF] text-white shadow-2xs font-bold'
                               : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100'
                           }`}
                         >
@@ -695,7 +695,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
                     Grand Tests
                   </span>
-                  <div className="text-xl font-extrabold text-[#006B63] font-display">
+                  <div className="text-xl font-extrabold text-[#007AFF] font-display">
                     {state.grandTests?.length || 0}
                   </div>
                   <p className="text-[10px] text-slate-400">300-Q Mocks</p>
@@ -709,7 +709,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 </span>
                 <div className="grid grid-cols-3 gap-3 text-center">
                   <div className="p-3 bg-white rounded-2xl border border-slate-200/70 shadow-2xs">
-                    <Calendar className="h-4 w-4 text-[#006B63] mx-auto mb-1" />
+                    <Calendar className="h-4 w-4 text-[#007AFF] mx-auto mb-1" />
                     <div className="text-xs font-bold text-slate-900">{formattedExamDate}</div>
                     <p className="text-[10px] text-teal-700 font-semibold">{daysRemaining}d left</p>
                   </div>
@@ -787,7 +787,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                       disabled={!dutyShieldCheck.allowed}
                       className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                         dutyShieldCheck.allowed
-                          ? 'bg-[#006B63] hover:bg-[#00524C] text-white shadow-2xs hover:shadow active:scale-95'
+                          ? 'bg-[#007AFF] hover:bg-[#00524C] text-white shadow-2xs hover:shadow active:scale-95'
                           : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                       }`}
                     >
@@ -806,11 +806,11 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
               {/* Study Consistency Principle Card */}
               <div className="p-4 rounded-3xl bg-teal-50/60 border border-teal-200/70 flex items-start gap-3">
-                <div className="h-8 w-8 rounded-xl bg-teal-500/10 text-[#006B63] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="h-8 w-8 rounded-xl bg-teal-500/10 text-[#007AFF] flex items-center justify-center shrink-0 mt-0.5">
                   <ShieldCheck className="h-4.5 w-4.5" />
                 </div>
                 <div className="space-y-0.5 text-xs text-slate-700">
-                  <span className="font-bold text-[#006B63] block">Clinical Consistency Principle</span>
+                  <span className="font-bold text-[#007AFF] block">Clinical Consistency Principle</span>
                   <p className="leading-relaxed text-slate-600">
                     Consistent daily completion of 50 high-yield questions with error analysis delivers higher retention than marathon weekend sessions.
                   </p>
@@ -847,7 +847,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   type="button"
                   onClick={handleForceSync}
                   disabled={isSyncing}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#00685F] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98] shrink-0"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#0071E3] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98] shrink-0"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
                   <span>{isSyncing ? 'Syncing...' : 'Sync Now'}</span>
@@ -867,8 +867,8 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                     className="p-4 rounded-3xl bg-white border border-slate-200/80 hover:bg-slate-50/80 transition-all text-left space-y-1.5 cursor-pointer group shadow-2xs"
                   >
                     <div className="flex items-center justify-between text-slate-900 font-bold text-xs">
-                      <span className="group-hover:text-[#006B63] transition-colors">Download JSON Backup</span>
-                      <Download className="h-4 w-4 text-slate-400 group-hover:text-[#006B63] transition-colors" />
+                      <span className="group-hover:text-[#007AFF] transition-colors">Download JSON Backup</span>
+                      <Download className="h-4 w-4 text-slate-400 group-hover:text-[#007AFF] transition-colors" />
                     </div>
                     <p className="text-[11px] text-slate-500 leading-relaxed">
                       Exports all 19-subject checkboxes, Error Notebook, and mock scores.
@@ -938,7 +938,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
               type="button"
               onClick={() => handleSaveBlueprint()}
               disabled={isSaving}
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#00685F] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#0071E3] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98]"
             >
               <Save className="h-3.5 w-3.5" />
               <span>{isSaving ? 'Saving...' : 'Save Blueprint'}</span>
