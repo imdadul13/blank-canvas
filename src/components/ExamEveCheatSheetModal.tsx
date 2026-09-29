@@ -74,22 +74,19 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
       className="font-sans antialiased select-none"
     >
       {/* Top Header - Screen Only */}
-      <header
-        className="print:hidden flex items-center justify-between px-4 sm:px-6 py-3 text-white shrink-0 border-b border-white/10"
-        style={{ background: 'linear-gradient(135deg, #1A0028 0%, #3D0066 50%, #7A00CC 100%)' }}
-      >
+      <header className="print:hidden flex items-center justify-between px-4 sm:px-6 py-3 text-white shrink-0 border-b border-white/10 bg-slate-900/95 backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl border" style={{ background: 'rgba(191,90,242,0.2)', borderColor: 'rgba(191,90,242,0.3)', color: '#BF5AF2' }}>
+          <div className="p-2 rounded-2xl bg-[#AF52DE] text-white shadow-sm shadow-purple-500/25">
             <FileText className="h-5 w-5" />
           </div>
           <div>
             <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
               <span>Exam-Eve High-Yield Revision Sheet</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold" style={{ background: 'rgba(191,90,242,0.2)', color: '#BF5AF2' }}>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#AF52DE]/20 text-purple-300 border border-[#AF52DE]/30">
                 PRINT &amp; PDF READY
               </span>
             </h2>
-            <p className="text-xs text-white/60">
+            <p className="text-xs text-slate-400">
               High-density, multi-column print layout optimized for final 48h recall
             </p>
           </div>
@@ -99,8 +96,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
           <button
             type="button"
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs text-white shadow-md transition-all cursor-pointer"
-            style={{ background: '#BF5AF2', boxShadow: '0 4px 14px rgba(191,90,242,0.35)' }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs text-white bg-[#AF52DE] hover:brightness-110 shadow-md shadow-purple-500/25 transition-all cursor-pointer active:scale-95"
           >
             <Printer className="h-4 w-4" />
             <span>Print / Save PDF</span>
@@ -109,8 +105,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl transition-colors cursor-pointer"
-            style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95"
             title="Close"
           >
             <X className="h-4 w-4" />
@@ -119,7 +114,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
       </header>
 
       {/* Filter Tabs - Screen Only */}
-      <div className="print:hidden px-4 sm:px-6 py-2 border-b border-white/10 flex items-center gap-2 overflow-x-auto" style={{ background: 'rgba(61,0,102,0.6)' }}>
+      <div className="print:hidden px-4 sm:px-6 py-2.5 border-b border-white/10 flex items-center gap-2 overflow-x-auto bg-slate-950/80 backdrop-blur-md">
         {[
           { id: 'all', label: 'All High-Yield' },
           { id: 'docs', label: 'Drugs of Choice (DOC)' },
@@ -131,12 +126,11 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
             key={tab.id}
             type="button"
             onClick={() => setActiveFilter(tab.id as any)}
-            className="px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer"
-            style={
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer active:scale-95 ${
               activeFilter === tab.id
-                ? { background: '#BF5AF2', color: '#fff', fontWeight: 700 }
-                : { background: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.70)' }
-            }
+                ? 'bg-[#AF52DE] text-white font-bold shadow-sm shadow-purple-500/25'
+                : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white'
+            }`}
           >
             {tab.label}
           </button>
@@ -145,7 +139,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
 
       {/* Printable Sheet Viewport */}
       <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-[#F2F2F7] print:bg-white print:p-0 print:m-0">
-        <div className="max-w-5xl mx-auto bg-white p-6 sm:p-10 rounded-2xl shadow-xl print:shadow-none print:border-none print:p-4 border border-[rgba(60,60,67,0.12)]">
+        <div className="max-w-5xl mx-auto bg-white p-6 sm:p-10 rounded-3xl shadow-xl print:shadow-none print:border-none print:p-4 border border-[rgba(60,60,67,0.12)]">
 
           {/* Printable Document Header */}
           <div className="border-b-2 border-[#BF5AF2] pb-3 mb-6 flex items-center justify-between">

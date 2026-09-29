@@ -136,7 +136,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
           {/* Header Bar */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/70">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-xs shadow-indigo-500/25">
+              <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-[#007AFF] text-white shadow-sm shadow-[#007AFF]/25">
                 <Eye className="h-5 w-5" />
               </div>
               <div>
@@ -156,17 +156,17 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
 
             <div className="flex items-center gap-2">
               {/* Mode Toggle */}
-              <div className="flex items-center p-0.5 bg-slate-200/80 rounded-xl text-xs font-semibold">
+              <div className="flex items-center p-1 bg-slate-100 rounded-full text-xs font-semibold border border-slate-200/60">
                 <button
                   onClick={() => {
                     setDrillMode('flashcard');
                     setIsRevealed(false);
                     setSelectedOptionId(null);
                   }}
-                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                  className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
                     drillMode === 'flashcard'
-                      ? 'bg-white text-teal-900 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-900'
                   }`}
                 >
                   Flashcard
@@ -177,10 +177,10 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                     setIsRevealed(false);
                     setSelectedOptionId(null);
                   }}
-                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 py-1 rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
                     drillMode === 'timed_mcq'
-                      ? 'bg-white text-teal-900 shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-900'
                   }`}
                 >
                   <Timer className="h-3 w-3 text-amber-500" />
@@ -200,9 +200,9 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
           </div>
 
           {/* Sub-bar: Subject filter & Stats */}
-          <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-2 border-b border-slate-100 bg-white text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-2.5 border-b border-slate-100 bg-white text-xs">
             {/* Subject Selector */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
               <Filter className="h-3.5 w-3.5 text-slate-400 shrink-0" />
               {subjects.map((sub) => (
                 <button
@@ -213,9 +213,9 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                     setIsRevealed(false);
                     setSelectedOptionId(null);
                   }}
-                  className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-colors cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-colors cursor-pointer ${
                     selectedSubject === sub
-                      ? 'bg-teal-700 text-white shadow-2xs'
+                      ? 'bg-[#007AFF] text-white shadow-2xs'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
@@ -268,11 +268,11 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                       alt={currentItem.topic}
                       className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute top-2 right-2 px-2.5 py-1 bg-slate-900/80 backdrop-blur-xs rounded-lg text-[11px] font-bold text-white flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
-                      <ZoomIn className="h-3.5 w-3.5 text-teal-300" />
+                    <div className="absolute top-2 right-2 px-2.5 py-1 bg-slate-900/80 backdrop-blur-xs rounded-full text-[11px] font-bold text-white flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+                      <ZoomIn className="h-3.5 w-3.5 text-sky-300" />
                       <span>Tap to zoom</span>
                     </div>
-                    <div className="absolute bottom-2 left-2 px-2.5 py-1 bg-slate-900/80 backdrop-blur-xs rounded-lg text-[11px] font-semibold text-teal-200">
+                    <div className="absolute bottom-2 left-2 px-2.5 py-1 bg-slate-900/80 backdrop-blur-xs rounded-full text-[11px] font-semibold text-sky-200">
                       {currentItem.subject}
                     </div>
                   </div>
@@ -384,7 +384,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                         const isCorrect = option.id === currentItem.correctOptionId;
                         const hasAnswered = selectedOptionId !== null;
 
-                        let btnClass = 'bg-white border-slate-200 text-slate-800 hover:border-teal-400 hover:bg-teal-50/30';
+                        let btnClass = 'bg-white border-slate-200 text-slate-800 hover:border-[#007AFF]/40 hover:bg-blue-50/30';
                         if (hasAnswered) {
                           if (isCorrect) {
                             btnClass = 'bg-emerald-50 border-emerald-400 text-emerald-950 font-bold';
@@ -400,7 +400,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                             key={option.id}
                             disabled={hasAnswered}
                             onClick={() => handleSelectOption(option.id)}
-                            className={`w-full text-left p-3 rounded-2xl border text-xs sm:text-sm font-sans transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
+                            className={`w-full text-left p-3.5 rounded-2xl border text-xs sm:text-sm font-sans transition-all flex items-center justify-between cursor-pointer ${btnClass}`}
                           >
                             <span className="flex items-center gap-2.5">
                               <span className="flex items-center justify-center h-6 w-6 rounded-lg bg-slate-100 font-bold text-slate-700 text-xs shrink-0">
@@ -448,7 +448,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
                           currentItem.topic
                         );
                       }}
-                      className="mt-2 py-2 px-3 bg-blue-500/[0.08] hover:bg-blue-500/15 border border-blue-500/20 rounded-xl text-[#007AFF] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      className="mt-2 py-2 px-3.5 bg-blue-500/[0.08] hover:bg-blue-500/15 border border-blue-500/20 rounded-full text-[#007AFF] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <MessageSquare className="h-3.5 w-3.5 text-[#007AFF]" />
                       <span>Ask Faculty Mentor about this sign</span>
@@ -468,7 +468,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
             <button
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 disabled:opacity-40 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 disabled:opacity-40 transition-colors cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4" />
               <span>Previous</span>

@@ -783,14 +783,14 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
       {/* 2. Sub-Header Controls & View Calendar */}
       <div className="flex items-center justify-between gap-3 pt-1">
         {/* Mobile Tab Switcher: Only displayed on smaller screens where columns are tabbed */}
-        <div className="lg:hidden inline-flex p-1 bg-stone-100 rounded-2xl border border-stone-200/70 shadow-2xs">
+        <div className="lg:hidden inline-flex p-1 bg-stone-100 dark:bg-slate-800 rounded-full border border-stone-200/70 dark:border-white/10 shadow-2xs">
           <button
             type="button"
             onClick={() => setMobileTab('planner')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer active:scale-95 ${
               mobileTab === 'planner'
                 ? 'bg-[#007AFF] text-white shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
+                : 'text-stone-600 dark:text-slate-300 hover:text-stone-900'
             }`}
           >
             <BookmarkCheck className="w-4 h-4" />
@@ -800,10 +800,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           <button
             type="button"
             onClick={() => setMobileTab('focus')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer active:scale-95 ${
               mobileTab === 'focus'
                 ? 'bg-[#007AFF] text-white shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
+                : 'text-stone-600 dark:text-slate-300 hover:text-stone-900'
             }`}
           >
             <Clock className="w-4 h-4" />
@@ -1336,7 +1336,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsRunning(!isRunning)}
-                className="col-span-1 py-2.5 px-3 rounded-xl bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                className="col-span-1 py-2.5 px-3 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
               >
                 {isRunning ? (
                   <>
@@ -1355,7 +1355,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleModeChange('short_break')}
-                className={`col-span-1 py-2.5 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                className={`col-span-1 py-2.5 px-2 rounded-full border text-xs font-bold transition-all cursor-pointer active:scale-95 ${
                   timerMode === 'short_break'
                     ? 'bg-stone-900 text-white border-stone-900'
                     : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
@@ -1368,7 +1368,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleModeChange('long_break')}
-                className={`col-span-1 py-2.5 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                className={`col-span-1 py-2.5 px-2 rounded-full border text-xs font-bold transition-all cursor-pointer active:scale-95 ${
                   timerMode === 'long_break'
                     ? 'bg-stone-900 text-white border-stone-900'
                     : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
@@ -1381,7 +1381,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={handleStopTimer}
-                className="col-span-1 py-2.5 px-3 rounded-xl bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+                className="col-span-1 py-2.5 px-3 rounded-full bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 active:scale-95"
                 title="Stop and Reset"
               >
                 <Square className="w-3 h-3 fill-current" />
@@ -1469,12 +1469,12 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
           }}
           aria-label="Focus Engine Quick Controls"
         >
-          <div className="px-4 py-2.5 rounded-2xl bg-white/95 backdrop-blur-md border border-stone-200/90 shadow-[0_8px_30px_rgba(0,0,0,0.10)] flex items-center justify-between gap-3 font-sans text-slate-900">
+          <div className="px-4 py-2.5 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-stone-200/90 dark:border-white/10 shadow-[0_12px_36px_rgba(0,0,0,0.12)] flex items-center justify-between gap-3 font-sans text-slate-900 dark:text-slate-100">
             {/* Left: Tappable to open the full Focus Engine */}
             <button
               type="button"
               onClick={() => setMobileTab('focus')}
-              className="flex items-center gap-2.5 min-w-0 flex-1 text-left cursor-pointer group"
+              className="flex items-center gap-2.5 min-w-0 flex-1 text-left cursor-pointer group active:scale-95 transition-transform"
               title="Open full Focus Engine"
             >
               <div className="w-8 h-8 rounded-full bg-blue-500/[0.08] text-[#007AFF] border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/15 transition-colors">
@@ -1482,14 +1482,14 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-slate-900 leading-tight">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
                     Focus Engine
                   </span>
                   {isRunning && (
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                   )}
                 </div>
-                <div className="font-mono text-sm font-extrabold text-slate-900 leading-tight">
+                <div className="font-mono text-sm font-extrabold text-slate-900 dark:text-white leading-tight">
                   {formatTime(timeLeft)}
                 </div>
               </div>
@@ -1501,7 +1501,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsRunning(!isRunning)}
-                className="w-10 h-10 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-95 transition-all"
+                className="w-10 h-10 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-90 transition-all"
                 title={isRunning ? 'Pause Focus Session' : 'Start Focus Session'}
                 aria-label={isRunning ? 'Pause' : 'Start'}
               >
@@ -1516,11 +1516,11 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <button
                 type="button"
                 onClick={handleStopTimer}
-                className="w-8 h-8 rounded-xl bg-stone-900 hover:bg-stone-800 text-white flex items-center justify-center shadow-2xs cursor-pointer active:scale-95 transition-all"
+                className="w-9 h-9 rounded-full bg-stone-900 hover:bg-stone-800 text-white flex items-center justify-center shadow-2xs cursor-pointer active:scale-90 transition-all"
                 title="Stop and Reset Session"
                 aria-label="Stop Session"
               >
-                <Square className="w-3 h-3 fill-current" />
+                <Square className="w-3.5 h-3.5 fill-current" />
               </button>
             </div>
           </div>
@@ -1623,13 +1623,13 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowAddTask(false)}
-                    className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl font-bold cursor-pointer"
+                    className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-full font-bold cursor-pointer active:scale-95"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-[#007AFF] hover:bg-[#0062CC] text-white rounded-xl font-bold shadow-xs cursor-pointer transition-colors"
+                    className="px-5 py-2 bg-[#007AFF] hover:bg-[#0066D6] text-white rounded-full font-bold shadow-xs cursor-pointer transition-colors active:scale-95"
                   >
                     Add Task
                   </button>
@@ -1717,7 +1717,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCalendarModal(false)}
-                  className="px-5 py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                  className="px-6 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-full text-xs font-bold transition-all cursor-pointer active:scale-95"
                 >
                   Close
                 </button>
