@@ -7,6 +7,7 @@ import {
   getSpacedErrorsSummary,
   formatSpacedIntervalBadge,
   addDaysToDateString,
+  getTodayDateString,
 } from '../spacedRepetitionEngine';
 import { ErrorNotebookItem } from '../../types';
 
@@ -97,7 +98,7 @@ describe('Spaced Repetition (FSRS / SM-2) Engine for Mistake Remediation', () =>
     const learningItem: ErrorNotebookItem = {
       ...sampleError,
       isReviewed: true,
-      nextReviewDueDate: '2026-09-30',
+      nextReviewDueDate: addDaysToDateString(getTodayDateString(), 3),
       repetitionIntervalDays: 3,
       spacedStage: 'learning',
     };
