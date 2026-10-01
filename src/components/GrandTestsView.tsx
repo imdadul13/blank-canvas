@@ -288,25 +288,27 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         </div>
       )}
 
-      {/* Apple HIG Luminous Royal Indigo Hero Header — Matching DailyPlannerView Structure with Distinct Exam Indigo Palette */}
+      {/* Apple HIG Luminous Royal Indigo & Lavender Hero Header — Seamless Pillowed Card with Rich Multi-Hue Gradient */}
       <motion.header
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(79,70,229,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-indigo-200/70"
+        className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(99,102,241,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
         style={{
-          background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 35%, #C7D2FE 70%, #A5B4FC 100%)',
+          background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 32%, #C7D2FE 64%, #DDD6FE 84%, #F5D0FE 100%)',
         }}
       >
-        {/* Soft Ambient Radial Glow (Royal Indigo) */}
+        {/* Decorative right glow */}
         <div
-          className="pointer-events-none absolute right-0 top-0 bottom-0 w-3/5"
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-1/2"
           style={{
-            background: 'radial-gradient(ellipse at 85% 45%, rgba(99,102,241,0.20) 0%, rgba(79,70,229,0.06) 50%, transparent 75%)',
+            background: 'radial-gradient(ellipse at 80% 50%, rgba(99,102,241,0.30) 0%, rgba(168,85,247,0.16) 50%, transparent 70%)',
           }}
         />
+        {/* Top inner shine */}
+        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/35 to-transparent pointer-events-none rounded-t-[2rem] sm:rounded-t-[2.5rem]" />
 
-        <div className="relative z-10 p-5 sm:p-6 space-y-4">
+        <div className="relative z-10 p-5 sm:p-6 lg:p-7 space-y-4">
           {/* Top Metadata Row */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/75 backdrop-blur-md border border-[rgba(60,60,67,0.08)] text-xs font-semibold text-[#4338CA]">
@@ -345,14 +347,14 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               </p>
 
               {/* Apple Segmented Pill Switch */}
-              <div className="inline-flex items-center gap-1 p-1 bg-white/80 backdrop-blur-md rounded-full border border-black/[0.08] shadow-2xs">
+              <div className="inline-flex items-center gap-1 p-1 bg-white/65 backdrop-blur-md rounded-full border border-white/80 shadow-sm">
                 <button
                   type="button"
                   onClick={() => setStatusFilter('all')}
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                     statusFilter === 'all'
-                      ? 'bg-white text-[#1D1D1F] shadow-xs'
-                      : 'text-[#64748B] hover:text-[#1D1D1F]'
+                      ? 'bg-white text-[#4338CA] shadow-xs'
+                      : 'text-[#3A3A3C]/70 hover:text-[#1D1D1F]'
                   }`}
                 >
                   Overview
@@ -360,7 +362,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowMockModal(true)}
-                  className="px-3 py-1 rounded-full text-xs font-bold text-[#64748B] hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-3 py-1 rounded-full text-xs font-bold text-[#3A3A3C]/70 hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <Clock className="w-3 h-3 text-[#4338CA]" />
                   <span>50Q Mini-Mock</span>
@@ -368,7 +370,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowDiagnosticModal(true)}
-                  className="px-3 py-1 rounded-full text-xs font-bold text-[#64748B] hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-3 py-1 rounded-full text-xs font-bold text-[#3A3A3C]/70 hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <BarChart3 className="w-3 h-3 text-[#4338CA]" />
                   <span>Diagnostics</span>
@@ -377,7 +379,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             </div>
 
             {/* Right Compact Circular Gauge Widget Card */}
-            <div className="bg-white/80 backdrop-blur-md border border-white/90 rounded-2xl p-3.5 sm:p-4 shadow-sm flex items-center gap-3.5 sm:gap-4 shrink-0">
+            <div className="bg-white/70 backdrop-blur-md border border-white/85 rounded-2xl p-3.5 sm:p-4 shadow-sm flex items-center gap-3.5 sm:gap-4 shrink-0">
               <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 48 48">
                   <circle cx="24" cy="24" r="20" stroke="#F2F2F7" strokeWidth="4.5" fill="none" />

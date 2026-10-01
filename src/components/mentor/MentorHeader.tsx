@@ -49,20 +49,22 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,122,255,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-sky-200/70"
+      className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(14,165,233,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
       style={{
-        background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 35%, #BAE6FD 70%, #7DD3FC 100%)',
+        background: 'linear-gradient(135deg, #E0F7FA 0%, #BAE6FD 35%, #7DD3FC 68%, #93C5FD 100%)',
       }}
     >
-      {/* Soft Ambient Radial Glow (Sky Blue) */}
+      {/* Decorative right glow */}
       <div
-        className="pointer-events-none absolute right-0 top-0 bottom-0 w-3/5"
+        className="pointer-events-none absolute right-0 top-0 bottom-0 w-1/2"
         style={{
-          background: 'radial-gradient(ellipse at 85% 45%, rgba(0,122,255,0.18) 0%, rgba(56,189,248,0.06) 50%, transparent 75%)',
+          background: 'radial-gradient(ellipse at 80% 50%, rgba(56,189,248,0.32) 0%, rgba(14,165,233,0.16) 50%, transparent 70%)',
         }}
       />
+      {/* Top inner shine */}
+      <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/35 to-transparent pointer-events-none rounded-t-[2rem] sm:rounded-t-[2.5rem]" />
 
-      <div className="relative z-10 p-5 sm:p-6 space-y-4">
+      <div className="relative z-10 p-5 sm:p-6 lg:p-7 space-y-4">
         {/* Top Metadata Row */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/75 backdrop-blur-md border border-[rgba(60,60,67,0.08)] text-xs font-semibold text-[#007AFF]">
@@ -108,7 +110,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
             </p>
 
             {/* Apple Segmented Mode Switcher */}
-            <div className="inline-flex items-center gap-1 p-1 bg-white/80 backdrop-blur-md rounded-full border border-black/[0.08] shadow-2xs">
+            <div className="inline-flex items-center gap-1 p-1 bg-white/65 backdrop-blur-md rounded-full border border-white/80 shadow-sm">
               {([
                 { id: 'consultation' as const, label: 'Consultation', icon: MessageSquare },
                 { id: 'quiz' as const, label: '5Q Clinical Quiz', icon: HelpCircle },
@@ -121,7 +123,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
                   className={`relative flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                     activeMode === id
                       ? 'bg-white text-[#007AFF] shadow-xs'
-                      : 'text-[#64748B] hover:text-[#1D1D1F]'
+                      : 'text-[#3A3A3C]/70 hover:text-[#1D1D1F]'
                   }`}
                 >
                   <Icon className={`w-3 h-3 shrink-0 ${activeMode === id ? 'text-[#007AFF]' : ''}`} />
@@ -132,7 +134,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
           </div>
 
           {/* Right Compact Circular Gauge Widget Card */}
-          <div className="bg-white/80 backdrop-blur-md border border-white/90 rounded-2xl p-3.5 sm:p-4 shadow-sm flex items-center gap-3.5 sm:gap-4 shrink-0">
+          <div className="bg-white/70 backdrop-blur-md border border-white/85 rounded-2xl p-3.5 sm:p-4 shadow-sm flex items-center gap-3.5 sm:gap-4 shrink-0">
             <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 48 48">
                 <circle cx="24" cy="24" r="20" stroke="#F2F2F7" strokeWidth="4.5" fill="none" />
