@@ -63,6 +63,7 @@ const chipStyle = (key: MentorHueKey) => {
 };
 import { speechEngine } from '../utils/speechEngine';
 import { useAuth } from '../context/AuthContext';
+import { apiFetch } from '../utils/api';
 import {
   getLearningContext,
   getPersonalizedDailyPlan,
@@ -386,7 +387,9 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   onAddCustomPearl,
   onAddErrorItem,
 }) => {
-  const { profile } = useAuth();
+  const { profile, user, isGuest } = useAuth();
+  const [historyReady, setHistoryReady] = useState(false);
+  const historyUidRef = useRef<string | null>(null);
   const userInitials = useMemo(() => {
     const name = profile?.displayName || state?.settings?.userName || 'Dr. Aspirant';
     const parts = name.trim().split(/\s+/);
@@ -478,6 +481,50 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     return [];
   });
 
+  useEffect(() => {
+    let active = true;
+    setHistoryReady(false);
+    historyUidRef.current = user && !isGuest ? user.uid : null;
+    if (!user || isGuest) {
+      setHistoryReady(true);
+      return () => { active = false; };
+    }
+    const local = (() => {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(COACH_STORAGE_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed.filter((s: CoachSession) => s.messages && s.messages.some((m) => m.role === 'user')) : [];
+      } catch { return []; }
+    })();
+    void (async () => {
+      try {
+        const response = await apiFetch('/api/user/documents/coach_sessions');
+        if (!response.ok) throw new Error('Unable to load saved consultation history');
+        const { document } = await response.json();
+        let chosen = Array.isArray(document) ? document : null;
+        if (!chosen && local.length) {
+          const migrated = await apiFetch('/api/user/documents/coach_sessions/migrate', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ document: local }),
+          });
+          if (!migrated.ok) throw new Error('Unable to migrate consultation history');
+          const result = await migrated.json();
+          chosen = Array.isArray(result.document) ? result.document : local;
+        }
+        if (!active || historyUidRef.current !== user.uid) return;
+        const valid = (chosen || []).filter((s: CoachSession) => s.messages && s.messages.some((m) => m.role === 'user'));
+        setSessions(valid);
+        setActiveSessionId(valid[0]?.id || `session-${Date.now()}`);
+        setMessages(valid[0]?.messages || []);
+        localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(valid));
+      } catch (error) {
+        console.warn('[AiCoach] PostgreSQL history unavailable; showing local cache', error);
+        if (active && historyUidRef.current === user.uid) setSessions(local);
+      } finally {
+        if (active && historyUidRef.current === user.uid) setHistoryReady(true);
+      }
+    })();
+    return () => { active = false; };
+  }, [user?.uid, isGuest]);
+
   const [activeSessionId, setActiveSessionId] = useState<string>(() => {
     try {
       const saved = localStorage.getItem(COACH_STORAGE_KEY);
@@ -530,6 +577,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   };
 
   useEffect(() => {
+    if (!historyReady) return;
     checkAiStatus();
   }, []);
 
@@ -759,7 +807,18 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
-  }, [messages, quizSession, activeSessionId]);
+  }, [messages, quizSession, activeSessionId, historyReady]);
+
+  useEffect(() => {
+    if (!historyReady) return;
+    const valid = sessions.filter((s) => (s.messages && s.messages.some((m) => m.role === 'user')) || Boolean(s.quizSession));
+    try { localStorage.setItem(COACH_STORAGE_KEY, JSON.stringify(valid)); } catch {}
+    if (!user || isGuest) return;
+    const uid = user.uid;
+    void apiFetch('/api/user/documents/coach_sessions', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ document: valid }),
+    }).catch((error) => console.warn('[AiCoach] Could not sync consultation history', error));
+  }, [sessions, historyReady, user?.uid, isGuest]);
 
   // Direct Consultation Handler (Guarantees zero-latency startup from Predictor/Errors without race conditions)
   const executeDirectConsultation = async (topic: string, subject?: string, query?: string, tab?: string) => {
@@ -879,12 +938,6 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             if (idx < 0) return prev;
             const updated = [...prev];
             updated[idx] = { ...updated[idx], messages: finalMessages };
-            try {
-              localStorage.setItem(
-                COACH_STORAGE_KEY,
-                JSON.stringify(updated.filter((s) => s.messages && s.messages.some((m) => m.role === 'user')))
-              );
-            } catch (_) {}
             return updated;
           });
           isStreamingRef.current = false;

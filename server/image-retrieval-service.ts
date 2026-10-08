@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { MedicalImageAsset, MedicalImageCategory } from '../src/types';
 
 export interface MedicalImageSearchOptions {
@@ -629,41 +627,11 @@ export const VERIFIED_FMGE_IMAGE_ASSETS: MedicalImageAsset[] = [
 ];
 
 // ---------------------------------------------------------------------------------
-// 2. DISK & IN-MEMORY CACHE FOR VALIDATED MEDICAL ASSETS
+// 2. PROCESS-LOCAL CACHE FOR VALIDATED MEDICAL ASSETS
 // ---------------------------------------------------------------------------------
-const CACHE_FILE_PATH = path.join(process.cwd(), 'server', 'data', 'image-asset-cache.json');
 
 class ImageAssetCache {
   private cacheMap = new Map<string, MedicalImageAsset>();
-
-  constructor() {
-    this.loadFromDisk();
-  }
-
-  private loadFromDisk() {
-    try {
-      if (fs.existsSync(CACHE_FILE_PATH)) {
-        const raw = fs.readFileSync(CACHE_FILE_PATH, 'utf-8');
-        const list: MedicalImageAsset[] = JSON.parse(raw);
-        for (const item of list) {
-          this.cacheMap.set(this.normalizeKey(item.searchQuery || item.medicalFinding), item);
-        }
-      }
-    } catch (e) {
-      console.warn('[ImageAssetCache] Failed to load disk cache:', e);
-    }
-  }
-
-  private saveToDisk() {
-    try {
-      const dir = path.dirname(CACHE_FILE_PATH);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      const array = Array.from(this.cacheMap.values());
-      fs.writeFileSync(CACHE_FILE_PATH, JSON.stringify(array, null, 2), 'utf-8');
-    } catch (e) {
-      console.warn('[ImageAssetCache] Failed to save disk cache:', e);
-    }
-  }
 
   public normalizeKey(query: string): string {
     return query.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -688,7 +656,6 @@ class ImageAssetCache {
   public set(query: string, asset: MedicalImageAsset) {
     const key = this.normalizeKey(query);
     this.cacheMap.set(key, asset);
-    this.saveToDisk();
   }
 }
 

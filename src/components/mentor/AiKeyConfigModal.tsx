@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Modal, ModalBody } from '../ui/Modal';
 import { Button, Pill } from '../ui/Button';
+import { apiFetch } from '../../utils/api';
 
 interface AiKeyConfigModalProps {
   isOpen: boolean;
@@ -72,7 +73,7 @@ export const AiKeyConfigModal: React.FC<AiKeyConfigModalProps> = ({
   const fetchStatus = async (probe = false) => {
     if (probe) setIsProbing(true);
     try {
-      const res = await fetch(`/api/ai/status${probe ? '?probe=true' : ''}`);
+      const res = await apiFetch(`/api/ai/status${probe ? '?probe=true' : ''}`);
       if (res.ok) {
         setStatusData(await res.json());
       }
@@ -107,7 +108,7 @@ export const AiKeyConfigModal: React.FC<AiKeyConfigModalProps> = ({
     setVerifySuccess(null);
 
     try {
-      const res = await fetch('/api/ai/config', {
+      const res = await apiFetch('/api/ai/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apiKey: apiKeyInput.trim() }),

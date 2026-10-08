@@ -1,9 +1,10 @@
-import { doc, getDoc, setDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import { db } from '../lib/firebase';
 import { AppState, UserProfile } from '../types';
 import { normalizeAppState } from './storage';
 import { getInitialAppState } from '../data/sampleData';
+import { apiFetch } from './api';
 
 const LEGACY_STORAGE_KEYS = ['fmge_study_tracker_v2', 'fmge_study_tracker_state', 'fmge_tracker_state_v1'];
 
@@ -94,17 +95,33 @@ export function clearLegacyLocalData(): void {
   }
 }
 
-// ----------------- FIRESTORE CLOUD OPERATIONS -----------------
+// ----------------- POSTGRES CLOUD OPERATIONS -----------------
+
+async function postgresJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const response = await apiFetch(url, init);
+  if (!response.ok) throw new Error(`Saved data request failed (${response.status}).`);
+  return response.json() as Promise<T>;
+}
 
 export async function getUserProfileDoc(uid: string): Promise<UserProfile | null> {
   try {
-    const userRef = doc(db, 'users', uid);
-    const snap = await getDoc(userRef);
-    if (snap.exists()) {
-      return snap.data() as UserProfile;
+    const result = await postgresJson<{ profile: UserProfile | null }>('/api/user/profile');
+    if (result.profile) return result.profile;
+
+    // One-time, non-destructive backfill: existing Firebase profiles are copied
+    // into PostgreSQL the first time that user signs in after the migration.
+    const legacySnap = await getDoc(doc(db, 'users', uid));
+    if (legacySnap.exists()) {
+      const legacyProfile = legacySnap.data() as UserProfile;
+      const migrated = await postgresJson<{ profile: UserProfile }>('/api/user/profile/migrate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile: legacyProfile }),
+      });
+      return migrated.profile;
     }
   } catch (err) {
-    console.error('Error fetching user profile from Firestore:', err);
+    console.error('Error fetching user profile from PostgreSQL:', err);
     throw err;
   }
   return null;
@@ -142,12 +159,14 @@ export async function createUserProfileDoc(
   };
 
   try {
-    const userRef = doc(db, 'users', user.uid);
-    const sanitized = JSON.parse(JSON.stringify(profile));
-    await setDoc(userRef, sanitized, { merge: true });
+    await postgresJson('/api/user/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profile),
+    });
     return profile;
   } catch (err) {
-    console.error('Error creating user profile in Firestore:', err);
+    console.error('Error creating user profile in PostgreSQL:', err);
     throw err;
   }
 }
@@ -157,31 +176,42 @@ export async function updateUserProfileDoc(
   updates: Partial<UserProfile>
 ): Promise<void> {
   try {
-    const userRef = doc(db, 'users', uid);
-    const sanitizedUpdates = JSON.parse(JSON.stringify(updates));
-    await setDoc(
-      userRef,
-      {
-        ...sanitizedUpdates,
-        lastActiveAt: new Date().toISOString(),
-      },
-      { merge: true }
-    );
+    await postgresJson('/api/user/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...updates, lastActiveAt: new Date().toISOString() }),
+    });
   } catch (err) {
-    console.error('Error updating user profile in Firestore:', err);
+    console.error('Error updating user profile in PostgreSQL:', err);
     throw err;
   }
 }
 
 export async function getUserStateFromCloud(uid: string): Promise<AppState | null> {
   try {
-    const dataRef = doc(db, 'userData', uid);
-    const snap = await getDoc(dataRef);
-    if (snap.exists()) {
-      return normalizeCloudState(snap.data());
+    const result = await postgresJson<{ state: Record<string, unknown> | null }>('/api/user/state');
+    if (result.state) return normalizeCloudState(result.state);
+
+    // Keep existing Firebase data intact while copying it into PostgreSQL.
+    const legacySnap = await getDoc(doc(db, 'userData', uid));
+    if (legacySnap.exists()) {
+      const legacyState = normalizeCloudState(legacySnap.data());
+      if (legacyState) {
+        const migrated = await postgresJson<{ state: Record<string, unknown> }>('/api/user/state/migrate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ state: legacyState }),
+        });
+        const normalized = normalizeCloudState(migrated.state);
+        if (normalized) {
+          saveUserLocalCache(uid, normalized);
+          return normalized;
+        }
+        return legacyState;
+      }
     }
   } catch (err) {
-    console.error('Error loading user state from Firestore:', err);
+    console.error('Error loading user state from PostgreSQL:', err);
     throw err;
   }
   return null;
@@ -189,21 +219,16 @@ export async function getUserStateFromCloud(uid: string): Promise<AppState | nul
 
 export async function saveUserStateToCloud(uid: string, state: AppState): Promise<void> {
   try {
-    const dataRef = doc(db, 'userData', uid);
     const sanitizedState = JSON.parse(JSON.stringify(state));
-    await setDoc(
-      dataRef,
-      {
-        ...sanitizedState,
-        userId: uid,
-        updatedAt: new Date().toISOString(),
-      },
-      { merge: true }
-    );
+    await postgresJson('/api/user/state', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state: sanitizedState }),
+    });
     // Also save in local storage cache for instant offline read
     saveUserLocalCache(uid, state);
   } catch (err) {
-    console.error('Error saving user state to Firestore:', err);
+    console.error('Error saving user state to PostgreSQL:', err);
     throw err;
   }
 }
@@ -213,22 +238,30 @@ export function subscribeToUserState(
   onUpdate: (cloudState: AppState) => void,
   onError?: (err: Error) => void
 ): () => void {
-  const dataRef = doc(db, 'userData', uid);
-  return onSnapshot(
-    dataRef,
-    (snap) => {
-      if (snap.exists()) {
-        const normalized = normalizeCloudState(snap.data());
-        if (normalized) {
+  let active = true;
+  let lastSerialized = '';
+  const poll = async () => {
+    try {
+      const result = await postgresJson<{ state: Record<string, unknown> | null }>('/api/user/state');
+      const normalized = result.state ? normalizeCloudState(result.state) : null;
+      if (active && normalized) {
+        const serialized = JSON.stringify(normalized);
+        if (serialized !== lastSerialized) {
+          lastSerialized = serialized;
           onUpdate(normalized);
         }
       }
-    },
-    (err) => {
-      console.warn('Real-time snapshot error (offline or rules):', err);
-      if (onError) onError(err);
+    } catch (err) {
+      console.warn('PostgreSQL sync polling failed:', err);
+      if (active && onError) onError(err instanceof Error ? err : new Error('PostgreSQL sync failed.'));
     }
-  );
+  };
+  void poll();
+  const timer = window.setInterval(() => void poll(), 5000);
+  return () => {
+    active = false;
+    window.clearInterval(timer);
+  };
 }
 
 export function getPendingQueueKey(uid: string): string {

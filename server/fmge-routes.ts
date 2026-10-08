@@ -5,7 +5,7 @@ import {
   detectImageQuestionRequest,
   generateMedicalImageSearchQuery,
   isPyqRequest,
-  lookupVerifiedPyq,
+  lookupVerifiedPyqFromPostgres,
 } from "./dynamic-mcq-engine";
 import { validateTopicContentConsistency } from "../src/utils/contentValidator";
 import {
@@ -14,22 +14,33 @@ import {
 } from "../src/utils/practiceSessionEngine";
 import { imageRetrievalService } from "./image-retrieval-service";
 import express from "express";
+import crypto from "node:crypto";
 import path from "path";
 import fs from "fs";
 import { GoogleGenAI } from "@google/genai";
-import {
-  getTelegramDb,
-  saveTelegramDb,
-  addChannelToDb,
-  deleteChannelFromDb,
-  saveUserAccountSession,
-} from "./telegram-db";
+import { PgTelegramDb } from "./db/pg-telegram-db";
 import {
   fetchPublicChannelIncremental,
   processIncomingTelegramMessage,
   startBackgroundSyncDaemon,
 } from "./telegram-service";
-import { CloudDb, getCloudDatabase } from "./db/postgres";
+import { PgCloudDb } from "./db/pg-cloud-db";
+import { MediaStorageService } from "./db/postgres";
+import { postgresPool, query } from "./db/client";
+import { requireAppOwner, requireAuthenticatedUser } from "./firebase-auth";
+import { createRequestRateLimit } from "./request-rate-limit";
+import {
+  getUserAppState,
+  getUserProfile,
+  migrateLegacyUserAppState,
+  migrateLegacyUserProfile,
+  getUserDocument,
+  migrateLegacyUserDocument,
+  saveUserDocument,
+  saveRuntimeSecret,
+  saveUserAppState,
+  saveUserProfile,
+} from "./db/app-state";
 import {
   generateTelegramLoginQr,
   checkTelegramQrLoginStatus,
@@ -46,8 +57,146 @@ import {
 
 const app = express();
 
+// The Telegram bridge uses one server-side account and shared storage. Keep all
+// bridge data and controls owner-only until the store is partitioned per user.
+app.use("/api/telegram", (req, res, next) => {
+  if (req.path === "/webhook") return next();
+  return requireAppOwner(req, res, next);
+});
+
 app.use(express.json());
+app.use("/api/ai", createRequestRateLimit({ windowMs: 60_000, maxRequests: 30 }));
 app.use("/uploads/telegram/media", express.static(path.join(process.cwd(), "public", "uploads", "telegram", "media")));
+app.get("/api/media/telegram/:key", async (req, res) => {
+  try {
+    const media = await MediaStorageService.getMedia(req.params.key);
+    if (!media) {
+      res.status(404).end();
+      return;
+    }
+    const ext = path.extname(req.params.key).toLowerCase();
+    res.setHeader("Content-Type", ext === ".mp4" ? "video/mp4" : ext === ".png" ? "image/png" : "image/jpeg");
+    res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+    res.send(media);
+  } catch (error) {
+    console.error("[Postgres] Failed to load Telegram media", error);
+    res.status(503).end();
+  }
+});
+
+// Firebase remains the authentication provider. Persistent learner profile and
+// study state are owned by PostgreSQL and keyed only by the verified token UID.
+app.use("/api/user", requireAuthenticatedUser);
+app.get("/api/user/profile", async (req, res) => {
+  try {
+    const user = res.locals.firebaseUser as { uid: string; email?: string };
+    res.json({ profile: await getUserProfile(user.uid) });
+  } catch (error) {
+    console.error("[Postgres] Failed to load user profile", error);
+    res.status(503).json({ error: "Saved profile is temporarily unavailable." });
+  }
+});
+app.put("/api/user/profile", async (req, res) => {
+  try {
+    const user = res.locals.firebaseUser as { uid: string; email?: string };
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+      res.status(400).json({ error: "A profile object is required." });
+      return;
+    }
+    await saveUserProfile(user.uid, { ...req.body, uid: user.uid, email: req.body.email || user.email || "" });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("[Postgres] Failed to save user profile", error);
+    res.status(503).json({ error: "Profile could not be saved." });
+  }
+});
+app.post("/api/user/profile/migrate", async (req, res) => {
+  try {
+    const user = res.locals.firebaseUser as { uid: string };
+    const profile = req.body?.profile;
+    if (!profile || typeof profile !== "object" || Array.isArray(profile)) {
+      res.status(400).json({ error: "A legacy profile object is required." });
+      return;
+    }
+    res.json(await migrateLegacyUserProfile(user.uid, { ...profile, uid: user.uid }));
+  } catch (error) {
+    console.error("[Postgres] Failed to migrate user profile", error);
+    res.status(503).json({ error: "Profile migration could not be completed." });
+  }
+});
+app.get("/api/user/state", async (_req, res) => {
+  try {
+    const user = res.locals.firebaseUser as { uid: string };
+    res.json({ state: await getUserAppState(user.uid) });
+  } catch (error) {
+    console.error("[Postgres] Failed to load user state", error);
+    res.status(503).json({ error: "Saved study state is temporarily unavailable." });
+  }
+});
+app.put("/api/user/state", async (req, res) => {
+  try {
+    const user = res.locals.firebaseUser as { uid: string };
+    if (!req.body?.state || typeof req.body.state !== "object" || Array.isArray(req.body.state)) {
+      res.status(400).json({ error: "A study state object is required." });
+      return;
+    }
+    await saveUserAppState(user.uid, req.body.state);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("[Postgres] Failed to save user state", error);
+    res.status(503).json({ error: "Study state could not be saved." });
+  }
+});
+app.post("/api/user/state/migrate", async (req, res) => {
+  try {
+    const user = res.locals.firebaseUser as { uid: string };
+    const state = req.body?.state;
+    if (!state || typeof state !== "object" || Array.isArray(state)) {
+      res.status(400).json({ error: "A legacy study state object is required." });
+      return;
+    }
+    res.json(await migrateLegacyUserAppState(user.uid, state));
+  } catch (error) {
+    console.error("[Postgres] Failed to migrate user study state", error);
+    res.status(503).json({ error: "Study state migration could not be completed." });
+  }
+});
+app.get("/api/user/documents/:key", async (req, res) => {
+  try {
+    const user = res.locals.firebaseUser as { uid: string };
+    res.json({ document: await getUserDocument(user.uid, req.params.key) });
+  } catch (error) {
+    console.error("[Postgres] Failed to load user document", error);
+    res.status(400).json({ error: "User document could not be loaded." });
+  }
+});
+app.put("/api/user/documents/:key", async (req, res) => {
+  try {
+    const user = res.locals.firebaseUser as { uid: string };
+    if (!("document" in (req.body || {}))) {
+      res.status(400).json({ error: "A document value is required." });
+      return;
+    }
+    await saveUserDocument(user.uid, req.params.key, req.body.document);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("[Postgres] Failed to save user document", error);
+    res.status(400).json({ error: "User document could not be saved." });
+  }
+});
+app.post("/api/user/documents/:key/migrate", async (req, res) => {
+  try {
+    const user = res.locals.firebaseUser as { uid: string };
+    if (!("document" in (req.body || {}))) {
+      res.status(400).json({ error: "A legacy document value is required." });
+      return;
+    }
+    res.json(await migrateLegacyUserDocument(user.uid, req.params.key, req.body.document));
+  } catch (error) {
+    console.error("[Postgres] Failed to migrate user document", error);
+    res.status(400).json({ error: "User document migration could not be completed." });
+  }
+});
 
 // Resiliently resolve GEMINI_API_KEY from environment, runtime data store, or .env file
 export { getGeminiApiKey, getAI } from "./gemini-config";
@@ -391,26 +540,22 @@ Provide output in valid JSON matching this schema:
       }
     });
 
-    if (webSources.length === 0) {
-      webSources.push(
-        { title: "National Medical Commission (NMC) FMGE Guidelines", uri: "https://www.nmc.org.in" },
-        { title: "National Board of Examinations in Medical Sciences (NBEMS)", uri: "https://natboard.edu.in" }
-      );
-    }
+    const hasGroundingSources = webSources.length > 0;
+    const allowedVerdicts = ["verified_correct", "disputed_trap", "ambiguous"];
+    const modelVerdict = allowedVerdicts.includes(data.verdict) ? data.verdict : "ambiguous";
+    const isVerified = hasGroundingSources && data.isVerified === true && modelVerdict === "verified_correct";
 
     res.json({
       success: true,
-      isVerified: data.isVerified ?? true,
-      verdict: data.verdict || "verified_correct",
-      verdictSummary: data.verdictSummary || `Option ${correctKey} is verified as the standard first-line answer according to medical guidelines.`,
-      counterTestAnalysis: data.counterTestAnalysis || "Distractors often represent classic mimickers or second-line alternatives.",
-      distractorBreakdown: data.distractorBreakdown || (options || []).map((o: any) => ({
-        key: o.key,
-        isCorrect: o.key === correctKey,
-        explanation: o.key === correctKey ? "Gold-standard guideline recommended answer." : "Distractor option in standard clinical vignettes.",
-      })),
-      trapWarning: data.trapWarning || "Carefully check for contraindications and chronicity in the question stem.",
-      highYieldMemoryHook: data.highYieldMemoryHook || "Review the diagnostic triad and investigation of choice.",
+      isVerified,
+      verdict: hasGroundingSources ? modelVerdict : "not_verified",
+      verdictSummary: hasGroundingSources
+        ? data.verdictSummary || "Search returned sources, but the model did not provide a clear verdict. Review the citations before relying on this answer."
+        : "No usable source citations were returned. This answer has not been verified.",
+      counterTestAnalysis: data.counterTestAnalysis || "No counter-test analysis was returned.",
+      distractorBreakdown: Array.isArray(data.distractorBreakdown) ? data.distractorBreakdown : [],
+      trapWarning: data.trapWarning || "No trap warning was returned.",
+      highYieldMemoryHook: data.highYieldMemoryHook || "No memory hook was returned.",
       groundedSources: webSources.slice(0, 5),
       lastChecked: new Date().toISOString(),
     });
@@ -418,21 +563,14 @@ Provide output in valid JSON matching this schema:
     console.warn("AI Counter-Test Search fallback:", error.message);
     res.json({
       success: true,
-      isVerified: true,
-      verdict: "verified_correct",
-      verdictSummary: `Option ${correctKey} is verified as the standard FMGE guideline answer.`,
-      counterTestAnalysis: `The correct key (${correctKey}) directly addresses the primary pathological hallmark. Common distractor errors occur when confusing acute vs chronic presentations.`,
-      distractorBreakdown: (options || []).map((o: any) => ({
-        key: o.key,
-        isCorrect: o.key === correctKey,
-        explanation: o.key === correctKey ? "Guideline recommended choice for FMGE." : "Plausible distractor / incorrect for this specific scenario.",
-      })),
-      trapWarning: "Pay attention to age, sex, and atypical presentations in Indian licensure questions.",
-      highYieldMemoryHook: "Focus on primary criteria vs secondary differential diagnosis.",
-      groundedSources: [
-        { title: "Target FMGE High-Yield Vault", uri: "https://t.me/targetfmgechannel" },
-        { title: "Harrison's Principles of Internal Medicine", uri: "https://accessmedicine.mhmedical.com" }
-      ],
+      isVerified: false,
+      verdict: "not_verified",
+      verdictSummary: "Evidence lookup failed. The claimed answer and explanation have not been verified.",
+      counterTestAnalysis: "A source-backed counter-test could not be completed. Retry when evidence lookup is available before relying on the claimed answer.",
+      distractorBreakdown: [],
+      trapWarning: "Do not treat this fallback as clinical guidance or a verified exam answer.",
+      highYieldMemoryHook: "Confirm the answer against a current authoritative source.",
+      groundedSources: [],
       fallback: true,
       lastChecked: new Date().toISOString(),
     });
@@ -440,18 +578,31 @@ Provide output in valid JSON matching this schema:
 });
 
 // Health check endpoint
-app.get("/api/health", (req, res) => {
+app.get("/api/health", async (req, res) => {
   const apiKey = getGeminiApiKey();
+  let database = "unconfigured";
+  if (postgresPool) {
+    try {
+      await query("SELECT 1");
+      database = "connected";
+    } catch {
+      database = "unavailable";
+    }
+  }
   res.json({
-    status: "ok",
+    status: database === "unavailable" ? "degraded" : "ok",
     service: "FMGE Study Tracker API",
     geminiConfigured: Boolean(apiKey),
+    database,
     timestamp: new Date().toISOString(),
   });
 });
 
 // AI Engine Health & Diagnostic Status Endpoint
-app.get("/api/ai/status", async (req, res) => {
+app.get("/api/ai/status", (req, res, next) => {
+  if (req.query.probe === "true") return requireAppOwner(req, res, next);
+  next();
+}, async (req, res) => {
   const apiKey = getGeminiApiKey();
   if (!apiKey) {
     res.json({
@@ -516,7 +667,7 @@ app.get("/api/ai/status", async (req, res) => {
 });
 
 // AI Engine Runtime Key Configuration Endpoint (enables instant activation on Render without waiting for rebuild)
-app.post("/api/ai/config", async (req, res) => {
+app.post("/api/ai/config", requireAppOwner, async (req, res) => {
   const { apiKey } = req.body;
   if (!apiKey || typeof apiKey !== "string" || apiKey.trim().length < 10) {
     res.status(400).json({ success: false, error: "Valid Gemini API key string is required." });
@@ -535,16 +686,7 @@ app.post("/api/ai/config", async (req, res) => {
     // Verification succeeded: activate key in process memory
     process.env.GEMINI_API_KEY = cleanKey;
 
-    // Persist to server data directory
-    const dataDir = path.resolve(process.cwd(), "server/data");
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
-    }
-    const keyPath = path.join(dataDir, "gemini_key.json");
-    fs.writeFileSync(keyPath, JSON.stringify({
-      apiKey: cleanKey,
-      updatedAt: new Date().toISOString(),
-    }, null, 2), "utf8");
+    await saveRuntimeSecret("GEMINI_API_KEY", cleanKey);
 
     res.json({
       success: true,
@@ -1905,7 +2047,7 @@ app.post("/api/ai/chat/stream", async (req, res) => {
 
   // Phase 7: PYQ Integrity Check in Stream
   if (isPyqRequest(message)) {
-    const verifiedPyq = lookupVerifiedPyq(detectedSubject, detectedTopic);
+    const verifiedPyq = await lookupVerifiedPyqFromPostgres(detectedSubject, detectedTopic);
     if (!verifiedPyq) {
       const reply = "I don't have a verified PYQ for that topic in the current question bank. Would you like FMGE-style practice questions instead?";
       res.write(`data: ${JSON.stringify({ text: reply })}\n\n`);
@@ -2205,7 +2347,7 @@ app.post("/api/ai/chat", async (req, res) => {
 
   // Phase 7: PYQ Integrity Check (Strict provenance guard)
   if (isPyqRequest(message)) {
-    const verifiedPyq = lookupVerifiedPyq(detectedSubject, detectedTopic);
+    const verifiedPyq = await lookupVerifiedPyqFromPostgres(detectedSubject, detectedTopic);
     if (!verifiedPyq) {
       res.json({
         success: true,
@@ -3418,8 +3560,8 @@ app.post("/api/telegram/bot-poll", async (req, res) => {
 });
 
 // 5. Persistent Telegram Knowledge Bank Snapshot Query
-app.get("/api/telegram/knowledge-bank", (req, res) => {
-  const db = getTelegramDb();
+app.get("/api/telegram/knowledge-bank", async (req, res) => {
+  const db = await PgTelegramDb.getDatabase();
   res.json({
     success: true,
     questions: db.questions,
@@ -3448,10 +3590,9 @@ app.get("/api/telegram/knowledge-bank", (req, res) => {
 // 6. Real Live Synchronization Trigger (Across Active Channels)
 app.post("/api/telegram/sync", async (req, res) => {
   const { channelHandle } = req.body;
-  const db = getTelegramDb();
+  const db = await PgTelegramDb.getDatabase();
 
-  db.sync_state.status = "syncing";
-  saveTelegramDb();
+  await PgTelegramDb.updateState((state) => { state.sync_state.status = "syncing"; });
 
   let totalFetched = 0;
   let totalNew = 0;
@@ -3479,7 +3620,7 @@ app.post("/api/telegram/sync", async (req, res) => {
     }
   }
 
-  const updatedDb = getTelegramDb();
+  const updatedDb = await PgTelegramDb.getDatabase();
   res.json({
     success: !hasErrors || totalNew > 0,
     syncStatus: updatedDb.sync_state.status,
@@ -3499,7 +3640,7 @@ app.post("/api/telegram/sync", async (req, res) => {
 });
 
 // 7. Connect User Telegram Account (MTProto / Session Bridge)
-app.post("/api/telegram/connect-account", (req, res) => {
+app.post("/api/telegram/connect-account", async (req, res) => {
   const { phoneNumber, sessionString, apiId, apiHash } = req.body;
 
   if (!phoneNumber && !sessionString) {
@@ -3514,7 +3655,7 @@ app.post("/api/telegram/connect-account", (req, res) => {
   const sessionId = `session-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
   const encryptedPayload = Buffer.from(JSON.stringify({ sessionString: sessionString || "", apiId, apiHash })).toString("base64");
 
-  saveUserAccountSession(sessionId, phoneNumber || "connected_user", encryptedPayload);
+  await PgTelegramDb.saveUserAccountSession(sessionId, phoneNumber || "connected_user", encryptedPayload);
 
   res.json({
     success: true,
@@ -3527,7 +3668,7 @@ app.post("/api/telegram/connect-account", (req, res) => {
 // 8. Retry Processing on Failed / Raw Message
 app.post("/api/telegram/retry-processing", async (req, res) => {
   const { telegramMessageId, channelId } = req.body;
-  const db = getTelegramDb();
+  const db = await PgTelegramDb.getDatabase();
 
   const targetMsg = db.telegram_messages.find(
     (m) => String(m.telegramMessageId) === String(telegramMessageId) && (!channelId || m.channelId === channelId)
@@ -3548,7 +3689,7 @@ app.post("/api/telegram/retry-processing", async (req, res) => {
     sourceUrl: targetMsg.sourceUrl,
   });
 
-  const updatedDb = getTelegramDb();
+  const updatedDb = await PgTelegramDb.getDatabase();
   res.json({
     success: result.status === "SUCCESS",
     status: result.status,
@@ -3591,7 +3732,7 @@ app.post("/api/telegram/raw-ingest", async (req, res) => {
     results.push(proc);
   }
 
-  const updatedDb = getTelegramDb();
+  const updatedDb = await PgTelegramDb.getDatabase();
   res.json({
     success: true,
     processedCount: results.length,
@@ -3610,8 +3751,8 @@ app.get("/api/telegram/channel-stream/:handle", async (req, res) => {
   res.json(scraped);
 });
 
-app.get("/api/telegram/diagnostics", (req, res) => {
-  const db = getTelegramDb();
+app.get("/api/telegram/diagnostics", async (req, res) => {
+  const db = await PgTelegramDb.getDatabase();
   res.json({
     success: true,
     engineVersion: "v2.5-persistent-knowledge-bank",
@@ -3683,11 +3824,11 @@ app.post(["/api/telegram/auth/disconnect", "/api/telegram/cloud/disconnect"], as
 });
 
 // 7. Auth Status & Live Health Diagnostics
-app.get(["/api/telegram/health", "/api/telegram/cloud/status"], (req, res) => {
-  const account = CloudDb.getAccount();
-  const heartbeat = CloudDb.getHeartbeat();
-  const monitoredSources = CloudDb.getSources(true);
-  const db = getCloudDatabase();
+app.get(["/api/telegram/health", "/api/telegram/cloud/status"], async (req, res) => {
+  const account = await PgCloudDb.getAccount();
+  const heartbeat = await PgCloudDb.getHeartbeat();
+  const monitoredSources = await PgCloudDb.getSources(true);
+  const db = await PgCloudDb.getDatabase();
 
   const isConnected = Boolean(account && account.isAuthenticated);
   const totalCurated = (db.canonicalItems || []).filter((c) => c.isHighYield).length;
@@ -3745,9 +3886,9 @@ app.get(["/api/telegram/dialogs", "/api/telegram/cloud/sources"], async (req, re
 });
 
 // 9. Toggle Monitored Source
-app.post(["/api/telegram/sources/toggle", "/api/telegram/cloud/sources/toggle"], (req, res) => {
+app.post(["/api/telegram/sources/toggle", "/api/telegram/cloud/sources/toggle"], async (req, res) => {
   const { sourceId, isMonitored } = req.body;
-  const updated = CloudDb.toggleSourceMonitored(sourceId, Boolean(isMonitored));
+  const updated = await PgCloudDb.toggleSourceMonitored(sourceId, Boolean(isMonitored));
   res.json({ success: Boolean(updated), source: updated });
 });
 
@@ -3809,7 +3950,7 @@ app.post(["/api/telegram/re-enrich", "/api/telegram/cloud/re-enrich"], async (re
 });
 
 // 13. Knowledge Bank Feed
-app.get(["/api/telegram/feed", "/api/telegram/cloud/feed"], (req, res) => {
+app.get(["/api/telegram/feed", "/api/telegram/cloud/feed"], async (req, res) => {
   const {
     type,
     subject,
@@ -3823,9 +3964,9 @@ app.get(["/api/telegram/feed", "/api/telegram/cloud/feed"], (req, res) => {
     limit,
   } = req.query;
 
-  const db = getCloudDatabase();
+  const db = await PgCloudDb.getDatabase();
 
-  const curatedQueryResult = CloudDb.queryCuratedCanonicalItems({
+  const curatedQueryResult = await PgCloudDb.queryCuratedCanonicalItems({
     type: typeof type === "string" ? (type as any) : undefined,
     subject: typeof subject === "string" ? subject : undefined,
     topic: typeof topic === "string" ? topic : undefined,
@@ -3837,7 +3978,7 @@ app.get(["/api/telegram/feed", "/api/telegram/cloud/feed"], (req, res) => {
     limit: typeof limit === "string" || typeof limit === "number" ? limit : undefined,
   });
 
-  const rawMessagesQueryResult = CloudDb.queryRawMessages({
+  const rawMessagesQueryResult = await PgCloudDb.queryRawMessages({
     processingState: typeof processingState === "string" ? processingState : undefined,
     sourceId: typeof channel === "string" ? channel : undefined,
     search: typeof search === "string" ? search : undefined,
@@ -3845,9 +3986,9 @@ app.get(["/api/telegram/feed", "/api/telegram/cloud/feed"], (req, res) => {
     limit: typeof limit === "string" || typeof limit === "number" ? limit : undefined,
   });
 
-  const diagnostics = CloudDb.getPipelineDiagnostics();
-  const counts = CloudDb.getCuratedCounts();
-  const canonicalItems = CloudDb.getCanonicalItems();
+  const diagnostics = await PgCloudDb.getPipelineDiagnostics();
+  const counts = await PgCloudDb.getCuratedCounts();
+  const canonicalItems = await PgCloudDb.getCanonicalItems();
 
   res.json({
     success: true,
@@ -3878,9 +4019,9 @@ app.get(["/api/telegram/feed", "/api/telegram/cloud/feed"], (req, res) => {
 });
 
 // 14. High-Yield Saved Items Vault Endpoints
-app.get("/api/telegram/saved", (req, res) => {
+app.get("/api/telegram/saved", async (req, res) => {
   const { subject, itemType, tag } = req.query;
-  const items = CloudDb.getSavedItems({
+  const items = await PgCloudDb.getSavedItems({
     subject: typeof subject === "string" ? subject : undefined,
     itemType: typeof itemType === "string" ? itemType : undefined,
     tag: typeof tag === "string" ? tag : undefined,
@@ -3888,12 +4029,12 @@ app.get("/api/telegram/saved", (req, res) => {
   res.json({ success: true, savedItems: items, count: items.length });
 });
 
-app.post("/api/telegram/saved/toggle", (req, res) => {
+app.post("/api/telegram/saved/toggle", async (req, res) => {
   const { itemId, itemType, subject, title, content, mediaUrl, mediaType, options, correctAnswer, explanation, tags, studentNotes, sourceChannel } = req.body;
   if (!itemId) {
     return res.status(400).json({ success: false, error: "itemId is required" });
   }
-  const result = CloudDb.toggleSavedItem({
+  const result = await PgCloudDb.toggleSavedItem({
     itemId,
     itemType: itemType || "question",
     subject: subject || "General Medicine",
@@ -3911,22 +4052,22 @@ app.post("/api/telegram/saved/toggle", (req, res) => {
   res.json({ success: true, ...result });
 });
 
-app.post("/api/telegram/saved/notes", (req, res) => {
+app.post("/api/telegram/saved/notes", async (req, res) => {
   const { id, notes, tags } = req.body;
   if (!id) return res.status(400).json({ success: false, error: "id is required" });
-  const updated = CloudDb.updateSavedItemNotes(id, notes, tags);
+  const updated = await PgCloudDb.updateSavedItemNotes(id, notes, tags);
   res.json({ success: Boolean(updated), item: updated });
 });
 
-app.delete("/api/telegram/saved/:id", (req, res) => {
+app.delete("/api/telegram/saved/:id", async (req, res) => {
   const { id } = req.params;
-  const success = CloudDb.deleteSavedItem(id);
+  const success = await PgCloudDb.deleteSavedItem(id);
   res.json({ success });
 });
 
 // 15. Reset Clean Slate
-app.post(["/api/telegram/reset", "/api/telegram/cloud/reset"], (req, res) => {
-  CloudDb.resetTelegramNamespace();
+app.post(["/api/telegram/reset", "/api/telegram/cloud/reset"], async (req, res) => {
+  await PgCloudDb.resetTelegramNamespace();
   res.json({ success: true, message: "Telegram Cloud database reset to 0 sources and 0 messages." });
 });
 
@@ -4023,7 +4164,21 @@ Provide a structured, decisive strategic blueprint in JSON format:
 });
 
 // 5. Telegram Webhook Endpoint
-app.post("/api/telegram/webhook", async (req, res) => {
+app.post("/api/telegram/webhook", (req, res, next) => {
+  const expected = process.env.TELEGRAM_WEBHOOK_SECRET || "";
+  const supplied = req.header("x-telegram-bot-api-secret-token") || "";
+  if (!expected) {
+    res.status(503).json({ ok: false, error: "Telegram webhook secret is not configured." });
+    return;
+  }
+  const expectedBytes = Buffer.from(expected);
+  const suppliedBytes = Buffer.from(supplied);
+  if (expectedBytes.length !== suppliedBytes.length || !crypto.timingSafeEqual(expectedBytes, suppliedBytes)) {
+    res.status(401).json({ ok: false, error: "Unauthorized webhook request." });
+    return;
+  }
+  next();
+}, async (req, res) => {
   try {
     const update = req.body;
     const message = update?.message || update?.channel_post || update?.edited_message;

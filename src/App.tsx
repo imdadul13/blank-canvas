@@ -1,34 +1,32 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ArrowLeft, PanelLeftOpen } from 'lucide-react';
 import { Navbar, SidebarDock, ActiveTab } from './components/Navbar';
 import { motion, AnimatePresence } from 'motion/react';
-import { DashboardView } from './components/DashboardView';
-import { SyllabusView } from './components/SyllabusView';
-import { FmgePredictorView } from './components/FmgePredictorView';
-import { GrandTestsView } from './components/GrandTestsView';
-import { DailyPlannerView } from './components/DailyPlannerView';
-import { PearlsVaultView } from './components/PearlsVaultView';
-import { TelegramHubView } from './components/TelegramHubView';
-import { PracticeView } from './components/PracticeView';
-import { ProgressView } from './components/ProgressView';
-import { MoreView } from './components/MoreView';
-import { AiCoachView } from './components/AiCoachView';
-import { AiCoachModal } from './components/AiCoachModal';
-import { PracticeMcqSessionModal } from './components/PracticeMcqSessionModal';
-import { SubjectDetailModal } from './components/SubjectDetailModal';
-import { DoctorProfileModal } from './components/DoctorProfileModal';
-import { AppSettingsModal } from './components/AppSettingsModal';
+const DashboardView = lazy(() => import('./components/DashboardView').then((module) => ({ default: module.DashboardView })));
+const SyllabusView = lazy(() => import('./components/SyllabusView').then((module) => ({ default: module.SyllabusView })));
+const GrandTestsView = lazy(() => import('./components/GrandTestsView').then((module) => ({ default: module.GrandTestsView })));
+const PearlsVaultView = lazy(() => import('./components/PearlsVaultView').then((module) => ({ default: module.PearlsVaultView })));
+const TelegramHubView = lazy(() => import('./components/TelegramHubView').then((module) => ({ default: module.TelegramHubView })));
+const PracticeView = lazy(() => import('./components/PracticeView').then((module) => ({ default: module.PracticeView })));
+const ProgressView = lazy(() => import('./components/ProgressView').then((module) => ({ default: module.ProgressView })));
+const MoreView = lazy(() => import('./components/MoreView').then((module) => ({ default: module.MoreView })));
+const AiCoachView = lazy(() => import('./components/AiCoachView').then((module) => ({ default: module.AiCoachView })));
+const AiCoachModal = lazy(() => import('./components/AiCoachModal').then((module) => ({ default: module.AiCoachModal })));
+const PracticeMcqSessionModal = lazy(() => import('./components/PracticeMcqSessionModal').then((module) => ({ default: module.PracticeMcqSessionModal })));
+const SubjectDetailModal = lazy(() => import('./components/SubjectDetailModal').then((module) => ({ default: module.SubjectDetailModal })));
+const DoctorProfileModal = lazy(() => import('./components/DoctorProfileModal').then((module) => ({ default: module.DoctorProfileModal })));
+const AppSettingsModal = lazy(() => import('./components/AppSettingsModal').then((module) => ({ default: module.AppSettingsModal })));
 import { AuthScreen } from './components/AuthScreen';
 import { OnboardingFlow } from './components/OnboardingFlow';
-import { DataMigrationModal } from './components/DataMigrationModal';
-import { NotificationCenterModal } from './components/NotificationCenterModal';
-import { CloudSyncModal } from './components/CloudSyncModal';
-import { CommandPaletteModal } from './components/CommandPaletteModal';
-import { IbqRapidRecallModal } from './components/IbqRapidRecallModal';
+const DataMigrationModal = lazy(() => import('./components/DataMigrationModal').then((module) => ({ default: module.DataMigrationModal })));
+const NotificationCenterModal = lazy(() => import('./components/NotificationCenterModal').then((module) => ({ default: module.NotificationCenterModal })));
+const CloudSyncModal = lazy(() => import('./components/CloudSyncModal').then((module) => ({ default: module.CloudSyncModal })));
+const CommandPaletteModal = lazy(() => import('./components/CommandPaletteModal').then((module) => ({ default: module.CommandPaletteModal })));
+const IbqRapidRecallModal = lazy(() => import('./components/IbqRapidRecallModal').then((module) => ({ default: module.IbqRapidRecallModal })));
 import { FloatingAudioReviewBar } from './components/FloatingAudioReviewBar';
-import { ZenFocusRoomModal } from './components/ZenFocusRoomModal';
+const ZenFocusRoomModal = lazy(() => import('./components/ZenFocusRoomModal').then((module) => ({ default: module.ZenFocusRoomModal })));
 import { BackToTopButton } from './components/BackToTopButton';
-import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
+const KeyboardShortcutsModal = lazy(() => import('./components/KeyboardShortcutsModal').then((module) => ({ default: module.KeyboardShortcutsModal })));
 import { ErrorBoundary } from './components/error-boundary';
 import { AppSplashScreen } from './components/AppSplashScreen';
 import { AuthProvider, useAuth, DEV_AUTH_BYPASS } from './context/AuthContext';
@@ -57,7 +55,7 @@ import { useScrollDirection } from './hooks/useScrollDirection';
 import { resolveTimeOfDay } from './hooks/useCircadianTheme';
 import { getActiveNotificationCount } from './utils/notificationEngine';
 import { recordSpacedAttempt } from './utils/spacedRepetitionEngine';
-import { AudioRecallPlayerModal } from './components/AudioRecallPlayerModal';
+const AudioRecallPlayerModal = lazy(() => import('./components/AudioRecallPlayerModal').then((module) => ({ default: module.AudioRecallPlayerModal })));
 
 const STUDY_BACKGROUNDS = [
   { id: 'morning', url: '/images/study-bg/study-art-morning.jpg', label: 'Morning Desk', period: 'Morning' },
@@ -973,6 +971,7 @@ function AppInner() {
         {/* Main Content Area */}
         <main className="workspace-main relative flex-1 w-full mx-auto">
           <ErrorBoundary resetKey={activeTab}>
+            <Suspense fallback={<div role="status" className="flex min-h-[320px] items-center justify-center text-sm text-[#8E8E93]">Loading study workspace…</div>}>
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
@@ -1238,12 +1237,14 @@ function AppInner() {
                 )}
               </motion.div>
             </AnimatePresence>
+            </Suspense>
           </ErrorBoundary>
         </main>
       </div>
 
+      <Suspense fallback={null}>
       {/* AI Medical Coach Modal */}
-      <AiCoachModal
+      {isAiCoachOpen && <AiCoachModal
         isOpen={isAiCoachOpen}
         onClose={() => setIsAiCoachOpen(false)}
         initialTab={aiCoachInitialTab}
@@ -1253,18 +1254,18 @@ function AppInner() {
         daysRemaining={stats.daysRemaining}
         state={state}
         onRecordAttempt={recordQuestionAttempt}
-      />
+      />}
 
       {/* 10-Question Sequential High-Yield Practice Session Modal */}
-      <PracticeMcqSessionModal
+      {practiceSessionContext !== null && <PracticeMcqSessionModal
         isOpen={practiceSessionContext !== null}
         onClose={() => setPracticeSessionContext(null)}
         context={practiceSessionContext}
         onRecordAttempt={recordQuestionAttempt}
-      />
+      />}
 
       {/* Subject Detail Deep Dive Modal */}
-      <SubjectDetailModal
+      {selectedSubjectId !== null && <SubjectDetailModal
         subject={selectedSubject}
         isOpen={selectedSubjectId !== null}
         onClose={() => setSelectedSubjectId(null)}
@@ -1277,52 +1278,52 @@ function AppInner() {
         onUpdateSubjectDetails={handleUpdateSubjectDetails}
         onLaunchPracticeMcq={(ctx) => handleLaunchPracticeSession(ctx.subjectId, ctx.topicId, ctx.topicName)}
         onOpenAiCoach={handleOpenAiCoach}
-      />
+      />}
 
       {/* Dedicated Doctor Profile & Exam Blueprint Modal */}
-      <DoctorProfileModal
+      {isProfileOpen && <DoctorProfileModal
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
         state={state}
         stats={stats}
         onUpdateSettings={handleUpdateSettings}
         onImportState={handleImportState}
-      />
+      />}
 
       {/* Dedicated App Settings & Visual Preferences Modal */}
-      <AppSettingsModal
+      {isSettingsOpen && <AppSettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         state={state}
         onUpdateSettings={handleUpdateSettings}
         onResetState={handleResetState}
         onOpenOnboarding={handleOpenOnboarding}
-      />
+      />}
 
       {/* Legacy Local Data Migration Modal */}
       {showMigrationPrompt && <DataMigrationModal />}
 
       {/* Global Notification Center Modal */}
-      <NotificationCenterModal
+      {isNotificationCenterOpen && <NotificationCenterModal
         isOpen={isNotificationCenterOpen}
         onClose={() => setIsNotificationCenterOpen(false)}
         state={state}
         onNavigateTab={handleSetActiveTab}
         onSelectSubject={handleSelectSubject}
         onLaunchPracticeSession={handleLaunchPracticeSession}
-      />
+      />}
 
       {/* Global Cloud Sync & Telemetry Modal */}
-      <CloudSyncModal
+      {isCloudSyncOpen && <CloudSyncModal
         isOpen={isCloudSyncOpen}
         onClose={() => setIsCloudSyncOpen(false)}
         state={state}
         syncStatus={syncStatus}
         onUpdateAppState={setState}
-      />
+      />}
 
       {/* Universal Command Palette (Cmd+K / Ctrl+K) */}
-      <CommandPaletteModal
+      {isCommandPaletteOpen && <CommandPaletteModal
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
         onNavigateTab={handleSetActiveTab}
@@ -1333,38 +1334,39 @@ function AppInner() {
         onToggleSidebar={toggleSidebar}
         onOpenZenFocus={() => setIsZenFocusOpen(true)}
         onOpenShortcuts={() => setIsShortcutsOpen(true)}
-      />
+      />}
 
       {/* Global 60s IBQ Rapid Recall Drill Modal */}
-      <IbqRapidRecallModal
+      {isGlobalIbqModalOpen && <IbqRapidRecallModal
         isOpen={isGlobalIbqModalOpen}
         onClose={() => setIsGlobalIbqModalOpen(false)}
         onOpenAiCoach={handleOpenAiCoach}
-      />
+      />}
 
       {/* Global Hands-Free Audio Commute Review Player */}
       <FloatingAudioReviewBar />
 
       {/* Premier Hands-Free Hospital Commute Audio Recall Modal */}
-      <AudioRecallPlayerModal
+      {isAudioRecallOpen && <AudioRecallPlayerModal
         isOpen={isAudioRecallOpen}
         onClose={() => setIsAudioRecallOpen(false)}
         state={state}
-      />
+      />}
 
       {/* Zen Clinical Study Sanctuary Modal */}
-      <ZenFocusRoomModal
+      {isZenFocusOpen && <ZenFocusRoomModal
         isOpen={isZenFocusOpen}
         onClose={() => setIsZenFocusOpen(false)}
         state={state}
         onUpdateDailyLog={handleUpdateDailyLog}
-      />
+      />}
 
       {/* Keyboard Shortcuts Cheatsheet Modal (?) */}
-      <KeyboardShortcutsModal
+      {isShortcutsOpen && <KeyboardShortcutsModal
         isOpen={isShortcutsOpen}
         onClose={() => setIsShortcutsOpen(false)}
-      />
+      />}
+      </Suspense>
 
       {/* Floating Back to Top Micro-Pill */}
       <BackToTopButton threshold={350} />

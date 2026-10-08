@@ -92,8 +92,13 @@ const DEFAULT_SCHEMA: TelegramDbSchema = {
   },
 };
 
+export function createDefaultTelegramDbState(): TelegramDbSchema {
+  return JSON.parse(JSON.stringify(DEFAULT_SCHEMA)) as TelegramDbSchema;
+}
+
 let inMemoryDb: TelegramDbSchema = { ...DEFAULT_SCHEMA };
 let isInitialized = false;
+let persistenceSuppressed = false;
 
 export function ensureDirectoriesExist() {
   if (!fs.existsSync(DB_DIR)) {
@@ -152,6 +157,7 @@ export function getTelegramDb(): TelegramDbSchema {
 }
 
 export function saveTelegramDb() {
+  if (persistenceSuppressed) return;
   ensureDirectoriesExist();
   inMemoryDb.updatedAt = new Date().toISOString();
 
@@ -168,6 +174,45 @@ export function saveTelegramDb() {
       } catch (_) {}
     }
   }
+}
+
+/** Runs legacy pipeline rules against a supplied snapshot without touching disk. */
+export function invokeTelegramDbMethodWithState(method: string, args: unknown[], state: TelegramDbSchema) {
+  const operations: Record<string, (...input: any[]) => any> = {
+    insertRawTelegramMessage,
+    updateRawMessageStatus,
+    insertMediaAsset,
+    insertOrUpdateQuestion,
+    insertExamTip,
+    insertNotice,
+    createOrUpdateJob,
+    updateChannelCursor,
+    addChannelToDb,
+    deleteChannelFromDb,
+    saveUserAccountSession,
+  };
+  const handler = operations[method];
+  if (!handler) throw new Error(`Unknown Telegram pipeline database operation: ${method}`);
+  const previousState = inMemoryDb;
+  const previousInitialized = isInitialized;
+  const previousSuppression = persistenceSuppressed;
+  inMemoryDb = { ...DEFAULT_SCHEMA, ...JSON.parse(JSON.stringify(state)) };
+  isInitialized = true;
+  persistenceSuppressed = true;
+  try {
+    const result = handler(...args);
+    return { result, state: inMemoryDb };
+  } finally {
+    inMemoryDb = previousState;
+    isInitialized = previousInitialized;
+    persistenceSuppressed = previousSuppression;
+  }
+}
+
+export function replaceTelegramDbForDevelopment(state: TelegramDbSchema): void {
+  inMemoryDb = { ...DEFAULT_SCHEMA, ...state };
+  isInitialized = true;
+  saveTelegramDb();
 }
 
 // ----------------------------------------------------------------------------

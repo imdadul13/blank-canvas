@@ -51,6 +51,7 @@ import {
 import confetti from "canvas-confetti";
 import { motion } from "motion/react";
 import { enrichClinicalQuestion } from "../utils/clinicalDistractorHelper";
+import { apiFetch } from "../utils/api";
 import {
   TelegramMCQ,
   DailyTask,
@@ -223,7 +224,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
   const fetchStatus = async () => {
     try {
-      const res = await fetch("/api/telegram/cloud/status");
+      const res = await apiFetch("/api/telegram/cloud/status");
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -239,7 +240,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   const fetchFeed = async (pageToFetch = 1) => {
     try {
       setIsLoadingFeed(true);
-      const res = await fetch(`/api/telegram/cloud/feed?page=${pageToFetch}&limit=50`);
+      const res = await apiFetch(`/api/telegram/cloud/feed?page=${pageToFetch}&limit=50`);
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -330,7 +331,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     sourceChannel?: string;
   }) => {
     try {
-      const res = await fetch("/api/telegram/saved/toggle", {
+      const res = await apiFetch("/api/telegram/saved/toggle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(item),
@@ -353,7 +354,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
   const handleUpdateSavedNotes = async (id: string, notes: string, tags?: string[]) => {
     try {
-      const res = await fetch("/api/telegram/saved/notes", {
+      const res = await apiFetch("/api/telegram/saved/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, notes, tags }),
@@ -370,7 +371,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
   const handleDeleteSavedItem = async (id: string, itemId: string) => {
     try {
-      const res = await fetch(`/api/telegram/saved/${encodeURIComponent(id)}`, {
+      const res = await apiFetch(`/api/telegram/saved/${encodeURIComponent(id)}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -384,7 +385,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     setIsManualSyncing(true);
     setSyncBannerNotice("Syncing Telegram… Scanning new messages… Curating educational content…");
     try {
-      const res = await fetch("/api/telegram/cloud/sync-now", {
+      const res = await apiFetch("/api/telegram/cloud/sync-now", {
         method: "POST",
       });
       if (res.ok) {
@@ -420,7 +421,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     setIsReEnriching(true);
     setSyncBannerNotice("Gemini AI is verifying clinical questions, option distractors, and exam pearls...");
     try {
-      const res = await fetch("/api/telegram/cloud/re-enrich", { method: "POST" });
+      const res = await apiFetch("/api/telegram/cloud/re-enrich", { method: "POST" });
       const data = await res.json();
       if (data.success) {
         setSyncBannerNotice(`Gemini verified & updated ${data.enrichedCount || 0} questions & exam pearls!`);
@@ -439,7 +440,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
   const fetchSources = async (query = "") => {
     try {
-      const res = await fetch(`/api/telegram/cloud/sources?q=${encodeURIComponent(query)}`);
+      const res = await apiFetch(`/api/telegram/cloud/sources?q=${encodeURIComponent(query)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.sources)) {
@@ -456,7 +457,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     if (qrPollingRef.current) clearInterval(qrPollingRef.current);
 
     try {
-      const res = await fetch("/api/telegram/cloud/qr/generate", {
+      const res = await apiFetch("/api/telegram/cloud/qr/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -473,7 +474,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         // Start polling for QR scan confirmation every 3 seconds
         qrPollingRef.current = setInterval(async () => {
           try {
-            const checkRes = await fetch("/api/telegram/cloud/qr/check", { method: "POST" });
+            const checkRes = await apiFetch("/api/telegram/cloud/qr/check", { method: "POST" });
             const checkData = await checkRes.json();
             if (checkData.success && checkData.isAuthenticated) {
               if (qrPollingRef.current) clearInterval(qrPollingRef.current);
@@ -527,7 +528,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     setIsAuthLoading(true);
 
     try {
-      const res = await fetch("/api/telegram/cloud/send-code", {
+      const res = await apiFetch("/api/telegram/cloud/send-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -563,7 +564,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     const cleanPhone = validation.isValid ? validation.normalizedE164 : phoneInput;
 
     try {
-      const res = await fetch("/api/telegram/cloud/verify-code", {
+      const res = await apiFetch("/api/telegram/cloud/verify-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -604,7 +605,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
     setIsAuthLoading(true);
 
     try {
-      const res = await fetch("/api/telegram/cloud/verify-password", {
+      const res = await apiFetch("/api/telegram/cloud/verify-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -635,7 +636,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
   const handleDisconnect = async () => {
     try {
-      await fetch("/api/telegram/cloud/disconnect", { method: "POST" });
+      await apiFetch("/api/telegram/cloud/disconnect", { method: "POST" });
       setIsConnected(false);
       setUserProfile(null);
       fetchStatus();
@@ -644,7 +645,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
   const handleToggleSource = async (sourceId: string, currentStatus: boolean) => {
     try {
-      const res = await fetch("/api/telegram/cloud/sources/toggle", {
+      const res = await apiFetch("/api/telegram/cloud/sources/toggle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sourceId, isMonitored: !currentStatus }),
@@ -663,7 +664,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   const handleImportHistory = async (sourceId: string, limit: number) => {
     setImportingSourceId(sourceId);
     try {
-      const res = await fetch("/api/telegram/sources/import-history", {
+      const res = await apiFetch("/api/telegram/sources/import-history", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sourceId, limit }),
@@ -685,7 +686,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       return;
     }
     try {
-      await fetch("/api/telegram/reset", { method: "POST" });
+      await apiFetch("/api/telegram/reset", { method: "POST" });
       fetchFeed();
       fetchStatus();
       fetchSources();

@@ -17,6 +17,8 @@ services:
         fromDatabase:
           name: oneshot-fmge-db
           property: connectionString
+      - key: PERSISTENCE_MIGRATION_SOURCE
+        value: oneshot-fmge-web
       - key: SESSION_ENCRYPTION_KEY
         generateValue: true
       - key: TELEGRAM_API_ID
@@ -25,6 +27,12 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: APP_OWNER_UID
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        value: one-shot-fmge
 
   # 2. Standalone Cloud Telegram Ingestion Worker (24/7 Persistent MTProto Client)
   - type: worker
@@ -42,6 +50,8 @@ services:
         fromDatabase:
           name: oneshot-fmge-db
           property: connectionString
+      - key: PERSISTENCE_MIGRATION_SOURCE
+        value: oneshot-fmge-telegram-worker
       - key: SESSION_ENCRYPTION_KEY
         fromService:
           name: oneshot-fmge-web
@@ -55,7 +65,7 @@ services:
         sync: false
 
 databases:
-  # 3. Persistent PostgreSQL Database
+  # 3. Shared source of truth for web and worker persistence.
   - name: oneshot-fmge-db
     plan: starter
     databaseName: oneshotfmge

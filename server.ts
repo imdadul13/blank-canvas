@@ -1,17 +1,19 @@
 import "dotenv/config";
 import express from "express";
-import cors from "cors";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import fmgeRoutes from "./server/fmge-routes";
 import { startBackgroundSyncDaemon } from "./server/telegram-service";
+import { closePostgres, initializePostgres } from "./server/db/client";
 
 async function startServer() {
+  await initializePostgres();
   const app = express();
+  app.set("trust proxy", 1);
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
   const HOST = process.env.HOST || "0.0.0.0";
 
-  app.use(cors());
+  app.disable("x-powered-by");
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
@@ -89,8 +91,10 @@ async function startServer() {
   const shutdown = (signal: string) => {
     console.log(`\n[Server] Received ${signal}. Shutting down gracefully...`);
     server.close(() => {
-      console.log("[Server] Closed all remaining HTTP connections. Exiting process.");
-      process.exit(0);
+      void closePostgres().finally(() => {
+        console.log("[Server] Closed HTTP connections and PostgreSQL pool. Exiting process.");
+        process.exit(0);
+      });
     });
     setTimeout(() => {
       console.error("[Server] Forceful shutdown timeout exceeded. Exiting immediately.");

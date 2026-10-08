@@ -1,12 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
-import fs from "fs";
+import fs from "node:fs";
 import path from "path";
 
 /**
  * Resiliently resolve GEMINI_API_KEY from:
  * 1. process.env.GEMINI_API_KEY (stripping any copied quotes or trailing whitespace)
- * 2. server/data/gemini_key.json (runtime persistence store on Render)
- * 3. .env file fallback
+ * 2. .env file fallback for local development
  */
 export function getGeminiApiKey(): string {
   let apiKey = process.env.GEMINI_API_KEY;
@@ -17,21 +16,6 @@ export function getGeminiApiKey(): string {
       return apiKey;
     }
   }
-
-  // Check persistent runtime key file (e.g. configured via in-app settings on Render)
-  try {
-    const keyFile = path.resolve(process.cwd(), "server/data/gemini_key.json");
-    if (fs.existsSync(keyFile)) {
-      const parsed = JSON.parse(fs.readFileSync(keyFile, "utf8"));
-      if (parsed?.apiKey && typeof parsed.apiKey === "string") {
-        apiKey = parsed.apiKey.trim().replace(/^["']|["']$/g, "");
-        if (apiKey) {
-          process.env.GEMINI_API_KEY = apiKey;
-          return apiKey;
-        }
-      }
-    }
-  } catch (e) {}
 
   // Check local .env file fallback
   try {

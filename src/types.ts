@@ -172,7 +172,7 @@ export interface MedicalPearl {
 
 export interface AiVerificationResult {
   isVerified: boolean;
-  verdict: 'verified_correct' | 'disputed_trap' | 'ambiguous';
+  verdict: 'verified_correct' | 'disputed_trap' | 'ambiguous' | 'not_verified';
   verdictSummary: string;
   counterTestAnalysis: string;
   distractorBreakdown: { key: string; isCorrect: boolean; explanation: string }[];
@@ -1502,6 +1502,5 @@ export interface GeneratedDailyMission {
   studyStreakDays: number;
   summary?: DailyMissionSummary;
 }
-
 
 
