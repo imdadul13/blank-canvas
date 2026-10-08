@@ -1,8 +1,12 @@
+import path from "path";
 import fs from "fs";
+import https from "https";
+import http from "http";
 import crypto from "crypto";
 import { TelegramClient, Api } from "telegram";
 import { StringSession } from "telegram/sessions/index.js";
 import {
+  CloudDb,
   encryptSession,
   decryptSession,
   TelegramAccountRow,
@@ -14,10 +18,7 @@ import {
   NoticeRow,
   TipRow,
   CrossCheckRow,
-  MessageProcessingState,
-  MediaStorageService,
 } from "./db/postgres";
-import { PgCloudDb } from "./db/pg-cloud-db";
 import {
   normalizeTelegramPhoneNumber,
   normalizePhoneNumber,
@@ -26,6 +27,7 @@ import {
 import { generateQrDataUrl } from "./qr-code-generator";
 import { enrichClinicalQuestionServer } from "./clinical-distractor-engine";
 import { analyzeTelegramMessageWithGemini } from "./telegram-gemini-analyzer";
+import { getCloudDatabase, saveCloudDatabase } from "./db/postgres";
 import {
   cleanTelegramContent,
   evaluatePromotionalNoise,
@@ -34,6 +36,11 @@ import {
   calculateBigramSimilarity,
   mapToFmgeSubject,
 } from "./telegram-pipeline-server";
+
+const MEDIA_STORAGE_DIR = path.join(process.cwd(), "public", "uploads", "telegram", "media");
+if (!fs.existsSync(MEDIA_STORAGE_DIR)) {
+  fs.mkdirSync(MEDIA_STORAGE_DIR, { recursive: true });
+}
 
 let activeClient: TelegramClient | null = null;
 let currentPhoneCodeHash: string | null = null;
@@ -87,9 +94,9 @@ export function translateTelegramError(err: any): string {
 }
 
 export async function initTelegramCloudWorker(): Promise<boolean> {
-  const account = await PgCloudDb.getAccount();
+  const account = CloudDb.getAccount();
   if (!account || !account.encryptedSession) {
-    await PgCloudDb.recordHeartbeat({
+    CloudDb.recordHeartbeat({
       workerStatus: "ONLINE",
       activeSourcesCount: 0,
       errorCount: 0,
@@ -123,7 +130,7 @@ export async function initTelegramCloudWorker(): Promise<boolean> {
     }
   } catch (err: any) {
     console.error("[CloudWorker] Failed to initialize Telegram client:", err);
-    await PgCloudDb.recordHeartbeat({
+    CloudDb.recordHeartbeat({
       workerStatus: "DEGRADED",
       lastError: err.message,
     });
@@ -227,7 +234,7 @@ export async function generateTelegramLoginQr(
               connectedAt: new Date().toISOString(),
               lastActiveAt: new Date().toISOString(),
             };
-            await PgCloudDb.saveAccount(accountRow);
+            CloudDb.saveAccount(accountRow);
             startWorkerCycles();
 
             activeQrSession.isAuthenticated = true;
@@ -309,7 +316,7 @@ export async function generateTelegramLoginQr(
         connectedAt: new Date().toISOString(),
         lastActiveAt: new Date().toISOString(),
       };
-      await PgCloudDb.saveAccount(accountRow);
+      CloudDb.saveAccount(accountRow);
       startWorkerCycles();
 
       return {
@@ -365,7 +372,7 @@ export async function checkTelegramQrLoginStatus(): Promise<{
     const isAuth = await activeClient.isUserAuthorized().catch(() => false);
     if (isAuth) {
       activeQrSession.isAuthenticated = true;
-      const acc = await PgCloudDb.getAccount();
+      const acc = CloudDb.getAccount();
       if (acc) {
         activeQrSession.userProfile = {
           id: acc.userId,
@@ -396,7 +403,6 @@ export async function sendTelegramAuthCode(phoneNumber: string, apiIdParam?: num
   error?: string;
 }> {
   const validation = normalizeTelegramPhoneNumber(phoneNumber);
-
   if (!validation.isValid) {
     return {
       success: false,
@@ -484,10 +490,10 @@ export async function verifyTelegramAuthCode(phoneNumber: string, phoneCodeHash:
       lastActiveAt: new Date().toISOString(),
     };
 
-    await PgCloudDb.saveAccount(accountRow);
+    CloudDb.saveAccount(accountRow);
     startWorkerCycles();
 
-    console.log(`[TelegramAuth] Account successfully authenticated for user ${accountRow.userId}.`);
+    console.log("[TelegramAuth] Account successfully authenticated.");
 
     return {
       success: true,
@@ -550,7 +556,7 @@ export async function verifyTelegram2FAPassword(password: string): Promise<{
       lastActiveAt: new Date().toISOString(),
     };
 
-    await PgCloudDb.saveAccount(accountRow);
+    CloudDb.saveAccount(accountRow);
     startWorkerCycles();
 
     return {
@@ -572,15 +578,15 @@ export async function verifyTelegram2FAPassword(password: string): Promise<{
 }
 
 export async function disconnectTelegramAccount(): Promise<boolean> {
-  const account = await PgCloudDb.getAccount();
+  const account = CloudDb.getAccount();
   if (account) {
-    await PgCloudDb.deleteAccount(account.id);
+    CloudDb.deleteAccount(account.id);
   }
   if (activeClient) {
     try { await activeClient.disconnect(); } catch (_) {}
     activeClient = null;
   }
-  await PgCloudDb.recordHeartbeat({ workerStatus: "ONLINE", activeSourcesCount: 0 });
+  CloudDb.recordHeartbeat({ workerStatus: "ONLINE", activeSourcesCount: 0 });
   return true;
 }
 
@@ -594,13 +600,13 @@ export async function discoverUserTelegramSources(searchQuery = ""): Promise<Tel
   }
 
   if (!activeClient) {
-    return await PgCloudDb.getSources();
+    return CloudDb.getSources();
   }
 
   try {
     const dialogs = await activeClient.getDialogs({ limit: 100 });
     const discovered: TelegramSourceRow[] = [];
-    const account = await PgCloudDb.getAccount();
+    const account = CloudDb.getAccount();
 
     for (const d of dialogs) {
       if (d.isChannel || d.isGroup) {
@@ -632,7 +638,7 @@ export async function discoverUserTelegramSources(searchQuery = ""): Promise<Tel
       }
     }
 
-    await PgCloudDb.upsertSources(discovered);
+    CloudDb.upsertSources(discovered);
 
     // Auto-trigger background import for newly discovered FMGE channels that have never been synced
     const newlyDiscoveredFmge = discovered.filter((s) => s.isMonitored && s.lastProcessedMessageId === 0);
@@ -646,7 +652,7 @@ export async function discoverUserTelegramSources(searchQuery = ""): Promise<Tel
       }, 1000);
     }
 
-    const allSources = await PgCloudDb.getSources();
+    const allSources = CloudDb.getSources();
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return allSources.filter((s) => s.title.toLowerCase().includes(q) || (s.username || "").toLowerCase().includes(q));
@@ -654,7 +660,7 @@ export async function discoverUserTelegramSources(searchQuery = ""): Promise<Tel
     return allSources;
   } catch (err: any) {
     console.error("[SourceDiscovery] Failed to fetch dialogs:", err);
-    return await PgCloudDb.getSources();
+    return CloudDb.getSources();
   }
 }
 
@@ -738,14 +744,18 @@ export async function extractTelegramMessageMediaAndPoll(
       if (mediaType !== "POLL") mediaType = "IMAGE";
       const safeSrc = (sourceId || "src").replace(/[^a-z0-9]/gi, "_");
       const filename = `photo_${safeSrc}_${msg.id}_${Date.now()}.jpg`;
+      const localPath = path.join(MEDIA_STORAGE_DIR, filename);
+      const publicUrl = `/uploads/telegram/media/${filename}`;
 
       try {
         const mediaBuffer: any = await client.downloadMedia(msg);
         if (mediaBuffer && Buffer.isBuffer(mediaBuffer) && mediaBuffer.length > 0) {
-          photoUrl = (await MediaStorageService.saveMedia(mediaBuffer, "image/jpeg", filename)).storageUrl;
+          fs.writeFileSync(localPath, mediaBuffer, { mode: 0o600 });
+          photoUrl = publicUrl;
         } else if (typeof mediaBuffer === "string" && fs.existsSync(mediaBuffer)) {
-          const bytes = await fs.promises.readFile(mediaBuffer);
-          photoUrl = (await MediaStorageService.saveMedia(bytes, "image/jpeg", filename)).storageUrl;
+          photoUrl = publicUrl;
+        } else if (fs.existsSync(localPath) && fs.statSync(localPath).size > 0) {
+          photoUrl = publicUrl;
         }
       } catch (err: any) {
         console.warn(`[MediaDownloader] Photo download failed for msg ${msg.id}:`, err?.message);
@@ -763,14 +773,18 @@ export async function extractTelegramMessageMediaAndPoll(
       if (mediaType !== "POLL") mediaType = "VIDEO";
       const safeSrc = (sourceId || "src").replace(/[^a-z0-9]/gi, "_");
       const filename = `vid_${safeSrc}_${msg.id}_${Date.now()}.mp4`;
+      const localPath = path.join(MEDIA_STORAGE_DIR, filename);
+      const publicUrl = `/uploads/telegram/media/${filename}`;
 
       try {
         const mediaBuffer: any = await client.downloadMedia(msg);
         if (mediaBuffer && Buffer.isBuffer(mediaBuffer) && mediaBuffer.length > 0) {
-          videoUrl = (await MediaStorageService.saveMedia(mediaBuffer, "video/mp4", filename)).storageUrl;
+          fs.writeFileSync(localPath, mediaBuffer, { mode: 0o600 });
+          videoUrl = publicUrl;
         } else if (typeof mediaBuffer === "string" && fs.existsSync(mediaBuffer)) {
-          const bytes = await fs.promises.readFile(mediaBuffer);
-          videoUrl = (await MediaStorageService.saveMedia(bytes, "video/mp4", filename)).storageUrl;
+          videoUrl = publicUrl;
+        } else if (fs.existsSync(localPath) && fs.statSync(localPath).size > 0) {
+          videoUrl = publicUrl;
         }
       } catch (err: any) {
         console.warn(`[MediaDownloader] Video download failed for msg ${msg.id}:`, err?.message);
@@ -811,7 +825,7 @@ export async function ingestNewTelegramMessage(input: {
   category?: string;
 }> {
   // STEP 1: IMMEDIATELY SAVE RAW TELEGRAM MESSAGE (Level 1 Deduplication)
-  const rawRes = await PgCloudDb.insertRawMessage({
+  const rawRes = CloudDb.insertRawMessage({
     accountId: input.accountId,
     sourceId: input.sourceId,
     telegramMessageId: input.telegramMessageId,
@@ -822,40 +836,64 @@ export async function ingestNewTelegramMessage(input: {
   });
 
   if (!rawRes.inserted) {
-    const completedStatuses: MessageProcessingState[] = ["PROCESSED", "PROMOTIONAL", "LOW_YIELD", "DUPLICATE"];
-    if (completedStatuses.includes(rawRes.message.status)) {
-      return { success: true, messageId: rawRes.message.id, status: "DUPLICATE" };
-    }
+    return {
+      success: true,
+      messageId: rawRes.message.id,
+      status: "DUPLICATE",
+    };
   }
-  await PgCloudDb.updateMessageStatus(rawRes.message.id, "CLASSIFYING");
 
   // STEP 2: DOWNLOAD & ASSOCIATE EXACT MEDIA
   let savedImageUrl = input.photoUrl;
   let savedVideoUrl = input.videoUrl;
 
   if (input.photoUrl) {
-    await PgCloudDb.insertMedia({
+    const filename = `photo_${input.telegramMessageId}_${Date.now()}.jpg`;
+    const localPath = path.join(MEDIA_STORAGE_DIR, filename);
+    const publicUrl = `/uploads/telegram/media/${filename}`;
+
+    try {
+      if (input.photoUrl.startsWith("http")) {
+        await downloadFileLocally(input.photoUrl, localPath);
+        savedImageUrl = publicUrl;
+      }
+    } catch (_) {}
+
+    CloudDb.insertMedia({
       id: "med-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
       messageId: rawRes.message.id,
       mediaType: "IMAGE",
       storageUrl: savedImageUrl || input.photoUrl,
+      filePath: localPath,
       createdAt: new Date().toISOString(),
     });
   }
 
   if (input.videoUrl) {
-    await PgCloudDb.insertMedia({
+    const filename = `vid_${input.telegramMessageId}_${Date.now()}.mp4`;
+    const localPath = path.join(MEDIA_STORAGE_DIR, filename);
+    const publicUrl = `/uploads/telegram/media/${filename}`;
+
+    try {
+      if (input.videoUrl.startsWith("http")) {
+        await downloadFileLocally(input.videoUrl, localPath);
+        savedVideoUrl = publicUrl;
+      }
+    } catch (_) {}
+
+    CloudDb.insertMedia({
       id: "med-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
       messageId: rawRes.message.id,
       mediaType: "VIDEO",
       storageUrl: savedVideoUrl || input.videoUrl,
       thumbnailUrl: input.videoThumbUrl,
+      filePath: localPath,
       createdAt: new Date().toISOString(),
     });
   }
 
   // STEP 3: UPDATE SOURCE CHECKPOINT
-  await PgCloudDb.updateSourceCheckpoint(input.sourceId, input.telegramMessageId);
+  CloudDb.updateSourceCheckpoint(input.sourceId, input.telegramMessageId);
 
   // STEP 4: 8-STAGE EDUCATIONAL PIPELINE (FILTERING, CLASSIFICATION, DEDUPLICATION)
   try {
@@ -867,7 +905,7 @@ export async function ingestNewTelegramMessage(input: {
     // Rule-Based Promotional & Chatter Filter (fast reject without burning AI tokens)
     const promo = evaluatePromotionalNoise(cleaned.cleanedText || rawText);
     if (promo.shouldFilterOut && !input.pollData && !hasPhoto && !hasVideo) {
-      await PgCloudDb.updateMessageStatus(
+      CloudDb.updateMessageStatus(
         rawRes.message.id,
         promo.isPromotional ? "PROMOTIONAL" : "LOW_YIELD",
         `Filtered non-clinical content (${promo.matchedTriggers.join(", ")})`
@@ -895,7 +933,7 @@ export async function ingestNewTelegramMessage(input: {
       clinicalItem.category === "GENERAL_CHATTER" ||
       clinicalItem.category === "LOW_RELEVANCE"
     ) {
-      await PgCloudDb.updateMessageStatus(
+      CloudDb.updateMessageStatus(
         rawRes.message.id,
         clinicalItem.category === "PROMOTIONAL" ? "PROMOTIONAL" : "LOW_YIELD",
         `AI Curator filtered as ${clinicalItem.category}`
@@ -918,7 +956,7 @@ export async function ingestNewTelegramMessage(input: {
     }).score;
 
     if (relevance < 60) {
-      await PgCloudDb.updateMessageStatus(rawRes.message.id, "LOW_YIELD", "Relevance score below threshold (<60)");
+      CloudDb.updateMessageStatus(rawRes.message.id, "LOW_YIELD", "Relevance score below threshold (<60)");
       return {
         success: true,
         messageId: rawRes.message.id,
@@ -947,7 +985,7 @@ export async function ingestNewTelegramMessage(input: {
       clinicalItem.category === "IMAGE_BASED_QUESTION" ||
       clinicalItem.category === "VIDEO_DEMONSTRATION"
     ) {
-      const qRes = await PgCloudDb.insertQuestion({
+      const qRes = CloudDb.insertQuestion({
         id: "q-cloud-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         sourceId: input.sourceId,
         sourceMessageId: rawRes.message.id,
@@ -970,13 +1008,13 @@ export async function ingestNewTelegramMessage(input: {
       });
 
       if (qRes.action === "DUPLICATE") {
-        await PgCloudDb.updateMessageStatus(rawRes.message.id, "DUPLICATE");
+        CloudDb.updateMessageStatus(rawRes.message.id, "DUPLICATE");
       } else {
-        await PgCloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
+        CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
       }
 
       // Upsert into Canonical Knowledge Store (linking sources across channels)
-      await PgCloudDb.upsertCanonicalItem({
+      CloudDb.upsertCanonicalItem({
         id: "canon-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         type: clinicalItem.category === "IMAGE_BASED_QUESTION" ? "image" : clinicalItem.category === "VIDEO_DEMONSTRATION" ? "video" : "question",
         subject: finalSubject,
@@ -1005,7 +1043,7 @@ export async function ingestNewTelegramMessage(input: {
 
       // Insert high-yield Exam Pearl takeaway
       if (clinicalItem.whatToRemember && clinicalItem.whatToRemember.length > 15) {
-        await PgCloudDb.insertPearl({
+        CloudDb.insertPearl({
           id: "prl-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
           sourceMessageId: rawRes.message.id,
           questionId: qRes.question.id,
@@ -1021,7 +1059,7 @@ export async function ingestNewTelegramMessage(input: {
       }
 
       // Insert AI Cross Check
-      await PgCloudDb.insertCrossCheck({
+      CloudDb.insertCrossCheck({
         id: "cc-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         questionId: qRes.question.id,
         originalAnswer: clinicalItem.telegramAnswer || clinicalItem.correctAnswer,
@@ -1042,7 +1080,7 @@ export async function ingestNewTelegramMessage(input: {
 
     // 2. OFFICIAL NBE NOTICES & ANNOUNCEMENTS
     if (clinicalItem.category === "OFFICIAL_NOTICE") {
-      await PgCloudDb.insertNotice({
+      CloudDb.insertNotice({
         id: "not-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         sourceMessageId: rawRes.message.id,
         originalText: rawText,
@@ -1055,7 +1093,7 @@ export async function ingestNewTelegramMessage(input: {
         createdAt: new Date().toISOString(),
       });
 
-      await PgCloudDb.upsertCanonicalItem({
+      CloudDb.upsertCanonicalItem({
         id: "canon-not-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         type: "notice",
         subject: "Administration",
@@ -1077,13 +1115,13 @@ export async function ingestNewTelegramMessage(input: {
         updatedAt: new Date().toISOString(),
       });
 
-      await PgCloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
+      CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
       return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "NOTICE" };
     }
 
     // 3. DIRECT EXAM PEARL
     if (clinicalItem.category === "EXAM_PEARL" || (clinicalItem.category as any) === "PEARL") {
-      await PgCloudDb.insertPearl({
+      CloudDb.insertPearl({
         id: "prl-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         sourceMessageId: rawRes.message.id,
         title: `${finalTopic} — High-Yield Pearl`,
@@ -1096,7 +1134,7 @@ export async function ingestNewTelegramMessage(input: {
         createdAt: new Date().toISOString(),
       });
 
-      await PgCloudDb.upsertCanonicalItem({
+      CloudDb.upsertCanonicalItem({
         id: "canon-prl-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         type: "pearl",
         subject: finalSubject,
@@ -1119,13 +1157,13 @@ export async function ingestNewTelegramMessage(input: {
         updatedAt: new Date().toISOString(),
       });
 
-      await PgCloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
+      CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
       return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "PEARL" };
     }
 
     // 4. CLINICAL TIP / RAPID REVISION (Only admitted if relevance >= 70)
     if (relevance >= 70 && (clinicalItem.category === "CLINICAL_TIP" || clinicalItem.category === "HIGH_YIELD_TIP")) {
-      await PgCloudDb.insertTip({
+      CloudDb.insertTip({
         id: "tip-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         sourceMessageId: rawRes.message.id,
         originalText: rawText,
@@ -1138,7 +1176,7 @@ export async function ingestNewTelegramMessage(input: {
         createdAt: new Date().toISOString(),
       });
 
-      await PgCloudDb.upsertCanonicalItem({
+      CloudDb.upsertCanonicalItem({
         id: "canon-tip-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
         type: "tip",
         subject: finalSubject,
@@ -1161,16 +1199,16 @@ export async function ingestNewTelegramMessage(input: {
         updatedAt: new Date().toISOString(),
       });
 
-      await PgCloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
+      CloudDb.updateMessageStatus(rawRes.message.id, "PROCESSED");
       return { success: true, messageId: rawRes.message.id, status: "RECEIVED", category: "TIP" };
     }
 
     // Message did not meet educational threshold to enter Knowledge Bank, keep in Raw Library
-    await PgCloudDb.updateMessageStatus(rawRes.message.id, "LOW_YIELD", "Relegated to raw source stream");
+    CloudDb.updateMessageStatus(rawRes.message.id, "LOW_YIELD", "Relegated to raw source stream");
     return { success: true, messageId: rawRes.message.id, status: "LOW_YIELD", category: "TIP" };
   } catch (err: any) {
     console.error("[CloudWorker] Pipeline ingestion error:", err);
-    await PgCloudDb.updateMessageStatus(rawRes.message.id, "FAILED", err?.message);
+    CloudDb.updateMessageStatus(rawRes.message.id, "FAILED", err?.message);
     return { success: true, messageId: rawRes.message.id, status: "FAILED" };
   }
 }
@@ -1185,9 +1223,9 @@ export function startWorkerCycles() {
 
   console.log("[CloudWorker] Cloud Telegram Worker started (24/7 background mode).");
 
-  heartbeatInterval = setInterval(async () => {
-    const monitoredSources = await PgCloudDb.getSources(true);
-    await PgCloudDb.recordHeartbeat({
+  heartbeatInterval = setInterval(() => {
+    const monitoredSources = CloudDb.getSources(true);
+    CloudDb.recordHeartbeat({
       workerStatus: "ONLINE",
       activeSourcesCount: monitoredSources.length,
       lastSuccessfulTelegramUpdate: new Date().toISOString(),
@@ -1203,7 +1241,7 @@ export function startWorkerCycles() {
 }
 
 export async function syncActiveMonitoredSources() {
-  const monitoredSources = await PgCloudDb.getSources(true);
+  const monitoredSources = CloudDb.getSources(true);
   if (monitoredSources.length === 0 || !activeClient) return;
 
   for (const src of monitoredSources) {
@@ -1281,7 +1319,7 @@ export async function syncAllMonitoredSourcesNow(): Promise<{
     };
   }
 
-  const monitoredSources = await PgCloudDb.getSources(true);
+  const monitoredSources = CloudDb.getSources(true);
   let totalScanned = 0;
   let totalNewMsgs = 0;
   let totalNewQs = 0;
@@ -1332,14 +1370,14 @@ export async function syncAllMonitoredSourcesNow(): Promise<{
   }
 
   const syncTimestamp = new Date().toISOString();
-  await PgCloudDb.recordHeartbeat({
+  CloudDb.recordHeartbeat({
     workerStatus: "ONLINE",
     lastSuccessfulTelegramUpdate: syncTimestamp,
     activeSourcesCount: monitoredSources.length,
   });
 
-  const curatedItems = await PgCloudDb.getCuratedFeed();
-  const curatedCount = (PgCloudDb.getCanonicalItems ? await PgCloudDb.getCanonicalItems() : []).filter((c) => c.isHighYield).length;
+  const curatedItems = CloudDb.getCuratedFeed();
+  const curatedCount = (CloudDb.getCanonicalItems ? CloudDb.getCanonicalItems() : []).filter((c) => c.isHighYield).length;
 
   return {
     success: true,
@@ -1360,6 +1398,20 @@ export async function syncAllMonitoredSourcesNow(): Promise<{
     duplicatesMergedCount: totalDuplicates,
     curatedKnowledgeCount: curatedItems.length,
   };
+}
+
+async function downloadFileLocally(url: string, destPath: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const client = url.startsWith("https") ? https : http;
+    const file = fs.createWriteStream(destPath);
+    client.get(url, (res) => {
+      res.pipe(file);
+      file.on("finish", () => { file.close(); resolve(); });
+    }).on("error", (err) => {
+      if (fs.existsSync(destPath)) fs.unlinkSync(destPath);
+      reject(err);
+    });
+  });
 }
 
 function determineSubject(t: string): string {
@@ -1437,12 +1489,12 @@ export async function importChannelHistory(sourceId: string, limit = 50): Promis
     return { success: false, importedCount: 0, questionsCount: 0, error: "Telegram account is not connected." };
   }
 
-  const source = await PgCloudDb.getSource(sourceId);
+  const source = CloudDb.getSource(sourceId);
   if (!source) {
     return { success: false, importedCount: 0, questionsCount: 0, error: "Channel source not found." };
   }
 
-  const job = await PgCloudDb.createJob({
+  const job = CloudDb.createJob({
     id: "job-" + Date.now(),
     sourceId: source.id,
     targetCount: limit,
@@ -1479,7 +1531,7 @@ export async function importChannelHistory(sourceId: string, limit = 50): Promis
       }
     }
 
-    await PgCloudDb.updateJob(job.id, {
+    CloudDb.updateJob(job.id, {
       status: "COMPLETED",
       importedCount: imported,
       completedAt: new Date().toISOString(),
@@ -1507,7 +1559,7 @@ export async function reEnrichExistingKnowledgeBank(): Promise<{
   enrichedCount: number;
   errors: number;
 }> {
-  const db = await PgCloudDb.getDatabase();
+  const db = getCloudDatabase();
   const questions = db.questions || [];
   let enrichedCount = 0;
   let errors = 0;
@@ -1618,7 +1670,7 @@ export async function reEnrichExistingKnowledgeBank(): Promise<{
     }
   }
 
-  await PgCloudDb.mergeEnrichment({ questions: db.questions, pearls: db.pearls, crossChecks: db.crossChecks });
+  saveCloudDatabase();
   console.log(`[ReEnrichment] Complete. Verified and enriched ${enrichedCount} items (${errors} errors).`);
   return {
     success: true,

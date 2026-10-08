@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import https from "https";
 import http from "http";
 import { enrichClinicalQuestionServer } from "./clinical-distractor-engine";
@@ -12,8 +14,22 @@ import {
   TelegramChannelConfig,
   TelegramMediaType,
 } from "../src/types";
-import { PgTelegramDb } from "./db/pg-telegram-db";
-import { MediaStorageService } from "./db/postgres";
+import {
+  getTelegramDb,
+  insertRawTelegramMessage,
+  updateRawMessageStatus,
+  insertMediaAsset,
+  insertOrUpdateQuestion,
+  insertExamTip,
+  insertNotice,
+  createOrUpdateJob,
+  updateChannelCursor,
+  computeQuestionHash,
+  saveTelegramDb,
+  ensureDirectoriesExist,
+} from "./telegram-db";
+
+const MEDIA_DIR = path.join(process.cwd(), "public", "uploads", "telegram", "media");
 
 // ----------------------------------------------------------------------------
 // 1. MEDIA ASSET DOWNLOADER & PRESERVATION
@@ -29,58 +45,71 @@ export async function downloadAndPreserveMedia(
     return null;
   }
 
+  ensureDirectoriesExist();
+
   try {
     const ext = mediaType === "VIDEO" ? ".mp4" : mediaType === "IMAGE" ? ".jpg" : ".bin";
     const filename = "tg_" + telegramMessageId + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6) + ext;
-    const downloaded = await new Promise<Buffer | null>((resolve) => {
+    const localFilePath = path.join(MEDIA_DIR, filename);
+    const publicUrl = "/uploads/telegram/media/" + filename;
+
+    await new Promise<void>((resolve) => {
       const client = url.startsWith("https") ? https : http;
-      let settled = false;
-      const finish = (value: Buffer | null) => {
-        if (settled) return;
-        settled = true;
-        resolve(value);
-      };
+      const fileStream = fs.createWriteStream(localFilePath);
+
       const req = client
         .get(url, (res) => {
           if (res.statusCode !== 200) {
             res.resume();
-            return finish(null);
-          }
-          const chunks: Buffer[] = [];
-          let totalSize = 0;
-          res.on("data", (chunk: Buffer) => {
-            const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-            totalSize += bytes.length;
-            if (totalSize > 25 * 1024 * 1024) {
-              res.destroy();
-              finish(null);
-              return;
+            fileStream.close();
+            if (fs.existsSync(localFilePath)) {
+              try { fs.unlinkSync(localFilePath); } catch (_) {}
             }
-            chunks.push(bytes);
+            return resolve(); // Soft fail: keep remote URL if download blocked
+          }
+          res.pipe(fileStream);
+          fileStream.on("finish", () => {
+            fileStream.close();
+            resolve();
           });
-          res.on("end", () => finish(totalSize ? Buffer.concat(chunks, totalSize) : null));
-          res.on("error", () => finish(null));
+          fileStream.on("error", () => {
+            res.resume();
+            fileStream.close();
+            resolve();
+          });
         })
-        .on("error", () => finish(null));
-      req.setTimeout(8000, () => {
+        .on("error", () => {
+          fileStream.close();
+          if (fs.existsSync(localFilePath)) {
+            try { fs.unlinkSync(localFilePath); } catch (_) {}
+          }
+          resolve(); // Soft fail
+        });
+
+      req.setTimeout(3000, () => {
         req.destroy();
-        finish(null);
+        fileStream.close();
+        if (fs.existsSync(localFilePath)) {
+          try { fs.unlinkSync(localFilePath); } catch (_) {}
+        }
+        resolve();
       });
     });
 
-    const mimeType = mediaType === "VIDEO" ? "video/mp4" : mediaType === "IMAGE" ? "image/jpeg" : "application/octet-stream";
-    const saved = downloaded ? await MediaStorageService.saveMedia(downloaded, mimeType, filename) : null;
+    const isSaved = fs.existsSync(localFilePath) && fs.statSync(localFilePath).size > 0;
+    const finalUrl = isSaved ? publicUrl : url;
 
-    return await PgTelegramDb.insertMediaAsset({
+    return insertMediaAsset({
       telegramMessageId,
       mediaType,
       originalFilename: originalFilename || filename,
-      mimeType,
-      storageUrl: saved?.storageUrl || url,
+      mimeType: mediaType === "VIDEO" ? "video/mp4" : mediaType === "IMAGE" ? "image/jpeg" : "application/octet-stream",
+      storageUrl: finalUrl,
+      filePath: isSaved ? localFilePath : undefined,
     });
   } catch (err) {
-    console.warn("[MediaDownloader] Could not store media in PostgreSQL, keeping remote URL:", err);
-    return await PgTelegramDb.insertMediaAsset({
+    console.warn("[MediaDownloader] Could not download media asset locally, keeping remote URL:", err);
+    return insertMediaAsset({
       telegramMessageId,
       mediaType,
       storageUrl: url,
@@ -339,14 +368,14 @@ export async function processIncomingTelegramMessage(rawInput: {
   const chatId = String(rawInput.telegramChatId || rawInput.channelId);
 
   // STEP 1: RECEIVED & STORED (Level 1 Deduplication)
-  await PgTelegramDb.createOrUpdateJob({
+  createOrUpdateJob({
     telegramMessageId: msgId,
     status: "RECEIVED",
     attempts: 1,
   });
 
   const fullText = (rawInput.text || rawInput.caption || "").trim();
-  const rawRes = await PgTelegramDb.insertRawTelegramMessage({
+  const rawRes = insertRawTelegramMessage({
     channelId: rawInput.channelId,
     telegramMessageId: msgId,
     telegramChatId: chatId,
@@ -359,16 +388,16 @@ export async function processIncomingTelegramMessage(rawInput: {
   });
 
   if (!rawRes.inserted) {
-    const completed = ["PROCESSED", "QUESTION_CREATED", "DUPLICATE", "MEDIA_ONLY"].includes(rawRes.message.processingStatus);
-    if (completed) {
-      await PgTelegramDb.createOrUpdateJob({ telegramMessageId: msgId, status: "DEDUPLICATED", attempts: 1 });
-      return { status: "DUPLICATE", category: "OTHER" };
-    }
+    createOrUpdateJob({
+      telegramMessageId: msgId,
+      status: "DEDUPLICATED",
+      attempts: 1,
+    });
+    return { status: "DUPLICATE", category: "OTHER" };
   }
-  await PgTelegramDb.updateRawMessageStatus(rawRes.message.compositeKey, "PROCESSING");
 
   // STEP 2: MEDIA DOWNLOAD & PRESERVATION
-  await PgTelegramDb.createOrUpdateJob({ telegramMessageId: msgId, status: "MEDIA_DOWNLOADED", attempts: 1 });
+  createOrUpdateJob({ telegramMessageId: msgId, status: "MEDIA_DOWNLOADED", attempts: 1 });
   let savedImageUrl = rawInput.photoUrl;
   let savedVideoUrl = rawInput.videoUrl;
 
@@ -383,7 +412,7 @@ export async function processIncomingTelegramMessage(rawInput: {
   }
 
   // STEP 3: CLASSIFY CONTENT (7 Types)
-  await PgTelegramDb.createOrUpdateJob({ telegramMessageId: msgId, status: "CLASSIFIED", attempts: 1 });
+  createOrUpdateJob({ telegramMessageId: msgId, status: "CLASSIFIED", attempts: 1 });
   const { category, subjectId, topic } = classifyTelegramContent(
     fullText,
     rawInput.mediaType || (savedVideoUrl ? "VIDEO" : savedImageUrl ? "IMAGE" : "NONE"),
@@ -391,14 +420,14 @@ export async function processIncomingTelegramMessage(rawInput: {
   );
 
   // STEP 4: AI PROCESS & ROUTE
-  await PgTelegramDb.createOrUpdateJob({ telegramMessageId: msgId, status: "AI_PROCESSED", attempts: 1 });
+  createOrUpdateJob({ telegramMessageId: msgId, status: "AI_PROCESSED", attempts: 1 });
 
   try {
     if (category === "MCQ" || category === "IMAGE_BASED_QUESTION" || category === "VIDEO_BASED_QUESTION") {
       const extracted = extractQuestionDetails(fullText, rawInput.pollOptions);
       const crossCheck = runAiCrossCheck(extracted.stem, extracted.options, extracted.correctKey, extracted.explanation);
 
-      const qRes = await PgTelegramDb.insertOrUpdateQuestion({
+      const qRes = insertOrUpdateQuestion({
         sourceChannel: rawInput.channelId,
         channelTitle: rawInput.channelTitle,
         rawText: fullText,
@@ -422,8 +451,8 @@ export async function processIncomingTelegramMessage(rawInput: {
         aiCrossCheckNotes: crossCheck.notes,
       });
 
-      await PgTelegramDb.updateRawMessageStatus(rawRes.message.compositeKey, "QUESTION_CREATED");
-      await PgTelegramDb.createOrUpdateJob({ telegramMessageId: msgId, status: "SAVED", attempts: 1 });
+      updateRawMessageStatus(rawRes.message.compositeKey, "QUESTION_CREATED");
+      createOrUpdateJob({ telegramMessageId: msgId, status: "SAVED", attempts: 1 });
 
       return {
         status: "SUCCESS",
@@ -433,7 +462,7 @@ export async function processIncomingTelegramMessage(rawInput: {
     }
 
     if (category === "EXAM_TIP") {
-      const tip = await PgTelegramDb.insertExamTip({
+      const tip = insertExamTip({
         sourceMessageId: msgId,
         originalText: fullText,
         cleanedText: fullText,
@@ -445,14 +474,14 @@ export async function processIncomingTelegramMessage(rawInput: {
         tags: [subjectId.toUpperCase(), "Pearl", "Telegram"],
       });
 
-      await PgTelegramDb.updateRawMessageStatus(rawRes.message.compositeKey, "QUESTION_CREATED");
-      await PgTelegramDb.createOrUpdateJob({ telegramMessageId: msgId, status: "SAVED", attempts: 1 });
+      updateRawMessageStatus(rawRes.message.compositeKey, "QUESTION_CREATED");
+      createOrUpdateJob({ telegramMessageId: msgId, status: "SAVED", attempts: 1 });
 
       return { status: "SUCCESS", category, recordId: tip.id };
     }
 
     if (category === "NOTICE") {
-      const notice = await PgTelegramDb.insertNotice({
+      const notice = insertNotice({
         sourceMessageId: msgId,
         originalText: fullText,
         cleanedText: fullText,
@@ -464,20 +493,20 @@ export async function processIncomingTelegramMessage(rawInput: {
         tags: ["Notice", "FMGE", "NBEMS"],
       });
 
-      await PgTelegramDb.updateRawMessageStatus(rawRes.message.compositeKey, "QUESTION_CREATED");
-      await PgTelegramDb.createOrUpdateJob({ telegramMessageId: msgId, status: "SAVED", attempts: 1 });
+      updateRawMessageStatus(rawRes.message.compositeKey, "QUESTION_CREATED");
+      createOrUpdateJob({ telegramMessageId: msgId, status: "SAVED", attempts: 1 });
 
       return { status: "SUCCESS", category, recordId: notice.id };
     }
 
     // Media Only / Study Material / Other
-    await PgTelegramDb.updateRawMessageStatus(rawRes.message.compositeKey, "MEDIA_ONLY");
-    await PgTelegramDb.createOrUpdateJob({ telegramMessageId: msgId, status: "SAVED", attempts: 1 });
+    updateRawMessageStatus(rawRes.message.compositeKey, "MEDIA_ONLY");
+    createOrUpdateJob({ telegramMessageId: msgId, status: "SAVED", attempts: 1 });
     return { status: "SUCCESS", category: "OTHER" };
   } catch (procErr: any) {
     console.error("[TelegramPipeline] AI processing failed for message #" + msgId + ":", procErr);
-    await PgTelegramDb.updateRawMessageStatus(rawRes.message.compositeKey, "RAW_MESSAGE_SAVED", procErr.message);
-    await PgTelegramDb.createOrUpdateJob({
+    updateRawMessageStatus(rawRes.message.compositeKey, "RAW_MESSAGE_SAVED", procErr.message);
+    createOrUpdateJob({
       telegramMessageId: msgId,
       status: "FAILED",
       attempts: 1,
@@ -593,14 +622,14 @@ export async function fetchPublicChannelIncremental(channelHandle: string, lastC
     }
 
     // Update Channel Checkpoint Cursor
-    await PgTelegramDb.updateChannelCursor(cleanHandle, highestId, {
+    updateChannelCursor(cleanHandle, highestId, {
       questions: newQCount,
     });
 
-    await PgTelegramDb.updateState((db) => {
-      db.sync_state.lastSyncTimestamp = new Date().toISOString();
-      db.sync_state.status = "live";
-    });
+    const db = getTelegramDb();
+    db.sync_state.lastSyncTimestamp = new Date().toISOString();
+    db.sync_state.status = "live";
+    saveTelegramDb();
 
     return {
       success: true,
@@ -612,10 +641,10 @@ export async function fetchPublicChannelIncremental(channelHandle: string, lastC
     };
   } catch (err: any) {
     console.error("[TelegramSync] Error fetching channel @" + cleanHandle + ":", err);
-    await PgTelegramDb.updateState((db) => {
-      db.sync_state.status = "error";
-      db.sync_state.lastError = err.message || "Network request failed";
-    });
+    const db = getTelegramDb();
+    db.sync_state.status = "error";
+    db.sync_state.lastError = err.message || "Network request failed";
+    saveTelegramDb();
 
     return {
       success: false,
@@ -641,7 +670,7 @@ export function startBackgroundSyncDaemon(intervalSeconds = 60) {
   console.log("[TelegramSyncDaemon] Started periodic background synchronization (every " + intervalSeconds + "s)");
 
   syncDaemonTimer = setInterval(async () => {
-    const db = await PgTelegramDb.getDatabase();
+    const db = getTelegramDb();
     const activeChannels = db.telegram_channels.filter((c) => c.isActive !== false);
 
     for (const chan of activeChannels) {

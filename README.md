@@ -56,17 +56,13 @@ This repository includes a blueprint specification in `render.yaml` configuring:
 - `oneshot-fmge-telegram-worker`: Standalone MTProto background ingestion worker
 - `oneshot-fmge-db`: Managed PostgreSQL database
 
-**Persistence:** both Render services use the same `DATABASE_URL`. User profiles and study-state snapshots, both Telegram ingestion pipelines, runtime Gemini key configuration, and downloaded Telegram media are stored in PostgreSQL. Firebase remains the sign-in provider. Existing Firestore profile/state records are copied into PostgreSQL the first time each user signs in after this migration; Firestore is kept as a read-only fallback during that import. Signed-in browser caches and guest data remain local for offline use.
-
-Telegram records retain the current API model in locked JSONB state documents during this compatibility migration. User/profile rows and media blobs use dedicated tables. The schema also retains the earlier normalized Telegram tables for the next record-level migration; the current compatibility adapter does not yet write to those tables. Mutations to Telegram JSONB state are serialized with PostgreSQL row locks, so the web service and worker share one durable state.
-
-**Legacy data safety:** the JSON snapshots in Render's web and worker filesystems are not in Git and may differ. Before the first production rollout, export each service's current state and run the migration from an environment where those snapshots are available. Startup imports each source once using its `PERSISTENCE_MIGRATION_SOURCE` label and records counts in `persistence_migration_log`. If a source file is missing while its PostgreSQL namespace is empty, production startup stops; set `PERSISTENCE_ALLOW_EMPTY=true` only after verifying that source contains no records to preserve. Existing Firestore user data migrates per user on their next sign-in. Run `npm run migrate:postgres` in the same environment as the snapshot and `DATABASE_URL` to display migration counts.
+**Persistence:** the application currently uses Firebase for sign-in and local JSON files for server-side app and Telegram data. The web service and worker have separate filesystems, so their data is not shared and may be lost when an instance is replaced. PostgreSQL is provisioned by the Render blueprint but is not yet used by the app runtime. A shared PostgreSQL migration will be handled separately after safely exporting the existing service snapshots.
 
 **Deploying to Render:**
 1. Push your repository to GitHub or GitLab.
 2. In the [Render Dashboard](https://dashboard.render.com/), click **New > Blueprint**.
 3. Select this repository. Render will automatically detect `render.yaml` and configure all services.
-4. Confirm the web and worker use the same `DATABASE_URL` and their distinct `PERSISTENCE_MIGRATION_SOURCE` values from `render.yaml`. Export/import legacy JSON before replacing the old service instances. Fill secret environment variables (`APP_OWNER_UID`, and optionally `TELEGRAM_API_ID` & `TELEGRAM_API_HASH`; add `TELEGRAM_WEBHOOK_SECRET` only if using the webhook). `GEMINI_API_KEY` may be supplied through Render or the owner-only settings screen.
+4. Set `APP_OWNER_UID` to the Firebase UID authorized to use the shared Telegram controls and configure the server Gemini key. Set `TELEGRAM_WEBHOOK_SECRET` if you use the webhook. Add `GEMINI_API_KEY` and, optionally, `TELEGRAM_API_ID` & `TELEGRAM_API_HASH`.
 5. Click **Apply**.
 
 ---
@@ -111,11 +107,9 @@ If deploying the frontend independently on Vercel or Netlify:
 | `NODE_ENV` | Yes | Set to `production` in live environments. |
 | `PORT` | Auto | Port for Express server (defaults to 3000 or platform `$PORT`). |
 | `GEMINI_API_KEY` | Recommended | Google Gemini API key for dynamic MCQ generation and distractor analysis. |
-| `DATABASE_URL` | Required in production | Shared Render PostgreSQL connection for the web service and Telegram worker. |
-| `PERSISTENCE_MIGRATION_SOURCE` | Required on each Render service | Distinct label that makes each legacy JSON import idempotent. |
-| `PERSISTENCE_ALLOW_EMPTY` | Migration exception only | Set to `true` only after verifying that a missing legacy snapshot had no data to migrate. |
 | `SESSION_ENCRYPTION_KEY` | Required in production | 32-byte hex key for encrypting Telegram MTProto sessions at rest. |
 | `TELEGRAM_API_ID` | Optional | Telegram application ID from [my.telegram.org](https://my.telegram.org/apps). |
 | `TELEGRAM_API_HASH` | Optional | Telegram application hash from [my.telegram.org](https://my.telegram.org/apps). |
-| `APP_OWNER_UID` | Required for Telegram and in-app Gemini key controls | Firebase Authentication UID allowed to access the shared server-side Telegram account and change the server Gemini key. Set this to the owner account's UID in Render. |
+| `APP_OWNER_UID` | Required for Telegram and in-app Gemini key controls | Firebase Authentication UID allowed to access the shared server-side Telegram account and change the server Gemini key. |
 | `TELEGRAM_WEBHOOK_SECRET` | Required only when using the Telegram webhook | Secret token sent in Telegram's `X-Telegram-Bot-Api-Secret-Token` header. |
+| `FIREBASE_PROJECT_ID` | Recommended | Firebase project ID used for server-side ID-token verification (defaults to `one-shot-fmge`). |

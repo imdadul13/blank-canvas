@@ -1,7 +1,6 @@
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
-import { postgresPool, query } from "./client";
 
 // ----------------------------------------------------------------------------
 // 1. AES-256-GCM ENCRYPTION & SECURITY LAYER
@@ -118,42 +117,14 @@ export class LocalDiskMediaProvider implements MediaStorageProvider {
   }
 }
 
-class PostgresMediaProvider implements MediaStorageProvider {
-  async saveMedia(buffer: Buffer, mimeType: string, customKey?: string): Promise<MediaStorageResult> {
-    const ext = mimeType.includes("video") ? ".mp4" : mimeType.includes("png") ? ".png" : ".jpg";
-    const requestedKey = customKey ? path.basename(customKey).replace(/[^a-zA-Z0-9_.-]/g, "_") : "";
-    const storageKey = requestedKey || `media_${Date.now()}_${crypto.randomBytes(8).toString("hex")}${ext}`;
-    await query(
-      `INSERT INTO telegram_media_blobs(storage_key, mime_type, payload, size_bytes)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (storage_key) DO UPDATE SET mime_type = EXCLUDED.mime_type,
-         payload = EXCLUDED.payload, size_bytes = EXCLUDED.size_bytes`,
-      [storageKey, mimeType, buffer, buffer.length],
-    );
-    return { storageUrl: `/api/media/telegram/${encodeURIComponent(storageKey)}`, storageKey, mimeType, sizeBytes: buffer.length };
-  }
-
-  async getMedia(storageKey: string): Promise<Buffer | null> {
-    const result = await query<{ payload: Buffer }>("SELECT payload FROM telegram_media_blobs WHERE storage_key = $1", [path.basename(storageKey)]);
-    return result.rows[0]?.payload ?? null;
-  }
-
-  async deleteMedia(storageKey: string): Promise<boolean> {
-    const result = await query("DELETE FROM telegram_media_blobs WHERE storage_key = $1", [path.basename(storageKey)]);
-    return (result.rowCount || 0) > 0;
-  }
-}
-
 if (process.env.STORAGE_DRIVER === "s3" || process.env.STORAGE_DRIVER === "r2") {
   throw new Error("STORAGE_DRIVER=s3/r2 is not implemented. Remove the setting until a real object-storage adapter is configured.");
 }
 
-export const MediaStorageService: MediaStorageProvider = postgresPool
-  ? new PostgresMediaProvider()
-  : new LocalDiskMediaProvider();
+export const MediaStorageService: MediaStorageProvider = new LocalDiskMediaProvider();
 
 // ----------------------------------------------------------------------------
-// 3. POSTGRESQL / CLOUD DATABASE ENTITIES & SCHEMA
+// 3. CLOUD DATABASE ENTITIES & SCHEMA
 // ----------------------------------------------------------------------------
 
 export type MessageProcessingState =
@@ -470,7 +441,6 @@ function ensureDbDirectory() {
 }
 
 let inMemoryCloudDb: CloudDatabaseSchema | null = null;
-let persistenceSuppressed = false;
 
 export function getCloudDatabase(): CloudDatabaseSchema {
   if (inMemoryCloudDb) return inMemoryCloudDb;
@@ -551,7 +521,6 @@ export function getCloudDatabase(): CloudDatabaseSchema {
 }
 
 export function saveCloudDatabase(): void {
-  if (persistenceSuppressed) return;
   if (!inMemoryCloudDb) return;
   ensureDbDirectory();
   try {
@@ -754,8 +723,6 @@ export const CloudDb = {
   // Media
   insertMedia(media: TelegramMediaRow): TelegramMediaRow {
     const db = getCloudDatabase();
-    const existing = db.media.find((item) => item.messageId === media.messageId && item.mediaType === media.mediaType && item.storageUrl === media.storageUrl);
-    if (existing) return existing;
     db.media.push(media);
     saveCloudDatabase();
     return media;
@@ -766,9 +733,6 @@ export const CloudDb = {
     const db = getCloudDatabase();
     const fingerprint = q.contentFingerprint || computeFingerprint(q.questionText, q.options);
     q.contentFingerprint = fingerprint;
-
-    const sameSourceMessage = db.questions.find((item) => item.sourceMessageId && item.sourceMessageId === q.sourceMessageId && item.contentFingerprint === fingerprint);
-    if (sameSourceMessage) return { action: "CREATED", question: sameSourceMessage };
 
     const existingMatch = db.questions.find((item) => item.contentFingerprint === fingerprint);
     if (existingMatch) {
@@ -807,8 +771,6 @@ export const CloudDb = {
 
   insertTip(tip: TipRow): TipRow {
     const db = getCloudDatabase();
-    const existing = db.tips.find((item) => item.sourceMessageId && item.sourceMessageId === tip.sourceMessageId);
-    if (existing) return existing;
     db.tips.unshift(tip);
     saveCloudDatabase();
     return tip;
@@ -816,8 +778,6 @@ export const CloudDb = {
 
   insertNotice(notice: NoticeRow): NoticeRow {
     const db = getCloudDatabase();
-    const existing = db.notices.find((item) => item.sourceMessageId && item.sourceMessageId === notice.sourceMessageId);
-    if (existing) return existing;
     db.notices.unshift(notice);
     saveCloudDatabase();
     return notice;
@@ -825,12 +785,6 @@ export const CloudDb = {
 
   insertCrossCheck(cc: CrossCheckRow): CrossCheckRow {
     const db = getCloudDatabase();
-    const existing = db.crossChecks.find((item) => item.questionId === cc.questionId);
-    if (existing) {
-      Object.assign(existing, cc);
-      saveCloudDatabase();
-      return existing;
-    }
     db.crossChecks.unshift(cc);
     saveCloudDatabase();
     return cc;
@@ -844,12 +798,6 @@ export const CloudDb = {
   // Jobs
   createJob(job: IngestionJobRow): IngestionJobRow {
     const db = getCloudDatabase();
-    const existing = db.jobs.find((item) => item.id === job.id);
-    if (existing) {
-      Object.assign(existing, job);
-      saveCloudDatabase();
-      return existing;
-    }
     db.jobs.unshift(job);
     saveCloudDatabase();
     return job;
@@ -1265,37 +1213,6 @@ export const CloudDb = {
     saveCloudDatabase();
   },
 };
-
-/**
- * Reuses the established CloudDb business rules against an explicitly supplied
- * snapshot. Production callers wrap this in a PostgreSQL row-lock transaction;
- * tests continue using the original local in-memory adapter.
- */
-export function invokeCloudDbMethodWithState(
-  method: string,
-  args: unknown[],
-  state: CloudDatabaseSchema,
-): { result: unknown; state: CloudDatabaseSchema } {
-  const handler = (CloudDb as unknown as Record<string, (...input: unknown[]) => unknown>)[method];
-  if (typeof handler !== "function") throw new Error(`Unknown Telegram database operation: ${method}`);
-
-  const previousState = inMemoryCloudDb;
-  const previousSuppression = persistenceSuppressed;
-  inMemoryCloudDb = JSON.parse(JSON.stringify(state)) as CloudDatabaseSchema;
-  persistenceSuppressed = true;
-  try {
-    const result = handler.apply(CloudDb, args);
-    return { result, state: inMemoryCloudDb };
-  } finally {
-    inMemoryCloudDb = previousState;
-    persistenceSuppressed = previousSuppression;
-  }
-}
-
-export function replaceCloudDatabaseForDevelopment(state: CloudDatabaseSchema): void {
-  inMemoryCloudDb = state;
-  saveCloudDatabase();
-}
 
 export function computeFingerprint(stem: string, options: { key: string; text: string }[] = []): string {
   const normStem = (stem || "").toLowerCase().replace(/[^a-z0-9]/g, "");

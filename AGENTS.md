@@ -27,23 +27,19 @@ npm run start:worker # Telegram MTProto worker: node dist/worker.cjs
 
 ## Data & Storage
 
-- Production user profiles, study-state snapshots, Telegram state, runtime Gemini keys, and Telegram media are stored in the shared PostgreSQL database. Firebase Auth remains the identity provider; existing Firestore records are read once and copied to PostgreSQL at sign-in.
-- Telegram compatibility state is stored as JSONB documents in `telegram_legacy_state`, protected by PostgreSQL row locks. `app_users` and `user_app_state` store user profile/state data. Keep API compatibility while migrating the Telegram document models to the relational tables in `server/db/schema.sql`.
-- The local `CloudDb` and `TelegramDb` adapters are used only for development/tests when `DATABASE_URL` is absent; production refuses to start without the database.
-- Production migration imports each service's local snapshot once using `PERSISTENCE_MIGRATION_SOURCE`. If a snapshot is absent and the matching PostgreSQL namespace is empty, startup fails unless an operator explicitly sets `PERSISTENCE_ALLOW_EMPTY=true` after confirming there is nothing to preserve.
-- `data/ibq_bank.json`, `server/data/hy_subject_bank.json`, and bundled medical images are static reference content. `imageAssetCache` is process-local cache only. `data/cloud-postgres-store.json` is currently unused. Do not commit secrets or large generated assets.
+- Runtime user/app state uses Firebase and local JSON persistence in `server/data/` and `data/`; each Render service has its own filesystem.
+- `DATABASE_URL` and the existing SQL schema belong to a future PostgreSQL migration and are not active in the current app runtime.
+- `data/*.json` and `server/data/*.json` are runtime data files — **do not commit secrets or large generated assets**.
 
 ## Environment
 
 Copy `.env.example` → `.env`. Key vars:
 - `GEMINI_API_KEY` — required for AI features
-- `DATABASE_URL` — shared Render PostgreSQL connection; required in production for both services
-- `PERSISTENCE_MIGRATION_SOURCE` — unique source label per service during legacy JSON import
-- `PERSISTENCE_ALLOW_EMPTY` — explicit confirmation required only if no legacy snapshot exists and no database state exists
 - `TELEGRAM_API_ID` / `TELEGRAM_API_HASH` — optional (MTProto)
 - `SESSION_ENCRYPTION_KEY` — required in production (AES-256-GCM for session encryption)
 - `APP_OWNER_UID` — required for owner-only Telegram and server Gemini-key controls
 - `TELEGRAM_WEBHOOK_SECRET` — required if the Telegram webhook endpoint is used
+- `FIREBASE_PROJECT_ID` — Firebase project used to verify owner ID tokens
 
 ## Testing
 

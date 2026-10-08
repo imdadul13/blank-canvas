@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { MedicalImageAsset, MedicalImageCategory } from '../src/types';
 import { VERIFIED_FMGE_IMAGE_ASSETS } from './image-retrieval-service';
-import { PgTelegramDb } from './db/pg-telegram-db';
 
 // Load Built-in High-Yield Medical Database for Fallback / Offline Resilience (All 19 FMGE Subjects)
 let HY_SUBJECT_BANK: Record<string, any[]> = {};
@@ -12,7 +11,6 @@ try {
 } catch (e) {
   console.warn('[dynamic-mcq-engine] Notice loading hy_subject_bank.json:', (e as Error).message);
 }
-
 // Load Verified Authoritative IBQ Bank
 let VERIFIED_IBQ_BANK: any[] = [];
 try {
@@ -80,37 +78,6 @@ export function lookupVerifiedPyq(subject: string, topic: string): StructuredMCQ
       }
     }
   } catch {}
-  return null;
-}
-
-/** Production PYQ lookup from the migrated shared PostgreSQL Telegram store. */
-export async function lookupVerifiedPyqFromPostgres(subject: string, topic: string): Promise<StructuredMCQ | null> {
-  const state = await PgTelegramDb.getDatabase();
-  const lowerTopic = (topic || '').toLowerCase();
-  const lowerSubject = (subject || '').toLowerCase();
-  for (const q of state.questions || []) {
-    const tags = (q.tags || []).map((tag) => tag.toLowerCase());
-    const hasPyqTag = tags.some((tag) => tag.includes('pyq') || tag.includes('recall'));
-    const questionText = (q.question || q.rawText || '').toLowerCase();
-    const subjectMatch = !lowerSubject || String(q.subjectId || '').toLowerCase().includes(lowerSubject);
-    const topicMatch = !lowerTopic || questionText.includes(lowerTopic) || lowerTopic.includes(String(q.topic || '').toLowerCase());
-    if (hasPyqTag && subjectMatch && topicMatch && q.options?.length >= 4 && q.correctKey) {
-      return {
-        subject: q.subjectId || subject,
-        topic: q.topic || topic,
-        questionType: 'clinical_vignette',
-        stem: q.question,
-        question: q.question,
-        options: q.options,
-        correctAnswer: q.correctKey,
-        explanation: q.explanation || 'Verified historical examination recall question.',
-        distractorBreakdown: {},
-        fmgeTakeaway: q.highYieldPearl || 'Verified past year exam concept.',
-        memoryHook: q.highYieldPearl || 'High-yield repeat concept.',
-        provenance: 'Verified PYQ',
-      };
-    }
-  }
   return null;
 }
 

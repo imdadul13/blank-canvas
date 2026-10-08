@@ -4,8 +4,6 @@ import { auth } from "../lib/firebase";
 export async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers);
   const user = auth.currentUser;
-  if (user) {
-    headers.set("Authorization", `Bearer ${await user.getIdToken()}`);
-  }
+  if (user) headers.set("Authorization", `Bearer ${await user.getIdToken()}`);
   return fetch(input, { ...init, headers });
 }

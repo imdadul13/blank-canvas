@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import fs from "node:fs";
+import fs from "fs";
 import path from "path";
 
 /**
