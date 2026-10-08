@@ -379,8 +379,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
 
   return (
     <div
-      className="font-['Plus_Jakarta_Sans'] space-y-5 max-w-7xl mx-auto px-3 sm:px-5 py-4 pb-36"
-      style={{ paddingBottom: 'max(9rem, calc(6rem + env(safe-area-inset-bottom, 1.5rem)))' }}
+      className="font-['Plus_Jakarta_Sans'] space-y-5 max-w-7xl mx-auto px-3 sm:px-5 py-4 pb-24 sm:pb-20 lg:pb-16"
     >
       {/* ── Toast Notification ── */}
       <AnimatePresence>

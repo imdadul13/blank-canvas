@@ -96,14 +96,14 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
   const subjectTheme = getSubjectVisualTheme(selectedSubject.id);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 space-y-5 font-['Plus_Jakarta_Sans'] text-[#1D1D1F]">
+    <div data-accent="practice" className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 sm:pb-20 lg:pb-16 space-y-5 font-['Plus_Jakarta_Sans'] text-[#1D1D1F]">
 
       {/* ═══ HERO ═══ */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative rounded-[1.75rem] sm:rounded-[2.25rem] overflow-hidden"
+        className="premium-page-hero relative rounded-[1.75rem] sm:rounded-[2.25rem] overflow-hidden"
         style={{
           background: 'linear-gradient(135deg, #FFF5E6 0%, #FFE0A0 40%, #FFC860 70%, #FF9500 100%)',
           boxShadow: '0 8px 40px rgba(255,149,0,0.14), 0 2px 8px rgba(0,0,0,0.06)',

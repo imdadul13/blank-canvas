@@ -170,7 +170,10 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   const formattedToday = useMemo(() => new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }), []);
 
   const readinessStage = useMemo(() => {
-    const s = readiness.score ?? 0;
+    if (readiness.score === null || readiness.score === undefined) {
+      return { label: 'Baseline needed', color: '#8E8E93' };
+    }
+    const s = readiness.score;
     if (s >= 75) return { label: 'Exam Ready', color: '#30D158' };
     if (s >= 50) return { label: 'Developing', color: '#FF9500' };
     return { label: 'Needs Focus', color: '#FF3B30' };
@@ -191,14 +194,14 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 font-['Plus_Jakarta_Sans'] text-[#1D1D1F]">
+    <div data-accent="performance" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 sm:pb-20 lg:pb-16 space-y-5 font-['Plus_Jakarta_Sans'] text-[#1D1D1F]">
 
       {/* ── HEADER ── */}
       <motion.header
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-        className="relative rounded-3xl overflow-hidden"
+        className="premium-page-hero relative rounded-3xl overflow-hidden"
         style={{
           background: 'linear-gradient(135deg, #EAF8FF 0%, #C2EAFE 40%, #80D4F8 70%, #5AC8FA 100%)',
           boxShadow: '0 8px 40px rgba(90,200,250,0.18), 0 2px 8px rgba(0,0,0,0.06)',
@@ -280,14 +283,10 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
       {currentSubTab === 'overview' && (
         <>
           {/* ── READINESS COMMAND ── */}
-          <section
-            className="relative rounded-3xl overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #050E1A 0%, #0A1E35 50%, #0D2748 100%)', boxShadow: '0 20px 60px rgba(0,0,0,0.2), 0 4px 16px rgba(0,0,0,0.1)' }}
-          >
+          <section className="premium-readiness-card relative rounded-3xl overflow-hidden">
             {/* Radial glow */}
             <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
-              style={{ background: `radial-gradient(ellipse at 80% 40%, ${readinessStage.color}22 0%, transparent 65%)` }} />
-            <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/[0.05] to-transparent pointer-events-none" />
+              style={{ background: `radial-gradient(ellipse at 80% 40%, ${readinessStage.color}18 0%, transparent 65%)` }} />
 
             <div className="relative z-10 p-6 sm:p-8">
               <div className="flex flex-col lg:flex-row lg:items-center gap-8">
@@ -295,25 +294,25 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 <div className="flex flex-col items-center gap-4 shrink-0">
                   <div className="relative">
                     <svg width="160" height="160" viewBox="0 0 160 160" className="-rotate-90">
-                      <circle cx="80" cy="80" r="66" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="13" />
+                      <circle cx="80" cy="80" r="66" fill="none" stroke="rgba(60,60,67,0.08)" strokeWidth="13" />
                       <circle cx="80" cy="80" r="66" fill="none"
                         stroke={readinessStage.color} strokeWidth="13" strokeLinecap="round"
                         strokeDasharray={2 * Math.PI * 66}
                         strokeDashoffset={2 * Math.PI * 66 * (1 - (readiness.score ?? 0) / 100)}
-                        style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.22,1,0.36,1)', filter: `drop-shadow(0 0 14px ${readinessStage.color}90)` }} />
+                        style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.22,1,0.36,1)', filter: readiness.score == null ? 'none' : `drop-shadow(0 0 8px ${readinessStage.color}35)` }} />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-[54px] font-black font-mono text-white leading-none">{readiness.score ?? 0}</span>
-                      <span className="text-[12px] text-white/35 font-mono font-bold tracking-wider">/ 100</span>
+                      <span className="text-[54px] font-black font-mono text-[#1D1D1F] leading-none">{readiness.score ?? '—'}</span>
+                      <span className="text-[12px] text-[#8E8E93] font-mono font-bold tracking-wider">{readiness.score == null ? 'START HERE' : '/ 100'}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-center gap-2.5">
-                    <span className="px-4 py-1.5 rounded-full text-[13px] font-bold text-white"
-                      style={{ background: readinessStage.color, boxShadow: `0 4px 16px ${readinessStage.color}55` }}>
+                    <span className={`px-4 py-1.5 rounded-full text-[13px] font-bold ${readiness.score == null ? 'text-[#6E6E73]' : 'text-white'}`}
+                      style={{ background: readiness.score == null ? '#F2F2F7' : readinessStage.color, boxShadow: readiness.score == null ? 'none' : `0 2px 8px ${readinessStage.color}30` }}>
                       {readinessStage.label}
                     </span>
                     <button type="button" onClick={() => setIsReadinessModalOpen(true)}
-                      className="text-[11px] font-bold text-white/40 hover:text-white/70 cursor-pointer transition-colors flex items-center gap-1">
+                      className="text-[11px] font-bold text-[#6E6E73] hover:text-[#1D1D1F] cursor-pointer transition-colors flex items-center gap-1">
                       Full Breakdown <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>
@@ -322,24 +321,24 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 {/* Right: summary + 8-pillar grid */}
                 <div className="flex-1 space-y-5 min-w-0">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-white/30">FMGE Readiness · {formattedToday}</p>
-                    <p className="text-[14px] text-white/70 leading-relaxed max-w-lg">{readiness.summaryText}</p>
+                    <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#8E8E93]">FMGE Readiness · {formattedToday}</p>
+                    <p className="text-[14px] text-[#6E6E73] leading-relaxed max-w-lg">{readiness.summaryText}</p>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {readiness.components.map((comp) => {
                       const scoreVal = comp.status === 'no_data' ? 0 : comp.score;
                       const isGood = comp.status === 'good';
                       const isMod = comp.status === 'moderate' || comp.status === 'neutral';
-                      const dotColor = isGood ? '#30D158' : isMod ? '#FF9500' : '#FF3B30';
+                      const dotColor = comp.status === 'no_data' ? '#AEAEB2' : isGood ? '#30D158' : isMod ? '#FF9500' : '#FF3B30';
                       return (
                         <div key={comp.id} className="p-3 rounded-2xl space-y-2.5"
-                          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)', backdropFilter: 'blur(4px)' }}>
+                          style={{ background: 'var(--color-surface-sunken)', border: '1px solid var(--color-hairline-soft)' }}>
                           <div className="flex items-center justify-between gap-1">
-                            <span className="text-[10px] font-mono font-bold text-white/45 truncate">{comp.name}</span>
+                            <span className="text-[10px] font-mono font-bold text-[#6E6E73] truncate">{comp.name}</span>
                             <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor, boxShadow: `0 0 6px ${dotColor}` }} />
                           </div>
-                          <div className="text-[22px] font-black font-mono text-white leading-none">{comp.status === 'no_data' ? '—' : scoreVal}</div>
-                          <div className="h-[3px] rounded-full" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                          <div className="text-[22px] font-black font-mono text-[#1D1D1F] leading-none">{comp.status === 'no_data' ? '—' : scoreVal}</div>
+                          <div className="h-[3px] rounded-full" style={{ background: 'var(--color-surface-muted)' }}>
                             <div className="h-full rounded-full transition-all duration-700" style={{ width: `${scoreVal}%`, background: dotColor }} />
                           </div>
                         </div>

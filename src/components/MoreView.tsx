@@ -103,8 +103,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
 
   return (
     <div
-      className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6 pb-36 sm:pb-20 font-sans text-slate-900"
-      style={{ paddingBottom: 'max(9.5rem, calc(7rem + env(safe-area-inset-bottom, 2rem)))' }}
+      data-accent="home"
+      className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6 pb-24 sm:pb-20 lg:pb-16 font-sans text-slate-900"
     >
       {/* Back button if in sub-section */}
       {activeSection !== 'hub' && (
@@ -128,7 +128,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-            className="relative rounded-[2rem] overflow-hidden bg-white border border-[rgba(60,60,67,0.08)] shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 sm:p-7"
+            className="premium-page-hero relative rounded-[2rem] overflow-hidden bg-white border border-[rgba(60,60,67,0.08)] shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 sm:p-7"
           >
             {/* Soft Ambient Background Highlights */}
             <div className="pointer-events-none absolute -right-20 -top-20 size-80 rounded-full bg-gradient-to-br from-[#007AFF]/10 via-[#5856D6]/5 to-transparent blur-3xl" />

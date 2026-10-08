@@ -1172,17 +1172,11 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
   return (
     <div
-      className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6 sm:space-y-8 animate-fadeIn pb-56 sm:pb-40 lg:pb-16 font-sans antialiased min-w-0 max-w-full overflow-x-clip text-slate-900"
-      style={{ paddingBottom: 'max(9.5rem, calc(7rem + env(safe-area-inset-bottom, 2rem)))' }}
+      data-accent="telegram"
+      className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6 sm:space-y-8 animate-fadeIn pb-24 sm:pb-20 lg:pb-16 font-sans antialiased min-w-0 max-w-full overflow-x-clip text-slate-900"
     >
-      {/* ========================================================================= */}
-      {/* 1. APPLE HIG HERO HEADER */}
-      {/* ========================================================================= */}
-      {/* ========================================================================= */}
-      {/* 1. APPLE HIG DEEP AZURE HERO HEADER */}
-      {/* ========================================================================= */}
-      {/* 1. EDITORIAL HERO HEADER WITH LIVE STREAM TELEMETRY AESTHETIC */}
-      {/* ========================================================================= */}
+      {/* Telegram has its own accent scope, while its deep azure hero keeps
+          the stream workspace visually distinct from study and performance. */}
       <motion.header
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
@@ -1208,7 +1202,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               </div>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 border border-white/20 text-[10.5px] font-mono font-bold uppercase tracking-wider text-sky-100">
                 <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live MTProto Stream · Noise Threshold ≥ 75
+                Source Library
               </span>
             </div>
 

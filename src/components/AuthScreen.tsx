@@ -558,14 +558,14 @@ export const AuthScreen: React.FC = () => {
               </div>
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#34C759] block">Closed-Loop Recall</span>
-                <h4 className="text-lg font-black text-[#1D1D1F]">Zero Unreviewed Blunders</h4>
+                <h4 className="text-lg font-black text-[#1D1D1F]">Turn mistakes into recall</h4>
               </div>
               <p className="text-xs text-[#6E6E73] font-medium leading-relaxed">
-                Mistakes automatically enter a spaced repetition schedule (1d → 3d → 7d → 21d) until recall is guaranteed.
+                Missed questions can be revisited on a spaced schedule (1d → 3d → 7d → 21d) to strengthen recall over time.
               </p>
               <div className="p-3 rounded-2xl bg-[#34C759]/8 border border-[#34C759]/20 flex items-center justify-between text-xs">
                 <span className="font-bold text-[#1D1D1F]">Remediation Rate</span>
-                <span className="font-mono font-bold text-[#28A745]">100% Active</span>
+                <span className="font-mono font-bold text-[#28A745]">Spaced review</span>
               </div>
             </motion.div>
 

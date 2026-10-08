@@ -181,6 +181,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
 
   return (
     <div
+      data-accent="study"
       className={`w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5 font-sans ${
         currentSubTab === 'revision' ? 'pb-28 sm:pb-20' : 'pb-20'
       }`}
@@ -190,7 +191,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
+        className="premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
         style={{ background: 'linear-gradient(135deg, #E8F9EE 0%, #D0F2DC 40%, #B8E8C8 70%, #9EDDB6 100%)' }}
       >
         {/* Decorative right glow */}
@@ -524,4 +525,3 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
     </div>
   );
 };
-

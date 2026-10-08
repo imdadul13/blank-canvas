@@ -1865,8 +1865,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   return (
     <div
       data-accent="mentor"
-      className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5 pb-36 sm:pb-20 font-sans text-slate-900"
-      style={{ paddingBottom: 'max(9.5rem, calc(7rem + env(safe-area-inset-bottom, 2rem)))' }}
+      className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5 pb-24 sm:pb-20 lg:pb-16 font-sans text-slate-900"
     >
       {/* ================= EDITORIAL FACULTY MENTOR HEADER ================= */}
       <MentorHeader
@@ -1878,7 +1877,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         isGoldenHourMode={isGoldenHourActive}
         onToggleGoldenHour={() => setIsGoldenHourActive((prev) => !prev)}
         onOpenKeyConfig={() => setIsKeyModalOpen(true)}
-        isAiConfigured={aiConfigured ?? true}
+        isAiConfigured={aiConfigured}
         activeMode={quizSession ? 'quiz' : 'consultation'}
         onModeChange={(mode) => {
           if (mode === 'consultation') {

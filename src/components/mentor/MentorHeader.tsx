@@ -3,6 +3,8 @@ import { motion } from 'motion/react';
 import {
   History,
   Plus,
+  KeyRound,
+  Check,
   Stethoscope,
   MessageSquare,
   HelpCircle,
@@ -22,7 +24,7 @@ export interface MentorHeaderProps {
   isGoldenHourMode?: boolean;
   onToggleGoldenHour?: () => void;
   onOpenKeyConfig?: () => void;
-  isAiConfigured?: boolean;
+  isAiConfigured?: boolean | null;
   activeMode?: MentorTabMode;
   onModeChange?: (mode: MentorTabMode) => void;
   onBackToOverview?: () => void;
@@ -41,6 +43,8 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
   sessionsCount,
   onOpenHistory,
   onNewSession,
+  onOpenKeyConfig,
+  isAiConfigured = null,
   activeMode = 'consultation',
   onModeChange,
 }) => {
@@ -49,7 +53,7 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(14,165,233,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
+      className="premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(14,165,233,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
       style={{
         background: 'linear-gradient(135deg, #E0F7FA 0%, #BAE6FD 35%, #7DD3FC 68%, #93C5FD 100%)',
       }}
@@ -146,35 +150,30 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
             <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 48 48">
                 <circle cx="24" cy="24" r="20" stroke="#F2F2F7" strokeWidth="4.5" fill="none" />
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="20"
-                  stroke="#007AFF"
-                  strokeWidth="4.5"
-                  strokeDasharray={125.6}
-                  strokeDashoffset={0}
-                  strokeLinecap="round"
-                  fill="none"
-                />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="font-mono text-xs font-black text-[#007AFF] leading-none">100%</span>
-                <span className="text-[6.5px] font-mono font-bold uppercase tracking-wider text-[#007AFF] mt-0.5">DOCS</span>
+                {isAiConfigured === null ? (
+                  <span className="text-[10px] font-semibold text-[#8E8E93]">…</span>
+                ) : isAiConfigured ? (
+                  <Check className="size-5 text-[#147A38]" aria-hidden="true" />
+                ) : (
+                  <KeyRound className="size-5 text-[#96500A]" aria-hidden="true" />
+                )}
               </div>
             </div>
 
             <div className="space-y-1.5 min-w-0">
-              <div className="text-xs font-bold text-[#1D1D1F] truncate">
-                Clinical Evidence Grounded
+              <div className="text-xs font-bold text-[#1D1D1F] truncate" aria-live="polite">
+                {isAiConfigured === null ? 'Checking AI setup' : isAiConfigured ? 'AI is ready' : 'AI setup needed'}
               </div>
               <button
                 type="button"
-                onClick={onNewSession}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
+                onClick={isAiConfigured ? onNewSession : onOpenKeyConfig}
+                disabled={isAiConfigured === null || (!isAiConfigured && !onOpenKeyConfig)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#007AFF] hover:bg-[#0062CC] text-white text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
               >
-                <Plus className="w-3.5 h-3.5 stroke-[2.8]" />
-                <span>New Chat</span>
+                {isAiConfigured ? <Plus className="w-3.5 h-3.5 stroke-[2.8]" /> : <KeyRound className="w-3.5 h-3.5" />}
+                <span>{isAiConfigured ? 'New Chat' : isAiConfigured === null ? 'Checking…' : 'Configure AI'}</span>
               </button>
             </div>
           </div>

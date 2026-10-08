@@ -64,6 +64,15 @@ const STUDY_BACKGROUNDS = [
   { id: 'night', url: '/images/study-bg/study-art-night.jpg', label: 'Rainy Night Lamp', period: 'Night' },
 ];
 
+const ACTIVE_TABS = new Set<ActiveTab>([
+  'dashboard', 'syllabus', 'practice', 'errors', 'progress', 'more', 'daily',
+  'pearls', 'telegram', 'predictor', 'revision', 'grandtests', 'aicoach',
+]);
+
+function isActiveTab(value: string): value is ActiveTab {
+  return ACTIVE_TABS.has(value as ActiveTab);
+}
+
 function AppInner() {
   const {
     user,
@@ -138,12 +147,12 @@ function AppInner() {
 
   const [activeTab, setActiveTab] = useState<ActiveTab>(() => {
     try {
-      const hash = window.location.hash.replace(/^#/, '') as ActiveTab;
-      if (hash && ['dashboard', 'syllabus', 'practice', 'errors', 'progress', 'more', 'daily', 'pearls', 'telegram', 'predictor', 'revision', 'grandtests', 'aicoach'].includes(hash)) {
+      const hash = window.location.hash.replace(/^#/, '');
+      if (isActiveTab(hash)) {
         return hash;
       }
-      const saved = sessionStorage.getItem('fmge_active_tab') as ActiveTab;
-      if (saved && ['dashboard', 'syllabus', 'practice', 'errors', 'progress', 'more', 'daily', 'pearls', 'telegram', 'predictor', 'revision', 'grandtests'].includes(saved)) {
+      const saved = sessionStorage.getItem('fmge_active_tab') || '';
+      if (isActiveTab(saved)) {
         return saved;
       }
     } catch (_) {}
@@ -162,6 +171,25 @@ function AppInner() {
       window.location.hash = tab;
     } catch (_) {}
   };
+
+  // Keep browser history, deep links, the visible workspace, and the saved
+  // session selection in sync. Without this, Back/Forward changed only the
+  // address bar while leaving the previous screen mounted.
+  useEffect(() => {
+    const syncTabFromLocation = () => {
+      const nextTab = window.location.hash.replace(/^#/, '');
+      if (!isActiveTab(nextTab)) return;
+      setActiveTab((currentTab) => {
+        if (currentTab !== nextTab) window.scrollTo({ top: 0, behavior: 'auto' });
+        return nextTab;
+      });
+      try {
+        sessionStorage.setItem('fmge_active_tab', nextTab);
+      } catch (_) {}
+    };
+    window.addEventListener('hashchange', syncTabFromLocation);
+    return () => window.removeEventListener('hashchange', syncTabFromLocation);
+  }, []);
 
   // Modals
   const [isAiCoachOpen, setIsAiCoachOpen] = useState(false);
@@ -1064,7 +1092,7 @@ function AppInner() {
                     state={state}
                     onAddGrandTest={handleAddGrandTest}
                     onDeleteGrandTest={handleDeleteGrandTest}
-                    onNavigateTab={(tab) => setActiveTab(tab as any)}
+                    onNavigateTab={(tab) => handleSetActiveTab(tab as ActiveTab)}
                     onAddErrorItem={handleAddErrorItem}
                   />
                 )}

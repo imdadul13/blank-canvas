@@ -1437,7 +1437,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         badgeText: '7-DAY FINAL PEAK & TRIAGE',
         stageLabel: `Day ${Math.max(1, 7 - daysRemaining + 1)} of 7`,
         headline: 'Emergency Exam-Eve Lockdown',
-        description: 'Focus strictly on guaranteed 1-liners, clinical triads, drug doses & visual IBQs. Avoid new heavy theory.',
+        description: 'Prioritize high-frequency facts, clinical triads, drug doses & visual IBQs. Avoid new heavy theory.',
         anchorLabel: 'HIGH-FREQUENCY',
         drillLabel: 'SPEED MCQ',
         shieldLabel: 'ERROR VAULT',
@@ -1448,7 +1448,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         badgeText: '30-DAY FINAL REVISION SPRINT',
         stageLabel: `Day ${Math.max(1, 30 - daysRemaining + 1)} of 30`,
         headline: "Today's Clinical Survival Target",
-        description: 'Targeted high-yield blueprint concepts to systematically secure +2 to +4 marks every day.',
+        description: 'Target high-yield blueprint concepts and build a reliable daily revision rhythm.',
         anchorLabel: 'HIGH-YIELD',
         drillLabel: 'SPEED MCQ',
         shieldLabel: 'ERROR VAULT',
@@ -1781,7 +1781,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }
 
   return (
-    <div className="relative min-h-screen text-[#1D1D1F] pb-12">
+    <div data-accent="home" className="relative min-h-screen text-[#1D1D1F] pb-24 sm:pb-20 lg:pb-16">
 
       {/* ── Search bar: always clean light, sticky at top ── */}
       <motion.div
@@ -1920,7 +1920,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* ── Hero card: contained rounded card with light blue gradient ── */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-5">
         <div
-          className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(0,100,220,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
+          className="premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(0,100,220,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
           style={{ background: 'linear-gradient(135deg, #EEF5FF 0%, #DDEEFF 35%, #C8E0FF 65%, #A8CCFF 100%)' }}
         >
           {/* Vertical accent text — far right, desktop only */}
@@ -3115,7 +3115,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       key={task.id}
                       whileHover={reducedMotion ? undefined : { y: -1, scale: 1.005 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                      className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#F2F2F7] hover:bg-[#EAEAF0] transition-colors group cursor-pointer relative overflow-hidden"
+                      className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#F2F2F7] hover:bg-[#EAEAF0] transition-colors group relative overflow-hidden"
                     >
                       {/* Priority bar */}
                       <div className={`absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full ${pc.bar}`} />
@@ -3154,6 +3154,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             onNavigateTab(task.activity === 'revision' ? 'revision' : 'practice');
                           }
                         }}
+                        aria-label={`Start ${task.topicName} ${task.activity === 'mcqs' ? 'question practice' : 'study'}`}
                         className="w-8 h-8 rounded-full bg-[#007AFF] flex items-center justify-center shadow-[0_2px_8px_rgba(0,122,255,0.28)] shrink-0 cursor-pointer"
                       >
                         <Play className="h-3.5 w-3.5 text-white fill-white ml-0.5" style={{ width: 14, height: 14 }} />
@@ -3430,12 +3431,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   const statusColor = sub.percentage >= 50 ? '#30D158' : sub.percentage >= 20 ? '#FF9500' : '#FF3B30';
 
                   return (
-                    <motion.div
+                    <motion.button
+                      type="button"
                       key={sub.id}
                       whileHover={reducedMotion ? {} : { x: 2 }}
                       transition={{ type: 'spring', stiffness: 450, damping: 30 }}
                       onClick={() => onSelectSubject(sub.id)}
-                      className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-[#F2F2F7] transition-colors cursor-pointer group"
+                      aria-label={`${sub.name}, ${sub.percentage}% complete. Open subject progress.`}
+                      className="w-full text-left border-0 bg-transparent flex items-center gap-3 p-2.5 rounded-2xl hover:bg-[#F2F2F7] transition-colors cursor-pointer group"
                     >
                       {/* Color dot */}
                       <div className={`w-2 h-2 rounded-full shrink-0 ${barColor}`} />
@@ -3460,7 +3463,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span className="text-[12px] font-black tabular-nums w-8 text-right shrink-0" style={{ color: statusColor }}>
                         <AnimatedNumber value={sub.percentage} />%
                       </span>
-                    </motion.div>
+                    </motion.button>
                   );
                 })}
               </div>
@@ -3506,6 +3509,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <button
                       type="button"
                       onClick={() => { setIsPearlRevealed(false); setDailyPearlIndex((p) => p + 1); }}
+                      aria-label="Show another daily recall pearl"
+                      title="Show another pearl"
                       className="w-8 h-8 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] flex items-center justify-center text-[#6E6E73] transition-colors cursor-pointer"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
@@ -3619,7 +3624,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div className="flex items-center justify-center">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/20">
                       <Sparkles className="w-3 h-3" />
-                      Guaranteed NBE Repeat
+                      Frequently tested
                     </span>
                   </div>
                 </div>

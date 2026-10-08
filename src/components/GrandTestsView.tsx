@@ -277,8 +277,8 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
   return (
     <div
-      className="space-y-6 sm:space-y-8 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 animate-in fade-in duration-150 pb-36 sm:pb-20 text-slate-900"
-      style={{ paddingBottom: 'max(9.5rem, calc(7rem + env(safe-area-inset-bottom, 2rem)))' }}
+      data-accent="grandtests"
+      className="space-y-6 sm:space-y-8 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 animate-in fade-in duration-150 pb-24 sm:pb-20 lg:pb-16 text-slate-900"
     >
       {/* Toast Notification */}
       {toastMessage && (
@@ -293,7 +293,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(99,102,241,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
+        className="premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(99,102,241,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
         style={{
           background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 32%, #C7D2FE 64%, #DDD6FE 84%, #F5D0FE 100%)',
         }}

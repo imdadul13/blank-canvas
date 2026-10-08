@@ -181,8 +181,7 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
 
   return (
     <div
-      className="space-y-5 sm:space-y-7 font-['Plus_Jakarta_Sans'] text-[#1D1D1F]"
-      style={{ paddingBottom: 'max(9rem, calc(6.5rem + env(safe-area-inset-bottom, 2rem)))' }}
+      className="space-y-5 sm:space-y-7 pb-24 sm:pb-20 lg:pb-16 font-['Plus_Jakarta_Sans'] text-[#1D1D1F]"
     >
 
       {/* ═══ HERO BANNER ═══ */}

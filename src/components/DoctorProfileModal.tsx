@@ -78,7 +78,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
   const [baselineQuestions, setBaselineQuestions] = useState<number | ''>(profile?.baselineQuestions ?? '');
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
+  const [syncFeedback, setSyncFeedback] = useState<{ kind: 'success' | 'error' | 'info'; text: string } | null>(null);
   const [dutyShieldFeedback, setDutyShieldFeedback] = useState<string | null>(null);
 
   const streakStatus = useMemo(() => getStreakProtectionStatus(state), [state]);
@@ -190,7 +190,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
           },
         });
       }
-      setSyncFeedback('Profile & exam blueprint saved successfully!');
+      setSyncFeedback({ kind: 'success', text: 'Profile and study settings saved.' });
       setTimeout(() => {
         onClose();
       }, 500);
@@ -206,20 +206,23 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
     setIsSyncing(true);
     setSyncFeedback(null);
     try {
-      if (forceSyncToCloud) {
-        await forceSyncToCloud();
-      }
       saveAppState(state);
-      localStorage.setItem('fmge_last_sync_timestamp', new Date().toISOString());
-      setSyncFeedback(
-        user?.email
-          ? `All progress backed up to cloud (${user.email}).`
-          : 'All records saved to verified local ledger.'
-      );
+      if (user && !isGuest && forceSyncToCloud) {
+        await forceSyncToCloud();
+        const timestamp = new Date().toISOString();
+        try {
+          localStorage.setItem('fmge_last_sync_timestamp', timestamp);
+        } catch {
+          // Cloud backup succeeded even if this device cannot store the timestamp.
+        }
+        setSyncFeedback({ kind: 'success', text: 'Cloud backup completed.' });
+      } else {
+        setSyncFeedback({ kind: 'info', text: 'Saved on this device. Sign in to sync across devices.' });
+      }
       setTimeout(() => setSyncFeedback(null), 3500);
     } catch (err) {
       saveAppState(state);
-      setSyncFeedback('Synced to local storage.');
+      setSyncFeedback({ kind: 'error', text: 'Cloud sync did not finish. Your progress is saved on this device; try again when your connection is available.' });
     } finally {
       setIsSyncing(false);
     }
@@ -227,7 +230,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
   const handleExportBackup = () => {
     downloadBackupFile(state);
-    setSyncFeedback('Encrypted JSON backup file generated & downloaded.');
+    setSyncFeedback({ kind: 'success', text: 'JSON backup downloaded. Keep the file somewhere private.' });
     setTimeout(() => setSyncFeedback(null), 3000);
   };
 
@@ -242,13 +245,13 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         const imported = normalizeAppState(parsed);
         if (imported) {
           onImportState(imported);
-          setSyncFeedback('State restored successfully from backup.');
+          setSyncFeedback({ kind: 'success', text: 'Study data restored from the backup file.' });
           setTimeout(() => setSyncFeedback(null), 3000);
         } else {
-          alert('Invalid backup file schema.');
+          setSyncFeedback({ kind: 'error', text: 'This backup file does not match the expected study-data format.' });
         }
       } catch (err) {
-        alert('Failed to parse backup JSON.');
+        setSyncFeedback({ kind: 'error', text: 'Could not read this JSON backup file.' });
       }
     };
     reader.readAsText(file);
@@ -289,12 +292,6 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                     <span>{initials}</span>
                   )}
                 </div>
-                <div
-                  className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 border-2 border-white shadow-xs flex items-center justify-center"
-                  title="Encrypted & Synced"
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                </div>
               </div>
 
               <div className="min-w-0">
@@ -315,7 +312,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   <span className="h-1 w-1 rounded-full bg-slate-300" />
                   <span className="text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Verified Candidate
+                    Study profile
                   </span>
                 </div>
               </div>
@@ -397,9 +394,13 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
         {/* Feedback Banner */}
         {syncFeedback && (
-          <div className="mx-5 mt-3 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in shrink-0">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-            <span className="font-semibold">{syncFeedback}</span>
+          <div role={syncFeedback.kind === 'error' ? 'alert' : 'status'} aria-live={syncFeedback.kind === 'error' ? 'assertive' : 'polite'} className={`mx-5 mt-3 p-3 rounded-2xl border text-xs flex items-center gap-2 animate-in fade-in shrink-0 ${
+            syncFeedback.kind === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800' :
+            syncFeedback.kind === 'info' ? 'bg-slate-50 border-slate-200 text-slate-700' :
+            'bg-emerald-50 border-emerald-200 text-emerald-800'
+          }`}>
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <span className="font-semibold">{syncFeedback.text}</span>
           </div>
         )}
 
@@ -836,11 +837,13 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                         Cloud Sync Engine
                       </span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                        Live
+                        {user && !isGuest ? 'Cloud sync' : 'Device only'}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500">
-                      Auto-sync active for {user?.email || profile?.email || 'Local session'}.
+                      {user && !isGuest
+                        ? 'Back up your latest progress to your signed-in account.'
+                        : 'Your progress is saved on this device. Sign in to sync across devices.'}
                     </p>
                   </div>
                 </div>
@@ -852,7 +855,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#0071E3] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98] shrink-0"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                  <span>{isSyncing ? 'Syncing...' : 'Sync Now'}</span>
+                  <span>{isSyncing ? 'Syncing...' : user && !isGuest ? 'Sync Now' : 'Save on Device'}</span>
                 </button>
               </div>
 

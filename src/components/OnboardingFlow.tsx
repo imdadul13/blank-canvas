@@ -614,7 +614,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                     <div className="pt-4 inline-flex items-center gap-2 text-[11px] text-[#8E8E93] font-medium">
                       <span>NBE FMGE 2026 Grounded</span>
                       <span>·</span>
-                      <span>100% Client-Side Privacy</span>
+                      <span>Local-first study workspace</span>
                       <span>·</span>
                       <span>Offline First</span>
                     </div>
@@ -806,7 +806,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                       What score are you aiming for?
                     </h2>
                     <p className="text-xs sm:text-sm text-[#6E6E73] font-medium">
-                      The FMGE pass mark is 150/300. Aiming for a safety buffer above 150 guarantees exam-day confidence.
+                      The FMGE pass mark is 150/300. A higher target gives you room above the passing mark.
                     </p>
                   </div>
 
@@ -1054,7 +1054,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                   <div className="p-4 rounded-3xl bg-[#007AFF]/5 border border-[#007AFF]/20 text-xs text-[#007AFF] flex items-start gap-2.5">
                     <Award className="size-4 shrink-0 mt-0.5" />
                     <p className="leading-relaxed font-medium">
-                      <strong className="font-bold">FMGE Success Benchmark:</strong> Candidates allocating 6 to 8 focused hours daily with high-yield revision loops achieve a &gt;85% pass probability.
+                      <strong className="font-bold">Build a steady routine:</strong> Choose a daily pace you can sustain, then adjust it as your schedule and exam date change.
                     </p>
                   </div>
                 </div>
@@ -1319,13 +1319,13 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                   <div className="text-center space-y-2">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/25 text-xs font-bold">
                       <Check className="size-3.5 stroke-[2.5]" />
-                      Blueprint Calibrated &amp; Verified
+                      Personal blueprint ready
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-[#1D1D1F]">
                       Your FMGE Blueprint is Ready, Doctor.
                     </h2>
                     <p className="text-xs sm:text-sm text-[#6E6E73] max-w-md mx-auto font-medium">
-                      Here is your personalized roadmap summary. Every study sprint, mock GT, and revision block is configured to hit your target.
+                      Here is your personalized roadmap summary. Study sprints and revision blocks are arranged around your target.
                     </p>
                   </div>
 
@@ -1353,7 +1353,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                       </div>
                       <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[11px] font-bold bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/25">
                         <ShieldCheck className="size-3.5 stroke-[2.4]" />
-                        Verified
+                        Personalized
                       </span>
                     </div>
 
