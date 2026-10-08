@@ -110,24 +110,32 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
             </p>
 
             {/* Apple Segmented Mode Switcher */}
-            <div className="inline-flex items-center gap-1 p-1 bg-white/65 backdrop-blur-md rounded-full border border-white/80 shadow-sm">
+            <div
+              role="group"
+              aria-label="Mentor mode"
+              className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-full border border-white/80 bg-white/65 p-1 shadow-sm backdrop-blur-md sm:inline-flex sm:w-auto sm:overflow-visible"
+              style={{ scrollbarWidth: 'none' }}
+            >
               {([
-                { id: 'consultation' as const, label: 'Consultation', icon: MessageSquare },
-                { id: 'quiz' as const, label: '5Q Clinical Quiz', icon: HelpCircle },
-                { id: 'viva' as const, label: 'Differential Viva', icon: Brain },
-              ]).map(({ id, label, icon: Icon }) => (
+                { id: 'consultation' as const, label: 'Consultation', compactLabel: 'Consult', icon: MessageSquare },
+                { id: 'quiz' as const, label: '5Q Clinical Quiz', compactLabel: '5Q Quiz', icon: HelpCircle },
+                { id: 'viva' as const, label: 'Differential Viva', compactLabel: 'Viva', icon: Brain },
+              ]).map(({ id, label, compactLabel, icon: Icon }) => (
                 <button
                   key={id}
                   type="button"
                   onClick={() => onModeChange?.(id)}
-                  className={`relative flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  aria-label={label}
+                  aria-pressed={activeMode === id}
+                  className={`relative flex min-w-0 flex-1 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-2 py-2 text-[10px] font-bold transition-all cursor-pointer sm:flex-none sm:px-3 sm:py-1 sm:text-xs ${
                     activeMode === id
                       ? 'bg-white text-[#007AFF] shadow-xs'
                       : 'text-[#3A3A3C]/70 hover:text-[#1D1D1F]'
                   }`}
                 >
                   <Icon className={`w-3 h-3 shrink-0 ${activeMode === id ? 'text-[#007AFF]' : ''}`} />
-                  <span>{label}</span>
+                  <span className="sm:hidden">{compactLabel}</span>
+                  <span className="hidden sm:inline">{label}</span>
                 </button>
               ))}
             </div>

@@ -171,7 +171,7 @@ export default function OneShotLogo({
           )}
         </div>
         <div className="flex items-center gap-1.5 leading-none">
-          <span className={`font-black tracking-[-0.035em] text-[15px] ${inverse ? 'text-white' : 'text-[#1D1D1F]'}`}>
+          <span className={`whitespace-nowrap font-black tracking-[-0.035em] text-[15px] ${inverse ? 'text-white' : 'text-[#1D1D1F]'}`}>
             ONE SHOT
           </span>
           <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-[#007AFF] to-[#5856D6] text-white text-[9.5px] font-black tracking-wider uppercase shadow-2xs border border-white/20">

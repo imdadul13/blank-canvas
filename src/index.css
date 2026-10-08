@@ -960,3 +960,20 @@ main [class*="rounded-3xl"][class*="bg-white"] {
 @supports (min-height: 100svh) {
   html, body, #root { min-height: 100svh; }
 }
+
+.directory-card {
+  border: 1px solid var(--color-hairline) !important;
+  border-radius: 20px !important;
+  background-color: var(--color-surface) !important;
+  background-image: none !important;
+  box-shadow: var(--shadow-e2) !important;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.directory-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--color-hairline)) !important;
+  box-shadow: var(--shadow-e3) !important;
+}
+.directory-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}

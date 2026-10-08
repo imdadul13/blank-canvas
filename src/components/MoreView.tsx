@@ -61,6 +61,13 @@ interface MoreViewProps {
 
 type MoreSection = 'hub' | 'telegram';
 
+function activateDirectoryCardWithKeyboard(event: React.KeyboardEvent<HTMLDivElement>) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    event.currentTarget.click();
+  }
+}
+
 export const MoreView: React.FC<MoreViewProps> = ({
   state,
   stats,
@@ -77,9 +84,6 @@ export const MoreView: React.FC<MoreViewProps> = ({
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   const targetScore = state.settings?.targetScore || 180;
-  const cutoffScore = 150;
-  const scoreMargin = targetScore - cutoffScore;
-  const dailyHours = state.settings?.dailyStudyHourGoal || 6;
 
   const handleExportBackup = () => {
     downloadBackupFile(state);
@@ -140,16 +144,16 @@ export const MoreView: React.FC<MoreViewProps> = ({
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#1D1D1F]">
-                      System &amp; Settings
+                      Study tools &amp; settings
                     </h1>
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-mono font-bold bg-[#10B981]/10 text-[#059669] border border-[#10B981]/25">
                       <span className="size-1.5 rounded-full bg-[#10B981] animate-pulse" />
-                      Encrypted Client-Side
+                      Your study workspace
                     </span>
                   </div>
 
                   <p className="text-[12.5px] sm:text-[13px] text-[#6E6E73] font-medium leading-relaxed">
-                    FMGE Candidate Portal · Target <strong className="text-[#1D1D1F] font-mono">{targetScore}/300</strong> · NBE Cutoff <strong className="text-[#1D1D1F] font-mono">150</strong> · Telemetry &amp; Controls
+                    Practice tools, account details, and app preferences in one place.
                   </p>
                 </div>
               </div>
@@ -190,149 +194,12 @@ export const MoreView: React.FC<MoreViewProps> = ({
             </div>
           </motion.header>
 
-          {/* ================= 3 TAILORED APPLE INSET BENTO CARDS ================= */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-            {/* Card 1: Exam Horizon & Target Clearance */}
-            <motion.div
-              whileHover={{ y: -3 }}
-              transition={{ duration: 0.2 }}
-              className="p-5 sm:p-6 rounded-[28px] bg-gradient-to-b from-[#EFF8FF] via-[#F8FBFF] to-white border border-[#D0E7FF]/80 shadow-[0_4px_24px_rgba(0,122,255,0.05),0_1px_2px_rgba(0,0,0,0.02)] space-y-3.5"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#007AFF]">
-                  Pass Target Clearance
-                </span>
-                <div className="size-10 rounded-2xl bg-[#007AFF] text-white flex items-center justify-center shadow-[0_4px_12px_rgba(0,122,255,0.30)]">
-                  <Target className="size-5 stroke-[2.2]" />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-[#1D1D1F]">
-                    {targetScore}
-                  </span>
-                  <span className="text-sm font-bold font-mono text-[#8E8E93]">/ 300</span>
-                  <span className="ml-auto text-[11px] font-bold font-mono px-2.5 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20">
-                    +{scoreMargin} Buffer
-                  </span>
-                </div>
-                <p className="text-[12px] text-[#6E6E73] mt-1.5 font-medium leading-relaxed">
-                  NBE raw pass requirement is 150 (50%). Aiming for {targetScore} guarantees safe margin.
-                </p>
-              </div>
-
-              {/* Progress Bar Cushion */}
-              <div className="space-y-1.5 pt-1">
-                <div className="h-2 w-full bg-[#EBF3FF] rounded-full overflow-hidden flex">
-                  <div
-                    className="h-full bg-[#10B981]"
-                    style={{ width: `${(cutoffScore / 300) * 100}%` }}
-                    title="NBE 150 Pass Benchmark"
-                  />
-                  <div
-                    className="h-full bg-[#007AFF]"
-                    style={{ width: `${(scoreMargin / 300) * 100}%` }}
-                    title="Target Buffer"
-                  />
-                </div>
-                <div className="flex justify-between text-[10.5px] font-mono text-[#8E8E93]">
-                  <span>0</span>
-                  <span className="text-[#10B981] font-semibold">150 Cutoff</span>
-                  <span className="text-[#007AFF] font-bold">{targetScore} Goal</span>
-                  <span>300</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Card 2: Daily Pacing & Duty Hours */}
-            <motion.div
-              whileHover={{ y: -3 }}
-              transition={{ duration: 0.2 }}
-              className="p-5 sm:p-6 rounded-[28px] bg-gradient-to-b from-[#FAF5FF] via-[#FDFBFF] to-white border border-[#F3E0FF]/80 shadow-[0_4px_24px_rgba(88,86,214,0.05),0_1px_2px_rgba(0,0,0,0.02)] space-y-3.5"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#5856D6]">
-                  Daily Study Pacing
-                </span>
-                <div className="size-10 rounded-2xl bg-[#5856D6] text-white flex items-center justify-center shadow-[0_4px_12px_rgba(88,86,214,0.30)]">
-                  <Clock className="size-5 stroke-[2.2]" />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-[#1D1D1F]">
-                    {dailyHours}h
-                  </span>
-                  <span className="text-sm font-semibold text-[#8E8E93]">/ Day</span>
-                  <span className="ml-auto text-[11px] font-bold font-mono px-2.5 py-0.5 rounded-full bg-[#5856D6]/10 text-[#5856D6] border border-[#5856D6]/20">
-                    Spaced Repetition
-                  </span>
-                </div>
-                <p className="text-[12px] text-[#6E6E73] mt-1.5 font-medium leading-relaxed">
-                  Optimal daily retention load calibrated for 19 NBE subjects and revision cycles.
-                </p>
-              </div>
-
-              <div className="pt-2 flex items-center gap-2 text-[11.5px] text-[#5856D6] font-semibold">
-                <span className="size-2 rounded-full bg-[#5856D6] animate-pulse" />
-                <span>Duty Shield Protection Active</span>
-              </div>
-            </motion.div>
-
-            {/* Card 3: Overall Curricular Readiness */}
-            <motion.div
-              whileHover={{ y: -3 }}
-              transition={{ duration: 0.2 }}
-              className="p-5 sm:p-6 rounded-[28px] bg-gradient-to-b from-[#F0FDF4] via-[#F9FDFB] to-white border border-[#D1F7DE]/80 shadow-[0_4px_24px_rgba(16,185,129,0.05),0_1px_2px_rgba(0,0,0,0.02)] space-y-3.5"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#10B981]">
-                  Curricular Mastery
-                </span>
-                <div className="size-10 rounded-2xl bg-[#10B981] text-white flex items-center justify-center shadow-[0_4px_12px_rgba(16,185,129,0.30)]">
-                  <Activity className="size-5 stroke-[2.2]" />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-[#1D1D1F]">
-                    {stats?.overallReadinessScore || 0}%
-                  </span>
-                  <span className="text-sm font-semibold text-[#8E8E93]">Readiness</span>
-                  <span className="ml-auto text-[11px] font-bold font-mono px-2.5 py-0.5 rounded-full bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20">
-                    {stats?.completedNotesTopics || 0}/{stats?.totalTopics || 0} Topics
-                  </span>
-                </div>
-                <p className="text-[12px] text-[#6E6E73] mt-1.5 font-medium leading-relaxed">
-                  Continuous multi-dimensional index based on notes, recall drills, and grand mocks.
-                </p>
-              </div>
-
-              {/* Readiness bar */}
-              <div className="space-y-1.5 pt-1">
-                <div className="h-2 w-full bg-[#E6F9EE] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#10B981] transition-all duration-500 rounded-full"
-                    style={{ width: `${Math.min(100, Math.max(5, stats?.overallReadinessScore || 0))}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-[10.5px] font-mono text-[#8E8E93]">
-                  <span>19 Subjects</span>
-                  <span>Target: 70%+ for Safe Pass</span>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
           {/* ================= iOS SETTINGS GROUPED INSET DIRECTORY ================= */}
           <div className="space-y-6">
             {/* GROUP 1: CLINICAL PRACTICE & SIMULATION */}
             <div className="space-y-3">
               <div className="px-1 text-[11px] font-bold uppercase tracking-widest text-[#8E8E93]">
-                Examination &amp; Clinical Modules
+                Study &amp; practice
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
@@ -341,7 +208,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
                   whileHover={{ y: -3 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => onNavigateTab?.('grandtests')}
-                  className="p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#EEF2FF] via-[#F8FAFF] to-white border border-[#C7D2FE]/70 hover:border-[#818CF8]/80 shadow-[0_4px_20px_rgba(79,70,229,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
+                  role="button" tabIndex={0} onKeyDown={activateDirectoryCardWithKeyboard}
+                  className="directory-card p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#EEF2FF] via-[#F8FAFF] to-white border border-[#C7D2FE]/70 hover:border-[#818CF8]/80 shadow-[0_4px_20px_rgba(79,70,229,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
                 >
                   <div className="flex items-start justify-between">
                     <div className="size-12 rounded-2xl bg-gradient-to-br from-[#5856D6] to-[#4338CA] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(88,86,214,0.30)] group-hover:scale-[1.06] transition-transform">
@@ -372,7 +240,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
                   whileHover={{ y: -3 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => (onNavigateTab ? onNavigateTab('telegram') : setActiveSection('telegram'))}
-                  className="p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#EFF8FF] via-[#F8FAFF] to-white border border-[#BAE6FD]/70 hover:border-[#38BDF8]/80 shadow-[0_4px_20px_rgba(2,132,199,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(2,132,199,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
+                  role="button" tabIndex={0} onKeyDown={activateDirectoryCardWithKeyboard}
+                  className="directory-card p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#EFF8FF] via-[#F8FAFF] to-white border border-[#BAE6FD]/70 hover:border-[#38BDF8]/80 shadow-[0_4px_20px_rgba(2,132,199,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(2,132,199,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
                 >
                   <div className="flex items-start justify-between">
                     <div className="size-12 rounded-2xl bg-gradient-to-br from-[#0284C7] to-[#0369A1] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(2,132,199,0.30)] group-hover:scale-[1.06] transition-transform">
@@ -409,7 +278,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
                       onNavigateTab('aicoach');
                     }
                   }}
-                  className="p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#FAF5FF] via-[#FDFBFF] to-white border border-[#E9D5FF]/70 hover:border-[#C084FC]/80 shadow-[0_4px_20px_rgba(168,85,247,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(168,85,247,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
+                  role="button" tabIndex={0} onKeyDown={activateDirectoryCardWithKeyboard}
+                  className="directory-card p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#FAF5FF] via-[#FDFBFF] to-white border border-[#E9D5FF]/70 hover:border-[#C084FC]/80 shadow-[0_4px_20px_rgba(168,85,247,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(168,85,247,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
                 >
                   <div className="flex items-start justify-between">
                     <div className="size-12 rounded-2xl bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(0,122,255,0.30)] group-hover:scale-[1.06] transition-transform">
@@ -440,7 +310,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
             {/* GROUP 2: DOCTOR IDENTITY & DATA BACKUP */}
             <div className="space-y-3">
               <div className="px-1 text-[11px] font-bold uppercase tracking-widest text-[#8E8E93]">
-                Doctor Identity &amp; Telemetry Data
+                Account &amp; data
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
@@ -450,7 +320,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
                     whileHover={{ y: -3 }}
                     transition={{ duration: 0.2 }}
                     onClick={onOpenProfile}
-                    className="p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#EFF6FF] via-[#F8FAFF] to-white border border-[#BFDBFE]/70 hover:border-[#60A5FA]/80 shadow-[0_4px_20px_rgba(0,122,255,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,122,255,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
+                    role="button" tabIndex={0} onKeyDown={activateDirectoryCardWithKeyboard}
+                    className="directory-card p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#EFF6FF] via-[#F8FAFF] to-white border border-[#BFDBFE]/70 hover:border-[#60A5FA]/80 shadow-[0_4px_20px_rgba(0,122,255,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,122,255,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
                   >
                     <div className="flex items-start justify-between">
                       <div className="size-12 rounded-2xl bg-gradient-to-br from-[#007AFF] to-[#0256B3] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(0,122,255,0.30)] group-hover:scale-[1.06] transition-transform">
@@ -483,23 +354,24 @@ export const MoreView: React.FC<MoreViewProps> = ({
                     whileHover={{ y: -3 }}
                     transition={{ duration: 0.2 }}
                     onClick={onOpenCloudSync}
-                    className="p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#F0FDF4] via-[#F9FDFB] to-white border border-[#BBF7D0]/70 hover:border-[#4ADE80]/80 shadow-[0_4px_20px_rgba(16,185,129,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(16,185,129,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
+                    role="button" tabIndex={0} onKeyDown={activateDirectoryCardWithKeyboard}
+                    className="directory-card p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#F0FDF4] via-[#F9FDFB] to-white border border-[#BBF7D0]/70 hover:border-[#4ADE80]/80 shadow-[0_4px_20px_rgba(16,185,129,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(16,185,129,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
                   >
                     <div className="flex items-start justify-between">
                       <div className="size-12 rounded-2xl bg-gradient-to-br from-[#10B981] to-[#047857] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(16,185,129,0.30)] group-hover:scale-[1.06] transition-transform">
                         <Cloud className="size-5 stroke-[2.2]" />
                       </div>
                       <span className="px-2.5 py-0.5 rounded-full bg-[#10B981]/10 text-[#10B981] text-[11px] font-mono font-bold border border-[#10B981]/20">
-                        Synchronized
+                        Cloud sync
                       </span>
                     </div>
 
                     <div className="space-y-1">
                       <h3 className="text-[15px] font-bold text-[#1D1D1F] group-hover:text-[#10B981] transition-colors leading-snug">
-                        Encrypted Cloud Sync Vault
+                        Cloud sync
                       </h3>
                       <p className="text-[12px] text-[#86868B] font-medium leading-relaxed">
-                        Multi-device synchronization with client-side end-to-end encryption.
+                        Keep your study data available across signed-in devices.
                       </p>
                     </div>
 
@@ -515,7 +387,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
                   whileHover={{ y: -3 }}
                   transition={{ duration: 0.2 }}
                   onClick={handleExportBackup}
-                  className="p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#FFFBEB] via-[#FFFDF5] to-white border border-[#FDE68A]/70 hover:border-[#FBBF24]/80 shadow-[0_4px_20px_rgba(245,158,11,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
+                  role="button" tabIndex={0} onKeyDown={activateDirectoryCardWithKeyboard}
+                  className="directory-card p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#FFFBEB] via-[#FFFDF5] to-white border border-[#FDE68A]/70 hover:border-[#FBBF24]/80 shadow-[0_4px_20px_rgba(245,158,11,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
                 >
                   <div className="flex items-start justify-between">
                     <div className="size-12 rounded-2xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(245,158,11,0.30)] group-hover:scale-[1.06] transition-transform">
@@ -535,10 +408,10 @@ export const MoreView: React.FC<MoreViewProps> = ({
 
                   <div className="space-y-1">
                     <h3 className="text-[15px] font-bold text-[#1D1D1F] group-hover:text-[#F59E0B] transition-colors leading-snug">
-                      Offline Backup &amp; Telemetry Export
+                      Download a backup
                     </h3>
                     <p className="text-[12px] text-[#86868B] font-medium leading-relaxed">
-                      Download full JSON snapshot of error vault, grand tests, daily logs, and pearls.
+                      Save a copy of your study data to this device.
                     </p>
                   </div>
 
@@ -553,7 +426,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
             {/* GROUP 3: SYSTEM PREFERENCES & ATMOSPHERE */}
             <div className="space-y-3">
               <div className="px-1 text-[11px] font-bold uppercase tracking-widest text-[#8E8E93]">
-                App Preferences &amp; Atmosphere
+                App preferences
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -562,7 +435,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
                   whileHover={{ y: -3 }}
                   transition={{ duration: 0.2 }}
                   onClick={onOpenSettings}
-                  className="p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#F8FAFC] via-[#FCFDFE] to-white border border-[#CBD5E1]/70 hover:border-[#94A3B8]/80 shadow-[0_4px_20px_rgba(100,116,139,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(100,116,139,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
+                  role="button" tabIndex={0} onKeyDown={activateDirectoryCardWithKeyboard}
+                  className="directory-card p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#F8FAFC] via-[#FCFDFE] to-white border border-[#CBD5E1]/70 hover:border-[#94A3B8]/80 shadow-[0_4px_20px_rgba(100,116,139,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(100,116,139,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
                 >
                   <div className="flex items-start justify-between">
                     <div className="size-12 rounded-2xl bg-gradient-to-br from-[#64748B] to-[#475569] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(100,116,139,0.30)] group-hover:scale-[1.06] transition-transform">
@@ -593,7 +467,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
                   whileHover={{ y: -3 }}
                   transition={{ duration: 0.2 }}
                   onClick={onOpenSettings}
-                  className="p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#FFF7ED] via-[#FFFBF7] to-white border border-[#FFEDD5]/70 hover:border-[#FB923C]/80 shadow-[0_4px_20px_rgba(249,115,22,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(249,115,22,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
+                  role="button" tabIndex={0} onKeyDown={activateDirectoryCardWithKeyboard}
+                  className="directory-card p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#FFF7ED] via-[#FFFBF7] to-white border border-[#FFEDD5]/70 hover:border-[#FB923C]/80 shadow-[0_4px_20px_rgba(249,115,22,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(249,115,22,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
                 >
                   <div className="flex items-start justify-between">
                     <div className="size-12 rounded-2xl bg-gradient-to-br from-[#FF9500] to-[#EA580C] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(255,149,0,0.30)] group-hover:scale-[1.06] transition-transform">
@@ -606,10 +481,10 @@ export const MoreView: React.FC<MoreViewProps> = ({
 
                   <div className="space-y-1">
                     <h3 className="text-[15px] font-bold text-[#1D1D1F] group-hover:text-[#FF9500] transition-colors leading-snug">
-                      Circadian Lighting &amp; Atmosphere
+                      Theme &amp; appearance
                     </h3>
                     <p className="text-[12px] text-[#86868B] font-medium leading-relaxed">
-                      Ambient color grading reacts dynamically with solar cycle for ocular comfort.
+                      Choose a light, sunset, or night study background.
                     </p>
                   </div>
 
@@ -626,7 +501,9 @@ export const MoreView: React.FC<MoreViewProps> = ({
           <div className="rounded-[28px] bg-gradient-to-b from-[#F0F7FF] via-[#F8FBFF] to-white border border-[#D0E7FF]/80 shadow-[0_4px_24px_rgba(0,122,255,0.04),0_1px_2px_rgba(0,0,0,0.02)] p-5 sm:p-7 space-y-4">
             <div
               onClick={() => setIsBlueprintExpanded((p) => !p)}
-              className="flex items-center justify-between cursor-pointer select-none"
+              role="button" tabIndex={0} aria-expanded={isBlueprintExpanded}
+              onKeyDown={activateDirectoryCardWithKeyboard}
+              className="flex items-center justify-between cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#007AFF]"
             >
               <div className="flex items-center gap-3.5">
                 <div className="size-12 rounded-2xl bg-[#007AFF] text-white flex items-center justify-center shadow-[0_4px_12px_rgba(0,122,255,0.30)] shrink-0">
@@ -745,7 +622,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-[#F2F2F7]/70 border border-black/[0.04] text-[11.5px] text-[#86868B]">
             <div className="flex items-center gap-2">
               <ShieldCheck className="size-4 text-[#10B981]" />
-              <span>Offline-First Engine · 100% Private Client Storage · Zero External Telemetry Trackers</span>
+              <span>Study data saves on this device and syncs when you sign in.</span>
             </div>
             <span className="font-mono text-[10.5px]">NBE CBT Standard Aligned</span>
           </div>

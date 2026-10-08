@@ -1938,7 +1938,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="flex items-center gap-2">
                 <div className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#007AFF]">
                   <GreetingIcon className="h-3.5 w-3.5 stroke-[2.4]" />
-                  <span>{greeting},</span>
+                  <span>{greeting}</span>
                 </div>
                 <span className="text-[#C7C7CC]">·</span>
                 <span className="text-[12px] font-semibold hidden sm:inline text-[#8E8E93]">OneShot FMGE</span>

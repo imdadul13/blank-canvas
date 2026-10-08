@@ -151,6 +151,11 @@ function AppInner() {
   });
 
   const handleSetActiveTab = (tab: ActiveTab) => {
+    if (tab !== activeTab) {
+      // Each section is a new workspace; keep it from inheriting the previous
+      // section's scroll position on mobile and desktop.
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
     setActiveTab(tab);
     try {
       sessionStorage.setItem('fmge_active_tab', tab);
@@ -899,7 +904,7 @@ function AppInner() {
             initial={{ y: -52, opacity: 0 }}
             animate={{ y: isNavVisible ? 0 : -52, opacity: isNavVisible ? 1 : 0 }}
             transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-            className="hidden sm:block sticky top-0 z-[30] select-none overflow-hidden"
+            className="hidden lg:block sticky top-0 z-[30] select-none overflow-hidden"
             style={{
               background: 'rgba(255,255,255,0.88)',
               backdropFilter: 'blur(20px) saturate(180%)',

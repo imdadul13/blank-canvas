@@ -367,9 +367,9 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         <div className="px-4 sm:px-6 py-2.5 border-b border-slate-200/80 bg-slate-50/70 flex items-center justify-between gap-1.5 overflow-x-auto scrollbar-none shrink-0">
           <div className="p-1 bg-slate-200/60 rounded-2xl flex items-center gap-1 w-full sm:w-auto">
             {[
-              { id: 'blueprint', label: 'Exam Blueprint', shortLabel: 'Blueprint', icon: Target },
-              { id: 'telemetry', label: 'Telemetry & Progress', shortLabel: 'Telemetry', icon: Activity },
-              { id: 'cloud', label: 'Cloud & Backup', shortLabel: 'Cloud Sync', icon: Cloud },
+              { id: 'blueprint', label: 'Exam Blueprint', shortLabel: 'Plan', icon: Target },
+              { id: 'telemetry', label: 'Telemetry & Progress', shortLabel: 'Stats', icon: Activity },
+              { id: 'cloud', label: 'Cloud & Backup', shortLabel: 'Backup', icon: Cloud },
             ].map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.id;
@@ -378,7 +378,9 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  aria-label={tab.label}
+                  aria-pressed={active}
+                  className={`flex min-w-0 flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-2 sm:px-3.5 py-2 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                     active
                       ? 'bg-white text-slate-900 shadow-xs font-bold'
                       : 'text-slate-600 hover:text-slate-900'
@@ -921,16 +923,16 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
             paddingBottom: 'max(0.875rem, calc(0.625rem + env(safe-area-inset-bottom, 0px)))',
           }}
         >
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
+          <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-slate-500 font-medium">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Encrypted credentials &amp; study blueprint</span>
+            <span className="hidden sm:inline">Profile and study settings</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-200/50 transition-colors cursor-pointer"
+              className="whitespace-nowrap px-3 sm:px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-200/50 transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -938,10 +940,11 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
               type="button"
               onClick={() => handleSaveBlueprint()}
               disabled={isSaving}
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#0071E3] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap px-3 sm:px-5 py-2 rounded-xl text-xs font-bold bg-[#0071E3] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98]"
             >
               <Save className="h-3.5 w-3.5" />
-              <span>{isSaving ? 'Saving...' : 'Save Blueprint'}</span>
+              <span className="sm:hidden">{isSaving ? 'Saving' : 'Save'}</span>
+              <span className="hidden sm:inline">{isSaving ? 'Saving...' : 'Save Blueprint'}</span>
             </button>
           </div>
         </div>
