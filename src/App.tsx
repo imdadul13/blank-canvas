@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ArrowLeft, PanelLeftOpen } from 'lucide-react';
 import { Navbar, SidebarDock, ActiveTab } from './components/Navbar';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, MotionConfig, useReducedMotion } from 'motion/react';
 const DashboardView = lazy(() => import('./components/DashboardView').then((module) => ({ default: module.DashboardView })));
 const SyllabusView = lazy(() => import('./components/SyllabusView').then((module) => ({ default: module.SyllabusView })));
 const GrandTestsView = lazy(() => import('./components/GrandTestsView').then((module) => ({ default: module.GrandTestsView })));
@@ -55,6 +55,7 @@ import { useScrollDirection } from './hooks/useScrollDirection';
 import { resolveTimeOfDay } from './hooks/useCircadianTheme';
 import { getActiveNotificationCount } from './utils/notificationEngine';
 import { recordSpacedAttempt } from './utils/spacedRepetitionEngine';
+import { SPRING_SMOOTH } from './utils/motionTokens';
 const AudioRecallPlayerModal = lazy(() => import('./components/AudioRecallPlayerModal').then((module) => ({ default: module.AudioRecallPlayerModal })));
 
 const STUDY_BACKGROUNDS = [
@@ -81,7 +82,11 @@ function AppInner() {
   } = useAuth();
 
   // User custom background theme or time-based auto calculation (unified circadian state)
-  const currentHour = new Date().getHours();
+  const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentHour(new Date().getHours()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
   const [circadianOverride, setCircadianOverride] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('fmge_circadian_override');
@@ -111,6 +116,13 @@ function AppInner() {
     if (resolved === 'afternoon' || resolved === 'evening') return STUDY_BACKGROUNDS[1];
     return STUDY_BACKGROUNDS[2];
   }, [circadianOverride, state.settings?.bgTheme, currentHour]);
+
+  useEffect(() => {
+    const isNight = Boolean(user || isGuest) && activeBg.id === 'night';
+    document.documentElement.classList.toggle('dark', isNight);
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (themeColor) themeColor.content = isNight ? '#1C1C1E' : '#F2F2F7';
+  }, [activeBg.id, user, isGuest]);
 
   const bgOpacity = state.settings?.bgOpacity ?? 0.8;
 
@@ -163,6 +175,7 @@ function AppInner() {
   const [isAudioRecallOpen, setIsAudioRecallOpen] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const { isVisible: isNavVisible } = useScrollDirection(12);
+  const reducedMotion = useReducedMotion();
 
   // Desktop Sidebar State: Pinned (ON) or Unpinned (OFF), with Hover-to-Peek
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(() => {
@@ -966,6 +979,7 @@ function AppInner() {
           syncStatus={syncStatus}
           isGuest={isGuest}
           onExitGuest={signOutUser}
+          isNavVisible={isNavVisible}
         />
 
         {/* Main Content Area */}
@@ -975,10 +989,10 @@ function AppInner() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 6 }}
+                initial={reducedMotion ? false : { opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.15, ease: 'easeOut' }}
+                exit={reducedMotion ? undefined : { opacity: 0, y: -6 }}
+                transition={reducedMotion ? { duration: 0 } : { duration: 0.15, ease: 'easeOut' }}
               >
                 {activeTab === 'dashboard' && (
                   <DashboardView
@@ -1376,9 +1390,11 @@ function AppInner() {
 
 export function App() {
   return (
-    <AuthProvider>
-      <AppInner />
-    </AuthProvider>
+    <MotionConfig reducedMotion="user" transition={SPRING_SMOOTH}>
+      <AuthProvider>
+        <AppInner />
+      </AuthProvider>
+    </MotionConfig>
   );
 }
 

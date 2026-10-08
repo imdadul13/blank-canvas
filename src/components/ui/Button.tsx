@@ -27,7 +27,7 @@ const VARIANT: Record<ButtonVariant, string> = {
   // Hairline-bordered neutral surface. The default for anything that is not
   // the one primary action in a view.
   secondary: cn(
-    'bg-white text-[var(--color-ink)] border border-[var(--color-hairline-strong)]',
+    'bg-[var(--color-surface)] text-[var(--color-ink)] border border-[var(--color-hairline-strong)]',
     'shadow-e1 hover:bg-[var(--color-surface-row)]',
     'active:bg-[var(--color-surface-muted)]',
   ),
@@ -142,18 +142,19 @@ const PILL_TONE: Record<PillTone, string> = {
 
 export interface PillProps extends React.HTMLAttributes<HTMLSpanElement> {
   tone?: PillTone;
-  /** Renders as a real <button> when provided. */
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  /** Renders as a real, keyboard-operable button when provided. */
+  onClick?: React.MouseEventHandler<HTMLElement>;
   selected?: boolean;
+  disabled?: boolean;
 }
 
-export const Pill = React.forwardRef<HTMLSpanElement, PillProps>(
-  ({ tone = 'neutral', onClick, selected, className, children, ...props }, ref) => {
+export const Pill = React.forwardRef<HTMLElement, PillProps>(
+  ({ tone = 'neutral', onClick, selected, disabled, className, children, ...props }, ref) => {
     const cls = cn(
-      'inline-flex items-center gap-1.5 rounded-full',
-      'px-2.5 py-1 text-[11px] font-semibold tracking-[0.01em]',
-      'transition-colors',
-      onClick && 'cursor-pointer hover:brightness-95 active:scale-[0.97]',
+      'inline-flex min-h-7 items-center gap-1.5 rounded-full',
+      'px-3 py-1 text-xs font-semibold tracking-[0.005em]',
+      'transition-[background-color,color,border-color,filter] duration-150',
+      onClick && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
       PILL_TONE[tone],
       selected && 'ring-1 ring-inset ring-accent',
       className,
@@ -164,16 +165,18 @@ export const Pill = React.forwardRef<HTMLSpanElement, PillProps>(
         <button
           type="button"
           ref={ref as React.Ref<HTMLButtonElement>}
-          onClick={onClick}
+          onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
+          disabled={disabled}
           className={cls}
           aria-pressed={selected}
+          {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)}
         >
           {children}
         </button>
       );
     }
     return (
-      <span ref={ref} className={cls} {...props}>
+      <span ref={ref as React.Ref<HTMLSpanElement>} className={cls} {...props}>
         {children}
       </span>
     );
@@ -224,10 +227,9 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-3xl bg-white border border-[var(--color-hairline)]',
-        raised ? 'material-thick' : 'shadow-e1',
-        interactive &&
-          'cursor-pointer transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-e4 active:translate-y-0 active:scale-[0.995]',
+        'surface-card',
+        raised && 'surface-card-raised material-thick',
+        interactive && 'surface-card-interactive cursor-pointer',
         className,
       )}
       {...props}

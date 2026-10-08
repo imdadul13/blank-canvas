@@ -28,7 +28,6 @@ import OneShotLogo from './OneShotLogo';
 import { AppStats } from '../utils/storage';
 import { SyncStatus } from '../types';
 import { EASE_SPRING } from '../utils/motionTokens';
-import { useScrollDirection } from '../hooks/useScrollDirection';
 
 export type ActiveTab =
   | 'dashboard'
@@ -68,6 +67,7 @@ export interface NavbarProps {
   isSidebarHovered?: boolean;
   onSidebarHoverEnter?: () => void;
   onSidebarHoverLeave?: () => void;
+  isNavVisible?: boolean;
 }
 
 export const primaryNavItems = [
@@ -574,8 +574,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   onOpenSettings,
   onOpenProfile,
-  onOpenNotifications,
-  unreadNotificationCount,
   onOpenCloudSync,
   onOpenOnboarding,
   userName,
@@ -583,6 +581,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   syncStatus = 'synced',
   isGuest,
   onExitGuest,
+  isNavVisible = true,
 }) => {
   const initials = (userName || 'Dr')
     .split(' ')
@@ -595,7 +594,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isSecondaryActive =
     activeTab === 'grandtests' || activeTab === 'telegram' || activeTab === 'more';
   const reducedMotion = useReducedMotion();
-  const { isVisible: isNavVisible } = useScrollDirection(12);
 
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const mobileMoreRef = useRef<HTMLDivElement>(null);
@@ -620,78 +618,20 @@ export const Navbar: React.FC<NavbarProps> = ({
     };
   }, [mobileMoreOpen]);
 
-  // Instagram-style dynamic scroll zoom tracking
-  const [scrollState, setScrollState] = useState<{
-    direction: 'up' | 'down';
-    isScrolling: boolean;
-    scrolledDistance: number;
-  }>({
-    direction: 'up',
-    isScrolling: false,
-    scrolledDistance: 0,
-  });
-
-  const lastScrollY = useRef(0);
-  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    lastScrollY.current = typeof window !== 'undefined' ? window.scrollY : 0;
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const delta = currentScrollY - lastScrollY.current;
-
-      // Ignore micro-jitters and iOS negative bounce overscroll at top
-      if (Math.abs(delta) < 4) return;
-
-      const isMobile = window.innerWidth < 1024;
-      if (!isMobile) return;
-
-      const distance = Math.min(Math.abs(delta), 100);
-
-      setScrollState({
-        direction: delta > 0 ? 'down' : 'up',
-        isScrolling: true,
-        scrolledDistance: distance,
-      });
-
-      lastScrollY.current = currentScrollY;
-
-      // Debounce: when scrolling stops/pauses, zoom smoothly back in
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-      scrollTimeoutRef.current = setTimeout(() => {
-        setScrollState((prev) => ({
-          ...prev,
-          isScrolling: false,
-          direction: 'up',
-        }));
-      }, 200);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-    };
-  }, []);
-
   return (
     <>
       {/* ── Mobile Top Header with Dynamic Auto-Hide ── */}
       <motion.header
         initial={false}
-        animate={{
-          y: isNavVisible ? 0 : -90,
-          opacity: isNavVisible ? 1 : 0,
-        }}
-        transition={{ type: 'spring', stiffness: 440, damping: 28 }}
+        animate={reducedMotion
+          ? { opacity: isNavVisible ? 1 : 0 }
+          : { y: isNavVisible ? 0 : -90, opacity: isNavVisible ? 1 : 0 }}
+        transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 440, damping: 28 }}
         className="lg:hidden sticky top-0 z-40 bg-white/85 backdrop-blur-2xl saturate-[180%] border-b border-black/[0.06] px-4 py-2.5 flex items-center justify-between font-sans shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all"
         style={{
           paddingTop: 'max(0.625rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
-          paddingLeft: 'max(1rem, calc(0.75rem + env(safe-area-inset-left, 0px)))',
-          paddingRight: 'max(1rem, calc(0.75rem + env(safe-area-inset-right, 0px)))',
+          paddingLeft: 'max(0.5rem, calc(0.5rem + env(safe-area-inset-left, 0px)))',
+          paddingRight: 'max(0.5rem, calc(0.5rem + env(safe-area-inset-right, 0px)))',
         }}
       >
         <div className="flex items-center gap-2">
@@ -740,8 +680,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-
-
           {/* Avatar Profile Trigger */}
           <button
             type="button"
@@ -761,28 +699,26 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* ── iOS-style Floating Tab Bar ── */}
       <motion.nav
-        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 max-w-[calc(100vw-1rem)]"
+        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-1rem)] sm:w-auto sm:max-w-[calc(100vw-2rem)]"
         style={{
           bottom: 'calc(0.625rem + env(safe-area-inset-bottom, 0px))',
           transformOrigin: 'center bottom',
         }}
         initial={false}
-        animate={
-          reducedMotion
-            ? { y: isNavVisible ? 0 : 100, opacity: isNavVisible ? 1 : 0 }
-            : { y: isNavVisible ? 0 : 100, opacity: isNavVisible ? 1 : 0, scale: isNavVisible ? 1 : 0.94 }
-        }
-        transition={{ type: 'spring', stiffness: 440, damping: 32 }}
+        animate={reducedMotion
+          ? { opacity: isNavVisible ? 1 : 0 }
+          : { y: isNavVisible ? 0 : 100, opacity: isNavVisible ? 1 : 0, scale: isNavVisible ? 1 : 0.94 }}
+        transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 440, damping: 32 }}
         aria-label="Mobile Navigation"
       >
         {/* Glass pill container */}
         <div
-          className="flex items-end gap-0.5 px-2 pt-2 pb-1.5 rounded-[28px] select-none"
+          className="flex w-full items-end justify-between gap-0 px-1 pt-2 pb-1.5 rounded-[28px] select-none sm:w-auto sm:justify-start sm:gap-0.5 sm:px-2"
           style={{
-            background: 'rgba(255,255,255,0.88)',
+            background: 'var(--mobile-dock-surface, rgba(255,255,255,0.88))',
             backdropFilter: 'blur(28px) saturate(200%)',
             WebkitBackdropFilter: 'blur(28px) saturate(200%)',
-            border: '1px solid rgba(0,0,0,0.08)',
+            border: '1px solid var(--mobile-dock-border, rgba(0,0,0,0.08))',
             boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.98), 0 12px 36px rgba(0,0,0,0.12), 0 3px 8px rgba(0,0,0,0.06)',
           }}
         >
@@ -797,11 +733,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => { setActiveTab(id); setMobileMoreOpen(false); }}
                 aria-current={active ? 'page' : undefined}
                 aria-label={label}
-                className="relative flex flex-col items-center justify-end cursor-pointer outline-none focus-visible:ring-2 rounded-2xl"
+                className="relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none transition-colors focus-visible:ring-2 sm:min-w-[52px] sm:flex-none"
                 style={{
-                  minWidth: 52,
-                  paddingLeft: 6,
-                  paddingRight: 6,
+                  paddingLeft: 2,
+                  paddingRight: 2,
                   paddingBottom: 2,
                   // the ring follows the tab's own colour, like the drawer pill
                   ['--tw-ring-color' as string]: `${color}59`,
@@ -813,13 +748,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                     layoutId="tab-active-bg"
                     className="absolute inset-x-0 top-0 bottom-5 rounded-2xl"
                     style={{ background: `${color}1A` }}
-                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                  transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }}
                   />
                 )}
 
                 {/* Icon */}
                 <motion.div
-                  animate={active && !reducedMotion ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                  animate={active ? { scale: 1.06 } : { scale: 1 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 22 }}
                   className="relative z-10 mb-0.5"
                 >
@@ -827,7 +762,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="transition-all duration-150"
                     style={{
                       width: 22, height: 22,
-                      color: active ? color : '#3C3C43',
+                      color: active ? color : 'var(--mobile-dock-icon, #3C3C43)',
                       opacity: active ? 1 : 0.6,
                       strokeWidth: active ? 2.2 : 1.9,
                       fill: active ? `${color}26` : 'transparent',
@@ -837,15 +772,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 {/* Label — always visible, iOS HIG */}
                 <span
-                  className="relative z-10 font-sans leading-none transition-all duration-150"
+                  className="mobile-dock-item-label relative z-10 font-sans leading-none transition-all duration-150"
                   style={{
-                    fontSize: 10,
+                  fontSize: 11,
                     fontWeight: active ? 600 : 400,
                     letterSpacing: '-0.01em',
-                    color: active ? '#007AFF' : 'rgba(60,60,67,0.6)',
+                    color: active ? color : 'var(--mobile-dock-label, rgba(60,60,67,0.6))',
                   }}
                 >
-                  {label}
+                  {label === 'Performance' ? 'Stats' : label === 'Knowledge' ? 'Pearls' : label}
                 </span>
               </motion.button>
             );
@@ -855,7 +790,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {(() => {
             const active = activeTab === 'more' || isSecondaryActive;
             return (
-              <div className="relative" ref={mobileMoreRef}>
+              <div className="relative flex min-w-0 flex-1 sm:flex-none" ref={mobileMoreRef}>
                 <motion.button
                   type="button"
                   whileTap={reducedMotion ? undefined : { scale: 0.88 }}
@@ -867,38 +802,38 @@ export const Navbar: React.FC<NavbarProps> = ({
                   aria-haspopup="menu"
                   aria-current={active ? 'page' : undefined}
                   aria-label="More"
-                  className="relative flex flex-col items-center justify-end cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 rounded-2xl"
-                  style={{ minWidth: 52, paddingLeft: 6, paddingRight: 6, paddingBottom: 2 }}
+                  className="relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 sm:min-w-[52px] sm:flex-none"
+                  style={{ paddingLeft: 2, paddingRight: 2, paddingBottom: 2 }}
                 >
                   {active && (
                     <motion.div
                       layoutId="tab-active-bg"
                       className="absolute inset-x-0 top-0 bottom-5 rounded-2xl"
                       style={{ background: 'rgba(0,122,255,0.10)' }}
-                      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                      transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }}
                     />
                   )}
                   <motion.div
-                    animate={active && !reducedMotion ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                    animate={active ? { scale: 1.06 } : { scale: 1 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 22 }}
                     className="relative z-10 mb-0.5"
                   >
                     <MoreHorizontal
                       style={{
                         width: 22, height: 22,
-                        color: active ? '#007AFF' : '#3C3C43',
+                        color: active ? '#007AFF' : 'var(--mobile-dock-icon, #3C3C43)',
                         opacity: active ? 1 : 0.6,
                         strokeWidth: active ? 2.2 : 1.9,
                       }}
                     />
                   </motion.div>
                   <span
-                    className="relative z-10 font-sans leading-none transition-all duration-150"
+                    className="mobile-dock-item-label relative z-10 font-sans leading-none transition-all duration-150"
                     style={{
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: active ? 600 : 400,
                       letterSpacing: '-0.01em',
-                      color: active ? '#007AFF' : 'rgba(60,60,67,0.6)',
+                      color: active ? '#007AFF' : 'var(--mobile-dock-label, rgba(60,60,67,0.6))',
                     }}
                   >
                     More

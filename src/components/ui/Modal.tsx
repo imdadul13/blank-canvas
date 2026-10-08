@@ -152,7 +152,10 @@ const Modal = React.forwardRef<
     ref,
   ) => {
     const motionProps = panelMotion(variant);
-    const hasHeader = Boolean(header || title || description) && !hideClose;
+    // Fullscreen viewers usually own their chrome inside the dialog body.
+    // `hideClose` only removes the close affordance; it should not discard
+    // the title/header for normal dialogs.
+    const hasHeader = Boolean(header || description || (title && variant !== 'fullscreen'));
 
     // Radix focuses its own (invisible) Content node on open. Redirect that
     // onto the visible panel so the focus ring lands where people look.
