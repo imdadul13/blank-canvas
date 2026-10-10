@@ -1070,6 +1070,12 @@ export interface AppState {
     autoAdvance?: boolean;
     lastTriadIndex?: number;
   };
+  /** Optional 20-day FMGE crash-plan progress, synced with the learner's app state. */
+  fmgeSprint?: {
+    startedOn: string;
+    dailyHours: number;
+    completedTasks: Record<string, boolean>;
+  };
 }
 
 // =================== FMGE PREDICTION ENGINE TYPES ===================

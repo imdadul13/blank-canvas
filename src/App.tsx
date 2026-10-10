@@ -1091,7 +1091,12 @@ function AppInner() {
                 )}
 
                 {activeTab === 'questionbank' && (
-                  <QuestionBankView onRecordAttempt={recordQuestionAttempt} />
+                  <QuestionBankView
+                    onRecordAttempt={recordQuestionAttempt}
+                    sprint={state.fmgeSprint}
+                    onUpdateSprint={(fmgeSprint) => setState((prev) => ({ ...prev, fmgeSprint }))}
+                    onOpenGrandTests={() => handleSetActiveTab('grandtests')}
+                  />
                 )}
 
                 {activeTab === 'grandtests' && (

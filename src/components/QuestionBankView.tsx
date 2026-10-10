@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { BookOpenCheck, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Image as ImageIcon, LoaderCircle, RefreshCw, Sparkles, X } from 'lucide-react';
+import { BookOpenCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Image as ImageIcon, LoaderCircle, RefreshCw, RotateCcw, Sparkles, Target, X } from 'lucide-react';
 import { apiFetch } from '../utils/api';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
+import type { AppState } from '../types';
 
 type Exam = 'FMGE' | 'NEET-PG' | 'INI-CET';
 type BankQuestion = { id: string; exam: Exam; year: number | null; subjectId: string; subjectName: string; topicName: string; stem: string; options: Array<{key: string; text: string}>; imageUrl: string | null; imageUrls: string[]; source: string; sourcePage: number; isImageBased: boolean };
@@ -16,7 +17,12 @@ async function responseJson(response: Response) {
   return data;
 }
 
-export const QuestionBankView: React.FC<{ onRecordAttempt: (attempt: NewMcqAttemptInput) => unknown }> = ({ onRecordAttempt }) => {
+export const QuestionBankView: React.FC<{
+  onRecordAttempt: (attempt: NewMcqAttemptInput) => unknown;
+  sprint?: AppState['fmgeSprint'];
+  onUpdateSprint: (sprint: NonNullable<AppState['fmgeSprint']>) => void;
+  onOpenGrandTests: () => void;
+}> = ({ onRecordAttempt, sprint, onUpdateSprint, onOpenGrandTests }) => {
   const reducedMotion = useReducedMotion();
   const [exam, setExam] = useState<Exam>('FMGE');
   const [subjectId, setSubjectId] = useState('');
@@ -41,10 +47,10 @@ export const QuestionBankView: React.FC<{ onRecordAttempt: (attempt: NewMcqAttem
   }, [exam]);
 
   const selectedSubject = useMemo(() => facets?.subjects.find((item) => item.id === subjectId), [facets, subjectId]);
-  const startSession = async () => {
+  const startSession = async (override?: { exam: Exam; subjectId: string; year?: string; imageMode: 'all'|'image'|'standard'; count: number }) => {
     setLoading(true); setError('');
     try {
-      const data = await responseJson(await apiFetch('/api/question-bank/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ exam, subjectId, year: year || null, imageMode, count }) }));
+      const data = await responseJson(await apiFetch('/api/question-bank/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(override || { exam, subjectId, year: year || null, imageMode, count }) }));
       setQuestions(data.questions); setSessionId(data.sessionId);
     } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
@@ -66,6 +72,8 @@ export const QuestionBankView: React.FC<{ onRecordAttempt: (attempt: NewMcqAttem
       </div>
     </motion.div>
 
+    <FmgeSprint sprint={sprint} onUpdate={onUpdateSprint} onPractice={(subjectId) => startSession({ exam: 'FMGE', subjectId, year: '', imageMode: 'all', count: 20 })} onOpenGrandTests={onOpenGrandTests} loading={loading} />
+
     <section className="qbank-panel mt-5 rounded-[24px] border border-black/[0.06] bg-white p-4 shadow-[0_10px_35px_rgba(15,23,42,0.045)] sm:mt-6 sm:rounded-[28px] sm:p-6">
       <div className="flex flex-col gap-1"><h2 className="text-lg font-semibold tracking-tight">Build a practice set</h2><p className="text-sm text-[#7A818C]">Choose an exam, then focus on one subject or mix the full paper.</p></div>
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -77,7 +85,7 @@ export const QuestionBankView: React.FC<{ onRecordAttempt: (attempt: NewMcqAttem
       </div>
       <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-2 text-xs leading-5 text-[#7A818C]"><CircleHelp className="mt-0.5 h-4 w-4 shrink-0 text-[#8A94A3]"/><span>Answers stay hidden until you commit. Missed questions get an AI tutor review with option analysis, exam traps and memory aids.</span></div>
-        <button type="button" onClick={startSession} disabled={loading || !facets?.count} className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#1769E0] px-5 text-sm font-semibold text-white shadow-[0_5px_14px_rgba(23,105,224,0.23)] transition hover:bg-[#0F5FCC] disabled:cursor-not-allowed disabled:opacity-55">{loading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <BookOpenCheck className="h-4 w-4"/>} Start practice <ChevronRight className="h-4 w-4"/></button>
+        <button type="button" onClick={() => startSession()} disabled={loading || !facets?.count} className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#1769E0] px-5 text-sm font-semibold text-white shadow-[0_5px_14px_rgba(23,105,224,0.23)] transition hover:bg-[#0F5FCC] disabled:cursor-not-allowed disabled:opacity-55">{loading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <BookOpenCheck className="h-4 w-4"/>} Start practice <ChevronRight className="h-4 w-4"/></button>
       </div>
       {selectedSubject && <p className="mt-3 text-xs font-medium text-[#7A818C]">{selectedSubject.count.toLocaleString()} {exam} questions for {selectedSubject.name}.</p>}
       {error && <p role="alert" className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
@@ -91,6 +99,77 @@ export const QuestionBankView: React.FC<{ onRecordAttempt: (attempt: NewMcqAttem
     <QuestionSession key={sessionId} questions={questions} sessionId={sessionId} onClose={() => setQuestions([])} onRecordAttempt={onRecordAttempt}/>
   </div>;
 };
+
+const SPRINT_DAYS = [
+  { title: 'Medicine · foundations & emergencies', subjects: ['medicine'], focus: 'Approach, common presentations, ECG, shock, fluids and emergency first steps.', questions: 60 },
+  { title: 'Medicine · systems & image cases', subjects: ['medicine'], focus: 'Cardiology, respiratory, neurology, renal and endocrine patterns; review ECGs and radiology.', questions: 60 },
+  { title: 'Surgery · core decisions', subjects: ['surgery'], focus: 'Trauma, acute abdomen, fluids, wound healing, breast and thyroid; practise the next best step.', questions: 60 },
+  { title: 'Obstetrics & gynaecology', subjects: ['obg'], focus: 'Antenatal care, labour, obstetric emergencies, contraception, malignancy and key thresholds.', questions: 60 },
+  { title: 'Pediatrics', subjects: ['pediatrics'], focus: 'Growth, development, vaccines, neonatology, nutrition and common pediatric emergencies.', questions: 50 },
+  { title: 'PSM · prevention & programs', subjects: ['psm'], focus: 'Screening, epidemiology, biostatistics, national programs and prevention levels.', questions: 50 },
+  { title: 'Pathology', subjects: ['pathology'], focus: 'General pathology, hematology, neoplasia and image-based morphology.', questions: 50 },
+  { title: 'Pharmacology', subjects: ['pharmacology'], focus: 'Mechanisms, adverse effects, antidotes, interactions and drug of choice.', questions: 50 },
+  { title: 'Microbiology', subjects: ['microbiology'], focus: 'Organism-to-disease links, lab diagnosis, vaccines and antimicrobial choices.', questions: 50 },
+  { title: 'Anatomy & physiology', subjects: ['anatomy', 'physiology'], focus: 'Neuroanatomy, nerves, embryology, reflexes and high-yield physiology graphs.', questions: 50 },
+  { title: 'Biochemistry & forensic medicine', subjects: ['biochemistry', 'fmt'], focus: 'Metabolic diseases, vitamins, molecular methods, toxicology and legal essentials.', questions: 50 },
+  { title: 'ENT & ophthalmology', subjects: ['ent', 'ophthalmology'], focus: 'Visual and clinical spotters, red flags, common nerve lesions and first-line management.', questions: 50 },
+  { title: 'Short subjects', subjects: ['dermatology', 'psychiatry', 'orthopedics', 'radiology', 'anesthesia'], focus: 'Recognize classic images, emergency actions, common drugs and frequently confused pairs.', questions: 60 },
+  { title: 'Mixed test · diagnose your gaps', subjects: [], focus: 'Timed mixed set, then review every miss. Use this result to choose the next revision blocks.', questions: 100 },
+  { title: 'Medicine & surgery · weak areas', subjects: ['medicine', 'surgery'], focus: 'Return to your lowest-scoring systems and redo missed questions without notes first.', questions: 70 },
+  { title: 'OBG, pediatrics & PSM · weak areas', subjects: ['obg', 'pediatrics', 'psm'], focus: 'Revise algorithms, thresholds, vaccine schedules and preventive-care concepts you missed.', questions: 70 },
+  { title: 'Preclinical & paraclinical recall', subjects: ['anatomy', 'physiology', 'biochemistry', 'pathology', 'pharmacology', 'microbiology'], focus: 'Use active recall: pathways, mechanisms, organisms, images, antidotes and close differentials.', questions: 80 },
+  { title: 'Full-length mock & careful review', subjects: [], focus: 'Simulate exam conditions. Review the reasoning behind wrong and guessed answers; do not just check the score.', questions: 150 },
+  { title: 'Repair the final gaps', subjects: [], focus: 'Target the three weakest subjects from your mock; finish image questions and revisit your error list.', questions: 80 },
+  { title: 'Rapid recall & rest', subjects: [], focus: 'Review concise notes, formulas, images and personal mistakes. Stop heavy study early and protect sleep.', questions: 30 },
+];
+
+function localDateKey(date = new Date()) { const y = date.getFullYear(); const m = String(date.getMonth() + 1).padStart(2, '0'); const d = String(date.getDate()).padStart(2, '0'); return `${y}-${m}-${d}`; }
+function sprintDayIndex(startedOn: string) { const start = new Date(`${startedOn}T12:00:00`); const today = new Date(`${localDateKey()}T12:00:00`); return Math.min(19, Math.max(0, Math.floor((today.getTime() - start.getTime()) / 86_400_000))); }
+
+function FmgeSprint({ sprint, onUpdate, onPractice, onOpenGrandTests, loading }: { sprint?: AppState['fmgeSprint']; onUpdate: (value: NonNullable<AppState['fmgeSprint']>) => void; onPractice: (subjectId: string) => void; onOpenGrandTests: () => void; loading: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [hours, setHours] = useState(sprint?.dailyHours || 6);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const currentDay = sprint ? sprintDayIndex(sprint.startedOn) : 0;
+  const activeDay = selectedDay ?? currentDay;
+  const plan = SPRINT_DAYS[activeDay];
+  const totalDone = Object.values(sprint?.completedTasks || {}).filter(Boolean).length;
+  const totalTasks = SPRINT_DAYS.length * 4;
+  const start = () => { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {} }); setSelectedDay(0); };
+  const toggleTask = (taskIndex: number) => {
+    if (!sprint) return;
+    const key = `${activeDay}-${taskIndex}`;
+    onUpdate({ ...sprint, completedTasks: { ...sprint.completedTasks, [key]: !sprint.completedTasks[key] } });
+  };
+  const reset = () => { if (confirmReset) { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {} }); setSelectedDay(0); setConfirmReset(false); } else setConfirmReset(true); };
+  const checklists = [
+    `Focused revision (${Math.max(1, Math.round(hours * 0.45))} h): ${plan.focus}`,
+    `Active recall (${Math.max(1, Math.round(hours * 0.2))} h): close the notes and retrieve key facts from memory.`,
+    `Question practice: aim for ${plan.questions} questions; today's button starts a focused set of 20.`,
+    'Error review: explain each miss, write the corrected rule, and revisit it tomorrow.',
+  ];
+
+  return <section className="qbank-sprint qbank-panel mt-5 overflow-hidden rounded-[26px] border border-black/[0.06] bg-white shadow-[0_12px_38px_rgba(15,23,42,0.05)] sm:rounded-[30px]">
+    <div className="qbank-sprint-head flex flex-col gap-4 bg-[linear-gradient(115deg,#F1F6FF,#FFFFFF_56%,#F8F5FF)] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div className="flex items-start gap-3"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-600/20"><CalendarDays className="h-5 w-5"/></div><div><div className="flex flex-wrap items-center gap-2"><h2 className="text-lg font-semibold tracking-tight">20-day FMGE sprint</h2><span className="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-blue-700">Focused plan</span></div><p className="mt-1 text-sm leading-5 text-[#68717E]">A structured last-mile plan: revise, retrieve, practise, then repair mistakes.</p></div></div>
+      <div className="flex items-center gap-2 sm:shrink-0">
+        {sprint && <div className="mr-1 min-w-20 text-right"><p className="text-lg font-semibold">{Math.round(totalDone / totalTasks * 100)}%</p><p className="text-[10px] text-[#7A818C]">checklist</p></div>}
+        <button type="button" onClick={() => setExpanded((v) => !v)} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#DCE3ED] bg-white px-4 text-sm font-semibold text-[#2D3745] transition hover:border-blue-300 hover:text-blue-700">{expanded ? 'Close plan' : sprint ? 'Open plan' : 'View plan'}<ChevronDown className={`h-4 w-4 transition-transform ${expanded ? 'rotate-180' : ''}`}/></button>
+      </div>
+    </div>
+    {expanded && <div className="border-t border-black/[0.06] p-4 sm:p-6">
+      {!sprint ? <div className="mx-auto max-w-2xl py-3 text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><Target className="h-6 w-6"/></div><h3 className="mt-3 text-xl font-semibold tracking-tight">Start with the time you actually have</h3><p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#6F7782]">This is a demanding revision framework, not a promise of passing. It combines high-yield review, daily question practice, image exposure and error repair. Adjust the hours to your real schedule.</p><label className="mx-auto mt-4 block max-w-xs text-left"><span className="mb-1.5 block text-xs font-semibold text-[#69717D]">Focused study time per day</span><select value={hours} onChange={(e) => setHours(Number(e.target.value))} className="h-11 w-full rounded-xl border border-[#E1E6ED] bg-[#FAFBFC] px-3 text-sm font-medium"><option value={3}>3 hours · compact</option><option value={6}>6 hours · balanced</option><option value={9}>9 hours · intensive</option><option value={12}>12 hours · full-time</option></select></label><button type="button" onClick={start} className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#0F5FCC]">Start my 20 days<ChevronRight className="h-4 w-4"/></button></div> : <>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-medium text-[#737B86]">Day {currentDay + 1} of 20 · {sprint.dailyHours} focused study hours/day · started {sprint.startedOn}</p><button type="button" onClick={reset} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#7A818C] hover:bg-[#F3F5F7] hover:text-[#3F4650]"><RotateCcw className="h-3.5 w-3.5"/>{confirmReset ? 'Tap again to restart' : 'Restart sprint'}</button></div>
+        <div className="mb-5 flex gap-2 overflow-x-auto pb-2" aria-label="Sprint day selector">{SPRINT_DAYS.map((day, i) => { const done = [0,1,2,3].every((task) => sprint.completedTasks[`${i}-${task}`]); return <button key={i} type="button" onClick={() => setSelectedDay(i)} aria-current={activeDay === i ? 'step' : undefined} className={`flex h-12 min-w-12 shrink-0 flex-col items-center justify-center rounded-xl border text-xs font-semibold transition ${activeDay === i ? 'border-blue-600 bg-blue-600 text-white shadow-sm' : done ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-[#E5E8ED] bg-white text-[#69717D] hover:border-blue-300'}`}>{done ? <Check className="h-3.5 w-3.5"/> : <span>{i + 1}</span>}</button>; })}</div>
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 sm:p-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-[0.13em] text-blue-700">Day {activeDay + 1}</p><h3 className="mt-1 text-lg font-semibold tracking-tight">{plan.title}</h3></div><span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#69717D] ring-1 ring-[#E6EAF0]">{plan.questions} Q target</span></div><p className="mt-2 text-sm leading-6 text-[#69717D]">{plan.focus}</p><div className="mt-4 space-y-2">{checklists.map((item, task) => { const done = !!sprint.completedTasks[`${activeDay}-${task}`]; return <button key={task} type="button" onClick={() => toggleTask(task)} className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${done ? 'border-emerald-200 bg-emerald-50/70' : 'border-[#E9ECF1] bg-white hover:border-blue-200'}`}><span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${done ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#C9D0DA] bg-white'}`}>{done && <Check className="h-3.5 w-3.5"/>}</span><span className={`text-xs leading-5 ${done ? 'text-emerald-900' : 'text-[#535C68]'}`}>{item}</span></button>; })}</div><div className="mt-4 flex flex-col gap-2 sm:flex-row"><button type="button" onClick={() => onPractice(plan.subjects.length === 1 ? plan.subjects[0] : '')} disabled={loading} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white transition hover:bg-[#0F5FCC] disabled:opacity-60 sm:w-auto"><BookOpenCheck className="h-4 w-4"/>Start 20-question set<ChevronRight className="h-4 w-4"/></button>{activeDay === 17 && <button type="button" onClick={onOpenGrandTests} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#DCE3ED] bg-white px-4 text-sm font-semibold text-[#394353] hover:border-blue-300 hover:text-blue-700"><Target className="h-4 w-4"/>Open full mock tests</button>}</div></div>
+          <aside className="rounded-2xl border border-[#E7EAF0] bg-white p-4"><h4 className="text-sm font-semibold">How to use the day</h4><ol className="mt-3 space-y-3 text-xs leading-5 text-[#68717E]"><li><b className="text-[#303741]">1. Recall first.</b> Try to retrieve before rereading.</li><li><b className="text-[#303741]">2. Practise timed.</b> Review wrong and guessed answers.</li><li><b className="text-[#303741]">3. Keep a tiny error list.</b> Revisit it tomorrow.</li><li><b className="text-[#303741">4. Protect sleep.</b> Exhaustion makes recall worse.</li></ol><div className="mt-4 rounded-xl bg-amber-50 p-3 text-[11px] leading-5 text-amber-900">If you fall behind, continue with the next day and carry only your highest-impact weak areas forward. Do not try to “repay” missed hours with an all-nighter.</div><p className="mt-3 text-[10px] leading-4 text-[#858C96]">This plan supports revision; it cannot predict or guarantee an exam result.</p></aside>
+        </div>
+      </>}
+    </div>}
+  </section>;
+}
 
 function Stat({label,value}:{label:string;value:string}) { return <div className="qbank-stat min-w-28 rounded-2xl border border-white/80 bg-white/75 px-4 py-3 shadow-sm"><p className="text-[11px] font-medium text-[#838B97]">{label}</p><p className="mt-0.5 text-xl font-semibold tracking-tight text-[#252A32]">{value}</p></div>; }
 function SelectField({label,children}:{label:string;children:React.ReactNode}) { return <label className="block min-w-0"><span className="mb-1.5 block text-xs font-semibold text-[#69717D]">{label}</span><span className="relative block"><span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#7A818C]"><ChevronDown className="h-4 w-4"/></span>{React.cloneElement(children as React.ReactElement<any>,{className:'h-12 w-full appearance-none rounded-xl border border-[#E4E8EE] bg-[#FAFBFC] px-3 pr-9 text-sm font-medium text-[#242A33] outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10'})}</span></label>; }

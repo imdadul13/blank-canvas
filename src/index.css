@@ -151,6 +151,22 @@
 .dark .qbank-root .bg-violet-50,
 .dark .qbank-session .bg-violet-50 { background-color: rgba(191, 90, 242, 0.14); color: #E0B8FA; }
 .dark .qbank-root .bg-rose-50 { background-color: rgba(255, 69, 58, 0.12); color: #FFE1DE; }
+.dark .qbank-sprint-head { background: linear-gradient(115deg, #171F2C, #1B1C20 56%, #221D2B); }
+.dark .qbank-sprint .bg-\[\#FBFCFE\],
+.dark .qbank-sprint .bg-\[\#FAFBFC\],
+.dark .qbank-sprint .bg-white { background-color: var(--color-surface-sunken); }
+.dark .qbank-sprint .bg-blue-100 { background-color: rgba(10, 132, 255, 0.16); color: #A7CEFF; }
+.dark .qbank-sprint .bg-emerald-50\/70 { background-color: rgba(48, 209, 88, 0.12); }
+.dark .qbank-sprint .bg-amber-50 { background-color: rgba(255, 159, 10, 0.12); }
+.dark .qbank-sprint .text-amber-900 { color: #F3D6A2; }
+.dark .qbank-sprint .text-emerald-900 { color: #C7F3D2; }
+.dark .qbank-sprint .border-\[\#E5E8ED\],
+.dark .qbank-sprint .border-\[\#E7EAF0\],
+.dark .qbank-sprint .border-\[\#E9ECF1\],
+.dark .qbank-sprint .border-\[\#E1E6ED\],
+.dark .qbank-sprint .border-\[\#DCE3ED\] { border-color: var(--color-hairline-strong); }
+.dark .qbank-sprint .border-emerald-200 { border-color: rgba(48, 209, 88, 0.35); }
+.dark .qbank-sprint .text-emerald-700 { color: #8FE3A2; }
 .dark .qbank-session .border-violet-200\/80 { border-color: rgba(191, 142, 224, 0.28); }
 .dark .qbank-session .bg-\[\#EEF1F5\] { background-color: var(--color-surface-muted); color: var(--color-ink-2); }
 
