@@ -336,7 +336,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         </div>
         <div style="font-size: 13px; font-weight: bold; color: #1C1C1E; margin-bottom: 4px;">${idx + 1}. ${p.title}</div>
         <div style="background: #f0fdf4; border-left: 3px solid #16a34a; padding: 6px 8px; margin: 6px 0; font-size: 11px; font-weight: 600; color: #14532d;">
-          ⭐ Takeaway: ${p.highYieldKey}
+          Takeaway: ${p.highYieldKey}
         </div>
         <div style="font-size: 11px; color: #334155; line-height: 1.4; white-space: pre-line;">${p.explanation}</div>
       </div>

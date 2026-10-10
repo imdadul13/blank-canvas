@@ -571,7 +571,7 @@ export const TopicMasteryDetailModal: React.FC<TopicMasteryDetailModalProps> = (
                                 padding: '2px 7px',
                               }}
                             >
-                              ⭐ High-Yield
+                              High-Yield
                             </span>
                           )}
 

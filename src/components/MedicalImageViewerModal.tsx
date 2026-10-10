@@ -13,7 +13,6 @@ import {
   Activity,
   MoveHorizontal,
   Crosshair,
-  Sparkles,
 } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { MedicalImageAsset } from '../types';

@@ -151,6 +151,38 @@
 .dark .qbank-root .bg-violet-50,
 .dark .qbank-session .bg-violet-50 { background-color: rgba(191, 90, 242, 0.14); color: #E0B8FA; }
 .dark .qbank-root .bg-rose-50 { background-color: rgba(255, 69, 58, 0.12); color: #FFE1DE; }
+.dark .qbank-explanation { background: var(--color-surface); border-color: var(--color-hairline-strong); }
+.dark .qbank-explanation > div,
+.dark .qbank-explanation > div > div,
+.dark .qbank-explanation details { border-color: var(--color-hairline); }
+.dark .qbank-explanation .bg-\[\#F5F8FC\],
+.dark .qbank-explanation .bg-\[\#FBFCFE\],
+.dark .qbank-explanation .bg-white { background-color: var(--color-surface-sunken); }
+.dark .qbank-explanation .text-\[\#212936\],
+.dark .qbank-explanation .text-\[\#303A48\] { color: var(--color-ink); }
+.dark .qbank-explanation .text-\[\#3F4957\],
+.dark .qbank-explanation .text-\[\#465365\],
+.dark .qbank-explanation .text-\[\#556171\],
+.dark .qbank-explanation .text-\[\#657181\] { color: var(--color-ink-2); }
+.dark .qbank-gemini { background: linear-gradient(145deg, #211C2D, #1B1C20 68%, #171F2C); border-color: rgba(191, 142, 224, 0.28); }
+.dark .qbank-gemini > div,
+.dark .qbank-gemini .border-violet-100\/80 { border-color: rgba(191, 142, 224, 0.18); }
+.dark .qbank-gemini .bg-white\/80,
+.dark .qbank-gemini .bg-white\/75,
+.dark .qbank-gemini .bg-white\/90 { background-color: rgba(255, 255, 255, 0.06); }
+.dark .qbank-gemini .text-\[\#30254A\],
+.dark .qbank-gemini .text-\[\#344054\] { color: var(--color-ink); }
+.dark .qbank-gemini .text-\[\#756C86\],
+.dark .qbank-gemini .text-\[\#655D73\],
+.dark .qbank-gemini .text-\[\#464052\],
+.dark .qbank-gemini .text-\[\#555365\] { color: var(--color-ink-2); }
+.dark .qbank-gemini .bg-emerald-50\/70 { background-color: rgba(48, 209, 88, 0.12); }
+.dark .qbank-gemini .border-emerald-200 { border-color: rgba(48, 209, 88, 0.35); }
+.dark .qbank-figure { background-color: var(--color-surface-sunken); border-color: var(--color-hairline); }
+.dark .qbank-session .border-emerald-200 { border-color: rgba(48, 209, 88, 0.35); }
+.dark .qbank-session .text-emerald-950 { color: #D8F8E0; }
+.dark .qbank-session .border-rose-200 { border-color: rgba(255, 69, 58, 0.35); }
+.dark .qbank-session .text-rose-950 { color: #FFE1DE; }
 .dark .qbank-sprint-head { background: linear-gradient(115deg, #171F2C, #1B1C20 56%, #221D2B); }
 .dark .qbank-sprint .bg-\[\#FBFCFE\],
 .dark .qbank-sprint .bg-\[\#FAFBFC\],
@@ -169,6 +201,23 @@
 .dark .qbank-sprint .text-emerald-700 { color: #8FE3A2; }
 .dark .qbank-session .border-violet-200\/80 { border-color: rgba(191, 142, 224, 0.28); }
 .dark .qbank-session .bg-\[\#EEF1F5\] { background-color: var(--color-surface-muted); color: var(--color-ink-2); }
+.dark .qbank-builder { background-color: var(--color-surface); border-color: var(--color-hairline); }
+.dark .qbank-builder > div:first-child,
+.dark .qbank-feature-strip { border-color: var(--color-hairline); }
+.dark .qbank-session-summary { background-color: var(--color-surface-sunken); border-color: var(--color-hairline); }
+.dark .qbank-exam-switch { background-color: var(--color-surface-muted); }
+.dark .qbank-exam-switch button[aria-pressed="true"] { background-color: var(--color-surface); color: var(--color-ink); }
+.dark .qbank-builder fieldset button { border-color: var(--color-hairline-strong); background-color: var(--color-surface); color: var(--color-ink-2); }
+.dark .qbank-builder fieldset button[aria-pressed="true"] { border-color: rgba(10,132,255,.45); background-color: rgba(10,132,255,.17); color: #A7CEFF; }
+.dark .qbank-builder .bg-blue-100\/70 { background-color: rgba(10,132,255,.16); color: #A7CEFF; }
+.dark .qbank-builder .bg-blue-50 { background-color: rgba(10,132,255,.14); color: #A7CEFF; }
+.dark .qbank-root button:focus-visible,
+.dark .qbank-session button:focus-visible { outline: 2px solid #64A9FF; outline-offset: 2px; }
+.qbank-root button:focus-visible,
+.qbank-session button:focus-visible { outline: 2px solid #1769E0; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .qbank-root *, .qbank-session * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
 
 /* ═══════════════════════════════════════════════════════════════════════
    RUNTIME TOKENS — the parts that must be readable from JS/canvas

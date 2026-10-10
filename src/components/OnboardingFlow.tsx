@@ -19,7 +19,6 @@ import {
   BookOpen,
   CheckCircle2,
   Stethoscope,
-  Sparkles,
   RotateCcw,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';

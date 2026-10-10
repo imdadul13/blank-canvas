@@ -21,7 +21,6 @@ import {
   Stethoscope,
   Calendar,
   RotateCcw,
-  Sparkles,
   ChevronRight,
   Heart,
   Flame,

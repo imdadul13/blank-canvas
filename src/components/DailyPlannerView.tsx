@@ -18,7 +18,7 @@ import {
   ChevronRight,
   X,
   Headphones,
-  Sparkles,
+  ListChecks,
   Volume2,
   VolumeX,
   RotateCcw,
@@ -691,7 +691,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <div className="p-4 rounded-2xl bg-[#F2F2F7]/70 border border-[rgba(60,60,67,0.08)] space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#FF9500]" />
+                    <ListChecks className="w-4 h-4 text-[#FF9500]" />
                     <span className="text-xs font-bold text-[#1D1D1F]">
                       Recommended from Your Syllabus Weak Spots
                     </span>

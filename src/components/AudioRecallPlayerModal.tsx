@@ -12,7 +12,8 @@ import {
   Sliders,
   ChevronDown,
   ChevronUp,
-  Sparkles,
+  Brain,
+  CheckCircle2,
   Activity,
   Award,
   BookOpen,
@@ -263,7 +264,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
                 )}
                 {playerState.phase === 'paused_for_recall' && (
                   <span className="flex items-center gap-1.5 text-amber-300 font-bold animate-pulse">
-                    <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                    <Brain className="h-3.5 w-3.5 text-amber-400" />
                     <span>Active Recall Window ({playerState.countdownRemaining}s)</span>
                   </span>
                 )}
@@ -300,7 +301,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
                   className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 border border-emerald-400/40 space-y-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
                 >
                   <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
-                    <Sparkles className="h-3 w-3 text-emerald-400" />
+                    <CheckCircle2 className="h-3 w-3 text-emerald-400" />
                     <span>Diagnosis / Solution</span>
                   </div>
                   <div className="text-base sm:text-lg font-bold text-white">

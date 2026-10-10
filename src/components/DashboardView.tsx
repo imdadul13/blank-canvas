@@ -54,7 +54,6 @@ import {
   Eye,
   Pill,
   ShieldAlert,
-  Sparkles,
   Headphones,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext, GrandTest, ErrorNotebookItem } from '../types';
@@ -3535,7 +3534,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {/* NBE badge */}
                   <div className="flex items-center justify-center">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/20">
-                      <Sparkles className="w-3 h-3" />
+                      <Award className="w-3 h-3" />
                       Frequently tested
                     </span>
                   </div>

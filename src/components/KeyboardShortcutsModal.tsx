@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Keyboard, Command, Sparkles, BookOpen, Layers, HelpCircle } from 'lucide-react';
+import { X, Keyboard, Command, BookOpen, Layers, HelpCircle } from 'lucide-react';
 
 interface KeyboardShortcutsModalProps {
   isOpen: boolean;

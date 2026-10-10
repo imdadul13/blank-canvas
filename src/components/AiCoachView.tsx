@@ -43,7 +43,6 @@ import {
   Download,
   Volume2,
   VolumeX,
-  Sparkles,
 } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';

@@ -12,7 +12,6 @@ import {
   Wind,
   Zap,
   BookOpen,
-  Sparkles,
   Flame,
   ChevronRight,
   Headphones,
@@ -624,7 +623,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                 className="p-3 rounded-2xl bg-white/[0.05] border border-white/10 text-xs text-slate-200 space-y-1.5"
               >
                 <div className="flex items-center gap-1 font-bold text-sky-300">
-                  <Sparkles className="w-3.5 h-3.5 text-sky-300" />
+                  <BookOpen className="w-3.5 h-3.5 text-sky-300" />
                   <span>Clinical High-Yield Takeaway:</span>
                 </div>
                 <p className="leading-relaxed font-sans text-slate-200">{currentPearl.highYieldKey}</p>
@@ -687,7 +686,6 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
                   </p>
                 </div>
               </div>
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
             </motion.div>
           )}
         </AnimatePresence>

@@ -21,9 +21,8 @@ import {
   Activity,
   X,
   PanelLeft,
-  Headphones,
   Keyboard,
-  Sparkles,
+  Brain,
   RotateCcw,
   BarChart3,
   Target,
@@ -171,7 +170,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         subtitle: 'Enter distraction-free study space with high-yield pearl and binaural timer',
         badge: '⌘J',
         badgeColor: '#7C3AED',
-        icon: Sparkles,
+        icon: Brain,
         onSelect: () => {
           onOpenZenFocus?.();
           onClose();

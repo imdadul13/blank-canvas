@@ -19,7 +19,6 @@ import {
   Download,
   Sun,
   Moon,
-  Sparkles,
   Award,
   ChevronDown,
 } from 'lucide-react';
