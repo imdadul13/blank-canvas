@@ -695,7 +695,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* ── iOS-style Floating Tab Bar ── */}
       <motion.nav
-        className="lg:hidden fixed left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-1rem)] sm:w-auto sm:max-w-[calc(100vw-2rem)]"
+        className="mobile-dock-anchor lg:hidden fixed left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-1rem)] sm:w-auto sm:max-w-[calc(100vw-2rem)]"
         style={{
           bottom: 'calc(0.625rem + env(safe-area-inset-bottom, 0px))',
           transformOrigin: 'center bottom',
@@ -709,13 +709,13 @@ export const Navbar: React.FC<NavbarProps> = ({
       >
         {/* Glass pill container */}
         <div
-          className="flex w-full items-end justify-between gap-0 px-1 pt-2 pb-1.5 rounded-[28px] select-none sm:w-auto sm:justify-start sm:gap-0.5 sm:px-2"
+          className="mobile-tab-dock relative flex w-full items-end justify-between gap-0 px-1 pt-2 pb-1.5 rounded-[28px] select-none sm:w-auto sm:justify-start sm:gap-0.5 sm:px-2"
           style={{
             background: 'var(--mobile-dock-surface, rgba(255,255,255,0.88))',
             backdropFilter: 'blur(28px) saturate(200%)',
             WebkitBackdropFilter: 'blur(28px) saturate(200%)',
             border: '1px solid var(--mobile-dock-border, rgba(0,0,0,0.08))',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.98), 0 12px 36px rgba(0,0,0,0.12), 0 3px 8px rgba(0,0,0,0.06)',
+            boxShadow: 'var(--mobile-dock-shadow, inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 36px rgba(0,0,0,0.12), 0 3px 8px rgba(0,0,0,0.06))',
           }}
         >
           {mobileNavItems.map(({ id, label, icon: Icon, color, bg }) => {
@@ -729,7 +729,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => { setActiveTab(id); setMobileMoreOpen(false); }}
                 aria-current={active ? 'page' : undefined}
                 aria-label={label}
-                className="relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none transition-colors focus-visible:ring-2 sm:min-w-[52px] sm:flex-none"
+                className={`mobile-dock-button relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none transition-colors focus-visible:ring-2 sm:min-w-[52px] sm:flex-none${active ? ' is-active' : ''}`}
                 style={{
                   paddingLeft: 2,
                   paddingRight: 2,
@@ -742,8 +742,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {active && (
                   <motion.div
                     layoutId="tab-active-bg"
-                    className="absolute inset-x-0 top-0 bottom-5 rounded-2xl"
-                    style={{ background: `${color}1A` }}
+                    className="mobile-dock-active absolute inset-x-0 top-0 bottom-5 rounded-2xl"
+                    style={{ ['--dock-item-accent' as string]: color }}
                   transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }}
                   />
                 )}
@@ -798,14 +798,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                   aria-haspopup="menu"
                   aria-current={active ? 'page' : undefined}
                   aria-label="More"
-                  className="relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 sm:min-w-[52px] sm:flex-none"
+                  className={`mobile-dock-button relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 sm:min-w-[52px] sm:flex-none${active ? ' is-active' : ''}`}
                   style={{ paddingLeft: 2, paddingRight: 2, paddingBottom: 2 }}
                 >
                   {active && (
                     <motion.div
                       layoutId="tab-active-bg"
-                      className="absolute inset-x-0 top-0 bottom-5 rounded-2xl"
-                      style={{ background: 'rgba(0,122,255,0.10)' }}
+                      className="mobile-dock-active absolute inset-x-0 top-0 bottom-5 rounded-2xl"
+                      style={{ ['--dock-item-accent' as string]: '#007AFF' }}
                       transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }}
                     />
                   )}
