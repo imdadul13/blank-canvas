@@ -709,7 +709,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       >
         {/* Glass pill container */}
         <div
-          className="mobile-tab-dock relative flex w-full items-end justify-between gap-0 px-1 pt-2 pb-1.5 rounded-[28px] select-none sm:w-auto sm:justify-start sm:gap-0.5 sm:px-2"
+          className="mobile-tab-dock relative flex w-full items-end justify-between gap-0 px-1 pt-1.5 pb-1 rounded-[24px] select-none sm:w-auto sm:justify-start sm:gap-0.5 sm:px-2"
           style={{
             background: 'var(--mobile-dock-surface, rgba(255,255,255,0.88))',
             backdropFilter: 'blur(28px) saturate(200%)',
@@ -757,7 +757,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <Icon
                     className="transition-all duration-150"
                     style={{
-                      width: 22, height: 22,
+                      width: 21, height: 21,
                       color: active ? color : 'var(--mobile-dock-icon, #3C3C43)',
                       opacity: active ? 1 : 0.6,
                       strokeWidth: active ? 2.2 : 1.9,
@@ -770,7 +770,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span
                   className="mobile-dock-item-label relative z-10 font-sans leading-none transition-all duration-150"
                   style={{
-                  fontSize: 11,
+                  fontSize: 10,
                     fontWeight: active ? 600 : 400,
                     letterSpacing: '-0.01em',
                     color: active ? color : 'var(--mobile-dock-label, rgba(60,60,67,0.6))',
@@ -816,7 +816,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   >
                     <MoreHorizontal
                       style={{
-                        width: 22, height: 22,
+                        width: 21, height: 21,
                         color: active ? '#007AFF' : 'var(--mobile-dock-icon, #3C3C43)',
                         opacity: active ? 1 : 0.6,
                         strokeWidth: active ? 2.2 : 1.9,
@@ -826,7 +826,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span
                     className="mobile-dock-item-label relative z-10 font-sans leading-none transition-all duration-150"
                     style={{
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: active ? 600 : 400,
                       letterSpacing: '-0.01em',
                       color: active ? '#007AFF' : 'var(--mobile-dock-label, rgba(60,60,67,0.6))',
