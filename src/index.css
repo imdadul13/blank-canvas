@@ -208,9 +208,44 @@
 .dark .qbank-exam-switch { background-color: var(--color-surface-muted); }
 .dark .qbank-exam-switch button[aria-pressed="true"] { background-color: var(--color-surface); color: var(--color-ink); }
 .dark .qbank-builder fieldset button { border-color: var(--color-hairline-strong); background-color: var(--color-surface); color: var(--color-ink-2); }
-.dark .qbank-builder fieldset button[aria-pressed="true"] { border-color: rgba(10,132,255,.45); background-color: rgba(10,132,255,.17); color: #A7CEFF; }
 .dark .qbank-builder .bg-blue-100\/70 { background-color: rgba(10,132,255,.16); color: #A7CEFF; }
 .dark .qbank-builder .bg-blue-50 { background-color: rgba(10,132,255,.14); color: #A7CEFF; }
+.qbank-stat-blue .qbank-stat-icon { background: rgba(0,122,255,.11); color: #1769E0; }
+.qbank-stat-violet .qbank-stat-icon { background: rgba(175,82,222,.12); color: #8E44AD; }
+.qbank-feature-blue .qbank-feature-icon { background: linear-gradient(145deg,rgba(0,122,255,.12),rgba(0,122,255,.06)); color: #1769E0; }
+.qbank-feature-violet .qbank-feature-icon { background: linear-gradient(145deg,rgba(175,82,222,.14),rgba(175,82,222,.07)); color: #8846A5; }
+.qbank-feature-green .qbank-feature-icon { background: linear-gradient(145deg,rgba(48,209,88,.16),rgba(48,209,88,.07)); color: #258443; }
+.qbank-exam-blue[aria-pressed="true"] { color: #1769E0; box-shadow: 0 2px 8px rgba(23,105,224,.11); }
+.qbank-exam-violet[aria-pressed="true"] { color: #7541A5; box-shadow: 0 2px 8px rgba(126,75,168,.12); }
+.qbank-exam-teal[aria-pressed="true"] { color: #087E79; box-shadow: 0 2px 8px rgba(8,126,121,.12); }
+.qbank-tone-blue.is-selected { border-color: rgba(23,105,224,.22); background: linear-gradient(135deg,#EEF5FF,#F5F8FF); color: #1769E0; }
+.qbank-tone-violet.is-selected { border-color: rgba(142,68,173,.22); background: linear-gradient(135deg,#F6F0FB,#FAF7FD); color: #8242A0; }
+.qbank-tone-green.is-selected { border-color: rgba(37,132,67,.20); background: linear-gradient(135deg,#EFF9F1,#F6FBF6); color: #258443; }
+.qbank-count-option.is-selected { border-color: rgba(23,105,224,.24); background: linear-gradient(135deg,#EEF5FF,#F5F8FF); color: #1769E0; box-shadow: 0 2px 8px rgba(23,105,224,.08); }
+.qbank-primary-action { background-image: linear-gradient(105deg,#1672E8,#315FE7 55%,#554FD8); }
+.qbank-primary-action:hover { background-image: linear-gradient(105deg,#0D64D6,#2754D8 55%,#4944C8); }
+.qbank-root .qbank-builder button,
+.qbank-root .qbank-primary-action { -webkit-tap-highlight-color: transparent; }
+@media (hover:hover) {
+  .qbank-feature { transition: background-color .22s ease; }
+  .qbank-feature:hover { background-color: rgba(0,122,255,.025); }
+  .qbank-builder button:not(:disabled) { -webkit-tap-highlight-color: transparent; }
+}
+.dark .qbank-stat-blue .qbank-stat-icon { background: rgba(10,132,255,.18); color: #79B9FF; }
+.dark .qbank-stat-violet .qbank-stat-icon { background: rgba(191,90,242,.17); color: #D2A0ED; }
+.dark .qbank-feature-blue .qbank-feature-icon { background: rgba(10,132,255,.17); color: #79B9FF; }
+.dark .qbank-feature-violet .qbank-feature-icon { background: rgba(191,90,242,.16); color: #D2A0ED; }
+.dark .qbank-feature-green .qbank-feature-icon { background: rgba(48,209,88,.15); color: #82D996; }
+.dark .qbank-exam-blue[aria-pressed="true"] { color: #79B9FF; }
+.dark .qbank-exam-violet[aria-pressed="true"] { color: #D2A0ED; }
+.dark .qbank-exam-teal[aria-pressed="true"] { color: #70D8CF; }
+.dark .qbank-tone-blue.is-selected,
+.dark .qbank-count-option.is-selected { border-color: rgba(10,132,255,.40); background: linear-gradient(135deg,rgba(10,132,255,.17),rgba(10,132,255,.09)); color: #9BCBFF; }
+.dark .qbank-tone-violet.is-selected { border-color: rgba(191,90,242,.38); background: linear-gradient(135deg,rgba(191,90,242,.16),rgba(191,90,242,.08)); color: #D2A0ED; }
+.dark .qbank-tone-green.is-selected { border-color: rgba(48,209,88,.36); background: linear-gradient(135deg,rgba(48,209,88,.15),rgba(48,209,88,.07)); color: #82D996; }
+.dark .qbank-primary-action { background-image: linear-gradient(105deg,#1672E8,#315FE7 55%,#554FD8); }
+.dark .qbank-primary-action:hover { background-image: linear-gradient(105deg,#2580F1,#416DF0 55%,#655EE6); }
+.dark .qbank-feature:hover { background-color: rgba(255,255,255,.025); }
 .dark .qbank-root button:focus-visible,
 .dark .qbank-session button:focus-visible { outline: 2px solid #64A9FF; outline-offset: 2px; }
 .qbank-root button:focus-visible,

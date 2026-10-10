@@ -22,7 +22,7 @@ import {
   X,
   PanelLeft,
   Keyboard,
-  Brain,
+  Headphones,
   RotateCcw,
   BarChart3,
   Target,
