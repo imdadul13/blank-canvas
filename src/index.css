@@ -233,6 +233,14 @@
 }
 .dark .qbank-stat-blue .qbank-stat-icon { background: rgba(10,132,255,.18); color: #79B9FF; }
 .dark .qbank-stat-violet .qbank-stat-icon { background: rgba(191,90,242,.17); color: #D2A0ED; }
+.qbank-stat-blue { background: linear-gradient(145deg,rgba(255,255,255,.92),rgba(238,246,255,.78)); border-color: rgba(78,142,219,.16); }
+.qbank-stat-violet { background: linear-gradient(145deg,rgba(255,255,255,.92),rgba(248,241,253,.82)); border-color: rgba(151,99,191,.16); }
+.dark .qbank-stat-blue { background: linear-gradient(145deg,color-mix(in srgb,#0A84FF 13%,var(--color-surface)),var(--color-surface)) !important; border-color: rgba(10,132,255,.20) !important; }
+.dark .qbank-stat-violet { background: linear-gradient(145deg,color-mix(in srgb,#BF5AF2 12%,var(--color-surface)),var(--color-surface)) !important; border-color: rgba(191,90,242,.19) !important; }
+.qbank-banner { isolation: isolate; }
+.qbank-banner-glow { animation: qbank-glow-drift 13s ease-in-out infinite alternate; }
+@keyframes qbank-glow-drift { from { transform: translate3d(0,0,0) scale(.94); opacity: .72; } to { transform: translate3d(-22px,15px,0) scale(1.08); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .qbank-banner-glow { animation: none; } }
 .dark .qbank-feature-blue .qbank-feature-icon { background: rgba(10,132,255,.17); color: #79B9FF; }
 .dark .qbank-feature-violet .qbank-feature-icon { background: rgba(191,90,242,.16); color: #D2A0ED; }
 .dark .qbank-feature-green .qbank-feature-icon { background: rgba(48,209,88,.15); color: #82D996; }
@@ -253,6 +261,42 @@
 @media (prefers-reduced-motion: reduce) {
   .qbank-root *, .qbank-session * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* Desktop navigation uses the same night tokens as the main application. */
+.app-sidebar-icon { background: var(--nav-bg); color: var(--nav-color); }
+.app-sidebar-icon svg { color: currentColor; }
+.app-sidebar-item[aria-current="page"] .app-sidebar-icon { background: var(--nav-color); color: #fff; box-shadow: 0 3px 10px color-mix(in srgb, var(--nav-color) 35%, transparent); }
+.app-sidebar-more-icon { background: #EBF3FF; color: #007AFF; }
+.app-sidebar-more-icon.is-active { background: #007AFF; color: #fff; box-shadow: 0 3px 10px rgba(0,122,255,.30); }
+.app-sidebar-more-icon svg { color: currentColor; }
+.dark .app-sidebar { background: rgba(20,21,25,.97) !important; border-color: var(--color-hairline) !important; box-shadow: 12px 0 36px rgba(0,0,0,.15); }
+.dark .app-sidebar-item { color: #B8BAC2 !important; }
+.dark .app-sidebar-item:hover { color: #F5F5F7 !important; background-color: rgba(255,255,255,.055) !important; }
+.dark .app-sidebar-item[aria-current="page"] { color: #F5F5F7 !important; }
+.dark .app-sidebar-section-title { color: #9699A3 !important; }
+.dark .app-sidebar-divider { border-color: var(--color-hairline) !important; }
+.dark .app-sidebar-icon { background: color-mix(in srgb, var(--nav-color) 17%, #202126); }
+.dark .app-sidebar-more { color: #B8BAC2 !important; }
+.dark .app-sidebar-more:hover { color: #F5F5F7 !important; background-color: rgba(255,255,255,.055) !important; }
+.dark .app-sidebar-more-icon { background: rgba(10,132,255,.18); color: #78B9FF; }
+.dark .app-sidebar-more-icon.is-active { background: #0A84FF; color: #fff; }
+.dark .app-sidebar-popover { background: rgba(31,32,37,.98) !important; border-color: var(--color-hairline-strong) !important; }
+.dark .app-sidebar-popover-heading { border-color: var(--color-hairline) !important; color: var(--color-ink) !important; }
+.dark .app-sidebar-popover-heading > div { color: var(--color-ink) !important; }
+.dark .app-sidebar-popover-item { color: var(--color-ink-2) !important; }
+.dark .app-sidebar-popover-item:hover { background-color: rgba(255,255,255,.06) !important; color: var(--color-ink) !important; }
+.dark .app-sidebar-popover-item [class*="bg-[#EBF3FF]"] { background: rgba(10,132,255,.14) !important; }
+.dark .app-sidebar-popover-item [class*="text-[#8E8E93]"] { color: var(--color-ink-3) !important; }
+.dark .app-sidebar-sync:hover { background-color: rgba(255,255,255,.045) !important; }
+.dark .app-sidebar-sync-label { color: #A6A8B0 !important; }
+.dark .app-sidebar-sync:hover .app-sidebar-sync-label { color: #F5F5F7 !important; }
+.dark .app-sidebar-sync-auto { color: #858893 !important; }
+.dark .app-sidebar-quote { background: linear-gradient(145deg,#20232B 0%,#191A1F 100%) !important; border-color: rgba(255,255,255,.12) !important; box-shadow: 0 8px 24px rgba(0,0,0,.24), inset 0 1px rgba(255,255,255,.045); }
+.dark .app-sidebar-quote-text { color: #F2F3F7 !important; }
+.dark .app-sidebar-quote-author { color: #A3A6B0 !important; }
+.dark .app-sidebar-quote .bg-\[\#007AFF\]\/10 { background-color: rgba(10,132,255,.16); }
+.app-sidebar button:focus-visible { outline: 2px solid #1769E0; outline-offset: 2px; }
+.dark .app-sidebar button:focus-visible { outline-color: #64A9FF; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    RUNTIME TOKENS — the parts that must be readable from JS/canvas

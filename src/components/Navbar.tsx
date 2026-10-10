@@ -251,7 +251,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       onMouseEnter={onSidebarHoverEnter}
       onMouseLeave={onSidebarHoverLeave}
-      className={`hidden lg:flex flex-col w-60 xl:w-64 h-screen select-none font-sans fixed inset-y-0 left-0 transition-colors duration-200 ${
+      className={`app-sidebar hidden lg:flex flex-col w-60 xl:w-64 h-screen select-none font-sans fixed inset-y-0 left-0 transition-colors duration-200 ${
         isSidebarOpen
           ? 'bg-white/95 backdrop-blur-2xl saturate-150 border-r border-black/[0.07] z-40'
           : 'bg-white/98 backdrop-blur-2xl border-r border-black/[0.09] shadow-[0_24px_64px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.06)] z-50'
@@ -283,7 +283,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
 
         {/* ── Section: Menu (Assorted Apple Colors) ─────────── */}
         <nav className="px-3 pb-2 space-y-[3px] shrink-0" aria-label="Main Navigation">
-          <p className="px-2 pb-1.5 text-[10.5px] font-bold tracking-[0.12em] uppercase text-[#8E8E93] select-none">Menu</p>
+          <p className="app-sidebar-section-title px-2 pb-1.5 text-[10.5px] font-bold tracking-[0.12em] uppercase text-[#8E8E93] select-none">Menu</p>
           {primaryNavItems.map(({ id, label, desc, icon: Icon, color, bg }) => {
             const active = isTabActiveLocal(id);
             return (
@@ -307,7 +307,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   aria-current={active ? 'page' : undefined}
                   whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                   transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-                  className={`relative z-10 w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13.5px] transition-all duration-150 cursor-pointer outline-none group ${
+                    className={`app-sidebar-item relative z-10 w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13.5px] transition-all duration-150 cursor-pointer outline-none group ${
                     active
                       ? 'font-bold text-[#1D1D1F]'
                       : 'font-semibold text-[#48484A] hover:text-[#1D1D1F] hover:bg-black/[0.035]'
@@ -315,15 +315,12 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 >
                   {/* Assorted Apple squircle icon container */}
                   <div
-                    className="h-8 w-8 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200"
-                    style={active
-                      ? { background: color, boxShadow: `0 3px 10px ${color}45` }
-                      : { background: bg }
-                    }
+                    className="app-sidebar-icon h-8 w-8 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200"
+                    style={{ '--nav-color': color, '--nav-bg': bg } as React.CSSProperties}
                   >
                     <Icon
                       className="h-4 w-4 shrink-0 stroke-[2.2]"
-                      style={{ color: active ? 'white' : color }}
+                      aria-hidden="true"
                     />
                   </div>
 
@@ -355,7 +352,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Separator */}
-        <div className="mx-4 my-2 border-t border-black/[0.06] shrink-0" />
+        <div className="app-sidebar-divider mx-4 my-2 border-t border-black/[0.06] shrink-0" />
 
         {/* ── Section: Tools (More) ─────────────────────────── */}
         <div
@@ -364,7 +361,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
           onMouseEnter={handleMoreMouseEnter}
           onMouseLeave={handleMoreMouseLeave}
         >
-          <p className="px-2 pb-1.5 text-[10.5px] font-bold tracking-[0.12em] uppercase text-[#8E8E93] select-none">Tools</p>
+          <p className="app-sidebar-section-title px-2 pb-1.5 text-[10.5px] font-bold tracking-[0.12em] uppercase text-[#8E8E93] select-none">Tools</p>
 
           <div className="relative">
             {/* Active pill for More */}
@@ -387,22 +384,18 @@ export const SidebarDock: React.FC<NavbarProps> = ({
               aria-expanded={isMoreMenuOpen}
               aria-haspopup="menu"
               aria-label="More utilities"
-              className={`relative z-10 w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13.5px] transition-all duration-150 cursor-pointer outline-none group ${
+              className={`app-sidebar-more relative z-10 w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13.5px] transition-all duration-150 cursor-pointer outline-none group ${
                 isSecondaryActive || isMoreMenuOpen
                   ? 'font-bold text-[#007AFF]'
                   : 'font-semibold text-[#48484A] hover:text-[#1D1D1F] hover:bg-black/[0.035]'
               }`}
             >
               <div
-                className="h-8 w-8 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200"
-                style={isSecondaryActive || isMoreMenuOpen
-                  ? { background: '#007AFF', boxShadow: '0 3px 10px rgba(0,122,255,0.38)' }
-                  : { background: '#EBF3FF' }
-                }
+                className={`app-sidebar-more-icon ${isSecondaryActive || isMoreMenuOpen ? 'is-active' : ''} h-8 w-8 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200`}
               >
                 <MoreHorizontal
                   className="h-4 w-4 stroke-[2.2]"
-                  style={{ color: isSecondaryActive || isMoreMenuOpen ? 'white' : '#007AFF' }}
+                  aria-hidden="true"
                 />
               </div>
               <span className="tracking-tight">More</span>
@@ -424,14 +417,14 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={reducedMotion ? undefined : { opacity: 0, x: -8, scale: 0.96 }}
                   transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute left-[calc(100%+12px)] bottom-0 w-64 bg-white/95 backdrop-blur-2xl rounded-2xl py-2.5 px-2 z-[60] border border-black/[0.08] shadow-[0_20px_52px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.06)]"
+                  className="app-sidebar-popover absolute left-[calc(100%+12px)] bottom-0 w-64 bg-white/95 backdrop-blur-2xl rounded-2xl py-2.5 px-2 z-[60] border border-black/[0.08] shadow-[0_20px_52px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.06)]"
                 role="menu"
                 aria-label="Secondary Utilities"
               >
                 <button
                   type="button"
                   onClick={() => { handleNavClick('more'); setIsMoreMenuOpen(false); }}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#F2F2F7] border-b border-black/[0.06] mb-1.5 pb-2.5 cursor-pointer text-left group transition-colors"
+                  className="app-sidebar-popover-heading w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#F2F2F7] border-b border-black/[0.06] mb-1.5 pb-2.5 cursor-pointer text-left group transition-colors"
                 >
                   <div className="flex items-center gap-2 text-[#1D1D1F] group-hover:text-[#007AFF] font-bold text-xs transition-colors">
                     <MoreHorizontal className="h-3.5 w-3.5 text-[#007AFF]" />
@@ -464,7 +457,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                           }
                           setIsMoreMenuOpen(false);
                         }}
-                        className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
+                        className={`app-sidebar-popover-item w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left transition-colors cursor-pointer group ${
                           active ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'hover:bg-[#F2F2F7] text-[#3A3A3C] hover:text-[#1D1D1F]'
                         }`}
                       >
@@ -494,29 +487,26 @@ export const SidebarDock: React.FC<NavbarProps> = ({
       </div>
 
       {/* ── Bottom: Sync + Apple Glass Quote Card ──────────── */}
-      <div className="px-3 pb-4 pt-2 shrink-0">
-        <div className="border-t border-black/[0.06] mb-3" />
+      <div className="app-sidebar-footer px-3 pb-4 pt-2 shrink-0">
+        <div className="app-sidebar-divider border-t border-black/[0.06] mb-3" />
 
         {/* Sync row */}
         <button type="button" onClick={onOpenCloudSync}
-          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-black/[0.03] transition-colors cursor-pointer group mb-3"
+          className="app-sidebar-sync w-full flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-black/[0.03] transition-colors cursor-pointer group mb-3"
         >
           <span className="relative flex h-2 w-2 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#34C759] opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#34C759]" />
           </span>
-          <span className="text-[11px] font-semibold text-[#8E8E93] group-hover:text-[#1D1D1F] flex-1 text-left transition-colors">
+          <span className="app-sidebar-sync-label text-[11px] font-semibold text-[#8E8E93] group-hover:text-[#1D1D1F] flex-1 text-left transition-colors">
             {syncStatus === 'offline' ? 'Offline Ready' : 'Synced to cloud'}
           </span>
-          <span className="text-[10px] font-medium text-[#C7C7CC]">Auto</span>
+          <span className="app-sidebar-sync-auto text-[10px] font-medium text-[#C7C7CC]">Auto</span>
         </button>
 
         {/* Animated Quote Card */}
         <div
-          className="relative overflow-hidden rounded-2xl p-3.5 border border-black/[0.06] shadow-[0_2px_12px_rgba(0,0,0,0.03)]"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(245,245,247,0.92) 100%)',
-          }}
+          className="app-sidebar-quote relative overflow-hidden rounded-2xl p-3.5 border border-black/[0.06] shadow-[0_2px_12px_rgba(0,0,0,0.03)] bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(245,245,247,0.92)_100%)]"
         >
           {/* Subtle ambient azure glow */}
           <div className="pointer-events-none absolute -top-6 -right-6 h-16 w-16 rounded-full bg-[#007AFF]/10 blur-xl" />
@@ -558,11 +548,11 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-1"
               >
-                <p className="text-[11.5px] font-semibold leading-[1.4] text-[#1D1D1F] tracking-tight">
+                <p className="app-sidebar-quote-text text-[11.5px] font-semibold leading-[1.4] text-[#1D1D1F] tracking-tight">
                   "{QUOTES[quoteIdx].text}"
                 </p>
                 {QUOTES[quoteIdx].author && (
-                  <p className="text-[10px] font-bold text-[#8E8E93] tracking-wide">— {QUOTES[quoteIdx].author}</p>
+                  <p className="app-sidebar-quote-author text-[10px] font-bold text-[#8E8E93] tracking-wide">— {QUOTES[quoteIdx].author}</p>
                 )}
               </motion.div>
             </AnimatePresence>
