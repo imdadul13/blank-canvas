@@ -97,9 +97,6 @@ export interface MoreUtilityItem {
 }
 
 export const moreUtilityItems: MoreUtilityItem[] = [
-  { id: 'questionbank', label: 'Question Bank', icon: ListChecks, desc: 'FMGE, NEET-PG & INI-CET practice', tab: 'questionbank' },
-  { id: 'pearls', label: 'Knowledge & Pearls', icon: BookMarked, desc: 'High-yield review', tab: 'pearls' },
-  { id: 'aicoach', label: 'AI Mentor', icon: Users, desc: 'Personalized study guidance', tab: 'aicoach' },
   {
     id: 'grandtests',
     label: 'Grand Tests',
@@ -844,7 +841,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={reducedMotion ? undefined : { opacity: 0, y: 12, scale: 0.96 }}
                       transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute right-0 bottom-[calc(100%+0.75rem)] w-64 max-w-[calc(100vw-2rem)] z-[70] rounded-2xl bg-white/95 backdrop-blur-2xl saturate-[180%] border border-[rgba(60,60,67,0.10)] shadow-[0_20px_52px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.08)] p-2 font-sans"
+                      className="mobile-more-popover absolute right-0 bottom-[calc(100%+0.75rem)] w-64 max-w-[calc(100vw-2rem)] z-[70] rounded-2xl bg-white/95 backdrop-blur-2xl saturate-[180%] border border-[rgba(60,60,67,0.10)] shadow-[0_20px_52px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.08)] p-2 font-sans"
                       role="menu"
                       aria-label="Secondary Utilities"
                     >

@@ -1142,7 +1142,7 @@ button:active:not(:disabled),
 
 /* Floating tab bar: layered translucent material, soft rim light and quiet active glass. */
 .mobile-dock-anchor { padding-inline: max(0px, env(safe-area-inset-left, 0px)) max(0px, env(safe-area-inset-right, 0px)); }
-.mobile-tab-dock { isolation:isolate; overflow:hidden; background-image:linear-gradient(155deg,rgba(255,255,255,.30),rgba(255,255,255,.025) 48%,rgba(255,255,255,.10)); }
+.mobile-tab-dock { isolation:isolate; overflow:visible; background-image:linear-gradient(155deg,rgba(255,255,255,.30),rgba(255,255,255,.025) 48%,rgba(255,255,255,.10)); }
 .mobile-tab-dock::before { content:""; position:absolute; z-index:0; pointer-events:none; inset:0 18% auto; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.98),transparent); }
 .mobile-dock-button { min-height:2.85rem; transition:color .18s ease, transform .18s cubic-bezier(.2,.8,.2,1); }
 .mobile-dock-active { z-index:0; left:50% !important; right:auto !important; top:2px !important; bottom:auto !important; width:44px; height:36px; margin-left:-22px; border-radius:13px; border:1px solid color-mix(in srgb,var(--dock-item-accent) 17%,transparent); background:linear-gradient(155deg,color-mix(in srgb,var(--dock-item-accent) 9%,rgba(255,255,255,.90)),color-mix(in srgb,var(--dock-item-accent) 5%,rgba(255,255,255,.76))); box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 1px 4px color-mix(in srgb,var(--dock-item-accent) 7%,transparent); }
@@ -1156,6 +1156,12 @@ button:active:not(:disabled),
 .dark .mobile-tab-dock { background-image:linear-gradient(155deg,rgba(255,255,255,.12),rgba(255,255,255,.025) 42%,rgba(0,0,0,.08)); }
 .dark .mobile-tab-dock::before { background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent); }
 .dark .mobile-dock-active { border-color:color-mix(in srgb,var(--dock-item-accent) 30%,transparent); background:linear-gradient(155deg,color-mix(in srgb,var(--dock-item-accent) 17%,rgba(255,255,255,.09)),color-mix(in srgb,var(--dock-item-accent) 11%,rgba(0,0,0,.06))); box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 2px 8px color-mix(in srgb,var(--dock-item-accent) 10%,transparent); }
+.dark .mobile-more-popover { background:rgba(35,35,38,.97); border-color:var(--color-hairline-strong); box-shadow:0 20px 52px rgba(0,0,0,.44),0 4px 16px rgba(0,0,0,.28); }
+.dark .mobile-more-popover > button { border-color:var(--color-hairline); }
+.dark .mobile-more-popover > button > div { color:var(--color-ink); }
+.dark .mobile-more-popover button[role="menuitem"] { color:var(--color-ink-2); }
+.dark .mobile-more-popover button[role="menuitem"] > div { background-color:var(--color-surface-muted); color:var(--color-ink-2); }
+.dark .mobile-more-popover button[role="menuitem"]:hover { background-color:rgba(10,132,255,.13); color:#9BCBFF; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .mobile-tab-dock { background-color:rgba(250,250,252,.96); }
   .dark .mobile-tab-dock { background-color:rgba(35,35,38,.97); }
