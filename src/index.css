@@ -258,6 +258,39 @@
 .dark .qbank-session button:focus-visible { outline: 2px solid #64A9FF; outline-offset: 2px; }
 .qbank-root button:focus-visible,
 .qbank-session button:focus-visible { outline: 2px solid #1769E0; outline-offset: 2px; }
+
+/* Question Bank: give the setup flow its own calm, editorial hierarchy. */
+.qbank-banner { box-shadow: 0 18px 48px rgba(35,65,110,.10), inset 0 1px 0 rgba(255,255,255,.75); }
+.qbank-banner-orbit { box-shadow: 0 0 0 24px rgba(75,133,210,.025), 0 0 0 52px rgba(75,133,210,.018); }
+.qbank-builder { box-shadow: 0 16px 42px rgba(22,34,52,.065), 0 2px 6px rgba(22,34,52,.025); }
+.qbank-builder-heading { background: linear-gradient(180deg, rgba(248,250,253,.88), rgba(255,255,255,0)); }
+.qbank-step-labels span { display:flex; align-items:center; gap:.45rem; color:#7B8490; font-size:.68rem; font-weight:650; letter-spacing:.015em; }
+.qbank-step-labels i { display:grid; width:1.45rem; height:1.45rem; place-items:center; border:1px solid rgba(23,105,224,.16); border-radius:999px; background:linear-gradient(145deg,#F0F6FF,#fff); color:#1769E0; font-size:.61rem; font-style:normal; font-variant-numeric:tabular-nums; }
+.qbank-stat { backdrop-filter: blur(14px); }
+.qbank-builder select { cursor:pointer; box-shadow: inset 0 1px 1px rgba(20,35,55,.025); }
+.qbank-builder select:hover { border-color:rgba(23,105,224,.28); }
+.qbank-builder fieldset button { box-shadow:0 1px 2px rgba(15,23,42,.025); }
+.qbank-builder fieldset button[aria-pressed="true"] { box-shadow:0 4px 12px rgba(23,105,224,.08), inset 0 0 0 1px rgba(23,105,224,.035); }
+.qbank-session { background-image: radial-gradient(ellipse at 50% -20%, rgba(0,122,255,.07), transparent 56%); }
+.qbank-session-header { box-shadow:0 4px 18px rgba(20,35,55,.035); }
+.qbank-question-card { box-shadow:0 18px 52px rgba(30,50,80,.075), 0 2px 8px rgba(30,50,80,.025); }
+.qbank-session .qbank-question-card > div button { min-height:3.35rem; box-shadow:0 1px 2px rgba(15,23,42,.025); }
+.qbank-session .qbank-question-card > div button:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 5px 14px rgba(30,80,145,.07); }
+.qbank-explanation, .qbank-gemini { box-shadow:0 10px 28px rgba(30,50,80,.045); }
+.dark .qbank-banner { box-shadow:0 18px 48px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.035); }
+.dark .qbank-builder { box-shadow:0 16px 42px rgba(0,0,0,.18); }
+.dark .qbank-builder-heading { background:linear-gradient(180deg,rgba(255,255,255,.025),transparent); }
+.dark .qbank-step-labels span { color:#A6ACB7; }
+.dark .qbank-step-labels i { border-color:rgba(10,132,255,.25); background:linear-gradient(145deg,rgba(10,132,255,.17),rgba(255,255,255,.035)); color:#9BCBFF; }
+.dark .qbank-session { background-image:radial-gradient(ellipse at 50% -20%,rgba(10,132,255,.075),transparent 56%); }
+.dark .qbank-session-header { box-shadow:0 4px 18px rgba(0,0,0,.16); }
+.dark .qbank-question-card,
+.dark .qbank-explanation,
+.dark .qbank-gemini { box-shadow:0 18px 52px rgba(0,0,0,.20); }
+@media (max-width:640px) {
+  .qbank-step-labels span { gap:.35rem; font-size:.63rem; }
+  .qbank-step-labels i { width:1.3rem; height:1.3rem; }
+}
 @media (prefers-reduced-motion: reduce) {
   .qbank-root *, .qbank-session * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }

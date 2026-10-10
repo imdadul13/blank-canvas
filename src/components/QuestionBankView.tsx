@@ -59,14 +59,15 @@ export const QuestionBankView: React.FC<{
   return <div data-accent="practice" className="qbank-root mx-auto w-full max-w-7xl px-3 pb-28 pt-5 font-sans text-[var(--text-primary,#1D1D1F)] sm:px-6 sm:pb-20 lg:px-8">
     <motion.section initial={reducedMotion ? false : {opacity:0,y:10,scale:0.992}} animate={{opacity:1,y:0,scale:1}} transition={reducedMotion ? {duration:0} : {duration:0.48,ease:[0.16,1,0.3,1]}} className="qbank-banner relative overflow-hidden rounded-[26px] border border-black/[0.06] bg-[linear-gradient(125deg,#EAF3FF_0%,#F8FAFD_52%,#F1EFFB_100%)] p-5 shadow-[0_16px_42px_rgba(35,65,110,0.09)] sm:rounded-[30px] sm:p-7">
       <div className="qbank-banner-glow pointer-events-none absolute -right-16 -top-28 h-72 w-72 rounded-full bg-blue-400/[0.12] blur-3xl" />
+      <div className="qbank-banner-orbit pointer-events-none absolute -right-10 bottom-[-8rem] h-72 w-72 rounded-full border border-blue-400/10 sm:right-[12%] sm:bottom-[-12rem] sm:h-96 sm:w-96" />
       <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent" />
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
-          <p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#53739B]"><BookOpenCheck className="h-4 w-4"/> Question library</p>
-          <h1 className="text-[clamp(2rem,5vw,3.15rem)] font-semibold leading-[1.04] tracking-[-0.055em] text-[#151A22]">Practice with purpose.</h1>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-[#68717E] sm:text-[15px]">Choose a subject, revisit exam questions, and understand the reasoning behind every answer.</p>
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-200/70 bg-white/65 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#416B9B] shadow-sm"><BookOpenCheck className="h-3.5 w-3.5"/> Question library <span className="h-1 w-1 rounded-full bg-blue-500"/> FMGE · NEET-PG · INI-CET</p>
+          <h1 className="text-[clamp(2.15rem,5vw,3.45rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-[#151A22]">Practice with purpose.</h1>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-[#68717E] sm:text-[15px]">Build a focused set from real exam questions. Learn the reasoning, spot the traps, and carry each insight forward.</p>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:min-w-[270px] sm:gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:min-w-[290px] sm:gap-3">
           <Stat label="Questions" value={facets ? facets.count.toLocaleString() : loading ? '…' : '—'} icon={<BookOpenCheck/>} tone="blue" reduceMotion={reducedMotion} />
           <Stat label="Image cases" value={facets ? facets.imageCount.toLocaleString() : loading ? '…' : '—'} icon={<ImageIcon/>} tone="violet" reduceMotion={reducedMotion} />
         </div>
@@ -74,14 +75,15 @@ export const QuestionBankView: React.FC<{
     </motion.section>
 
     <motion.section initial={reducedMotion ? false : {opacity:0,y:12}} animate={{opacity:1,y:0}} transition={reducedMotion ? {duration:0} : {duration:0.42,delay:0.05,ease:[0.16,1,0.3,1]}} className="qbank-builder qbank-panel mt-4 overflow-hidden rounded-[24px] border border-black/[0.06] bg-white shadow-[0_12px_36px_rgba(15,23,42,0.045)] sm:mt-5 sm:rounded-[28px]">
-      <div className="border-b border-black/[0.055] px-4 py-4 sm:px-6 sm:py-5">
+      <div className="qbank-builder-heading border-b border-black/[0.055] px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8A929D]">Your next set</p><h2 className="mt-1 text-xl font-semibold tracking-[-0.035em] text-[#202630] sm:text-2xl">Set your focus</h2><p className="mt-1 text-sm text-[#747D89]">Tune the session to the exam and question style you want.</p></div>
+          <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#7B8795]">Your next set</p><h2 className="mt-1 text-xl font-semibold tracking-[-0.04em] text-[#202630] sm:text-2xl">Build your question set</h2><p className="mt-1 text-sm text-[#747D89]">A few choices shape a session around what you need today.</p></div>
           <div className="qbank-exam-switch inline-flex w-full rounded-xl bg-[#F2F4F7] p-1 sm:w-auto" role="group" aria-label="Choose exam">{(['FMGE','NEET-PG','INI-CET'] as Exam[]).map((value)=>{const activeTone=value==='FMGE'?'qbank-exam-blue':value==='NEET-PG'?'qbank-exam-violet':'qbank-exam-teal';return <motion.button key={value} type="button" aria-pressed={exam===value} onClick={()=>{setExam(value);setYear('');}} whileTap={reducedMotion?undefined:{scale:0.97}} transition={{type:'spring',stiffness:500,damping:32}} className={`qbank-exam-option ${activeTone} min-h-10 flex-1 rounded-lg px-3 text-xs font-semibold transition sm:flex-none sm:px-4 ${exam===value?'bg-white shadow-sm':'text-[#747D89] hover:text-[#303A48]'}`}><span className="flex items-center justify-center gap-1.5">{value}{exam===value&&<Check className="h-3.5 w-3.5"/>}</span></motion.button>})}</div>
         </div>
       </div>
       <div className="grid lg:grid-cols-[minmax(0,1fr)_260px]">
         <div className="min-w-0 space-y-5 p-4 sm:p-6">
+          <div className="qbank-step-labels grid grid-cols-3 gap-2" aria-hidden="true"><span><i>01</i> Exam</span><span><i>02</i> Focus</span><span><i>03</i> Session</span></div>
           <div className="grid gap-3 sm:grid-cols-2">
             <SelectField label="Subject"><select value={subjectId} onChange={(e) => setSubjectId(e.target.value)}><option value="">All subjects</option>{facets?.subjects.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.count.toLocaleString()}</option>)}</select></SelectField>
             <SelectField label="Exam year"><select value={year} onChange={(e) => setYear(e.target.value)}><option value="">Any year</option>{facets?.years.map((value) => <option key={value} value={value}>{value}</option>)}</select></SelectField>
