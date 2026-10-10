@@ -76,14 +76,14 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
     title: '',
     platform: 'Marrow',
     date: getLocalDateKey(),
-    score: 150,
+    score: 0,
     totalMarks: 300,
-    correctCount: 165,
-    incorrectCount: 110,
-    skippedCount: 25,
-    percentile: 60,
-    paper1Score: 75,
-    paper2Score: 75,
+    correctCount: 0,
+    incorrectCount: 0,
+    skippedCount: 0,
+    percentile: undefined,
+    paper1Score: 0,
+    paper2Score: 0,
     weakSubjectIds: [],
     strongSubjectIds: [],
     keyMistakesNotes: '',
@@ -326,7 +326,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
               <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/80 backdrop-blur-md border border-indigo-200 text-[#4338CA] shadow-xs">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#4338CA]" />
-                <span>{stats.clearanceRate}% Clearance</span>
+                <span>{stats.totalTests > 0 ? `${stats.clearanceRate}% Clearance` : 'Clearance —'}</span>
               </div>
 
               <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/80 backdrop-blur-md border border-emerald-200 text-emerald-700 shadow-xs">
@@ -343,7 +343,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 Grand Tests <span className="text-[#4338CA]">&amp; Mock Exams</span>
               </h1>
               <p className="text-xs sm:text-[13px] text-[#334155] font-medium leading-snug">
-                Simulate 300-Q NBE exam sessions and benchmark your trajectory against the 150-mark pass threshold.
+                Log full-length mock results and compare your trajectory with the configured 150-mark benchmark.
               </p>
 
               {/* Apple Segmented Pill Switch */}
@@ -351,6 +351,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setStatusFilter('all')}
+                  aria-pressed={statusFilter === 'all'}
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                     statusFilter === 'all'
                       ? 'bg-white text-[#4338CA] shadow-xs'
@@ -365,7 +366,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                   className="px-3 py-1 rounded-full text-xs font-bold text-[#3A3A3C]/70 hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <Clock className="w-3 h-3 text-[#4338CA]" />
-                  <span>50Q Mini-Mock</span>
+                  <span>Timed Practice</span>
                 </button>
                 <button
                   type="button"
@@ -390,7 +391,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                     stroke="#4338CA"
                     strokeWidth="4.5"
                     strokeDasharray={125.6}
-                    strokeDashoffset={125.6 * (1 - Math.min(100, Math.max(0, stats.clearanceRate || 50)) / 100)}
+                    strokeDashoffset={125.6 * (1 - Math.min(100, Math.max(0, stats.clearanceRate)) / 100)}
                     strokeLinecap="round"
                     fill="none"
                     className="transition-all duration-700 ease-out"
@@ -398,7 +399,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                   <span className="font-mono text-xs font-black text-[#1D1D1F] leading-none">
-                    {stats.clearanceRate}%
+                    {stats.totalTests > 0 ? `${stats.clearanceRate}%` : '—'}
                   </span>
                   <span className="text-[6.5px] font-mono font-bold uppercase tracking-wider text-[#4338CA] mt-0.5">
                     PASS
@@ -443,10 +444,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           <div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-3xl font-black font-mono text-emerald-800 leading-none">
-                {stats.clearanceRate}%
+                {stats.totalTests > 0 ? `${stats.clearanceRate}%` : '—'}
               </span>
               <span className="text-[11.5px] font-medium text-emerald-700">
-                ({stats.clearedCount}/{stats.totalTests || 0} Cleared)
+                ({stats.clearedCount}/{stats.totalTests} Cleared)
               </span>
             </div>
             <p className="text-[11.5px] text-[#64748B] mt-1 font-medium">
@@ -473,14 +474,14 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-[#1D1D1F] flex items-center gap-1">
                 <span className="size-2 rounded-full bg-[#007AFF]" />
-                Paper 1: <strong className="font-mono">{stats.averagePaper1 || 75}/150</strong>
+                Paper 1: <strong className="font-mono">{stats.totalTests > 0 ? stats.averagePaper1 : '—'}/150</strong>
               </span>
               <span className="font-semibold text-[#1D1D1F] flex items-center gap-1">
                 <span className="size-2 rounded-full bg-[#5856D6]" />
-                Paper 2: <strong className="font-mono">{stats.averagePaper2 || 75}/150</strong>
+                Paper 2: <strong className="font-mono">{stats.totalTests > 0 ? stats.averagePaper2 : '—'}/150</strong>
               </span>
             </div>
-            <div className="w-full h-2 rounded-full bg-[#E2E8F0] overflow-hidden flex">
+              <div className={`w-full h-2 rounded-full bg-[#E2E8F0] overflow-hidden flex ${stats.totalTests === 0 ? 'opacity-40' : ''}`}>
               <div
                 className="bg-[#007AFF] h-full"
                 style={{ width: `${stats.averagePaper1 ? Math.round((stats.averagePaper1 / ((stats.averagePaper1 + stats.averagePaper2) || 150)) * 100) : 50}%` }}
@@ -512,7 +513,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           <div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-3xl font-black font-mono text-amber-800 leading-none">
-                ~55s
+                60s
               </span>
               <span className="text-[11.5px] font-medium text-amber-700">/ Question target</span>
             </div>
@@ -545,13 +546,13 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                     strokeWidth="10"
                     strokeLinecap="round"
                     strokeDasharray={2 * Math.PI * 52}
-                    strokeDashoffset={2 * Math.PI * 52 * (1 - Math.min(1, Math.max(0.05, (stats.latestScore || 150) / 300)))}
+                    strokeDashoffset={2 * Math.PI * 52 * (1 - (stats.totalTests > 0 ? Math.min(1, Math.max(0, stats.latestScore / 300)) : 0))}
                     style={{ transition: 'stroke-dashoffset 0.8s ease' }}
                   />
                 </svg>
                 <div className="absolute text-center flex flex-col items-center">
                   <span className="text-3xl font-black font-mono text-[#1D1D1F] leading-none">
-                    {stats.latestScore > 0 ? stats.latestScore : 150}
+                    {stats.totalTests > 0 ? stats.latestScore : '—'}
                   </span>
                   <span className="text-[11px] text-[#8E8E93] font-mono mt-0.5">/ 300</span>
                 </div>
@@ -569,12 +570,12 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                         : 'bg-[#3730A3]/10 text-[#3730A3] border-[#3730A3]/20'
                     }`}
                   >
-                    {stats.latestScore >= 150 ? (
+                    {stats.totalTests > 0 && stats.latestScore >= 150 ? (
                       <>
                         <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                         <span>On Track to Clear (≥150)</span>
                       </>
-                    ) : stats.latestScore > 0 ? (
+                    ) : stats.totalTests > 0 ? (
                       <>
                         <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
                         <span>{150 - stats.latestScore} Marks to Pass Cutoff</span>
@@ -593,7 +594,9 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 </div>
 
                 <p className="text-[12.5px] text-[#6E6E73] leading-relaxed">
-                  Based on your full 300-mark mock test results, paper distribution, and CBT time management.
+                  {stats.totalTests > 0
+                    ? 'Based on your logged mock scores and paper distribution.'
+                    : 'Log your first mock to see your score trend and paper split.'}
                 </p>
 
                 {/* 3 Apple Bento Stat Cards (Confidence, Likely Range, Delta style from media_1790582425866.png) */}
@@ -604,7 +607,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       Avg Paper 1
                     </span>
                     <span className="text-base font-extrabold font-mono text-[#1D1D1F] mt-1">
-                      {stats.averagePaper1 || 75} <span className="text-[10px] text-[#8E8E93] font-sans">/150</span>
+                      {stats.totalTests > 0 ? stats.averagePaper1 : '—'} <span className="text-[10px] text-[#8E8E93] font-sans">/150</span>
                     </span>
                     <span className="text-[10px] text-[#8E8E93]">Pre &amp; Para-Clinical</span>
                   </div>
@@ -615,7 +618,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       Avg Paper 2
                     </span>
                     <span className="text-base font-extrabold font-mono text-[#1D1D1F] mt-1">
-                      {stats.averagePaper2 || 75} <span className="text-[10px] text-[#8E8E93] font-sans">/150</span>
+                      {stats.totalTests > 0 ? stats.averagePaper2 : '—'} <span className="text-[10px] text-[#8E8E93] font-sans">/150</span>
                     </span>
                     <span className="text-[10px] text-[#8E8E93]">Clinical Disciplines</span>
                   </div>
@@ -626,7 +629,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                       Delta
                     </span>
                     <span className="text-base font-extrabold font-mono text-emerald-700 mt-1">
-                      {stats.scoreDelta >= 0 ? `+${stats.scoreDelta}` : stats.scoreDelta}
+                      {stats.totalTests > 1 ? (stats.scoreDelta >= 0 ? `+${stats.scoreDelta}` : stats.scoreDelta) : '—'}
                     </span>
                     <span className="text-[10px] text-[#8E8E93]">vs initial mock</span>
                   </div>
@@ -655,7 +658,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                   className={`h-full rounded-full transition-all duration-700 ${
                     stats.latestScore >= 150 ? 'bg-[#30D158]' : stats.latestScore > 0 ? 'bg-[#FF9500]' : 'bg-[#3730A3]'
                   }`}
-                  style={{ width: `${Math.min(100, Math.max(5, ((stats.latestScore || 150) / 300) * 100))}%` }}
+                  style={{ width: `${stats.totalTests > 0 ? Math.min(100, (stats.latestScore / 300) * 100) : 0}%` }}
                 />
               </div>
 
@@ -751,6 +754,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                     key={st.id}
                     type="button"
                     onClick={() => setStatusFilter(st.id as any)}
+                    aria-pressed={statusFilter === st.id}
                     className={`px-3 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
                       statusFilter === st.id
                         ? 'bg-[#3730A3] text-white shadow-sm'
@@ -1120,91 +1124,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         {/* Right Column (4 cols): Sidebar matching Error Vault & Predictor */}
         <div className="lg:col-span-4 space-y-4">
           
-          {/* Exam Stamina & Paper Balance Card (Matching media_1790582425871.png) */}
-          <div className="p-5 rounded-2xl bg-white border border-[rgba(60,60,67,0.1)] shadow-sm space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#3730A3]/10 flex items-center justify-center">
-                <BarChart3 className="w-4 h-4 text-[#3730A3]" />
-              </div>
-              <div>
-                <h2 className="text-[13px] font-bold text-[#1D1D1F]">Paper &amp; Stamina Insights</h2>
-                <p className="text-[11px] text-[#8E8E93]">Understand your exam balance</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {[
-                {
-                  label: 'Paper 1 (Pre & Para-Clinical)',
-                  value: stats.totalTests > 0 ? Math.round((stats.averagePaper1 / 150) * 100) : 50,
-                  sub: `${stats.averagePaper1 || 75} / 150 marks`,
-                  color: '#007AFF',
-                },
-                {
-                  label: 'Paper 2 (Clinical Disciplines)',
-                  value: stats.totalTests > 0 ? Math.round((stats.averagePaper2 / 150) * 100) : 50,
-                  sub: `${stats.averagePaper2 || 75} / 150 marks`,
-                  color: '#30D158',
-                },
-                {
-                  label: '300-Q CBT Endurance',
-                  value: stats.totalTests > 0 ? Math.min(100, Math.round((stats.clearedCount / (stats.totalTests || 1)) * 100) + 20) : 60,
-                  sub: 'Stamina on final 50 Qs',
-                  color: '#5856D6',
-                },
-                {
-                  label: 'Qualifying Clearance Margin',
-                  value: stats.totalTests > 0 ? Math.min(100, Math.round(((stats.highestScore || 150) / 300) * 100)) : 50,
-                  sub: `Peak score: ${stats.highestScore || 150}/300`,
-                  color: '#FF9500',
-                },
-              ].map(({ label, value, sub, color }) => (
-                <div key={label} className="space-y-1">
-                  <div className="flex items-center justify-between text-[12px]">
-                    <span className="text-[#3A3A3C] font-medium">{label}</span>
-                    <span className="font-mono font-bold text-[#1D1D1F]">{value}%</span>
-                  </div>
-                  <div className="h-1.5 w-full rounded-full bg-[#F2F2F7] overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${value}%`, background: color }}
-                    />
-                  </div>
-                  <div className="text-[10px] text-[#8E8E93] text-right">{sub}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Clearance progress ring */}
-            <div className="pt-3 border-t border-[rgba(60,60,67,0.06)] flex items-center gap-3">
-              <div className="relative inline-flex items-center justify-center shrink-0">
-                <svg width="52" height="52" viewBox="0 0 52 52" className="-rotate-90">
-                  <circle cx="26" cy="26" r="20" fill="none" stroke="#F2F2F7" strokeWidth="5" />
-                  <circle
-                    cx="26"
-                    cy="26"
-                    r="20"
-                    fill="none"
-                    stroke={stats.clearanceRate >= 60 ? '#30D158' : stats.clearanceRate > 0 ? '#FF9500' : '#4338CA'}
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                    strokeDasharray={2 * Math.PI * 20}
-                    strokeDashoffset={2 * Math.PI * 20 * (1 - (stats.clearanceRate || 50) / 100)}
-                    style={{ transition: 'stroke-dashoffset 0.8s ease' }}
-                  />
-                </svg>
-                <span className="absolute text-[11px] font-black font-mono text-[#1D1D1F]">
-                  {stats.clearanceRate}%
-                </span>
-              </div>
-              <div>
-                <p className="text-[12px] font-bold text-[#1D1D1F]">Mock Clearance Rate</p>
-                <p className="text-[11px] text-[#8E8E93]">
-                  {stats.clearedCount} of {stats.totalTests} cleared (≥150)
-                </p>
-              </div>
-            </div>
-          </div>
+          <section className="rounded-2xl border border-[rgba(60,60,67,0.1)] bg-white p-5 shadow-sm space-y-2">
+            <h2 className="text-[13px] font-bold text-[#1D1D1F]">NBE exam format</h2>
+            <p className="text-[12px] leading-relaxed text-[#6E6E73]">Two papers of 150 questions and 150 minutes each. There is no negative marking.</p>
+          </section>
 
           {/* Strategic Next Actions Card (Matching media_1790582458273.png) */}
           <div className="p-5 rounded-2xl bg-white border border-[rgba(60,60,67,0.1)] shadow-sm space-y-4">
@@ -1219,7 +1142,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             </div>
 
             <div className="space-y-2.5">
-              {/* Action 1: 50-MCQ Mini Mock */}
+              {/* Action 1: Timed Practice */}
               <button
                 type="button"
                 onClick={() => setShowMockModal(true)}
@@ -1231,10 +1154,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                   </div>
                   <div>
                     <h4 className="text-[12.5px] font-bold text-[#1D1D1F] leading-snug">
-                      Take 50-MCQ Mini-Mock
+                      Start Timed Practice
                     </h4>
                     <p className="text-[10.5px] text-[#6E6E73]">
-                      Timed sprint under strict exam pressure
+                      A timed set drawn from available verified questions
                     </p>
                   </div>
                 </div>
@@ -1293,7 +1216,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           {/* NBE Protocol Blueprint Card */}
           <div className="p-4 rounded-2xl bg-[#F2F2F7]/50 border border-[rgba(60,60,67,0.06)] space-y-2">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8E8E93] block">
-              OFFICIAL NBE PROTOCOL
+              FMGE FORMAT REFERENCE
             </span>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="p-2.5 rounded-xl bg-white border border-[rgba(60,60,67,0.06)]">
@@ -1306,7 +1229,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               </div>
             </div>
             <p className="text-[10.5px] text-[#8E8E93] leading-relaxed pt-1">
-              No negative marking. A candidate must secure at least 150 out of 300 marks to qualify for provisional or permanent registration.
+              This tracker uses a 150/300 comparison benchmark and the two-part exam format. Check the current NBEMS session bulletin for official requirements.
             </p>
           </div>
         </div>
@@ -1414,12 +1337,12 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                   </span>
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${
-                      (newGT.score || 0) >= 150
+                      newGT.score !== undefined && newGT.score >= 150
                         ? 'bg-emerald-50 text-emerald-800 border-emerald-200/90'
                         : 'bg-amber-50 text-amber-800 border-amber-200/90'
                     }`}
                   >
-                    {(newGT.score || 0) >= 150
+                    {newGT.score === 0 ? 'ENTER YOUR SCORE' : (newGT.score || 0) >= 150
                       ? `PASS (+${(newGT.score || 0) - 150})`
                       : `NEEDS BOOST (${150 - (newGT.score || 0)} to pass)`}
                   </span>
@@ -1641,7 +1564,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         document.body,
       )}
 
-      {/* 50-MCQ Timed NBE Examination Simulation */}
+      {/* Timed question-bank practice */}
       <NbeMockExamModal
         isOpen={showMockModal}
         onClose={() => setShowMockModal(false)}

@@ -1,5 +1,6 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
+import {MotionConfig} from 'motion/react';
 import App from './App.tsx';
 import './index.css';
 
@@ -36,6 +37,11 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <MotionConfig
+      reducedMotion="user"
+      transition={{ type: 'spring', stiffness: 420, damping: 34, mass: 0.8 }}
+    >
+      <App />
+    </MotionConfig>
   </StrictMode>,
 );

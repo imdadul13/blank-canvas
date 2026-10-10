@@ -234,7 +234,11 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
       )}
 
       {/* Quick Action Suggestion Chips (Docked above input with Apple HIG Frosted Capsules) */}
-      <div className="no-scrollbar flex touch-pan-x items-center gap-1.5 overflow-x-auto pb-1">
+      <div
+        className="mentor-quick-action-rail no-scrollbar flex min-w-0 touch-pan-x items-center gap-1.5 overflow-x-auto pb-1"
+        role="group"
+        aria-label="Suggested ways to ask your faculty mentor"
+      >
         {/* Faculty Viva Quick Action Chip */}
         <motion.button
           type="button"
@@ -245,7 +249,7 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
             )
           }
           disabled={isLoading}
-          className="group flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-amber-300/80 bg-amber-50 px-3.5 py-1.5 text-[11.5px] font-bold text-amber-900 shadow-xs transition-all hover:bg-amber-100 active:scale-[0.97] disabled:opacity-50"
+          className="group flex min-h-10 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-amber-300/80 bg-amber-50 px-3.5 py-1.5 text-[11.5px] font-bold text-amber-900 shadow-xs transition-all hover:bg-amber-100 active:scale-[0.97] disabled:opacity-50"
         >
           <Stethoscope className="size-3.5 text-amber-700 transition-transform group-hover:scale-110" />
           <span>Start faculty viva</span>
@@ -261,7 +265,7 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
               {...chipPress}
               onClick={() => onSendMessage(action.query)}
               disabled={isLoading}
-              className="group flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-[rgba(60,60,67,0.1)] bg-[#F2F2F7] hover:bg-[#E5E5EA] px-3.5 py-1.5 text-[11.5px] font-semibold text-[#1D1D1F] shadow-xs transition-all active:scale-[0.97] disabled:opacity-50"
+              className="group flex min-h-10 shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-[rgba(60,60,67,0.1)] bg-[#F2F2F7] hover:bg-[#E5E5EA] px-3.5 py-1.5 text-[11.5px] font-semibold text-[#1D1D1F] shadow-xs transition-all active:scale-[0.97] disabled:opacity-50"
             >
               <span
                 className="grid size-4 place-items-center rounded-full"
@@ -278,7 +282,7 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
           {...chipPress}
           onClick={() => onSendMessage('Give me 5 high-yield clinical MCQs across different FMGE subjects with distractor analysis.')}
           disabled={isLoading}
-          className="flex shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(60,60,67,0.1)] bg-[#F2F2F7] hover:bg-[#E5E5EA] px-3 py-1.5 text-[11.5px] font-semibold text-[#6E6E73] hover:text-[#1D1D1F] transition-all active:scale-[0.97]"
+          className="flex min-h-10 shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(60,60,67,0.1)] bg-[#F2F2F7] hover:bg-[#E5E5EA] px-3 py-1.5 text-[11.5px] font-semibold text-[#6E6E73] hover:text-[#1D1D1F] transition-all active:scale-[0.97]"
           title="More suggestions"
         >
           <MoreHorizontal className="size-3.5" />

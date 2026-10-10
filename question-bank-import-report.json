@@ -1,0 +1,51 @@
+{
+  "importedUnique": 9713,
+  "sourceCounts": {
+    "FMGE-Chapterwise": 2673,
+    "FMGE-Yearwise": 2711,
+    "INICET-Yearwise": 1732,
+    "NEETPG-Chapterwise": 1895,
+    "NEETPG-Yearwise": 1822
+  },
+  "rejectedCount": 0,
+  "rejectedRecords": [],
+  "rejectedByReason": {},
+  "subjectCounts": {
+    "Anatomy": 418,
+    "Physiology": 193,
+    "Biochemistry": 387,
+    "Pathology": 595,
+    "Pharmacology": 441,
+    "Microbiology": 440,
+    "Social and Preventive Medicine": 516,
+    "ENT": 276,
+    "Ophthalmology": 317,
+    "Forensic Medicine": 186,
+    "Medicine": 1247,
+    "Surgery": 590,
+    "Pediatrics": 469,
+    "Orthopedics": 111,
+    "Obstetrics and Gynaecology": 678,
+    "Dermatology": 283,
+    "Radiology": 307,
+    "Psychiatry": 150,
+    "Uncategorized": 2063,
+    "Anesthesia": 46
+  },
+  "examCounts": {
+    "FMGE": 4682,
+    "INI-CET": 1731,
+    "NEET-PG": 3300
+  },
+  "questionsWithoutSourceExplanation": 7,
+  "imageCount": 2085,
+  "imageCountByExam": {
+    "FMGE": 994,
+    "INI-CET": 321,
+    "NEET-PG": 770
+  },
+  "imageReferences": 2177,
+  "dataBytes": 16321279,
+  "imageBytes": 55821220,
+  "uniqueImageAssets": 1625
+}

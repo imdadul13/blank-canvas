@@ -7,7 +7,6 @@ import {
   Volume2,
   HardDrive,
   ShieldAlert,
-  Save,
   CheckCircle2,
   Brain,
   Droplet,
@@ -49,7 +48,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'theme' | 'mcq' | 'wellness' | 'storage'>('theme');
   const [settings, setSettings] = useState<AppSettings>(state.settings);
-  const [saveSuccess, setSaveSuccess] = useState(false);
   const [resetConfirmation, setResetConfirmation] = useState<'none' | 'progress' | 'full'>('none');
   const [typedConfirm, setTypedConfirm] = useState('');
 
@@ -58,7 +56,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setSettings(state.settings);
-      setSaveSuccess(false);
       setResetConfirmation('none');
       setTypedConfirm('');
     }
@@ -67,16 +64,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
   const updatePreference = (updated: AppSettings) => {
     setSettings(updated);
     onUpdateSettings(updated);
-  };
-
-  const handleSave = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    onUpdateSettings(settings);
-    setSaveSuccess(true);
-    setTimeout(() => {
-      setSaveSuccess(false);
-      onClose();
-    }, 500);
   };
 
   const handleResetProgress = () => {
@@ -130,8 +117,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="t-title-sm truncate text-slate-900">Preferences &amp; Settings</h2>
-              <span className="shrink-0 rounded-full border border-teal-200/70 bg-teal-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#007AFF]">
-                FMGE 2026
+              <span className="hidden shrink-0 rounded-full border border-teal-200/70 bg-teal-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#007AFF] sm:inline-flex">
+                FMGE STUDY
               </span>
             </div>
             <p className="t-label mt-0.5 truncate text-slate-500">
@@ -142,7 +129,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
       }
     >
       <div className="hairline-b flex shrink-0 items-center justify-between gap-1.5 overflow-x-auto bg-slate-50/70 px-4 py-2.5 scrollbar-none">
-        <div className="flex w-full items-center gap-1 rounded-2xl bg-slate-200/60 p-1 sm:w-auto">
+        <div className="flex w-full items-center gap-0.5 rounded-2xl bg-slate-200/60 p-1 sm:w-auto sm:gap-1">
           {[
             { id: 'theme', label: 'Atmosphere & Themes', shortLabel: 'Atmosphere', icon: Palette },
             { id: 'mcq', label: 'Pacing & Goals', shortLabel: 'Pacing', icon: Clock },
@@ -155,8 +142,9 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
               <button
                 key={tab.id}
                 type="button"
+                aria-pressed={active}
                 onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                className={`hit-expand flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all sm:flex-initial sm:inline-flex ${
+                className={`hit-expand flex-1 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1.5 py-1.5 text-[10px] font-semibold transition-all sm:flex-initial sm:gap-1.5 sm:inline-flex sm:px-3.5 sm:text-xs ${
                   active ? 'bg-white font-bold text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -168,14 +156,6 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
           })}
         </div>
       </div>
-
-      {/* Save confirmation toast */}
-      {saveSuccess && (
-        <div className="mx-4 mt-3 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800 animate-in fade-in">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-          <span className="font-semibold">Preferences saved and applied successfully.</span>
-        </div>
-      )}
 
       <ModalBody className="space-y-5 bg-white p-4 sm:p-6">
         {/* ═════════════ TAB 1: THEMES & ATMOSPHERE ═════════════ */}
@@ -238,6 +218,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                       <button
                         key={item.id}
                         type="button"
+                        aria-pressed={selected}
                         onClick={() => updatePreference({ ...settings, bgTheme: item.id as any })}
                         className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
                           selected
@@ -348,6 +329,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                       <button
                         key={preset.label}
                         type="button"
+                        aria-pressed={active}
                         onClick={() => updatePreference({ ...settings, mcqTimerSeconds: preset.val })}
                         className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                           active
@@ -390,6 +372,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                       <button
                         key={mode.id}
                         type="button"
+                        aria-pressed={active}
                         onClick={() => updatePreference({ ...settings, explanationMode: mode.id as any })}
                         className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                           active
@@ -431,6 +414,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                           <button
                             key={q}
                             type="button"
+                            aria-pressed={selected}
                             onClick={() => updatePreference({ ...settings, dailyQuestionGoal: q })}
                             className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                               selected
@@ -457,6 +441,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                           <button
                             key={h}
                             type="button"
+                            aria-pressed={selected}
                             onClick={() => updatePreference({ ...settings, dailyStudyHourGoal: h })}
                             className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                               selected
@@ -482,10 +467,10 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                 <div>
                   <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#007AFF] flex items-center gap-1.5">
                     <Droplet className="h-3.5 w-3.5 text-[#007AFF]" />
-                    Hydration &amp; 20-20-20 Eye Rest Cadence
+                    Study Break &amp; Eye Rest Reminders
                   </h4>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Ophthalmology protocol: Every 20 minutes, focus on an object 20 feet away for 20 seconds to prevent digital asthenopia.
+                    Choose when to receive break reminders. For screen comfort, the 20-20-20 rule means looking 20 feet away for 20 seconds every 20 minutes.
                   </p>
                 </div>
 
@@ -501,6 +486,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                       <button
                         key={preset.label}
                         type="button"
+                        aria-pressed={active}
                         onClick={() => updatePreference({ ...settings, breakReminderInterval: preset.val })}
                         className={`py-2 px-2.5 rounded-xl text-xs font-semibold border text-center transition-all cursor-pointer ${
                           active
@@ -561,7 +547,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                         Progressive Web App (PWA)
                       </h4>
                       <p className="text-[11px] text-slate-500">
-                        Zero-lag offline access on iOS, Android &amp; macOS
+                        The app shell and visited assets can be available offline
                       </p>
                     </div>
                   </div>
@@ -572,7 +558,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                     </span>
                   ) : (
                     <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-white border border-teal-200 text-teal-800">
-                      Standalone Ready
+                      Not installed
                     </span>
                   )}
                 </div>
@@ -606,19 +592,19 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
               <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 font-mono block">
-                    CLIENT STORAGE INTEGRITY
+                    CURRENT STUDY DATA
                   </span>
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Verified
+                    Loaded
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <div className="p-2.5 rounded-xl bg-white border border-slate-200/80 text-xs">
-                    <span className="text-slate-400 text-[10px] block">Progress Ledger</span>
+                    <span className="text-slate-400 text-[10px] block">App data size (estimate)</span>
                     <span className="font-mono font-bold text-slate-800">
-                      ~{Math.round((JSON.stringify(state).length / 1024) * 10) / 10} KB Cached
+                      ~{Math.round((JSON.stringify(state).length / 1024) * 10) / 10} KB
                     </span>
                   </div>
                   <div className="p-2.5 rounded-xl bg-white border border-slate-200/80 text-xs">
@@ -639,9 +625,9 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                   {/* Reset Study Progress */}
                   <div className="p-3 rounded-xl bg-white border border-rose-100 flex items-center justify-between gap-3">
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900">Reset Study Progress (0% Mastery)</h4>
+                      <h4 className="text-xs font-bold text-slate-900">Reset Study Progress</h4>
                       <p className="text-[11px] text-slate-500">
-                        Clears notes, QBank records, and revision checkboxes across all 19 subjects while preserving custom pearls.
+                        Clears study progress, notes, QBank records, and revision checkboxes while preserving custom pearls.
                       </p>
                     </div>
                     <button
@@ -656,7 +642,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                   {resetConfirmation === 'progress' && (
                     <div className="p-3.5 bg-white rounded-xl border border-rose-300 space-y-2 animate-in fade-in">
                       <p className="text-xs text-rose-700 font-medium">
-                        Are you sure you want to reset all 19 subject checkboxes to 0%? This action cannot be undone.
+                        This clears your study progress, notes, QBank records, and revision checkboxes. Custom pearls and saved Telegram content will remain. This cannot be undone.
                       </p>
                       <div className="flex justify-end gap-2">
                         <button
@@ -671,7 +657,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                           onClick={handleResetProgress}
                           className="px-3 py-1 text-xs text-white bg-rose-600 rounded-lg font-bold cursor-pointer hover:bg-rose-700"
                         >
-                          Yes, Reset to 0%
+                          Yes, Reset Progress
                         </button>
                       </div>
                     </div>
@@ -680,9 +666,9 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                   {/* Full Wipe */}
                   <div className="p-3 rounded-xl bg-white border border-rose-100 flex items-center justify-between gap-3">
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900">Full Factory Wipe</h4>
+                      <h4 className="text-xs font-bold text-slate-900">Full App Reset</h4>
                       <p className="text-[11px] text-slate-500">
-                        Permanently clears entire database including mistake notebooks and grand test results.
+                        Resets this app&apos;s study data and preferences, including mistake notebooks and grand test results.
                       </p>
                     </div>
                     <button
@@ -697,7 +683,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                   {resetConfirmation === 'full' && (
                     <div className="p-3.5 bg-white rounded-xl border border-rose-300 space-y-2 animate-in fade-in">
                       <p className="text-xs text-rose-700 font-medium">
-                        Type <span className="font-bold">RESET</span> to confirm complete factory wipe:
+                        Type <span className="font-bold">RESET</span> to confirm resetting this app&apos;s study data and preferences:
                       </p>
                       <input
                         type="text"
@@ -720,7 +706,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                           disabled={typedConfirm.trim().toUpperCase() !== 'RESET'}
                           className="px-3.5 py-1 text-xs text-white bg-rose-600 rounded-lg font-bold disabled:opacity-40 cursor-pointer hover:bg-rose-700"
                         >
-                          Confirm Wipe
+                          Confirm Reset
                         </button>
                       </div>
                     </div>
@@ -734,7 +720,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
       <ModalFooter className="bg-slate-50/80">
         <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
           <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse" />
-          <span>Preferences sync live</span>
+          <span>Changes apply as you make them</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -747,11 +733,11 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => handleSave()}
+            onClick={onClose}
             className="hit-expand inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#007AFF] px-5 py-2 text-xs font-bold text-white shadow-2xs transition-all hover:bg-[#0071E3] active:scale-[0.98]"
           >
-            <Save className="h-3.5 w-3.5" />
-            <span>Save Changes</span>
+            <Check className="h-3.5 w-3.5" />
+            <span>Done</span>
           </button>
         </div>
       </ModalFooter>

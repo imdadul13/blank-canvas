@@ -1,12 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Play,
   Search,
   ChevronDown,
-  Target,
-  BookOpen,
-  Layers,
-  TrendingUp,
   Stethoscope,
   X,
   CheckCircle2,
@@ -18,9 +14,8 @@ import {
   Award,
   Filter,
   ArrowRight,
-  Sparkles,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { AppState, ErrorNotebookItem, DailyTask } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { getSubjectVisualTheme } from './SubjectAppleIcon';
@@ -39,21 +34,23 @@ interface PracticeViewProps {
   onAddTask?: (task: DailyTask) => void;
 }
 
-const PILLARS = [
-  { icon: Target,       label: 'Real Exam Format',      sub: '10-MCQ clinical drills',   color: '#007AFF', grad: 'from-blue-500 to-cyan-500'    },
-  { icon: BookOpen,     label: 'Deep Explanations',     sub: 'Distractor breakdown',      color: '#5856D6', grad: 'from-violet-500 to-purple-600' },
-  { icon: Layers,       label: 'Distractor Analysis',   sub: 'Learn why traps fail',      color: '#30D158', grad: 'from-emerald-500 to-teal-600'  },
-  { icon: TrendingUp,   label: 'Track Progress',        sub: 'Live pacing & accuracy',    color: '#FF9500', grad: 'from-amber-500 to-orange-500'   },
-  { icon: Stethoscope,  label: 'Clinical Retention',    sub: 'High-yield recalls',        color: '#FF3B30', grad: 'from-rose-500 to-red-600'       },
-];
-
 export const PracticeView: React.FC<PracticeViewProps> = ({
   state,
   onLaunchPracticeSession,
 }) => {
+  const reducedMotion = useReducedMotion();
+  const selectedSubjectPillRef = useRef<HTMLButtonElement | null>(null);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('medicine');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterHighYield, setFilterHighYield] = useState(false);
+
+  useEffect(() => {
+    selectedSubjectPillRef.current?.scrollIntoView({
+      behavior: reducedMotion ? 'auto' : 'smooth',
+      block: 'nearest',
+      inline: 'center',
+    });
+  }, [selectedSubjectId, reducedMotion]);
 
   const selectedSubject = useMemo(
     () => FMGE_SUBJECTS.find((s) => s.id === selectedSubjectId) || FMGE_SUBJECTS[0],
@@ -61,23 +58,20 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
   );
 
   const allTopicsList = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
     const all: Array<{
       subjectId: string; subjectName: string; subjectWeightage: number;
       id: string; name: string; isHighYield: boolean;
     }> = [];
     FMGE_SUBJECTS.forEach((sub) => {
       sub.topics.forEach((t) => {
-        if (!query || t.name.toLowerCase().includes(query) || sub.name.toLowerCase().includes(query)) {
-          all.push({
-            subjectId: sub.id, subjectName: sub.name, subjectWeightage: sub.weightage,
-            id: t.id, name: t.name, isHighYield: Boolean(t.isHighYield),
-          });
-        }
+        all.push({
+          subjectId: sub.id, subjectName: sub.name, subjectWeightage: sub.weightage,
+          id: t.id, name: t.name, isHighYield: Boolean(t.isHighYield),
+        });
       });
     });
     return all;
-  }, [searchQuery]);
+  }, []);
 
   const displayedTopics = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -92,7 +86,10 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
     return topics;
   }, [selectedSubject, searchQuery, filterHighYield]);
 
-  const highYieldCount = displayedTopics.filter((t) => t.isHighYield).length;
+  const highYieldCount = selectedSubject.topics.filter((topic) => {
+    const matchesSearch = !searchQuery.trim() || topic.name.toLowerCase().includes(searchQuery.trim().toLowerCase());
+    return matchesSearch && topic.isHighYield;
+  }).length;
   const subjectTheme = getSubjectVisualTheme(selectedSubject.id);
 
   return (
@@ -100,14 +97,10 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
 
       {/* ═══ HERO ═══ */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={reducedMotion ? false : { opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        transition={reducedMotion ? { duration: 0 } : { duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
         className="premium-page-hero relative rounded-[1.75rem] sm:rounded-[2.25rem] overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, #FFF5E6 0%, #FFE0A0 40%, #FFC860 70%, #FF9500 100%)',
-          boxShadow: '0 8px 40px rgba(255,149,0,0.14), 0 2px 8px rgba(0,0,0,0.06)',
-        }}
       >
         {/* Decorative right glow */}
         <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
@@ -116,15 +109,15 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
 
         {/* Animated pulse rings (top-right) */}
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 w-40 h-40 sm:w-56 sm:h-56 pointer-events-none">
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden sm:block w-40 h-40 sm:w-56 sm:h-56 pointer-events-none">
           <motion.div className="absolute inset-0 rounded-full border border-[#FF9500]/[0.15]"
-            animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} />
+            animate={reducedMotion ? {} : { scale: [1, 1.12, 1] }} transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }} />
           <motion.div className="absolute inset-4 rounded-full border border-[#FF9500]/[0.10]"
-            animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }} />
+            animate={reducedMotion ? {} : { scale: [1, 1.14, 1] }} transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }} />
           <div className="absolute inset-0 flex items-center justify-center">
             <motion.div
-              animate={{ opacity: [0.25, 0.5, 0.25] }}
-              transition={{ duration: 3, repeat: Infinity }}
+              animate={reducedMotion ? {} : { opacity: [0.32, 0.45, 0.32] }}
+              transition={{ duration: 7, repeat: Infinity }}
               className="w-14 h-14 rounded-full flex items-center justify-center"
               style={{ background: 'rgba(255,149,0,0.12)' }}
             >
@@ -133,9 +126,9 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           </div>
         </div>
 
-        <div className="relative z-10 p-5 sm:p-7 lg:p-8">
+        <div className="relative z-10 p-4 sm:p-7 lg:p-8">
           {/* Eyebrow */}
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-2 sm:mb-4">
             <div className="w-7 h-7 rounded-xl border flex items-center justify-center"
               style={{ background: 'rgba(255,149,0,0.15)', borderColor: 'rgba(180,80,0,0.2)' }}>
               <Activity className="h-3.5 w-3.5" style={{ color: '#7A3A00' }} />
@@ -148,7 +141,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           <div className="flex flex-col lg:flex-row lg:items-end gap-6 lg:gap-12">
             {/* Left: headline */}
             <div className="flex-1 min-w-0 space-y-3">
-              <h1 className="text-[36px] sm:text-[50px] font-black tracking-[-0.04em] leading-[0.88] text-[#1D1D1F]">
+              <h1 className="text-[30px] sm:text-[50px] font-black tracking-[-0.04em] leading-[0.92] text-[#1D1D1F]">
                 Clinical<br />
                 <span style={{ color: '#FF9500' }}>Vignettes</span>
                 <span className="text-[#1D1D1F]"> &amp; Drills</span>
@@ -158,7 +151,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               </p>
 
               {/* Feature pills */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
+              <div className="hidden sm:flex flex-wrap items-center gap-2 pt-1">
                 {[
                   { icon: Zap,          label: 'Active Recall',       color: '#FF9500' },
                   { icon: BarChart3,    label: 'Performance Insights', color: '#30D158' },
@@ -175,20 +168,20 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             </div>
 
             {/* Right: stat capsules */}
-            <div className="flex items-center gap-3 shrink-0 flex-wrap lg:flex-nowrap">
-              <div className="flex flex-col items-center px-5 py-3.5 rounded-2xl text-center"
+            <div className="grid grid-cols-3 gap-2 shrink-0 lg:flex lg:items-center lg:gap-3">
+              <div className="flex flex-col items-center px-2 sm:px-5 py-2.5 sm:py-3.5 rounded-2xl text-center"
                 style={{ background: 'rgba(255,255,255,0.50)', border: '1px solid rgba(180,80,0,0.15)' }}>
                 <span className="font-black text-[28px] text-[#1D1D1F] leading-none">{allTopicsList.length}</span>
                 <span className="text-[11px] font-medium mt-0.5" style={{ color: '#6E6E73' }}>Topics</span>
               </div>
-              <div className="flex flex-col items-center px-5 py-3.5 rounded-2xl text-center"
+              <div className="flex flex-col items-center px-2 sm:px-5 py-2.5 sm:py-3.5 rounded-2xl text-center"
                 style={{ background: 'rgba(255,149,0,0.12)', border: '1px solid rgba(255,149,0,0.25)' }}>
                 <span className="font-black text-[28px] leading-none" style={{ color: '#C85000' }}>
                   {allTopicsList.filter((t) => t.isHighYield).length}
                 </span>
                 <span className="text-[11px] font-medium mt-0.5" style={{ color: '#C85000' }}>High-Yield</span>
               </div>
-              <div className="flex flex-col items-center px-5 py-3.5 rounded-2xl text-center"
+              <div className="flex flex-col items-center px-2 sm:px-5 py-2.5 sm:py-3.5 rounded-2xl text-center"
                 style={{ background: 'rgba(48,209,88,0.10)', border: '1px solid rgba(48,209,88,0.2)' }}>
                 <span className="font-black text-[28px] leading-none" style={{ color: '#1A7A35' }}>19</span>
                 <span className="text-[11px] font-medium mt-0.5" style={{ color: '#1A7A35' }}>Subjects</span>
@@ -208,10 +201,12 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             return (
               <motion.button
                 key={sub.id}
+                ref={isSelected ? selectedSubjectPillRef : undefined}
                 type="button"
                 whileTap={{ scale: 0.95 }}
                 onClick={() => { setSelectedSubjectId(sub.id); setSearchQuery(''); setFilterHighYield(false); }}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-semibold shrink-0 transition-all cursor-pointer border ${
+                aria-pressed={isSelected}
+                className={`flex min-h-10 items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-semibold shrink-0 transition-all cursor-pointer border ${
                   isSelected
                     ? 'text-white shadow-sm'
                     : 'bg-white text-[#3A3A3C] border-[rgba(60,60,67,0.12)] hover:text-[#1D1D1F] hover:border-[rgba(60,60,67,0.22)] shadow-xs'
@@ -250,7 +245,8 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             type="button"
             whileTap={{ scale: 0.95 }}
             onClick={() => setFilterHighYield(!filterHighYield)}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-[12px] font-semibold transition-all cursor-pointer shrink-0 ${
+            aria-pressed={filterHighYield}
+            className={`flex min-h-11 items-center gap-1.5 px-3.5 py-2 rounded-xl border text-[12px] font-semibold transition-all cursor-pointer shrink-0 ${
               filterHighYield
                 ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
                 : 'bg-white text-[#3A3A3C] border-[rgba(60,60,67,0.12)] hover:border-amber-300 shadow-xs'
@@ -272,7 +268,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         key={selectedSubjectId}
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={reducedMotion ? { duration: 0 } : { duration: 0.3 }}
         className="relative overflow-hidden rounded-2xl sm:rounded-3xl border p-4 sm:p-5"
         style={{
           background: `linear-gradient(135deg, ${subjectTheme.color}08 0%, white 60%)`,
@@ -381,11 +377,10 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               {displayedTopics.map((topic, idx) => (
                 <motion.div
                   key={`${topic.subjectId}-${topic.id}`}
-                  initial={{ opacity: 0, x: -4 }}
+                  initial={reducedMotion ? false : { opacity: 0, x: -4 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.22, delay: idx * 0.02, ease: [0.16, 1, 0.3, 1] }}
-                  onClick={() => onLaunchPracticeSession(topic.subjectId, topic.id, topic.name)}
-                  className="group flex items-center justify-between gap-3 px-4 sm:px-6 py-4 hover:bg-[#F2F2F7]/60 transition-colors cursor-pointer"
+                  transition={reducedMotion ? { duration: 0 } : { duration: 0.22, delay: Math.min(idx * 0.012, 0.12), ease: [0.16, 1, 0.3, 1] }}
+                  className="group flex items-center justify-between gap-3 px-4 sm:px-6 py-3.5 transition-colors hover:bg-[#F2F2F7]/45"
                 >
                   {/* Left: accent + topic info */}
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
@@ -411,9 +406,6 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                           </span>
                         )}
                       </div>
-                      <p className="text-[11.5px] text-[#8E8E93] mt-0.5">
-                        10 clinical vignettes · FMGE pattern · instant breakdown
-                      </p>
                     </div>
                   </div>
 
@@ -424,7 +416,8 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                     whileTap={{ scale: 0.94 }}
                     transition={{ type: 'spring', stiffness: 450, damping: 22 }}
                     onClick={(e) => { e.stopPropagation(); onLaunchPracticeSession(topic.subjectId, topic.id, topic.name); }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-semibold text-white shrink-0 cursor-pointer transition-all shadow-xs group-hover:shadow-sm"
+                    aria-label={`Start practice session: ${topic.name}`}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 px-4 py-2 rounded-full text-[12px] font-semibold text-white shrink-0 cursor-pointer transition-all shadow-xs group-hover:shadow-sm"
                     style={{
                       background: `linear-gradient(135deg, ${subjectTheme.color} 0%, ${subjectTheme.color}CC 100%)`,
                       boxShadow: `0 2px 8px ${subjectTheme.color}35`,
@@ -440,33 +433,6 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* ═══ FEATURE PILLARS ═══ */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 px-1">
-          <Sparkles className="h-3.5 w-3.5 text-[#8E8E93]" />
-          <span className="text-[11px] font-bold uppercase tracking-widest text-[#8E8E93]">Why Practice Here</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          {PILLARS.map(({ icon: Icon, label, sub, color, grad }, i) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05 }}
-              className="relative overflow-hidden p-4 rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:border-[rgba(60,60,67,0.14)] transition-all group"
-            >
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"
-                style={{ background: `${color}05` }} />
-              <div className={`w-10 h-10 rounded-2xl bg-gradient-to-tr ${grad} text-white flex items-center justify-center mb-3 shadow-sm`}
-                style={{ boxShadow: `0 3px 10px ${color}35` }}>
-                <Icon className="h-5 w-5" />
-              </div>
-              <h4 className="font-bold text-[13px] text-[#1D1D1F] leading-tight">{label}</h4>
-              <p className="text-[11px] text-[#8E8E93] mt-0.5">{sub}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

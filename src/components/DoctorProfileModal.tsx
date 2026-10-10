@@ -36,7 +36,7 @@ import {
   isValidBaselineScore,
 } from '../utils/onboarding';
 import { AppStats, downloadBackupFile, normalizeAppState, saveAppState } from '../utils/storage';
-import { getNextFmgeSessionDate, getLocalDateKey } from '../utils/date';
+import { getLocalDateKey } from '../utils/date';
 import {
   calculateProtectedStudyStreak,
   canActivateDutyShield,
@@ -142,12 +142,10 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
     .toUpperCase();
 
   const daysRemaining = useMemo(() => {
-    const target = formData.examDate || getNextFmgeSessionDate();
-    const diff = new Date(target).getTime() - Date.now();
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    if (!isNaN(days) && days > 0) return days;
-    const fallbackDiff = new Date(getNextFmgeSessionDate()).getTime() - Date.now();
-    return Math.max(1, Math.ceil(fallbackDiff / (1000 * 60 * 60 * 24)));
+    if (!formData.examDate) return null;
+    const diff = new Date(`${formData.examDate}T00:00:00`).getTime() - Date.now();
+    if (Number.isNaN(diff)) return null;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }, [formData.examDate]);
 
   const formattedExamDate = useMemo(() => {
@@ -196,7 +194,10 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
       }, 500);
     } catch (err) {
       console.error('Failed to save settings:', err);
-      onClose();
+      setSyncFeedback({
+        kind: 'error',
+        text: 'Profile changes could not be fully saved. Your local settings remain available; check your connection and try again.',
+      });
     } finally {
       setIsSaving(false);
     }
@@ -244,6 +245,10 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         const parsed = JSON.parse(text);
         const imported = normalizeAppState(parsed);
         if (imported) {
+          const confirmed = window.confirm(
+            'Restore this backup and replace the study data currently open in the app? Export a backup first if you want to keep both copies.'
+          );
+          if (!confirmed) return;
           onImportState(imported);
           setSyncFeedback({ kind: 'success', text: 'Study data restored from the backup file.' });
           setTimeout(() => setSyncFeedback(null), 3000);
@@ -255,9 +260,10 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
       }
     };
     reader.readAsText(file);
+    e.target.value = '';
   };
 
-  const targetScoreBuffer = Math.max(0, (formData.targetScore || 200) - 150);
+  const targetScoreBuffer = Math.max(0, (formData.targetScore ?? 200) - 150);
 
   return createPortal(
     <div
@@ -301,7 +307,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   </h3>
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-teal-50 text-[#007AFF] border border-teal-200/70 shrink-0">
                     <ShieldCheck className="h-3 w-3 text-[#0071E3]" />
-                    FMGE 2026
+                    FMGE STUDY
                   </span>
                 </div>
 
@@ -335,17 +341,17 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 Target Score
               </span>
               <span className="text-xs sm:text-sm font-bold text-slate-900 font-display">
-                {formData.targetScore || 200} <span className="text-[10px] text-slate-400 font-normal">/300</span>
+                {formData.targetScore ?? 200} <span className="text-[10px] text-slate-400 font-normal">/300</span>
               </span>
             </div>
 
             <div className="bg-slate-50/80 backdrop-blur-xs rounded-2xl px-3 py-2 border border-slate-200/70 text-center">
               <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">
-                Countdown
+                Plan Countdown
               </span>
               <span className="text-xs sm:text-sm font-bold text-amber-600 font-display flex items-center justify-center gap-1">
                 <Flame className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                {daysRemaining}d left
+                {daysRemaining === null ? 'Set date' : daysRemaining < 0 ? 'Date passed' : `${daysRemaining}d left`}
               </span>
             </div>
 
@@ -354,7 +360,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 Daily Goal
               </span>
               <span className="text-xs sm:text-sm font-bold text-[#007AFF] font-display">
-                {formData.dailyStudyHourGoal || 6}h <span className="text-[10px] text-slate-400 font-normal">/day</span>
+                {formData.dailyStudyHourGoal ?? 6}h <span className="text-[10px] text-slate-400 font-normal">/day</span>
               </span>
             </div>
           </div>
@@ -439,7 +445,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   </div>
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/80">
                     <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
-                    {daysRemaining} days remaining
+                    {daysRemaining === null ? 'Set a target date' : daysRemaining < 0 ? 'Date has passed' : `${daysRemaining} days remaining`}
                   </span>
                 </div>
 
@@ -447,12 +453,12 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
                   <input
                     type="date"
-                    value={formData.examDate || '2026-06-28'}
+                    value={formData.examDate || ''}
                     onChange={(e) => setFormData({ ...formData, examDate: e.target.value })}
                     className="h-10 px-3.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none cursor-pointer"
                   />
                   <div className="text-xs text-slate-500 flex items-center gap-1.5">
-                    <span>Scheduled for:</span>
+                    <span>Planned for:</span>
                     <strong className="text-slate-900 font-semibold">{formattedExamDate}</strong>
                   </div>
                 </div>
@@ -460,14 +466,12 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 {/* One-Click Target Preset Chips */}
                 <div className="space-y-1.5 pt-1">
                   <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">
-                    Quick Sprint Presets
+                    Planning Shortcuts
                   </span>
                   <div className="flex flex-wrap items-center gap-1.5">
                     {[
-                      { label: 'FMGE June 2026', date: '2026-06-28' },
-                      { label: 'FMGE Dec 2026', date: '2026-12-15' },
-                      { label: '30-Day Sprint', date: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10) },
-                      { label: '60-Day Sprint', date: new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10) },
+                      { label: '30-day plan', date: getLocalDateKey(new Date(Date.now() + 30 * 86400000)) },
+                      { label: '60-day plan', date: getLocalDateKey(new Date(Date.now() + 60 * 86400000)) },
                     ].map((preset) => {
                       const isSelected = formData.examDate === preset.date;
                       return (
@@ -475,6 +479,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                           key={preset.label}
                           type="button"
                           onClick={() => setFormData({ ...formData, examDate: preset.date })}
+                          aria-pressed={isSelected}
                           className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                             isSelected
                               ? 'bg-[#007AFF] text-white shadow-2xs font-bold'
@@ -485,6 +490,16 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                         </button>
                       );
                     })}
+                    {formData.examDate && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, examDate: '' })}
+                        aria-pressed={false}
+                        className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100 transition-all cursor-pointer"
+                      >
+                        Clear date
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -679,7 +694,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   </span>
                   <div className="text-xl font-extrabold text-amber-600 font-display flex items-center gap-1">
                     <Flame className="h-4 w-4 fill-amber-500 text-amber-500" />
-                    <span>{daysRemaining}d</span>
+                    <span>{daysRemaining === null ? '—' : daysRemaining < 0 ? 'Passed' : `${daysRemaining}d`}</span>
                   </div>
                   <p className="text-[10px] text-slate-400">Until exam day</p>
                 </div>
@@ -689,7 +704,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                     Today Qs
                   </span>
                   <div className="text-xl font-extrabold text-slate-900 font-display">
-                    {stats.todayQuestionsSolved || 10}
+                    {stats.todayQuestionsSolved ?? 0}
                   </div>
                   <p className="text-[10px] text-slate-400">Solved today</p>
                 </div>
@@ -714,18 +729,18 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   <div className="p-3 bg-white rounded-2xl border border-slate-200/70 shadow-2xs">
                     <Calendar className="h-4 w-4 text-[#007AFF] mx-auto mb-1" />
                     <div className="text-xs font-bold text-slate-900">{formattedExamDate}</div>
-                    <p className="text-[10px] text-teal-700 font-semibold">{daysRemaining}d left</p>
+                    <p className="text-[10px] text-teal-700 font-semibold">{daysRemaining === null ? 'Set date' : daysRemaining < 0 ? 'Passed' : `${daysRemaining}d left`}</p>
                   </div>
 
                   <div className="p-3 bg-white rounded-2xl border border-slate-200/70 shadow-2xs">
                     <Target className="h-4 w-4 text-amber-500 mx-auto mb-1" />
-                    <div className="text-xs font-bold text-slate-900">{formData.targetScore || 200} / 300</div>
+                    <div className="text-xs font-bold text-slate-900">{formData.targetScore ?? 200} / 300</div>
                     <p className="text-[10px] text-slate-400">Target Score</p>
                   </div>
 
                   <div className="p-3 bg-white rounded-2xl border border-slate-200/70 shadow-2xs">
                     <Clock className="h-4 w-4 text-purple-600 mx-auto mb-1" />
-                    <div className="text-xs font-bold text-slate-900">{formData.dailyStudyHourGoal || 6}h / day</div>
+                    <div className="text-xs font-bold text-slate-900">{formData.dailyStudyHourGoal ?? 6}h / day</div>
                     <p className="text-[10px] text-slate-400">Daily Pacing</p>
                   </div>
                 </div>
@@ -826,8 +841,8 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
           {activeTab === 'cloud' && (
             <div className="space-y-6 animate-in fade-in duration-150">
               {/* Cloud Handshake Status — Apple iCloud Sky Squircle */}
-              <div className="p-4 sm:p-5 rounded-3xl bg-slate-50/80 border border-slate-200/80 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
+              <div className="p-4 sm:p-5 rounded-3xl bg-slate-50/80 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white shadow-xs shadow-sky-500/25 flex items-center justify-center shrink-0">
                     <Cloud className="h-5 w-5" />
                   </div>
@@ -852,7 +867,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   type="button"
                   onClick={handleForceSync}
                   disabled={isSyncing}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#0071E3] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98] shrink-0"
+                  className="inline-flex min-h-11 w-full sm:w-auto items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#0071E3] hover:bg-[#00524C] text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-[0.98] shrink-0"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
                   <span>{isSyncing ? 'Syncing...' : user && !isGuest ? 'Sync Now' : 'Save on Device'}</span>

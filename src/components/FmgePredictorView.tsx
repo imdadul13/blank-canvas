@@ -107,6 +107,11 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
     return calculatePredictionDashboardMetrics(predictions, state);
   }, [predictions, state]);
 
+  const topicsStarted = predictions.filter((topic) => topic.prepStatus.completionRate > 0).length;
+  const mcqAttemptsLogged = state.mcqAttempts?.length ?? 0;
+  const grandTestsLogged = state.grandTests?.length ?? 0;
+  const hasPersonalInputs = topicsStarted > 0 || mcqAttemptsLogged > 0 || grandTestsLogged > 0 || (state.errorNotebook?.length ?? 0) > 0;
+
   // 6. Today's strategic revision suggestions
   const todaysRevisions = useMemo(() => {
     return getTodaysPredictedRevisions(predictions, 5);
@@ -325,9 +330,18 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
 
   // Score status indicator
   const scoreStatus = useMemo(() => {
+    if (!hasPersonalInputs) {
+      return {
+        label: 'Blueprint baseline · not personalized',
+        color: '#5856D6',
+        bg: 'rgba(88,86,214,0.10)',
+        border: 'rgba(88,86,214,0.22)',
+        icon: BookOpen,
+      };
+    }
     if (totalPredictedScore >= 180) {
       return {
-        label: 'High Chance of Clearing',
+        label: 'Planning estimate above 180',
         color: '#30D158',
         bg: 'rgba(48,209,88,0.12)',
         border: 'rgba(48,209,88,0.3)',
@@ -336,7 +350,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
     }
     if (totalPredictedScore >= 150) {
       return {
-        label: 'On Track to Clear (≥150)',
+        label: 'Planning estimate above cutoff',
         color: '#30D158',
         bg: 'rgba(48,209,88,0.10)',
         border: 'rgba(48,209,88,0.25)',
@@ -344,22 +358,16 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       };
     }
     return {
-      label: 'Focus Needed (<150 Pass)',
+        label: 'Planning estimate below cutoff',
       color: '#FF9500',
       bg: 'rgba(255,149,0,0.12)',
       border: 'rgba(255,149,0,0.3)',
       icon: AlertTriangle,
     };
-  }, [totalPredictedScore]);
+  }, [totalPredictedScore, hasPersonalInputs]);
 
   // Gauge color by score
-  const gaugeColor = totalPredictedScore >= 150 ? '#30D158' : totalPredictedScore >= 120 ? '#FF9500' : '#FF3B30';
-
-  // Dynamic calculations for Confidence, Range, and Delta
-  const confidenceLevel = Math.min(88, Math.max(55, Math.round(58 + (metrics.immediateRevisions.length ? 14 : 20))));
-  const scoreRangeLow = Math.max(120, totalPredictedScore - 16);
-  const scoreRangeHigh = Math.min(290, totalPredictedScore + 16);
-  const scoreDelta = 18; // Positive progression marker vs initial baseline
+  const gaugeColor = !hasPersonalInputs ? '#C7C7CC' : totalPredictedScore >= 150 ? '#30D158' : totalPredictedScore >= 120 ? '#FF9500' : '#FF3B30';
 
   const StatusIcon = scoreStatus.icon;
 
@@ -375,7 +383,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
   // Gauge circumference
   const gaugeRadius = 54;
   const gaugeCircumference = 2 * Math.PI * gaugeRadius;
-  const gaugeOffset = gaugeCircumference * (1 - Math.min(1, Math.max(0, totalPredictedScore / 300)));
+  const gaugeOffset = gaugeCircumference * (1 - (hasPersonalInputs ? Math.min(1, Math.max(0, totalPredictedScore / 300)) : 0));
 
   return (
     <div
@@ -454,15 +462,15 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                   className="text-[11px] font-bold tracking-[0.12em] uppercase"
                   style={{ color: 'rgba(255,255,255,0.6)' }}
                 >
-                  FMGE Score Predictor
+                  FMGE Blueprint Planner
                 </span>
               </div>
               {/* Bold title */}
               <h1 className="text-[26px] sm:text-[32px] font-bold text-white leading-tight">
-                Your Predicted Score
+                Blueprint Planning Estimate
               </h1>
               <p className="text-[13px] leading-relaxed max-w-lg" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                AI-powered forecast based on your practice performance, subject mastery, and revision activity.
+                A study-priority estimate from NBE subject weights, high-yield topics, and your recorded preparation. It is not a calibrated exam-score forecast.
               </p>
             </div>
             {/* Date badge */}
@@ -540,10 +548,10 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                 className="text-[42px] font-bold leading-none font-['Plus_Jakarta_Sans']"
                 style={{ color: '#1D1D1F' }}
               >
-                {totalPredictedScore}
+                {hasPersonalInputs ? totalPredictedScore : '—'}
               </span>
               <span className="text-[13px] font-semibold mt-0.5" style={{ color: '#8E8E93' }}>
-                / 300
+                {hasPersonalInputs ? '/ 300' : 'No baseline'}
               </span>
             </div>
           </div>
@@ -561,54 +569,53 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
               </span>
             </div>
             <p className="text-[13px] leading-relaxed" style={{ color: '#8E8E93' }}>
-              Based on your practice performance, subject mastery, and revision activity.
+              {hasPersonalInputs
+                ? 'Use this as a planning signal. Your logged preparation changes topic priorities; actual mock scores are the best measure of exam readiness.'
+                : 'This is a blueprint-only baseline. Log practice, revisions, or a mock exam to personalize topic priorities.'}
             </p>
 
-            {/* Metric tiles */}
+            {/* Observed inputs, instead of uncalibrated confidence claims */}
             <div className="grid grid-cols-3 gap-3">
-              {/* Confidence */}
               <div
                 className="rounded-2xl p-3 flex flex-col gap-1 border"
                 style={{ background: 'rgba(0,122,255,0.06)', borderColor: 'rgba(0,122,255,0.15)' }}
               >
                 <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" style={{ color: '#007AFF' }} />
-                  <span className="text-[11px] font-bold" style={{ color: '#8E8E93' }}>Confidence</span>
+                  <Target className="w-3.5 h-3.5 shrink-0" style={{ color: '#007AFF' }} />
+                  <span className="text-[11px] font-bold" style={{ color: '#8E8E93' }}>Topics started</span>
                 </div>
                 <span className="text-[20px] font-bold leading-none" style={{ color: '#1D1D1F' }}>
-                  {confidenceLevel}%
+                  {topicsStarted}
                 </span>
-                <span className="text-[11px]" style={{ color: '#8E8E93' }}>Model precision</span>
+                <span className="text-[11px]" style={{ color: '#8E8E93' }}>of {predictions.length} topics</span>
               </div>
 
-              {/* Likely Range */}
               <div
                 className="rounded-2xl p-3 flex flex-col gap-1 border"
                 style={{ background: 'rgba(88,86,214,0.06)', borderColor: 'rgba(88,86,214,0.15)' }}
               >
                 <div className="flex items-center gap-1.5">
-                  <BarChart2 className="w-3.5 h-3.5 shrink-0" style={{ color: '#5856D6' }} />
-                  <span className="text-[11px] font-bold" style={{ color: '#8E8E93' }}>Likely Range</span>
+                  <Activity className="w-3.5 h-3.5 shrink-0" style={{ color: '#5856D6' }} />
+                  <span className="text-[11px] font-bold" style={{ color: '#8E8E93' }}>MCQ attempts</span>
                 </div>
                 <span className="text-[16px] font-bold leading-none whitespace-nowrap" style={{ color: '#1D1D1F' }}>
-                  {scoreRangeLow}–{scoreRangeHigh}
+                  {mcqAttemptsLogged}
                 </span>
-                <span className="text-[11px]" style={{ color: '#8E8E93' }}>95% interval</span>
+                <span className="text-[11px]" style={{ color: '#8E8E93' }}>practice questions</span>
               </div>
 
-              {/* Delta */}
               <div
                 className="rounded-2xl p-3 flex flex-col gap-1 border"
                 style={{ background: 'rgba(48,209,88,0.06)', borderColor: 'rgba(48,209,88,0.2)' }}
               >
                 <div className="flex items-center gap-1.5">
-                  <TrendingUp className="w-3.5 h-3.5 shrink-0" style={{ color: '#30D158' }} />
-                  <span className="text-[11px] font-bold" style={{ color: '#8E8E93' }}>Delta</span>
+                  <BookOpen className="w-3.5 h-3.5 shrink-0" style={{ color: '#30D158' }} />
+                  <span className="text-[11px] font-bold" style={{ color: '#8E8E93' }}>Mocks logged</span>
                 </div>
                 <span className="text-[20px] font-bold leading-none" style={{ color: '#30D158' }}>
-                  +{scoreDelta}
+                  {grandTestsLogged}
                 </span>
-                <span className="text-[11px]" style={{ color: '#8E8E93' }}>vs baseline</span>
+                <span className="text-[11px]" style={{ color: '#8E8E93' }}>full exam records</span>
               </div>
             </div>
           </div>
@@ -617,7 +624,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
         {/* Subject group breakdown bars */}
         <div className="mt-6 pt-5" style={{ borderTop: '1px solid rgba(60,60,67,0.1)' }}>
           <h3 className="text-[15px] font-bold mb-4" style={{ color: '#1D1D1F' }}>
-            Score Breakdown by Group
+            Blueprint estimate by subject group
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {scoreGroups.map((grp) => (
@@ -645,9 +652,9 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
         </div>
       </div>
 
-      {/* ── 4. Two-Column Grid: Biggest Risks + Strategic Actions ── */}
+      {/* ── 4. Two-Column Grid: Exam Priorities + Strategic Actions ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Biggest Risks */}
+        {/* Exam priorities */}
         <div
           className="rounded-2xl bg-white border shadow-sm p-5 flex flex-col gap-4"
           style={{ borderColor: 'rgba(60,60,67,0.1)' }}
@@ -663,10 +670,10 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
               </div>
               <div>
                 <h2 className="text-[15px] font-bold" style={{ color: '#1D1D1F' }}>
-                  Biggest Risks
+                  Exam Priorities
                 </h2>
                 <p className="text-[12px]" style={{ color: '#8E8E93' }}>
-                  Focus here to protect your passing margin
+                  High-yield topics and revision gaps to review
                 </p>
               </div>
             </div>
@@ -691,8 +698,8 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                 <ShieldCheck className="w-7 h-7" style={{ color: '#30D158' }} />
               </div>
               <p className="text-[13px] font-semibold text-center" style={{ color: '#8E8E93' }}>
-                No high-risk topics found.
-                <br />Great prep work!
+                No priority topics match these filters.
+                <br />Try another subject or tier.
               </p>
             </div>
           ) : (
@@ -700,8 +707,10 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
               {displayedRisks.map((item, idx) => {
                 const isVeryHigh = item.level === 'VERY_HIGH';
                 return (
-                  <motion.div
+                  <motion.button
+                    type="button"
                     key={item.topicId}
+                    aria-label={`Open exam priority analysis for ${item.topicName}`}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleOpenModal(item)}
                     className="relative flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all hover:bg-[#F2F2F7] group overflow-hidden"
@@ -739,14 +748,14 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                       {isVeryHigh ? 'Very High' : 'High'}
                     </span>
                     <ChevronRight className="w-4 h-4 shrink-0" style={{ color: '#8E8E93' }} />
-                  </motion.div>
+                  </motion.button>
                 );
               })}
             </div>
           )}
 
           <p className="text-[12px] pt-1" style={{ color: '#8E8E93', borderTop: '1px solid rgba(60,60,67,0.08)' }}>
-            Tap any topic to view AI analysis and study strategy.
+            Select a topic to view its rationale and study strategy.
           </p>
         </div>
 
@@ -768,7 +777,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                 Strategic Actions
               </h2>
               <p className="text-[12px]" style={{ color: '#8E8E93' }}>
-                Personalised steps to boost your score
+                Suggested next steps for your preparation
               </p>
             </div>
           </div>
@@ -870,10 +879,10 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div>
             <h2 className="text-[15px] font-bold" style={{ color: '#1D1D1F' }}>
-              Subject-wise Prediction
+              Subject Planning Estimates
             </h2>
             <p className="text-[12px]" style={{ color: '#8E8E93' }}>
-              Estimated score out of each subject's FMGE weightage
+              Blueprint-based marks estimate for each subject; use mock scores to judge readiness.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -1037,7 +1046,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
               { id: 'all', label: 'All Ranked' },
               { id: 'top', label: 'Top Tier 90+' },
               { id: 'high', label: 'High Yield 80–89' },
-              { id: 'risk', label: 'High Risk' },
+              { id: 'risk', label: 'Review Priority' },
             ].map((tier) => {
               const active = selectedTier === tier.id;
               return (

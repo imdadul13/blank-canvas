@@ -13,7 +13,6 @@ import {
   Calendar,
   BookmarkCheck,
   Check,
-  Lightbulb,
   BookOpen,
   ArrowLeft,
   ChevronRight,
@@ -397,15 +396,6 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
   const dailyGoalHours = state.settings.dailyStudyHourGoal || 6;
   const dailyGoalPercent = Math.min(100, Math.round((totalStudyMinutes / (dailyGoalHours * 60)) * 100));
 
-  // High-Yield Focus Tips rotating list
-  const focusTips = [
-    'Eliminate distractions. 25 minutes of deep focus is more powerful than hours of scattered study.',
-    'Review key clinical tables right after solving MCQs to solidify active recall.',
-    'Active recall produces 2.5x higher retention than passive reading of notes.',
-    'Focus on understanding the pathophysiology behind the diagnosis, not just memorizing the buzzword.',
-  ];
-  const [currentTipIndex, setCurrentTipIndex] = useState(0);
-
   return (
     <div
       className="space-y-4 sm:space-y-6 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 animate-in fade-in duration-150 pb-44 lg:pb-16 text-slate-900"
@@ -524,44 +514,6 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
             </div>
           </div>
 
-          {/* Bottom Telemetry Strip: Apple frosted glass row */}
-          <div className="pt-3 border-t border-[rgba(0,0,0,0.06)] flex flex-wrap items-center gap-3 sm:gap-6 text-xs text-[#1D1D1F]">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-white/80 border border-white/90 shadow-2xs flex items-center justify-center text-[#FF9500]">
-                <BookmarkCheck className="w-4 h-4 stroke-[2.2]" />
-              </div>
-              <div className="flex items-baseline gap-1.5 font-mono">
-                <span className="text-[11px] font-sans font-medium text-[#6E6E73]">Tasks:</span>
-                <span className="font-bold text-xs text-[#1D1D1F]">{completedTaskCount}/{totalTaskCount}</span>
-                <span className="font-bold text-[11px] text-[#FF9500]">({progressPercent}%)</span>
-              </div>
-            </div>
-
-            <span className="text-[#C7C7CC] hidden sm:inline">·</span>
-
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-white/80 border border-white/90 shadow-2xs flex items-center justify-center text-[#007AFF]">
-                <Clock className="w-4 h-4 stroke-[2.2]" />
-              </div>
-              <div className="flex items-baseline gap-1.5 font-mono">
-                <span className="text-[11px] font-sans font-medium text-[#6E6E73]">Focus Time:</span>
-                <span className="font-bold text-xs text-[#1D1D1F]">{studyTimeFormatted}</span>
-                <span className="text-[11px] font-sans text-[#8E8E93]">/ {dailyGoalHours}h</span>
-              </div>
-            </div>
-
-            <span className="text-[#C7C7CC] hidden sm:inline">·</span>
-
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-white/80 border border-white/90 shadow-2xs flex items-center justify-center text-[#30D158]">
-                <Target className="w-4 h-4 stroke-[2.2]" />
-              </div>
-              <div className="flex items-baseline gap-1.5 font-mono">
-                <span className="text-[11px] font-sans font-medium text-[#6E6E73]">Daily Goal:</span>
-                <span className="font-bold text-xs text-[#30D158]">{dailyGoalPercent}%</span>
-              </div>
-            </div>
-          </div>
         </div>
       </motion.header>
 
@@ -781,6 +733,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
               <div className="inline-flex p-1 bg-[#F2F2F7] rounded-full border border-[rgba(60,60,67,0.08)] text-xs font-semibold">
                 <button
                   type="button"
+                  aria-pressed={taskFilter === 'all'}
                   onClick={() => setTaskFilter('all')}
                   className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
                     taskFilter === 'all'
@@ -792,6 +745,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 </button>
                 <button
                   type="button"
+                  aria-pressed={taskFilter === 'pending'}
                   onClick={() => setTaskFilter('pending')}
                   className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
                     taskFilter === 'pending'
@@ -803,6 +757,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 </button>
                 <button
                   type="button"
+                  aria-pressed={taskFilter === 'completed'}
                   onClick={() => setTaskFilter('completed')}
                   className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
                     taskFilter === 'completed'
@@ -814,15 +769,6 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 </button>
               </div>
 
-              {totalTaskCount === 0 && (
-                <button
-                  type="button"
-                  onClick={handlePopulateFromPlan}
-                  className="text-xs font-semibold text-[#007AFF] hover:underline cursor-pointer"
-                >
-                  Auto-Populate Today's Plan
-                </button>
-              )}
             </div>
 
             {/* Task List Items */}
@@ -860,8 +806,10 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                         </button>
 
                         {/* Title & Metadata */}
-                        <div
-                          className="min-w-0 flex-1 cursor-pointer"
+                        <button
+                          type="button"
+                          aria-label={`Focus on ${task.title}`}
+                          className="min-w-0 flex-1 text-left cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]"
                           onClick={() => {
                             setActiveTaskId(task.id);
                             if (!isRunning) {
@@ -901,7 +849,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                               </>
                             )}
                           </div>
-                        </div>
+                        </button>
                       </div>
 
                       {/* Right: Duration & Actions */}
@@ -914,6 +862,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                         {!isCompleted && (
                           <button
                             type="button"
+                            aria-label={`Start focus session for ${task.title}`}
                             onClick={() => {
                               setActiveTaskId(task.id);
                               handleModeChange('pomodoro', (task.durationMinutes || 25) * 60);
@@ -930,6 +879,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                         {/* Delete Action */}
                         <button
                           type="button"
+                          aria-label={`Delete ${task.title}`}
                           onClick={() => onDeleteTask(task.id)}
                           className="text-[#C7C7CC] hover:text-[#FF3B30] p-1 rounded-lg hover:bg-[#FF3B30]/10 transition-colors opacity-60 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
                           title="Delete task"
@@ -1247,19 +1197,6 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset</span>
               </button>
-            </div>
-
-            {/* Focus Tip Card */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FFFBEB] to-[#FEF3C7]/40 border border-[#F59E0B]/20 space-y-1">
-              <div className="flex items-center gap-2 text-[#92400E] font-bold text-xs">
-                <div className="w-5 h-5 rounded-full bg-[#F59E0B]/20 flex items-center justify-center text-[#B45309]">
-                  <Lightbulb className="w-3 h-3" />
-                </div>
-                <span>Focus Tip</span>
-              </div>
-              <p className="text-xs text-[#92400E]/90 leading-relaxed pl-7 font-medium">
-                {focusTips[currentTipIndex]}
-              </p>
             </div>
 
             {/* Today's Progress Section: 4 Apple Bento Metric Tiles */}

@@ -104,6 +104,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
     Record<number, { selectedAnswer: string; isCorrect: boolean; timeTakenSeconds: number }>
   >({});
   const [sessionSummary, setSessionSummary] = useState<PracticeSessionSummary | null>(null);
+  const [activeSessionId, setActiveSessionId] = useState(context?.sessionId ?? '');
   const [isReviewingMistakes, setIsReviewingMistakes] = useState<boolean>(false);
   const [reviewMistakeIdx, setReviewMistakeIdx] = useState<number>(0);
 
@@ -159,6 +160,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
     setSessionSummary(null);
     setIsReviewingMistakes(false);
     setActiveElapsedSeconds(0);
+    setActiveSessionId(context.sessionId);
 
     fetchPracticeSessionQuestions(context)
       .then((loadedQuestions) => {
@@ -236,7 +238,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
       difficulty: 'high-yield',
       confidence: 'high',
       source: 'recommended_video_practice',
-      sessionId: context.sessionId,
+      sessionId: activeSessionId,
       isImageBased: Boolean(currentQ.imageUrl),
       imageCategory: currentQ.imageAsset?.imageCategory || currentQ.mediaType,
       imageUrl: currentQ.imageUrl,
@@ -249,14 +251,18 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
   const handleSkipQuestion = () => {
     if (!currentQ || isAnswerSubmitted) return;
     const timeTaken = Math.max(1, Math.round((Date.now() - questionStartTimeRef.current) / 1000));
-
-    setUserAnswers((prev) => ({
-      ...prev,
+    const updatedAnswers = {
+      ...userAnswers,
       [currentIdx]: {
         selectedAnswer: 'SKIPPED',
         isCorrect: false,
         timeTakenSeconds: timeTaken,
       },
+    };
+
+    setUserAnswers((prev) => ({
+      ...prev,
+      [currentIdx]: updatedAnswers[currentIdx],
     }));
 
     onRecordAttempt?.({
@@ -270,13 +276,13 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
       timeTakenSeconds: timeTaken,
       difficulty: 'high-yield',
       source: 'recommended_video_practice',
-      sessionId: context.sessionId,
+      sessionId: activeSessionId,
     });
 
-    handleNextQuestion();
+    handleNextQuestion(updatedAnswers);
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = (answersSnapshot = userAnswers) => {
     if (currentIdx + 1 < questions.length) {
       setCurrentIdx((prev) => prev + 1);
       setSelectedOption(null);
@@ -284,7 +290,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
       questionStartTimeRef.current = Date.now();
     } else {
       // Session Complete -> Compute Summary
-      const answersList = Object.values(userAnswers);
+      const answersList = Object.values(answersSnapshot);
       const totalAnswered = answersList.length;
       const correctCount = answersList.filter((a) => a.isCorrect).length;
       const incorrectCount = totalAnswered - correctCount;
@@ -293,12 +299,12 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
       const avgTime = totalAnswered > 0 ? Math.round(totalTime / totalAnswered) : 0;
 
       const userAnswersFormatted: Record<string, { selectedAnswer: string; selectedOptionId?: string; isCorrect: boolean; timeTakenSeconds: number }> = {};
-      Object.entries(userAnswers).forEach(([idx, ans]) => {
+      Object.entries(answersSnapshot).forEach(([idx, ans]) => {
         userAnswersFormatted[idx] = ans;
       });
 
       setSessionSummary({
-        sessionId: context.sessionId,
+        sessionId: activeSessionId,
         subjectId: context.subjectId,
         subjectName: context.subjectName,
         topicId: context.topicId,
@@ -318,6 +324,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
   const handlePracticeAgain = () => {
     setIsLoading(true);
+    setErrorMessage(null);
     setSessionSummary(null);
     setIsReviewingMistakes(false);
     setUserAnswers({});
@@ -329,12 +336,26 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
       ...context,
       sessionId: `session-${Date.now()}`,
     };
+    setActiveSessionId(freshContext.sessionId);
 
-    fetchPracticeSessionQuestions(freshContext).then((loaded) => {
-      setQuestions(loaded);
-      setIsLoading(false);
-      questionStartTimeRef.current = Date.now();
-    });
+    fetchPracticeSessionQuestions(freshContext)
+      .then((loaded) => {
+        if (loaded.length === 0) {
+          setErrorMessage('Could not load practice questions for this topic. Please try again.');
+          return;
+        }
+        setQuestions(loaded);
+        setCurrentIdx(0);
+        setSelectedOption(null);
+        setIsAnswerSubmitted(false);
+        questionStartTimeRef.current = Date.now();
+        setActiveElapsedSeconds(0);
+      })
+      .catch((err) => {
+        console.error('Failed to restart practice session:', err);
+        setErrorMessage('Error loading questions. Please try again.');
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const missedQuestionIndices = sessionSummary
@@ -368,6 +389,9 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
     <div className="overflow-y-auto text-[#1C1C1E]" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9200, backgroundColor: '#1D1D1F' }}>
       <div className="flex items-center justify-center p-0 sm:p-4 md:p-6" style={{ minHeight: '100vh' }}>
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${context.topicName} practice session`}
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 16 }}
@@ -449,7 +473,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
         )}
 
         {/* MODAL BODY */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0">
+        <div className="p-4 sm:p-6 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:pb-6 overflow-y-auto flex-1 min-h-0 overscroll-contain">
           {isLoading ? (
             <div className="py-16 flex flex-col items-center gap-5 text-center">
               <div className="relative w-16 h-16">
@@ -514,7 +538,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                 </h2>
 
                 <p className="text-xs sm:text-sm text-[#6E6E73] leading-relaxed max-w-2xl">
-                  10-question targeted clinical reinforcement drill completed for{' '}
+                  {sessionSummary.totalQuestions}-question targeted clinical reinforcement drill completed for{' '}
                   <span className="font-semibold text-[#1C1C1E]">{context.subjectName}</span> ·{' '}
                   <span className="font-medium text-[#1C1C1E]">{context.topicName}</span>.
                 </p>
@@ -996,6 +1020,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         <motion.button
                           key={opt.key}
                           type="button"
+                          aria-pressed={isSelected}
                           whileHover={{ scale: 1.008, y: -1 }}
                           whileTap={{ scale: 0.985 }}
                           transition={{ type: 'spring', stiffness: 450, damping: 25 }}
@@ -1317,7 +1342,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                 )}
 
                 {/* Footer Action Bar */}
-                <div className="flex items-center justify-between pt-3 border-t border-[#F0F3F2] sticky sm:static bottom-0 bg-[#FBFDFB]/95 backdrop-blur-md py-3 px-3.5 sm:px-0 sm:py-0 sm:bg-transparent z-10">
+                <div className="flex items-center justify-between gap-3 pt-3 border-t border-[#E5E7EB] sticky sm:static bottom-0 bg-white/95 backdrop-blur-xl py-3.5 px-3.5 -mx-4 sm:mx-0 sm:px-0 sm:py-0 sm:bg-transparent z-10 shadow-[0_-8px_24px_rgba(20,30,40,0.06)] sm:shadow-none pb-[calc(0.875rem+env(safe-area-inset-bottom))] sm:pb-0">
                   {!isAnswerSubmitted ? (
                     <>
                       <motion.button
@@ -1325,7 +1350,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                         onClick={handleSkipQuestion}
-                        className="text-xs sm:text-sm font-semibold text-[#6E6E73] hover:text-[#1C1C1E] px-3.5 py-2.5 rounded-xl hover:bg-[#F1F5F4] transition-colors cursor-pointer"
+                        className="min-h-11 text-xs sm:text-sm font-semibold text-[#6E6E73] hover:text-[#1C1C1E] px-3.5 py-2.5 rounded-xl hover:bg-[#F1F5F4] transition-colors cursor-pointer"
                       >
                         Skip Question
                       </motion.button>
@@ -1337,7 +1362,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                         onClick={handleSubmitAnswer}
                         disabled={!selectedOption}
-                        className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs sm:text-sm font-semibold shadow-xs disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-display"
+                        className="min-h-11 inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs sm:text-sm font-semibold shadow-xs disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-display"
                       >
                         <span>Submit Answer</span>
                         <ArrowRight className="w-4 h-4 stroke-[2.5]" />
@@ -1364,8 +1389,8 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.96 }}
                         transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                        onClick={handleNextQuestion}
-                        className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer font-display ml-auto"
+                        onClick={() => handleNextQuestion()}
+                        className="min-h-11 inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer font-display ml-auto"
                       >
                         <span>
                           {currentIdx + 1 < targetCount

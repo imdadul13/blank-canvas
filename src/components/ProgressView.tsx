@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   ArrowRight,
   ChevronRight,
+  ChevronDown,
   RotateCcw,
   Award,
   Compass,
@@ -201,19 +202,23 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-        className="premium-page-hero relative rounded-3xl overflow-hidden"
+        className={`relative rounded-3xl overflow-hidden ${currentSubTab === 'overview' ? 'premium-page-hero' : 'bg-transparent'}`}
         style={{
-          background: 'linear-gradient(135deg, #EAF8FF 0%, #C2EAFE 40%, #80D4F8 70%, #5AC8FA 100%)',
-          boxShadow: '0 8px 40px rgba(90,200,250,0.18), 0 2px 8px rgba(0,0,0,0.06)',
+          background: currentSubTab === 'overview' ? 'linear-gradient(135deg, #EAF8FF 0%, #C2EAFE 40%, #80D4F8 70%, #5AC8FA 100%)' : 'transparent',
+          boxShadow: currentSubTab === 'overview' ? '0 8px 40px rgba(90,200,250,0.18), 0 2px 8px rgba(0,0,0,0.06)' : 'none',
         }}
       >
+        {currentSubTab === 'overview' && <>
         {/* Decorative right glow */}
         <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
           style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(90,200,250,0.35) 0%, transparent 70%)' }} />
         {/* Top inner shine */}
         <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
 
-        <div className="relative z-10 px-5 sm:px-7 py-5 space-y-4">
+        </>}
+
+        <div className={`relative z-10 px-1 ${currentSubTab === 'overview' ? 'sm:px-7 py-5 space-y-4' : 'py-1'}`}>
+          {currentSubTab === 'overview' && <>
           {/* Top row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1.5">
@@ -241,10 +246,11 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               </span>
             </div>
           </div>
+          </>}
 
           {/* Sub-tab switcher */}
           <div className="flex items-center gap-1 p-1 rounded-2xl w-fit backdrop-blur-md border border-white/80 shadow-sm"
-            style={{ background: 'rgba(255,255,255,0.60)' }}>
+            style={{ background: currentSubTab === 'overview' ? 'rgba(255,255,255,0.60)' : 'rgba(255,255,255,0.82)' }}>
             {([
               { id: 'overview' as const, label: 'Overview', icon: BarChart3, badge: undefined as number | undefined },
               { id: 'errors' as const, label: 'Error Vault', icon: AlertTriangle, badge: state.errorNotebook?.length },
@@ -254,6 +260,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 key={id}
                 type="button"
                 onClick={() => handleSubTabChange(id)}
+                aria-pressed={currentSubTab === id}
                 className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[12px] font-bold transition-all cursor-pointer ${
                   currentSubTab === id ? 'text-[#1D1D1F]' : 'text-[#3A3A3C]/70 hover:text-[#1D1D1F]'
                 }`}
@@ -288,12 +295,12 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
               style={{ background: `radial-gradient(ellipse at 80% 40%, ${readinessStage.color}18 0%, transparent 65%)` }} />
 
-            <div className="relative z-10 p-6 sm:p-8">
-              <div className="flex flex-col lg:flex-row lg:items-center gap-8">
+            <div className={`relative z-10 ${readiness.score == null ? 'p-4 sm:p-6' : 'p-6 sm:p-8'}`}>
+              <div className={`${readiness.score == null ? 'flex flex-row items-center gap-4' : 'flex flex-col lg:flex-row lg:items-center gap-8'}`}>
                 {/* Gauge */}
-                <div className="flex flex-col items-center gap-4 shrink-0">
-                  <div className="relative">
-                    <svg width="160" height="160" viewBox="0 0 160 160" className="-rotate-90">
+                  <div className={`flex flex-col items-center shrink-0 ${readiness.score == null ? 'gap-2' : 'gap-4'}`}>
+                    <div className="relative">
+                    <svg width="160" height="160" viewBox="0 0 160 160" className={`-rotate-90 ${readiness.score == null ? 'h-28 w-28' : ''}`}>
                       <circle cx="80" cy="80" r="66" fill="none" stroke="rgba(60,60,67,0.08)" strokeWidth="13" />
                       <circle cx="80" cy="80" r="66" fill="none"
                         stroke={readinessStage.color} strokeWidth="13" strokeLinecap="round"
@@ -302,11 +309,11 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                         style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.22,1,0.36,1)', filter: readiness.score == null ? 'none' : `drop-shadow(0 0 8px ${readinessStage.color}35)` }} />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-[54px] font-black font-mono text-[#1D1D1F] leading-none">{readiness.score ?? '—'}</span>
+                      <span className={`${readiness.score == null ? 'text-[36px]' : 'text-[54px]'} font-black font-mono text-[#1D1D1F] leading-none`}>{readiness.score ?? '—'}</span>
                       <span className="text-[12px] text-[#8E8E93] font-mono font-bold tracking-wider">{readiness.score == null ? 'START HERE' : '/ 100'}</span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center gap-2.5">
+                  <div className={`flex flex-col items-center ${readiness.score == null ? 'gap-1.5' : 'gap-2.5'}`}>
                     <span className={`px-4 py-1.5 rounded-full text-[13px] font-bold ${readiness.score == null ? 'text-[#6E6E73]' : 'text-white'}`}
                       style={{ background: readiness.score == null ? '#F2F2F7' : readinessStage.color, boxShadow: readiness.score == null ? 'none' : `0 2px 8px ${readinessStage.color}30` }}>
                       {readinessStage.label}
@@ -319,32 +326,44 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 </div>
 
                 {/* Right: summary + 8-pillar grid */}
-                <div className="flex-1 space-y-5 min-w-0">
+                <div className={`flex-1 min-w-0 ${readiness.score == null ? 'space-y-3' : 'space-y-5'}`}>
                   <div className="space-y-1">
                     <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#8E8E93]">FMGE Readiness · {formattedToday}</p>
                     <p className="text-[14px] text-[#6E6E73] leading-relaxed max-w-lg">{readiness.summaryText}</p>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <details open={readiness.score != null} className="group/readiness">
+                    <summary className="mb-2 inline-flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-full border border-[rgba(60,60,67,0.1)] bg-white/75 px-3 text-[11px] font-semibold text-[#6E6E73] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40">
+                      Readiness areas <span className="font-mono text-[#8E8E93]">{readiness.components.length}</span>
+                      <ChevronDown className="h-3.5 w-3.5 transition-transform group-open/readiness:rotate-180" />
+                    </summary>
+                    <div className={`grid grid-cols-2 sm:grid-cols-4 ${readiness.score == null ? 'gap-1.5' : 'gap-2'}`}>
                     {readiness.components.map((comp) => {
                       const scoreVal = comp.status === 'no_data' ? 0 : comp.score;
                       const isGood = comp.status === 'good';
                       const isMod = comp.status === 'moderate' || comp.status === 'neutral';
                       const dotColor = comp.status === 'no_data' ? '#AEAEB2' : isGood ? '#30D158' : isMod ? '#FF9500' : '#FF3B30';
                       return (
-                        <div key={comp.id} className="p-3 rounded-2xl space-y-2.5"
+                        <div key={comp.id} className={`${readiness.score == null ? 'p-2 rounded-xl space-y-0.5' : 'p-3 rounded-2xl space-y-2.5'}`}
                           style={{ background: 'var(--color-surface-sunken)', border: '1px solid var(--color-hairline-soft)' }}>
                           <div className="flex items-center justify-between gap-1">
                             <span className="text-[10px] font-mono font-bold text-[#6E6E73] truncate">{comp.name}</span>
-                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor, boxShadow: `0 0 6px ${dotColor}` }} />
+                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor, boxShadow: readiness.score == null ? 'none' : `0 0 6px ${dotColor}` }} />
                           </div>
-                          <div className="text-[22px] font-black font-mono text-[#1D1D1F] leading-none">{comp.status === 'no_data' ? '—' : scoreVal}</div>
-                          <div className="h-[3px] rounded-full" style={{ background: 'var(--color-surface-muted)' }}>
-                            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${scoreVal}%`, background: dotColor }} />
-                          </div>
+                          {readiness.score == null ? (
+                            <span className="text-[10px] font-medium text-[#8E8E93]">Not tracked yet</span>
+                          ) : (
+                            <>
+                              <div className="text-[22px] font-black font-mono text-[#1D1D1F] leading-none">{comp.status === 'no_data' ? '—' : scoreVal}</div>
+                              <div className="h-[3px] rounded-full" style={{ background: 'var(--color-surface-muted)' }}>
+                                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${scoreVal}%`, background: dotColor }} />
+                              </div>
+                            </>
+                          )}
                         </div>
                       );
                     })}
-                  </div>
+                    </div>
+                  </details>
                 </div>
               </div>
             </div>
@@ -354,7 +373,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
           <section className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] font-black text-[#1D1D1F]">Performance Snapshot</h2>
-              <span className="text-[10px] font-mono font-bold text-[#007AFF] bg-[#007AFF]/10 px-2.5 py-1 rounded-lg border border-[#007AFF]/20 uppercase tracking-wide">Live Diagnostics</span>
+              <span className="text-[10px] font-mono font-bold text-[#007AFF] bg-[#007AFF]/10 px-2.5 py-1 rounded-lg border border-[#007AFF]/20 uppercase tracking-wide">Updated from your activity</span>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Hero accuracy tile — full color */}
@@ -478,7 +497,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                             {topic.accuracy}%
                           </span>
                         )}
-                        <button type="button" onClick={() => setSelectedDiagnosticSubjectId(topic.subjectId)}
+                        <button type="button" aria-label={`Open ${topic.subjectName} diagnostics for ${topic.topicName}`} onClick={() => setSelectedDiagnosticSubjectId(topic.subjectId)}
                           className="w-8 h-8 rounded-full bg-[#F2F2F7] hover:bg-[#1D1D1F] hover:text-white text-[#6E6E73] flex items-center justify-center transition-all cursor-pointer">
                           <ChevronRight className="w-4 h-4" />
                         </button>
@@ -530,7 +549,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h2 className="text-[15px] font-bold text-[#1D1D1F]">Subject Breakdown</h2>
-                <p className="text-[11.5px] text-[#8E8E93]">All 19 NBE disciplines · Click any row to diagnose</p>
+                <p className="text-[11.5px] text-[#8E8E93]">All 19 NBE disciplines · Filter a subject, then open its diagnosis</p>
               </div>
               <div className="relative w-full sm:w-56 shrink-0">
                 <Search className="w-4 h-4 text-[#8E8E93] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -546,7 +565,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 { id: 'paraclinical', label: `Para-Clinical (${counts.paraclinical})` },
                 { id: 'preclinical', label: `Pre-Clinical (${counts.preclinical})` },
               ].map((tab) => (
-                <button key={tab.id} type="button" onClick={() => setSelectedDiscipline(tab.id as any)}
+                <button key={tab.id} type="button" aria-pressed={selectedDiscipline === tab.id} onClick={() => setSelectedDiscipline(tab.id as any)}
                   className={`px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap cursor-pointer shrink-0 transition-all ${
                     selectedDiscipline === tab.id ? 'bg-[#1D1D1F] text-white shadow-sm' : 'bg-white text-[#6E6E73] border border-[rgba(60,60,67,0.12)] hover:bg-[#F2F2F7]'
                   }`}>
@@ -606,7 +625,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                     </div>
                     <div className="sm:col-span-2 flex sm:justify-end">
                       <button type="button" onClick={() => setSelectedDiagnosticSubjectId(sub.id)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11.5px] font-bold bg-[#F2F2F7] hover:bg-[#1D1D1F] hover:text-white text-[#1D1D1F] transition-all cursor-pointer">
+                        className="inline-flex min-h-11 items-center justify-center gap-1 px-3 py-1.5 rounded-full text-[11.5px] font-bold bg-[#F2F2F7] hover:bg-[#1D1D1F] hover:text-white text-[#1D1D1F] transition-all cursor-pointer">
                         Diagnose <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -660,7 +679,19 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                       </div>
                     );
                   })()}
-                  <div className="relative h-44 w-full cursor-pointer" onClick={() => setIsAccuracyTrendModalOpen(true)}>
+                  <div
+                    className="relative h-44 w-full cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]"
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Open detailed accuracy trend report"
+                    onClick={() => setIsAccuracyTrendModalOpen(true)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setIsAccuracyTrendModalOpen(true);
+                      }
+                    }}
+                  >
                     {[75, 50, 25].map((pct) => (
                       <div key={pct} className="absolute left-0 right-6 flex items-center"
                         style={{ bottom: `calc(${pct * 0.72}% + 14px)` }}>

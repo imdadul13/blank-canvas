@@ -58,6 +58,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [secondsLeft, setSecondsLeft] = useState<number>(50 * 60);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState<boolean>(false);
+  const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
   const [questions, setQuestions] = useState<MockQuestion[]>([]);
   const [addedErrorIds, setAddedErrorIds] = useState<Set<string>>(new Set());
   const [loggedToGT, setLoggedToGT] = useState<boolean>(false);
@@ -120,11 +121,13 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
     if (isOpen) {
       setPhase('intro');
       setCurrentIndex(0);
-      setSecondsLeft(examMode * 60);
       setShowSubmitConfirm(false);
+      setShowExitConfirm(false);
       setAddedErrorIds(new Set());
       setLoggedToGT(false);
-      setQuestions(generateMockQuestions(examMode));
+      const generatedQuestions = generateMockQuestions(examMode);
+      setQuestions(generatedQuestions);
+      setSecondsLeft(generatedQuestions.length * 60);
     }
   }, [isOpen]);
 
@@ -149,6 +152,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
   }, [phase]);
 
   const handleStartExam = () => {
+    setSecondsLeft(questions.length * 60);
     setPhase('testing');
     setCurrentIndex(0);
   };
@@ -223,6 +227,8 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
   const handleSaveAndNext = () => {
     if (currentIndex < questions.length - 1) {
       handleNavigateQuestion(currentIndex + 1);
+    } else {
+      setShowSubmitConfirm(true);
     }
   };
 
@@ -237,6 +243,8 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
     });
     if (currentIndex < questions.length - 1) {
       handleNavigateQuestion(currentIndex + 1);
+    } else {
+      setShowSubmitConfirm(true);
     }
   };
 
@@ -244,6 +252,31 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
     setShowSubmitConfirm(false);
     setPhase('review');
   };
+
+  const handleRequestClose = () => {
+    if (phase === 'testing') {
+      setShowExitConfirm(true);
+      return;
+    }
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      if (showExitConfirm) {
+        setShowExitConfirm(false);
+      } else if (showSubmitConfirm) {
+        setShowSubmitConfirm(false);
+      } else {
+        handleRequestClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, phase, showExitConfirm, showSubmitConfirm]);
 
   // Performance telemetry calculations
   const totalAnswered = useMemo(
@@ -275,21 +308,19 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
   // Log as Grand Test
   const handleLogToGrandTests = () => {
     if (!onLogGrandTest || loggedToGT) return;
-    const multiplier = 300 / Math.max(1, questions.length);
     const gt: GrandTest = {
       id: `gt_nbe_mock_${Date.now()}`,
-      title: `NBE ${questions.length}-MCQ ${questions.length >= 100 ? 'Full Paper' : 'Mini-Mock'} (#${new Date().toLocaleDateString()})`,
-      platform: 'Marrow',
+      title: `NBE-style ${questions.length}-question simulation (${new Date().toLocaleDateString()})`,
+      platform: 'NBE Mock',
       date: getLocalDateKey(),
       score: scaledScore,
       totalMarks: 300,
-      correctCount: Math.round(totalCorrect * multiplier),
-      incorrectCount: Math.round(totalIncorrect * multiplier),
-      skippedCount: Math.round(totalUnattempted * multiplier),
-      percentile: Math.min(99, Math.round(accuracy * 0.95)),
+      correctCount: totalCorrect,
+      incorrectCount: totalIncorrect,
+      skippedCount: totalUnattempted,
       weakSubjectIds: [],
       strongSubjectIds: [],
-      keyMistakesNotes: `NBE ${questions.length}-MCQ Exam Simulation completed with ${accuracy}% accuracy (${totalCorrect}/${questions.length} correct).`,
+      keyMistakesNotes: `OneShot ${questions.length}-question practice simulation completed with ${accuracy}% accuracy (${totalCorrect}/${questions.length} correct). The score is scaled to 300 marks for comparison; this is not an official grand test result.`,
     };
     onLogGrandTest(gt);
     setLoggedToGT(true);
@@ -324,21 +355,24 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
 
   return createPortal(
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="mock-practice-title"
       className={`fixed inset-0 z-[120] flex flex-col select-none ${
         isTcsIonSkin ? 'bg-[#f4f7f9] text-slate-800' : 'bg-slate-950/95 backdrop-blur-md text-slate-100'
       }`}
     >
       {/* ═══ Top CBT Examination Bar ═══ */}
       <header
-        className={`flex items-center justify-between px-4 sm:px-6 py-2.5 shrink-0 border-b transition-colors ${
+        className={`flex items-center justify-between px-2 sm:px-6 py-2.5 shrink-0 border-b transition-colors ${
           isTcsIonSkin
             ? 'bg-[#004e8c] border-[#003865] text-white shadow-sm'
             : 'bg-slate-900/95 backdrop-blur-xl border-white/10 text-white'
         }`}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <div
-            className={`p-1.5 rounded-xl border ${
+            className={`hidden shrink-0 p-1.5 rounded-xl border sm:block ${
               isTcsIonSkin
                 ? 'bg-white/10 text-white border-white/20'
                 : 'bg-[#007AFF] text-white border-[#007AFF]/30 shadow-sm shadow-[#007AFF]/25'
@@ -346,39 +380,43 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
           >
             <Award className="h-5 w-5" />
           </div>
-          <div>
-            <h2 className="text-xs sm:text-sm font-bold text-white tracking-tight">
+          <div className="min-w-0">
+            <h2 id="mock-practice-title" className="truncate text-xs sm:text-sm font-bold text-white tracking-tight">
+              <span className="sm:hidden">Practice</span>
+              <span className="hidden sm:inline">
               {isTcsIonSkin
-                ? `TCS iON CBT Assessment Simulation (${questions.length} Questions)`
+                ? `TCS iON-style practice (${questions.length} questions)`
                 : `NBE Computer-Based Test Simulation (${questions.length} MCQs)`}
+              </span>
             </h2>
-            <p className={`text-[10px] font-mono ${isTcsIonSkin ? 'text-sky-100' : 'text-slate-400'}`}>
-              National Board of Examinations Protocol • 1 Mark Each • No Negative Marking
+            <p className={`hidden text-[10px] font-mono sm:block ${isTcsIonSkin ? 'text-sky-100' : 'text-slate-400'}`}>
+              Practice simulation • 1 mark each • no negative marking
             </p>
           </div>
         </div>
 
         {/* Timer & Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-3">
           {/* Official TCS iON Skin Toggle */}
           <button
             type="button"
             onClick={() => setIsTcsIonSkin(!isTcsIonSkin)}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border cursor-pointer active:scale-95 ${
+            aria-pressed={isTcsIonSkin}
+            className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border cursor-pointer active:scale-95 ${
               isTcsIonSkin
                 ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-sm'
                 : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
             }`}
-            title="Toggle Authentic TCS iON Exam Simulation"
+            title="Toggle the TCS iON-inspired practice layout"
           >
             <Monitor className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{isTcsIonSkin ? 'Exit TCS iON Skin' : 'Official TCS iON Skin'}</span>
+            <span className="hidden sm:inline">{isTcsIonSkin ? 'Exit TCS iON-style layout' : 'TCS iON-style layout'}</span>
             <span className="sm:hidden">{isTcsIonSkin ? 'Dark' : 'iON'}</span>
           </button>
 
           {phase === 'testing' && (
             <div
-              className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full border font-mono font-bold text-xs ${
+              className={`flex items-center gap-1 px-2 sm:gap-1.5 sm:px-3.5 py-1 rounded-full border font-mono font-bold text-xs ${
                 isTcsIonSkin
                   ? 'bg-[#003865] text-amber-300 border-amber-400/40'
                   : secondsLeft <= 300
@@ -386,8 +424,8 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                   : 'bg-slate-800 text-sky-300 border-slate-700'
               }`}
             >
-              <Clock className="h-3.5 w-3.5" />
-              <span>{isTcsIonSkin ? `Time Left: ${formatTimer(secondsLeft)}` : formatTimer(secondsLeft)}</span>
+              <Clock className="hidden h-3.5 w-3.5 sm:block" />
+              <span role="timer" aria-live="off">{formatTimer(secondsLeft)}</span>
             </div>
           )}
 
@@ -395,7 +433,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
             <button
               type="button"
               onClick={() => setShowSubmitConfirm(true)}
-              className={`px-4 py-1.5 rounded-full font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95 ${
+              className={`px-2.5 sm:px-4 py-1.5 rounded-full font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95 ${
                 isTcsIonSkin
                   ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-700/30'
                   : 'bg-[#007AFF] hover:bg-[#0066D6] text-white shadow-[#007AFF]/25'
@@ -407,13 +445,14 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
 
           <button
             type="button"
-            onClick={onClose}
-            className={`p-2 rounded-full transition-all cursor-pointer active:scale-95 ${
+            onClick={handleRequestClose}
+            className={`p-1.5 sm:p-2 rounded-full transition-all cursor-pointer active:scale-95 ${
               isTcsIonSkin
                 ? 'bg-white/10 hover:bg-white/20 text-white'
                 : 'bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700/80'
             }`}
             title="Exit Simulator"
+            aria-label="Exit simulator"
           >
             <X className="h-4 w-4" />
           </button>
@@ -429,11 +468,19 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                 <Award className="h-7 w-7" />
               </div>
               <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
-                {examMode}-MCQ NBE Exam Simulation
+                Up to {examMode} Questions
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Test your speed, stamina, and clinical acumen under true NBE exam constraints.
+                Practice speed and stamina in a timed, exam-style format.
               </p>
+              <button
+                type="button"
+                onClick={() => setIsTcsIonSkin((current) => !current)}
+                aria-pressed={isTcsIonSkin}
+                className="sm:hidden inline-flex items-center justify-center rounded-full border border-slate-700 px-3 py-1.5 text-[11px] font-semibold text-slate-300"
+              >
+                {isTcsIonSkin ? 'Use dark practice layout' : 'Use TCS iON-style layout'}
+              </button>
             </div>
 
             {/* SwiftUI Segmented Mode Selector */}
@@ -442,53 +489,61 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                 type="button"
                 onClick={() => {
                   setExamMode(50);
-                  setSecondsLeft(50 * 60);
-                  setQuestions(generateMockQuestions(50));
+                  const generatedQuestions = generateMockQuestions(50);
+                  setQuestions(generatedQuestions);
+                  setSecondsLeft(generatedQuestions.length * 60);
                 }}
+                aria-pressed={examMode === 50}
                 className={`flex-1 py-2.5 px-4 rounded-full font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 ${
                   examMode === 50
                     ? 'bg-[#007AFF] text-white shadow-md font-extrabold'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <span>50 MCQs • 50 Mins</span>
+                  <span>Up to 50 Questions</span>
                 <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-900/30 font-semibold">Sprint</span>
               </button>
               <button
                 type="button"
                 onClick={() => {
                   setExamMode(150);
-                  setSecondsLeft(150 * 60);
-                  setQuestions(generateMockQuestions(150));
+                  const generatedQuestions = generateMockQuestions(150);
+                  setQuestions(generatedQuestions);
+                  setSecondsLeft(generatedQuestions.length * 60);
                 }}
+                aria-pressed={examMode === 150}
                 className={`flex-1 py-2.5 px-4 rounded-full font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 ${
                   examMode === 150
                     ? 'bg-[#007AFF] text-white shadow-md font-extrabold'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <span>150 MCQs • 150 Mins</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-900/30 font-semibold">Paper 1/2 Stamina</span>
+                  <span>Up to 150 Questions</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-900/30 font-semibold">Extended</span>
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-1">
-                <div className="text-slate-400 font-mono text-[10px]">TOTAL QUESTIONS</div>
-                <div className="text-base font-bold text-white">{examMode} MCQs</div>
-                <div className="text-[10px] text-slate-400">{examMode === 150 ? 'All 19 NBE Subjects' : 'High-Yield Core'}</div>
+                <div className="text-slate-400 font-mono text-[10px]">QUESTIONS IN THIS SESSION</div>
+                <div className="text-base font-bold text-white">{questions.length}</div>
+                <div className="text-[10px] text-slate-400">
+                  {questions.length < examMode
+                    ? `Available verified questions (up to ${examMode})`
+                    : examMode === 150 ? 'Across the available subject bank' : 'High-yield core topics'}
+                </div>
               </div>
               <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-1">
                 <div className="text-slate-400 font-mono text-[10px]">TIME ALLOTTED</div>
-                <div className="text-base font-bold text-sky-400 font-mono">{examMode} Minutes</div>
-                <div className="text-[10px] text-slate-400">60s / question benchmark</div>
+                <div className="text-base font-bold text-sky-400 font-mono">{questions.length} Minutes</div>
+                <div className="text-[10px] text-slate-400">60 seconds per available question</div>
               </div>
             </div>
 
             {/* Color Palette Legend */}
             <div className="p-4 rounded-2xl bg-slate-800/50 border border-slate-800 space-y-2.5 text-xs">
               <div className="font-bold text-slate-300 font-mono text-[11px] uppercase tracking-wider">
-                Official NBE Question Palette Legend
+                Exam-style question palette
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
                 <div className="flex items-center gap-2">
@@ -517,9 +572,10 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
             <button
               type="button"
               onClick={handleStartExam}
+              disabled={questions.length === 0}
               className="w-full py-3.5 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white font-bold text-sm shadow-lg shadow-[#007AFF]/25 transition-all transform active:scale-95 cursor-pointer flex items-center justify-center gap-2"
             >
-              <span>I am Ready • Begin Examination</span>
+              <span>{questions.length ? 'Begin Timed Practice' : 'No questions available'}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -530,9 +586,9 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
       {phase === 'testing' && currentQ && (
         isTcsIonSkin ? (
           /* ═══ Authentic TCS iON Exam Interface ═══ */
-          <main className="flex-1 flex flex-col md:flex-row overflow-hidden bg-[#e5edf5] text-slate-800">
+          <main className="flex-1 min-h-0 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden bg-[#e5edf5] text-slate-800">
             {/* Left Question Area */}
-            <div className="flex-1 flex flex-col justify-between bg-white border-r border-[#b0c4de] overflow-y-auto">
+            <div className="flex-none md:flex-1 flex flex-col justify-between bg-white border-r border-[#b0c4de] md:overflow-y-auto">
               <div>
                 {/* TCS iON Section Bar */}
                 <div className="flex items-center justify-between px-5 py-2.5 bg-[#dbe8f5] border-b border-[#b0c4de] text-xs font-bold text-[#004e8c]">
@@ -598,7 +654,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                     onClick={handleMarkReviewAndNext}
                     className="px-4 py-2 rounded-md bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
                   >
-                    Mark for Review &amp; Next
+                    {currentIndex === questions.length - 1 ? 'Mark for Review & Submit' : 'Mark for Review & Next'}
                   </button>
                   <button
                     type="button"
@@ -624,7 +680,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                     onClick={handleSaveAndNext}
                     className="px-5 py-2 rounded-md bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
                   >
-                    Save &amp; Next
+                    {currentIndex === questions.length - 1 ? 'Submit Exam' : 'Save & Next'}
                   </button>
                 </div>
               </div>
@@ -635,12 +691,11 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
               {/* Candidate Info Box */}
               <div className="p-3 bg-white rounded-lg border border-[#b0c4de] shadow-xs flex items-center gap-3">
                 <div className="h-14 w-12 bg-slate-200 border border-slate-300 rounded flex items-center justify-center text-[10px] text-slate-500 font-mono font-bold text-center">
-                  CANDIDATE PHOTO
+                  PRACTICE
                 </div>
                 <div className="text-[11px] leading-tight text-slate-700 space-y-0.5">
-                  <div className="font-bold text-slate-900">Dr. FMGE Candidate</div>
-                  <div className="text-slate-500 font-mono">Roll: 26090142</div>
-                  <div className="text-slate-500 font-mono">System: TCS-LAB-42</div>
+                  <div className="font-bold text-slate-900">Practice Candidate</div>
+                  <div className="text-slate-500">Local simulation session</div>
                 </div>
               </div>
 
@@ -727,9 +782,9 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
           </main>
         ) : (
           /* ═══ Modern Dark Exam Screen ═══ */
-          <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
+          <main className="flex-1 min-h-0 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
             {/* Left: Active Question Area */}
-            <div className="flex-1 flex flex-col justify-between p-4 sm:p-6 overflow-y-auto border-r border-slate-800">
+            <div className="flex-none md:flex-1 flex flex-col justify-between p-4 sm:p-6 md:overflow-y-auto border-r border-slate-800">
               <div className="space-y-4 max-w-3xl">
                 {/* Question Meta Bar */}
                 <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -737,14 +792,15 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                     <span className="px-3 py-0.5 rounded-full bg-[#007AFF]/15 text-sky-300 font-mono font-bold text-xs border border-[#007AFF]/25">
                       Question {currentIndex + 1} of {questions.length}
                     </span>
-                    <span className="text-xs text-slate-400 font-mono">
+                    <span className="hidden max-w-[50%] truncate text-xs text-slate-400 font-mono sm:inline">
                       {currentQ.subjectName} • {currentQ.topicName}
                     </span>
                   </div>
 
                   <button
-                    type="button"
-                    onClick={handleToggleMarkReview}
+                  type="button"
+                  onClick={handleToggleMarkReview}
+                  aria-pressed={currentQ.status === 'review' || currentQ.status === 'answered-review'}
                     className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer border active:scale-95 ${
                       currentQ.status === 'review' || currentQ.status === 'answered-review'
                         ? 'bg-[#AF52DE]/20 text-purple-200 border-[#AF52DE]/40'
@@ -774,6 +830,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                         key={opt.optionId}
                         type="button"
                         onClick={() => handleSelectOption(opt.key)}
+                        aria-pressed={isSelected}
                         className={`w-full flex items-start gap-3 p-4 rounded-2xl text-left text-xs sm:text-sm transition-all cursor-pointer border active:scale-[0.99] ${
                           isSelected
                             ? 'bg-[#007AFF]/15 text-white border-[#007AFF] shadow-md shadow-[#007AFF]/15'
@@ -797,7 +854,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
               </div>
 
               {/* Bottom Question Controls */}
-              <div className="flex items-center justify-between gap-3 pt-4 mt-6 border-t border-slate-800">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-4 mt-6 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={handleClearResponse}
@@ -807,13 +864,13 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                   Clear Response
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
                   <button
                     type="button"
                     onClick={handleMarkReviewAndNext}
                     className="flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-[#AF52DE]/20 hover:bg-[#AF52DE]/30 text-purple-200 font-bold text-xs border border-[#AF52DE]/40 shadow-sm transition-all cursor-pointer active:scale-95"
                   >
-                    <span>Mark Review &amp; Next</span>
+                    <span>{currentIndex === questions.length - 1 ? 'Review & Submit' : 'Mark Review & Next'}</span>
                   </button>
 
                   <button
@@ -831,7 +888,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                     onClick={handleSaveAndNext}
                     className="flex items-center gap-1 px-4.5 py-1.5 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white font-bold text-xs shadow-md shadow-[#007AFF]/25 transition-all cursor-pointer active:scale-95"
                   >
-                    <span>Save &amp; Next</span>
+                    <span>{currentIndex === questions.length - 1 ? 'Submit Exam' : 'Save & Next'}</span>
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -866,6 +923,8 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                           isCurrent ? 'ring-2 ring-white ring-offset-1 ring-offset-slate-900 scale-105' : ''
                         }`}
                         title={`Question ${idx + 1} (${q.status})`}
+                        aria-label={`Question ${idx + 1}, ${q.status.replaceAll('-', ' ')}`}
+                        aria-current={isCurrent ? 'step' : undefined}
                       >
                         {idx + 1}
                       </button>
@@ -897,13 +956,13 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
       {/* ═══ Submission Confirmation Modal ═══ */}
       {showSubmitConfirm && (
         <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="max-w-md w-full bg-slate-900 border border-slate-700 rounded-3xl p-6 space-y-5 shadow-2xl">
+              <div className="max-w-md w-full bg-slate-900 border border-slate-700 rounded-3xl p-6 space-y-5 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="mock-submit-title">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-400/30">
                 <AlertTriangle className="h-6 w-6" />
               </div>
               <div>
-                <h4 className="font-bold text-white text-base">Submit Examination?</h4>
+                <h4 id="mock-submit-title" className="font-bold text-white text-base">Submit practice session?</h4>
                 <p className="text-xs text-slate-400">Review your final response counts below.</p>
               </div>
             </div>
@@ -943,6 +1002,38 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
         </div>
       )}
 
+      {showExitConfirm && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+          <div className="max-w-md w-full bg-slate-900 border border-slate-700 rounded-3xl p-6 space-y-5 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="mock-exit-title">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-2xl bg-rose-500/15 text-rose-300 border border-rose-400/30">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div>
+                <h4 id="mock-exit-title" className="font-bold text-white text-base">Leave this practice session?</h4>
+                <p className="text-xs text-slate-400">Your answers and timer will be cleared if you exit.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowExitConfirm(false)}
+                className="flex-1 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 cursor-pointer"
+              >
+                Continue session
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs cursor-pointer"
+              >
+                Exit session
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ═══ Phase 3: Comprehensive Diagnostic Review ═══ */}
       {phase === 'review' && (
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 max-w-4xl mx-auto w-full">
@@ -951,7 +1042,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-sky-400 font-mono">
-                  EXAMINATION RESULTS &amp; PASS GAP
+                  PRACTICE RESULTS
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-black text-white mt-0.5 tracking-tight">
                   {totalCorrect} / {questions.length} Correct ({accuracy}%)
@@ -970,9 +1061,9 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                     : 'bg-rose-500/20 border-rose-400 text-rose-300'
                 }`}
               >
-                <div className="text-base">{isPassing ? 'PASSED CUTOFF' : 'NEEDS REVISION'}</div>
+                <div className="text-base">{isPassing ? 'Above practice benchmark' : 'Below practice benchmark'}</div>
                 <div className="text-[10px] font-mono font-normal">
-                  {isPassing ? `+${scaledScore - 150} above 150 cutoff` : `${150 - scaledScore} marks to 150`}
+                  {isPassing ? `+${scaledScore - 150} above the 150-mark benchmark` : `${150 - scaledScore} marks below the 150-mark benchmark`}
                 </div>
               </div>
             </div>
@@ -989,7 +1080,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
               </div>
               <div className="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700">
                 <div className="text-slate-400 text-[10px]">AVG SPEED</div>
-                <div className="text-sky-300 font-bold text-base">{avgSecondsPerQuestion}s / Q</div>
+                <div className="text-sky-300 font-bold text-base">{totalAnswered ? `${avgSecondsPerQuestion}s / Q` : '—'}</div>
               </div>
             </div>
 
@@ -1002,7 +1093,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                   disabled={loggedToGT}
                   className="px-4.5 py-2 rounded-full bg-[#007AFF] hover:bg-[#0066D6] disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold text-xs shadow-md shadow-[#007AFF]/25 transition-all cursor-pointer active:scale-95"
                 >
-                  {loggedToGT ? 'Logged to Grand Tests' : 'Save to Grand Test Ledger'}
+                  {loggedToGT ? 'Simulation saved' : 'Save simulation to history'}
                 </button>
               </div>
             )}

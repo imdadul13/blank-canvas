@@ -132,6 +132,10 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
     });
   }, [state.subjectProgress, state.topicsState]);
 
+  const hasRevisionActivity = subjectsWithMetrics.some(
+    (item) => item.r1Done + item.r2Done + item.r3Done > 0
+  );
+
   const sorted = useMemo(() => {
     let list = [...subjectsWithMetrics];
     if (sortBy === 'priority') list.sort((a, b) => b.subject.weightage - a.subject.weightage);
@@ -189,7 +193,7 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem]"
+        className="revision-matrix-hero relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem]"
         style={{
           background: 'linear-gradient(135deg, #0A2540 0%, #1A3A5C 40%, #0E4F8C 70%, #0070CC 100%)',
           boxShadow: '0 8px 40px rgba(0,112,204,0.28), 0 2px 8px rgba(0,0,0,0.12)',
@@ -244,34 +248,7 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
               </div>
             </div>
 
-            {/* Right: 3 phase summary pills */}
-            <div className="flex sm:flex-row lg:flex-col gap-2.5 sm:gap-3 lg:gap-2 shrink-0">
-              {[
-                { label: 'R1 Foundation', pct: stats.r1Percentage || 0, done: stats.completedR1Topics || 0, color: '#0891B2', icon: BookOpen },
-                { label: 'R2 Rapid Review', pct: stats.r2Percentage || 0, done: stats.completedR2Topics || 0, color: '#D97706', icon: RotateCcw },
-                { label: 'R3 Final Sprint', pct: stats.r3Percentage || 0, done: stats.completedR3Topics || 0, color: '#E11D48', icon: Target },
-              ].map(({ label, pct, done, color, icon: Icon }) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl"
-                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.10)' }}
-                >
-                  <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: `${color}30` }}>
-                    <Icon className="h-3.5 w-3.5" style={{ color }} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-semibold text-white/50 uppercase tracking-wider leading-none">{label}</div>
-                    <div className="text-[13px] font-bold text-white leading-tight mt-0.5">
-                      {done}
-                      <span className="text-white/40 text-[10px] font-normal"> / {stats.totalTopics}</span>
-                      <span className="ml-1.5 font-mono text-[11px]" style={{ color }}>{pct}%</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        </div>
         </div>
       </motion.div>
 
@@ -444,12 +421,15 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
               return (
                 <div key={item.subject.id}>
                   {/* Summary row */}
-                  <motion.div
+                  <motion.button
+                    type="button"
                     initial={{ opacity: 0, x: -4 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.25, delay: idx * 0.025 }}
                     onClick={() => setExpandedId(isExpanded ? null : item.subject.id)}
-                    className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto_auto_auto] gap-2 px-4 sm:px-6 py-3 hover:bg-slate-50/70 cursor-pointer transition-colors group"
+                    aria-expanded={isExpanded}
+                    aria-controls={`revision-${item.subject.id}-topics`}
+                    className="w-full text-left border-0 bg-transparent grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto_auto_auto] gap-2 px-4 sm:px-6 py-3 hover:bg-slate-50/70 cursor-pointer transition-colors group"
                   >
                     {/* Subject info */}
                     <div className="flex items-center gap-3 min-w-0">
@@ -512,13 +492,14 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
                         <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
                       </motion.div>
                     </div>
-                  </motion.div>
+                  </motion.button>
 
                   {/* Expanded topic list */}
                   <AnimatePresence>
                     {isExpanded && (
                       <motion.div
                         key="expanded"
+                        id={`revision-${item.subject.id}-topics`}
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
@@ -670,7 +651,8 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
             <div className="p-3.5 space-y-2">
               {[
                 {
-                  label: 'Continue Revision', sub: 'Pick up where you left off',
+                  label: hasRevisionActivity ? 'Continue Revision' : 'Start First Revision',
+                  sub: hasRevisionActivity ? 'Pick up where you left off' : 'Begin with a high-priority subject',
                   icon: Play, iconBg: '#007AFF', iconFill: true,
                   onClick: handleContinueRevision,
                 },

@@ -149,7 +149,7 @@ export const AppSplashScreen: React.FC<AppSplashScreenProps> = ({
         {/* ── 4. Subtle Clinical Safety Badge at Bottom ── */}
         <div className="mt-8 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-black/[0.06] shadow-xs text-[10.5px] font-medium text-[#6E6E73] font-mono">
           <ShieldCheck className="h-3.5 w-3.5 text-[#007AFF]" />
-          <span>NBE FMGE 2026 Ready</span>
+          <span>FMGE Study Ready</span>
         </div>
       </motion.div>
     </div>

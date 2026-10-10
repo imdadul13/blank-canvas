@@ -22,6 +22,7 @@ import {
   ArrowRight,
   Headphones,
   Lightbulb,
+  ChevronDown,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MedicalPearl, AppState } from '../types';
@@ -438,20 +439,6 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
     {/* Action pills */}
     <div className="flex flex-wrap items-center gap-2 mt-4">
-      {duePearls.length > 0 && (
-        <motion.button
-          type="button"
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.96 }}
-          onClick={() => { setSrsIndex(0); setIsSrsAnswerRevealed(false); setIsSrsReviewOpen(true); }}
-          className="px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-          style={{ background: '#BF5AF2', color: '#fff', boxShadow: '0 4px 14px rgba(191,90,242,0.35)' }}
-        >
-          <Flame className="h-3.5 w-3.5 fill-white text-white animate-pulse" />
-          <span>Review Due ({duePearls.length})</span>
-        </motion.button>
-      )}
-
       <motion.button
         type="button"
         whileHover={{ scale: 1.03 }}
@@ -498,9 +485,9 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="inline-flex p-1 rounded-2xl border shadow-sm" style={{ background: 'rgba(255,255,255,0.85)', borderColor: 'rgba(255,255,255,0.8)' }}>
           {[
-            { id: 'all' as KnowledgeViewMode, label: 'All Knowledge', icon: Layers },
-            { id: 'synthesizer' as KnowledgeViewMode, label: 'Clinical Synthesizer', icon: Brain },
-            { id: 'vault' as KnowledgeViewMode, label: `Revision Vault (${allPearls.length})`, icon: BookOpen },
+            { id: 'all' as KnowledgeViewMode, label: 'All Knowledge', compactLabel: 'All', icon: Layers },
+            { id: 'synthesizer' as KnowledgeViewMode, label: 'Clinical Synthesizer', compactLabel: 'Synthesize', icon: Brain },
+            { id: 'vault' as KnowledgeViewMode, label: `Revision Vault (${allPearls.length})`, compactLabel: 'Vault', icon: BookOpen },
           ].map((tab) => {
             const isActive = activeViewMode === tab.id;
             const TabIcon = tab.icon;
@@ -508,8 +495,9 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               <button
                 key={tab.id}
                 type="button"
+                aria-pressed={isActive}
                 onClick={() => setActiveViewMode(tab.id)}
-                className="relative px-3.5 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 select-none"
+                className="relative px-2.5 sm:px-4 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 shrink-0 select-none"
                 style={{ color: isActive ? '#BF5AF2' : '#8E8E93' }}
               >
                 {isActive && (
@@ -521,7 +509,8 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   />
                 )}
                 <TabIcon className="h-3.5 w-3.5 relative z-10 stroke-[2.2]" style={{ color: isActive ? '#BF5AF2' : '#8E8E93' }} />
-                <span className="relative z-10 whitespace-nowrap">{tab.label}</span>
+                <span className="relative z-10 whitespace-nowrap sm:hidden">{tab.compactLabel}</span>
+                <span className="relative z-10 whitespace-nowrap hidden sm:inline">{tab.label}</span>
               </button>
             );
           })}
@@ -932,13 +921,16 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
           {/* Drug of Choice & Treatment Protocol */}
           {generatedTopic.drugOfChoice && (
-            <div className="rounded-2xl p-5 space-y-3 mx-5 sm:mx-6" style={{ background: '#EDFDF5', border: '1px solid rgba(48,209,88,0.2)' }}>
-              <div className="flex items-center gap-2 font-bold">
+            <details className="group rounded-2xl mx-5 sm:mx-6 overflow-hidden" style={{ background: '#EDFDF5', border: '1px solid rgba(48,209,88,0.2)' }}>
+              <summary className="min-h-14 flex cursor-pointer list-none items-center gap-3 p-4 font-bold marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald-600">
                 <div className="h-7 w-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
                   <Pill className="h-4 w-4" />
                 </div>
-                <span className="text-[17px] font-bold text-[#1D1D1F]">Drug of Choice (DOC) &amp; Treatment Protocol</span>
-              </div>
+                <span className="flex-1 text-[15px] font-bold text-[#1D1D1F]">Full treatment detail</span>
+                <ChevronDown className="h-4 w-4 shrink-0 text-emerald-800 transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="space-y-3 px-4 pb-4 sm:px-5">
+              <h3 className="text-[12px] font-semibold text-emerald-800">Drug of Choice (DOC) &amp; Treatment Protocol</h3>
 
               <div className="space-y-0.5">
                 <div className="text-[10px] font-bold uppercase tracking-wider font-mono text-emerald-700">
@@ -959,18 +951,22 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   </p>
                 </div>
               )}
-            </div>
+              </div>
+            </details>
           )}
 
           {/* Clinical Presentation & Diagnostic Triad */}
           {generatedTopic.diagnosticTriad && (
-            <div className="rounded-2xl p-5 space-y-3 mx-5 sm:mx-6" style={{ background: '#F0EAFF', border: '1px solid rgba(191,90,242,0.2)' }}>
-              <div className="flex items-center gap-2 font-bold">
+            <details className="group rounded-2xl mx-5 sm:mx-6 overflow-hidden" style={{ background: '#F0EAFF', border: '1px solid rgba(191,90,242,0.2)' }}>
+              <summary className="min-h-14 flex cursor-pointer list-none items-center gap-3 p-4 font-bold marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#7B2CBF]">
                 <div className="h-7 w-7 rounded-xl text-white flex items-center justify-center shrink-0" style={{ background: '#BF5AF2' }}>
                   <Activity className="h-4 w-4" />
                 </div>
-                <span className="text-[17px] font-bold text-[#1D1D1F]">Clinical Presentation &amp; Diagnostic Triad</span>
-              </div>
+                <span className="flex-1 text-[15px] font-bold text-[#1D1D1F]">Full diagnostic detail</span>
+                <ChevronDown className="h-4 w-4 shrink-0 text-[#7B2CBF] transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="space-y-3 px-4 pb-4 sm:px-5">
+              <h3 className="text-[12px] font-semibold text-[#7B2CBF]">Clinical Presentation &amp; Diagnostic Triad</h3>
 
               {generatedTopic.diagnosticTriad.components && generatedTopic.diagnosticTriad.components.length > 0 && (
                 <div className="space-y-1.5">
@@ -989,18 +985,22 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   ))}
                 </div>
               )}
-            </div>
+              </div>
+            </details>
           )}
 
           {/* High-Frequency Exam Traps */}
           {generatedTopic.examTraps && generatedTopic.examTraps.length > 0 && (
-            <div className="rounded-2xl p-5 space-y-3 mx-5 sm:mx-6 mb-5 sm:mb-6" style={{ background: '#FFF8EE', border: '1px solid rgba(255,149,0,0.2)' }}>
-              <div className="flex items-center gap-2 font-bold">
+            <details className="group rounded-2xl mx-5 sm:mx-6 mb-5 sm:mb-6 overflow-hidden" style={{ background: '#FFF8EE', border: '1px solid rgba(255,149,0,0.2)' }}>
+              <summary className="min-h-14 flex cursor-pointer list-none items-center gap-3 p-4 font-bold marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-600">
                 <div className="h-7 w-7 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
                   <AlertTriangle className="h-4 w-4" />
                 </div>
-                <span className="text-[17px] font-bold text-[#1D1D1F]">High-Frequency FMGE Exam Traps</span>
-              </div>
+                <span className="flex-1 text-[15px] font-bold text-[#1D1D1F]">All exam traps ({generatedTopic.examTraps.length})</span>
+                <ChevronDown className="h-4 w-4 shrink-0 text-amber-800 transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="space-y-3 px-4 pb-4 sm:px-5">
+              <h3 className="text-[12px] font-semibold text-amber-800">High-Frequency FMGE Exam Traps</h3>
 
               <div className="space-y-2.5">
                 {generatedTopic.examTraps.map((trap, idx) => (
@@ -1028,7 +1028,8 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   </div>
                 ))}
               </div>
-            </div>
+              </div>
+            </details>
           )}
         </motion.article>
       )}
@@ -1449,7 +1450,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                         </div>
 
                         {/* Explanation */}
-                        <div className="rounded-2xl bg-[#F2F2F7] p-4 text-[13px] text-[#3A3A3C] leading-relaxed max-h-36 overflow-y-auto">
+                        <div className="rounded-2xl bg-[#F2F2F7] p-4 text-[13px] text-[#3A3A3C] leading-relaxed whitespace-pre-wrap">
                           {duePearls[srsIndex].explanation}
                         </div>
 

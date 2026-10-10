@@ -167,11 +167,6 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
     return list;
   }, [phaseFilter, searchQuery, sortBy, state.subjectProgress, state.topicsState]);
 
-  // Circumference for SVG Progress Gauge
-  const radius = 32;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (overallStats.percentage / 100) * circumference;
-
   const PHASE_FILTERS = [
     { id: 'all',          label: 'All (19)',     short: 'All' },
     { id: 'pre-clinical', label: 'Pre-Clinical', short: 'Pre' },
@@ -186,12 +181,35 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         currentSubTab === 'revision' ? 'pb-28 sm:pb-20' : 'pb-20'
       }`}
     >
+      {currentSubTab === 'revision' && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-[rgba(60,60,67,0.08)] bg-white/85 px-4 py-3 shadow-sm backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[#3A3A3C]">
+            <BookOpen className="h-4 w-4 text-[#30A854]" strokeWidth={2.2} />
+            <span>Study Plan</span>
+          </div>
+          <div className="inline-flex rounded-full border border-[rgba(60,60,67,0.08)] bg-[#F2F2F7] p-1">
+            {(['curriculum', 'revision'] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                aria-pressed={currentSubTab === tab}
+                onClick={() => handleSubTabChange(tab)}
+                className={`min-h-9 rounded-full px-4 text-xs font-semibold transition-colors ${
+                  currentSubTab === tab ? 'bg-white text-[#1D1D1F] shadow-sm' : 'text-[#6E6E73] hover:text-[#1D1D1F]'
+                }`}
+              >
+                {tab === 'curriculum' ? 'Curriculum' : 'Revision'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {/* ── Hero Header ── */}
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
+        className={`premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)] ${currentSubTab === 'revision' ? 'hidden' : ''}`}
         style={{ background: 'linear-gradient(135deg, #E8F9EE 0%, #D0F2DC 40%, #B8E8C8 70%, #9EDDB6 100%)' }}
       >
         {/* Decorative right glow */}
@@ -262,29 +280,9 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
               </div>
             </div>
 
-            {/* Right: stat ring + 3 quick stats */}
+            {/* Right: complementary study-plan metrics. Overall completion is shown once in the progress bar. */}
             <div className="flex items-center gap-5 sm:gap-7 shrink-0">
-              {/* Circular progress ring */}
-              <div className="relative w-[88px] h-[88px] sm:w-[100px] sm:h-[100px] flex items-center justify-center shrink-0">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="8" />
-                  <motion.circle
-                    cx="50" cy="50" r="42"
-                    fill="none" stroke="#30D158" strokeWidth="8" strokeLinecap="round"
-                    strokeDasharray={2 * Math.PI * 42}
-                    initial={{ strokeDashoffset: 2 * Math.PI * 42 }}
-                    animate={{ strokeDashoffset: 2 * Math.PI * 42 * (1 - overallStats.percentage / 100) }}
-                    transition={{ duration: 1.2, ease: 'easeOut' }}
-                    style={{ filter: 'drop-shadow(0 0 6px rgba(48,209,88,0.55))' }}
-                  />
-                </svg>
-                <div className="absolute flex flex-col items-center leading-none">
-                  <span className="text-[22px] sm:text-[26px] font-black tracking-tight text-[#1D1D1F]">{overallStats.percentage}%</span>
-                  <span className="text-[9px] font-semibold text-[#3A3A3C]/60 uppercase tracking-wider mt-0.5">done</span>
-                </div>
-              </div>
-
-              {/* 3 quick stats */}
+              {/* Three useful counts replace a second copy of the completion gauge. */}
               <div className="space-y-3">
                 {[
                   { label: 'Subjects', value: `${overallStats.completedSubjectsCount}/19`, color: '#30D158' },
@@ -315,6 +313,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                   <button
                     key={p.id}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => setPhaseFilter(p.id as any)}
                     className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all cursor-pointer border ${
                       active
@@ -421,9 +420,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.28, delay: idx * 0.03, ease: [0.16, 1, 0.3, 1] }}
                     whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.99 }}
-                    onClick={() => onSelectSubject(sub.id)}
-                    className="relative group bg-white rounded-2xl border border-[rgba(60,60,67,0.08)] shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.09)] hover:border-[rgba(60,60,67,0.14)] transition-all cursor-pointer overflow-hidden"
+                    className="relative group bg-white rounded-2xl border border-[rgba(60,60,67,0.08)] shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.09)] hover:border-[rgba(60,60,67,0.14)] transition-all overflow-hidden"
                   >
                     {/* Left accent bar */}
                     <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-2xl"
@@ -445,13 +442,13 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                           <h3 className="text-[14px] sm:text-[15px] font-bold text-[#1D1D1F] truncate">
                             {sub.name}
                           </h3>
-                          <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold border"
-                            style={{ color: visual.color, background: `${visual.color}10`, borderColor: `${visual.color}30` }}>
+                          <span className="subject-mark-pill shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold border"
+                            style={{ '--subject-accent': visual.color, color: visual.color, background: `${visual.color}10`, borderColor: `${visual.color}30` } as React.CSSProperties}>
                             {sub.weightage}M
                           </span>
                           {visual.badgeType === 'high' && (
                             <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FF3B30]/8 text-[#FF3B30] border border-[#FF3B30]/20">
-                              <span className="h-1 w-1 rounded-full bg-[#FF3B30] animate-pulse" />
+                              <span className="h-1 w-1 rounded-full bg-[#FF3B30]" />
                               High-yield
                             </span>
                           )}
@@ -492,6 +489,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.94 }}
                           onClick={(e) => { e.stopPropagation(); onSelectSubject(sub.id); }}
+                          aria-label={`${isComplete ? 'Review' : 'Study'} ${sub.name}`}
                           className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-all shrink-0 shadow-sm"
                           style={{
                             background: isComplete

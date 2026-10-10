@@ -8,6 +8,7 @@ const GrandTestsView = lazy(() => import('./components/GrandTestsView').then((mo
 const PearlsVaultView = lazy(() => import('./components/PearlsVaultView').then((module) => ({ default: module.PearlsVaultView })));
 const TelegramHubView = lazy(() => import('./components/TelegramHubView').then((module) => ({ default: module.TelegramHubView })));
 const PracticeView = lazy(() => import('./components/PracticeView').then((module) => ({ default: module.PracticeView })));
+const QuestionBankView = lazy(() => import('./components/QuestionBankView').then((module) => ({ default: module.QuestionBankView })));
 const ProgressView = lazy(() => import('./components/ProgressView').then((module) => ({ default: module.ProgressView })));
 const MoreView = lazy(() => import('./components/MoreView').then((module) => ({ default: module.MoreView })));
 const AiCoachView = lazy(() => import('./components/AiCoachView').then((module) => ({ default: module.AiCoachView })));
@@ -66,7 +67,7 @@ const STUDY_BACKGROUNDS = [
 
 const ACTIVE_TABS = new Set<ActiveTab>([
   'dashboard', 'syllabus', 'practice', 'errors', 'progress', 'more', 'daily',
-  'pearls', 'telegram', 'predictor', 'revision', 'grandtests', 'aicoach',
+  'pearls', 'telegram', 'predictor', 'revision', 'grandtests', 'aicoach', 'questionbank',
 ]);
 
 function isActiveTab(value: string): value is ActiveTab {
@@ -127,11 +128,13 @@ function AppInner() {
   }, [circadianOverride, state.settings?.bgTheme, currentHour]);
 
   useEffect(() => {
-    const isNight = Boolean(user || isGuest) && activeBg.id === 'night';
+    // Circadian appearance is a presentation preference. It must also apply
+    // in local practice and before sign-in, not depend on an auth state.
+    const isNight = activeBg.id === 'night';
     document.documentElement.classList.toggle('dark', isNight);
     const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (themeColor) themeColor.content = isNight ? '#1C1C1E' : '#F2F2F7';
-  }, [activeBg.id, user, isGuest]);
+    if (themeColor) themeColor.content = isNight ? '#101114' : '#F2F2F7';
+  }, [activeBg.id]);
 
   const bgOpacity = state.settings?.bgOpacity ?? 0.8;
 
@@ -1085,6 +1088,10 @@ function AppInner() {
                     onUpdateAppState={setState}
                     onAddTask={handleAddTask}
                   />
+                )}
+
+                {activeTab === 'questionbank' && (
+                  <QuestionBankView onRecordAttempt={recordQuestionAttempt} />
                 )}
 
                 {activeTab === 'grandtests' && (

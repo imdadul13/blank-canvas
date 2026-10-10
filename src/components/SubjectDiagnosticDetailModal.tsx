@@ -239,7 +239,7 @@ export const SubjectDiagnosticDetailModal: React.FC<SubjectDiagnosticDetailModal
     >
       {/* Modal Container */}
       <div
-        className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+        className="subject-diagnostic-modal relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden"
         style={{ maxHeight: '90vh' }}
         onClick={(e) => e.stopPropagation()}
       >

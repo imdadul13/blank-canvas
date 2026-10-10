@@ -23,6 +23,7 @@ import {
   Cloud,
   ShieldCheck,
   Target,
+  ListChecks,
 } from 'lucide-react';
 import OneShotLogo from './OneShotLogo';
 import { AppStats } from '../utils/storage';
@@ -33,6 +34,7 @@ export type ActiveTab =
   | 'dashboard'
   | 'syllabus'
   | 'practice'
+  | 'questionbank'
   | 'progress'
   | 'errors'
   | 'predictor'
@@ -74,13 +76,14 @@ export const primaryNavItems = [
   { id: 'dashboard' as ActiveTab, label: 'Home',        desc: 'Your study command center', icon: Home,      color: '#007AFF', bg: '#EBF3FF', activeBg: '#007AFF' },
   { id: 'syllabus'  as ActiveTab, label: 'Study',       desc: 'Subjects & topic mastery',  icon: BookOpen,  color: '#30D158', bg: '#E3F9EC', activeBg: '#30D158' },
   { id: 'practice'  as ActiveTab, label: 'Practice',    desc: 'MCQs & timed sessions',     icon: Edit3,     color: '#FF9500', bg: '#FFF4E0', activeBg: '#FF9500' },
+  { id: 'questionbank' as ActiveTab, label: 'Question Bank', desc: 'FMGE, NEET-PG & INI-CET', icon: ListChecks, color: '#5856D6', bg: '#EEEDFA', activeBg: '#5856D6' },
   { id: 'progress'  as ActiveTab, label: 'Performance', desc: 'Analytics & accuracy',      icon: BarChart3, color: '#5AC8FA', bg: '#E4F5FF', activeBg: '#5AC8FA' },
   { id: 'pearls'    as ActiveTab, label: 'Knowledge',   desc: 'Pearls & quick recall',     icon: BookMarked,color: '#BF5AF2', bg: '#F3E8FF', activeBg: '#BF5AF2' },
   { id: 'aicoach'   as ActiveTab, label: 'Mentor',      desc: 'AI-powered guidance',       icon: Users,     color: '#5856D6', bg: '#EEEDFA', activeBg: '#5856D6' },
 ];
 
 export const secondaryNavItems = [
-  { id: 'grandtests' as ActiveTab, label: 'Grand Tests', icon: GraduationCap, desc: '300-Q NBE mock exam' },
+  { id: 'grandtests' as ActiveTab, label: 'Grand Tests', icon: GraduationCap, desc: 'Mock results & timed practice' },
   { id: 'telegram' as ActiveTab, label: 'Telegram Hub', icon: Send, desc: 'Curated question feeds' },
 ];
 
@@ -94,11 +97,14 @@ export interface MoreUtilityItem {
 }
 
 export const moreUtilityItems: MoreUtilityItem[] = [
+  { id: 'questionbank', label: 'Question Bank', icon: ListChecks, desc: 'FMGE, NEET-PG & INI-CET practice', tab: 'questionbank' },
+  { id: 'pearls', label: 'Knowledge & Pearls', icon: BookMarked, desc: 'High-yield review', tab: 'pearls' },
+  { id: 'aicoach', label: 'AI Mentor', icon: Users, desc: 'Personalized study guidance', tab: 'aicoach' },
   {
     id: 'grandtests',
     label: 'Grand Tests',
     icon: GraduationCap,
-    desc: '300-Q NBE mock exam',
+    desc: 'Mock results & timed practice',
     tab: 'grandtests',
   },
   {
@@ -124,7 +130,7 @@ export const moreUtilityItems: MoreUtilityItem[] = [
   },
 ];
 
-export const mobileNavItems = primaryNavItems;
+export const mobileNavItems = primaryNavItems.filter(({ id }) => ['dashboard', 'syllabus', 'practice', 'questionbank', 'progress'].includes(id));
 
 export const isTabActive = (id: ActiveTab, currentTab: ActiveTab) => {
   if (currentTab === id) return true;
@@ -780,7 +786,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     color: active ? color : 'var(--mobile-dock-label, rgba(60,60,67,0.6))',
                   }}
                 >
-                  {label === 'Performance' ? 'Stats' : label === 'Knowledge' ? 'Pearls' : label}
+                  {label === 'Performance' ? 'Stats' : label === 'Knowledge' ? 'Pearls' : label === 'Question Bank' ? 'Questions' : label}
                 </span>
               </motion.button>
             );

@@ -158,39 +158,6 @@ export const MoreView: React.FC<MoreViewProps> = ({
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
-                {onOpenProfile && (
-                  <button
-                    type="button"
-                    onClick={onOpenProfile}
-                    className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#1D1D1F] text-[12px] font-semibold transition-all active:scale-95 cursor-pointer shadow-2xs"
-                  >
-                    <User className="size-3.5 text-[#007AFF]" />
-                    <span>Candidate Profile</span>
-                  </button>
-                )}
-
-                {onOpenCloudSync && (
-                  <button
-                    type="button"
-                    onClick={onOpenCloudSync}
-                    className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#1D1D1F] text-[12px] font-semibold transition-all active:scale-95 cursor-pointer shadow-2xs"
-                  >
-                    <Cloud className="size-3.5 text-[#5856D6]" />
-                    <span>Cloud Sync</span>
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={onOpenSettings}
-                  className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-[#007AFF] hover:bg-[#0066D6] text-white text-[12px] font-bold shadow-xs transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
-                >
-                  <Settings className="size-3.5 stroke-[2.4]" />
-                  <span>Preferences</span>
-                </button>
-              </div>
             </div>
           </motion.header>
 
@@ -216,21 +183,21 @@ export const MoreView: React.FC<MoreViewProps> = ({
                       <GraduationCap className="size-6 stroke-[2.2]" />
                     </div>
                     <span className="px-2.5 py-0.5 rounded-full bg-[#5856D6]/10 text-[#5856D6] text-[11px] font-mono font-bold border border-[#5856D6]/20">
-                      300 Qs · 300 Min
+                      Full-length result tracking
                     </span>
                   </div>
 
                   <div className="space-y-1">
                     <h3 className="text-[15px] font-bold text-[#1D1D1F] group-hover:text-[#5856D6] transition-colors leading-snug">
-                      Grand Tests &amp; Mock Exam Simulator
+                      Grand Tests &amp; Mock Exam Tools
                     </h3>
                     <p className="text-[12px] text-[#6E6E73] font-medium leading-relaxed">
-                      Full 300-question timed CBT simulation with Paper 1/Paper 2 balance analytics.
+                      Log full-length mock results, review score trends, or start timed practice from the available question bank.
                     </p>
                   </div>
 
                   <div className="flex items-center text-[12px] font-semibold text-[#5856D6] gap-1 pt-1 group-hover:translate-x-0.5 transition-transform">
-                    <span>Launch Simulator</span>
+                    <span>Open Mock Exam Tools</span>
                     <ChevronRight className="size-3.5" />
                   </div>
                 </motion.div>

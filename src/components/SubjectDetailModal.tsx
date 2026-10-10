@@ -163,12 +163,13 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
                   <span className="font-bold text-slate-900 uppercase">{subject.name}</span>
                   <span className="text-slate-300">·</span>
                   <span
-                    className="px-2 py-0.2 rounded-full font-bold text-[10px] uppercase border"
+                    className="subject-mark-pill px-2 py-0.2 rounded-full font-bold text-[10px] uppercase border"
                     style={{
+                      '--subject-accent': subjectTheme.color,
                       backgroundColor: `${subjectTheme.color}15`,
                       color: subjectTheme.color,
                       borderColor: `${subjectTheme.color}35`,
-                    }}
+                    } as React.CSSProperties}
                   >
                     {subject.weightage} MARKS
                   </span>

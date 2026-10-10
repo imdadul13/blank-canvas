@@ -18,10 +18,10 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'quiet' | 'dange
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 const VARIANT: Record<ButtonVariant, string> = {
-  // Accent fill + accent-tinted shadow. The shadow is what makes an Apple
-  // button feel lit rather than pasted on.
+  // Use the ink step for white-on-accent contrast; keep the hue from the
+  // current workspace while avoiding low-contrast lime, cyan, and orange fills.
   primary: cn(
-    'bg-accent text-white shadow-e3',
+    'bg-[var(--accent-ink)] text-white shadow-e3',
     'hover:brightness-[1.06] active:brightness-95',
   ),
   // Hairline-bordered neutral surface. The default for anything that is not
@@ -38,7 +38,7 @@ const VARIANT: Record<ButtonVariant, string> = {
   ),
   // Text-only, accent-tinted. Tertiary actions inside a card.
   quiet: 'text-accent hover:bg-accent-tint',
-  danger: 'bg-[var(--color-fail)] text-white shadow-e3 hover:brightness-105',
+  danger: 'bg-[var(--color-fail-ink)] text-white shadow-e3 hover:brightness-105',
 };
 
 const SIZE: Record<ButtonSize, string> = {
@@ -133,7 +133,7 @@ export type PillTone = 'neutral' | 'accent' | 'pass' | 'warn' | 'fail' | 'info';
 
 const PILL_TONE: Record<PillTone, string> = {
   neutral: 'bg-[var(--color-surface-sunken)] text-[var(--color-ink-2)]',
-  accent: 'bg-accent-tint text-accent',
+  accent: 'bg-accent-tint text-[var(--accent-ink)]',
   pass: 'bg-[var(--color-pass-wash)] text-[var(--color-pass-ink)]',
   warn: 'bg-[var(--color-warn-wash)] text-[var(--color-warn-ink)]',
   fail: 'bg-[var(--color-fail-wash)] text-[var(--color-fail-ink)]',

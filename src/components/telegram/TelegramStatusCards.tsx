@@ -6,6 +6,7 @@ interface TelegramStatusCardsProps {
   userProfile: { id: string; firstName: string; username?: string; phone: string } | null;
   workerHealth: { status: string; lastHeartbeat: string; activeSourcesCount: number; lastSync?: string };
   dbHealth: { status: string; totalMessages: number; totalQuestions: number; totalPearls: number };
+  isStatusLoading: boolean;
   onOpenConnectModal: () => void;
   onOpenManageModal?: () => void;
   onManualSync?: () => void;
@@ -17,6 +18,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
   userProfile,
   workerHealth,
   dbHealth,
+  isStatusLoading,
   onOpenConnectModal,
   onOpenManageModal,
   onManualSync,
@@ -35,6 +37,8 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
 
   const isWorkerRunning = workerHealth.status.toUpperCase() === "ONLINE" || workerHealth.status.toUpperCase() === "RUNNING";
   const isDbHealthy = dbHealth.status.toUpperCase() === "CONNECTED" || dbHealth.status.toUpperCase() === "HEALTHY";
+  const isWorkerChecking = isStatusLoading || workerHealth.status.toUpperCase() === "CHECKING";
+  const isDbChecking = isStatusLoading || dbHealth.status.toUpperCase() === "CHECKING";
 
   return (
     <>
@@ -103,21 +107,21 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span
                   className={`w-2 h-2 rounded-full shrink-0 ${
-                    isWorkerRunning ? "bg-emerald-500" : "bg-amber-400"
+                    isWorkerRunning ? "bg-emerald-500" : isWorkerChecking ? "bg-slate-300" : "bg-amber-400"
                   }`}
                 />
                 <span
                   className={`text-xs font-bold leading-tight ${
-                    isWorkerRunning ? "text-emerald-700" : "text-amber-700"
+                    isWorkerRunning ? "text-emerald-700" : isWorkerChecking ? "text-slate-500" : "text-amber-700"
                   }`}
                 >
-                  {isWorkerRunning ? "Running" : "Offline"}
+                  {isWorkerRunning ? "Running" : isWorkerChecking ? "Checking…" : workerHealth.status.toUpperCase() === "UNAVAILABLE" ? "Unavailable" : "Offline"}
                 </span>
               </div>
               <div className="text-[11px] text-slate-400 truncate mt-0.5">
                 {isWorkerRunning
                   ? `Active • ${workerHealth.activeSourcesCount} sources`
-                  : "Worker standing by"}
+                  : isWorkerChecking ? "Checking service health" : "Worker status unavailable"}
               </div>
               <div className="text-[10px] text-slate-400 font-mono mt-0.5">
                 Last updated: {getRelativeTime(workerHealth.lastHeartbeat)}
@@ -140,7 +144,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
               <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-bold font-mono ${
                 isWorkerRunning ? "bg-blue-50 text-[#007AFF] border border-blue-200/80" : "bg-amber-50 text-amber-700 border border-amber-200/80"
               }`}>
-                {isWorkerRunning ? "AUTO" : "IDLE"}
+              {isWorkerRunning ? "AUTO" : isWorkerChecking ? "CHECKING" : "IDLE"}
               </span>
             )}
           </div>
@@ -159,19 +163,19 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span
                   className={`w-2 h-2 rounded-full shrink-0 ${
-                    isDbHealthy ? "bg-emerald-500" : "bg-rose-500"
+                    isDbHealthy ? "bg-emerald-500" : isDbChecking ? "bg-slate-300" : "bg-rose-500"
                   }`}
                 />
                 <span
                   className={`text-xs font-bold leading-tight ${
-                    isDbHealthy ? "text-emerald-700" : "text-rose-700"
+                    isDbHealthy ? "text-emerald-700" : isDbChecking ? "text-slate-500" : "text-rose-700"
                   }`}
                 >
-                  {isDbHealthy ? "Healthy" : "Error"}
+                  {isDbHealthy ? "Healthy" : isDbChecking ? "Checking…" : "Unavailable"}
                 </span>
               </div>
               <div className="text-[11px] text-slate-400 truncate mt-0.5">
-                {isDbHealthy ? "All systems operational" : "Check database connection"}
+                {isDbHealthy ? "All systems operational" : isDbChecking ? "Checking database health" : "Status unavailable"}
               </div>
               <div className="text-[10px] text-slate-400 font-mono mt-0.5">
                 {workerHealth.lastSync ? `Last synced: ${getRelativeTime(workerHealth.lastSync)}` : "Awaiting first sync"}
@@ -181,9 +185,9 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
 
           <div className="self-center shrink-0">
             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-bold font-mono ${
-              isDbHealthy ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80" : "bg-rose-50 text-rose-700 border border-rose-200/80"
+              isDbHealthy ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80" : isDbChecking ? "bg-slate-50 text-slate-600 border border-slate-200/80" : "bg-rose-50 text-rose-700 border border-rose-200/80"
             }`}>
-              {isDbHealthy ? "ONLINE" : "CHECK"}
+              {isDbHealthy ? "ONLINE" : isDbChecking ? "CHECKING" : "CHECK"}
             </span>
           </div>
         </div>
@@ -242,19 +246,19 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span
                   className={`w-2 h-2 rounded-full shrink-0 ${
-                    isWorkerRunning ? "bg-emerald-500" : "bg-amber-400"
+                    isWorkerRunning ? "bg-emerald-500" : isWorkerChecking ? "bg-slate-300" : "bg-amber-400"
                   }`}
                 />
                 <span
                   className={`text-xs font-bold ${
-                    isWorkerRunning ? "text-emerald-700" : "text-amber-700"
+                    isWorkerRunning ? "text-emerald-700" : isWorkerChecking ? "text-slate-500" : "text-amber-700"
                   }`}
                 >
-                  {isWorkerRunning ? "Running" : "Offline"}
+                  {isWorkerRunning ? "Running" : isWorkerChecking ? "Checking…" : workerHealth.status.toUpperCase() === "UNAVAILABLE" ? "Unavailable" : "Offline"}
                 </span>
               </div>
               <div className="text-[11px] text-slate-400 truncate">
-                {isWorkerRunning ? "Processing new content" : "Offline"}
+                {isWorkerRunning ? "Processing new content" : isWorkerChecking ? "Checking service health" : "Worker status unavailable"}
               </div>
             </div>
           </div>
@@ -274,19 +278,19 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span
                   className={`w-2 h-2 rounded-full shrink-0 ${
-                    isDbHealthy ? "bg-emerald-500" : "bg-rose-500"
+                    isDbHealthy ? "bg-emerald-500" : isDbChecking ? "bg-slate-300" : "bg-rose-500"
                   }`}
                 />
                 <span
                   className={`text-xs font-bold ${
-                    isDbHealthy ? "text-emerald-700" : "text-rose-700"
+                    isDbHealthy ? "text-emerald-700" : isDbChecking ? "text-slate-500" : "text-rose-700"
                   }`}
                 >
-                  {isDbHealthy ? "Healthy" : "Error"}
+                  {isDbHealthy ? "Healthy" : isDbChecking ? "Checking…" : "Unavailable"}
                 </span>
               </div>
               <div className="text-[11px] text-slate-400 truncate">
-                All systems operational
+                {isDbHealthy ? "All systems operational" : isDbChecking ? "Checking database health" : "Status unavailable"}
               </div>
             </div>
           </div>

@@ -145,6 +145,10 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
         const parsed = JSON.parse(text);
         const imported = normalizeAppState(parsed);
         if (imported && onUpdateAppState) {
+          const confirmed = window.confirm(
+            'Restore this backup and replace the study data currently open in the app? Export a backup first if you want to keep both copies.'
+          );
+          if (!confirmed) return;
           onUpdateAppState(() => imported);
           setSyncFeedback({ kind: 'success', text: 'Study data restored from the backup file.' });
         } else {
@@ -155,6 +159,7 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
       }
     };
     reader.readAsText(file);
+    e.target.value = '';
   };
 
   // Count active synced items
@@ -220,7 +225,7 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
                   displaySyncStatus === 'error' ? 'bg-rose-100 text-rose-800 border-rose-200' :
                   'bg-slate-100 text-slate-700 border-slate-200'
                 }`}>
-                  {displaySyncStatus === 'local' ? 'Local only' : displaySyncStatus === 'offline' ? 'No connection' : displaySyncStatus === 'error' ? 'Not synced' : displaySyncStatus === 'syncing' ? 'Working' : 'Cloud available'}
+                  {displaySyncStatus === 'local' ? 'Local only' : displaySyncStatus === 'offline' ? 'No connection' : displaySyncStatus === 'error' ? 'Not synced' : displaySyncStatus === 'syncing' ? 'Syncing' : 'Up to date'}
                 </span>
               </div>
               <p className="text-xs text-slate-500">
@@ -263,11 +268,11 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
                 <div className="flex items-center justify-between text-slate-400">
-                  <span className="text-[11px] font-semibold text-slate-600">19 Subjects</span>
+                  <span className="text-[11px] font-semibold text-slate-600">Curriculum</span>
                   <HardDrive className="h-4 w-4 text-teal-600" />
                 </div>
-                <div className="text-sm font-bold text-slate-900">100% Mapped</div>
-                <p className="text-[10px] text-slate-400">Checklists &amp; revisions</p>
+                <div className="text-sm font-bold text-slate-900">19 subjects</div>
+                <p className="text-[10px] text-slate-400">Available for study tracking</p>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
@@ -285,7 +290,7 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
                   <ShieldCheck className="h-4 w-4 text-sky-500" />
                 </div>
                 <div className="text-sm font-bold text-slate-900">{gtCount} Mocks</div>
-                <p className="text-[10px] text-slate-400">NBE full score curves</p>
+                <p className="text-[10px] text-slate-400">Saved mock results</p>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
@@ -315,7 +320,7 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
             </div>
 
             {snapshots.length === 0 ? (
-              <p className="text-xs text-slate-400 italic">No automated snapshots recorded yet.</p>
+              <p className="text-xs text-slate-400 italic">No local snapshots yet. Create one to keep a recovery point in this browser.</p>
             ) : (
               <div className="space-y-2">
                 {snapshots.map((snap) => (

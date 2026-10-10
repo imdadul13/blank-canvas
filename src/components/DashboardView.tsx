@@ -161,7 +161,7 @@ function CircularCountdown({
   days,
   totalDays = 90,
 }: {
-  value?: number;
+  value?: number | null;
   label?: string;
   sublabel?: string;
   progressRatio?: number;
@@ -169,7 +169,7 @@ function CircularCountdown({
   days?: number;
   totalDays?: number;
 }) {
-  const displayVal = value !== undefined ? value : (days !== undefined ? days : 0);
+  const displayVal = value != null ? value : (days !== undefined ? days : 0);
   const size = 124;
   const strokeWidth = 9.5;
   const center = size / 2;
@@ -216,10 +216,11 @@ function CircularCountdown({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none px-2">
-        <AnimatedNumber
-          value={displayVal}
-          className="font-black text-2xl sm:text-3xl text-[#1D1D1F] tracking-tight tabular-nums leading-none"
-        />
+        {value === null ? (
+          <span className="font-black text-2xl sm:text-3xl text-[#1D1D1F] tracking-tight tabular-nums leading-none">—</span>
+        ) : (
+          <AnimatedNumber value={displayVal} className="font-black text-2xl sm:text-3xl text-[#1D1D1F] tracking-tight tabular-nums leading-none" />
+        )}
         <span className="text-[11px] font-medium text-[#6E6E73] mt-1 leading-tight">
           {label}
         </span>
@@ -1366,15 +1367,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     [dailyPearlIndex]
   );
 
-  // Projected Pass Trajectory & Score for Exam Journey
-  const projectedScore = useMemo(() => {
-    if (stats?.latestGTScore && stats.latestGTScore > 0) {
-      return stats.latestGTScore;
-    }
-    const totalDoneNotes = Object.values(state.topicsState || {}).filter((t) => t?.notesDone).length;
-    const testScoreBonus = Math.min(65, Math.round(totalDoneNotes * 1.8 + (stats?.overallReadinessScore || 20) * 0.4));
-    return Math.min(260, 150 + testScoreBonus);
-  }, [state.topicsState, stats]);
+  // Show only an observed mock result; do not imply an uncalibrated prediction.
+  const latestMockScore = stats?.latestGTScore && stats.latestGTScore > 0 ? stats.latestGTScore : null;
 
   // Unread badge reflects live visible notifications
   const hasUnread = useMemo(
@@ -1732,7 +1726,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     monday.setDate(now.getDate() + mondayOffset);
 
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const streakCount = Math.max(1, currentStreak);
+    const streakCount = currentStreak;
 
     return days.map((dayName, index) => {
       const d = new Date(monday);
@@ -1931,10 +1925,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* Card content */}
-          <div className="relative z-10 p-5 sm:p-6 lg:p-8">
+          <div className="relative z-10 p-4 sm:p-6 lg:p-8">
 
             {/* Top bar: greeting + Circadian Focus */}
-            <div className="flex items-center justify-between gap-3 mb-4 sm:mb-5">
+            <div className="flex items-center justify-between gap-3 mb-3 sm:mb-5">
               <div className="flex items-center gap-2">
                 <div className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#007AFF]">
                   <GreetingIcon className="h-3.5 w-3.5 stroke-[2.4]" />
@@ -1947,11 +1941,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Main content: name + illustration */}
-            <div className="flex flex-col md:flex-row md:items-center gap-5 lg:gap-8">
+            <div className="flex flex-col md:flex-row md:items-center gap-3 sm:gap-5 lg:gap-8">
 
               {/* Left: name + subtitle + creed */}
-              <div className="flex-1 space-y-3 sm:space-y-4 min-w-0">
-                <h1 className="text-[44px] sm:text-[56px] lg:text-[68px] font-black tracking-[-0.045em] leading-[0.88] text-[#1D1D1F] line-clamp-2 break-words">
+              <div className="flex-1 space-y-2 sm:space-y-4 min-w-0">
+                <h1 className="text-[38px] sm:text-[56px] lg:text-[68px] font-black tracking-[-0.045em] leading-[0.92] text-[#1D1D1F] line-clamp-2 break-words">
                   {userName.startsWith('Dr.') ? (
                     <>
                       <span className="text-[#007AFF]">Dr. </span>
@@ -1975,9 +1969,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') shuffleCreed(); }}
-                  className="inline-flex items-start gap-3 rounded-2xl px-4 py-3 cursor-pointer select-none group bg-white/75 hover:bg-white/90 backdrop-blur-md border border-white/80 shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-all duration-200 max-w-[320px]"
+                  className="inline-flex items-start gap-2.5 sm:gap-3 rounded-2xl px-3 py-2 sm:px-4 sm:py-3 cursor-pointer select-none group bg-white/75 hover:bg-white/90 backdrop-blur-md border border-white/80 shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-all duration-200 max-w-[320px]"
                 >
-                  <div className="h-9 w-12 shrink-0 relative flex items-center justify-center mt-0.5">
+                  <div className="h-8 w-10 sm:h-9 sm:w-12 shrink-0 relative flex items-center justify-center mt-0.5">
                     <AnimatedMountainInsignia
                       phase={doctorCreed.phase === 'all' ? timeOfDay : (doctorCreed.phase || timeOfDay)}
                       creedId={doctorCreed.id}
@@ -2027,7 +2021,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-                      className="relative w-full md:w-[240px] lg:w-[280px] h-[210px] sm:h-[240px] shrink-0 flex items-end justify-center select-none pointer-events-none lg:mr-4"
+                      className="relative w-full md:w-[240px] lg:w-[280px] h-[84px] sm:h-[180px] lg:h-[210px] shrink-0 flex items-end justify-center select-none pointer-events-none lg:mr-4"
                     >
                       {/* ── PHASE FOCUS ORB ── */}
                       <svg viewBox="0 0 300 240" className="w-full h-full" fill="none" overflow="visible" xmlns="http://www.w3.org/2000/svg">
@@ -2416,7 +2410,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="h-9 w-9 rounded-2xl bg-[#FF9500] text-white flex items-center justify-center shrink-0 group-hover:scale-[1.08] transition-transform duration-200 shadow-[0_2px_10px_rgba(255,149,0,0.40)]">
                   <Calendar className="h-[18px] w-[18px] stroke-[2]" />
                 </div>
-                <span className="text-[11px] font-semibold text-[#FF9500] bg-[#FF9500]/10 px-2 py-0.5 rounded-full">Live</span>
+                <span className="text-[11px] font-semibold text-[#FF9500] bg-[#FF9500]/10 px-2 py-0.5 rounded-full">Countdown</span>
               </div>
               <div className="relative mt-auto pt-3">
                 <div className="text-[44px] sm:text-[52px] font-black tabular-nums leading-none tracking-[-0.03em] text-[#1D1D1F]">
@@ -2490,7 +2484,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div className="relative mt-auto pt-3">
                 <div className="text-[44px] sm:text-[52px] font-black tabular-nums leading-none tracking-[-0.03em] text-[#1D1D1F]">
-                  {currentStreak || 1}<span className="text-[26px] sm:text-[30px] font-bold text-[#6E6E73]">d</span>
+                  {currentStreak}<span className="text-[26px] sm:text-[30px] font-bold text-[#6E6E73]">d</span>
                 </div>
                 <span className="block text-[13px] sm:text-[14px] font-medium text-[#6E6E73] mt-1.5">Study Streak</span>
               </div>
@@ -2564,14 +2558,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             whileTap={reducedMotion ? undefined : { scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             onClick={() => setIsIbqModalOpen(true)}
-            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-[#EBF9FF] via-white to-white shadow-[0_2px_8px_rgba(50,173,230,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(50,173,230,0.22)] cursor-pointer group transition-all duration-200"
+            role="button" tabIndex={0} aria-label="Open image-based question sprint"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsIbqModalOpen(true); } }}
+            className="flex min-w-0 flex-col items-center gap-1 sm:gap-2 p-2 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#EBF9FF] via-white to-white shadow-[0_2px_8px_rgba(50,173,230,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(50,173,230,0.22)] cursor-pointer group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#32ADE6] focus-visible:ring-offset-2"
           >
             <div className="h-10 w-10 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-[16px] sm:rounded-[22px] lg:rounded-[26px] bg-[#32ADE6] text-white flex items-center justify-center group-hover:scale-[1.06] transition-transform duration-200 shadow-[0_4px_14px_rgba(50,173,230,0.35)]">
               <Stethoscope className="h-5 w-5 sm:h-7 sm:w-7 lg:h-8 lg:w-8 stroke-[1.8]" />
             </div>
-            <div className="text-center space-y-0.5 w-full hidden sm:block">
-              <span className="block text-[12px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate">IBQ Sprint</span>
-              <span className="block text-[10px] sm:text-[11px] text-[#6E6E73] font-medium truncate">ECG &amp; X-Ray</span>
+            <div className="text-center space-y-0.5 w-full">
+              <span className="block text-[11px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate"><span className="sm:hidden">IBQ</span><span className="hidden sm:inline">IBQ Sprint</span></span>
+              <span className="hidden sm:block text-[11px] text-[#6E6E73] font-medium truncate">ECG &amp; X-Ray</span>
             </div>
           </motion.div>
 
@@ -2581,14 +2577,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             whileTap={reducedMotion ? undefined : { scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             onClick={() => setIsExamEveCheatSheetOpen(true)}
-            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-[#FFF8EC] via-white to-white shadow-[0_2px_8px_rgba(255,149,0,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(255,149,0,0.22)] cursor-pointer group transition-all duration-200"
+            role="button" tabIndex={0} aria-label="Open repeated examination topics vault"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsExamEveCheatSheetOpen(true); } }}
+            className="flex min-w-0 flex-col items-center gap-1 sm:gap-2 p-2 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#FFF8EC] via-white to-white shadow-[0_2px_8px_rgba(255,149,0,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(255,149,0,0.22)] cursor-pointer group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9500] focus-visible:ring-offset-2"
           >
             <div className="h-10 w-10 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-[16px] sm:rounded-[22px] lg:rounded-[26px] bg-[#FF9500] text-white flex items-center justify-center group-hover:scale-[1.06] transition-transform duration-200 shadow-[0_4px_14px_rgba(255,149,0,0.35)]">
               <Pill className="h-5 w-5 sm:h-7 sm:w-7 lg:h-8 lg:w-8 stroke-[1.8]" />
             </div>
-            <div className="text-center space-y-0.5 w-full hidden sm:block">
-              <span className="block text-[12px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate">Repeat Vault</span>
-              <span className="block text-[10px] sm:text-[11px] text-[#6E6E73] font-medium truncate">PYQs &amp; Triads</span>
+            <div className="text-center space-y-0.5 w-full">
+              <span className="block text-[11px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate"><span className="sm:hidden">PYQs</span><span className="hidden sm:inline">Repeat Vault</span></span>
+              <span className="hidden sm:block text-[11px] text-[#6E6E73] font-medium truncate">PYQs &amp; Triads</span>
             </div>
           </motion.div>
 
@@ -2598,14 +2596,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             whileTap={reducedMotion ? undefined : { scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             onClick={() => onOpenAudioRecall?.()}
-            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-[#F9EEFF] via-white to-white shadow-[0_2px_8px_rgba(191,90,242,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(191,90,242,0.22)] cursor-pointer group transition-all duration-200"
+            role="button" tabIndex={0} aria-label="Open audio recall"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenAudioRecall?.(); } }}
+            className="flex min-w-0 flex-col items-center gap-1 sm:gap-2 p-2 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#F9EEFF] via-white to-white shadow-[0_2px_8px_rgba(191,90,242,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(191,90,242,0.22)] cursor-pointer group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BF5AF2] focus-visible:ring-offset-2"
           >
             <div className="h-10 w-10 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-[16px] sm:rounded-[22px] lg:rounded-[26px] bg-[#BF5AF2] text-white flex items-center justify-center group-hover:scale-[1.06] transition-transform duration-200 shadow-[0_4px_14px_rgba(191,90,242,0.35)]">
               <Headphones className="h-5 w-5 sm:h-7 sm:w-7 lg:h-8 lg:w-8 stroke-[1.8]" />
             </div>
-            <div className="text-center space-y-0.5 w-full hidden sm:block">
-              <span className="block text-[12px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate">Audio Recall</span>
-              <span className="block text-[10px] sm:text-[11px] text-[#6E6E73] font-medium truncate">Commute Mode</span>
+            <div className="text-center space-y-0.5 w-full">
+              <span className="block text-[11px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate"><span className="sm:hidden">Audio</span><span className="hidden sm:inline">Audio Recall</span></span>
+              <span className="hidden sm:block text-[11px] text-[#6E6E73] font-medium truncate">Commute Mode</span>
             </div>
           </motion.div>
 
@@ -2615,14 +2615,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             whileTap={reducedMotion ? undefined : { scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             onClick={handleLaunchErrorDrill}
-            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-[#FFF0EF] via-white to-white shadow-[0_2px_8px_rgba(255,59,48,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(255,59,48,0.22)] cursor-pointer group transition-all duration-200"
+            role="button" tabIndex={0} aria-label="Review and retest mistakes"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleLaunchErrorDrill(); } }}
+            className="flex min-w-0 flex-col items-center gap-1 sm:gap-2 p-2 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#FFF0EF] via-white to-white shadow-[0_2px_8px_rgba(255,59,48,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(255,59,48,0.22)] cursor-pointer group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3B30] focus-visible:ring-offset-2"
           >
             <div className="h-10 w-10 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-[16px] sm:rounded-[22px] lg:rounded-[26px] bg-[#FF3B30] text-white flex items-center justify-center group-hover:scale-[1.06] transition-transform duration-200 shadow-[0_4px_14px_rgba(255,59,48,0.35)]">
               <RotateCcw className="h-5 w-5 sm:h-7 sm:w-7 lg:h-8 lg:w-8 stroke-[1.8]" />
             </div>
-            <div className="text-center space-y-0.5 w-full hidden sm:block">
-              <span className="block text-[12px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate">Retest Errors</span>
-              <span className="block text-[10px] sm:text-[11px] text-[#6E6E73] font-medium truncate">
+            <div className="text-center space-y-0.5 w-full">
+              <span className="block text-[11px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate"><span className="sm:hidden">Errors</span><span className="hidden sm:inline">Retest Errors</span></span>
+              <span className="hidden sm:block text-[11px] text-[#6E6E73] font-medium truncate">
                 {unreviewedErrorsCount > 0 ? `${unreviewedErrorsCount} pending` : 'Vault clear'}
               </span>
             </div>
@@ -2634,14 +2636,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             whileTap={reducedMotion ? undefined : { scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             onClick={() => setIsNbeMockOpen(true)}
-            className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-[#EDFFF3] via-white to-white shadow-[0_2px_8px_rgba(48,209,88,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(48,209,88,0.22)] cursor-pointer group transition-all duration-200"
+            role="button" tabIndex={0} aria-label="Open NBE examination simulator"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsNbeMockOpen(true); } }}
+            className="flex min-w-0 flex-col items-center gap-1 sm:gap-2 p-2 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#EDFFF3] via-white to-white shadow-[0_2px_8px_rgba(48,209,88,0.12),0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_36px_rgba(48,209,88,0.22)] cursor-pointer group transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30D158] focus-visible:ring-offset-2"
           >
             <div className="h-10 w-10 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-[16px] sm:rounded-[22px] lg:rounded-[26px] bg-[#30D158] text-white flex items-center justify-center group-hover:scale-[1.06] transition-transform duration-200 shadow-[0_4px_14px_rgba(48,209,88,0.35)]">
               <Award className="h-5 w-5 sm:h-7 sm:w-7 lg:h-8 lg:w-8 stroke-[1.8]" />
             </div>
-            <div className="text-center space-y-0.5 w-full hidden sm:block">
-              <span className="block text-[12px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate">NBE Simulator</span>
-              <span className="block text-[10px] sm:text-[11px] text-[#6E6E73] font-medium truncate">300 Questions</span>
+            <div className="text-center space-y-0.5 w-full">
+              <span className="block text-[11px] sm:text-[13px] font-semibold text-[#1D1D1F] leading-tight truncate"><span className="sm:hidden">NBE</span><span className="hidden sm:inline">NBE Simulator</span></span>
+              <span className="hidden sm:block text-[11px] text-[#6E6E73] font-medium truncate">300 Questions</span>
             </div>
           </motion.div>
         </motion.div>
@@ -3216,10 +3220,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 {/* Circular gauge */}
                 <div className="shrink-0">
                   <CircularCountdown
-                    value={projectedScore}
-                    label="EST. SCORE"
-                    sublabel="150 Pass"
-                    progressRatio={Math.min(1, Math.max(0.2, (projectedScore - 100) / 150))}
+                    value={latestMockScore}
+                    label="LATEST MOCK"
+                    sublabel={latestMockScore === null ? 'Log a mock' : 'out of 300'}
+                    progressRatio={latestMockScore === null ? 0 : Math.min(1, latestMockScore / 300)}
                     reducedMotion={reducedMotion}
                   />
                 </div>
@@ -3230,9 +3234,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <p className="text-[10px] font-black uppercase tracking-wider text-[#8E8E93]">Gap to Target</p>
                     <div className="flex items-baseline gap-1">
                       <span className="text-[26px] font-black text-[#1D1D1F] tracking-tight tabular-nums leading-none">
-                        {Math.max(0, (savedTargetScore || 200) - projectedScore)}
+                        {latestMockScore === null ? '—' : Math.max(0, (savedTargetScore || 200) - latestMockScore)}
                       </span>
-                      <span className="text-[12px] font-semibold text-[#6E6E73]">pts to {savedTargetScore || 200}</span>
+                      <span className="text-[12px] font-semibold text-[#6E6E73]">{latestMockScore === null ? 'Log a mock to set your baseline' : `pts to ${savedTargetScore || 200}`}</span>
                     </div>
                   </div>
                   <div className="rounded-2xl bg-[#FFF8EE] border border-[rgba(255,149,0,0.15)] p-3 space-y-0.5">
@@ -3294,21 +3298,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-[12px] font-bold text-[#1D1D1F]">Syllabus Coverage</span>
                   <span className="text-[12px] font-black text-[#007AFF] tabular-nums">
-                    {stats?.notesPercentage ? `${stats.notesPercentage}%` : '16%'}
+                    {`${stats?.notesPercentage ?? 0}%`}
                   </span>
                 </div>
                 <div className="w-full h-3 bg-[#F2F2F7] rounded-full overflow-hidden">
                   <motion.div
                     className="h-full rounded-full bg-gradient-to-r from-[#5AC8FA] via-[#409CFF] to-[#007AFF]"
                     initial={reducedMotion ? false : { width: 0 }}
-                    whileInView={{ width: `${Math.max(stats?.notesPercentage || 16, 5)}%` }}
+                    whileInView={{ width: `${stats?.notesPercentage ?? 0}%` }}
                     viewport={{ once: true }}
                     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                   />
                 </div>
                 <p className="text-[11px] text-[#8E8E93] font-medium">
                   {(() => {
-                    const pct = stats?.notesPercentage || 16;
+                    const pct = stats?.notesPercentage ?? 0;
                     if (pct >= 80) return 'Excellent coverage — review weak spots now.';
                     if (pct >= 50) return 'Good momentum — keep up the daily notes habit.';
                     if (pct >= 25) return 'Building a strong foundation — stay consistent.';
@@ -3341,7 +3345,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
                 <div className="text-right">
                   <div className="text-[28px] font-black text-[#FF9500] tracking-tight leading-none tabular-nums">
-                    {currentStreak || 1}
+                    {currentStreak}
                   </div>
                   <div className="text-[10px] font-bold text-[#8E8E93] uppercase tracking-wider">day streak</div>
                 </div>
@@ -3386,98 +3390,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <p className="text-[11px] text-[#8E8E93] font-medium mt-3 text-center">
                   Consistency compounds into confidence.
                 </p>
-              </div>
-            </motion.section>
-
-            {/* ── YOUR PROGRESS ── */}
-            <motion.section
-              initial={SECTION_ENTER(0.18, reducedMotion)}
-              animate={SECTION_SHOW}
-              transition={SECTION_TRANSITION(reducedMotion)}
-              className="rounded-3xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden"
-            >
-              {/* Green top stripe */}
-              <div className="h-[3px] bg-gradient-to-r from-[#30D158] via-[#4CD964] to-[#30D158]" />
-
-              {/* Header */}
-              <div className="flex items-center justify-between px-5 pt-4 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#30D158] to-[#25A040] flex items-center justify-center shadow-[0_2px_8px_rgba(48,209,88,0.30)]">
-                    <BarChart3 className="text-white" style={{ width: 18, height: 18 }} />
-                  </div>
-                  <div>
-                    <h3 className="text-[17px] font-bold text-[#1D1D1F] tracking-tight leading-none">Your Progress</h3>
-                    <p className="text-[12px] text-[#8E8E93] font-medium mt-0.5">Curriculum completion</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onNavigateTab('syllabus')}
-                  className="text-[13px] font-semibold text-[#007AFF] hover:text-[#0056CC] cursor-pointer transition-colors"
-                >
-                  All →
-                </button>
-              </div>
-
-              {/* Separator */}
-              <div className="h-px bg-[rgba(60,60,67,0.08)] mx-5" />
-
-              {/* Subject rows */}
-              <div className="px-4 py-3 space-y-1">
-                {subjectList.slice(0, 5).map((sub, idx) => {
-                  const accent = SUBJECT_ACCENT_COLORS[sub.id];
-                  const barColor = accent?.bar ?? 'bg-[#007AFF]';
-                  const pct = Math.max(sub.percentage, 2);
-                  const statusColor = sub.percentage >= 50 ? '#30D158' : sub.percentage >= 20 ? '#FF9500' : '#FF3B30';
-
-                  return (
-                    <motion.button
-                      type="button"
-                      key={sub.id}
-                      whileHover={reducedMotion ? {} : { x: 2 }}
-                      transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-                      onClick={() => onSelectSubject(sub.id)}
-                      aria-label={`${sub.name}, ${sub.percentage}% complete. Open subject progress.`}
-                      className="w-full text-left border-0 bg-transparent flex items-center gap-3 p-2.5 rounded-2xl hover:bg-[#F2F2F7] transition-colors cursor-pointer group"
-                    >
-                      {/* Color dot */}
-                      <div className={`w-2 h-2 rounded-full shrink-0 ${barColor}`} />
-
-                      {/* Name */}
-                      <span className="text-[13px] font-semibold text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors truncate flex-1 min-w-0">
-                        {sub.name}
-                      </span>
-
-                      {/* Bar */}
-                      <div className="w-20 h-1.5 bg-[#F2F2F7] rounded-full overflow-hidden shrink-0">
-                        <motion.div
-                          className={`h-full rounded-full ${barColor}`}
-                          initial={reducedMotion ? false : { width: 0 }}
-                          whileInView={{ width: `${pct}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.7, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
-                        />
-                      </div>
-
-                      {/* Percentage */}
-                      <span className="text-[12px] font-black tabular-nums w-8 text-right shrink-0" style={{ color: statusColor }}>
-                        <AnimatedNumber value={sub.percentage} />%
-                      </span>
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {/* Footer CTA */}
-              <div className="px-4 pb-4">
-                <button
-                  type="button"
-                  onClick={() => onNavigateTab('syllabus')}
-                  className="w-full h-10 rounded-2xl bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[13px] font-bold text-[#30D158] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <BarChart3 className="h-4 w-4" />
-                  View all 19 subjects
-                </button>
               </div>
             </motion.section>
 
@@ -3665,7 +3577,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Grid of Subject Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5 lg:gap-3">
-            {subjectList.map((sub, idx) => {
+            {subjectList.slice(0, 6).map((sub, idx) => {
               const isCurrent = sub.id === activeFocusSubject.id;
               const hyCount = sub.topics.filter((t) => t.isHighYield).length;
               const theme = SUBJECT_CARD_THEMES[sub.id] || DEFAULT_CARD_THEME;

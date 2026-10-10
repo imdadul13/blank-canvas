@@ -25,6 +25,7 @@ import {
 import confetti from 'canvas-confetti';
 import OneShotLogo from './OneShotLogo';
 import { useAuth } from '../context/AuthContext';
+import { getNextFmgeSessionDate } from '../utils/date';
 import {
   OnboardingPreparationStage,
   StudyPreferenceKey,
@@ -115,7 +116,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
 
   const handleSkipToWorkspace = async () => {
     try {
-      await completeOnboarding('2026-10-15', 185, 6, {
+      await completeOnboarding(getNextFmgeSessionDate(), 185, 6, {
         source: 'Marrow',
         studyPreferences: ['mcqs', 'rapid_revision'],
       });
@@ -477,7 +478,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
                   <div className="space-y-3.5 max-w-xl mx-auto">
                     <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 text-[11px] font-bold font-mono tracking-wider uppercase shadow-2xs">
                       <ShieldCheck className="size-3.5" />
-                      <span>Doctor Preparation System · NBE 2026</span>
+                      <span>Doctor Preparation System · FMGE</span>
                     </div>
                     <h1 className="text-3xl sm:text-5xl font-black tracking-[-0.035em] text-[#1D1D1F] leading-[1.12]">
                       Architect your path to{' '}
@@ -612,7 +613,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
 
                     {/* Trust Telemetry Badge */}
                     <div className="pt-4 inline-flex items-center gap-2 text-[11px] text-[#8E8E93] font-medium">
-                      <span>NBE FMGE 2026 Grounded</span>
+                      <span>FMGE study workspace</span>
                       <span>·</span>
                       <span>Local-first study workspace</span>
                       <span>·</span>

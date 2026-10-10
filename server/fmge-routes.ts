@@ -62,14 +62,138 @@ import {
 
 const app = express();
 
+type ImportedBankQuestion = {
+  id: string; exam: string; year: number | null; subjectId: string; subjectName: string;
+  topicName: string; stem: string; options: Array<{ key: string; text: string }>;
+  correctAnswer: string; explanation: string; imageUrl: string | null; imageUrls: string[];
+  sourceExplanationAvailable?: boolean; source: string; collection: string; sourcePage: number; sourceQuestionNumber: number; isImageBased: boolean;
+};
+let questionBankCache: { mtimeMs: number; questions: ImportedBankQuestion[] } | null = null;
+const activeQuestionBankSessions = new Map<string, { uid: string; expiresAt: number; questionIds: Set<string>; answers: Map<string, string> }>();
+function loadImportedQuestionBank(): ImportedBankQuestion[] {
+  const bankPath = path.join(process.cwd(), "server", "data", "question-bank.json");
+  const stat = fs.statSync(bankPath);
+  if (!questionBankCache || questionBankCache.mtimeMs !== stat.mtimeMs) {
+    const parsed = JSON.parse(fs.readFileSync(bankPath, "utf8"));
+    questionBankCache = { mtimeMs: stat.mtimeMs, questions: Array.isArray(parsed.questions) ? parsed.questions : [] };
+  }
+  return questionBankCache.questions;
+}
+function publicBankQuestion(question: ImportedBankQuestion) {
+  const { correctAnswer: _answer, explanation: _explanation, ...visible } = question;
+  return visible;
+}
+
 app.use(express.json());
 app.use("/api/user", requireAuthenticatedUser);
+app.use("/api/question-bank", requireAuthenticatedUser, createRequestRateLimit({ windowMs: 60_000, maxRequests: 90 }));
 app.use("/api/telegram", (req, res, next) => {
   if (req.path === "/webhook") return next();
   return requireAppOwner(req, res, next);
 });
 app.use("/api/ai", createRequestRateLimit({ windowMs: 60_000, maxRequests: 30 }));
 app.use("/uploads/telegram/media", express.static(path.join(process.cwd(), "public", "uploads", "telegram", "media")));
+
+// Licensed question bank: answer keys remain server-side until an answer is submitted.
+app.get("/api/question-bank/facets", (req, res) => {
+  try {
+    const questions = loadImportedQuestionBank();
+    const exam = typeof req.query.exam === "string" ? req.query.exam : "";
+    const selected = exam ? questions.filter((q) => q.exam === exam) : questions;
+    const subjects = new Map<string, { id: string; name: string; count: number }>();
+    const years = new Set<number>();
+    let imageCount = 0;
+    for (const q of selected) {
+      const entry = subjects.get(q.subjectId) || { id: q.subjectId, name: q.subjectName, count: 0 };
+      entry.count += 1;
+      subjects.set(q.subjectId, entry);
+      if (q.year) years.add(q.year);
+      if (q.isImageBased) imageCount += 1;
+    }
+    res.setHeader("Cache-Control", "private, max-age=60");
+    res.json({ exams: [...new Set(questions.map((q) => q.exam))].sort(), subjects: [...subjects.values()].sort((a, b) => a.name.localeCompare(b.name)), years: [...years].sort((a, b) => b - a), count: selected.length, imageCount });
+  } catch {
+    res.status(503).json({ error: "The question bank is not available on this deployment yet." });
+  }
+});
+
+app.post("/api/question-bank/session", createRequestRateLimit({ windowMs: 60_000, maxRequests: 12 }), (req, res) => {
+  try {
+    const exam = typeof req.body?.exam === "string" ? req.body.exam : "";
+    const subjectId = typeof req.body?.subjectId === "string" ? req.body.subjectId : "";
+    const year = Number(req.body?.year) || null;
+    const imageMode = req.body?.imageMode === "image" || req.body?.imageMode === "standard" ? req.body.imageMode : "all";
+    const requested = Math.min(50, Math.max(1, Number(req.body?.count) || 10));
+    let pool = loadImportedQuestionBank().filter((q) =>
+      (!exam || q.exam === exam) && (!subjectId || q.subjectId === subjectId) && (!year || q.year === year) &&
+      (imageMode === "all" || (imageMode === "image" ? q.isImageBased : !q.isImageBased))
+    );
+    if (!pool.length) return res.status(404).json({ error: "No questions match these filters." });
+    // Fisher–Yates sample, bounded to the matching pool.
+    pool = [...pool];
+    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+    const questions = pool.slice(0, requested).map(publicBankQuestion);
+    const sessionId = `qbank-${crypto.randomBytes(24).toString("hex")}`;
+    const now = Date.now();
+    for (const [key, value] of activeQuestionBankSessions) if (value.expiresAt <= now) activeQuestionBankSessions.delete(key);
+    const uid = (res.locals.firebaseUser as { uid: string }).uid;
+    activeQuestionBankSessions.set(sessionId, { uid, expiresAt: now + 2 * 60 * 60 * 1000, questionIds: new Set(questions.map((q) => q.id)), answers: new Map() });
+    res.setHeader("Cache-Control", "no-store");
+    res.json({ sessionId, totalAvailable: pool.length, questions });
+  } catch {
+    res.status(503).json({ error: "The question bank is not available on this deployment yet." });
+  }
+});
+
+app.post("/api/question-bank/answer", (req, res) => {
+  const { questionId, selectedAnswer, sessionId } = req.body || {};
+  if (typeof questionId !== "string" || typeof sessionId !== "string" || !/^[A-D]$/.test(selectedAnswer)) return res.status(400).json({ error: "A session, question ID and selected option A–D are required." });
+  try {
+    const session = activeQuestionBankSessions.get(sessionId);
+    if (!session || session.uid !== (res.locals.firebaseUser as { uid: string }).uid || session.expiresAt <= Date.now() || !session.questionIds.has(questionId)) return res.status(403).json({ error: "This question is not part of your active practice set. Start a new set." });
+    if (session.answers.has(questionId)) return res.status(409).json({ error: "This answer has already been submitted." });
+    const question = loadImportedQuestionBank().find((q) => q.id === questionId);
+    if (!question) return res.status(404).json({ error: "Question not found." });
+    session.answers.set(questionId, selectedAnswer);
+    res.setHeader("Cache-Control", "no-store");
+    res.json({ correct: selectedAnswer === question.correctAnswer, correctAnswer: question.correctAnswer, explanation: question.explanation, sourceExplanationAvailable: question.sourceExplanationAvailable !== false, source: question.source, sourcePage: question.sourcePage });
+  } catch {
+    res.status(503).json({ error: "The question bank is not available on this deployment yet." });
+  }
+});
+
+app.post("/api/question-bank/tutor", createRequestRateLimit({ windowMs: 60_000, maxRequests: 8 }), async (req, res) => {
+  const { questionId, sessionId } = req.body || {};
+  if (typeof questionId !== "string" || typeof sessionId !== "string") return res.status(400).json({ error: "An active practice session and question ID are required." });
+  try {
+    const session = activeQuestionBankSessions.get(sessionId);
+    const selectedAnswer = session?.answers.get(questionId);
+    if (!session || session.uid !== (res.locals.firebaseUser as { uid: string }).uid || session.expiresAt <= Date.now() || !session.questionIds.has(questionId) || !selectedAnswer) return res.status(403).json({ error: "Answer this question in your active practice set before requesting a tutor review." });
+    const question = loadImportedQuestionBank().find((q) => q.id === questionId);
+    if (!question) return res.status(404).json({ error: "Question not found." });
+    if (selectedAnswer === question.correctAnswer) return res.status(400).json({ error: "The detailed tutor review is reserved for missed questions." });
+    const optionList = question.options.map((o) => `${o.key}. ${o.text}${o.key === question.correctAnswer ? " [CORRECT]" : ""}${o.key === selectedAnswer ? " [STUDENT SELECTED]" : ""}`).join("\n");
+    const sourceRationale = question.sourceExplanationAvailable === false ? "None supplied in the source PDF; do not treat any placeholder as medical rationale." : question.explanation;
+    const prompt = `Teach this ${question.exam} medical entrance question after the learner selected an incorrect answer. Use the supplied answer key as authoritative; do not change the key. If a source rationale is supplied, use it as authoritative; otherwise explain from the question and answer key, flag uncertainty, and never imply the source provided a rationale. Provide option-by-option educational reasoning grounded in the case. Be concise but thorough, and label AI-derived teaching clearly.\nEXAM: ${question.exam}${question.year ? ` ${question.year}` : ""}\nSUBJECT: ${question.subjectName}\nQUESTION: ${question.stem}\nOPTIONS:\n${optionList}\nAUTHORITATIVE KEY: ${question.correctAnswer}\nSOURCE RATIONALE: ${sourceRationale}\nSTUDENT CHOICE: ${selectedAnswer}\nReturn valid JSON only: {"whyIncorrect":"...","optionAnalysis":[{"key":"A","verdict":"correct|incorrect","reason":"..."}],"examTrap":"...","memoryAid":"...","clinicalPearl":"..."}. Include all four options exactly once. Do not invent an image finding; describe only what the stem and supplied rationale support.`;
+    const parts: any[] = [{ text: prompt }];
+    if (question.imageUrl) {
+      try {
+        const imagePath = path.join(process.cwd(), "public", question.imageUrl.replace(/^\/+/, ""));
+        const imageBytes = fs.readFileSync(imagePath);
+        parts.push({ inlineData: { mimeType: "image/webp", data: imageBytes.toString("base64") } });
+      } catch { /* The text rationale remains sufficient if an image asset is unavailable. */ }
+    }
+    const response = await callGeminiWithRetry({ model: "gemini-3.5-flash-lite", contents: [{ role: "user", parts }], config: { responseMimeType: "application/json", systemInstruction: "You are a careful FMGE, NEET-PG and INI-CET medical examination tutor. Preserve the authoritative answer key and distinguish supplied source facts from your teaching synthesis." } });
+    const parsed = JSON.parse(response.text || "{}");
+    const keys = new Set(["A", "B", "C", "D"]);
+    const optionAnalysis = Array.isArray(parsed.optionAnalysis) ? parsed.optionAnalysis.filter((item: any) => keys.has(item?.key) && typeof item?.reason === "string" && ["correct", "incorrect"].includes(item?.verdict)).slice(0, 4) : [];
+    const uniqueKeys = new Set(optionAnalysis.map((item: any) => item.key));
+    if (optionAnalysis.length !== 4 || uniqueKeys.size !== 4 || !["whyIncorrect", "examTrap", "memoryAid", "clinicalPearl"].every((key) => typeof parsed[key] === "string" && parsed[key].trim().length > 0)) throw new Error("Tutor response was incomplete.");
+    res.json({ ...parsed, correctAnswer: question.correctAnswer, sourceRationale: question.explanation, aiGenerated: true });
+  } catch (error: any) {
+    res.status(503).json({ error: "Gemini could not prepare the detailed review. The source explanation and answer key are still available.", detail: error?.message || "Tutor unavailable" });
+  }
+});
 
 // User state is stored in the local JSON adapter until the shared PostgreSQL
 // migration is completed. Firebase remains the identity source.

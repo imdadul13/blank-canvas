@@ -159,13 +159,12 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
     const total = errors.length;
     const reviewed = errors.filter((e) => e.isReviewed).length;
     const unreviewed = total - reviewed;
-    const pct = total > 0 ? Math.round((reviewed / total) * 100) : 100;
-    const accuracyGain = total > 0 ? Math.min(38, Math.max(0, Math.round(pct * 0.28 + (reviewed > 0 ? 5 : 0)))) : 0;
-    return { total, reviewed, unreviewed, pct, accuracyGain };
+    const pct = total > 0 ? Math.round((reviewed / total) * 100) : 0;
+    return { total, reviewed, unreviewed, pct };
   }, [errors]);
 
   const patternInsights = useMemo(() => {
-    if (errors.length === 0) return { conceptGap: 42, knowledgeRecall: 28, carelessMistake: 18, clinicalInterpretation: 12 };
+    if (errors.length === 0) return { conceptGap: 0, knowledgeRecall: 0, carelessMistake: 0, clinicalInterpretation: 0 };
     let cg = 0, kr = 0, cm = 0, ci = 0;
     errors.forEach((err) => {
       const t = classifyMistakeType(err);
@@ -294,25 +293,24 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
       </nav>
 
       {/* Hero header */}
-      <div className="relative rounded-3xl overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #1A0500 0%, #3D0E00 40%, #7A2200 70%, #CC3300 100%)', boxShadow: '0 8px 40px rgba(255,59,48,0.28), 0 2px 8px rgba(0,0,0,0.12)' }}>
+      <div className="error-vault-hero relative rounded-3xl overflow-hidden">
         <div className="absolute right-0 top-0 bottom-0 w-2/3 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 85% 40%, rgba(255,59,48,0.35) 0%, transparent 65%)' }} />
-        <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+          style={{ background: 'radial-gradient(ellipse at 85% 40%, rgba(255,59,48,0.10) 0%, transparent 65%)' }} />
+        <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/65 to-transparent pointer-events-none" />
         <div className="relative z-10 px-5 sm:px-7 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center">
-                <Target className="h-3.5 w-3.5 text-white" />
+              <div className="w-7 h-7 rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/15 flex items-center justify-center">
+                <Target className="h-3.5 w-3.5 text-[#D92D25]" />
               </div>
-              <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#FF9F9F]">
+              <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#C9342C]">
                 Error Vault · Clinical Remediation
               </span>
             </div>
-            <h1 className="text-[22px] sm:text-[28px] font-black tracking-tight text-white leading-tight">
+            <h1 className="text-[22px] sm:text-[28px] font-black tracking-tight text-[#1D1D1F] leading-tight">
               Turn Mistakes Into Mastery
             </h1>
-            <p className="text-[12px] text-white/60 max-w-md">
+            <p className="text-[12px] text-[#6E6E73] max-w-md">
               Review, understand, and overcome weak areas with structured distractor and error analysis.
             </p>
           </div>
@@ -328,9 +326,9 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Total Errors', value: metrics.total, sub: 'Questions to review', icon: FileText, color: '#FF3B30', bg: 'rgba(255,59,48,0.06)', border: 'rgba(255,59,48,0.18)' },
-          { label: 'Resolved', value: metrics.reviewed, sub: `${metrics.pct}% cleared`, icon: CheckCircle2, color: '#30D158', bg: 'rgba(48,209,88,0.06)', border: 'rgba(48,209,88,0.18)' },
-          { label: 'Pending', value: metrics.unreviewed, sub: metrics.total > 0 ? `${100 - metrics.pct}% backlog` : 'Clean slate', icon: Clock, color: '#FF9500', bg: 'rgba(255,149,0,0.06)', border: 'rgba(255,149,0,0.18)' },
-          { label: 'Est. Score Gain', value: `+${metrics.accuracyGain}%`, sub: 'After full review', icon: TrendingUp, color: '#007AFF', bg: 'rgba(0,122,255,0.06)', border: 'rgba(0,122,255,0.18)' },
+          { label: 'Resolved', value: metrics.reviewed, sub: metrics.total > 0 ? `${metrics.pct}% cleared` : 'No history yet', icon: CheckCircle2, color: '#30D158', bg: 'rgba(48,209,88,0.06)', border: 'rgba(48,209,88,0.18)' },
+          { label: 'Pending', value: metrics.unreviewed, sub: metrics.total > 0 ? `${100 - metrics.pct}% backlog` : 'No errors yet', icon: Clock, color: '#FF9500', bg: 'rgba(255,149,0,0.06)', border: 'rgba(255,149,0,0.18)' },
+          { label: 'Due Today', value: spacedSummary.dueCount, sub: metrics.total > 0 ? 'Spaced recall queue' : 'No reviews due', icon: RotateCcw, color: '#007AFF', bg: 'rgba(0,122,255,0.06)', border: 'rgba(0,122,255,0.18)' },
         ].map(({ label, value, sub, icon: Icon, color, bg, border }) => (
           <div key={label} className="p-4 rounded-2xl border space-y-2" style={{ background: bg, borderColor: border }}>
             <div className="flex items-center justify-between">
@@ -530,8 +528,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                     style={{ borderColor: isExpanded ? 'rgba(255,59,48,0.35)' : err.isReviewed ? 'rgba(48,209,88,0.2)' : 'rgba(60,60,67,0.1)', boxShadow: isExpanded ? '0 4px 16px rgba(255,59,48,0.08)' : undefined }}>
 
                     {/* Card header */}
-                    <div onClick={() => setExpandedErrorId(isExpanded ? null : err.id)}
-                      className="p-4 sm:p-5 flex items-start sm:items-center justify-between gap-3 cursor-pointer">
+                    <div className="p-4 sm:p-5 flex items-start sm:items-center justify-between gap-3">
                       <div className="flex items-start gap-3 min-w-0">
                         {/* Left accent bar */}
                         <div className="w-1 h-full min-h-[44px] rounded-full shrink-0 self-stretch" style={{ background: specColor, opacity: 0.7 }} />
@@ -684,11 +681,11 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                 <div key={label} className="space-y-1">
                   <div className="flex items-center justify-between text-[12px]">
                     <span className="text-[#3A3A3C] font-medium">{label}</span>
-                    <span className="font-mono font-bold text-[#1D1D1F]">{value}%</span>
+                  <span className="font-mono font-bold text-[#1D1D1F]">{metrics.total > 0 ? `${value}%` : '—'}</span>
                   </div>
                   <div className="h-1.5 w-full rounded-full bg-[#F2F2F7] overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${value}%`, background: color }} />
+                    style={{ width: `${metrics.total > 0 ? value : 0}%`, background: color }} />
                   </div>
                 </div>
               ))}
@@ -699,13 +696,13 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
                 <svg width="52" height="52" viewBox="0 0 52 52" className="-rotate-90">
                   <circle cx="26" cy="26" r="20" fill="none" stroke="#F2F2F7" strokeWidth="5" />
                   <circle cx="26" cy="26" r="20" fill="none"
-                    stroke={metrics.pct >= 70 ? '#30D158' : metrics.pct >= 40 ? '#FF9500' : '#FF3B30'}
+                    stroke={metrics.total === 0 ? '#C7C7CC' : metrics.pct >= 70 ? '#30D158' : metrics.pct >= 40 ? '#FF9500' : '#FF3B30'}
                     strokeWidth="5" strokeLinecap="round"
                     strokeDasharray={2 * Math.PI * 20}
                     strokeDashoffset={2 * Math.PI * 20 * (1 - metrics.pct / 100)}
                     style={{ transition: 'stroke-dashoffset 0.8s ease' }} />
                 </svg>
-                <span className="absolute text-[11px] font-black font-mono text-[#1D1D1F]">{metrics.pct}%</span>
+                <span className="absolute text-[11px] font-black font-mono text-[#1D1D1F]">{metrics.total > 0 ? `${metrics.pct}%` : '—'}</span>
               </div>
               <div>
                 <p className="text-[12px] font-bold text-[#1D1D1F]">Resolution Rate</p>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Stethoscope,
   Send,
@@ -555,6 +555,38 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
     return [];
   });
 
+  // Older local history can contain the same completed user/assistant pair
+  // twice. Collapse only byte-for-byte identical, adjacent rendered pairs;
+  // keep the saved session untouched so an intentional repeated inquiry is
+  // never removed from the user's history.
+  const displayMessages = useMemo(() => {
+    const sameMessage = (a?: ChatMessage, b?: ChatMessage) => {
+      if (!a || !b) return false;
+      return a.id === b.id || (
+        a.role === b.role &&
+        a.content === b.content &&
+        formatMessageTime(a.timestamp) === formatMessageTime(b.timestamp) &&
+        JSON.stringify(a.userAttachedImage || null) === JSON.stringify(b.userAttachedImage || null) &&
+        JSON.stringify(a.singleQuiz || null) === JSON.stringify(b.singleQuiz || null)
+      );
+    };
+    const visible: ChatMessage[] = [];
+    for (let index = 0; index < messages.length; index += 1) {
+      const repeatsPreviousPair =
+        visible.length >= 2 &&
+        index + 1 < messages.length &&
+        visible[visible.length - 2].role !== visible[visible.length - 1].role &&
+        sameMessage(messages[index], visible[visible.length - 2]) &&
+        sameMessage(messages[index + 1], visible[visible.length - 1]);
+      if (repeatsPreviousPair) {
+        index += 1;
+        continue;
+      }
+      visible.push(messages[index]);
+    }
+    return visible;
+  }, [messages]);
+
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isPromptHighlighted, setIsPromptHighlighted] = useState(false);
   
@@ -564,22 +596,26 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   // Gemini API Engine Status & Key Modal State
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
   const [aiConfigured, setAiConfigured] = useState<boolean | null>(null);
+  const [aiStatusUnavailable, setAiStatusUnavailable] = useState(false);
 
-  const checkAiStatus = () => {
-    fetch('/api/ai/status')
-      .then((r) => r.json())
-      .then((data) => {
-        if (typeof data?.configured === 'boolean') {
-          setAiConfigured(data.configured);
-        }
-      })
-      .catch(() => {});
-  };
+  const checkAiStatus = useCallback(async () => {
+    setAiStatusUnavailable(false);
+    try {
+      const response = await fetch('/api/ai/status');
+      if (!response.ok) throw new Error('AI status request failed');
+      const data = await response.json();
+      if (typeof data?.configured !== 'boolean') throw new Error('AI status response was incomplete');
+      setAiConfigured(data.configured);
+    } catch {
+      setAiConfigured(null);
+      setAiStatusUnavailable(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (!historyReady) return;
-    checkAiStatus();
-  }, []);
+    void checkAiStatus();
+  }, [historyReady, checkAiStatus]);
 
   // Student Image Attachment State
   const [attachedImage, setAttachedImage] = useState<{
@@ -1865,7 +1901,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
   return (
     <div
       data-accent="mentor"
-      className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5 pb-24 sm:pb-20 lg:pb-16 font-sans text-slate-900"
+      className="mentor-workspace w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5 pb-24 sm:pb-20 lg:pb-16 font-sans text-slate-900"
     >
       {/* ================= EDITORIAL FACULTY MENTOR HEADER ================= */}
       <MentorHeader
@@ -1878,6 +1914,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         onToggleGoldenHour={() => setIsGoldenHourActive((prev) => !prev)}
         onOpenKeyConfig={() => setIsKeyModalOpen(true)}
         isAiConfigured={aiConfigured}
+        isAiStatusUnavailable={aiStatusUnavailable}
+        onCheckAiStatus={checkAiStatus}
         activeMode={quizSession ? 'quiz' : 'consultation'}
         onModeChange={(mode) => {
           if (mode === 'consultation') {
@@ -1934,12 +1972,12 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
       )}
 
       {/* 3. Main Clinical Consultation Workspace Card — Apple HIG Layered Surface */}
-      <div className="relative flex flex-col overflow-hidden rounded-[2rem] border border-black/[0.06] bg-[#FBFBFD] shadow-[0_4px_24px_rgba(0,0,0,0.03),0_1px_3px_rgba(0,0,0,0.02)] h-[calc(100dvh-250px)] min-h-[400px] sm:h-[calc(100vh-185px)] sm:min-h-[540px] max-h-[850px]">
+      <div className="mentor-chat-shell relative flex min-h-0 flex-col overflow-hidden rounded-[2rem] border border-black/[0.06] bg-[#FBFBFD] shadow-[0_4px_24px_rgba(0,0,0,0.03),0_1px_3px_rgba(0,0,0,0.02)] h-[calc(100dvh-250px)] min-h-[400px] sm:h-[calc(100dvh-185px)] sm:min-h-[540px] max-h-[850px]">
         {/* Scrollable Conversational Message Stream */}
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="mentor-messages-scroller flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 space-y-5 scroll-smooth overscroll-contain relative"
+          className="mentor-messages-scroller flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 space-y-6 scroll-smooth overscroll-contain relative"
         >
           {messages.length === 0 ? (
             <motion.div
@@ -2035,13 +2073,13 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               </div>
             </motion.div>
           ) : (
-            messages.map((msg) => (
+            displayMessages.map((msg) => (
               <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, y: 8 }}
+                initial={reducedMotion ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-            className="w-full flex justify-start"
+                transition={reducedMotion ? { duration: 0 } : { duration: 0.24, ease: [0.2, 0.7, 0.2, 1] }}
+            className="mentor-message-row w-full flex justify-start"
           >
             {/* User Bubble */}
             {msg.role === 'user' ? (
@@ -2080,8 +2118,8 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               <div className="flex w-full items-start gap-2.5 sm:gap-3">
                 <IconTile icon={GraduationCap} size={32} color="var(--accent)" className="mt-0.5 rounded-full" />
                 <div className="min-w-0 flex-1 space-y-3">
-                  <div className="flex items-center justify-between pb-1">
-                    <div className="flex flex-col">
+                  <div className="mentor-message-toolbar flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 pb-1">
+                    <div className="mentor-message-byline flex min-w-0 flex-1 flex-col">
                       <span className="t-section text-[var(--color-ink)]">Faculty Mentor</span>
                       {isLoading && !msg.content ? (
                         <div className="flex items-center gap-1.5 pt-0.5 text-xs font-medium text-accent">
@@ -2101,11 +2139,11 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                           </span>
                         </div>
                       ) : (
-                        <span className="text-[11px] text-slate-400 font-sans">Clinical Faculty · High-Yield FMGE</span>
+                        <span className="mentor-message-caption text-[11px] text-slate-400 font-sans">Clinical Faculty · High-Yield FMGE</span>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="mentor-message-actions flex shrink-0 items-center gap-1">
                       {onAddCustomPearl && msg.content && (
                         <button
                           type="button"
@@ -2117,12 +2155,12 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                           {savedPearlIds.has(msg.id) ? (
                             <>
                               <BookmarkCheck className="h-3.5 w-3.5 text-teal-600" />
-                              <span className="text-teal-600 font-medium text-[11px]">Saved to Pearls</span>
+                              <span className="mentor-action-label text-teal-600 font-medium text-[11px]">Saved to Pearls</span>
                             </>
                           ) : (
                             <>
                               <BookmarkPlus className="h-3.5 w-3.5" />
-                              <span className="text-[11px]">Save as Pearl</span>
+                              <span className="mentor-action-label text-[11px]">Save as Pearl</span>
                             </>
                           )}
                         </button>
@@ -2150,12 +2188,12 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                           {playingFacultyMsgId === msg.id ? (
                             <>
                               <Volume2 className="h-3.5 w-3.5 text-teal-700" />
-                              <span className="text-[11px] text-teal-700">Listening...</span>
+                              <span className="mentor-action-label text-[11px] text-teal-700">Listening...</span>
                             </>
                           ) : (
                             <>
                               <VolumeX className="h-3.5 w-3.5" />
-                              <span className="text-[11px]">Listen</span>
+                              <span className="mentor-action-label text-[11px]">Listen</span>
                             </>
                           )}
                         </button>
@@ -2172,12 +2210,12 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                           {copiedMessageId === msg.id ? (
                             <>
                               <Check className="h-3.5 w-3.5 text-emerald-600" />
-                              <span className="text-emerald-600 font-medium text-[11px]">Copied</span>
+                              <span className="mentor-action-label text-emerald-600 font-medium text-[11px]">Copied</span>
                             </>
                           ) : (
                             <>
                               <Copy className="h-3.5 w-3.5" />
-                              <span className="text-[11px]">Copy</span>
+                              <span className="mentor-action-label text-[11px]">Copy</span>
                             </>
                           )}
                         </button>
@@ -2202,7 +2240,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                     </div>
                   ) : msg.content ? (
                     <div className="transition-opacity duration-200">
-                      <MarkdownRenderer content={msg.content} />
+                      <MarkdownRenderer content={msg.content} className="mentor-answer" />
 
                       {/* Contextual High-Yield Active Recall Chips */}
                       {!isLoading && !msg.isError && msg.content && (

@@ -106,16 +106,17 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   const [isConnected, setIsConnected] = useState(false);
   const [userProfile, setUserProfile] = useState<{ id: string; firstName: string; username?: string; phone: string } | null>(null);
   const [workerHealth, setWorkerHealth] = useState<{ status: string; lastHeartbeat: string; activeSourcesCount: number; lastSync?: string }>({
-    status: "ONLINE",
-    lastHeartbeat: new Date().toISOString(),
+    status: "CHECKING",
+    lastHeartbeat: "",
     activeSourcesCount: 0,
   });
   const [dbHealth, setDbHealth] = useState<{ status: string; totalMessages: number; totalQuestions: number; totalPearls: number }>({
-    status: "CONNECTED",
+    status: "CHECKING",
     totalMessages: 0,
     totalQuestions: 0,
     totalPearls: 0,
   });
+  const [isStatusLoading, setIsStatusLoading] = useState(true);
 
   // 2. Data Feed State — Phase 2 Canonical Hub State
   const [curatedItems, setCuratedItems] = useState<CanonicalKnowledgeItem[]>([]);
@@ -230,10 +231,23 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           setIsConnected(Boolean(data.isConnected));
           setUserProfile(data.userProfile);
           if (data.worker) setWorkerHealth(data.worker);
+          else setWorkerHealth((current) => ({ ...current, status: "UNKNOWN" }));
           if (data.database) setDbHealth(data.database);
+          else setDbHealth((current) => ({ ...current, status: "UNKNOWN" }));
+        } else {
+          setWorkerHealth((current) => ({ ...current, status: "UNAVAILABLE" }));
+          setDbHealth((current) => ({ ...current, status: "UNAVAILABLE" }));
         }
+      } else {
+        setWorkerHealth((current) => ({ ...current, status: "UNAVAILABLE" }));
+        setDbHealth((current) => ({ ...current, status: "UNAVAILABLE" }));
       }
-    } catch (_) {}
+    } catch (_) {
+      setWorkerHealth((current) => ({ ...current, status: "UNAVAILABLE" }));
+      setDbHealth((current) => ({ ...current, status: "UNAVAILABLE" }));
+    } finally {
+      setIsStatusLoading(false);
+    }
   };
 
   const fetchFeed = async (pageToFetch = 1) => {
@@ -1313,6 +1327,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         userProfile={userProfile}
         workerHealth={workerHealth}
         dbHealth={dbHealth}
+        isStatusLoading={isStatusLoading}
         onOpenConnectModal={() => {
           setAuthMethod("qr");
           setAuthStep("phone");

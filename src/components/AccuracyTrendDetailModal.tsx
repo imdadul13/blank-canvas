@@ -198,7 +198,7 @@ export const AccuracyTrendDetailModal: React.FC<AccuracyTrendDetailModalProps> =
                 </span>
               </div>
               <span className="text-[10px] font-mono text-stone-400 block">
-                NBE Target: $\ge 50\%$ minimum
+                NBE Target: ≥ 50% minimum
               </span>
             </div>
 

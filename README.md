@@ -46,6 +46,13 @@ npm start            # Starts the production web server
 npm run start:worker # Starts the Telegram background worker
 ```
 
+### Licensed question-bank content
+The Question Bank workspace reads `server/data/question-bank.json` on the web server and serves optimized figures from `public/qbank-images/`. Import licensed PDFs locally with `python scripts/import-question-bank.py /path/to/pdf-folder`; the folder should contain the five `*_unlocked.pdf` source files. The local Python environment needs `pypdf`, `pdfplumber` and Pillow. The importer validates four-option answer keys, records source/page metadata, deduplicates matching question variants without merging conflicting answer keys, and writes `question-bank-import-report.json`. It preserves valid questions even when the source PDF has no rationale, flags those records, and shows learners that the source explanation is missing. Do not add the original PDFs to the repository or client bundle. Include the generated JSON and image assets in the web-service deployment so the bank is available at runtime.
+
+Chapterwise subject headings are used directly. For yearwise books without question-level subject labels, the importer classifies from question text and leaves uncertain cases under **Uncategorized** rather than presenting a low-confidence subject as fact.
+
+Answer keys and source explanations are returned only after a learner submits an answer in an authenticated practice session. Incorrect answers can request a Gemini option-by-option tutor review; configure `GEMINI_API_KEY` for that AI layer. The source explanation remains available if Gemini is unavailable.
+
 ---
 
 ## 🌐 Deployment Options

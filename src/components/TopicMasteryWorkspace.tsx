@@ -400,7 +400,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
   const activeKeyTakeaways = aiMasteryData?.keyTakeaways || activeCoreConcepts?.slice(0, 4);
 
   return (
-    <div className="overflow-y-auto font-sans text-slate-900" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9100, backgroundColor: '#1D1D1F' }}>
+    <div className="topic-mastery-workspace overflow-y-auto font-sans text-slate-900" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9100, backgroundColor: '#1D1D1F' }}>
       <div className="flex items-center justify-center p-0 sm:p-4 md:p-6" style={{ minHeight: '100vh' }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 16 }}
