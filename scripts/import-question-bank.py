@@ -31,9 +31,11 @@ SOURCES = {
 # Coordinates use pdfplumber's (x0, top, x1, bottom) page coordinate system.
 MANUAL_FIGURE_CROPS = {
     ("FMGE-Chapterwise", 22, 90): (45, 398, 280, 598),
+    ("FMGE-Chapterwise", 18, 68): (120, 530, 225, 673),
     ("FMGE-Chapterwise", 612, 282): (300, 176, 538, 235),
     ("FMGE-Chapterwise", 741, 260): (300, 518, 538, 591),
     ("FMGE-Yearwise", 663, 8): (38, 435, 276, 636),
+    ("FMGE-Yearwise", 439, 21): (126, 535, 225, 690),
     ("FMGE-Yearwise", 921, 217): (38, 134, 276, 204),
     ("FMGE-Yearwise", 923, 153): (38, 391, 276, 450),
     ("FMGE-Yearwise", 1045, 237): (38, 435, 276, 668),
