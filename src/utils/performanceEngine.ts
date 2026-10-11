@@ -33,6 +33,7 @@ export interface NewMcqAttemptInput {
   attemptNumber?: number;
   timestamp?: string;
   source: McqAttemptSource;
+  exam?: 'FMGE' | 'NEET-PG' | 'INI-CET';
   sessionId?: string;
   practiceSessionId?: string;
   isImageBased?: boolean;
@@ -467,6 +468,7 @@ export function recordMcqAttempt(
     attemptNumber,
     timestamp,
     source: input.source,
+    exam: input.exam,
     sessionId: input.sessionId,
     practiceSessionId: input.practiceSessionId || input.sessionId,
     isImageBased: input.isImageBased ?? Boolean(input.imageUrl),

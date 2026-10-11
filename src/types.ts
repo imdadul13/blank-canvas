@@ -896,6 +896,8 @@ export interface McqAttempt {
   attemptNumber: number;
   timestamp: string; // ISO date string e.g. 2026-08-31T13:15:00.000Z
   source: McqAttemptSource;
+  /** Exam family for QBank attempts; absent on older saved attempts. */
+  exam?: 'FMGE' | 'NEET-PG' | 'INI-CET';
   sessionId?: string;
   practiceSessionId?: string;
   isImageBased?: boolean;
@@ -1075,6 +1077,8 @@ export interface AppState {
     startedOn: string;
     dailyHours: number;
     completedTasks: Record<string, boolean>;
+    /** Learner-tagged reason for recent QBank errors, keyed by question id. */
+    errorTypes?: Record<string, 'knowledge' | 'confusion' | 'misread' | 'guess'>;
   };
 }
 

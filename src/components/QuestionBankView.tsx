@@ -13,6 +13,7 @@ type BankQuestion = { id: string; exam: Exam; year: number | null; subjectId: st
 type Facets = { exams: Exam[]; subjects: Array<{id: string; name: string; count: number}>; years: number[]; count: number; imageCount: number };
 type Review = { correct: boolean; correctAnswer: string; explanation: string; sourceExplanationAvailable?: boolean; source: string; sourcePage: number };
 type TutorReview = { learnerChoiceInsight: string; decisionRule: string; retrievalQuestion: string; retrievalAnswer: string; optionAnalysis: Array<{key: string; verdict: string; reason: string}>; examTrap: string; memoryAid: string; clinicalPearl: string; aiGenerated: boolean };
+type SprintErrorType = NonNullable<AppState['fmgeSprint']>['errorTypes'] extends Record<string, infer T> | undefined ? T : never;
 
 async function responseJson(response: Response) {
   const data = await response.json().catch(() => ({}));
@@ -126,9 +127,10 @@ export const QuestionBankView: React.FC<{
   </div>;
 };
 
-type SprintDay = { title: string; subjects: string[]; focus: string; questions: number; fullMock?: boolean };
+type SprintDay = { title: string; subjects: string[]; focus: string; questions: number; fullMock?: boolean; restDay?: boolean; checkpoint?: boolean };
 
 const SPRINT_DAYS: SprintDay[] = [
+  { title: 'Baseline · mixed diagnostic', subjects: [], focus: 'Start with a timed 50-question mixed set. Review every wrong, guessed and slow answer; this is a diagnostic, not a prediction of your final score.', questions: 50 },
   { title: 'Medicine · foundations & emergencies', subjects: ['medicine'], focus: 'Approach, common presentations, ECG, shock, fluids and emergency first steps.', questions: 60 },
   { title: 'Medicine · systems & image cases', subjects: ['medicine'], focus: 'Cardiology, respiratory, neurology, renal and endocrine patterns; review ECGs and radiology.', questions: 60 },
   { title: 'Surgery · core decisions', subjects: ['surgery'], focus: 'Trauma, acute abdomen, fluids, wound healing, breast and thyroid; practise the next best step.', questions: 60 },
@@ -141,43 +143,62 @@ const SPRINT_DAYS: SprintDay[] = [
   { title: 'Anatomy & physiology', subjects: ['anatomy', 'physiology'], focus: 'Neuroanatomy, nerves, embryology, reflexes and high-yield physiology graphs.', questions: 50 },
   { title: 'Biochemistry & forensic medicine', subjects: ['biochemistry', 'fmt'], focus: 'Metabolic diseases, vitamins, molecular methods, toxicology and legal essentials.', questions: 50 },
   { title: 'ENT & ophthalmology', subjects: ['ent', 'ophthalmology'], focus: 'Visual and clinical spotters, red flags, common nerve lesions and first-line management.', questions: 50 },
-  { title: 'Short subjects', subjects: ['dermatology', 'psychiatry', 'orthopedics', 'radiology', 'anesthesia'], focus: 'Recognize classic images, emergency actions, common drugs and frequently confused pairs.', questions: 60 },
-  { title: 'Mixed test · diagnose your gaps', subjects: [], focus: 'Timed mixed set, then review every miss. Use this result to choose the next revision blocks.', questions: 100 },
-  { title: 'Medicine & surgery · weak areas', subjects: ['medicine', 'surgery'], focus: 'Return to your lowest-scoring systems and redo missed questions without notes first.', questions: 70 },
-  { title: 'OBG, pediatrics & PSM · weak areas', subjects: ['obg', 'pediatrics', 'psm'], focus: 'Revise algorithms, thresholds, vaccine schedules and preventive-care concepts you missed.', questions: 70 },
-  { title: 'Preclinical & paraclinical recall', subjects: ['anatomy', 'physiology', 'biochemistry', 'pathology', 'pharmacology', 'microbiology'], focus: 'Use active recall: pathways, mechanisms, organisms, images, antidotes and close differentials.', questions: 80 },
-  { title: 'Full-length mock & careful review', subjects: [], focus: 'Take a full 300-question mock in two timed blocks, then review wrong and guessed answers. Log the score in Grand Tests.', questions: 300, fullMock: true },
+  { title: 'Short subjects & radiotherapy', subjects: ['dermatology', 'psychiatry', 'orthopedics', 'radiology', 'anesthesia'], focus: 'Recognize classic images, emergency actions, common drugs and frequently confused pairs; include core radiotherapy principles because it carries a separate 5-mark blueprint allocation.', questions: 60 },
+  { title: 'Checkpoint · mixed timed set', subjects: [], focus: 'Take a timed 100-question mixed set. Compare accuracy and pacing with your baseline, then use the next study blocks for the weakest areas.', questions: 100, checkpoint: true },
+  { title: 'Repair your highest-impact gaps', subjects: [], focus: 'Use recent question accuracy, uncertain answers and mock weaknesses to choose two priority subjects. Revisit missed concepts before new content.', questions: 70 },
+  { title: 'Checkpoint · full mock', subjects: [], focus: 'Complete a 300-question mock as two 150-question blocks, each timed for 150 minutes, with a break between them. Review wrong, guessed and skipped answers, then record weak subjects in Grand Tests.', questions: 300, fullMock: true, checkpoint: true },
   { title: 'Repair the final gaps', subjects: [], focus: 'Target the three weakest subjects from your mock; finish image questions and revisit your error list.', questions: 80 },
-  { title: 'Rapid recall & rest', subjects: [], focus: 'Review concise notes, formulas, images and personal mistakes. Stop heavy study early and protect sleep.', questions: 30 },
+  { title: 'Final checkpoint · mixed recall', subjects: [], focus: 'Do a 100-question mixed set, or a full mock only if you are rested and have not completed one recently. Review recurring errors; avoid exhausting yourself before the exam.', questions: 100, checkpoint: true },
+  { title: 'Exam eve · light recall & rest', subjects: [], focus: 'Review only your own concise error list, essential images and formulas. Prepare exam logistics, stop early, eat normally and protect sleep. No full mock or new chapters.', questions: 20, restDay: true },
 ];
 
-const FMGE_BLUEPRINT_WEIGHTS: Record<string, number> = {
-  anatomy: 17, physiology: 17, biochemistry: 17, pathology: 13, microbiology: 13,
-  pharmacology: 13, fmt: 10, medicine: 33, psychiatry: 5, dermatology: 5,
-  surgery: 32, anesthesia: 5, orthopedics: 5, radiology: 5, pediatrics: 15,
-  ophthalmology: 15, ent: 15, obg: 30, psm: 30,
+// NBEMS June 2026 bulletin, section 12.2. These are blueprint marks, not
+// promised question counts in each sitting. The bank currently lacks a
+// separate Radiotherapy subject tag, so those 5 marks remain an allied-topic gap.
+const FMGE_BLUEPRINT_MARKS: Record<string, number> = {
+  anatomy: 17, physiology: 17, biochemistry: 17, pathology: 13, microbiology: 13, pharmacology: 13, fmt: 10,
+  medicine: 33, psychiatry: 5, dermatology: 5, radiotherapy: 5,
+  surgery: 32, anesthesia: 5, orthopedics: 5, radiology: 5,
+  pediatrics: 15, ophthalmology: 15, ent: 15, obg: 30, psm: 30,
 };
 
 function localDateKey(date = new Date()) { const y = date.getFullYear(); const m = String(date.getMonth() + 1).padStart(2, '0'); const d = String(date.getDate()).padStart(2, '0'); return `${y}-${m}-${d}`; }
-function sprintDayIndex(startedOn: string) { const start = new Date(`${startedOn}T12:00:00`); const today = new Date(`${localDateKey()}T12:00:00`); return Math.min(19, Math.max(0, Math.floor((today.getTime() - start.getTime()) / 86_400_000))); }
+const FMGE_EXAM_DATE = '2026-10-31';
+function daysUntilFmge(examDate = FMGE_EXAM_DATE) {
+  const today = new Date(`${localDateKey()}T12:00:00`);
+  const exam = new Date(`${examDate}T12:00:00`);
+  return Math.max(0, Math.ceil((exam.getTime() - today.getTime()) / 86_400_000));
+}
+function sprintDateForIndex(dayIndex: number, examDate = FMGE_EXAM_DATE) {
+  const date = new Date(`${examDate}T12:00:00`);
+  date.setDate(date.getDate() - (SPRINT_DAYS.length - dayIndex));
+  return localDateKey(date);
+}
+function sprintDayIndex(_startedOn: string, examDate = FMGE_EXAM_DATE) {
+  // The sprint is anchored to the known exam date so refreshes and late starts
+  // cannot drift beyond the final review day or index past the schedule.
+  return Math.min(SPRINT_DAYS.length - 1, Math.max(0, 20 - daysUntilFmge(examDate)));
+}
 
 function checklistsForPlan(plan: SprintDay, hours: number, questionTarget: number) {
   return [
-    `Focused revision (${(hours * 0.45).toFixed(1)} h): ${plan.focus}`,
-    `Active recall (${(hours * 0.2).toFixed(1)} h): close the notes and retrieve key facts from memory.`,
+    `Focused revision (${(hours * (plan.restDay ? 0.35 : 0.4)).toFixed(1)} h): ${plan.focus}`,
+    `Active recall (${(hours * 0.2).toFixed(1)} h): retrieve key facts without notes, then correct only what you missed.`,
     plan.fullMock
-      ? 'Timed mock: complete all 300 questions in two exam-length blocks; answer every question.'
-      : `Question practice (${(hours * 0.25).toFixed(1)} h): aim for about ${questionTarget} questions, then review the reasoning.`,
-    `Error review (${(hours * 0.1).toFixed(1)} h): explain each miss or guess, write the corrected rule, and revisit it tomorrow.`,
+      ? 'Timed mock: complete two 150-question blocks in 150 minutes each, with an exam-style break; answer every question because FMGE has no negative marking.'
+      : `Question practice (${(hours * (plan.restDay ? 0.1 : 0.3)).toFixed(1)} h): aim for about ${questionTarget} questions, then review the reasoning.`,
+    plan.restDay ? 'Exam readiness: prepare documents and route, set a reasonable bedtime, and avoid late-night cramming.' : `Error review (${(hours * 0.1).toFixed(1)} h): explain each miss or guess, write the corrected rule, and revisit due cards tomorrow.`,
   ];
 }
 
-function buildAdaptiveSprintDays(attempts: McqAttempt[], grandTests: GrandTest[]): SprintDay[] {
+function buildAdaptiveSprintDays(attempts: McqAttempt[], grandTests: GrandTest[], errorTypes: Record<string, SprintErrorType> = {}): SprintDay[] {
+  const recentCutoff = Date.now() - 30 * 86_400_000;
+  const recentAttempts = attempts.filter((attempt) => attempt.timestamp && Date.parse(attempt.timestamp) >= recentCutoff && !['NEET-PG', 'INI-CET'].includes(attempt.exam || ''));
   const latestTests = [...grandTests].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
   const weakFromMocks = new Set(latestTests.flatMap((test) => test.weakSubjectIds || []));
   const strongFromMocks = new Set(latestTests.flatMap((test) => test.strongSubjectIds || []));
   const bySubject = new Map<string, McqAttempt[]>();
-  [...attempts]
+  [...recentAttempts]
     .filter((attempt) => attempt.subjectId && attempt.timestamp)
     .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
     .forEach((attempt) => {
@@ -194,25 +215,40 @@ function buildAdaptiveSprintDays(attempts: McqAttempt[], grandTests: GrandTest[]
     const reviewWeightedAccuracy = sample.length ? (secureCorrect + sample.filter((attempt) => attempt.isCorrect && ['guess', 'low'].includes(attempt.confidence || '')).length * 0.35) / sample.length : null;
     const evidence = Math.min(1, sample.length / 15);
     const adjustedWeakness = reviewWeightedAccuracy === null ? 0.5 : 0.5 + (0.5 - reviewWeightedAccuracy) * evidence;
-    const blueprintWeight = FMGE_BLUEPRINT_WEIGHTS[subject.id] ?? subject.weightage;
-    const score = (blueprintWeight / 33) * 0.62 + adjustedWeakness * 0.38
+    const taggedErrors = sample.filter((attempt) => errorTypes[attempt.questionId]);
+    const knowledgeErrors = taggedErrors.filter((attempt) => errorTypes[attempt.questionId] === 'knowledge').length;
+    const confusionErrors = taggedErrors.filter((attempt) => errorTypes[attempt.questionId] === 'confusion').length;
+    const guessErrors = taggedErrors.filter((attempt) => errorTypes[attempt.questionId] === 'guess').length;
+    const misreadErrors = taggedErrors.filter((attempt) => errorTypes[attempt.questionId] === 'misread').length;
+    const confidentMisses = sample.filter((attempt) => !attempt.isCorrect && ['high', 'certain'].includes(attempt.confidence || '')).length;
+    const topicErrors = new Map<string, number>();
+    for (const attempt of sample) {
+      const topic = (attempt.subtopic || (attempt.subtopicId && attempt.subtopicId !== subject.id ? attempt.subtopicId : '')).trim();
+      if (topic && (!attempt.isCorrect || ['guess', 'low'].includes(attempt.confidence || ''))) topicErrors.set(topic, (topicErrors.get(topic) || 0) + 1);
+    }
+    const weakTopics = [...topicErrors].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([topic]) => topic);
+    // FMGE_SUBJECTS carries the app's approximate blueprint weights. Keep the
+    // copy explicit that these are priorities, not guaranteed question counts.
+    const blueprintWeight = FMGE_BLUEPRINT_MARKS[subject.id] ?? subject.weightage;
+    const score = (blueprintWeight / 35) * 0.62 + adjustedWeakness * 0.38
+      + Math.min(0.2, knowledgeErrors * 0.035 + confusionErrors * 0.025 + misreadErrors * 0.02 + guessErrors * 0.02 + confidentMisses * 0.025)
       + (weakFromMocks.has(subject.id) ? 0.28 : 0)
       - (strongFromMocks.has(subject.id) ? 0.12 : 0);
-    return { id: subject.id, name: subject.name, score, accuracy, count: sample.length, uncertain: sample.filter((attempt) => attempt.confidence === 'guess' || attempt.confidence === 'low').length };
+    return { id: subject.id, name: subject.name, blueprintWeight, score, accuracy, count: sample.length, uncertain: sample.filter((attempt) => attempt.confidence === 'guess' || attempt.confidence === 'low' || attempt.confidence === 'medium').length, knowledgeErrors, confusionErrors, confidentMisses, weakTopics };
   }).sort((a, b) => b.score - a.score);
 
-  const hasEvidence = attempts.length > 0 || grandTests.length > 0;
+  const hasEvidence = recentAttempts.length > 0 || grandTests.length > 0;
   const makeAdaptiveDay = (index: number, selected: typeof ranked, label: string) => {
     const names = selected.map((subject) => subject.name);
     const details = selected.map((subject) => {
-      if (subject.count >= 5 && subject.accuracy !== null) return `${subject.name} (${Math.round(subject.accuracy * 100)}% raw accuracy${subject.uncertain ? `; ${subject.uncertain} guessed or unsure` : ''} across ${subject.count} recent attempts)`;
+      if (subject.count >= 5 && subject.accuracy !== null) return `${subject.name} (${subject.blueprintWeight} blueprint marks; ${Math.round(subject.accuracy * 100)}% raw accuracy${subject.uncertain ? `; ${subject.uncertain} guessed or unsure` : ''}${subject.knowledgeErrors ? `; ${subject.knowledgeErrors} tagged knowledge gaps` : ''}${subject.confusionErrors ? `; ${subject.confusionErrors} tagged option confusions` : ''}${subject.confidentMisses ? `; ${subject.confidentMisses} confident errors` : ''}${subject.weakTopics.length ? `; revisit ${subject.weakTopics.join(', ')}` : ''} across ${subject.count} recent attempts)`;
       if (weakFromMocks.has(subject.id)) return `${subject.name} (flagged weak in a recent mock)`;
       return `${subject.name} (high blueprint weight; gather more answers to calibrate)`;
     });
     return {
       ...SPRINT_DAYS[index],
-      title: `${label} · ${names.join(' & ')}`,
-      subjects: selected.map((subject) => subject.id),
+      title: names.length ? `${label} · ${names.join(' & ')}` : SPRINT_DAYS[index].title,
+      subjects: names.length ? selected.map((subject) => subject.id) : SPRINT_DAYS[index].subjects,
       focus: hasEvidence
         ? `Prioritize ${details.join('; ')}. Review missed and guessed questions, then retrieve the key rules without notes.`
         : `Start with high-weight areas: ${names.join(', ')}. Take the baseline set so later revision can target your actual gaps.`,
@@ -220,9 +256,13 @@ function buildAdaptiveSprintDays(attempts: McqAttempt[], grandTests: GrandTest[]
   };
 
   const days = [...SPRINT_DAYS];
-  days[14] = makeAdaptiveDay(14, ranked.slice(0, 2), 'Repair your biggest gaps');
-  days[15] = makeAdaptiveDay(15, ranked.slice(2, 4), 'Strengthen the next priorities');
-  days[18] = makeAdaptiveDay(18, ranked.slice(0, 3), 'Final weak-area review');
+  for (const index of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 17]) {
+    const selected = index < 13
+      ? ranked.filter((subject) => SPRINT_DAYS[index].subjects.includes(subject.id)).sort((a, b) => b.score - a.score).slice(0, 2)
+      : ranked.slice(0, index === 18 ? 3 : 2);
+    if (selected.length) days[index] = makeAdaptiveDay(index, selected, hasEvidence ? 'Personalized focus' : 'High-yield focus');
+  }
+  // Keep diagnostic/checkpoint/mock and exam-eve days intact; those are the structure of the countdown.
   return days;
 }
 
@@ -233,29 +273,50 @@ function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpen
   const [confirmReset, setConfirmReset] = useState(false);
   const currentDay = sprint ? sprintDayIndex(sprint.startedOn) : 0;
   const activeDay = selectedDay ?? currentDay;
-  const sprintDays = useMemo(() => buildAdaptiveSprintDays(attempts, grandTests), [attempts, grandTests]);
+  const sprintDays = useMemo(() => buildAdaptiveSprintDays(attempts, grandTests, sprint?.errorTypes || {}), [attempts, grandTests, sprint?.errorTypes]);
   const plan = sprintDays[activeDay];
-  const qbankAttempts = attempts.filter((attempt) => attempt.source === 'qbank');
+  const qbankAttempts = attempts.filter((attempt) => attempt.source === 'qbank' && !['NEET-PG', 'INI-CET'].includes(attempt.exam || ''));
   const recentQbankAttempts = qbankAttempts.slice(-100);
   const qbankAccuracy = recentQbankAttempts.length
     ? Math.round(recentQbankAttempts.filter((attempt) => attempt.isCorrect).length / recentQbankAttempts.length * 100)
     : null;
   const recentReviewGaps = recentQbankAttempts.filter((attempt) => !attempt.isCorrect || attempt.confidence === 'guess' || attempt.confidence === 'low').length;
+  const secureCorrectCount = recentQbankAttempts.filter((attempt) => attempt.isCorrect && ['high', 'certain'].includes(attempt.confidence || '')).length;
+  const unsureCorrectCount = recentQbankAttempts.filter((attempt) => attempt.isCorrect && ['guess', 'low', 'medium'].includes(attempt.confidence || '')).length;
+  const confidentMissCount = recentQbankAttempts.filter((attempt) => !attempt.isCorrect && ['high', 'certain'].includes(attempt.confidence || '')).length;
   const latestGrandTest = [...grandTests].sort((a, b) => b.date.localeCompare(a.date))[0];
-  const questionTarget = plan.fullMock ? 300 : Math.max(20, Math.round(plan.questions * hours / 6));
+  const questionTarget = plan.fullMock ? 300 : activeDay === 0 ? 50 : Math.max(20, Math.round(plan.questions * hours / 6));
   const todayTasks = checklistsForPlan(plan, hours, questionTarget);
-  const activeTaskStates = todayTasks.map((_, task) => !!sprint?.completedTasks[`${activeDay}-${task}`]);
+  const activePlanDate = sprintDateForIndex(activeDay);
+  const todayQuestionAttempts = attempts.filter((attempt) => attempt.source === 'qbank' && !['NEET-PG', 'INI-CET'].includes(attempt.exam || '') && attempt.timestamp && localDateKey(new Date(attempt.timestamp)) === activePlanDate && (!plan.subjects.length || plan.subjects.includes(attempt.subjectId)));
+  const practiceTaskComplete = plan.fullMock
+    ? grandTests.some((test) => test.date.startsWith(activePlanDate))
+    : todayQuestionAttempts.length >= questionTarget;
+  const activeTaskStates = todayTasks.map((_, task) => task === 2 ? practiceTaskComplete : !!sprint?.completedTasks[`${activeDay}-${task}`]);
   const nextTaskIndex = activeTaskStates.findIndex((done) => !done);
   const todayComplete = nextTaskIndex === -1;
-  const totalDone = Object.values(sprint?.completedTasks || {}).filter(Boolean).length;
+  const isDayComplete = (dayIndex: number) => {
+    const dayPlan = sprintDays[dayIndex];
+    const dayDate = sprintDateForIndex(dayIndex);
+    const dayTarget = dayPlan.fullMock ? 300 : dayIndex === 0 ? 50 : Math.max(20, Math.round(dayPlan.questions * hours / 6));
+    const questionsDone = attempts.filter((attempt) => attempt.source === 'qbank' && !['NEET-PG', 'INI-CET'].includes(attempt.exam || '') && attempt.timestamp && localDateKey(new Date(attempt.timestamp)) === dayDate && (!dayPlan.subjects.length || dayPlan.subjects.includes(attempt.subjectId))).length >= dayTarget;
+    const mockLogged = grandTests.some((test) => test.date.startsWith(dayDate));
+    const practiceDone = dayPlan.fullMock ? mockLogged : questionsDone || (dayPlan.checkpoint && mockLogged);
+    return [0, 1, 3].every((task) => !!sprint?.completedTasks[`${dayIndex}-${task}`]) && practiceDone;
+  };
+  const totalDone = sprintDays.reduce((sum, _, dayIndex) => sum + [0, 1, 3].filter((task) => !!sprint?.completedTasks[`${dayIndex}-${task}`]).length + (isDayComplete(dayIndex) ? 1 : 0), 0);
   const totalTasks = SPRINT_DAYS.length * 4;
-  const start = () => { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {} }); setSelectedDay(0); };
+  const start = () => { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {}, ...(sprint?.errorTypes ? { errorTypes: sprint.errorTypes } : {}) }); setSelectedDay(0); };
   const toggleTask = (taskIndex: number) => {
     if (!sprint) return;
     const key = `${activeDay}-${taskIndex}`;
     onUpdate({ ...sprint, completedTasks: { ...sprint.completedTasks, [key]: !sprint.completedTasks[key] } });
   };
-  const reset = () => { if (confirmReset) { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {} }); setSelectedDay(0); setConfirmReset(false); } else setConfirmReset(true); };
+  const setErrorType = (questionId: string, errorType: SprintErrorType) => {
+    if (!sprint) return;
+    onUpdate({ ...sprint, errorTypes: { ...(sprint.errorTypes || {}), [questionId]: errorType } });
+  };
+  const reset = () => { if (confirmReset) { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {}, ...(sprint?.errorTypes ? { errorTypes: sprint.errorTypes } : {}) }); setSelectedDay(0); setConfirmReset(false); } else setConfirmReset(true); };
   const checklists = todayTasks;
 
   return <section className="qbank-sprint qbank-panel mt-5 overflow-hidden rounded-[26px] border border-black/[0.06] bg-white shadow-[0_12px_38px_rgba(15,23,42,0.05)] sm:rounded-[30px]">
@@ -267,12 +328,13 @@ function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpen
       </div>
     </div>
     {expanded && <div className="border-t border-black/[0.06] p-4 sm:p-6">
+      <BlueprintReference />
       {!sprint ? <div className="mx-auto max-w-3xl py-3"><div className="text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><Target className="h-6 w-6"/></div><h3 className="mt-3 text-xl font-semibold tracking-tight">Build a plan around your actual gaps</h3><p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6F7782]">The plan uses your recent question attempts and latest mock to move revision time toward weak, high-weight subjects. If you have no history yet, take a short baseline first.</p></div><div className="mx-auto mt-5 grid max-w-2xl gap-3 sm:grid-cols-2"><div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 text-left"><p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#7B8795]">Starting point</p>{latestGrandTest ? <p className="mt-2 text-sm font-semibold text-[#303A48]">Latest mock: {latestGrandTest.score}/300 <span className={latestGrandTest.score >= 150 ? 'text-emerald-700' : 'text-amber-700'}>· {latestGrandTest.score >= 150 ? 'above pass mark' : `${150 - latestGrandTest.score} below pass mark`}</span></p> : <p className="mt-2 text-sm font-semibold text-[#303A48]">{qbankAccuracy === null ? 'No baseline recorded yet' : `${qbankAccuracy}% across ${recentQbankAttempts.length} recent questions`}</p>}<p className="mt-1 text-xs leading-5 text-[#7A8491]">Question accuracy guides subject focus; it is not a predicted exam score.</p>{!latestGrandTest && <button type="button" disabled={loading} onClick={() => onPractice('', 50)} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"><BookOpenCheck className="h-4 w-4"/>Take 50-question baseline</button>}</div><div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 text-left"><p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#7B8795]">Score target</p><p className="mt-2 text-sm font-semibold text-[#303A48]">150/300 to pass · 165 working target</p><p className="mt-1 text-xs leading-5 text-[#7A8491]">The extra 15 marks are a study buffer, not a guarantee. Choose a daily load you can sustain.</p><label className="mt-3 block"><span className="mb-1.5 block text-xs font-semibold text-[#69717D]">Focused study time per day</span><select value={hours} onChange={(e) => setHours(Number(e.target.value))} className="h-11 w-full rounded-xl border border-[#E1E6ED] bg-white px-3 text-sm font-medium"><option value={3}>3 hours · compact</option><option value={5}>5 hours · steady</option><option value={6}>6 hours · balanced</option><option value={9}>9 hours · intensive</option><option value={12}>12 hours · full-time</option></select></label></div></div><div className="mt-4 flex justify-center"><button type="button" onClick={start} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#0F5FCC]">Start my 20-day plan<ChevronRight className="h-4 w-4"/></button></div></div> : <>
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><div><p className="text-xs font-medium text-[#737B86]">Day {currentDay + 1} of 20 · {sprint.dailyHours} focused study hours/day · started {sprint.startedOn}</p><p className="mt-1 text-xs font-semibold text-blue-700">Working toward 165/300 · pass mark 150</p><p className="mt-1 text-[11px] text-[#7A8491]">Plan priorities update from recent subject accuracy and your latest mock weaknesses.</p></div><button type="button" onClick={reset} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#7A818C] hover:bg-[#F3F5F7] hover:text-[#3F4650]"><RotateCcw className="h-3.5 w-3.5"/>{confirmReset ? 'Tap again to restart' : 'Restart plan'}</button></div>
-        <div className="mb-5 flex gap-2 overflow-x-auto pb-2" aria-label="Sprint day selector">{sprintDays.map((day, i) => { const done = [0,1,2,3].every((task) => sprint.completedTasks[`${i}-${task}`]); return <button key={i} type="button" onClick={() => setSelectedDay(i)} aria-current={activeDay === i ? 'step' : undefined} className={`flex h-12 min-w-12 shrink-0 flex-col items-center justify-center rounded-xl border text-xs font-semibold transition ${activeDay === i ? 'border-blue-600 bg-blue-600 text-white shadow-sm' : done ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-[#E5E8ED] bg-white text-[#69717D] hover:border-blue-300'}`}>{done ? <Check className="h-3.5 w-3.5"/> : <span>{i + 1}</span>}</button>; })}</div>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><div><p className="text-xs font-medium text-[#737B86]">{daysUntilFmge() === 0 ? 'Exam day · final review plan' : `Day ${currentDay + 1} of 20 · ${daysUntilFmge()} days until FMGE`} · {sprint.dailyHours} focused study hours/day · started {sprint.startedOn}</p><p className="mt-1 text-xs font-semibold text-blue-700">Working toward 165/300 · pass mark 150</p><p className="mt-1 text-[11px] text-[#7A8491]">Priorities use recent subject accuracy, guessed answers and your latest mock weaknesses. Blueprint marks follow the published distribution; priorities also use recent accuracy, confidence, tagged errors and mock weaknesses.</p></div><button type="button" onClick={reset} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#7A818C] hover:bg-[#F3F5F7] hover:text-[#3F4650]"><RotateCcw className="h-3.5 w-3.5"/>{confirmReset ? 'Tap again to restart' : 'Restart plan'}</button></div>
+        <div className="mb-5 flex gap-2 overflow-x-auto pb-2" aria-label="Sprint day selector">{sprintDays.map((day, i) => { const done = isDayComplete(i); return <button key={i} type="button" onClick={() => setSelectedDay(i)} aria-current={activeDay === i ? 'step' : undefined} className={`flex h-12 min-w-12 shrink-0 flex-col items-center justify-center rounded-xl border text-xs font-semibold transition ${activeDay === i ? 'border-blue-600 bg-blue-600 text-white shadow-sm' : done ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-[#E5E8ED] bg-white text-[#69717D] hover:border-blue-300'}`}>{done ? <Check className="h-3.5 w-3.5"/> : <span>{i + 1}</span>}</button>; })}</div>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 sm:p-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-[0.13em] text-blue-700">Day {activeDay + 1}</p><h3 className="mt-1 text-lg font-semibold tracking-tight">{plan.title}</h3></div><span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#69717D] ring-1 ring-[#E6EAF0]">{questionTarget} Q target</span></div><p className="mt-2 text-sm leading-6 text-[#69717D]">{plan.focus}</p><div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/70 p-3.5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">{todayComplete ? 'Today’s plan complete' : 'Your next step'}</p><p className="mt-1 text-sm font-semibold text-[#344054]">{todayComplete ? 'Keep the review light and protect your sleep.' : checklists[nextTaskIndex]}</p></div><span className="shrink-0 text-xs font-semibold text-blue-700">{activeTaskStates.filter(Boolean).length}/4</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-blue-100"><div className="h-full rounded-full bg-blue-600 transition-all" style={{width:`${activeTaskStates.filter(Boolean).length/4*100}%`}}/></div></div><div className="mt-3 space-y-2">{checklists.map((item, task) => { const done = !!sprint.completedTasks[`${activeDay}-${task}`]; return <button key={task} type="button" onClick={() => toggleTask(task)} className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${done ? 'border-emerald-200 bg-emerald-50/70' : task === nextTaskIndex ? 'border-blue-200 bg-white shadow-sm' : 'border-[#E9ECF1] bg-white hover:border-blue-200'}`}><span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${done ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#C9D0DA] bg-white'}`}>{done && <Check className="h-3.5 w-3.5"/>}</span><span className={`text-xs leading-5 ${done ? 'text-emerald-900' : 'text-[#535C68]'}`}>{item}</span></button>; })}</div><div className="mt-4 flex flex-col gap-2 sm:flex-row"><button type="button" onClick={() => onPractice(plan.subjects[0] || '')} disabled={loading} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white transition hover:bg-[#0F5FCC] disabled:opacity-60 sm:w-auto"><BookOpenCheck className="h-4 w-4"/>Start focused 20-question set<ChevronRight className="h-4 w-4"/></button>{activeDay === 17 && <button type="button" onClick={onOpenGrandTests} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#DCE3ED] bg-white px-4 text-sm font-semibold text-[#394353] hover:border-blue-300 hover:text-blue-700"><Target className="h-4 w-4"/>Log full mock score</button>}</div></div>
-          <aside className="rounded-2xl border border-[#E7EAF0] bg-white p-4"><h4 className="text-sm font-semibold">Readiness check</h4>{latestGrandTest?<><p className="mt-2 text-2xl font-semibold tracking-tight text-[#263244]">{latestGrandTest.score}<span className="text-sm font-medium text-[#8993A0]"> / 300</span></p><p className={`text-xs font-semibold ${latestGrandTest.score>=165?'text-emerald-700':latestGrandTest.score>=150?'text-amber-700':'text-rose-700'}`}>{latestGrandTest.score>=165?'Above your 165 working target':latestGrandTest.score>=150?'At pass mark; build a safety buffer':`${150-latestGrandTest.score} marks below pass mark`}</p><p className="mt-1 text-[10px] text-[#858C96]">Latest logged mock · exam score is the clearest readiness signal.</p><MockScoreTrend grandTests={grandTests}/></>:<p className="mt-2 text-xs leading-5 text-[#68717E]">No full mock score logged yet. Your question practice will identify subject gaps, but it cannot predict a 300-mark exam result.</p>}{qbankAccuracy!==null&&<div className="mt-3 flex items-center justify-between border-t border-[#EEF0F3] pt-3 text-[11px]"><span className="text-[#737B86]">Recent question accuracy</span><b className="text-[#344054]">{qbankAccuracy}%</b></div>}{recentReviewGaps>0&&<p className="mt-2 text-[11px] leading-5 text-amber-800">{recentReviewGaps} recent misses or unsure answers are feeding your revision priorities.</p>}<h4 className="mt-4 border-t border-[#EEF0F3] pt-3 text-sm font-semibold">How to use the day</h4><ol className="mt-3 space-y-3 text-xs leading-5 text-[#68717E]"><li><b className="text-[#303741]">1. Recall first.</b> Try to retrieve before rereading.</li><li><b className="text-[#303741]">2. Practise timed.</b> Review wrong and guessed answers.</li><li><b className="text-[#303741]">3. Keep a tiny error list.</b> Revisit it tomorrow.</li><li><b className="text-[#303741">4. Protect sleep.</b> Exhaustion makes recall worse.</li></ol><div className="mt-4 rounded-xl bg-amber-50 p-3 text-[11px] leading-5 text-amber-900">If you fall behind, continue with the next day and carry only your highest-impact weak areas forward. Do not try to “repay” missed hours with an all-nighter.</div><p className="mt-3 text-[10px] leading-4 text-[#858C96]">This plan supports revision; it cannot predict or guarantee an exam result.</p></aside>
+          <div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 sm:p-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-[0.13em] text-blue-700">Day {activeDay + 1}</p><h3 className="mt-1 text-lg font-semibold tracking-tight">{plan.title}</h3><BlueprintPills subjectIds={plan.subjects}/></div><span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#69717D] ring-1 ring-[#E6EAF0]">{questionTarget} Q target</span></div><p className="mt-2 text-sm leading-6 text-[#69717D]">{plan.focus}</p><div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/70 p-3.5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">{todayComplete ? 'Today’s plan complete' : 'Your next step'}</p><p className="mt-1 text-sm font-semibold text-[#344054]">{todayComplete ? 'Keep the review light and protect your sleep.' : checklists[nextTaskIndex]}</p></div><span className="shrink-0 text-xs font-semibold text-blue-700">{activeTaskStates.filter(Boolean).length}/4</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-blue-100"><div className="h-full rounded-full bg-blue-600 transition-all" style={{width:`${activeTaskStates.filter(Boolean).length/4*100}%`}}/></div></div><div className="mt-3 space-y-2">{checklists.map((item, task) => { const done = activeTaskStates[task]; return <button key={task} type="button" onClick={() => task === 2 ? undefined : toggleTask(task)} aria-pressed={done} className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${done ? 'border-emerald-200 bg-emerald-50/70' : task === nextTaskIndex ? 'border-blue-200 bg-white shadow-sm' : 'border-[#E9ECF1] bg-white hover:border-blue-200'} ${task === 2 ? 'cursor-default' : ''}`}><span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${done ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#C9D0DA] bg-white'}`}>{done && <Check className="h-3.5 w-3.5"/>}</span><span className={`text-xs leading-5 ${done ? 'text-emerald-900' : 'text-[#535C68]'}`}>{task === 2 && !plan.fullMock ? `${item} · ${todayQuestionAttempts.length}/${questionTarget} today` : item}</span></button>; })}</div><div className="mt-4 flex flex-col gap-2 sm:flex-row">{plan.fullMock ? <button type="button" onClick={onOpenGrandTests} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white transition hover:bg-[#0F5FCC] sm:w-auto"><Target className="h-4 w-4"/>Open full mock tracker<ChevronRight className="h-4 w-4"/></button> : <button type="button" onClick={() => onPractice(plan.subjects[0] || '', Math.min(50, plan.questions))} disabled={loading} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white transition hover:bg-[#0F5FCC] disabled:opacity-60 sm:w-auto"><BookOpenCheck className="h-4 w-4"/>{activeDay === 0 ? 'Start 50-question baseline' : `Start ${Math.min(50, plan.questions)}-question set`}<ChevronRight className="h-4 w-4"/></button>}{(activeDay === 16 || activeDay === 18) && <button type="button" onClick={onOpenGrandTests} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#DCE3ED] bg-white px-4 text-sm font-semibold text-[#394353] hover:border-blue-300 hover:text-blue-700"><Target className="h-4 w-4"/>Log full mock score</button>}</div></div>
+          <aside className="rounded-2xl border border-[#E7EAF0] bg-white p-4"><h4 className="text-sm font-semibold">Readiness check</h4>{latestGrandTest?<><p className="mt-2 text-2xl font-semibold tracking-tight text-[#263244]">{latestGrandTest.score}<span className="text-sm font-medium text-[#8993A0]"> / 300</span></p><p className={`text-xs font-semibold ${latestGrandTest.score>=165?'text-emerald-700':latestGrandTest.score>=150?'text-amber-700':'text-rose-700'}`}>{latestGrandTest.score>=165?'Above your 165 working target':latestGrandTest.score>=150?'At pass mark; build a safety buffer':`${150-latestGrandTest.score} marks below pass mark`}</p><p className="mt-1 text-[10px] text-[#858C96]">Latest logged mock · exam score is the clearest readiness signal.</p><MockScoreTrend grandTests={grandTests}/></>:<p className="mt-2 text-xs leading-5 text-[#68717E]">No full mock score logged yet. Your question practice will identify subject gaps, but it cannot predict a 300-mark exam result.</p>}{qbankAccuracy!==null&&<div className="mt-3 flex items-center justify-between border-t border-[#EEF0F3] pt-3 text-[11px]"><span className="text-[#737B86]">Recent question accuracy</span><b className="text-[#344054]">{qbankAccuracy}%</b></div>}{recentQbankAttempts.length>0&&<div className="mt-3 grid grid-cols-3 gap-1.5 border-t border-[#EEF0F3] pt-3"><SignalMetric label="Secure correct" value={secureCorrectCount}/><SignalMetric label="Right but unsure" value={unsureCorrectCount}/><SignalMetric label="Confident miss" value={confidentMissCount}/></div>}{recentReviewGaps>0&&<p className="mt-2 text-[11px] leading-5 text-amber-800">{recentReviewGaps} recent misses or unsure answers are feeding your revision priorities.</p>}<SprintErrorReview attempts={recentQbankAttempts} errorTypes={sprint.errorTypes || {}} onSetErrorType={setErrorType}/><h4 className="mt-4 border-t border-[#EEF0F3] pt-3 text-sm font-semibold">How to use the day</h4><ol className="mt-3 space-y-3 text-xs leading-5 text-[#68717E]"><li><b className="text-[#303741]">1. Recall first.</b> Try to retrieve before rereading.</li><li><b className="text-[#303741]">2. Practise timed.</b> Review wrong and guessed answers.</li><li><b className="text-[#303741]">3. Keep a tiny error list.</b> Revisit it tomorrow.</li><li><b className="text-[#303741">4. Protect sleep.</b> Exhaustion makes recall worse.</li></ol><div className="mt-4 rounded-xl bg-amber-50 p-3 text-[11px] leading-5 text-amber-900">If you fall behind, continue with the next day and carry only your highest-impact weak areas forward. Do not try to “repay” missed hours with an all-nighter.</div><p className="mt-3 text-[10px] leading-4 text-[#858C96]">This plan supports revision; it cannot predict or guarantee an exam result.</p></aside>
         </div>
       </>}
     </div>}
@@ -289,6 +351,42 @@ function DailyReviewQueue({ items, dueItems, now, loading, onStart }: { items: R
     {items.length > 0 && <div className="border-t border-black/[0.055] px-4 py-3 sm:px-5"><div className="flex flex-wrap gap-2">{items.slice(0, 5).map((item) => { const due = item.dueAt <= now; return <span key={item.questionId} className={`inline-flex max-w-full items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium ${due ? 'bg-amber-50 text-amber-900' : 'bg-[#F4F6F9] text-[#68717E]'}`}><span className="max-w-[180px] truncate">{item.subjectName}</span><span className="opacity-70">·</span>{due ? 'Due' : new Date(item.dueAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>; })}{items.length > 5 && <span className="self-center text-[11px] text-[#858C96]">+{items.length - 5} more</span>}</div></div>}
     <div className="flex flex-col gap-3 border-t border-black/[0.055] bg-[#FBFCFE] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5"><p className="text-xs leading-5 text-[#68717E]">{items.length === 0 ? 'No review cards yet. Practice a set and mark your confidence to build this queue.' : dueItems.length === 0 ? `You’re clear for today. ${upcoming.length} question${upcoming.length === 1 ? ' is' : 's are'} scheduled for a later review.` : `${dueItems.length} question${dueItems.length === 1 ? '' : 's'} ready for retrieval practice.`}</p><button type="button" disabled={loading || dueItems.length === 0} onClick={onStart} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#5B4BC4] px-4 text-xs font-semibold text-white transition hover:bg-[#4F40B2] disabled:cursor-not-allowed disabled:opacity-45"><RotateCcw className="h-3.5 w-3.5"/>Start due review<ChevronRight className="h-3.5 w-3.5"/></button></div>
   </section>;
+}
+
+const FMGE_BLUEPRINT_GROUPS = [
+  { title: 'Pre-clinical & para-clinical · 100 marks', rows: [['Anatomy', 17], ['Physiology', 17], ['Biochemistry', 17], ['Pathology', 13], ['Microbiology', 13], ['Pharmacology', 13], ['Forensic Medicine', 10]] as Array<[string, number]> },
+  { title: 'Clinical · 200 marks', rows: [['Medicine', 33], ['Psychiatry', 5], ['Dermatology & STD', 5], ['Radiotherapy', 5], ['General Surgery', 32], ['Anesthesiology', 5], ['Orthopedics', 5], ['Radiodiagnosis', 5], ['Pediatrics', 15], ['Ophthalmology', 15], ['Otorhinolaryngology', 15], ['Obstetrics & Gynecology', 30], ['Community Medicine', 30]] as Array<[string, number]> },
+];
+
+function BlueprintReference() {
+  return <details className="mb-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-3.5 sm:p-4"><summary className="cursor-pointer list-none text-sm font-semibold text-[#263244]"><span className="inline-flex items-center gap-2"><Target className="h-4 w-4 text-blue-700"/> Official FMGE subject blueprint <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-blue-700">300 marks</span></span><span className="mt-1 block text-xs font-normal text-[#69717D]">See the official subject-wise marks and how the sprint uses them.</span></summary><div className="mt-4 grid gap-4 md:grid-cols-2">{FMGE_BLUEPRINT_GROUPS.map((group) => <section key={group.title} className="rounded-xl border border-white bg-white/80 p-3"><h3 className="text-xs font-bold text-[#344054]">{group.title}</h3><ul className="mt-2 space-y-1.5">{group.rows.map(([name, marks]) => <li key={name} className="flex items-center justify-between gap-3 text-xs text-[#586273]"><span>{name}</span><b className="shrink-0 font-semibold text-[#263244]">{marks} marks</b></li>)}</ul></section>)}</div><div className="mt-3 rounded-xl bg-white/75 p-3 text-xs leading-5 text-[#586273]"><b className="text-[#344054]">Exam pattern:</b> 300 single-best-answer MCQs in two parts of 150 questions and 150 minutes each, with a scheduled break. Each correct answer is worth 1 mark, there is no negative marking, and 150/300 is the qualifying score. The blueprint is the published distribution, not a promise that each individual paper follows an exact subject count. Answer every question in the real exam.<p className="mt-2">The plan weights revision by this blueprint, then adjusts toward your recent answers, confidence, tagged errors and mock weak subjects. Question-bank counts are not used to infer NBE frequency because this imported archive is uneven and contains duplicate questions.</p><p className="mt-2">Radiotherapy is a separate 5-mark blueprint entry but is not currently a separate filter in this question bank. These figures come from the latest official FMGE bulletin available to this implementation (June 2026); check the October 2026 bulletin for any updated instructions.</p><a className="mt-2 inline-flex font-semibold text-blue-700 underline decoration-blue-200 underline-offset-2 hover:text-blue-900" href="https://nbe.edu.in/IB/FMGE%20JUNE%202026%20information%20bulletin.pdf#page=98" target="_blank" rel="noreferrer">NBEMS June 2026 Information Bulletin · scheme and syllabus</a></div></details>;
+}
+
+function BlueprintPills({ subjectIds }: { subjectIds: string[] }) {
+  const subjects = subjectIds.map((id) => FMGE_SUBJECTS.find((subject) => subject.id === id)).filter(Boolean);
+  if (!subjects.length) return null;
+  return <div className="mt-2 flex flex-wrap gap-1.5">{subjects.map((subject) => <span key={subject!.id} className="rounded-full bg-blue-50 px-2 py-1 text-[10px] font-semibold text-blue-700">{subject!.name} · {FMGE_BLUEPRINT_MARKS[subject!.id] ?? subject!.weightage} blueprint marks</span>)}</div>;
+}
+
+function SprintErrorReview({ attempts, errorTypes, onSetErrorType }: { attempts: McqAttempt[]; errorTypes: Record<string, SprintErrorType>; onSetErrorType: (questionId: string, errorType: SprintErrorType) => void }) {
+  const cutoff = Date.now() - 30 * 86_400_000;
+  const latestByQuestion = new Map<string, McqAttempt>();
+  for (const attempt of [...attempts].filter((item) => item.source === 'qbank' && item.timestamp && Date.parse(item.timestamp) >= cutoff && (!item.isCorrect || ['guess', 'low'].includes(item.confidence || ''))).sort((a, b) => b.timestamp.localeCompare(a.timestamp))) {
+    if (!latestByQuestion.has(attempt.questionId)) latestByQuestion.set(attempt.questionId, attempt);
+  }
+  const rows = [...latestByQuestion.values()].slice(0, 5);
+  if (rows.length === 0) return null;
+  const labels: Array<{ id: SprintErrorType; label: string }> = [
+    { id: 'knowledge', label: 'Didn’t know' },
+    { id: 'confusion', label: 'Confused options' },
+    { id: 'misread', label: 'Misread' },
+    { id: 'guess', label: 'Guessed' },
+  ];
+    return <details className="mt-4 border-t border-[#EEF0F3] pt-3"><summary className="cursor-pointer text-xs font-semibold text-[#303741]">Tag why you missed it <span className="font-normal text-[#7A8491]">· improves upcoming focus</span></summary><div className="mt-3 space-y-2">{rows.map((attempt) => { const subject = FMGE_SUBJECTS.find((item) => item.id === attempt.subjectId)?.name || attempt.subjectId; const tag = errorTypes[attempt.questionId]; return <div key={attempt.questionId} className="rounded-xl bg-[#F8FAFC] p-2.5"><div className="mb-2 flex items-center justify-between gap-2 text-[10px]"><span className="truncate font-semibold text-[#485363]">{subject}{attempt.subtopic ? ` · ${attempt.subtopic}` : ''}</span><span className="shrink-0 text-[#858C96]">{new Date(attempt.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span></div><div className="grid grid-cols-2 gap-1.5">{labels.map(({ id, label }) => <button key={id} type="button" aria-pressed={tag === id} onClick={() => onSetErrorType(attempt.questionId, id)} className={`min-h-8 rounded-lg px-2 text-[10px] font-medium transition ${tag === id ? 'bg-blue-600 text-white' : 'bg-white text-[#66707D] ring-1 ring-[#E5E8ED] hover:ring-blue-300'}`}>{label}</button>)}</div></div>; })}</div></details>;
+}
+
+function SignalMetric({ label, value }: { label: string; value: number }) {
+  return <div className="rounded-lg bg-[#F8FAFC] px-2 py-2 text-center"><b className="block text-sm font-semibold text-[#344054]">{value}</b><span className="mt-0.5 block text-[9px] leading-3 text-[#737B86]">{label}</span></div>;
 }
 
 function MockScoreTrend({ grandTests }: { grandTests: GrandTest[] }) {
@@ -375,6 +473,7 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
   const [index,setIndex]=useState(0);
   const [choice,setChoice]=useState('');
   const [confidence,setConfidence]=useState<'guess'|'low'|'high'>('low');
+  const [selectedSubtopic,setSelectedSubtopic]=useState('');
   const [review,setReview]=useState<Review|null>(null);
   const [tutor,setTutor]=useState<TutorReview|null>(null);
   const [loading,setLoading]=useState(false);
@@ -390,6 +489,8 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
   useEffect(()=>setImageOpen(null),[q?.id]);
   if(!q || typeof document === 'undefined') return null;
   const figures=q.imageUrls?.length ? q.imageUrls : q.imageUrl ? [q.imageUrl] : [];
+  const availableTopics=q.exam==='FMGE' ? FMGE_SUBJECTS.find((subject)=>subject.id===q.subjectId)?.topics || [] : [];
+  const selectedTopic=availableTopics.find((topic)=>topic.id===selectedSubtopic);
 
   const requestTutorReview=async()=>{
     if (tutorLoading || tutor) return;
@@ -410,13 +511,13 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
       const answer:Review={...data};
       setReview(answer);
       setAnswered((prev)=>({...prev,[q.id]:{selected:choice,correct:data.correct,seconds,confidence}}));
-      onRecordAttempt({questionId:q.id,subjectId:q.subjectId,topicId:q.subjectId,topicName:q.subjectName,isCorrect:data.correct,selectedAnswer:choice,correctAnswer:data.correctAnswer,timeTakenSeconds:seconds,difficulty:'high-yield',confidence,source:'qbank',sessionId,isImageBased:q.isImageBased,imageUrl:q.imageUrl||undefined});
+      onRecordAttempt({questionId:q.id,subjectId:q.subjectId,topicId:selectedTopic?.id||q.subjectId,topicName:selectedTopic?.name||q.subjectName,subtopicId:selectedTopic?.id,subtopic:selectedTopic?.name,isCorrect:data.correct,selectedAnswer:choice,correctAnswer:data.correctAnswer,timeTakenSeconds:seconds,difficulty:'high-yield',confidence,source:'qbank',sessionId,isImageBased:q.isImageBased,imageUrl:q.imageUrl||undefined,exam:q.exam});
       if(!data.correct) await requestTutorReview();
     } catch(err:any) { setTutorError(err.message||'Could not submit this answer.'); }
     finally { setLoading(false); }
   };
 
-  const next=()=>{if(index+1>=questions.length){setFinished(true);return;}setIndex((v)=>v+1);setChoice('');setConfidence('low');setReview(null);setTutor(null);setTutorError('');startedAt.current=Date.now();};
+  const next=()=>{if(index+1>=questions.length){setFinished(true);return;}setIndex((v)=>v+1);setChoice('');setConfidence('low');setReview(null);setTutor(null);setTutorError('');setSelectedSubtopic('');startedAt.current=Date.now();};
   const close=()=>{document.body.style.overflow='';onClose();};
   const correctCount=Object.values(answered).filter(a=>a.correct).length;
   const reviewGapCount=Object.values(answered).filter(a=>!a.correct||a.confidence!=='high').length;
@@ -430,7 +531,7 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
         <article className="qbank-question-card rounded-[24px] border border-black/[0.06] bg-white p-4 shadow-[0_14px_42px_rgba(30,50,80,0.07)] sm:rounded-[28px] sm:p-6"><div className="mb-4 flex flex-wrap items-center gap-2"><span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">{q.subjectName}</span><span className="qbank-year-pill inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold">{q.year ? `${q.exam} ${q.year}` : 'Year not listed in source'}</span>{q.isImageBased&&<span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700"><ImageIcon className="h-3 w-3"/> Image question</span>}</div><h1 className="whitespace-pre-wrap text-[17px] font-semibold leading-[1.6] tracking-[-0.015em] text-[#202833] sm:text-lg">{q.stem}</h1>
           {figures.map((figure,index)=><button key={`${q.id}-figure-${index}`} type="button" onClick={()=>setImageOpen(index)} className="qbank-figure mt-5 block max-h-[min(52vh,500px)] w-full overflow-hidden rounded-2xl border border-[#E6EAF0] bg-[#F7F8FA] text-left"><img src={figure} alt={`Question figure${figures.length>1?` ${index+1}`:''}`} className="mx-auto max-h-[min(52vh,500px)] max-w-full object-contain" loading="lazy"/><span className="block border-t border-black/[0.06] px-3 py-2.5 text-center text-xs font-medium text-[#707985]">{figures.length>1?`Figure ${index+1} of ${figures.length} · `:''}Tap to view larger</span></button>)}
           <div className="mt-5 space-y-2">{q.options.map((option)=><button key={option.key} disabled={Boolean(review)||loading} onClick={()=>setChoice(option.key)} className={`flex w-full items-start gap-3 rounded-2xl border px-3.5 py-3.5 text-left transition duration-200 sm:px-4 ${review&&option.key===review.correctAnswer?'border-emerald-300 bg-emerald-50/80':review&&option.key===choice?'border-rose-300 bg-rose-50/80':choice===option.key?'border-blue-300 bg-blue-50/80':'border-[#E7EAF0] bg-[#FCFCFD] hover:border-blue-200 hover:bg-blue-50/40'}`}><span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${review&&option.key===review.correctAnswer?'bg-emerald-600 text-white':review&&option.key===choice?'bg-rose-600 text-white':choice===option.key?'bg-blue-600 text-white':'bg-[#EEF1F5] text-[#596270]'}`}>{option.key}</span><span className="pt-0.5 text-sm leading-6 text-[#343A44]">{option.text}</span>{review&&option.key===review.correctAnswer&&<span className="ml-auto pt-1 text-xs font-semibold text-emerald-700">Correct</span>}</button>)}</div>
-          {!review?<><fieldset className="mt-4"><legend className="mb-2 text-xs font-semibold text-[#69717D]">How sure are you? This helps choose what to revisit.</legend><div className="grid grid-cols-3 gap-2">{([{value:'guess',label:'Guessed'},{value:'low',label:'Unsure'},{value:'high',label:'Confident'}] as const).map((item)=><button key={item.value} type="button" aria-pressed={confidence===item.value} onClick={()=>setConfidence(item.value)} className={`min-h-10 rounded-xl border px-2 text-xs font-semibold transition ${confidence===item.value?'border-blue-300 bg-blue-50 text-blue-800':'border-[#E7EAF0] bg-white text-[#68717E] hover:border-blue-200'}`}>{item.label}</button>)}</div></fieldset><button type="button" disabled={!choice||loading} onClick={submit} className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#1769E0] text-sm font-semibold text-white shadow-[0_5px_14px_rgba(23,105,224,0.18)] transition hover:bg-[#0F5FCC] disabled:opacity-45 sm:w-auto sm:px-7">{loading?<><LoaderCircle className="h-4 w-4 animate-spin"/>Checking answer…</>:'Check answer'}{!loading&&<ChevronRight className="h-4 w-4"/>}</button>{tutorError&&<p role="alert" className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm leading-5 text-rose-800">{tutorError}</p>}</>:<div className="qbank-review mt-6 space-y-4" ref={(node)=>node&&node.scrollIntoView({behavior:'smooth',block:'nearest'})}>
+          {!review?<><fieldset className="mt-4"><legend className="mb-2 text-xs font-semibold text-[#69717D]">How sure are you? This helps choose what to revisit.</legend><div className="grid grid-cols-3 gap-2">{([{value:'guess',label:'Guessed'},{value:'low',label:'Unsure'},{value:'high',label:'Confident'}] as const).map((item)=><button key={item.value} type="button" aria-pressed={confidence===item.value} onClick={()=>setConfidence(item.value)} className={`min-h-10 rounded-xl border px-2 text-xs font-semibold transition ${confidence===item.value?'border-blue-300 bg-blue-50 text-blue-800':'border-[#E7EAF0] bg-white text-[#68717E] hover:border-blue-200'}`}>{item.label}</button>)}</div></fieldset>{availableTopics.length>0&&<details className="mt-3 rounded-xl border border-[#E7EAF0] bg-[#FBFCFE] px-3 py-2.5"><summary className="cursor-pointer text-xs font-semibold text-[#596270]">Tag the tested topic <span className="font-normal text-[#8A929D]">· optional, learner-selected</span></summary><p className="mt-2 text-[11px] leading-4 text-[#7A8491]">Choose only if you recognize the main concept. This is not automatically inferred from the question.</p><select value={selectedSubtopic} onChange={(event)=>setSelectedSubtopic(event.target.value)} className="mt-2 h-10 w-full rounded-lg border border-[#E1E6ED] bg-white px-3 text-xs text-[#344054]"><option value="">Leave untagged</option>{availableTopics.map((topic)=><option key={topic.id} value={topic.id}>{topic.name}</option>)}</select></details>}<button type="button" disabled={!choice||loading} onClick={submit} className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#1769E0] text-sm font-semibold text-white shadow-[0_5px_14px_rgba(23,105,224,0.18)] transition hover:bg-[#0F5FCC] disabled:opacity-45 sm:w-auto sm:px-7">{loading?<><LoaderCircle className="h-4 w-4 animate-spin"/>Checking answer…</>:'Check answer'}{!loading&&<ChevronRight className="h-4 w-4"/>}</button>{tutorError&&<p role="alert" className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm leading-5 text-rose-800">{tutorError}</p>}</>:<div className="qbank-review mt-6 space-y-4" ref={(node)=>node&&node.scrollIntoView({behavior:'smooth',block:'nearest'})}>
             <div className={`flex items-start gap-3 rounded-2xl border p-4 ${review.correct?'border-emerald-200 bg-emerald-50/80':'border-rose-200 bg-rose-50/80'}`}><div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${review.correct?'bg-emerald-600 text-white':'bg-rose-600 text-white'}`}>{review.correct?<Check className="h-4 w-4"/>:<CircleHelp className="h-4 w-4"/>}</div><div><p className={`text-sm font-semibold ${review.correct?'text-emerald-950':'text-rose-950'}`}>{review.correct?'That’s correct.':`Not quite — the correct answer is ${review.correctAnswer}.`}</p>{answerText&&<p className="mt-1 text-xs leading-5 text-[#5F6B78]">{answerText}</p>}</div></div>
             <SourceExplanation review={review} correctAnswer={answerText} />
             {tutor||tutorLoading||tutorError?<GeminiReviewPanel correct={review.correct} tutor={tutor} loading={tutorLoading} error={tutorError} onRequest={requestTutorReview}/>:<button type="button" onClick={requestTutorReview} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50/70 px-3.5 text-xs font-semibold text-violet-800 transition hover:bg-violet-100"><MessageSquareText className="h-3.5 w-3.5"/>Ask Gemini to compare all options</button>}
