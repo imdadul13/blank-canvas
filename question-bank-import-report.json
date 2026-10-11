@@ -38,14 +38,14 @@
     "NEET-PG": 3300
   },
   "questionsWithoutSourceExplanation": 7,
-  "imageCount": 2424,
+  "imageCount": 2441,
   "imageCountByExam": {
-    "FMGE": 1186,
+    "FMGE": 1193,
     "INI-CET": 395,
-    "NEET-PG": 843
+    "NEET-PG": 853
   },
-  "imageReferences": 2528,
-  "dataBytes": 16347886,
-  "imageBytes": 60183768,
-  "uniqueImageAssets": 1709
+  "imageReferences": 2545,
+  "dataBytes": 16349195,
+  "imageBytes": 60281046,
+  "uniqueImageAssets": 1726
 }

@@ -26,6 +26,28 @@ SOURCES = {
     "NEETPG-Chapterwise": ("NEET-PG", "chapterwise"),
     "NEETPG-Yearwise": ("NEET-PG", "yearwise"),
 }
+# A small number of question figures are vector paths instead of PDF image
+# objects. These reviewed crops preserve those figures in the imported bank.
+# Coordinates use pdfplumber's (x0, top, x1, bottom) page coordinate system.
+MANUAL_FIGURE_CROPS = {
+    ("FMGE-Chapterwise", 22, 90): (45, 398, 280, 598),
+    ("FMGE-Chapterwise", 612, 282): (300, 176, 538, 235),
+    ("FMGE-Chapterwise", 741, 260): (300, 518, 538, 591),
+    ("FMGE-Yearwise", 663, 8): (38, 435, 276, 636),
+    ("FMGE-Yearwise", 921, 217): (38, 134, 276, 204),
+    ("FMGE-Yearwise", 923, 153): (38, 391, 276, 450),
+    ("FMGE-Yearwise", 1045, 237): (38, 435, 276, 668),
+    ("NEETPG-Chapterwise", 334, 56): (300, 307, 538, 373),
+    ("NEETPG-Chapterwise", 368, 174): (38, 169, 276, 245),
+    ("NEETPG-Chapterwise", 530, 140): (38, 213, 276, 272),
+    ("NEETPG-Chapterwise", 601, 26): (38, 178, 276, 408),
+    ("NEETPG-Yearwise", 109, 198): (38, 488, 276, 680),
+    ("NEETPG-Yearwise", 116, 247): (38, 440, 276, 651),
+    ("NEETPG-Yearwise", 133, 350): (38, 460, 276, 650),
+    ("NEETPG-Yearwise", 247, 96): (38, 335, 276, 395),
+    ("NEETPG-Yearwise", 473, 212): (38, 415, 276, 474),
+    ("NEETPG-Yearwise", 580, 203): (38, 256, 276, 361),
+}
 SUBJECTS = [
     "Anatomy", "Physiology", "Biochemistry", "Pathology", "Pharmacology", "Microbiology",
     "Forensic Medicine", "Social and Preventive Medicine", "Community Medicine", "PSM", "FMT", "ENT",
@@ -283,17 +305,16 @@ def image_candidates(pdf_page, pypdf_page, questions):
 
     stem_positions = [question_position(q) for q in questions]
     option_positions = [option_position(q) for q in questions]
-    positions = [option or stem for option, stem in zip(option_positions, stem_positions)]
-    positioned = [i for i, pos in enumerate(positions) if pos is not None]
+    positioned = [i for i, (stem, option) in enumerate(zip(stem_positions, option_positions)) if stem is not None or option is not None]
     if not positioned:
         return {}
 
-    def same_column(question_index, obj):
+    def same_column(position, obj):
         # Full-width images can sit between columns; assign those by vertical
         # proximity. Otherwise keep figures with questions in their own column.
         if float(obj.get("x0", 0)) < mid_x < float(obj.get("x1", 0)):
             return True
-        return (float(positions[question_index]["x0"]) < mid_x) == (float(obj.get("x0", 0)) < mid_x)
+        return (float(position["x0"]) < mid_x) == (float(obj.get("x0", 0)) < mid_x)
 
     result = {}
     for obj in image_objs:
@@ -303,7 +324,10 @@ def image_candidates(pdf_page, pypdf_page, questions):
             continue
         top = float(obj.get("top", 0))
         bottom = float(obj.get("bottom", top))
-        column_questions = [i for i in positioned if same_column(i, obj)]
+        column_questions = [
+            i for i in positioned
+            if any(pos is not None and same_column(pos, obj) for pos in (stem_positions[i], option_positions[i]))
+        ]
         candidates = column_questions or positioned
 
         # Prefer the closest option row directly below the figure. This is
@@ -312,6 +336,7 @@ def image_candidates(pdf_page, pypdf_page, questions):
         option_anchored = [
             i for i in candidates
             if option_positions[i] is not None
+            and same_column(option_positions[i], obj)
             and -18 <= float(option_positions[i]["top"]) - bottom <= 260
         ]
         if option_anchored:
@@ -338,16 +363,27 @@ def image_candidates(pdf_page, pypdf_page, questions):
         # the answer list before the figure or use unusual option layouts.
         # Prefer the question block that contains the figure. This avoids
         # assigning a left-column image to a nearby right-column question.
+        # When a question's stem and options span columns, use whichever anchor
+        # shares the figure's column; do not let the option row override a
+        # nearby stem in the figure's own column.
+        anchor_positions = {
+            i: (stem_positions[i] if stem_positions[i] is not None and same_column(stem_positions[i], obj)
+                else option_positions[i])
+            for i in candidates
+        }
+        anchor_positions = {i: pos for i, pos in anchor_positions.items() if pos is not None}
+        if not anchor_positions:
+            continue
         containing = []
-        for i in candidates:
-            qtop = float(positions[i]["top"])
-            next_tops = [float(positions[j]["top"]) for j in candidates if float(positions[j]["top"]) > qtop]
+        for i, position in anchor_positions.items():
+            qtop = float(position["top"])
+            next_tops = [float(anchor_positions[j]["top"]) for j in anchor_positions if float(anchor_positions[j]["top"]) > qtop]
             next_top = min(next_tops) if next_tops else float(pdf_page.height)
             if qtop - 55 <= top < next_top - 4:
                 containing.append(i)
-        pool = containing or candidates
-        nearest = min(pool, key=lambda i: abs(float(positions[i]["top"]) - top))
-        if abs(float(positions[nearest]["top"]) - top) > 240:
+        pool = containing or list(anchor_positions)
+        nearest = min(pool, key=lambda i: abs(float(anchor_positions[i]["top"]) - top))
+        if abs(float(anchor_positions[nearest]["top"]) - top) > 240:
             continue
         try:
             payload = image.data
@@ -362,6 +398,27 @@ def image_candidates(pdf_page, pypdf_page, questions):
             result.setdefault(nearest, []).append(f"/qbank-images/{target.name}")
         except Exception:
             continue
+    return result
+
+
+def manual_figure_candidates(pdf_page, basename, page_number, questions):
+    result = {}
+    for index, question in enumerate(questions):
+        bounds = MANUAL_FIGURE_CROPS.get((basename, page_number, question["number"]))
+        if not bounds:
+            continue
+        try:
+            # Some source diagrams are vector artwork, which has no embedded
+            # image object to extract. Render only the reviewed figure region.
+            pil = pdf_page.crop(bounds).to_image(resolution=144).original.convert("L").convert("RGB")
+            pil.thumbnail((1200, 1200))
+            key = hashlib.sha256(pil.tobytes()).hexdigest()[:20]
+            target = IMAGES / f"{key}.webp"
+            if not target.exists():
+                pil.save(target, "WEBP", quality=86, method=5)
+            result[index] = [f"/qbank-images/{target.name}"]
+        except Exception as exc:
+            print(f"Could not render reviewed figure crop {basename} p.{page_number} q.{question['number']}: {exc}")
     return result
 
 
@@ -391,6 +448,8 @@ def main():
                 topic = current_subject
                 year = year_for(text[:questions[0]["_start"]] + rolling)
                 images = image_candidates(pdf.pages[page_idx], pypdf_page, questions)
+                for index, image_urls in manual_figure_candidates(pdf.pages[page_idx], basename, page_idx + 1, questions).items():
+                    images.setdefault(index, image_urls)
                 source_counts[basename] = source_counts.get(basename, 0)
                 for i, q in enumerate(questions):
                     block_end = q["_end"]
