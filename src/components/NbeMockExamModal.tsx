@@ -38,7 +38,11 @@ interface MockQuestion {
   subjectId: string;
   subjectName: string;
   topicName: string;
+  scenario?: string;
   question: string;
+  imageUrl?: string;
+  cleanImageUrl?: string;
+  whatToLookFor?: string;
   options: { optionId: string; key: string; text: string; isCorrect: boolean }[];
   correctAnswer: string;
   explanation: string;
@@ -96,7 +100,11 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
               subjectId: sub.id,
               subjectName: sub.name,
               topicName: topic.name,
+              scenario: picked.scenario,
               question: picked.question,
+              imageUrl: picked.imageUrl,
+              cleanImageUrl: picked.cleanImageUrl,
+              whatToLookFor: picked.whatToLookFor,
               options: picked.options.map((o) => ({
                 optionId: o.optionId,
                 key: o.key,
@@ -610,6 +618,8 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                   </div>
 
                   {/* Question Stem */}
+                  {currentQ.scenario && <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">{currentQ.scenario}</p>}
+                  {(currentQ.cleanImageUrl || currentQ.imageUrl) && <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-2"><img src={currentQ.cleanImageUrl || currentQ.imageUrl} alt={`Visual for question ${currentIndex + 1}`} className="mx-auto max-h-[38vh] w-auto max-w-full rounded-xl object-contain" />{currentQ.whatToLookFor && <figcaption className="px-2 pt-2 text-xs leading-5 text-slate-600">Observe the key finding in the image.</figcaption>}</figure>}
                   <div className="text-sm sm:text-base font-medium text-slate-900 leading-relaxed">
                     {currentQ.question}
                   </div>
@@ -784,10 +794,11 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
           /* ═══ Modern Dark Exam Screen ═══ */
           <main className="flex-1 min-h-0 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
             {/* Left: Active Question Area */}
-            <div className="flex-none md:flex-1 flex flex-col justify-between p-4 sm:p-6 md:overflow-y-auto border-r border-slate-800">
-              <div className="space-y-4 max-w-3xl">
+            <div className="relative flex-none md:flex-1 flex flex-col justify-between p-4 sm:p-6 md:overflow-y-auto border-r border-slate-800 bg-[radial-gradient(ellipse_at_18%_0%,rgba(0,122,255,0.10),transparent_42%)]">
+              <div className="flex flex-1 items-center justify-center py-3">
+              <motion.div key={currentQ.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="w-full max-w-5xl space-y-5 rounded-[26px] border border-slate-700/80 bg-gradient-to-br from-slate-900 via-slate-900 to-[#111827] p-5 shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:p-7 lg:p-8">
                 {/* Question Meta Bar */}
-                <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div className="flex items-center justify-between gap-2 border-b border-slate-700/80 pb-3">
                   <div className="flex items-center gap-2">
                     <span className="px-3 py-0.5 rounded-full bg-[#007AFF]/15 text-sky-300 font-mono font-bold text-xs border border-[#007AFF]/25">
                       Question {currentIndex + 1} of {questions.length}
@@ -816,13 +827,16 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                   </button>
                 </div>
 
+                {currentQ.scenario && <p className="rounded-2xl border border-slate-700/80 bg-slate-800/70 px-4 py-3 text-sm leading-6 text-slate-300">{currentQ.scenario}</p>}
+                {(currentQ.cleanImageUrl || currentQ.imageUrl) && <figure className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-950/70 p-2"><img src={currentQ.cleanImageUrl || currentQ.imageUrl} alt={`Visual for question ${currentIndex + 1}`} className="mx-auto max-h-[34vh] w-auto max-w-full rounded-xl object-contain" />{currentQ.whatToLookFor && <figcaption className="px-3 pt-2 text-xs leading-5 text-slate-400">Review the image and identify its key finding.</figcaption>}</figure>}
+
                 {/* Question Stem */}
-                <div className="text-sm sm:text-base font-semibold text-slate-100 leading-relaxed">
+                <div className="text-base font-semibold leading-relaxed text-white sm:text-lg">
                   {currentQ.question}
                 </div>
 
                 {/* Multiple Choice Options */}
-                <div className="space-y-2.5 pt-2">
+                <div className="space-y-2.5 pt-1">
                   {currentQ.options.map((opt) => {
                     const isSelected = currentQ.userSelectedOption === opt.key;
                     return (
@@ -831,7 +845,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                         type="button"
                         onClick={() => handleSelectOption(opt.key)}
                         aria-pressed={isSelected}
-                        className={`w-full flex items-start gap-3 p-4 rounded-2xl text-left text-xs sm:text-sm transition-all cursor-pointer border active:scale-[0.99] ${
+                        className={`w-full flex items-start gap-3.5 p-4 sm:p-5 rounded-2xl text-left text-sm sm:text-base leading-6 transition-all cursor-pointer border active:scale-[0.99] ${
                           isSelected
                             ? 'bg-[#007AFF]/15 text-white border-[#007AFF] shadow-md shadow-[#007AFF]/15'
                             : 'bg-slate-900/80 hover:bg-slate-850 text-slate-200 border-slate-800 hover:border-slate-700'
@@ -851,6 +865,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                     );
                   })}
                 </div>
+              </motion.div>
               </div>
 
               {/* Bottom Question Controls */}
