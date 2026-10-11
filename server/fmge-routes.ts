@@ -2115,6 +2115,7 @@ app.post("/api/ai/chat/stream", async (req, res) => {
     scoreGap = null,
     phaseTitle = null,
     todayPlan = [],
+    learnerPulse = null,
   } = studentContext;
 
   const weakSubjectsStr = Array.isArray(weakSubjects) && weakSubjects.length > 0
@@ -2126,6 +2127,9 @@ app.post("/api/ai/chat/stream", async (req, res) => {
   const recentErrorsStr = Array.isArray(recentErrors) && recentErrors.length > 0
     ? recentErrors.slice(0, 5).join("; ")
     : "None logged recently";
+  const learnerPulseSig = learnerPulse && typeof learnerPulse === 'object'
+    ? `Today: ${Number(learnerPulse.todayStudyMinutes) || 0} timer-logged focus minutes; ${Number(learnerPulse.todayAttemptCount) || 0} recorded question attempts; ${learnerPulse.todayAccuracy == null ? 'accuracy not yet available' : `${Number(learnerPulse.todayAccuracy)}% accuracy`}. Recent confident misses: ${Number(learnerPulse.confidentMisses) || 0}; uncertain correct answers: ${Number(learnerPulse.unsureCorrect) || 0}.`
+    : "Recent response and focus summary not available.";
 
   const { subject: detectedSubject, topic: detectedTopic } = classifyTopicAndSubject(message, history);
   const lowerMsg = message.toLowerCase().trim();
@@ -2151,11 +2155,20 @@ app.post("/api/ai/chat/stream", async (req, res) => {
     lowerMsg.includes('focus on my weakness')
   ) {
     const mentorCtx = studentContext.mentorContext || {};
-    const actualWeakSubject = mentorCtx.weakSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]) || 'Pharmacology';
-    const actualWeakTopic = mentorCtx.weakTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]) || 'Autonomic Pharmacology';
-    const subjectAcc = mentorCtx.subjectAccuracy?.[actualWeakSubject.toLowerCase()] || 48;
+    const actualWeakSubject = mentorCtx.weakSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]);
+    const actualWeakTopic = mentorCtx.weakTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]);
+    if (!actualWeakSubject || !actualWeakTopic) {
+      const reply = "I don’t have enough recorded answers to identify a real weak area yet. Complete a short diagnostic set, and I’ll use your actual results to choose the drill.";
+      res.write(`data: ${JSON.stringify({ text: reply })}\n\n`);
+      res.write(`data: ${JSON.stringify({ done: true, fullText: reply })}\n\n`);
+      res.end();
+      return;
+    }
+    const accuracy = mentorCtx.subjectAccuracy?.[actualWeakSubject.toLowerCase()];
+    const subjectAcc = Number.isFinite(accuracy) ? accuracy : null;
 
-    const reply = `Let's focus on **${actualWeakSubject}** first (${subjectAcc}% accuracy in your performance data). Here is your targeted clinical challenge:\n\n### Clinical Drill: **${actualWeakSubject}** (${actualWeakTopic})\n\n*(Switching into interactive clinical quiz mode...)*`;
+    const accuracyNote = subjectAcc == null ? 'from your saved performance signals' : `${subjectAcc}% accuracy in your performance data`;
+    const reply = `Let's focus on **${actualWeakSubject}** first (${accuracyNote}). Here is your targeted clinical challenge:\n\n### Clinical Drill: **${actualWeakSubject}** (${actualWeakTopic})\n\n*(Switching into interactive clinical quiz mode...)*`;
     res.write(`data: ${JSON.stringify({ text: reply })}\n\n`);
     res.write(`data: ${JSON.stringify({ done: true, fullText: reply })}\n\n`);
     res.end();
@@ -2190,8 +2203,16 @@ app.post("/api/ai/chat/stream", async (req, res) => {
     lowerMsg.includes('where i left off')
   ) {
     const mentorCtx = studentContext.mentorContext || {};
-    const recentTopic = mentorCtx.recentTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]) || 'Cardiology · Arrhythmias & AV Blocks';
-    const recentSubject = mentorCtx.recentSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]) || 'General Medicine';
+    const recentTopic = mentorCtx.recentTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]);
+    const recentSubject = mentorCtx.recentSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]);
+
+    if (!recentTopic || !recentSubject) {
+      const reply = "I don’t see a recent topic in your saved activity yet. Start with the first topic in today’s plan or complete a short diagnostic set; after that I can continue from your actual study history.";
+      res.write(`data: ${JSON.stringify({ text: reply })}\n\n`);
+      res.write(`data: ${JSON.stringify({ done: true, fullText: reply })}\n\n`);
+      res.end();
+      return;
+    }
 
     let studyAdvice = `Based on your recent study session on **${recentSubject} (${recentTopic})**, continue your clinical revision on this chapter and test yourself with 10 practice questions.`;
     if (daysRemaining <= 1) {
@@ -2240,6 +2261,7 @@ USER STUDY CONTEXT:
 - Learning style preferences: ${prefsSig}
 - Baseline: ${baselineSig}
 - Current estimated performance: ${estimateSig} (${gapSig})
+- Recent response pattern: ${learnerPulseSig}
 Today's personalized plan (same plan shown in the student's Dashboard):
 ${planSig}
 CRITICAL REASONING & TOPIC INTEGRITY DIRECTIVES:
@@ -2387,19 +2409,24 @@ app.post("/api/ai/chat", async (req, res) => {
     scoreGap = null,
     phaseTitle = null,
     todayPlan = [],
+    learnerPulse = null,
   } = studentContext;
 
   const weakSubjectsStr = Array.isArray(weakSubjects) && weakSubjects.length > 0
     ? weakSubjects.join(", ")
-    : "Medicine, Pharmacology, Pathology, OBG";
+    : "not enough recorded performance data yet";
 
   const weakTopicsStr = Array.isArray(weakTopics) && weakTopics.length > 0
     ? weakTopics.join(", ")
-    : "Heart blocks, Autonomic drugs, Nephrotic syndromes";
+    : "not enough recorded topic data yet";
 
   const recentErrorsStr = Array.isArray(recentErrors) && recentErrors.length > 0
     ? recentErrors.slice(0, 5).join("; ")
     : "None logged recently";
+
+  const learnerPulseSig = learnerPulse && typeof learnerPulse === 'object'
+    ? `Today: ${Number(learnerPulse.todayStudyMinutes) || 0} timer-logged focus minutes; ${Number(learnerPulse.todayAttemptCount) || 0} recorded question attempts; ${learnerPulse.todayAccuracy == null ? 'accuracy not yet available' : `${Number(learnerPulse.todayAccuracy)}% accuracy`}. Recent confident misses: ${Number(learnerPulse.confidentMisses) || 0}; uncertain correct answers: ${Number(learnerPulse.unsureCorrect) || 0}.`
+    : "Recent response and focus summary not available.";
 
   // Personalization context from onboarding — study-strategy signals only, never medical facts.
   const preparationStageStr = preparationStage
@@ -2475,9 +2502,14 @@ app.post("/api/ai/chat", async (req, res) => {
     lowerMsg.includes('focus on my weakness')
   ) {
     const mentorCtx = studentContext.mentorContext || {};
-    const actualWeakSubject = mentorCtx.weakSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]) || 'Pharmacology';
-    const actualWeakTopic = mentorCtx.weakTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]) || 'Autonomic Pharmacology';
-    const subjectAcc = mentorCtx.subjectAccuracy?.[actualWeakSubject.toLowerCase()] || 48;
+    const actualWeakSubject = mentorCtx.weakSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]);
+    const actualWeakTopic = mentorCtx.weakTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]);
+    if (!actualWeakSubject || !actualWeakTopic) {
+      res.json({ success: true, reply: "I don’t have enough recorded answers to identify a real weak area yet. Complete a short diagnostic set, and I’ll use your actual results to choose the drill.", intent: "recommendation", suggestedFollowUps: ["Start a diagnostic question set", "Show me today's plan"] });
+      return;
+    }
+    const accuracy = mentorCtx.subjectAccuracy?.[actualWeakSubject.toLowerCase()];
+    const subjectAcc = Number.isFinite(accuracy) ? accuracy : null;
 
     const rawBatch = getTopicClinicalMCQBatch(actualWeakSubject, actualWeakTopic, 5, history);
     const quizQuestions = rawBatch.map((q: any, i: number) => ({
@@ -2499,7 +2531,7 @@ app.post("/api/ai/chat", async (req, res) => {
 
     res.json({
       success: true,
-      reply: `Let's focus on **${actualWeakSubject}** first (${subjectAcc}% accuracy in your performance data). Here is your targeted clinical challenge:`,
+      reply: `Let's focus on **${actualWeakSubject}** first (${subjectAcc == null ? 'from your saved performance signals' : `${subjectAcc}% accuracy in your performance data`}). Here is your targeted clinical challenge:`,
       intent: "quiz",
       topic: actualWeakTopic,
       subject: actualWeakSubject,
@@ -2561,8 +2593,13 @@ app.post("/api/ai/chat", async (req, res) => {
     lowerMsg.includes('where i left off')
   ) {
     const mentorCtx = studentContext.mentorContext || {};
-    const recentTopic = mentorCtx.recentTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]) || 'Cardiology · Arrhythmias & AV Blocks';
-    const recentSubject = mentorCtx.recentSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]) || 'General Medicine';
+    const recentTopic = mentorCtx.recentTopics?.[0] || (Array.isArray(weakTopics) && weakTopics[0]);
+    const recentSubject = mentorCtx.recentSubjects?.[0] || (Array.isArray(weakSubjects) && weakSubjects[0]);
+
+    if (!recentTopic || !recentSubject) {
+      res.json({ success: true, reply: "I don’t see a recent topic in your saved activity yet. Start with the first topic in today’s plan or complete a short diagnostic set; after that I can continue from your actual study history.", intent: "recommendation", suggestedFollowUps: ["Show me today's plan", "Start a diagnostic question set"] });
+      return;
+    }
 
     let studyAdvice = `Based on your recent study session on **${recentSubject} (${recentTopic})**, continue your clinical revision on this chapter and test yourself with 10 practice questions.`;
     if (daysRemaining <= 1) {
@@ -2643,6 +2680,7 @@ USER STUDY CONTEXT:
 - Study Style Preferences: ${studyPreferencesStr}
 - Baseline Score: ${baselineStr}
 - Current Estimated Performance: ${estimateSigB} (${gapSigB})
+- Recent Response Pattern: ${learnerPulseSig}
 - Active Preparation Phase: ${phaseSigB}
 Today's Personalized Plan (same plan shown in the student's Dashboard):
 ${planSigB}

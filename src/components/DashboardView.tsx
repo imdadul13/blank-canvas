@@ -95,6 +95,7 @@ import { NbeMockExamModal } from './NbeMockExamModal';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 import { AmbientSoundWidget } from './AmbientSoundWidget';
 import { getDuePearls } from '../utils/spacedRepetitionEngine';
+import { getLearnerPulse, LearnerPulse } from '../utils/learnerIntelligence';
 
 interface DashboardViewProps {
   state: AppState;
@@ -137,12 +138,13 @@ interface DashboardViewProps {
 function DashboardTodayHub({
   dueQbankReviews, upcomingQbankReviews, dueErrors, dueRevisions, taskCount,
   todayMinutes, plannedMinutes, focusSubject, focusTopic, latestMock, mockDue, daysUntilMock,
-  recentMocks, reducedMotion,
+  recentMocks, reducedMotion, learnerPulse,
   onOpenReviewQueue, onOpenErrors, onOpenRevision, onStartMock, onStartStudy, onOpenPlanner,
 }: {
   dueQbankReviews: number; upcomingQbankReviews: number; dueErrors: number; dueRevisions: number; taskCount: number;
   todayMinutes: number; plannedMinutes: number; focusSubject: string; focusTopic: string;
   latestMock?: GrandTest; mockDue: boolean; daysUntilMock: number; recentMocks: GrandTest[];
+  learnerPulse: LearnerPulse;
   reducedMotion: boolean | null;
   onOpenReviewQueue: () => void; onOpenErrors: () => void; onOpenRevision: () => void;
   onStartMock: () => void; onStartStudy: () => void; onOpenPlanner: () => void;
@@ -183,6 +185,31 @@ function DashboardTodayHub({
         <motion.div whileHover={reducedMotion ? undefined : { y: -3, scale: 1.012 }} transition={{ type: 'spring', stiffness: 340, damping: 26 }} className="min-w-0 rounded-[20px] border border-[#E8DFFC] bg-gradient-to-br from-[#F7F1FF] to-white p-3.5 shadow-[0_2px_8px_rgba(175,82,222,0.05)] sm:p-4"><div className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-xl bg-gradient-to-br from-[#AF52DE] to-[#7C4DFF] text-white shadow-sm"><Target className="h-3.5 w-3.5" /></span><p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#8052B4]">Focus area</p></div><p className="mt-3 truncate text-sm font-semibold text-[#263244]">{focusSubject}</p><p className="mt-1 truncate text-[11px] text-[#788391]">{focusTopic || 'Based on saved performance'}</p></motion.div>
         <motion.div whileHover={reducedMotion ? undefined : { y: -3, scale: 1.012 }} transition={{ type: 'spring', stiffness: 340, damping: 26 }} className="min-w-0 rounded-[20px] border border-[#D6F2E1] bg-gradient-to-br from-[#EDFFF4] to-white p-3.5 shadow-[0_2px_8px_rgba(48,209,88,0.05)] sm:p-4"><div className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-xl bg-gradient-to-br from-[#30B566] to-[#30D158] text-white shadow-sm"><TrendingUp className="h-3.5 w-3.5" /></span><p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#39855A]">Next mock</p></div><p className="mt-3 truncate text-sm font-semibold text-[#263244]">{latestMock ? `${latestMock.score}/300 · ${latestMock.platform}` : 'No score logged yet'}</p><p className="mt-1 truncate text-[11px] text-[#788391]">{mockDue ? latestMock ? 'Due now by your study cadence' : 'Take a baseline simulation' : `Suggested in ${daysUntilMock} day${daysUntilMock === 1 ? '' : 's'}`} · 150 pass mark</p></motion.div>
         {recentMocks.length > 1 && <div className="col-span-2 rounded-[20px] border border-[#E9EDF3] bg-[#FBFCFE] px-4 py-3"><div className="flex items-center justify-between gap-2"><p className="text-[10px] font-bold uppercase tracking-wide text-[#7B8795]">Recent mock scores</p><p className="text-[9px] text-[#8993A0]">Out of 300 · series difficulty varies</p></div><div className="mt-2 flex h-12 items-end gap-1.5" role="img" aria-label={`Recent mock scores: ${recentMocks.map((test) => `${test.score} out of 300`).join(', ')}`}>{recentMocks.map((test) => <div key={test.id} className="group relative flex h-full flex-1 items-end justify-center"><div className={`w-full max-w-8 rounded-t-sm ${test.score >= 165 ? 'bg-emerald-500' : test.score >= 150 ? 'bg-amber-400' : 'bg-blue-500'}`} style={{ height: `${Math.max(5, Math.min(100, test.score / 300 * 100))}%` }} /><span className="absolute -top-0.5 text-[8px] font-semibold text-[#536174]">{test.score}</span></div>)}</div><div className="mt-1 flex justify-between text-[8px] text-[#8993A0]"><span>Oldest</span><span>Latest</span></div></div>}
+      </div>
+      <div className="col-span-full grid gap-3 border-t border-[#EEF1F5] pt-4 sm:grid-cols-[1fr_auto] sm:items-center">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#6E7E91]">Your learning signal</p>
+          <p className="mt-1 text-sm font-semibold text-[#263244]">
+            {learnerPulse.todayAttemptCount > 0
+              ? `${learnerPulse.todayAttemptCount} questions today · ${learnerPulse.todayAccuracy}% correct`
+              : learnerPulse.todayStudyMinutes > 0
+                ? `${learnerPulse.todayStudyMinutes} focused minutes logged today · no questions recorded yet`
+                : 'Your recent study and answer patterns will appear here'}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-[#788391]">
+            {learnerPulse.confidentMisses > 0
+              ? `${learnerPulse.confidentMisses} recent confident miss${learnerPulse.confidentMisses === 1 ? '' : 'es'} suggest a useful topic to repair.`
+              : learnerPulse.unsureCorrect > 0
+                ? `${learnerPulse.unsureCorrect} recent correct answer${learnerPulse.unsureCorrect === 1 ? ' was' : 's were'} uncertain; strengthen recall confidence.`
+                : learnerPulse.focusMinutesBySubject.length > 0
+                  ? `Most question-response time today: ${learnerPulse.focusMinutesBySubject[0].subjectName} (${learnerPulse.focusMinutesBySubject[0].minutes} min).`
+                  : 'Subject time is estimated from question response time; focus timers are shown separately.'}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2 sm:justify-end">
+          <span className="rounded-full border border-[#DCEAFE] bg-[#F2F7FF] px-3 py-1.5 text-[11px] font-semibold text-[#38699E]">{learnerPulse.todayStudyMinutes} min focused</span>
+          <span className="rounded-full border border-[#E8DFFC] bg-[#F8F3FF] px-3 py-1.5 text-[11px] font-semibold text-[#8052B4]">{learnerPulse.todayLoggedQuestions} questions logged</span>
+        </div>
       </div>
     </div>
     <div className="border-t border-[#EEF1F5] px-5 py-2 text-[10px] leading-4 text-[#798493]">Practice activity and mock scores are tracked separately; compare mocks within the same test series when possible.</div>
@@ -1549,6 +1576,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     () => getLearningContext(profile, state),
     [profile, state]
   );
+  const learnerPulse = useMemo(() => getLearnerPulse(state), [state]);
 
   const dailyPlan: PersonalizedPlan = useMemo(
     () => getPersonalizedDailyPlan(profile, state),
@@ -3178,6 +3206,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               daysUntilMock={daysUntilMock}
               recentMocks={recentMockRecords}
               reducedMotion={reducedMotion}
+              learnerPulse={learnerPulse}
               onOpenReviewQueue={() => onNavigateTab('questionbank')}
               onOpenErrors={handleLaunchErrorDrill}
               onOpenRevision={() => onNavigateTab('revision')}

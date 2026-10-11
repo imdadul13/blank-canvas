@@ -71,6 +71,7 @@ import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { GrandTest, AppState, MedicalImageAsset, MedicalPearl, ErrorNotebookItem } from '../types';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
 import { buildMentorContext, resolveMedicalTopic, detectMentorMode } from '../utils/mentorContextEngine';
+import { getLearnerPulse } from '../utils/learnerIntelligence';
 import type { LucideIcon } from 'lucide-react';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { MedicalImageViewerModal } from './MedicalImageViewerModal';
@@ -726,10 +727,6 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
         .slice(0, 4)
         .map(([sId]) => FMGE_SUBJECTS.find((s) => s.id === sId)?.name || sId);
     }
-    if (weakSubList.length === 0) {
-      weakSubList = ['General Medicine', 'Pharmacology', 'Obstetrics & Gynecology', 'Pathology'];
-    }
-
     // Weak topics derived from Error Notebook and McqAttempts
     const weakTopicList: string[] = [];
     if (state?.errorNotebook && state.errorNotebook.length > 0) {
@@ -782,6 +779,7 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
             activeSession: { id: activeSessionId, messageCount: messages.length },
           })
         : null,
+      learnerPulse: state ? getLearnerPulse(state) : null,
       todayPlan: todayPlan?.tasks.slice(0, 5).map((t) => ({
         activity: t.activity,
         subjectName: t.subjectName,
