@@ -1688,6 +1688,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }, [searchQuery]);
 
   const userName = user?.displayName || profile?.displayName || state.settings.userName || 'Doctor';
+  const greetingName = userName
+    .trim()
+    .replace(/^(?:Dr\.?|Doctor|Mr\.?|Mrs\.?|Ms\.?)\s+/i, '')
+    .split(/\s+/)[0] || 'Doctor';
   const initials = (userName || 'Doctor')
     .split(' ')
     .map((w) => w[0])
@@ -2006,7 +2010,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <span>{greeting}</span>
                 </div>
                 <span className="text-[#C7C7CC]">·</span>
-                <span className="text-[12px] font-semibold hidden sm:inline text-[#8E8E93]">OneShot FMGE</span>
+                <span className="text-[12px] font-semibold text-[#8E8E93]">{greetingName}</span>
               </div>
               <CircadianFocusDropdown circadian={circadian} align="right" isDark={false} />
             </div>
