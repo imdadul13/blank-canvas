@@ -137,6 +137,14 @@ export const isTabActive = (id: ActiveTab, currentTab: ActiveTab) => {
   return false;
 };
 
+function syncStatusPresentation(status: SyncStatus, isGuest?: boolean) {
+  if (isGuest) return { label: 'Saved on this device', short: 'Local', color: '#FF9F0A', animating: false };
+  if (status === 'syncing') return { label: 'Syncing changes…', short: 'Syncing', color: '#007AFF', animating: true };
+  if (status === 'error') return { label: 'Sync failed · saved on device', short: 'Retry', color: '#FF3B30', animating: false };
+  if (status === 'offline') return { label: 'Offline · saved on device', short: 'Offline', color: '#FF9F0A', animating: false };
+  return { label: 'Synced to cloud', short: 'Synced', color: '#34C759', animating: false };
+}
+
 /* ─── Desktop Sidebar ────────────────────────────────────────────── */
 export const SidebarDock: React.FC<NavbarProps> = ({
   activeTab,
@@ -164,6 +172,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   const sidebarRef = useRef<HTMLElement>(null);
   const moreHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reducedMotion = useReducedMotion();
+  const syncPresentation = syncStatusPresentation(syncStatus, isGuest);
 
   const QUOTES = [
     { text: 'Every question answered is a life better served.', author: null },
@@ -492,13 +501,13 @@ export const SidebarDock: React.FC<NavbarProps> = ({
           className="app-sidebar-sync w-full flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-black/[0.03] transition-colors cursor-pointer group mb-3"
         >
           <span className="relative flex h-2 w-2 shrink-0">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#34C759] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#34C759]" />
+            {syncPresentation.animating && <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-50" style={{ backgroundColor: syncPresentation.color }} />}
+            <span className="relative inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: syncPresentation.color }} />
           </span>
           <span className="app-sidebar-sync-label text-[11px] font-semibold text-[#8E8E93] group-hover:text-[#1D1D1F] flex-1 text-left transition-colors">
-            {syncStatus === 'offline' ? 'Offline Ready' : 'Synced to cloud'}
+            {syncPresentation.label}
           </span>
-          <span className="app-sidebar-sync-auto text-[10px] font-medium text-[#C7C7CC]">Auto</span>
+          <span className="app-sidebar-sync-auto text-[10px] font-medium text-[#C7C7CC]">{isGuest ? 'Device' : 'Auto'}</span>
         </button>
 
         {/* Animated Quote Card */}
@@ -587,6 +596,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isSecondaryActive =
     activeTab === 'grandtests' || activeTab === 'telegram' || activeTab === 'more';
   const reducedMotion = useReducedMotion();
+  const syncPresentation = syncStatusPresentation(syncStatus, isGuest);
 
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const mobileMoreRef = useRef<HTMLDivElement>(null);
@@ -668,8 +678,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F2F2F7]/90 hover:bg-[#F0F6FF] border border-[rgba(60,60,67,0.12)] text-[11px] font-semibold text-[#3A3A3C] hover:text-[#007AFF] transition-colors cursor-pointer shadow-2xs"
               title="Cloud Sync & Local Snapshots"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-[#30D158] animate-pulse" />
-              <span className="text-[10px] font-medium hidden xs:inline">{syncStatus === 'offline' ? 'Offline' : 'Synced'}</span>
+              <span className={`h-1.5 w-1.5 rounded-full ${syncPresentation.animating ? 'animate-pulse' : ''}`} style={{ backgroundColor: syncPresentation.color }} />
+              <span className="text-[10px] font-medium hidden xs:inline">{syncPresentation.short}</span>
             </button>
           )}
 

@@ -23,6 +23,10 @@ import {
   subscribeToUserState,
   loadUserLocalCache,
   saveUserLocalCache,
+  savePendingOfflineWrite,
+  getPendingOfflineWrite,
+  clearPendingOfflineWrite,
+  resolveCloudConflict,
   clearUserLocalCache,
   hasLegacyLocalData,
   getLegacyLocalData,
@@ -224,9 +228,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Online / offline listeners
   useEffect(() => {
     const handleOnline = () => {
-      setSyncStatus('synced');
       if (user && !DEV_AUTH_BYPASS) {
-        forceSyncToCloud();
+        void forceSyncToCloud().catch(() => {});
       }
     };
     const handleOffline = () => setSyncStatus('offline');
@@ -330,6 +333,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         let cloudState = await getUserStateFromCloud(currentUser.uid);
         if (session !== authSessionRef.current) return;
 
+        // A queued local snapshot means the last edit may not have reached the
+        // server before a refresh, close, or connection loss. Recover and retry
+        // it before treating the cloud snapshot as current.
+        const pendingLocalState = getPendingOfflineWrite(currentUser.uid)
+          || (!cloudState ? loadUserLocalCache(currentUser.uid) : null);
+        if (pendingLocalState) {
+          const recovered = cloudState
+            ? resolveCloudConflict(pendingLocalState, cloudState)
+            : pendingLocalState;
+          cloudState = recovered;
+          pendingStateRef.current = recovered;
+          hasPendingLocalChangesRef.current = true;
+          saveUserLocalCache(currentUser.uid, recovered);
+          setAppState(recovered);
+          setSyncStatus('syncing');
+          try {
+            await saveUserStateToCloud(currentUser.uid, recovered);
+            clearPendingOfflineWrite(currentUser.uid);
+            pendingStateRef.current = null;
+            hasPendingLocalChangesRef.current = false;
+            lastCloudSavedStringRef.current = JSON.stringify(recovered);
+            setSyncStatus('synced');
+          } catch (syncError) {
+            console.warn('[AUTH] Recovered local changes are waiting to sync:', syncError);
+            setSyncStatus(navigator.onLine ? 'error' : 'offline');
+          }
+        }
+
         // Check if there is local legacy data to migrate for a new user
         const hasLegacy = hasLegacyLocalData();
 
@@ -368,6 +399,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
 
           setAppState(initial);
+          saveUserLocalCache(currentUser.uid, initial);
           await saveUserStateToCloud(currentUser.uid, initial);
           lastCloudSavedStringRef.current = JSON.stringify(initial);
 
@@ -426,7 +458,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         );
 
-        setSyncStatus('synced');
+        setSyncStatus(hasPendingLocalChangesRef.current
+          ? navigator.onLine ? 'error' : 'offline'
+          : 'synced');
       } catch (err) {
         console.error('[AUTH] Error during user auth restoration:', err);
         // Fallback to local user cache if available
@@ -538,6 +572,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Save locally immediately
     saveUserLocalCache(user.uid, stateToSave);
+    savePendingOfflineWrite(user.uid, stateToSave);
     pendingStateRef.current = stateToSave;
     hasPendingLocalChangesRef.current = true;
 
@@ -551,20 +586,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         if (activeUidRef.current === user.uid) {
           await saveUserStateToCloud(user.uid, stateToSave);
-          lastCloudSavedStringRef.current = json;
-          pendingStateRef.current = null;
-          hasPendingLocalChangesRef.current = false;
-          setSyncStatus('synced');
+          if (JSON.stringify(pendingStateRef.current) === json) {
+            clearPendingOfflineWrite(user.uid);
+            lastCloudSavedStringRef.current = json;
+            pendingStateRef.current = null;
+            hasPendingLocalChangesRef.current = false;
+            setSyncStatus('synced');
+          }
         }
       } catch (err) {
         console.error('Failed to sync state to Firestore:', err);
-        setSyncStatus(navigator.onLine ? 'error' : 'offline');
+        if (JSON.stringify(pendingStateRef.current) === json) {
+          setSyncStatus(navigator.onLine ? 'error' : 'offline');
+        }
       }
     }, 1200);
   }, [user, isGuest]);
 
   /** Immediately commits the latest local state. Used before session-changing actions. */
-  const flushPendingSave = async () => {
+  const flushPendingSave = useCallback(async () => {
     if (DEV_AUTH_BYPASS) {
       try {
         const stateToSave = pendingStateRef.current || appStateRef.current;
@@ -600,15 +640,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSyncStatus('syncing');
     try {
       await saveUserStateToCloud(uid, stateToSave);
-      lastCloudSavedStringRef.current = json;
-      pendingStateRef.current = null;
-      hasPendingLocalChangesRef.current = false;
-      setSyncStatus('synced');
+      if (JSON.stringify(pendingStateRef.current) === json || JSON.stringify(appStateRef.current) === json) {
+        clearPendingOfflineWrite(uid);
+        lastCloudSavedStringRef.current = json;
+        pendingStateRef.current = null;
+        hasPendingLocalChangesRef.current = false;
+        setSyncStatus('synced');
+      }
     } catch (err) {
       setSyncStatus(navigator.onLine ? 'error' : 'offline');
       throw err;
     }
-  };
+  }, [isGuest]);
+
+  // Commit immediately when the learner switches tabs or refreshes. The
+  // persisted pending snapshot remains the recovery path if the browser ends
+  // the request before the server acknowledges it.
+  useEffect(() => {
+    const flushWhenHidden = () => {
+      if (document.visibilityState === 'hidden') {
+        void flushPendingSave().catch(() => {});
+      }
+    };
+    document.addEventListener('visibilitychange', flushWhenHidden);
+    window.addEventListener('pagehide', flushWhenHidden);
+    return () => {
+      document.removeEventListener('visibilitychange', flushWhenHidden);
+      window.removeEventListener('pagehide', flushWhenHidden);
+    };
+  }, [flushPendingSave]);
 
   // Update App State
   const updateAppState = useCallback((updater: (prev: AppState) => AppState | AppState) => {

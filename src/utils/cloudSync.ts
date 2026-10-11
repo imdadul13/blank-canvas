@@ -97,6 +97,8 @@ export function clearLegacyLocalData(): void {
 
 // ----------------- POSTGRES CLOUD OPERATIONS -----------------
 
+const userStateSaveQueues = new Map<string, Promise<void>>();
+
 async function postgresJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await apiFetch(url, init);
   if (!response.ok) throw new Error(`Saved data request failed (${response.status}).`);
@@ -218,18 +220,23 @@ export async function getUserStateFromCloud(uid: string): Promise<AppState | nul
 }
 
 export async function saveUserStateToCloud(uid: string, state: AppState): Promise<void> {
-  try {
-    const sanitizedState = JSON.parse(JSON.stringify(state));
+  const statePayload = JSON.stringify({ state: JSON.parse(JSON.stringify(state)) });
+  const previous = userStateSaveQueues.get(uid) || Promise.resolve();
+  const current = previous.catch(() => {}).then(async () => {
     await postgresJson('/api/user/state', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state: sanitizedState }),
+      body: statePayload,
     });
-    // Also save in local storage cache for instant offline read
-    saveUserLocalCache(uid, state);
+  });
+  userStateSaveQueues.set(uid, current);
+  try {
+    await current;
   } catch (err) {
     console.error('Error saving user state to PostgreSQL:', err);
     throw err;
+  } finally {
+    if (userStateSaveQueues.get(uid) === current) userStateSaveQueues.delete(uid);
   }
 }
 
@@ -268,9 +275,11 @@ export function getPendingQueueKey(uid: string): string {
   return `fmge_pending_sync_queue_${uid}`;
 }
 
-export function savePendingOfflineWrite(uid: string, state: AppState): void {
+export function savePendingOfflineWrite(uid: string, _state: AppState): void {
   try {
-    localStorage.setItem(getPendingQueueKey(uid), JSON.stringify(state));
+    // The full snapshot is already written to the user cache. Keep only a
+    // small durable marker here so large study histories are not duplicated.
+    localStorage.setItem(getPendingQueueKey(uid), JSON.stringify({ version: 1, updatedAt: Date.now() }));
   } catch (err) {
     console.error('Error saving pending offline write:', err);
   }
@@ -280,7 +289,12 @@ export function getPendingOfflineWrite(uid: string): AppState | null {
   try {
     const raw = localStorage.getItem(getPendingQueueKey(uid));
     if (raw) {
-      return normalizeAppState(JSON.parse(raw));
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.version === 1 && typeof parsed.updatedAt === 'number') {
+        return loadUserLocalCache(uid);
+      }
+      // Read full-state queue entries written by older versions.
+      return normalizeAppState(parsed) || loadUserLocalCache(uid);
     }
   } catch (err) {
     console.error('Error getting pending offline write:', err);
@@ -358,6 +372,9 @@ export function resolveCloudConflict(localState: AppState, cloudState: AppState)
     customPearls: [...(cloudState.customPearls || []), ...(localState.customPearls || [])].filter(
       (p, idx, arr) => arr.findIndex((x) => x.id === p.id) === idx
     ),
+    // A queued snapshot represents the most recent local plan edits. Retain it
+    // on recovery while still preserving a cloud plan if the cache has none.
+    fmgeSprint: localState.fmgeSprint || cloudState.fmgeSprint,
     telegramQuestions: [...(cloudState.telegramQuestions || []), ...(localState.telegramQuestions || [])].filter(
       (q, idx, arr) => arr.findIndex((x) => x.id === q.id) === idx
     ),
@@ -377,6 +394,7 @@ export async function resetStudyProgressInCloud(uid: string, currentState: AppSt
   };
 
   await saveUserStateToCloud(uid, resetState);
+  saveUserLocalCache(uid, resetState);
   clearPendingOfflineWrite(uid);
   return resetState;
 }
