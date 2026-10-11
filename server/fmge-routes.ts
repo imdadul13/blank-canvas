@@ -75,7 +75,18 @@ function loadImportedQuestionBank(): ImportedBankQuestion[] {
   const stat = fs.statSync(bankPath);
   if (!questionBankCache || questionBankCache.mtimeMs !== stat.mtimeMs) {
     const parsed = JSON.parse(fs.readFileSync(bankPath, "utf8"));
-    questionBankCache = { mtimeMs: stat.mtimeMs, questions: Array.isArray(parsed.questions) ? parsed.questions : [] };
+    const pageYearsPath = path.join(process.cwd(), "server", "data", "question-bank-page-years.json");
+    let pageYears: Record<string, Record<string, number>> = {};
+    try {
+      pageYears = JSON.parse(fs.readFileSync(pageYearsPath, "utf8"));
+    } catch {
+      // Keep the bank usable if an older deployment does not yet have the page-year index.
+    }
+    const questions = (Array.isArray(parsed.questions) ? parsed.questions : []).map((question: ImportedBankQuestion) => {
+      const sourceYear = pageYears[question.source]?.[String(question.sourcePage)];
+      return sourceYear ? { ...question, year: sourceYear } : question;
+    });
+    questionBankCache = { mtimeMs: stat.mtimeMs, questions };
   }
   return questionBankCache.questions;
 }

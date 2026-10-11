@@ -183,6 +183,8 @@
 .dark .qbank-session .text-emerald-950 { color: #D8F8E0; }
 .dark .qbank-session .border-rose-200 { border-color: rgba(255, 69, 58, 0.35); }
 .dark .qbank-session .text-rose-950 { color: #FFE1DE; }
+.qbank-year-pill { border:1px solid rgba(23,105,224,.16); background:linear-gradient(135deg,#EEF5FF,#F8FAFF); color:#245D9B; }
+.dark .qbank-year-pill { border-color:rgba(10,132,255,.28); background:linear-gradient(135deg,rgba(10,132,255,.16),rgba(10,132,255,.07)); color:#A7CEFF; }
 .dark .qbank-sprint-head { background: linear-gradient(115deg, #171F2C, #1B1C20 56%, #221D2B); }
 .dark .qbank-sprint .bg-\[\#FBFCFE\],
 .dark .qbank-sprint .bg-\[\#FAFBFC\],
