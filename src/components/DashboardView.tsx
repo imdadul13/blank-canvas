@@ -1727,16 +1727,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const { topicProgressPercent, topicStatusLabel, topicSubtext, topicTitlePrimary, topicTitleHighlight, topicSubtitleItems } = useMemo(() => {
     const key = `${activeFocusSubject.id}-${activeFocusTopic.id}`;
     const topicState = state.topicsState?.[key];
-    
+
     let checks = 0;
     if (topicState?.notesDone) checks += 1;
     if (topicState?.qBankDone) checks += 1;
     if (topicState?.r1Done) checks += 1;
     if (topicState?.r2Done) checks += 1;
     if (topicState?.r3Done) checks += 1;
-    
+
     const pct = Math.round((checks / 5) * 100);
-    
+
     let status = 'Not started';
     if (pct === 100) status = 'Completed';
     else if (pct > 0) status = 'In progress';
@@ -2758,10 +2758,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="p-4 sm:p-5 lg:p-6 relative z-10">
 
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-5">
-                  
+
                   {/* Left Column: Eyebrow pills, two-tone title, subtopics, meta chips, and CTA buttons */}
                   <div className="flex-1 space-y-2.5 sm:space-y-3 min-w-0">
-                    
+
                     {/* Eyebrow Pills: [TODAY'S FOCUS] and Dynamic Subject Pill */}
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#F2F2F7] text-[#1D1D1F] border border-[rgba(60,60,67,0.10)]">
@@ -3663,129 +3663,128 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
               )}
             </motion.section>
-          </div>
-        </div>
-
-        {/* ── EXPLORE OTHER HIGH-YIELD SUBJECTS ── */}
-        <motion.section
-          initial={SECTION_ENTER(0.2, reducedMotion)}
-          animate={SECTION_SHOW}
-          transition={SECTION_TRANSITION(reducedMotion)}
-          className="space-y-3"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] flex items-center justify-center text-[#007AFF] shrink-0">
-                <Flame className="h-5 w-5 fill-[#007AFF] text-[#007AFF]" />
-              </div>
-              <div>
-                <h3 className="text-[17px] sm:text-[19px] font-bold text-[#1D1D1F] leading-tight tracking-tight">
-                  Explore Subjects
-                </h3>
-                <p className="text-xs sm:text-[13px] text-[#6E6E73] font-medium">
-                  19 high-yield subjects, weighted by NBE exam pattern
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => onNavigateTab('syllabus')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#007AFF] hover:text-[#0056CC] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
+            {/* ── EXPLORE OTHER HIGH-YIELD SUBJECTS ── */}
+            <motion.section
+              initial={SECTION_ENTER(0.2, reducedMotion)}
+              animate={SECTION_SHOW}
+              transition={SECTION_TRANSITION(reducedMotion)}
+              className="space-y-3"
             >
-              View all 19 subjects <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          {/* Grid of Subject Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5 lg:gap-3">
-            {subjectList.slice(0, 6).map((sub, idx) => {
-              const isCurrent = sub.id === activeFocusSubject.id;
-              const hyCount = sub.topics.filter((t) => t.isHighYield).length;
-              const theme = SUBJECT_CARD_THEMES[sub.id] || DEFAULT_CARD_THEME;
-              const InsigniaIcon = getSubjectInsignia(sub.id);
-
-              return (
-                <motion.div
-                  key={sub.id}
-                  whileHover={reducedMotion ? {} : { y: -4, scale: 1.02 }}
-                  whileTap={reducedMotion ? {} : { scale: 0.97 }}
-                  transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-                  onClick={() => {
-                    setSelectedFilterSubjectId(sub.id);
-                    onSelectSubject(sub.id);
-                  }}
-                  className={`group relative rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col justify-between cursor-pointer border bg-white overflow-hidden transition-all duration-200 ${
-                    isCurrent
-                      ? 'border-[#007AFF] shadow-[0_0_0_3px_rgba(0,122,255,0.12)]'
-                      : 'border-[rgba(60,60,67,0.10)] shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:border-[rgba(60,60,67,0.20)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)]'
-                  }`}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-9 w-9 rounded-2xl bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] flex items-center justify-center text-[#007AFF] shrink-0">
+                    <Flame className="h-5 w-5 fill-[#007AFF] text-[#007AFF]" />
+                  </div>
+                  <div>
+                    <h3 className="text-[17px] sm:text-[19px] font-bold text-[#1D1D1F] leading-tight tracking-tight">
+                      Explore Subjects
+                    </h3>
+                    <p className="text-xs sm:text-[13px] text-[#6E6E73] font-medium">
+                      19 high-yield subjects, weighted by NBE exam pattern
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('syllabus')}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#007AFF] hover:text-[#0056CC] hover:underline cursor-pointer self-start sm:self-auto min-h-[36px]"
                 >
+                  View all 19 subjects <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
 
-                  {/* Top Row: Specialty Insignia & NBE Weightage Pill */}
-                  <div className="flex items-center justify-between gap-1 mb-1 z-20">
-                    <div
-                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl flex items-center justify-center border shadow-2xs transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${
-                        theme.insigniaBg || 'bg-[#E5E5EA] text-[#1D1D1F] border-[rgba(60,60,67,0.12)]'
+              {/* Grid of Subject Cards */}
+              <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
+                {subjectList.slice(0, 6).map((sub, idx) => {
+                  const isCurrent = sub.id === activeFocusSubject.id;
+                  const hyCount = sub.topics.filter((t) => t.isHighYield).length;
+                  const theme = SUBJECT_CARD_THEMES[sub.id] || DEFAULT_CARD_THEME;
+                  const InsigniaIcon = getSubjectInsignia(sub.id);
+
+                  return (
+                    <motion.div
+                      key={sub.id}
+                      whileHover={reducedMotion ? {} : { y: -4, scale: 1.02 }}
+                      whileTap={reducedMotion ? {} : { scale: 0.97 }}
+                      transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+                      onClick={() => {
+                        setSelectedFilterSubjectId(sub.id);
+                        onSelectSubject(sub.id);
+                      }}
+                      className={`group relative rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col justify-between cursor-pointer border bg-white overflow-hidden transition-all duration-200 ${
+                        isCurrent
+                          ? 'border-[#007AFF] shadow-[0_0_0_3px_rgba(0,122,255,0.12)]'
+                          : 'border-[rgba(60,60,67,0.10)] shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:border-[rgba(60,60,67,0.20)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)]'
                       }`}
                     >
-                      <InsigniaIcon className="w-4 h-4 transition-transform duration-300 group-hover:scale-105" />
-                    </div>
 
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[11px] font-medium border bg-[#F2F2F7] text-[#6E6E73] border-[rgba(60,60,67,0.10)]">
-                      <span>{sub.weightage}m</span>
-                    </span>
-                  </div>
-
-                  {/* Medical Subject Artwork */}
-                  <div className={`relative w-full h-24 sm:h-28 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1 sm:p-2 group-hover:scale-[1.03] transition-transform duration-300 ease-out bg-gradient-to-br ${theme.bg || 'from-[#F2F2F7] to-white/80'}`}>
-                    <div className="relative w-full h-full flex items-center justify-center z-10">
-                      <MedicalSubjectCardVisual subjectId={sub.id} />
-                    </div>
-                  </div>
-
-                  {/* Content & Typography */}
-                  <div className="mt-1.5 sm:mt-2 pt-0.5 space-y-1">
-                    <div className="flex items-start justify-between gap-1">
-                      <div className="min-w-0 flex-1">
-                        <h4
-                          className="text-[13px] sm:text-sm font-semibold text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors truncate"
-                          title={sub.name}
+                      {/* Top Row: Specialty Insignia & NBE Weightage Pill */}
+                      <div className="flex items-center justify-between gap-1 mb-1 z-20">
+                        <div
+                          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl flex items-center justify-center border shadow-2xs transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${
+                            theme.insigniaBg || 'bg-[#E5E5EA] text-[#1D1D1F] border-[rgba(60,60,67,0.12)]'
+                          }`}
                         >
-                          {sub.name}
-                        </h4>
-                        <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-[#6E6E73] font-medium pt-0.5">
-                          <span className="inline-flex items-center gap-1 truncate">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] shrink-0" />
-                            <span>{hyCount} High-yield</span>
-                          </span>
-                          <span className="opacity-0 group-hover:opacity-100 text-[#007AFF] font-semibold flex items-center gap-0.5 transition-all duration-200 transform translate-x-1 group-hover:translate-x-0 text-[10px] shrink-0">
-                            <span>Blueprint</span>
-                            <ArrowRight className="h-2.5 w-2.5" />
+                          <InsigniaIcon className="w-4 h-4 transition-transform duration-300 group-hover:scale-105" />
+                        </div>
+
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[11px] font-medium border bg-[#F2F2F7] text-[#6E6E73] border-[rgba(60,60,67,0.10)]">
+                          <span>{sub.weightage}m</span>
+                        </span>
+                      </div>
+
+                      {/* Medical Subject Artwork */}
+                      <div className={`relative w-full h-24 sm:h-28 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1 sm:p-2 group-hover:scale-[1.03] transition-transform duration-300 ease-out bg-gradient-to-br ${theme.bg || 'from-[#F2F2F7] to-white/80'}`}>
+                        <div className="relative w-full h-full flex items-center justify-center z-10">
+                          <MedicalSubjectCardVisual subjectId={sub.id} />
+                        </div>
+                      </div>
+
+                      {/* Content & Typography */}
+                      <div className="mt-1.5 sm:mt-2 pt-0.5 space-y-1">
+                        <div className="flex items-start justify-between gap-1">
+                          <div className="min-w-0 flex-1">
+                            <h4
+                              className="text-[13px] sm:text-sm font-semibold text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors truncate"
+                              title={sub.name}
+                            >
+                              {sub.name}
+                            </h4>
+                            <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-[#6E6E73] font-medium pt-0.5">
+                              <span className="inline-flex items-center gap-1 truncate">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] shrink-0" />
+                                <span>{hyCount} High-yield</span>
+                              </span>
+                              <span className="opacity-0 group-hover:opacity-100 text-[#007AFF] font-semibold flex items-center gap-0.5 transition-all duration-200 transform translate-x-1 group-hover:translate-x-0 text-[10px] shrink-0">
+                                <span>Blueprint</span>
+                                <ArrowRight className="h-2.5 w-2.5" />
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Micro Progress Bar */}
+                        <div className="flex items-center gap-1.5 pt-0.5">
+                          <div className="relative flex-1 h-2 bg-[#E5E5EA] rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-[#007AFF] rounded-full transition-all duration-500"
+                              style={{ width: `${Math.max(sub.percentage, 4)}%` }}
+                            />
+                            {/* Interactive Shimmer Beam */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+                          </div>
+                          <span className="text-[11px] font-medium text-[#6E6E73] tabular-nums shrink-0">
+                            {sub.percentage}%
                           </span>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Micro Progress Bar */}
-                    <div className="flex items-center gap-1.5 pt-0.5">
-                      <div className="relative flex-1 h-2 bg-[#E5E5EA] rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-[#007AFF] rounded-full transition-all duration-500"
-                          style={{ width: `${Math.max(sub.percentage, 4)}%` }}
-                        />
-                        {/* Interactive Shimmer Beam */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
-                      </div>
-                      <span className="text-[11px] font-medium text-[#6E6E73] tabular-nums shrink-0">
-                        {sub.percentage}%
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.section>
           </div>
-        </motion.section>
+        </div>
       </div>
 
       {/* Topic Mastery Workspace Modal */}
