@@ -84,6 +84,36 @@ REVIEWED_SUBJECT_OVERRIDES = {
     ("FMGE-Yearwise", 138, 216): "Anesthesia",  # Day-care anesthesia suitability
     ("FMGE-Yearwise", 820, 278): "Anesthesia",  # Desflurane and postoperative hypoxia
     ("FMGE-Chapterwise", 717, 92): "Anesthesia",  # Confirming endotracheal tube placement
+    ("FMGE-Chapterwise", 583, 56): "Obstetrics and Gynaecology",  # Serial beta-hCG in early pregnancy
+    ("FMGE-Chapterwise", 583, 57): "Obstetrics and Gynaecology",  # Emergency contraception
+    ("FMGE-Yearwise", 356, 267): "Obstetrics and Gynaecology",  # Uterine prolapse
+    ("FMGE-Yearwise", 1047, 252): "Obstetrics and Gynaecology",  # Imperforate hymen
+    ("INICET-Yearwise", 321, 188): "Anesthesia",  # Intubation sequence
+    ("INICET-Yearwise", 323, 125): "Anesthesia",  # ASA physical-status grade
+    ("INICET-Yearwise", 396, 110): "Anesthesia",  # Rapid-sequence intubation
+    ("INICET-Yearwise", 637, 189): "Anesthesia",  # Preoperative assessment for ASA III
+    ("NEETPG-Chapterwise", 687, 18): "Anesthesia",  # Malignant hyperthermia trigger
+    ("NEETPG-Chapterwise", 689, 24): "Anesthesia",  # Monitoring anesthesia depth
+    ("NEETPG-Chapterwise", 691, 31): "Anesthesia",  # Oculocardiac reflex during strabismus surgery
+    ("NEETPG-Yearwise", 403, 178): "Anesthesia",  # Confirming endotracheal tube placement
+    ("NEETPG-Yearwise", 403, 182): "Anesthesia",  # Malignant hyperthermia trigger
+    ("NEETPG-Yearwise", 584, 278): "Anesthesia",  # Monitoring anesthesia depth
+    ("NEETPG-Yearwise", 683, 276): "Anesthesia",  # Oculocardiac reflex during strabismus surgery
+    ("INICET-Yearwise", 25, 166): "Obstetrics and Gynaecology",  # HPV and cervical cancer
+    ("INICET-Yearwise", 26, 172): "Obstetrics and Gynaecology",  # Pap smear procedure
+    ("INICET-Yearwise", 101, 174): "Obstetrics and Gynaecology",  # Primary amenorrhea
+    ("INICET-Yearwise", 171, 162): "Obstetrics and Gynaecology",  # Eclampsia classification
+    ("INICET-Yearwise", 171, 167): "Obstetrics and Gynaecology",  # Ruptured ectopic pregnancy
+    ("INICET-Yearwise", 244, 152): "Obstetrics and Gynaecology",  # Primary amenorrhea and genital tract
+    ("INICET-Yearwise", 394, 165): "Obstetrics and Gynaecology",  # Preeclampsia pathogenesis
+    ("INICET-Yearwise", 397, 173): "Obstetrics and Gynaecology",  # Primary amenorrhea definition
+    ("INICET-Yearwise", 397, 179): "Obstetrics and Gynaecology",  # Turner syndrome and amenorrhea
+    ("INICET-Yearwise", 475, 176): "Obstetrics and Gynaecology",  # Magnesium toxicity in eclampsia
+    ("NEETPG-Yearwise", 19, 100): "Obstetrics and Gynaecology",  # Magnesium-sulfate loading dose
+    ("NEETPG-Yearwise", 135, 365): "Obstetrics and Gynaecology",  # Primary amenorrhea
+    ("NEETPG-Yearwise", 254, 162): "Obstetrics and Gynaecology",  # Vaginal septum
+    ("NEETPG-Yearwise", 481, 275): "Obstetrics and Gynaecology",  # Imperforate hymen
+    ("NEETPG-Yearwise", 578, 248): "Obstetrics and Gynaecology",  # Uterine prolapse
 }
 QSTART = re.compile(r"(?m)^\s*(\d{1,3})\.\s+(?=\S)")
 ANSWER = re.compile(r"(?:\x01A(?:n|s)\s*\x01|\bAns\s*:)\s*(?:\d{4})?", re.I)
