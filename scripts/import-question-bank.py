@@ -8,6 +8,7 @@ import hashlib
 import json
 import re
 import sys
+import unicodedata
 from datetime import date
 from pathlib import Path
 
@@ -424,6 +425,77 @@ def manual_figure_candidates(pdf_page, basename, page_number, questions):
     return result
 
 
+def bank_question_signature(question):
+    """Match duplicate source questions without relying on their subject labels."""
+    def signature_text(value):
+        ascii_text = unicodedata.normalize("NFKD", value or "").encode("ascii", "ignore").decode("ascii")
+        return re.sub(r"[^a-z0-9]+", " ", ascii_text.lower()).strip()
+
+    options = question.get("options", [])
+    return (
+        question.get("exam", ""),
+        signature_text(question.get("stem", "")),
+        tuple((option.get("key", ""), signature_text(option.get("text", ""))) for option in options),
+        question.get("correctAnswer", ""),
+    )
+
+
+def reconcile_yearwise_subjects(records):
+    """Use an unambiguous chapterwise source label for exact yearwise duplicates.
+
+    Yearwise section headers and OCR-based classification can bleed across
+    subjects. Chapterwise books explicitly group questions by subject, so an
+    exact stem/options/key match is a reliable correction when every matching
+    chapterwise copy agrees. Leave groups with conflicting chapterwise labels
+    untouched for manual review.
+    """
+    chapterwise_subjects = {}
+    for question in records.values():
+        if question.get("collection") != "chapterwise":
+            continue
+        signature = bank_question_signature(question)
+        chapterwise_subjects.setdefault(signature, set()).add(
+            (question.get("subjectId", ""), question.get("subjectName", ""), question.get("topicName", ""))
+        )
+
+    corrected = 0
+    ambiguous = 0
+    for question in records.values():
+        if question.get("collection") != "yearwise":
+            continue
+        matches = chapterwise_subjects.get(bank_question_signature(question), set())
+        if len(matches) > 1:
+            ambiguous += 1
+            continue
+        if len(matches) == 1:
+            subject_id, subject_name, topic_name = next(iter(matches))
+            if (question.get("subjectId"), question.get("subjectName"), question.get("topicName")) != (subject_id, subject_name, topic_name):
+                question["subjectId"] = subject_id
+                question["subjectName"] = subject_name
+                question["topicName"] = topic_name
+                corrected += 1
+    return corrected, ambiguous
+
+
+def apply_page_year_index(records):
+    """Persist reviewed source-page year labels into imported questions."""
+    index_path = ROOT / "server" / "data" / "question-bank-page-years.json"
+    try:
+        page_years = json.loads(index_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return 0
+
+    filled = 0
+    for question in records.values():
+        if question.get("year"):
+            continue
+        year = page_years.get(question.get("source", ""), {}).get(str(question.get("sourcePage", "")))
+        if isinstance(year, int):
+            question["year"] = year
+            filled += 1
+    return filled
+
+
 def main():
     IMAGES.mkdir(parents=True, exist_ok=True)
     records, rejected, source_counts = {}, [], {}
@@ -512,6 +584,8 @@ def main():
                 rolling = (rolling + "\n" + text)[-1800:]
                 if (page_idx + 1) % 25 == 0:
                     print(f"  {page_idx+1}/{len(reader.pages)} pages; unique {len(records)}", flush=True)
+    indexed_year_count = apply_page_year_index(records)
+    reconciled_subject_count, ambiguous_subject_count = reconcile_yearwise_subjects(records)
     payload = {"version": 1, "generatedAt": date.today().isoformat(), "sourceCounts": source_counts,
                "questionCount": len(records), "questions": list(records.values())}
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -519,6 +593,9 @@ def main():
     report = {"importedUnique": len(records), "sourceCounts": source_counts, "rejectedCount": len(rejected),
               "rejectedRecords": rejected, "rejectedByReason": {}, "subjectCounts": {}, "examCounts": {},
               "questionsWithoutSourceExplanation": sum(not q.get("sourceExplanationAvailable", True) for q in records.values()),
+              "yearwiseSubjectsReconciled": reconciled_subject_count,
+              "yearwiseSubjectsLeftAmbiguous": ambiguous_subject_count,
+              "yearsFilledFromPageIndex": indexed_year_count,
               "imageCount": sum(bool(q["imageUrl"]) for q in records.values()),
               "imageCountByExam": {}, "imageReferences": sum(len(q.get("imageUrls", [])) for q in records.values()),
               "dataBytes": OUT.stat().st_size, "imageBytes": sum(p.stat().st_size for p in IMAGES.glob("*.webp"))}
