@@ -63,6 +63,28 @@ SUBJECT_ID = {
     "obstetrics and gynaecology": "obg", "pediatrics": "pediatrics", "paediatrics": "pediatrics",
     "anesthesia": "anesthesia", "orthopedics": "orthopedics", "radiology": "radiology",
 }
+# Reviewed exceptions where a chapterwise section heading bled into questions
+# from another specialty. Keep these keyed to source coordinates so unrelated
+# questions that happen to contain a specialty term are never relabeled.
+REVIEWED_SUBJECT_OVERRIDES = {
+    **{("FMGE-Chapterwise", page, number): "Anesthesia" for page, numbers in {
+        1086: (34, 35, 36, 37, 38, 39, 40),
+        1087: (6, 8, 9, 10, 11, 12, 13, 14, 15),
+        1088: (17, 18, 19, 20, 22, 23, 24),
+        1089: (26, 28, 29, 30, 31),
+        1090: (1, 2, 3, 4),
+    }.items() for number in numbers},
+    **{("FMGE-Chapterwise", page, number): "Obstetrics and Gynaecology" for page, numbers in {
+        741: (254, 260),
+        744: (265, 266),
+        745: (268, 270, 271, 272, 273),
+        746: (278, 279, 280),
+    }.items() for number in numbers},
+    ("FMGE-Yearwise", 115, 15): "Anesthesia",  # Malignant hyperthermia / RYR1
+    ("FMGE-Yearwise", 138, 216): "Anesthesia",  # Day-care anesthesia suitability
+    ("FMGE-Yearwise", 820, 278): "Anesthesia",  # Desflurane and postoperative hypoxia
+    ("FMGE-Chapterwise", 717, 92): "Anesthesia",  # Confirming endotracheal tube placement
+}
 QSTART = re.compile(r"(?m)^\s*(\d{1,3})\.\s+(?=\S)")
 ANSWER = re.compile(r"(?:\x01A(?:n|s)\s*\x01|\bAns\s*:)\s*(?:\d{4})?", re.I)
 OPTION = re.compile(r"(?<![A-Za-z0-9])\(([A-D])\)\s*")
@@ -552,7 +574,9 @@ def main():
                         rationale = "No source explanation was included for this question in the supplied PDF."
                     source_key = f"{exam}|{year or 'unknown'}|{q['correctAnswer']}|{re.sub(r'[^a-z0-9]+',' ',q['stem'].lower()).strip()}|{' '.join(q['options'].values()).lower()}"
                     digest = hashlib.sha256(source_key.encode()).hexdigest()[:24]
-                    question_subject = topic
+                    question_subject = REVIEWED_SUBJECT_OVERRIDES.get(
+                        (basename, page_idx + 1, q["number"]), topic
+                    )
                     if collection == "yearwise" or topic == "Uncategorized":
                         question_subject = page_subject or classify_question_subject(q) or "Uncategorized"
                     subject_id = SUBJECT_ID.get(question_subject.lower(), re.sub(r"[^a-z0-9]+", "-", question_subject.lower()).strip("-"))
