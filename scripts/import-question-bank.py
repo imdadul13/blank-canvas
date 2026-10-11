@@ -8,6 +8,7 @@ import hashlib
 import json
 import re
 import sys
+from datetime import date
 from pathlib import Path
 
 import pdfplumber
@@ -235,11 +236,57 @@ def image_candidates(pdf_page, pypdf_page, questions):
                 matches.append((matched, words[i]))
         return max(matches, key=lambda item: item[0])[1] if matches else None
 
-    positions = [question_position(q) for q in questions]
+    mid_x = float(pdf_page.width) / 2
+
+    def option_position(q):
+        """Locate option A, which usually sits immediately below its figure.
+
+        In some two-column pages, the stem and its figure/options are separated
+        by the reading order. Anchoring to the options fixes that without
+        assigning the figure to a closer but unrelated stem.
+        """
+        expected = re.findall(r"[a-z0-9]+", q["options"].get("A", "").lower())[:4]
+        if not expected:
+            return None
+        matches = []
+        for i, word in enumerate(words):
+            if word.get("height", 0) < 3:
+                continue
+            following = [token for group in word_tokens[i:i + 20] for token in group]
+            if following[:len(expected)] != expected:
+                continue
+            previous = words[i - 1]["text"].strip().upper() if i else ""
+            label_score = int(previous in {"(A)", "A.", "A)"})
+            matches.append((label_score, word))
+        if not matches:
+            return None
+
+        def complete_option_group(match):
+            _, start = match
+            score = match[0] * 4
+            for letter in "BCD":
+                prefix = re.findall(r"[a-z0-9]+", q["options"].get(letter, "").lower())[:3]
+                if not prefix:
+                    continue
+                for i, word in enumerate(words):
+                    if word.get("height", 0) < 3 or abs(float(word["top"]) - float(start["top"])) > 115:
+                        continue
+                    if abs(float(word["x0"]) - float(start["x0"])) > mid_x:
+                        continue
+                    following = [token for group in word_tokens[i:i + 16] for token in group]
+                    if following[:len(prefix)] == prefix:
+                        score += 1
+                        break
+            return score
+
+        return max(matches, key=complete_option_group)[1]
+
+    stem_positions = [question_position(q) for q in questions]
+    option_positions = [option_position(q) for q in questions]
+    positions = [option or stem for option, stem in zip(option_positions, stem_positions)]
     positioned = [i for i, pos in enumerate(positions) if pos is not None]
     if not positioned:
         return {}
-    mid_x = float(pdf_page.width) / 2
 
     def same_column(question_index, obj):
         # Full-width images can sit between columns; assign those by vertical
@@ -255,8 +302,40 @@ def image_candidates(pdf_page, pypdf_page, questions):
         if image is None:
             continue
         top = float(obj.get("top", 0))
+        bottom = float(obj.get("bottom", top))
         column_questions = [i for i in positioned if same_column(i, obj)]
         candidates = column_questions or positioned
+
+        # Prefer the closest option row directly below the figure. This is
+        # robust to source layouts where a stem is separated from its image by
+        # a column break, while keeping figures paired within their own column.
+        option_anchored = [
+            i for i in candidates
+            if option_positions[i] is not None
+            and -18 <= float(option_positions[i]["top"]) - bottom <= 260
+        ]
+        if option_anchored:
+            nearest = min(
+                option_anchored,
+                key=lambda i: float(option_positions[i]["top"]) - bottom,
+            )
+            try:
+                payload = image.data
+                if len(payload) < 1500:
+                    continue
+                pil = Image.open(__import__("io").BytesIO(payload)).convert("RGB")
+                pil.thumbnail((1200, 1200))
+                key = hashlib.sha256(pil.tobytes()).hexdigest()[:20]
+                target = IMAGES / f"{key}.webp"
+                if not target.exists():
+                    pil.save(target, "WEBP", quality=86, method=5)
+                result.setdefault(nearest, []).append(f"/qbank-images/{target.name}")
+            except Exception:
+                continue
+            continue
+
+        # Preserve the old stem-based geometry fallback for sources that place
+        # the answer list before the figure or use unusual option layouts.
         # Prefer the question block that contains the figure. This avoids
         # assigning a left-column image to a nearby right-column question.
         containing = []
@@ -345,8 +424,9 @@ def main():
                         question_subject = page_subject or classify_question_subject(q) or "Uncategorized"
                     subject_id = SUBJECT_ID.get(question_subject.lower(), re.sub(r"[^a-z0-9]+", "-", question_subject.lower()).strip("-"))
                     imgs = images.get(i, [])
+                    question_id = f"qb-{digest}"
                     record = {
-                        "id": f"qb-{digest}", "exam": exam, "year": year, "subjectId": subject_id,
+                        "id": question_id, "exam": exam, "year": year, "subjectId": subject_id,
                         "subjectName": question_subject, "topicName": question_subject, "stem": q["stem"],
                         "options": [{"key": k, "text": q["options"][k]} for k in "ABCD"],
                         "correctAnswer": q["correctAnswer"], "explanation": rationale[:7000],
@@ -371,7 +451,7 @@ def main():
                 rolling = (rolling + "\n" + text)[-1800:]
                 if (page_idx + 1) % 25 == 0:
                     print(f"  {page_idx+1}/{len(reader.pages)} pages; unique {len(records)}", flush=True)
-    payload = {"version": 1, "generatedAt": "2026-10-10", "sourceCounts": source_counts,
+    payload = {"version": 1, "generatedAt": date.today().isoformat(), "sourceCounts": source_counts,
                "questionCount": len(records), "questions": list(records.values())}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
