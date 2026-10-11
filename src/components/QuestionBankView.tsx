@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Activity, ArrowRight, BookOpenCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Image as ImageIcon, LoaderCircle, MessageSquareText, RefreshCw, RotateCcw, Target, X } from 'lucide-react';
 import { apiFetch } from '../utils/api';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
+import { buildDueReviewQueue, type ReviewQueueItem } from '../utils/qbankReviewQueue';
 import type { AppState, GrandTest, McqAttempt } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 
@@ -12,7 +13,6 @@ type BankQuestion = { id: string; exam: Exam; year: number | null; subjectId: st
 type Facets = { exams: Exam[]; subjects: Array<{id: string; name: string; count: number}>; years: number[]; count: number; imageCount: number };
 type Review = { correct: boolean; correctAnswer: string; explanation: string; sourceExplanationAvailable?: boolean; source: string; sourcePage: number };
 type TutorReview = { learnerChoiceInsight: string; optionAnalysis: Array<{key: string; verdict: string; reason: string}>; examTrap: string; memoryAid: string; clinicalPearl: string; aiGenerated: boolean };
-type ReviewQueueItem = { questionId: string; subjectId: string; subjectName: string; timestamp: string; dueAt: number; lastCorrect: boolean; confidence?: McqAttempt['confidence']; attemptCount: number };
 
 async function responseJson(response: Response) {
   const data = await response.json().catch(() => ({}));
@@ -277,43 +277,6 @@ function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpen
       </>}
     </div>}
   </section>;
-}
-
-function buildDueReviewQueue(attempts: McqAttempt[], now = Date.now()): ReviewQueueItem[] {
-  const byQuestion = new Map<string, McqAttempt[]>();
-  attempts.filter((attempt) => attempt.source === 'qbank' && attempt.questionId && attempt.timestamp).forEach((attempt) => {
-    const list = byQuestion.get(attempt.questionId) || [];
-    list.push(attempt);
-    byQuestion.set(attempt.questionId, list);
-  });
-  const dayMs = 24 * 60 * 60 * 1000;
-  return [...byQuestion.entries()].flatMap(([questionId, history]) => {
-    const ordered = history.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-    const latest = ordered[ordered.length - 1];
-    const latestTime = Date.parse(latest.timestamp);
-    if (!Number.isFinite(latestTime) || !ordered.some((attempt) => !attempt.isCorrect || attempt.confidence === 'guess' || attempt.confidence === 'low')) return [];
-    const securelyCorrect = latest.isCorrect && ['high', 'certain'].includes(latest.confidence || '');
-    let intervalDays = 1;
-    if (securelyCorrect) {
-      let streak = 0;
-      for (let i = ordered.length - 1; i >= 0; i -= 1) {
-        const attempt = ordered[i];
-        if (!attempt.isCorrect || !['high', 'certain'].includes(attempt.confidence || '')) break;
-        streak += 1;
-      }
-      intervalDays = [1, 3, 7, 14][Math.min(3, Math.max(0, streak - 1))];
-    }
-    return [{
-      questionId,
-      subjectId: latest.subjectId,
-      subjectName: latest.topicName || FMGE_SUBJECTS.find((subject) => subject.id === latest.subjectId)?.name || latest.subjectId,
-      timestamp: latest.timestamp,
-      dueAt: latestTime + intervalDays * dayMs,
-      lastCorrect: latest.isCorrect,
-      confidence: latest.confidence,
-      attemptCount: ordered.length,
-    }];
-  }).sort((a, b) => a.dueAt - b.dueAt || a.timestamp.localeCompare(b.timestamp)).slice(0, 100);
 }
 
 function DailyReviewQueue({ items, dueItems, now, loading, onStart }: { items: ReviewQueueItem[]; dueItems: ReviewQueueItem[]; now: number; loading: boolean; onStart: () => void }) {

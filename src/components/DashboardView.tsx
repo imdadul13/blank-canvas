@@ -55,6 +55,7 @@ import {
   Pill,
   ShieldAlert,
   Headphones,
+  ClipboardCheck,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext, GrandTest, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -69,6 +70,7 @@ import { getNextFmgeSessionDate } from '../utils/date';
 import { calculateStudyStreak } from '../utils/dailyMissionEngine';
 import { calculateProtectedStudyStreak } from '../utils/streakProtectionEngine';
 import { isSpacedErrorDue } from '../utils/spacedRepetitionEngine';
+import { buildDueReviewQueue } from '../utils/qbankReviewQueue';
 import {
   getPersonalizedDailyPlan,
   getLearningContext,
@@ -130,6 +132,47 @@ interface DashboardViewProps {
   subTab?: 'overview' | 'planner';
   onSubTabChange?: (tab: 'overview' | 'planner') => void;
   isGuest?: boolean;
+}
+
+function DashboardTodayHub({
+  dueQbankReviews, upcomingQbankReviews, dueErrors, dueRevisions, taskCount,
+  todayMinutes, plannedMinutes, focusSubject, focusTopic, latestMock, mockDue, daysUntilMock,
+  recentMocks, reducedMotion,
+  onOpenReviewQueue, onOpenErrors, onOpenRevision, onStartMock, onStartStudy, onOpenPlanner,
+}: {
+  dueQbankReviews: number; upcomingQbankReviews: number; dueErrors: number; dueRevisions: number; taskCount: number;
+  todayMinutes: number; plannedMinutes: number; focusSubject: string; focusTopic: string;
+  latestMock?: GrandTest; mockDue: boolean; daysUntilMock: number; recentMocks: GrandTest[];
+  reducedMotion: boolean | null;
+  onOpenReviewQueue: () => void; onOpenErrors: () => void; onOpenRevision: () => void;
+  onStartMock: () => void; onStartStudy: () => void; onOpenPlanner: () => void;
+}) {
+  const focusAction = dueQbankReviews > 0
+    ? { title: 'Review your due questions', detail: `${dueQbankReviews} missed or unsure ${dueQbankReviews === 1 ? 'answer is' : 'answers are'} ready for another retrieval attempt.`, label: 'Open review queue', run: onOpenReviewQueue }
+    : dueErrors > 0
+      ? { title: 'Repair your due mistakes', detail: `${dueErrors} saved error ${dueErrors === 1 ? 'needs' : 'items need'} a fresh attempt.`, label: 'Retest mistakes', run: onOpenErrors }
+      : dueRevisions > 0
+        ? { title: 'Revisit spaced topics', detail: `${dueRevisions} syllabus ${dueRevisions === 1 ? 'topic is' : 'topics are'} due for recall.`, label: 'Open revision', run: onOpenRevision }
+        : mockDue
+          ? { title: latestMock ? 'Time for your next mock' : 'Set your mock baseline', detail: latestMock ? 'Your study cadence says it is time to check progress under timed conditions.' : 'A timed baseline gives your study plan an observed score to work from.', label: 'Start NBE simulation', run: onStartMock }
+          : { title: focusTopic ? `Focus on ${focusTopic}` : 'Continue today’s study plan', detail: `${focusSubject} is your current highest-priority focus from saved practice and mock data.`, label: 'Start focused study', run: onStartStudy };
+  const studyProgress = plannedMinutes > 0 ? Math.min(100, Math.round(todayMinutes / plannedMinutes * 100)) : 0;
+  return <motion.section initial={reducedMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reducedMotion ? 0 : 0.25 }} className="overflow-hidden rounded-3xl border border-blue-100/80 bg-[linear-gradient(130deg,#F1F7FF,#FFFFFF_58%,#F7F5FF)] shadow-[0_10px_30px_rgba(31,65,120,0.07)]">
+    <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:gap-6 lg:p-6">
+      <div className="flex min-w-0 flex-col items-start justify-between gap-4">
+        <div><p className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#52719B]"><ClipboardCheck className="h-3.5 w-3.5"/> Your next best step</p><h3 className="mt-3 text-xl font-semibold tracking-tight text-[#1D2735] sm:text-2xl">{focusAction.title}</h3><p className="mt-1.5 max-w-xl text-sm leading-6 text-[#687585]">{focusAction.detail}</p></div>
+        <div className="flex flex-wrap items-center gap-2"><button type="button" onClick={focusAction.run} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0F5FCC]">{focusAction.label}<ArrowRight className="h-4 w-4"/></button><button type="button" onClick={onOpenPlanner} className="inline-flex min-h-11 items-center rounded-xl border border-[#DCE4EF] bg-white/80 px-4 text-sm font-semibold text-[#536174] transition hover:bg-white">Today’s plan · {taskCount} blocks</button></div>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="rounded-2xl border border-white/90 bg-white/80 p-3"><p className="text-[10px] font-bold uppercase tracking-wide text-[#7B8795]">Due today</p><p className="mt-1 text-lg font-semibold tabular-nums text-[#263244]">{dueQbankReviews}<span className="ml-1 text-xs font-medium text-[#8993A0]">questions</span></p><p className="mt-0.5 text-[10px] leading-4 text-[#788391]">{dueErrors} errors · {dueRevisions} topics · {upcomingQbankReviews} scheduled</p></div>
+        <div className="rounded-2xl border border-white/90 bg-white/80 p-3"><div className="flex items-center justify-between gap-1"><p className="text-[10px] font-bold uppercase tracking-wide text-[#7B8795]">Study today</p><span className="text-[10px] font-semibold text-blue-700">{studyProgress}%</span></div><p className="mt-1 text-lg font-semibold tabular-nums text-[#263244]">{todayMinutes}<span className="ml-1 text-xs font-medium text-[#8993A0]">/ {plannedMinutes} min</span></p><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#E9EEF6]"><div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${studyProgress}%` }}/></div></div>
+        <div className="rounded-2xl border border-white/90 bg-white/80 p-3"><p className="text-[10px] font-bold uppercase tracking-wide text-[#7B8795]">Weak area focus</p><p className="mt-1 truncate text-sm font-semibold text-[#263244]">{focusSubject}</p><p className="mt-0.5 truncate text-[10px] text-[#788391]">{focusTopic || 'Based on saved performance'}</p></div>
+        <div className="rounded-2xl border border-white/90 bg-white/80 p-3"><p className="text-[10px] font-bold uppercase tracking-wide text-[#7B8795]">Next mock</p><p className="mt-1 text-sm font-semibold text-[#263244]">{latestMock ? `${latestMock.score}/300 · ${latestMock.platform}` : 'No score logged yet'}</p><p className="mt-0.5 truncate text-[10px] text-[#788391]">{mockDue ? latestMock ? 'Due now by your study cadence' : 'Take a baseline simulation' : `Suggested in ${daysUntilMock} day${daysUntilMock === 1 ? '' : 's'}`} · 150 pass mark</p></div>
+        {recentMocks.length > 1 && <div className="col-span-2 rounded-2xl border border-white/90 bg-white/80 px-3 py-2.5"><div className="flex items-center justify-between gap-2"><p className="text-[10px] font-bold uppercase tracking-wide text-[#7B8795]">Recent mock scores</p><p className="text-[9px] text-[#8993A0]">Out of 300 · series difficulty varies</p></div><div className="mt-2 flex h-12 items-end gap-1.5" role="img" aria-label={`Recent mock scores: ${recentMocks.map((test) => `${test.score} out of 300`).join(', ')}`}>{recentMocks.map((test) => <div key={test.id} className="group relative flex h-full flex-1 items-end justify-center"><div className={`w-full max-w-8 rounded-t-sm ${test.score >= 165 ? 'bg-emerald-500' : test.score >= 150 ? 'bg-amber-400' : 'bg-blue-500'}`} style={{height:`${Math.max(5,Math.min(100,test.score/300*100))}%`}}/><span className="absolute -top-0.5 text-[8px] font-semibold text-[#536174]">{test.score}</span></div>)}</div><div className="mt-1 flex justify-between text-[8px] text-[#8993A0]"><span>Oldest</span><span>Latest</span></div></div>}
+      </div>
+    </div>
+    <div className="border-t border-blue-100/80 px-4 py-2.5 text-[10px] leading-4 text-[#798493] sm:px-5">Study time and question accuracy describe practice. Mock scores are shown separately; OneShot simulations are scaled for comparison and are not official exam results. When comparing scores, use the same test series where possible.</div>
+  </motion.section>;
 }
 
 /** Polite, SwiftUI-style number interpolation. No-op under reduced motion. */
@@ -1337,11 +1380,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [isPassingGapModalOpen, setIsPassingGapModalOpen] = useState(false);
   const [isExamEveCheatSheetOpen, setIsExamEveCheatSheetOpen] = useState(false);
   const [isNbeMockOpen, setIsNbeMockOpen] = useState(false);
+  const [dashboardClock, setDashboardClock] = useState(() => Date.now());
 
   // Spaced Repetition Due Mistakes count and retest launcher
   const unreviewedErrorsCount = useMemo(() => {
     return (state.errorNotebook || []).filter((e) => isSpacedErrorDue(e)).length;
   }, [state.errorNotebook]);
+
+  const qbankReviewQueue = useMemo(() => buildDueReviewQueue(state.mcqAttempts || []), [state.mcqAttempts]);
+  const dueQbankReviewCount = qbankReviewQueue.filter((item) => item.dueAt <= dashboardClock).length;
+  const upcomingQbankReviewCount = qbankReviewQueue.length - dueQbankReviewCount;
+  useEffect(() => {
+    const nextReviewDue = qbankReviewQueue.reduce((next, item) => item.dueAt > dashboardClock ? Math.min(next, item.dueAt) : next, Number.POSITIVE_INFINITY);
+    const nextLocalDay = new Date();
+    nextLocalDay.setHours(24, 0, 0, 0);
+    const nextRefresh = Math.min(nextReviewDue, nextLocalDay.getTime());
+    const timeout = window.setTimeout(() => setDashboardClock(Date.now()), Math.max(1000, nextRefresh - dashboardClock + 50));
+    return () => window.clearTimeout(timeout);
+  }, [qbankReviewQueue, dashboardClock]);
 
   const handleLaunchErrorDrill = () => {
     const targetError = state.errorNotebook?.find((e) => !e.isReviewed) || state.errorNotebook?.[0];
@@ -1528,6 +1584,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       isHighYield: firstUnfinished.isHighYield,
     };
   }, [selectedFilterSubjectId, activeFocusSubject, adaptiveRecommendation, state.topicsState]);
+
+  const latestMockRecord = useMemo(
+    () => [...(state.grandTests || [])].sort((a, b) => b.date.localeCompare(a.date))[0],
+    [state.grandTests]
+  );
+  const recentMockRecords = useMemo(
+    () => [...(state.grandTests || [])].sort((a, b) => a.date.localeCompare(b.date)).slice(-6),
+    [state.grandTests]
+  );
+  const latestMockTimestamp = latestMockRecord ? new Date(`${latestMockRecord.date}T12:00:00`).getTime() : Number.NaN;
+  const latestMockAgeDays = Number.isFinite(latestMockTimestamp)
+    ? Math.max(0, Math.floor((dashboardClock - latestMockTimestamp) / 86_400_000))
+    : null;
+  const mockDue = latestMockAgeDays === null || latestMockAgeDays >= dailyPlan.gtCadenceDays;
+  const daysUntilMock = latestMockAgeDays === null ? 0 : Math.max(0, dailyPlan.gtCadenceDays - latestMockAgeDays);
+  const todayStudyMinutes = state.studyLogs?.[dailyPlan.date]?.studyMinutes || 0;
 
   const hasRevisionDue = dailyPlan.revisionDueCount > 0;
   const errorsToReview = dailyPlan.errorRemediationCount > 0;
@@ -3072,6 +3144,38 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
               </div>
             </motion.section>
+
+            <DashboardTodayHub
+              dueQbankReviews={dueQbankReviewCount}
+              upcomingQbankReviews={upcomingQbankReviewCount}
+              dueErrors={unreviewedErrorsCount}
+              dueRevisions={dailyPlan.revisionDueCount}
+              taskCount={dailyPlan.tasks.length}
+              todayMinutes={todayStudyMinutes}
+              plannedMinutes={dailyPlan.availableMinutes}
+              focusSubject={recommendedSubject.name}
+              focusTopic={activeFocusTopic.name}
+              latestMock={latestMockRecord}
+              mockDue={mockDue}
+              daysUntilMock={daysUntilMock}
+              recentMocks={recentMockRecords}
+              reducedMotion={reducedMotion}
+              onOpenReviewQueue={() => onNavigateTab('questionbank')}
+              onOpenErrors={handleLaunchErrorDrill}
+              onOpenRevision={() => onNavigateTab('revision')}
+              onStartMock={() => setIsNbeMockOpen(true)}
+              onStartStudy={() => {
+                if (!nextActionTask) { handleSubTabChange('planner'); return; }
+                if (nextActionTask.activity === 'errors') { handleLaunchErrorDrill(); return; }
+                if (nextActionTask.activity === 'revision') { onNavigateTab('revision'); return; }
+                if (nextActionTask.activity === 'mcqs') {
+                  onLaunchPracticeSession?.(nextActionTask.subjectId, nextActionTask.topicId, nextActionTask.topicName);
+                  return;
+                }
+                setActiveMasteryTopic({ subjectId: nextActionTask.subjectId, topicId: nextActionTask.topicId, topicName: nextActionTask.topicName });
+              }}
+              onOpenPlanner={() => handleSubTabChange('planner')}
+            />
 
             <motion.section
               initial={SECTION_ENTER(0.12, reducedMotion)}
