@@ -176,6 +176,10 @@
 .dark .qbank-gemini .text-\[\#655D73\],
 .dark .qbank-gemini .text-\[\#464052\],
 .dark .qbank-gemini .text-\[\#555365\] { color: var(--color-ink-2); }
+.dark .qbank-gemini .bg-\[\#F5F9FF\] { background-color: rgba(10, 132, 255, 0.1); }
+.dark .qbank-gemini .border-\[\#DCEAFE\] { border-color: rgba(10, 132, 255, 0.24); }
+.dark .qbank-gemini .text-\[\#38699E\] { color: #A7CEFF; }
+.dark .qbank-gemini .text-\[\#38334A\] { color: var(--color-ink); }
 .dark .qbank-gemini .bg-emerald-50\/70 { background-color: rgba(48, 209, 88, 0.12); }
 .dark .qbank-gemini .border-emerald-200 { border-color: rgba(48, 209, 88, 0.35); }
 .dark .qbank-figure { background-color: var(--color-surface-sunken); border-color: var(--color-hairline); }

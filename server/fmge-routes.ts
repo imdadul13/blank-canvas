@@ -69,7 +69,7 @@ type ImportedBankQuestion = {
   sourceExplanationAvailable?: boolean; source: string; collection: string; sourcePage: number; sourceQuestionNumber: number; isImageBased: boolean;
 };
 let questionBankCache: { mtimeMs: number; questions: ImportedBankQuestion[] } | null = null;
-const activeQuestionBankSessions = new Map<string, { uid: string; expiresAt: number; questionIds: Set<string>; answers: Map<string, string> }>();
+const activeQuestionBankSessions = new Map<string, { uid: string; expiresAt: number; questionIds: Set<string>; answers: Map<string, { selectedAnswer: string; confidence?: string; timeTakenSeconds?: number }> }>();
 function loadImportedQuestionBank(): ImportedBankQuestion[] {
   const bankPath = path.join(process.cwd(), "server", "data", "question-bank.json");
   const stat = fs.statSync(bankPath);
@@ -165,7 +165,7 @@ app.post("/api/question-bank/session", createRequestRateLimit({ windowMs: 60_000
 });
 
 app.post("/api/question-bank/answer", (req, res) => {
-  const { questionId, selectedAnswer, sessionId } = req.body || {};
+  const { questionId, selectedAnswer, sessionId, confidence, timeTakenSeconds } = req.body || {};
   if (typeof questionId !== "string" || typeof sessionId !== "string" || !/^[A-D]$/.test(selectedAnswer)) return res.status(400).json({ error: "A session, question ID and selected option A–D are required." });
   try {
     const session = activeQuestionBankSessions.get(sessionId);
@@ -173,7 +173,9 @@ app.post("/api/question-bank/answer", (req, res) => {
     if (session.answers.has(questionId)) return res.status(409).json({ error: "This answer has already been submitted." });
     const question = loadImportedQuestionBank().find((q) => q.id === questionId);
     if (!question) return res.status(404).json({ error: "Question not found." });
-    session.answers.set(questionId, selectedAnswer);
+    const validConfidence = ["guess", "low", "high"].includes(confidence) ? confidence : undefined;
+    const responseSeconds = Number.isFinite(timeTakenSeconds) ? Math.min(1800, Math.max(1, Math.round(timeTakenSeconds))) : undefined;
+    session.answers.set(questionId, { selectedAnswer, confidence: validConfidence, timeTakenSeconds: responseSeconds });
     res.setHeader("Cache-Control", "no-store");
     res.json({ correct: selectedAnswer === question.correctAnswer, correctAnswer: question.correctAnswer, explanation: question.explanation, sourceExplanationAvailable: question.sourceExplanationAvailable !== false, source: question.source, sourcePage: question.sourcePage });
   } catch {
@@ -186,14 +188,17 @@ app.post("/api/question-bank/tutor", createRequestRateLimit({ windowMs: 60_000, 
   if (typeof questionId !== "string" || typeof sessionId !== "string") return res.status(400).json({ error: "An active practice session and question ID are required." });
   try {
     const session = activeQuestionBankSessions.get(sessionId);
-    const selectedAnswer = session?.answers.get(questionId);
+    const learnerResponse = session?.answers.get(questionId);
+    const selectedAnswer = learnerResponse?.selectedAnswer;
     if (!session || session.uid !== (res.locals.firebaseUser as { uid: string }).uid || session.expiresAt <= Date.now() || !session.questionIds.has(questionId) || !selectedAnswer) return res.status(403).json({ error: "Answer this question in your active practice set before requesting a tutor review." });
     const question = loadImportedQuestionBank().find((q) => q.id === questionId);
     if (!question) return res.status(404).json({ error: "Question not found." });
     const optionList = question.options.map((o) => `${o.key}. ${o.text}${o.key === question.correctAnswer ? " [CORRECT]" : ""}${o.key === selectedAnswer ? " [STUDENT SELECTED]" : ""}`).join("\n");
     const answeredCorrectly = selectedAnswer === question.correctAnswer;
     const sourceRationale = question.sourceExplanationAvailable === false ? "None supplied in the source PDF; do not treat any placeholder as medical rationale." : question.explanation;
-    const prompt = `Teach this ${question.exam} medical entrance question after the learner has answered. The learner was ${answeredCorrectly ? "correct" : "incorrect"}. Keep the response calm, encouraging, compact, and easy to scan; do not repeat the full stem. Use the supplied answer key as authoritative and never change it. If a source rationale is supplied, use its supported facts; otherwise explain from the question and key, flag uncertainty, and never imply the source supplied a rationale. For learnerChoiceInsight use 1–2 short sentences (maximum 45 words): affirm why their choice is right, or explain the likely confusion and the correction. For each option reason use one plain sentence (maximum 22 words). Keep examTrap, memoryAid, and clinicalPearl to one short sentence each. Avoid dense paragraphs, numbered sublists, filler, and unsupported details.\nEXAM: ${question.exam}${question.year ? ` ${question.year}` : ""}\nSUBJECT: ${question.subjectName}\nQUESTION: ${question.stem}\nOPTIONS:\n${optionList}\nAUTHORITATIVE KEY: ${question.correctAnswer}\nSOURCE RATIONALE: ${sourceRationale}\nSTUDENT CHOICE: ${selectedAnswer}\nReturn valid JSON only: {"learnerChoiceInsight":"...","optionAnalysis":[{"key":"A","verdict":"correct|incorrect","reason":"..."}],"examTrap":"...","memoryAid":"...","clinicalPearl":"..."}. Include all four options exactly once and exactly one option with verdict correct. Do not invent an image finding; describe only what the stem and supplied rationale support.`;
+    const confidenceLabel = learnerResponse?.confidence === "guess" ? "guessed" : learnerResponse?.confidence === "low" ? "unsure" : learnerResponse?.confidence === "high" ? "confident" : "not recorded";
+    const timeLabel = learnerResponse?.timeTakenSeconds ? `${learnerResponse.timeTakenSeconds} seconds` : "not recorded";
+    const prompt = `You are adding a genuinely new teaching layer after a learner answered a ${question.exam} medical entrance question. The learner was ${answeredCorrectly ? "correct" : "incorrect"}. Their selected option is ${selectedAnswer}; their confidence was ${confidenceLabel}; their response time was ${timeLabel}. Treat confidence and time only as weak learning signals; do not infer motivation or ability from them.\n\nThe QBank already shows the source rationale below. Do NOT summarize, paraphrase, or repeat its option-by-option reasoning in learnerChoiceInsight, decisionRule, retrievalQuestion, retrievalAnswer, examTrap, memoryAid, or clinicalPearl. Use it only to ground the answer key and avoid contradiction. Instead, teach a distinct layer: identify the exact discrimination the learner needed to make, explain why their selected answer can feel plausible, and give a compact decision rule they can apply to a changed vignette. For a correct response, affirm the reasoning and identify what feature made it reliable. Use the learner's selected choice explicitly. Make the recall question test transfer, not repeat the original stem. The recall answer must directly answer that new question.\n\nKeep language student-friendly and specific. learnerChoiceInsight: 1–2 sentences, at most 40 words. decisionRule: one reusable rule, at most 24 words. retrievalQuestion: one short transfer question, at most 25 words. retrievalAnswer: one direct answer, at most 20 words. Each option reason: one sentence, at most 18 words, and explain its distinguishing reason without copying the source wording. examTrap, memoryAid, clinicalPearl: one distinct short sentence each. Avoid filler, dense paragraphs, generic mnemonics, invented case details, and unsupported claims. If the stem lacks a fact needed for a confident rule, state the limitation instead of assuming it. Preserve the authoritative key exactly.\n\nEXAM: ${question.exam}${question.year ? ` ${question.year}` : ""}\nSUBJECT: ${question.subjectName}\nQUESTION: ${question.stem}\nOPTIONS:\n${optionList}\nAUTHORITATIVE KEY: ${question.correctAnswer}\nSOURCE RATIONALE (reference only; do not restate): ${sourceRationale}\nSTUDENT CHOICE: ${selectedAnswer}\nReturn valid JSON only: {"learnerChoiceInsight":"...","decisionRule":"...","retrievalQuestion":"...","retrievalAnswer":"...","optionAnalysis":[{"key":"A","verdict":"correct|incorrect","reason":"..."}],"examTrap":"...","memoryAid":"...","clinicalPearl":"..."}. Include all four options exactly once and exactly one option with verdict correct. Do not invent an image finding; describe only what the stem, image, answer key and supplied rationale support.`;
     const parts: any[] = [{ text: prompt }];
     if (question.imageUrl) {
       try {
@@ -207,8 +212,8 @@ app.post("/api/question-bank/tutor", createRequestRateLimit({ windowMs: 60_000, 
     const keys = new Set(["A", "B", "C", "D"]);
     const optionAnalysis = Array.isArray(parsed.optionAnalysis) ? parsed.optionAnalysis.filter((item: any) => keys.has(item?.key) && typeof item?.reason === "string" && ["correct", "incorrect"].includes(item?.verdict)).slice(0, 4) : [];
     const uniqueKeys = new Set(optionAnalysis.map((item: any) => item.key));
-    if (optionAnalysis.length !== 4 || uniqueKeys.size !== 4 || optionAnalysis.filter((item: any) => item.verdict === "correct").length !== 1 || optionAnalysis.find((item: any) => item.verdict === "correct")?.key !== question.correctAnswer || !["learnerChoiceInsight", "examTrap", "memoryAid", "clinicalPearl"].every((key) => typeof parsed[key] === "string" && parsed[key].trim().length > 0)) throw new Error("Tutor response was incomplete or contradicted the answer key.");
-    res.json({ ...parsed, correctAnswer: question.correctAnswer, sourceRationale: question.explanation, aiGenerated: true });
+    if (optionAnalysis.length !== 4 || uniqueKeys.size !== 4 || optionAnalysis.filter((item: any) => item.verdict === "correct").length !== 1 || optionAnalysis.find((item: any) => item.verdict === "correct")?.key !== question.correctAnswer || !["learnerChoiceInsight", "decisionRule", "retrievalQuestion", "retrievalAnswer", "examTrap", "memoryAid", "clinicalPearl"].every((key) => typeof parsed[key] === "string" && parsed[key].trim().length > 0)) throw new Error("Tutor response was incomplete or contradicted the answer key.");
+    res.json({ ...parsed, correctAnswer: question.correctAnswer, sourceRationale: question.explanation, learnerConfidence: learnerResponse?.confidence || null, responseTimeSeconds: learnerResponse?.timeTakenSeconds || null, aiGenerated: true });
   } catch (error: any) {
     res.status(503).json({ error: "Gemini could not prepare the detailed review. The source explanation and answer key are still available.", detail: error?.message || "Tutor unavailable" });
   }
