@@ -12,6 +12,7 @@ type BankQuestion = { id: string; exam: Exam; year: number | null; subjectId: st
 type Facets = { exams: Exam[]; subjects: Array<{id: string; name: string; count: number}>; years: number[]; count: number; imageCount: number };
 type Review = { correct: boolean; correctAnswer: string; explanation: string; sourceExplanationAvailable?: boolean; source: string; sourcePage: number };
 type TutorReview = { learnerChoiceInsight: string; optionAnalysis: Array<{key: string; verdict: string; reason: string}>; examTrap: string; memoryAid: string; clinicalPearl: string; aiGenerated: boolean };
+type ReviewQueueItem = { questionId: string; subjectId: string; subjectName: string; timestamp: string; dueAt: number; lastCorrect: boolean; confidence?: McqAttempt['confidence']; attemptCount: number };
 
 async function responseJson(response: Response) {
   const data = await response.json().catch(() => ({}));
@@ -38,6 +39,8 @@ export const QuestionBankView: React.FC<{
   const [error, setError] = useState('');
   const [questions, setQuestions] = useState<BankQuestion[]>([]);
   const [sessionId, setSessionId] = useState('');
+  const [sessionLabel, setSessionLabel] = useState('Practice set');
+  const [reviewClock, setReviewClock] = useState(() => Date.now());
 
   useEffect(() => {
     let active = true;
@@ -50,15 +53,25 @@ export const QuestionBankView: React.FC<{
     return () => { active = false; };
   }, [exam]);
 
+  useEffect(() => {
+    const interval = window.setInterval(() => setReviewClock(Date.now()), 60_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   const selectedSubject = useMemo(() => facets?.subjects.find((item) => item.id === subjectId), [facets, subjectId]);
-  const startSession = async (override?: { exam: Exam; subjectId: string; year?: string; imageMode: 'all'|'image'|'standard'; count: number }) => {
+  const startSession = async (override?: { exam: Exam; subjectId: string; year?: string; imageMode: 'all'|'image'|'standard'; count: number; questionIds?: string[]; label?: string }) => {
     setLoading(true); setError('');
     try {
-      const data = await responseJson(await apiFetch('/api/question-bank/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(override || { exam, subjectId, year: year || null, imageMode, count }) }));
+      const { label, ...filters } = override || { exam, subjectId, year: year || null, imageMode, count };
+      const data = await responseJson(await apiFetch('/api/question-bank/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(filters) }));
+      setSessionLabel(label || 'Practice set');
       setQuestions(data.questions); setSessionId(data.sessionId);
     } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   };
+
+  const reviewQueue = useMemo(() => buildDueReviewQueue(attempts), [attempts]);
+  const dueReviewQueue = reviewQueue.filter((item) => item.dueAt <= reviewClock);
 
   return <div data-accent="practice" className="qbank-root mx-auto w-full max-w-7xl px-3 pb-28 pt-5 font-sans text-[var(--text-primary,#1D1D1F)] sm:px-6 sm:pb-20 lg:px-8">
     <motion.section initial={reducedMotion ? false : {opacity:0,y:10,scale:0.992}} animate={{opacity:1,y:0,scale:1}} transition={reducedMotion ? {duration:0} : {duration:0.48,ease:[0.16,1,0.3,1]}} className="qbank-banner relative overflow-hidden rounded-[26px] border border-black/[0.06] bg-[linear-gradient(125deg,#EAF3FF_0%,#F8FAFD_52%,#F1EFFB_100%)] p-5 shadow-[0_16px_42px_rgba(35,65,110,0.09)] sm:rounded-[30px] sm:p-7">
@@ -107,8 +120,9 @@ export const QuestionBankView: React.FC<{
       </div>
     </motion.section>
 
-    <FmgeSprint sprint={sprint} attempts={attempts} grandTests={grandTests} onUpdate={onUpdateSprint} onPractice={(subjectId, count = 20) => startSession({ exam: 'FMGE', subjectId, year: '', imageMode: 'all', count })} onOpenGrandTests={onOpenGrandTests} loading={loading} />
-    <QuestionSession key={sessionId} questions={questions} sessionId={sessionId} onClose={() => setQuestions([])} onRecordAttempt={onRecordAttempt}/>
+    <DailyReviewQueue items={reviewQueue} dueItems={dueReviewQueue} now={reviewClock} loading={loading} onStart={() => startSession({ exam: 'FMGE', subjectId: '', year: '', imageMode: 'all', count: Math.min(20, dueReviewQueue.length), questionIds: dueReviewQueue.slice(0, 20).map((item) => item.questionId), label: 'Daily review' })}/>
+    <FmgeSprint sprint={sprint} attempts={attempts} grandTests={grandTests} onUpdate={onUpdateSprint} onPractice={(subjectId, count = 20) => startSession({ exam: 'FMGE', subjectId, year: '', imageMode: 'all', count, label: 'Focused practice' })} onOpenGrandTests={onOpenGrandTests} loading={loading} />
+    <QuestionSession key={sessionId} questions={questions} sessionId={sessionId} sessionLabel={sessionLabel} onClose={() => setQuestions([])} onRecordAttempt={onRecordAttempt}/>
   </div>;
 };
 
@@ -258,11 +272,66 @@ function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpen
         <div className="mb-5 flex gap-2 overflow-x-auto pb-2" aria-label="Sprint day selector">{sprintDays.map((day, i) => { const done = [0,1,2,3].every((task) => sprint.completedTasks[`${i}-${task}`]); return <button key={i} type="button" onClick={() => setSelectedDay(i)} aria-current={activeDay === i ? 'step' : undefined} className={`flex h-12 min-w-12 shrink-0 flex-col items-center justify-center rounded-xl border text-xs font-semibold transition ${activeDay === i ? 'border-blue-600 bg-blue-600 text-white shadow-sm' : done ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-[#E5E8ED] bg-white text-[#69717D] hover:border-blue-300'}`}>{done ? <Check className="h-3.5 w-3.5"/> : <span>{i + 1}</span>}</button>; })}</div>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
           <div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 sm:p-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-[0.13em] text-blue-700">Day {activeDay + 1}</p><h3 className="mt-1 text-lg font-semibold tracking-tight">{plan.title}</h3></div><span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#69717D] ring-1 ring-[#E6EAF0]">{questionTarget} Q target</span></div><p className="mt-2 text-sm leading-6 text-[#69717D]">{plan.focus}</p><div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/70 p-3.5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">{todayComplete ? 'Today’s plan complete' : 'Your next step'}</p><p className="mt-1 text-sm font-semibold text-[#344054]">{todayComplete ? 'Keep the review light and protect your sleep.' : checklists[nextTaskIndex]}</p></div><span className="shrink-0 text-xs font-semibold text-blue-700">{activeTaskStates.filter(Boolean).length}/4</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-blue-100"><div className="h-full rounded-full bg-blue-600 transition-all" style={{width:`${activeTaskStates.filter(Boolean).length/4*100}%`}}/></div></div><div className="mt-3 space-y-2">{checklists.map((item, task) => { const done = !!sprint.completedTasks[`${activeDay}-${task}`]; return <button key={task} type="button" onClick={() => toggleTask(task)} className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${done ? 'border-emerald-200 bg-emerald-50/70' : task === nextTaskIndex ? 'border-blue-200 bg-white shadow-sm' : 'border-[#E9ECF1] bg-white hover:border-blue-200'}`}><span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${done ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#C9D0DA] bg-white'}`}>{done && <Check className="h-3.5 w-3.5"/>}</span><span className={`text-xs leading-5 ${done ? 'text-emerald-900' : 'text-[#535C68]'}`}>{item}</span></button>; })}</div><div className="mt-4 flex flex-col gap-2 sm:flex-row"><button type="button" onClick={() => onPractice(plan.subjects[0] || '')} disabled={loading} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white transition hover:bg-[#0F5FCC] disabled:opacity-60 sm:w-auto"><BookOpenCheck className="h-4 w-4"/>Start focused 20-question set<ChevronRight className="h-4 w-4"/></button>{activeDay === 17 && <button type="button" onClick={onOpenGrandTests} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#DCE3ED] bg-white px-4 text-sm font-semibold text-[#394353] hover:border-blue-300 hover:text-blue-700"><Target className="h-4 w-4"/>Log full mock score</button>}</div></div>
-          <aside className="rounded-2xl border border-[#E7EAF0] bg-white p-4"><h4 className="text-sm font-semibold">Readiness check</h4>{latestGrandTest?<><p className="mt-2 text-2xl font-semibold tracking-tight text-[#263244]">{latestGrandTest.score}<span className="text-sm font-medium text-[#8993A0]"> / 300</span></p><p className={`text-xs font-semibold ${latestGrandTest.score>=165?'text-emerald-700':latestGrandTest.score>=150?'text-amber-700':'text-rose-700'}`}>{latestGrandTest.score>=165?'Above your 165 working target':latestGrandTest.score>=150?'At pass mark; build a safety buffer':`${150-latestGrandTest.score} marks below pass mark`}</p><p className="mt-1 text-[10px] text-[#858C96]">Latest logged mock · exam score is the clearest readiness signal.</p></>:<p className="mt-2 text-xs leading-5 text-[#68717E]">No full mock score logged yet. Your question practice will identify subject gaps, but it cannot predict a 300-mark exam result.</p>}{qbankAccuracy!==null&&<div className="mt-3 flex items-center justify-between border-t border-[#EEF0F3] pt-3 text-[11px]"><span className="text-[#737B86]">Recent question accuracy</span><b className="text-[#344054]">{qbankAccuracy}%</b></div>}{recentReviewGaps>0&&<p className="mt-2 text-[11px] leading-5 text-amber-800">{recentReviewGaps} recent misses or unsure answers are feeding your revision priorities.</p>}<h4 className="mt-4 border-t border-[#EEF0F3] pt-3 text-sm font-semibold">How to use the day</h4><ol className="mt-3 space-y-3 text-xs leading-5 text-[#68717E]"><li><b className="text-[#303741]">1. Recall first.</b> Try to retrieve before rereading.</li><li><b className="text-[#303741]">2. Practise timed.</b> Review wrong and guessed answers.</li><li><b className="text-[#303741]">3. Keep a tiny error list.</b> Revisit it tomorrow.</li><li><b className="text-[#303741">4. Protect sleep.</b> Exhaustion makes recall worse.</li></ol><div className="mt-4 rounded-xl bg-amber-50 p-3 text-[11px] leading-5 text-amber-900">If you fall behind, continue with the next day and carry only your highest-impact weak areas forward. Do not try to “repay” missed hours with an all-nighter.</div><p className="mt-3 text-[10px] leading-4 text-[#858C96]">This plan supports revision; it cannot predict or guarantee an exam result.</p></aside>
+          <aside className="rounded-2xl border border-[#E7EAF0] bg-white p-4"><h4 className="text-sm font-semibold">Readiness check</h4>{latestGrandTest?<><p className="mt-2 text-2xl font-semibold tracking-tight text-[#263244]">{latestGrandTest.score}<span className="text-sm font-medium text-[#8993A0]"> / 300</span></p><p className={`text-xs font-semibold ${latestGrandTest.score>=165?'text-emerald-700':latestGrandTest.score>=150?'text-amber-700':'text-rose-700'}`}>{latestGrandTest.score>=165?'Above your 165 working target':latestGrandTest.score>=150?'At pass mark; build a safety buffer':`${150-latestGrandTest.score} marks below pass mark`}</p><p className="mt-1 text-[10px] text-[#858C96]">Latest logged mock · exam score is the clearest readiness signal.</p><MockScoreTrend grandTests={grandTests}/></>:<p className="mt-2 text-xs leading-5 text-[#68717E]">No full mock score logged yet. Your question practice will identify subject gaps, but it cannot predict a 300-mark exam result.</p>}{qbankAccuracy!==null&&<div className="mt-3 flex items-center justify-between border-t border-[#EEF0F3] pt-3 text-[11px]"><span className="text-[#737B86]">Recent question accuracy</span><b className="text-[#344054]">{qbankAccuracy}%</b></div>}{recentReviewGaps>0&&<p className="mt-2 text-[11px] leading-5 text-amber-800">{recentReviewGaps} recent misses or unsure answers are feeding your revision priorities.</p>}<h4 className="mt-4 border-t border-[#EEF0F3] pt-3 text-sm font-semibold">How to use the day</h4><ol className="mt-3 space-y-3 text-xs leading-5 text-[#68717E]"><li><b className="text-[#303741]">1. Recall first.</b> Try to retrieve before rereading.</li><li><b className="text-[#303741]">2. Practise timed.</b> Review wrong and guessed answers.</li><li><b className="text-[#303741]">3. Keep a tiny error list.</b> Revisit it tomorrow.</li><li><b className="text-[#303741">4. Protect sleep.</b> Exhaustion makes recall worse.</li></ol><div className="mt-4 rounded-xl bg-amber-50 p-3 text-[11px] leading-5 text-amber-900">If you fall behind, continue with the next day and carry only your highest-impact weak areas forward. Do not try to “repay” missed hours with an all-nighter.</div><p className="mt-3 text-[10px] leading-4 text-[#858C96]">This plan supports revision; it cannot predict or guarantee an exam result.</p></aside>
         </div>
       </>}
     </div>}
   </section>;
+}
+
+function buildDueReviewQueue(attempts: McqAttempt[], now = Date.now()): ReviewQueueItem[] {
+  const byQuestion = new Map<string, McqAttempt[]>();
+  attempts.filter((attempt) => attempt.source === 'qbank' && attempt.questionId && attempt.timestamp).forEach((attempt) => {
+    const list = byQuestion.get(attempt.questionId) || [];
+    list.push(attempt);
+    byQuestion.set(attempt.questionId, list);
+  });
+  const dayMs = 24 * 60 * 60 * 1000;
+  return [...byQuestion.entries()].flatMap(([questionId, history]) => {
+    const ordered = history.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    const latest = ordered[ordered.length - 1];
+    const latestTime = Date.parse(latest.timestamp);
+    if (!Number.isFinite(latestTime) || !ordered.some((attempt) => !attempt.isCorrect || attempt.confidence === 'guess' || attempt.confidence === 'low')) return [];
+    const securelyCorrect = latest.isCorrect && ['high', 'certain'].includes(latest.confidence || '');
+    let intervalDays = 1;
+    if (securelyCorrect) {
+      let streak = 0;
+      for (let i = ordered.length - 1; i >= 0; i -= 1) {
+        const attempt = ordered[i];
+        if (!attempt.isCorrect || !['high', 'certain'].includes(attempt.confidence || '')) break;
+        streak += 1;
+      }
+      intervalDays = [1, 3, 7, 14][Math.min(3, Math.max(0, streak - 1))];
+    }
+    return [{
+      questionId,
+      subjectId: latest.subjectId,
+      subjectName: latest.topicName || FMGE_SUBJECTS.find((subject) => subject.id === latest.subjectId)?.name || latest.subjectId,
+      timestamp: latest.timestamp,
+      dueAt: latestTime + intervalDays * dayMs,
+      lastCorrect: latest.isCorrect,
+      confidence: latest.confidence,
+      attemptCount: ordered.length,
+    }];
+  }).sort((a, b) => a.dueAt - b.dueAt || a.timestamp.localeCompare(b.timestamp)).slice(0, 100);
+}
+
+function DailyReviewQueue({ items, dueItems, now, loading, onStart }: { items: ReviewQueueItem[]; dueItems: ReviewQueueItem[]; now: number; loading: boolean; onStart: () => void }) {
+  const upcoming = items.filter((item) => item.dueAt > now);
+  return <section className="qbank-panel mt-5 overflow-hidden rounded-[24px] border border-black/[0.06] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:rounded-[28px]">
+    <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div className="flex items-start gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-700"><Clock3 className="h-5 w-5"/></div><div><div className="flex flex-wrap items-center gap-2"><h2 className="text-base font-semibold tracking-tight text-[#202630]">Daily review</h2><span className="rounded-full bg-[#F3F4F8] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#68717E]">Spaced recall</span></div><p className="mt-1 max-w-2xl text-xs leading-5 text-[#737B86]">Missed or unsure answers return tomorrow. Once recalled confidently, they come back after 3, 7, then 14 days.</p></div></div>
+      <div className="flex shrink-0 items-center gap-2"><span className="rounded-xl bg-violet-50 px-3 py-2 text-center"><b className="block text-lg leading-5 text-violet-800">{dueItems.length}</b><span className="text-[10px] font-medium text-violet-700">due now</span></span><span className="rounded-xl bg-[#F5F7FA] px-3 py-2 text-center"><b className="block text-lg leading-5 text-[#344054]">{upcoming.length}</b><span className="text-[10px] font-medium text-[#68717E]">scheduled</span></span></div>
+    </div>
+    {items.length > 0 && <div className="border-t border-black/[0.055] px-4 py-3 sm:px-5"><div className="flex flex-wrap gap-2">{items.slice(0, 5).map((item) => { const due = item.dueAt <= now; return <span key={item.questionId} className={`inline-flex max-w-full items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium ${due ? 'bg-amber-50 text-amber-900' : 'bg-[#F4F6F9] text-[#68717E]'}`}><span className="max-w-[180px] truncate">{item.subjectName}</span><span className="opacity-70">·</span>{due ? 'Due' : new Date(item.dueAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>; })}{items.length > 5 && <span className="self-center text-[11px] text-[#858C96]">+{items.length - 5} more</span>}</div></div>}
+    <div className="flex flex-col gap-3 border-t border-black/[0.055] bg-[#FBFCFE] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5"><p className="text-xs leading-5 text-[#68717E]">{items.length === 0 ? 'No review cards yet. Practice a set and mark your confidence to build this queue.' : dueItems.length === 0 ? `You’re clear for today. ${upcoming.length} question${upcoming.length === 1 ? ' is' : 's are'} scheduled for a later review.` : `${dueItems.length} question${dueItems.length === 1 ? '' : 's'} ready for retrieval practice.`}</p><button type="button" disabled={loading || dueItems.length === 0} onClick={onStart} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#5B4BC4] px-4 text-xs font-semibold text-white transition hover:bg-[#4F40B2] disabled:cursor-not-allowed disabled:opacity-45"><RotateCcw className="h-3.5 w-3.5"/>Start due review<ChevronRight className="h-3.5 w-3.5"/></button></div>
+  </section>;
+}
+
+function MockScoreTrend({ grandTests }: { grandTests: GrandTest[] }) {
+  const recent = [...grandTests].sort((a, b) => a.date.localeCompare(b.date)).slice(-6);
+  if (!recent.length) return null;
+  return <div className="mt-3 rounded-xl border border-[#EEF0F3] bg-[#FBFCFE] p-3"><div className="flex items-center justify-between"><p className="text-[10px] font-semibold uppercase tracking-wide text-[#737B86]">Mock score trend</p><p className="text-[10px] text-[#8993A0]">out of 300</p></div><div className="relative mt-3 flex h-24 items-end justify-around gap-2" role="img" aria-label={`Recent mock scores: ${recent.map((test) => `${test.score} out of 300`).join(', ')}`}><div className="pointer-events-none absolute inset-x-0 border-t border-dashed border-amber-400/70" style={{bottom:'50%'}}/><div className="pointer-events-none absolute inset-x-0 border-t border-dashed border-blue-400/70" style={{bottom:'55%'}}/>{recent.map((test) => <div key={test.id} className="relative z-[1] flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1"><span className="text-[9px] font-semibold text-[#455064]">{test.score}</span><div className={`w-full max-w-6 rounded-t-md transition-all ${test.score>=165?'bg-emerald-500':test.score>=150?'bg-amber-400':'bg-blue-500'}`} style={{height:`${Math.max(5,Math.min(100,test.score/300*100))}%`}}/><span className="text-[9px] text-[#8993A0]">{new Date(`${test.date}T12:00:00`).toLocaleDateString(undefined,{month:'numeric',day:'numeric'})}</span></div>)}</div><div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-[#77818E]"><span><i className="mr-1 inline-block w-3 border-t border-dashed border-amber-500 align-middle"/>150 pass mark</span><span><i className="mr-1 inline-block w-3 border-t border-dashed border-blue-500 align-middle"/>165 working target</span></div></div>;
 }
 
 function Stat({label,value,icon,tone,reduceMotion}:{label:string;value:string;icon:React.ReactNode;tone:'blue'|'violet';reduceMotion:boolean}) { return <motion.div whileHover={reduceMotion?undefined:{y:-2}} transition={{type:'spring',stiffness:350,damping:24}} className={`qbank-stat qbank-stat-${tone} min-w-0 rounded-xl border border-white/80 bg-white/75 px-3.5 py-3 shadow-sm sm:min-w-[128px] sm:rounded-2xl sm:px-4`}><p className="flex items-center gap-1.5 text-[11px] font-medium text-[#838B97]"><span className="qbank-stat-icon flex h-5 w-5 items-center justify-center rounded-md [&>svg]:h-3 [&>svg]:w-3">{icon}</span>{label}</p><p className="mt-1 text-xl font-semibold tracking-tight text-[#252A32]">{value}</p></motion.div>; }
@@ -332,7 +401,7 @@ function GeminiReviewPanel({ correct, tutor, loading, error, onRequest }: { corr
   </section>;
 }
 
-function QuestionSession({questions,sessionId,onClose,onRecordAttempt}:{questions:BankQuestion[];sessionId:string;onClose:()=>void;onRecordAttempt:(attempt:NewMcqAttemptInput)=>unknown}) {
+function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttempt}:{questions:BankQuestion[];sessionId:string;sessionLabel:string;onClose:()=>void;onRecordAttempt:(attempt:NewMcqAttemptInput)=>unknown}) {
   const [index,setIndex]=useState(0);
   const [choice,setChoice]=useState('');
   const [confidence,setConfidence]=useState<'guess'|'low'|'high'>('low');
@@ -385,9 +454,9 @@ function QuestionSession({questions,sessionId,onClose,onRecordAttempt}:{question
 
   return createPortal(<AnimatePresence><motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="qbank-session fixed inset-0 z-[9500] overflow-y-auto bg-[#F4F6F9] text-[#1D1D1F]">
     <div className="mx-auto flex min-h-[100dvh] max-w-3xl flex-col">
-      <header className="qbank-session-header sticky top-0 z-10 flex items-center justify-between border-b border-black/[0.07] bg-white/90 px-4 py-3 backdrop-blur-xl sm:px-6"><div><p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#89919C]">{q.exam} · {q.year || 'Year not listed'} · {q.subjectName}</p><p className="mt-0.5 text-sm font-semibold">Question {index+1} <span className="font-normal text-[#838B97]">of {questions.length}</span></p></div><button type="button" onClick={close} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2F3F5] text-[#525A65] transition hover:bg-[#E8EBEF]" aria-label="Close practice"><X className="h-4 w-4"/></button></header>
+      <header className="qbank-session-header sticky top-0 z-10 flex items-center justify-between border-b border-black/[0.07] bg-white/90 px-4 py-3 backdrop-blur-xl sm:px-6"><div><p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#89919C]">{sessionLabel} · {q.exam} · {q.year || 'Year not listed'} · {q.subjectName}</p><p className="mt-0.5 text-sm font-semibold">Question {index+1} <span className="font-normal text-[#838B97]">of {questions.length}</span></p></div><button type="button" onClick={close} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2F3F5] text-[#525A65] transition hover:bg-[#E8EBEF]" aria-label="Close practice"><X className="h-4 w-4"/></button></header>
       <div className="h-1 bg-[#E5E9EF]"><div className="h-full bg-[#1769E0] transition-all duration-500" style={{width:`${((index+1)/questions.length)*100}%`}}/></div>
-      {finished?<main className="m-auto w-full max-w-lg p-5 text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-50 text-blue-600"><BookOpenCheck className="h-7 w-7"/></div><h2 className="mt-5 text-2xl font-semibold tracking-tight">Practice complete</h2><p className="mt-2 text-sm text-[#737B86]">{correctCount} correct out of {Object.keys(answered).length} answered.</p>{reviewGapCount>0&&<div className="mx-auto mt-4 max-w-sm rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-left"><p className="text-sm font-semibold text-amber-950">{reviewGapCount} question{reviewGapCount===1?'':'s'} to revisit</p><p className="mt-1 text-xs leading-5 text-amber-900">Missed, guessed, and unsure answers are saved as review gaps, even when correct. Start with these in your next revision block.</p></div>}<button onClick={close} className="mt-6 h-12 rounded-2xl bg-[#1769E0] px-6 text-sm font-semibold text-white">Done</button></main>:<main className="w-full flex-1 px-3 py-5 sm:px-6 sm:py-8">
+      {finished?<main className="m-auto w-full max-w-lg p-5 text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-blue-50 text-blue-600"><BookOpenCheck className="h-7 w-7"/></div><h2 className="mt-5 text-2xl font-semibold tracking-tight">{sessionLabel} complete</h2><p className="mt-2 text-sm text-[#737B86]">{correctCount} correct out of {Object.keys(answered).length} answered.</p>{reviewGapCount>0&&<div className="mx-auto mt-4 max-w-sm rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-left"><p className="text-sm font-semibold text-amber-950">{reviewGapCount} question{reviewGapCount===1?'':'s'} to revisit</p><p className="mt-1 text-xs leading-5 text-amber-900">Missed, guessed, and unsure answers are saved as review gaps, even when correct. Start with these in your next revision block.</p></div>}<button onClick={close} className="mt-6 h-12 rounded-2xl bg-[#1769E0] px-6 text-sm font-semibold text-white">Done</button></main>:<main className="w-full flex-1 px-3 py-5 sm:px-6 sm:py-8">
         <article className="qbank-question-card rounded-[24px] border border-black/[0.06] bg-white p-4 shadow-[0_14px_42px_rgba(30,50,80,0.07)] sm:rounded-[28px] sm:p-6"><div className="mb-4 flex flex-wrap items-center gap-2"><span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">{q.subjectName}</span><span className="qbank-year-pill inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold">{q.year ? `${q.exam} ${q.year}` : 'Year not listed in source'}</span>{q.isImageBased&&<span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700"><ImageIcon className="h-3 w-3"/> Image question</span>}</div><h1 className="whitespace-pre-wrap text-[17px] font-semibold leading-[1.6] tracking-[-0.015em] text-[#202833] sm:text-lg">{q.stem}</h1>
           {figures.map((figure,index)=><button key={`${q.id}-figure-${index}`} type="button" onClick={()=>setImageOpen(index)} className="qbank-figure mt-5 block max-h-[min(52vh,500px)] w-full overflow-hidden rounded-2xl border border-[#E6EAF0] bg-[#F7F8FA] text-left"><img src={figure} alt={`Question figure${figures.length>1?` ${index+1}`:''}`} className="mx-auto max-h-[min(52vh,500px)] max-w-full object-contain" loading="lazy"/><span className="block border-t border-black/[0.06] px-3 py-2.5 text-center text-xs font-medium text-[#707985]">{figures.length>1?`Figure ${index+1} of ${figures.length} · `:''}Tap to view larger</span></button>)}
           <div className="mt-5 space-y-2">{q.options.map((option)=><button key={option.key} disabled={Boolean(review)||loading} onClick={()=>setChoice(option.key)} className={`flex w-full items-start gap-3 rounded-2xl border px-3.5 py-3.5 text-left transition duration-200 sm:px-4 ${review&&option.key===review.correctAnswer?'border-emerald-300 bg-emerald-50/80':review&&option.key===choice?'border-rose-300 bg-rose-50/80':choice===option.key?'border-blue-300 bg-blue-50/80':'border-[#E7EAF0] bg-[#FCFCFD] hover:border-blue-200 hover:bg-blue-50/40'}`}><span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${review&&option.key===review.correctAnswer?'bg-emerald-600 text-white':review&&option.key===choice?'bg-rose-600 text-white':choice===option.key?'bg-blue-600 text-white':'bg-[#EEF1F5] text-[#596270]'}`}>{option.key}</span><span className="pt-0.5 text-sm leading-6 text-[#343A44]">{option.text}</span>{review&&option.key===review.correctAnswer&&<span className="ml-auto pt-1 text-xs font-semibold text-emerald-700">Correct</span>}</button>)}</div>

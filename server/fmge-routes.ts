@@ -135,15 +135,23 @@ app.post("/api/question-bank/session", createRequestRateLimit({ windowMs: 60_000
     const year = Number(req.body?.year) || null;
     const imageMode = req.body?.imageMode === "image" || req.body?.imageMode === "standard" ? req.body.imageMode : "all";
     const requested = Math.min(50, Math.max(1, Number(req.body?.count) || 10));
-    let pool = loadImportedQuestionBank().filter((q) =>
-      (!exam || q.exam === exam) && (!subjectId || q.subjectId === subjectId) && (!year || q.year === year) &&
-      (imageMode === "all" || (imageMode === "image" ? q.isImageBased : !q.isImageBased))
-    );
+    const requestedIds = Array.isArray(req.body?.questionIds)
+      ? [...new Set(req.body.questionIds.filter((id: unknown): id is string => typeof id === "string" && id.length <= 200))].slice(0, 50)
+      : [];
+    const bank = loadImportedQuestionBank();
+    let pool = requestedIds.length
+      ? requestedIds.map((id: string) => bank.find((question) => question.id === id)).filter((question): question is ImportedBankQuestion => Boolean(question))
+      : bank.filter((q) =>
+          (!exam || q.exam === exam) && (!subjectId || q.subjectId === subjectId) && (!year || q.year === year) &&
+          (imageMode === "all" || (imageMode === "image" ? q.isImageBased : !q.isImageBased))
+        );
     if (!pool.length) return res.status(404).json({ error: "No questions match these filters." });
-    // Fisher–Yates sample, bounded to the matching pool.
-    pool = [...pool];
-    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-    const questions = pool.slice(0, requested).map(publicBankQuestion);
+    if (!requestedIds.length) {
+      // Fisher–Yates sample, bounded to the matching pool.
+      pool = [...pool];
+      for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+    }
+    const questions = pool.slice(0, requestedIds.length ? 50 : requested).map(publicBankQuestion);
     const sessionId = `qbank-${crypto.randomBytes(24).toString("hex")}`;
     const now = Date.now();
     for (const [key, value] of activeQuestionBankSessions) if (value.expiresAt <= now) activeQuestionBankSessions.delete(key);
