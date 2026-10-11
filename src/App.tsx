@@ -1094,6 +1094,8 @@ function AppInner() {
                   <QuestionBankView
                     onRecordAttempt={recordQuestionAttempt}
                     sprint={state.fmgeSprint}
+                    attempts={state.mcqAttempts || []}
+                    grandTests={state.grandTests || []}
                     onUpdateSprint={(fmgeSprint) => setState((prev) => ({ ...prev, fmgeSprint }))}
                     onOpenGrandTests={() => handleSetActiveTab('grandtests')}
                   />

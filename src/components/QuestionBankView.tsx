@@ -4,7 +4,8 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Activity, ArrowRight, BookOpenCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Image as ImageIcon, LoaderCircle, MessageSquareText, RefreshCw, RotateCcw, Target, X } from 'lucide-react';
 import { apiFetch } from '../utils/api';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
-import type { AppState } from '../types';
+import type { AppState, GrandTest, McqAttempt } from '../types';
+import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 
 type Exam = 'FMGE' | 'NEET-PG' | 'INI-CET';
 type BankQuestion = { id: string; exam: Exam; year: number | null; subjectId: string; subjectName: string; topicName: string; stem: string; options: Array<{key: string; text: string}>; imageUrl: string | null; imageUrls: string[]; source: string; sourcePage: number; isImageBased: boolean };
@@ -21,9 +22,11 @@ async function responseJson(response: Response) {
 export const QuestionBankView: React.FC<{
   onRecordAttempt: (attempt: NewMcqAttemptInput) => unknown;
   sprint?: AppState['fmgeSprint'];
+  attempts?: McqAttempt[];
+  grandTests?: GrandTest[];
   onUpdateSprint: (sprint: NonNullable<AppState['fmgeSprint']>) => void;
   onOpenGrandTests: () => void;
-}> = ({ onRecordAttempt, sprint, onUpdateSprint, onOpenGrandTests }) => {
+}> = ({ onRecordAttempt, sprint, attempts = [], grandTests = [], onUpdateSprint, onOpenGrandTests }) => {
   const reducedMotion = useReducedMotion();
   const [exam, setExam] = useState<Exam>('FMGE');
   const [subjectId, setSubjectId] = useState('');
@@ -104,12 +107,14 @@ export const QuestionBankView: React.FC<{
       </div>
     </motion.section>
 
-    <FmgeSprint sprint={sprint} onUpdate={onUpdateSprint} onPractice={(subjectId) => startSession({ exam: 'FMGE', subjectId, year: '', imageMode: 'all', count: 20 })} onOpenGrandTests={onOpenGrandTests} loading={loading} />
+    <FmgeSprint sprint={sprint} attempts={attempts} grandTests={grandTests} onUpdate={onUpdateSprint} onPractice={(subjectId, count = 20) => startSession({ exam: 'FMGE', subjectId, year: '', imageMode: 'all', count })} onOpenGrandTests={onOpenGrandTests} loading={loading} />
     <QuestionSession key={sessionId} questions={questions} sessionId={sessionId} onClose={() => setQuestions([])} onRecordAttempt={onRecordAttempt}/>
   </div>;
 };
 
-const SPRINT_DAYS = [
+type SprintDay = { title: string; subjects: string[]; focus: string; questions: number; fullMock?: boolean };
+
+const SPRINT_DAYS: SprintDay[] = [
   { title: 'Medicine · foundations & emergencies', subjects: ['medicine'], focus: 'Approach, common presentations, ECG, shock, fluids and emergency first steps.', questions: 60 },
   { title: 'Medicine · systems & image cases', subjects: ['medicine'], focus: 'Cardiology, respiratory, neurology, renal and endocrine patterns; review ECGs and radiology.', questions: 60 },
   { title: 'Surgery · core decisions', subjects: ['surgery'], focus: 'Trauma, acute abdomen, fluids, wound healing, breast and thyroid; practise the next best step.', questions: 60 },
@@ -127,22 +132,88 @@ const SPRINT_DAYS = [
   { title: 'Medicine & surgery · weak areas', subjects: ['medicine', 'surgery'], focus: 'Return to your lowest-scoring systems and redo missed questions without notes first.', questions: 70 },
   { title: 'OBG, pediatrics & PSM · weak areas', subjects: ['obg', 'pediatrics', 'psm'], focus: 'Revise algorithms, thresholds, vaccine schedules and preventive-care concepts you missed.', questions: 70 },
   { title: 'Preclinical & paraclinical recall', subjects: ['anatomy', 'physiology', 'biochemistry', 'pathology', 'pharmacology', 'microbiology'], focus: 'Use active recall: pathways, mechanisms, organisms, images, antidotes and close differentials.', questions: 80 },
-  { title: 'Full-length mock & careful review', subjects: [], focus: 'Simulate exam conditions. Review the reasoning behind wrong and guessed answers; do not just check the score.', questions: 150 },
+  { title: 'Full-length mock & careful review', subjects: [], focus: 'Take a full 300-question mock in two timed blocks, then review wrong and guessed answers. Log the score in Grand Tests.', questions: 300, fullMock: true },
   { title: 'Repair the final gaps', subjects: [], focus: 'Target the three weakest subjects from your mock; finish image questions and revisit your error list.', questions: 80 },
   { title: 'Rapid recall & rest', subjects: [], focus: 'Review concise notes, formulas, images and personal mistakes. Stop heavy study early and protect sleep.', questions: 30 },
 ];
 
+const FMGE_BLUEPRINT_WEIGHTS: Record<string, number> = {
+  anatomy: 17, physiology: 17, biochemistry: 17, pathology: 13, microbiology: 13,
+  pharmacology: 13, fmt: 10, medicine: 33, psychiatry: 5, dermatology: 5,
+  surgery: 32, anesthesia: 5, orthopedics: 5, radiology: 5, pediatrics: 15,
+  ophthalmology: 15, ent: 15, obg: 30, psm: 30,
+};
+
 function localDateKey(date = new Date()) { const y = date.getFullYear(); const m = String(date.getMonth() + 1).padStart(2, '0'); const d = String(date.getDate()).padStart(2, '0'); return `${y}-${m}-${d}`; }
 function sprintDayIndex(startedOn: string) { const start = new Date(`${startedOn}T12:00:00`); const today = new Date(`${localDateKey()}T12:00:00`); return Math.min(19, Math.max(0, Math.floor((today.getTime() - start.getTime()) / 86_400_000))); }
 
-function FmgeSprint({ sprint, onUpdate, onPractice, onOpenGrandTests, loading }: { sprint?: AppState['fmgeSprint']; onUpdate: (value: NonNullable<AppState['fmgeSprint']>) => void; onPractice: (subjectId: string) => void; onOpenGrandTests: () => void; loading: boolean }) {
+function buildAdaptiveSprintDays(attempts: McqAttempt[], grandTests: GrandTest[]): SprintDay[] {
+  const latestTests = [...grandTests].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+  const weakFromMocks = new Set(latestTests.flatMap((test) => test.weakSubjectIds || []));
+  const strongFromMocks = new Set(latestTests.flatMap((test) => test.strongSubjectIds || []));
+  const bySubject = new Map<string, McqAttempt[]>();
+  [...attempts]
+    .filter((attempt) => attempt.subjectId && attempt.timestamp)
+    .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+    .forEach((attempt) => {
+      const list = bySubject.get(attempt.subjectId) || [];
+      list.push(attempt);
+      bySubject.set(attempt.subjectId, list);
+    });
+
+  const ranked = FMGE_SUBJECTS.map((subject) => {
+    const sample = (bySubject.get(subject.id) || []).slice(-40);
+    const accuracy = sample.length ? sample.filter((attempt) => attempt.isCorrect).length / sample.length : null;
+    const evidence = Math.min(1, sample.length / 15);
+    const adjustedWeakness = accuracy === null ? 0.5 : 0.5 + (0.5 - accuracy) * evidence;
+    const blueprintWeight = FMGE_BLUEPRINT_WEIGHTS[subject.id] ?? subject.weightage;
+    const score = (blueprintWeight / 33) * 0.62 + adjustedWeakness * 0.38
+      + (weakFromMocks.has(subject.id) ? 0.28 : 0)
+      - (strongFromMocks.has(subject.id) ? 0.12 : 0);
+    return { id: subject.id, name: subject.name, score, accuracy, count: sample.length };
+  }).sort((a, b) => b.score - a.score);
+
+  const hasEvidence = attempts.length > 0 || grandTests.length > 0;
+  const makeAdaptiveDay = (index: number, selected: typeof ranked, label: string) => {
+    const names = selected.map((subject) => subject.name);
+    const details = selected.map((subject) => {
+      if (subject.count >= 5 && subject.accuracy !== null) return `${subject.name} (${Math.round(subject.accuracy * 100)}% across ${subject.count} recent attempts)`;
+      if (weakFromMocks.has(subject.id)) return `${subject.name} (flagged weak in a recent mock)`;
+      return `${subject.name} (high blueprint weight; gather more answers to calibrate)`;
+    });
+    return {
+      ...SPRINT_DAYS[index],
+      title: `${label} · ${names.join(' & ')}`,
+      subjects: selected.map((subject) => subject.id),
+      focus: hasEvidence
+        ? `Prioritize ${details.join('; ')}. Review missed and guessed questions, then retrieve the key rules without notes.`
+        : `Start with high-weight areas: ${names.join(', ')}. Take the baseline set so later revision can target your actual gaps.`,
+    };
+  };
+
+  const days = [...SPRINT_DAYS];
+  days[14] = makeAdaptiveDay(14, ranked.slice(0, 2), 'Repair your biggest gaps');
+  days[15] = makeAdaptiveDay(15, ranked.slice(2, 4), 'Strengthen the next priorities');
+  days[18] = makeAdaptiveDay(18, ranked.slice(0, 3), 'Final weak-area review');
+  return days;
+}
+
+function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpenGrandTests, loading }: { sprint?: AppState['fmgeSprint']; attempts: McqAttempt[]; grandTests: GrandTest[]; onUpdate: (value: NonNullable<AppState['fmgeSprint']>) => void; onPractice: (subjectId: string, count?: number) => void; onOpenGrandTests: () => void; loading: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [hours, setHours] = useState(sprint?.dailyHours || 6);
   const [confirmReset, setConfirmReset] = useState(false);
   const currentDay = sprint ? sprintDayIndex(sprint.startedOn) : 0;
   const activeDay = selectedDay ?? currentDay;
-  const plan = SPRINT_DAYS[activeDay];
+  const sprintDays = useMemo(() => buildAdaptiveSprintDays(attempts, grandTests), [attempts, grandTests]);
+  const plan = sprintDays[activeDay];
+  const qbankAttempts = attempts.filter((attempt) => attempt.source === 'qbank');
+  const recentQbankAttempts = qbankAttempts.slice(-100);
+  const qbankAccuracy = recentQbankAttempts.length
+    ? Math.round(recentQbankAttempts.filter((attempt) => attempt.isCorrect).length / recentQbankAttempts.length * 100)
+    : null;
+  const latestGrandTest = [...grandTests].sort((a, b) => b.date.localeCompare(a.date))[0];
+  const questionTarget = plan.fullMock ? 300 : Math.max(20, Math.round(plan.questions * hours / 6));
   const totalDone = Object.values(sprint?.completedTasks || {}).filter(Boolean).length;
   const totalTasks = SPRINT_DAYS.length * 4;
   const start = () => { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {} }); setSelectedDay(0); };
@@ -153,10 +224,12 @@ function FmgeSprint({ sprint, onUpdate, onPractice, onOpenGrandTests, loading }:
   };
   const reset = () => { if (confirmReset) { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {} }); setSelectedDay(0); setConfirmReset(false); } else setConfirmReset(true); };
   const checklists = [
-    `Focused revision (${Math.max(1, Math.round(hours * 0.45))} h): ${plan.focus}`,
-    `Active recall (${Math.max(1, Math.round(hours * 0.2))} h): close the notes and retrieve key facts from memory.`,
-    `Question practice: aim for ${plan.questions} questions; today's button starts a focused set of 20.`,
-    'Error review: explain each miss, write the corrected rule, and revisit it tomorrow.',
+    `Focused revision (${(hours * 0.45).toFixed(1)} h): ${plan.focus}`,
+    `Active recall (${(hours * 0.2).toFixed(1)} h): close the notes and retrieve key facts from memory.`,
+    plan.fullMock
+      ? 'Timed mock: complete all 300 questions in two exam-length blocks; answer every question.'
+      : `Question practice (${(hours * 0.25).toFixed(1)} h): aim for about ${questionTarget} questions, then review the reasoning.`,
+    `Error review (${(hours * 0.1).toFixed(1)} h): explain each miss or guess, write the corrected rule, and revisit it tomorrow.`,
   ];
 
   return <section className="qbank-sprint qbank-panel mt-5 overflow-hidden rounded-[26px] border border-black/[0.06] bg-white shadow-[0_12px_38px_rgba(15,23,42,0.05)] sm:rounded-[30px]">
@@ -168,11 +241,11 @@ function FmgeSprint({ sprint, onUpdate, onPractice, onOpenGrandTests, loading }:
       </div>
     </div>
     {expanded && <div className="border-t border-black/[0.06] p-4 sm:p-6">
-      {!sprint ? <div className="mx-auto max-w-2xl py-3 text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><Target className="h-6 w-6"/></div><h3 className="mt-3 text-xl font-semibold tracking-tight">Start with the time you actually have</h3><p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#6F7782]">This is a demanding revision framework, not a promise of passing. It combines high-yield review, daily question practice, image exposure and error repair. Adjust the hours to your real schedule.</p><label className="mx-auto mt-4 block max-w-xs text-left"><span className="mb-1.5 block text-xs font-semibold text-[#69717D]">Focused study time per day</span><select value={hours} onChange={(e) => setHours(Number(e.target.value))} className="h-11 w-full rounded-xl border border-[#E1E6ED] bg-[#FAFBFC] px-3 text-sm font-medium"><option value={3}>3 hours · compact</option><option value={6}>6 hours · balanced</option><option value={9}>9 hours · intensive</option><option value={12}>12 hours · full-time</option></select></label><button type="button" onClick={start} className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#0F5FCC]">Start my 20 days<ChevronRight className="h-4 w-4"/></button></div> : <>
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-medium text-[#737B86]">Day {currentDay + 1} of 20 · {sprint.dailyHours} focused study hours/day · started {sprint.startedOn}</p><button type="button" onClick={reset} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#7A818C] hover:bg-[#F3F5F7] hover:text-[#3F4650]"><RotateCcw className="h-3.5 w-3.5"/>{confirmReset ? 'Tap again to restart' : 'Restart sprint'}</button></div>
-        <div className="mb-5 flex gap-2 overflow-x-auto pb-2" aria-label="Sprint day selector">{SPRINT_DAYS.map((day, i) => { const done = [0,1,2,3].every((task) => sprint.completedTasks[`${i}-${task}`]); return <button key={i} type="button" onClick={() => setSelectedDay(i)} aria-current={activeDay === i ? 'step' : undefined} className={`flex h-12 min-w-12 shrink-0 flex-col items-center justify-center rounded-xl border text-xs font-semibold transition ${activeDay === i ? 'border-blue-600 bg-blue-600 text-white shadow-sm' : done ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-[#E5E8ED] bg-white text-[#69717D] hover:border-blue-300'}`}>{done ? <Check className="h-3.5 w-3.5"/> : <span>{i + 1}</span>}</button>; })}</div>
+      {!sprint ? <div className="mx-auto max-w-3xl py-3"><div className="text-center"><div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><Target className="h-6 w-6"/></div><h3 className="mt-3 text-xl font-semibold tracking-tight">Build a plan around your actual gaps</h3><p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#6F7782]">The plan uses your recent question attempts and latest mock to move revision time toward weak, high-weight subjects. If you have no history yet, take a short baseline first.</p></div><div className="mx-auto mt-5 grid max-w-2xl gap-3 sm:grid-cols-2"><div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 text-left"><p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#7B8795]">Starting point</p>{latestGrandTest ? <p className="mt-2 text-sm font-semibold text-[#303A48]">Latest mock: {latestGrandTest.score}/300 <span className={latestGrandTest.score >= 150 ? 'text-emerald-700' : 'text-amber-700'}>· {latestGrandTest.score >= 150 ? 'above pass mark' : `${150 - latestGrandTest.score} below pass mark`}</span></p> : <p className="mt-2 text-sm font-semibold text-[#303A48]">{qbankAccuracy === null ? 'No baseline recorded yet' : `${qbankAccuracy}% across ${recentQbankAttempts.length} recent questions`}</p>}<p className="mt-1 text-xs leading-5 text-[#7A8491]">Question accuracy guides subject focus; it is not a predicted exam score.</p>{!latestGrandTest && <button type="button" disabled={loading} onClick={() => onPractice('', 50)} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"><BookOpenCheck className="h-4 w-4"/>Take 50-question baseline</button>}</div><div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 text-left"><p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#7B8795]">Score target</p><p className="mt-2 text-sm font-semibold text-[#303A48]">150/300 to pass · 165 working target</p><p className="mt-1 text-xs leading-5 text-[#7A8491]">The extra 15 marks are a study buffer, not a guarantee. Choose a daily load you can sustain.</p><label className="mt-3 block"><span className="mb-1.5 block text-xs font-semibold text-[#69717D]">Focused study time per day</span><select value={hours} onChange={(e) => setHours(Number(e.target.value))} className="h-11 w-full rounded-xl border border-[#E1E6ED] bg-white px-3 text-sm font-medium"><option value={3}>3 hours · compact</option><option value={5}>5 hours · steady</option><option value={6}>6 hours · balanced</option><option value={9}>9 hours · intensive</option><option value={12}>12 hours · full-time</option></select></label></div></div><div className="mt-4 flex justify-center"><button type="button" onClick={start} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#0F5FCC]">Start my 20-day plan<ChevronRight className="h-4 w-4"/></button></div></div> : <>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><div><p className="text-xs font-medium text-[#737B86]">Day {currentDay + 1} of 20 · {sprint.dailyHours} focused study hours/day · started {sprint.startedOn}</p><p className="mt-1 text-xs font-semibold text-blue-700">Working toward 165/300 · pass mark 150</p><p className="mt-1 text-[11px] text-[#7A8491]">Plan priorities update from recent subject accuracy and your latest mock weaknesses.</p></div><button type="button" onClick={reset} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#7A818C] hover:bg-[#F3F5F7] hover:text-[#3F4650]"><RotateCcw className="h-3.5 w-3.5"/>{confirmReset ? 'Tap again to restart' : 'Restart plan'}</button></div>
+        <div className="mb-5 flex gap-2 overflow-x-auto pb-2" aria-label="Sprint day selector">{sprintDays.map((day, i) => { const done = [0,1,2,3].every((task) => sprint.completedTasks[`${i}-${task}`]); return <button key={i} type="button" onClick={() => setSelectedDay(i)} aria-current={activeDay === i ? 'step' : undefined} className={`flex h-12 min-w-12 shrink-0 flex-col items-center justify-center rounded-xl border text-xs font-semibold transition ${activeDay === i ? 'border-blue-600 bg-blue-600 text-white shadow-sm' : done ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-[#E5E8ED] bg-white text-[#69717D] hover:border-blue-300'}`}>{done ? <Check className="h-3.5 w-3.5"/> : <span>{i + 1}</span>}</button>; })}</div>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 sm:p-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-[0.13em] text-blue-700">Day {activeDay + 1}</p><h3 className="mt-1 text-lg font-semibold tracking-tight">{plan.title}</h3></div><span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#69717D] ring-1 ring-[#E6EAF0]">{plan.questions} Q target</span></div><p className="mt-2 text-sm leading-6 text-[#69717D]">{plan.focus}</p><div className="mt-4 space-y-2">{checklists.map((item, task) => { const done = !!sprint.completedTasks[`${activeDay}-${task}`]; return <button key={task} type="button" onClick={() => toggleTask(task)} className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${done ? 'border-emerald-200 bg-emerald-50/70' : 'border-[#E9ECF1] bg-white hover:border-blue-200'}`}><span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${done ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#C9D0DA] bg-white'}`}>{done && <Check className="h-3.5 w-3.5"/>}</span><span className={`text-xs leading-5 ${done ? 'text-emerald-900' : 'text-[#535C68]'}`}>{item}</span></button>; })}</div><div className="mt-4 flex flex-col gap-2 sm:flex-row"><button type="button" onClick={() => onPractice(plan.subjects.length === 1 ? plan.subjects[0] : '')} disabled={loading} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white transition hover:bg-[#0F5FCC] disabled:opacity-60 sm:w-auto"><BookOpenCheck className="h-4 w-4"/>Start 20-question set<ChevronRight className="h-4 w-4"/></button>{activeDay === 17 && <button type="button" onClick={onOpenGrandTests} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#DCE3ED] bg-white px-4 text-sm font-semibold text-[#394353] hover:border-blue-300 hover:text-blue-700"><Target className="h-4 w-4"/>Open full mock tests</button>}</div></div>
+          <div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 sm:p-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-[0.13em] text-blue-700">Day {activeDay + 1}</p><h3 className="mt-1 text-lg font-semibold tracking-tight">{plan.title}</h3></div><span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#69717D] ring-1 ring-[#E6EAF0]">{questionTarget} Q target</span></div><p className="mt-2 text-sm leading-6 text-[#69717D]">{plan.focus}</p><div className="mt-4 space-y-2">{checklists.map((item, task) => { const done = !!sprint.completedTasks[`${activeDay}-${task}`]; return <button key={task} type="button" onClick={() => toggleTask(task)} className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${done ? 'border-emerald-200 bg-emerald-50/70' : 'border-[#E9ECF1] bg-white hover:border-blue-200'}`}><span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${done ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#C9D0DA] bg-white'}`}>{done && <Check className="h-3.5 w-3.5"/>}</span><span className={`text-xs leading-5 ${done ? 'text-emerald-900' : 'text-[#535C68]'}`}>{item}</span></button>; })}</div><div className="mt-4 flex flex-col gap-2 sm:flex-row"><button type="button" onClick={() => onPractice(plan.subjects[0] || '')} disabled={loading} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white transition hover:bg-[#0F5FCC] disabled:opacity-60 sm:w-auto"><BookOpenCheck className="h-4 w-4"/>Start focused 20-question set<ChevronRight className="h-4 w-4"/></button>{activeDay === 17 && <button type="button" onClick={onOpenGrandTests} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#DCE3ED] bg-white px-4 text-sm font-semibold text-[#394353] hover:border-blue-300 hover:text-blue-700"><Target className="h-4 w-4"/>Log full mock score</button>}</div></div>
           <aside className="rounded-2xl border border-[#E7EAF0] bg-white p-4"><h4 className="text-sm font-semibold">How to use the day</h4><ol className="mt-3 space-y-3 text-xs leading-5 text-[#68717E]"><li><b className="text-[#303741]">1. Recall first.</b> Try to retrieve before rereading.</li><li><b className="text-[#303741]">2. Practise timed.</b> Review wrong and guessed answers.</li><li><b className="text-[#303741]">3. Keep a tiny error list.</b> Revisit it tomorrow.</li><li><b className="text-[#303741">4. Protect sleep.</b> Exhaustion makes recall worse.</li></ol><div className="mt-4 rounded-xl bg-amber-50 p-3 text-[11px] leading-5 text-amber-900">If you fall behind, continue with the next day and carry only your highest-impact weak areas forward. Do not try to “repay” missed hours with an all-nighter.</div><p className="mt-3 text-[10px] leading-4 text-[#858C96]">This plan supports revision; it cannot predict or guarantee an exam result.</p></aside>
         </div>
       </>}
