@@ -1566,7 +1566,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Today's remaining plan tasks
   const todayPlanTasks = useMemo(() => {
     const primaryId = nextActionTask?.id;
-    return dailyPlan.tasks.filter((t) => t.id !== primaryId).slice(0, 3);
+    return dailyPlan.tasks.filter((t) => t.id !== primaryId).slice(0, 5);
   }, [dailyPlan, nextActionTask]);
 
   const recommendedSubject = useMemo(() => {
@@ -3228,7 +3228,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Task list */}
               <div className="px-4 py-3 space-y-2">
-                {(todayPlanTasks.length > 0 ? todayPlanTasks : dailyPlan.tasks.slice(1, 4)).map((task, index) => {
+                {(todayPlanTasks.length > 0 ? todayPlanTasks : dailyPlan.tasks.slice(1)).map((task, index) => {
                   const priorityColors = [
                     { bg: 'bg-[#FF3B30]/10', icon: 'text-[#FF3B30]', bar: 'bg-[#FF3B30]', label: 'text-[#FF3B30]' },
                     { bg: 'bg-[#FF9500]/10', icon: 'text-[#FF9500]', bar: 'bg-[#FF9500]', label: 'text-[#FF9500]' },
@@ -3734,9 +3734,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </div>
 
                       {/* Medical Subject Artwork */}
-                      <div className={`relative w-full h-24 sm:h-28 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1 sm:p-2 group-hover:scale-[1.03] transition-transform duration-300 ease-out bg-gradient-to-br ${theme.bg || 'from-[#F2F2F7] to-white/80'}`}>
-                        <div className="relative w-full h-full flex items-center justify-center z-10">
-                          <MedicalSubjectCardVisual subjectId={sub.id} />
+                      <div className={`relative w-full h-28 sm:h-32 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center p-1.5 sm:p-2 group-hover:scale-[1.02] transition-transform duration-300 ease-out bg-gradient-to-br ${theme.bg || 'from-[#F2F2F7] to-white/80'}`}>
+                        <div className="relative z-10 flex h-full w-full items-center justify-center">
+                          <MedicalSubjectCardVisual subjectId={sub.id} className="h-full aspect-square max-w-full" />
                         </div>
                       </div>
 
