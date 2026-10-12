@@ -162,6 +162,8 @@ function AppInner() {
     return 'dashboard';
   });
   const [qbankSubjectFocus, setQbankSubjectFocus] = useState<string | undefined>();
+  const [syllabusSubTab, setSyllabusSubTab] = useState<'curriculum' | 'rapid'>('curriculum');
+  const [rapidRevisionFocusSubjectId, setRapidRevisionFocusSubjectId] = useState<string | undefined>();
 
   const toggleRapidRevisionItem = (key: string) => {
     setState((prev) => ({
@@ -1084,14 +1086,17 @@ function AppInner() {
                     onToggleTopicState={handleToggleTopicState}
                     onUpdateConfidence={handleUpdateConfidence}
                     onUpdateSubjectRevisionDate={handleUpdateSubjectRevisionDate}
-                    subTab="curriculum"
+                    subTab={syllabusSubTab}
                     onSubTabChange={(tab) => {
-                      if (tab === 'curriculum') handleSetActiveTab('syllabus');
+                      if (tab === 'curriculum') { setSyllabusSubTab('curriculum'); handleSetActiveTab('syllabus'); }
+                      if (tab === 'rapid') { setSyllabusSubTab('rapid'); handleSetActiveTab('syllabus'); }
                       if (tab === 'revision') handleSetActiveTab('revision');
                     }}
                     rapidRevisionProgress={state.rapidRevisionProgress}
                     onToggleRapidRevisionItem={toggleRapidRevisionItem}
                     onRapidRevisionPractice={openRapidRevisionPractice}
+                    rapidRevisionAttempts={state.mcqAttempts || []}
+                    rapidRevisionFocusSubjectId={rapidRevisionFocusSubjectId}
                     onNavigateTab={handleSetActiveTab}
                   />
                 )}
@@ -1119,7 +1124,8 @@ function AppInner() {
                     onUpdateSprint={(fmgeSprint) => setState((prev) => ({ ...prev, fmgeSprint }))}
                     onOpenGrandTests={() => handleSetActiveTab('grandtests')}
                     onOpenSprintSubject={(subjectId) => {
-                      handleSelectSubject(subjectId);
+                      setRapidRevisionFocusSubjectId(subjectId);
+                      setSyllabusSubTab('rapid');
                       handleSetActiveTab('syllabus');
                     }}
                   />
@@ -1235,6 +1241,8 @@ function AppInner() {
                     rapidRevisionProgress={state.rapidRevisionProgress}
                     onToggleRapidRevisionItem={toggleRapidRevisionItem}
                     onRapidRevisionPractice={openRapidRevisionPractice}
+                    rapidRevisionAttempts={state.mcqAttempts || []}
+                    rapidRevisionFocusSubjectId={rapidRevisionFocusSubjectId}
                     onNavigateTab={handleSetActiveTab}
                   />
                 )}

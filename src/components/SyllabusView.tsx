@@ -44,6 +44,7 @@ import { HeaderTabInsignia } from './HeaderTabInsignia';
 import { CircadianFocusDropdown } from './CircadianFocusDropdown';
 import { HeaderGlassIcon } from './HeaderGlassIcon';
 import { RapidRevisionLibrary } from './RapidRevisionLibrary';
+import type { McqAttempt } from '../types';
 
 interface SyllabusViewProps {
   state: AppState;
@@ -61,6 +62,8 @@ interface SyllabusViewProps {
   rapidRevisionProgress?: Record<string, boolean>;
   onToggleRapidRevisionItem?: (key: string) => void;
   onRapidRevisionPractice?: (subjectId: string) => void;
+  rapidRevisionAttempts?: McqAttempt[];
+  rapidRevisionFocusSubjectId?: string;
   onNavigateTab?: (tab: any) => void;
 }
 
@@ -89,6 +92,8 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
   rapidRevisionProgress = {},
   onToggleRapidRevisionItem,
   onRapidRevisionPractice,
+  rapidRevisionAttempts = [],
+  rapidRevisionFocusSubjectId,
 }) => {
   const [currentSubTab, setCurrentSubTab] = useState<'curriculum' | 'revision' | 'rapid'>(
     subTab || 'curriculum'
@@ -531,6 +536,8 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
           progress={rapidRevisionProgress}
           onToggle={onToggleRapidRevisionItem || (() => {})}
           onPractice={onRapidRevisionPractice || ((subjectId) => onSelectSubject(subjectId))}
+          attempts={rapidRevisionAttempts}
+          focusSubjectId={rapidRevisionFocusSubjectId}
         />
       )}
     </div>

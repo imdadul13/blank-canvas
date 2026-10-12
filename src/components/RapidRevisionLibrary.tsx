@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, BookOpenCheck, Check, ChevronLeft, ChevronRight, FileText, FlaskConical, HeartPulse, Microscope, Pill, Search, Stethoscope, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, BookOpenCheck, Check, ChevronLeft, ChevronRight, FileText, FlaskConical, HeartPulse, Microscope, Pill, Search, Stethoscope, TrendingDown, X } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { RAPID_REVISION_DECK_TEXT } from '../data/rapidRevisionDeckText';
 import { RAPID_REVISION_PART3_PAGES } from '../data/rapidRevisionPart3Pages';
 import { RAPID_REVISION_VISUALS } from '../data/rapidRevisionVisuals';
+import type { McqAttempt } from '../types';
 
 type SourceId = 'day1' | 'part3';
 type SubjectId = 'anatomy' | 'physiology' | 'pathology' | 'pharmacology' | 'biochemistry' | 'microbiology' | 'radiology' | 'dermatology' | 'pediatrics' | 'gynecology' | 'obstetrics';
@@ -77,9 +78,32 @@ interface RapidRevisionLibraryProps {
   progress: Record<string, boolean>;
   onToggle: (key: string) => void;
   onPractice: (subjectId: string) => void;
+  attempts?: McqAttempt[];
+  focusSubjectId?: string;
 }
 
-export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ progress, onToggle, onPractice }) => {
+const normalizeSubjectId = (value: string) => value.toLowerCase().replace(/[^a-z]/g, '');
+const RAPID_SUBJECT_IDS = new Set(Object.values(SUBJECTS).flatMap((items) => items.map((item) => item.id)));
+const mapAttemptToRapidSubjects = (attempt: McqAttempt): SubjectId[] => {
+  const id = normalizeSubjectId(attempt.subjectId || '');
+  if (RAPID_SUBJECT_IDS.has(id as SubjectId)) return [id as SubjectId];
+  if (id === 'obg' || id === 'obstetricsgynecology' || id === 'obstetricsandgynecology') {
+    const topic = `${attempt.topicName || ''} ${attempt.subtopic || ''}`.toLowerCase();
+    if (/pregnan|labor|labour|fetal|placenta|obstetric|delivery|puerper/.test(topic)) return ['obstetrics'];
+    if (/menstr|ovari|uter|cervi|infertil|contracept|gynec|gynaec|vulv|breast/.test(topic)) return ['gynecology'];
+    return [];
+  }
+  return [];
+};
+
+const topicTokens = (attempt: McqAttempt) => {
+  const text = `${attempt.topicName || ''} ${attempt.subtopic || ''}`.toLowerCase();
+  const tokens = text.match(/[a-z]{4,}/g) || [];
+  const ignored = new Set(['general', 'medicine', 'anatomy', 'physiology', 'pathology', 'pharmacology', 'microbiology', 'biochemistry', 'dermatology', 'pediatrics', 'obstetrics', 'gynecology', 'question', 'topic']);
+  return [...new Set(tokens.filter((token) => !ignored.has(token)))];
+};
+
+export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ progress, onToggle, onPractice, attempts = [], focusSubjectId }) => {
   const [sourceId, setSourceId] = useState<SourceId>('day1');
   const [query, setQuery] = useState('');
   const [deck, setDeck] = useState<{ subject: DeckSubject; slides: Slide[]; index: number } | null>(null);
@@ -91,12 +115,63 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
     const complete = slides.filter((slide) => progress[`rapid:${sourceId}:${slide.page}`]).length;
     return { subject, slides, complete, matches };
   }).filter((item) => item.matches), [sourceId, query, progress]);
+  const recommendations = useMemo(() => {
+    const latest = attempts
+      .filter((attempt) => attempt.source === 'qbank' && (!attempt.exam || attempt.exam === 'FMGE'))
+      .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
+      .slice(0, 120);
+    const bySubject = new Map<SubjectId, McqAttempt[]>();
+    latest.forEach((attempt) => mapAttemptToRapidSubjects(attempt).forEach((id) => {
+      const group = bySubject.get(id) || [];
+      group.push(attempt);
+      bySubject.set(id, group);
+    }));
+    const allDecks = (Object.keys(SOURCE_INFO) as SourceId[]).flatMap((source) => SUBJECTS[source].map((subject) => ({ source, subject, slides: buildSlides(source, subject) })));
+    return [...bySubject.entries()].map(([id, group]) => {
+      const deckInfo = allDecks.find((item) => item.subject.id === id);
+      if (!deckInfo) return null;
+      const wrong = group.filter((attempt) => !attempt.isCorrect).length;
+      const unsure = group.filter((attempt) => ['guess', 'low', 'medium'].includes(attempt.confidence || '')).length;
+      const concern = group.filter((attempt) => !attempt.isCorrect || ['guess', 'low', 'medium'].includes(attempt.confidence || '')).length;
+      const tokens = [...new Set(group.flatMap(topicTokens))];
+      const slideMatches = deckInfo.slides.map((slide, index) => {
+        const text = `${slide.title} ${slide.summary} ${slide.lines.join(' ')}`.toLowerCase();
+        return { index, score: tokens.reduce((sum, token) => sum + (text.includes(token) ? 1 : 0), 0) };
+      }).sort((a, b) => b.score - a.score);
+      const topicMatch = (slideMatches[0]?.score || 0) >= 2 ? slideMatches[0].index : -1;
+      const firstUnreviewed = deckInfo.slides.findIndex((slide) => !progress[`rapid:${deckInfo.source}:${slide.page}`]);
+      const targetIndex = topicMatch >= 0 ? topicMatch : firstUnreviewed >= 0 ? firstUnreviewed : 0;
+      return {
+        ...deckInfo,
+        attempts: group.length,
+        wrong,
+        unsure,
+        concern,
+        gapRate: concern / group.length,
+        targetIndex,
+        topicMatched: topicMatch >= 0,
+      };
+    }).filter((item): item is NonNullable<typeof item> => !!item && item.concern > 0)
+      .sort((a, b) => {
+        const focusId = normalizeSubjectId(focusSubjectId || '');
+        const focusA = normalizeSubjectId(focusSubjectId || '') && (normalizeSubjectId(a.subject.id) === focusId || normalizeSubjectId(a.subject.title) === focusId) ? 1 : 0;
+        const focusB = normalizeSubjectId(focusSubjectId || '') && (normalizeSubjectId(b.subject.id) === focusId || normalizeSubjectId(b.subject.title) === focusId) ? 1 : 0;
+        return focusB - focusA || b.gapRate - a.gapRate || b.concern - a.concern || b.attempts - a.attempts;
+      }).slice(0, 3);
+  }, [attempts, focusSubjectId, progress]);
   const completed = Object.keys(progress).filter((key) => key.startsWith('rapid:') && progress[key]).length;
+  const fmgeQbankAttempts = attempts.filter((attempt) => attempt.source === 'qbank' && (!attempt.exam || attempt.exam === 'FMGE'));
+  const hasUnmappedGaps = fmgeQbankAttempts.some((attempt) => (!attempt.isCorrect || ['guess', 'low', 'medium'].includes(attempt.confidence || '')) && mapAttemptToRapidSubjects(attempt).length === 0);
   const currentSlide = deck?.slides[deck.index];
 
   const openDeck = (subject: DeckSubject, slides: Slide[]) => {
     const firstNotReviewed = slides.findIndex((slide) => !progress[`rapid:${sourceId}:${slide.page}`]);
     setDeck({ subject, slides, index: firstNotReviewed >= 0 ? firstNotReviewed : 0 });
+  };
+  const openRecommendation = (recommendation: (typeof recommendations)[number]) => {
+    setSourceId(recommendation.source);
+    setQuery('');
+    setDeck({ subject: recommendation.subject, slides: recommendation.slides, index: recommendation.targetIndex });
   };
   const moveSlide = (delta: number) => setDeck((current) => current ? { ...current, index: Math.max(0, Math.min(current.slides.length - 1, current.index + delta)) } : current);
 
@@ -147,6 +222,13 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
         <label className="flex min-h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-4 text-slate-400 sm:col-span-2 dark:border-white/10 dark:bg-slate-900/80"><Search className="h-4 w-4 shrink-0" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a subject or topic" className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-white" /></label>
       </div>
     </div>
+
+    {recommendations.length > 0 ? <section className="overflow-hidden rounded-[26px] border border-blue-200/70 bg-[linear-gradient(120deg,rgba(239,246,255,0.95),rgba(255,255,255,0.96)_54%,rgba(250,245,255,0.95))] p-5 shadow-[0_14px_36px_rgba(37,99,235,0.08)] dark:border-blue-300/15 dark:bg-[linear-gradient(120deg,rgba(30,58,95,0.35),rgba(21,25,35,0.96)_54%,rgba(76,29,149,0.18))] sm:p-6">
+      <div className="flex items-start gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-600/20"><TrendingDown className="h-5 w-5" /></span><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700 dark:text-blue-200">From your recent FMGE answers</p><h3 className="mt-1 text-lg font-bold tracking-tight text-slate-900 dark:text-white">Use your misses to choose what to revise</h3><p className="mt-1 text-sm leading-5 text-slate-600 dark:text-slate-300">Recommendations combine incorrect answers with correct answers marked guessed, low or medium confidence.</p></div></div>
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">{recommendations.map((item) => <article key={`${item.source}-${item.subject.id}`} className="rounded-2xl border border-white/80 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/50"><div className="flex items-start justify-between gap-3"><div><p className={`text-xs font-bold uppercase tracking-wide ${item.subject.color}`}>{item.subject.title}</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.attempts} recent questions · {item.wrong} incorrect · {item.unsure} low-confidence</p></div><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${item.subject.wash} ${item.subject.color}`}>{item.subject.icon}</span></div><p className="mt-3 min-h-10 text-sm leading-5 text-slate-700 dark:text-slate-200">{item.topicMatched ? `A deck slide matches topics from your recent answers. Start at source page ${item.slides[item.targetIndex]?.page}.` : `Review the next ${item.subject.title} slide in ${SOURCE_INFO[item.source].title}.`}</p><button type="button" onClick={() => openRecommendation(item)} className={`mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r ${SOURCE_INFO[item.source].gradient} px-3 text-sm font-semibold text-white shadow-sm transition hover:brightness-105`}>Study {item.subject.title}<ArrowUpRight className="h-4 w-4" /></button></article>)}</div>
+      <p className="mt-3 text-[11px] leading-5 text-slate-500 dark:text-slate-400">Based on your latest 120 FMGE Question Bank answers. A subject appears here only when matching Rapid Revision material is available.</p>
+      {hasUnmappedGaps && <p className="mt-2 text-xs leading-5 text-amber-800 dark:text-amber-200">Some missed or uncertain answers are in subjects without a matching deck in this Rapid Revision library.</p>}
+    </section> : fmgeQbankAttempts.length ? hasUnmappedGaps ? <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-sm leading-6 text-amber-950 dark:border-amber-300/15 dark:bg-amber-300/5 dark:text-amber-100"><strong>Your recent gaps don’t match a deck in this Rapid Revision library yet.</strong> The recommendations only appear when a matching subject deck exists.</div> : <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-sm leading-6 text-emerald-900 dark:border-emerald-300/15 dark:bg-emerald-300/5 dark:text-emerald-100"><strong>Your recent answers show no clear revision gap yet.</strong> Keep marking confidence honestly; missed or uncertain answers in subjects with a matching Rapid Revision deck will appear here.</div> : <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-slate-900/50 dark:text-slate-300"><strong>Recommendations will appear after Question Bank practice.</strong> FMGE misses and low-confidence answers in subjects covered by these decks will guide your next revision.</div>}
 
     <div className="flex flex-wrap items-end justify-between gap-3 px-1"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{source.title} · {source.pages} source pages converted</p><h3 className="mt-1 text-xl font-bold tracking-tight text-[#1D1D1F] dark:text-white">Choose a subject deck</h3></div><span className="text-sm text-slate-500 dark:text-slate-400">Subjects appear once; topics are inside each deck.</span></div>
 
