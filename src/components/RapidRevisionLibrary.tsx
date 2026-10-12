@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { ArrowUpRight, BookOpen, BookOpenCheck, Check, ChevronLeft, ChevronRight, FileText, FlaskConical, HeartPulse, Microscope, Pill, Search, Stethoscope } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, BookOpenCheck, Check, ChevronLeft, ChevronRight, FileText, FlaskConical, HeartPulse, Microscope, Pill, Search, Stethoscope, X } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { RAPID_REVISION_PART3_PAGES } from '../data/rapidRevisionPart3Pages';
 import { apiFetch } from '../utils/api';
@@ -57,6 +57,8 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
   const [query, setQuery] = useState('');
   const [pageGroup, setPageGroup] = useState(0);
   const [openError, setOpenError] = useState('');
+  const [viewer, setViewer] = useState<{ url: string; pages: SourcePage[]; index: number } | null>(null);
+  const [viewerLoading, setViewerLoading] = useState(false);
   const reduceMotion = useReducedMotion();
   const source = SOURCES[sourceId];
   const pages = useMemo<SourcePage[]>(() => Array.from({ length: source.pages }, (_, index) => {
@@ -79,22 +81,36 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
   const changeQuery = (value: string) => { setQuery(value); setPageGroup(0); };
   const openSourcePage = async (page: number) => {
     setOpenError('');
-    const preview = window.open('about:blank', '_blank');
+    setViewerLoading(true);
     try {
-      const response = await apiFetch(source.endpoint);
+      const response = await apiFetch(`${source.endpoint}/access`, { method: 'POST' });
       if (!response.ok) throw new Error(response.status === 401 ? 'Sign in to open this licensed source.' : 'The source PDF could not be loaded. Please try again.');
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      if (preview) preview.location.href = `${objectUrl}#page=${page}`;
-      else {
-        const link = document.createElement('a'); link.href = `${objectUrl}#page=${page}`; link.target = '_blank'; link.rel = 'noopener'; link.click();
-      }
-      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 5 * 60 * 1000);
+      const access = await response.json() as { url?: string };
+      if (!access.url) throw new Error('The source viewer could not be prepared. Please try again.');
+      const selected = pages.find((item) => item.page === page);
+      const subjectPages = sourceId === 'day1' && selected
+        ? filteredPages.filter((item) => item.subject === selected.subject)
+        : filteredPages;
+      const slidePages = subjectPages.some((item) => item.page === page) ? subjectPages : pages;
+      setViewer({ url: new URL(access.url, window.location.origin).toString(), pages: slidePages, index: Math.max(0, slidePages.findIndex((item) => item.page === page)) });
     } catch (error) {
-      preview?.close();
       setOpenError(error instanceof Error ? error.message : 'The source PDF could not be loaded. Please try again.');
+    } finally {
+      setViewerLoading(false);
     }
   };
+  const closeViewer = () => setViewer(null);
+  const moveViewer = (delta: number) => setViewer((current) => current ? { ...current, index: Math.max(0, Math.min(current.pages.length - 1, current.index + delta)) } : current);
+  useEffect(() => {
+    if (!viewer) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeViewer();
+      if (event.key === 'ArrowLeft') moveViewer(-1);
+      if (event.key === 'ArrowRight') moveViewer(1);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [viewer]);
 
   return <section className="space-y-6 pb-8" aria-label="Rapid revision source library">
     <div className="relative isolate overflow-hidden rounded-[30px] border border-slate-200/80 bg-white shadow-[0_18px_50px_rgba(35,48,85,0.10)] dark:border-white/10 dark:bg-[#151923]">
@@ -141,7 +157,7 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
 
     <div className="flex flex-wrap items-end justify-between gap-3 px-1">
       <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{source.title} · {source.pages} PDF pages</p><h3 className="mt-1 text-xl font-bold tracking-tight text-[#1D1D1F] dark:text-white">{source.description}</h3></div>
-      <button type="button" onClick={() => openSourcePage(visible[0]?.page || 1)} className="inline-flex min-h-10 items-center gap-2 rounded-full bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">Open book <ArrowUpRight className="h-4 w-4" /></button>
+      <button type="button" disabled={viewerLoading || !visible.length} onClick={() => openSourcePage(visible[0]?.page || 1)} className="inline-flex min-h-10 items-center gap-2 rounded-full bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60">{viewerLoading ? 'Opening…' : 'Open slides'} <ArrowUpRight className="h-4 w-4" /></button>
     </div>
 
     {openError && <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-300/20 dark:bg-amber-300/5 dark:text-amber-100">{openError}</p>}
@@ -160,7 +176,7 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
           <h4 className="mt-4 text-base font-bold tracking-tight text-[#20242B] dark:text-white">{subject === 'Part 3' ? label.split(' · ')[0] : subject}</h4>
           <p className="mt-1 min-h-10 text-sm leading-5 text-slate-500 dark:text-slate-400">{sourceId === 'day1' ? label : `${label} · PDF page ${page}`}</p>
           <div className="mt-4 grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => openSourcePage(page)} className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-2 text-sm font-semibold text-white shadow-sm transition hover:from-blue-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">Open page <ArrowUpRight className="h-4 w-4" /></button>
+            <button type="button" disabled={viewerLoading} onClick={() => openSourcePage(page)} className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-2 text-sm font-semibold text-white shadow-sm transition hover:from-blue-700 hover:to-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60">Open slides <ArrowUpRight className="h-4 w-4" /></button>
             <button type="button" aria-pressed={done} onClick={() => onToggle(key)} className={`min-h-10 rounded-xl border px-2 text-sm font-semibold transition ${done ? 'border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50 dark:border-emerald-400/20 dark:bg-transparent dark:text-emerald-300' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-blue-200 hover:text-blue-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'}`}>{done ? 'Reviewed' : 'Mark reviewed'}</button>
           </div>
         </motion.article>;
@@ -178,5 +194,27 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
       <strong>Study safely:</strong> the PDF remains the original source. Page labels are an index, not medical endorsement; handwritten annotations stay in the source and are not treated as verified facts. Treatment, vaccine, diagnostic and legal recommendations should be checked against current authoritative guidance before being taught as clinical advice.
     </div>
     <div className="flex justify-end"><button type="button" onClick={() => onPractice('medicine')} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-blue-200 hover:text-blue-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">Go to question practice <ArrowUpRight className="h-4 w-4" /></button></div>
+    {viewer && (() => {
+      const currentPage = viewer.pages[viewer.index];
+      const pdfUrl = `${viewer.url}#page=${currentPage.page}&toolbar=0&navpanes=0&view=FitH`;
+      return <div className="fixed inset-0 z-[100] flex flex-col bg-[#0b1020] text-white" role="dialog" aria-modal="true" aria-label={`${source.title} slide viewer`}>
+        <header className="flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-[#111827] px-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className={`hidden h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-white sm:flex ${sourceArt.gradient}`}>{sourceArt.icon}</div>
+            <div className="min-w-0"><p className="truncate text-sm font-semibold sm:text-base">{source.title}</p><p className="truncate text-xs text-slate-400">{currentPage.label} · Slide {viewer.index + 1} of {viewer.pages.length}</p></div>
+          </div>
+          <button type="button" onClick={closeViewer} aria-label="Close slide viewer" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-slate-200 transition hover:bg-white/20"><X className="h-5 w-5" /></button>
+        </header>
+        <div className="relative flex min-h-0 flex-1 items-center justify-center p-2 sm:p-5">
+          <button type="button" disabled={viewer.index === 0} onClick={() => moveViewer(-1)} aria-label="Previous slide" className="absolute left-2 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-slate-900/90 text-white shadow-lg transition hover:bg-slate-700 disabled:opacity-30 sm:left-5"><ArrowLeft className="h-5 w-5" /></button>
+          <iframe title={`${currentPage.label} source slide`} src={pdfUrl} className="h-full w-full max-w-6xl rounded-xl bg-white shadow-2xl" />
+          <button type="button" disabled={viewer.index === viewer.pages.length - 1} onClick={() => moveViewer(1)} aria-label="Next slide" className="absolute right-2 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-slate-900/90 text-white shadow-lg transition hover:bg-slate-700 disabled:opacity-30 sm:right-5"><ArrowRight className="h-5 w-5" /></button>
+        </div>
+        <footer className="flex min-h-16 items-center justify-between gap-3 border-t border-white/10 bg-[#111827] px-4 sm:px-6">
+          <p className="min-w-0 truncate text-xs text-slate-400 sm:text-sm">Use ← → to move between {currentPage.subject === 'Part 3' ? 'slides' : `${currentPage.subject} slides`}</p>
+          <div className="flex shrink-0 items-center gap-2"><button type="button" disabled={viewer.index === 0} onClick={() => moveViewer(-1)} className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold disabled:opacity-35">Previous</button><button type="button" disabled={viewer.index === viewer.pages.length - 1} onClick={() => moveViewer(1)} className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold shadow-lg shadow-blue-900/30 disabled:opacity-35">Next slide</button></div>
+        </footer>
+      </div>;
+    })()}
   </section>;
 };

@@ -107,17 +107,46 @@ app.use("/uploads/telegram/media", express.static(path.join(process.cwd(), "publ
 
 // Licensed rapid-revision PDFs are kept outside the public web root and are
 // delivered only to signed-in OneShot users. Whitelist names to avoid path traversal.
-app.get("/api/user/revision-sources/:source", (req, res) => {
-  const sourceFiles: Record<string, string> = {
-    "day-1": "final-aid-day-1.pdf",
-    "part-3": "paras-jamwwal-part-3.pdf",
-  };
-  const filename = sourceFiles[req.params.source];
-  if (!filename) { res.status(404).json({ error: "Revision source not found." }); return; }
+const revisionSourceFiles: Record<string, string> = {
+  "day-1": "final-aid-day-1.pdf",
+  "part-3": "paras-jamwwal-part-3.pdf",
+};
+const revisionSourcePath = (filename: string) => path.join(process.cwd(), "server", "private", "revision-sources", filename);
+const revisionSourceSignature = (payload: string, secret: string) => crypto.createHmac("sha256", secret).update(payload).digest("base64url");
+
+app.post("/api/user/revision-sources/:source/access", (req, res) => {
+  if (!revisionSourceFiles[req.params.source]) { res.status(404).json({ error: "Revision source not found." }); return; }
+  const secret = process.env.SESSION_ENCRYPTION_KEY?.trim();
+  if (!secret) { res.status(503).json({ error: "Protected source access is not configured." }); return; }
+  const expiresAt = Date.now() + 5 * 60 * 1000;
+  const payload = Buffer.from(`${req.params.source}:${expiresAt}:${crypto.randomBytes(16).toString("hex")}`).toString("base64url");
+  const token = `${payload}.${revisionSourceSignature(payload, secret)}`;
+  res.setHeader("Cache-Control", "no-store");
+  res.json({ url: `/revision-source-view/${req.params.source}?token=${encodeURIComponent(token)}` });
+});
+
+// Native PDF viewers need a normal document URL; this short-lived, source-scoped
+// signature lets that navigation remain protected without exposing a public PDF URL.
+app.get("/revision-source-view/:source", (req, res) => {
+  const filename = revisionSourceFiles[req.params.source];
+  const token = typeof req.query.token === "string" ? req.query.token : "";
+  const [payload, signature, extra] = token.split(".");
+  const secret = process.env.SESSION_ENCRYPTION_KEY?.trim();
+  if (!filename || !payload || !signature || extra || !secret) { res.status(404).send("Revision source link is invalid or expired."); return; }
+  const expected = Buffer.from(revisionSourceSignature(payload, secret));
+  const provided = Buffer.from(signature);
+  if (expected.length !== provided.length || !crypto.timingSafeEqual(expected, provided)) { res.status(404).send("Revision source link is invalid or expired."); return; }
+  let claims: string[];
+  try { claims = Buffer.from(payload, "base64url").toString("utf8").split(":"); }
+  catch { res.status(404).send("Revision source link is invalid or expired."); return; }
+  const expiresAt = Number(claims[1]);
+  if (claims[0] !== req.params.source || !Number.isFinite(expiresAt) || expiresAt < Date.now() || expiresAt > Date.now() + 5 * 60 * 1000 + 10_000 || !claims[2]) {
+    res.status(404).send("Revision source link is invalid or expired."); return;
+  }
   res.setHeader("Cache-Control", "private, no-store");
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
-  res.sendFile(path.join(process.cwd(), "server", "private", "revision-sources", filename), (error) => {
+  res.sendFile(revisionSourcePath(filename), (error) => {
     if (error && !res.headersSent) res.status(404).json({ error: "Revision source could not be opened." });
   });
 });
