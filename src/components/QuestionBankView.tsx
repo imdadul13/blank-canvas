@@ -28,8 +28,9 @@ export const QuestionBankView: React.FC<{
   grandTests?: GrandTest[];
   onUpdateSprint: (sprint: NonNullable<AppState['fmgeSprint']>) => void;
   onOpenGrandTests: () => void;
+  onOpenSprintSubject: (subjectId: string) => void;
   initialSubjectFocus?: string;
-}> = ({ onRecordAttempt, sprint, attempts = [], grandTests = [], onUpdateSprint, onOpenGrandTests, initialSubjectFocus }) => {
+}> = ({ onRecordAttempt, sprint, attempts = [], grandTests = [], onUpdateSprint, onOpenGrandTests, onOpenSprintSubject, initialSubjectFocus }) => {
   const reducedMotion = useReducedMotion();
   const [exam, setExam] = useState<Exam>('FMGE');
   const [subjectId, setSubjectId] = useState('');
@@ -70,12 +71,23 @@ export const QuestionBankView: React.FC<{
   }, []);
 
   const selectedSubject = useMemo(() => facets?.subjects.find((item) => item.id === subjectId), [facets, subjectId]);
-  const startSession = async (override?: { exam: Exam; subjectId: string; year?: string; imageMode: 'all'|'image'|'standard'; count: number; questionIds?: string[]; label?: string }) => {
+  const startSession = async (override?: { exam: Exam; subjectId: string; year?: string; imageMode: 'all'|'image'|'standard'; count: number; questionIds?: string[]; excludeQuestionIds?: string[]; label?: string; taskKey?: string }) => {
     setLoading(true); setError('');
     try {
-      const { label, ...filters } = override || { exam, subjectId, year: year || null, imageMode, count };
+      const { label, taskKey, ...filters } = override || { exam, subjectId, year: year || null, imageMode, count };
       const data = await responseJson(await apiFetch('/api/question-bank/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(filters) }));
       setSessionLabel(label || 'Practice set');
+      if (taskKey && sprint) {
+        const questionIds = data.questions.map((question: BankQuestion) => question.id);
+        const previousIds = sprint.taskQuestionIds?.[taskKey] || [];
+        const isResumingSameSet = previousIds.length === questionIds.length && previousIds.every((id, index) => id === questionIds[index]);
+        const startedAt = isResumingSameSet ? sprint.taskQuestionStartedAt?.[taskKey] || new Date().toISOString() : new Date().toISOString();
+        onUpdateSprint({
+          ...sprint,
+          taskQuestionIds: { ...(sprint.taskQuestionIds || {}), [taskKey]: questionIds },
+          taskQuestionStartedAt: { ...(sprint.taskQuestionStartedAt || {}), [taskKey]: startedAt },
+        });
+      }
       setQuestions(data.questions); setSessionId(data.sessionId);
     } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
@@ -132,7 +144,7 @@ export const QuestionBankView: React.FC<{
     </motion.section>
 
     <DailyReviewQueue items={reviewQueue} dueItems={dueReviewQueue} now={reviewClock} loading={loading} onStart={() => startSession({ exam: 'FMGE', subjectId: '', year: '', imageMode: 'all', count: Math.min(20, dueReviewQueue.length), questionIds: dueReviewQueue.slice(0, 20).map((item) => item.questionId), label: 'Daily review' })}/>
-    <FmgeSprint sprint={sprint} attempts={attempts} grandTests={grandTests} onUpdate={onUpdateSprint} onPractice={(subjectId, count = 20) => startSession({ exam: 'FMGE', subjectId, year: '', imageMode: 'all', count, label: 'Focused practice' })} onOpenGrandTests={onOpenGrandTests} loading={loading} />
+    <FmgeSprint sprint={sprint} attempts={attempts} grandTests={grandTests} onUpdate={onUpdateSprint} onPractice={(subjectId, count = 20, label = 'Focused practice', questionIds, taskKey, excludeQuestionIds) => startSession({ exam: 'FMGE', subjectId, year: '', imageMode: 'all', count, questionIds, excludeQuestionIds, label, taskKey })} onOpenSubject={onOpenSprintSubject} onOpenGrandTests={onOpenGrandTests} loading={loading} />
     <QuestionSession key={sessionId} questions={questions} sessionId={sessionId} sessionLabel={sessionLabel} onClose={() => setQuestions([])} onRecordAttempt={onRecordAttempt}/>
   </div>;
 };
@@ -276,7 +288,7 @@ function buildAdaptiveSprintDays(attempts: McqAttempt[], grandTests: GrandTest[]
   return days;
 }
 
-function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpenGrandTests, loading }: { sprint?: AppState['fmgeSprint']; attempts: McqAttempt[]; grandTests: GrandTest[]; onUpdate: (value: NonNullable<AppState['fmgeSprint']>) => void; onPractice: (subjectId: string, count?: number) => void; onOpenGrandTests: () => void; loading: boolean }) {
+function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpenSubject, onOpenGrandTests, loading }: { sprint?: AppState['fmgeSprint']; attempts: McqAttempt[]; grandTests: GrandTest[]; onUpdate: (value: NonNullable<AppState['fmgeSprint']>) => void; onPractice: (subjectId: string, count?: number, label?: string, questionIds?: string[], taskKey?: string, excludeQuestionIds?: string[]) => void; onOpenSubject: (subjectId: string) => void; onOpenGrandTests: () => void; loading: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [hours, setHours] = useState(sprint?.dailyHours || 6);
@@ -299,24 +311,61 @@ function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpen
   const todayTasks = checklistsForPlan(plan, hours, questionTarget);
   const activePlanDate = sprintDateForIndex(activeDay);
   const todayQuestionAttempts = attempts.filter((attempt) => attempt.source === 'qbank' && !['NEET-PG', 'INI-CET'].includes(attempt.exam || '') && attempt.timestamp && localDateKey(new Date(attempt.timestamp)) === activePlanDate && (!plan.subjects.length || plan.subjects.includes(attempt.subjectId)));
+  const todayQuestionIds = new Set(todayQuestionAttempts.map((attempt) => attempt.questionId).filter(Boolean));
+  const latestByQuestion = new Map<string, McqAttempt>();
+  attempts.filter((attempt) => attempt.source === 'qbank' && attempt.questionId && !['NEET-PG', 'INI-CET'].includes(attempt.exam || '') && (!plan.subjects.length || plan.subjects.includes(attempt.subjectId)))
+    .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+    .forEach((attempt) => latestByQuestion.set(attempt.questionId, attempt));
+  const errorQuestionIds = [...latestByQuestion.values()]
+    .filter((attempt) => !attempt.isCorrect || ['guess', 'low', 'medium'].includes(attempt.confidence || ''))
+    .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+    .slice(-20).map((attempt) => attempt.questionId).filter(Boolean);
+  const taskSessionKey = (task: number, day = activeDay) => `${day}-${task}`;
+  const taskQuestionIds = (task: number, day = activeDay) => sprint?.taskQuestionIds?.[taskSessionKey(task, day)] || [];
+  const reviewedTaskComplete = (task: number) => {
+    const ids = taskQuestionIds(task);
+    const startedAt = sprint?.taskQuestionStartedAt?.[taskSessionKey(task)];
+    return ids.length > 0 && !!startedAt && ids.every((id) => todayQuestionAttempts.some((attempt) => attempt.questionId === id && Date.parse(attempt.timestamp) >= Date.parse(startedAt)));
+  };
   const practiceTaskComplete = plan.fullMock
     ? grandTests.some((test) => test.date.startsWith(activePlanDate))
-    : todayQuestionAttempts.length >= questionTarget;
-  const activeTaskStates = todayTasks.map((_, task) => task === 2 ? practiceTaskComplete : !!sprint?.completedTasks[`${activeDay}-${task}`]);
+    : new Set(todayQuestionAttempts.map((attempt) => attempt.questionId).filter(Boolean)).size >= questionTarget;
+  const errorReviewComplete = errorQuestionIds.length === 0
+    ? qbankAttempts.length > 0
+    : reviewedTaskComplete(3);
+  const activeTaskStates = todayTasks.map((_, task) => task === 0
+    ? !!sprint?.completedTasks[`${activeDay}-${task}`]
+    : task === 1 ? reviewedTaskComplete(1)
+      : task === 2 ? practiceTaskComplete
+        : errorReviewComplete);
+  const remainingQuestionCount = Math.max(0, questionTarget - new Set(todayQuestionAttempts.map((attempt) => attempt.questionId).filter(Boolean)).size);
   const nextTaskIndex = activeTaskStates.findIndex((done) => !done);
   const todayComplete = nextTaskIndex === -1;
+  const isTaskCompleteForDay = (dayIndex: number, task: number, dayAttempts: McqAttempt[]) => {
+    if (task === 0) return !!sprint?.completedTasks[`${dayIndex}-0`];
+    const ids = sprint?.taskQuestionIds?.[`${dayIndex}-${task}`] || [];
+    const startedAt = sprint?.taskQuestionStartedAt?.[`${dayIndex}-${task}`];
+    if (ids.length && startedAt && ids.every((id) => dayAttempts.some((attempt) => attempt.questionId === id && Date.parse(attempt.timestamp) >= Date.parse(startedAt)))) return true;
+    if (task === 3 && dayAttempts.length && !dayAttempts.some((attempt) => !attempt.isCorrect || ['guess', 'low', 'medium'].includes(attempt.confidence || ''))) return true;
+    return !!sprint?.completedTasks[`${dayIndex}-${task}`];
+  };
   const isDayComplete = (dayIndex: number) => {
     const dayPlan = sprintDays[dayIndex];
     const dayDate = sprintDateForIndex(dayIndex);
     const dayTarget = dayPlan.fullMock ? 300 : dayIndex === 0 ? 50 : Math.max(20, Math.round(dayPlan.questions * hours / 6));
-    const questionsDone = attempts.filter((attempt) => attempt.source === 'qbank' && !['NEET-PG', 'INI-CET'].includes(attempt.exam || '') && attempt.timestamp && localDateKey(new Date(attempt.timestamp)) === dayDate && (!dayPlan.subjects.length || dayPlan.subjects.includes(attempt.subjectId))).length >= dayTarget;
+    const dayAttempts = attempts.filter((attempt) => attempt.source === 'qbank' && !['NEET-PG', 'INI-CET'].includes(attempt.exam || '') && attempt.timestamp && localDateKey(new Date(attempt.timestamp)) === dayDate && (!dayPlan.subjects.length || dayPlan.subjects.includes(attempt.subjectId)));
+    const questionsDone = new Set(dayAttempts.map((attempt) => attempt.questionId).filter(Boolean)).size >= dayTarget;
     const mockLogged = grandTests.some((test) => test.date.startsWith(dayDate));
     const practiceDone = dayPlan.fullMock ? mockLogged : questionsDone || (dayPlan.checkpoint && mockLogged);
-    return [0, 1, 3].every((task) => !!sprint?.completedTasks[`${dayIndex}-${task}`]) && practiceDone;
+    return isTaskCompleteForDay(dayIndex, 0, dayAttempts) && isTaskCompleteForDay(dayIndex, 1, dayAttempts) && isTaskCompleteForDay(dayIndex, 3, dayAttempts) && practiceDone;
   };
-  const totalDone = sprintDays.reduce((sum, _, dayIndex) => sum + [0, 1, 3].filter((task) => !!sprint?.completedTasks[`${dayIndex}-${task}`]).length + (isDayComplete(dayIndex) ? 1 : 0), 0);
+  const totalDone = sprintDays.reduce((sum, _, dayIndex) => {
+    const dayDate = sprintDateForIndex(dayIndex);
+    const dayAttempts = attempts.filter((attempt) => attempt.source === 'qbank' && !['NEET-PG', 'INI-CET'].includes(attempt.exam || '') && attempt.timestamp && localDateKey(new Date(attempt.timestamp)) === dayDate && (!sprintDays[dayIndex].subjects.length || sprintDays[dayIndex].subjects.includes(attempt.subjectId)));
+    return sum + [0, 1, 3].filter((task) => isTaskCompleteForDay(dayIndex, task, dayAttempts)).length + (isDayComplete(dayIndex) ? 1 : 0);
+  }, 0);
   const totalTasks = SPRINT_DAYS.length * 4;
-  const start = () => { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {}, ...(sprint?.errorTypes ? { errorTypes: sprint.errorTypes } : {}) }); setSelectedDay(0); };
+  const start = () => { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {}, taskQuestionIds: {}, ...(sprint?.errorTypes ? { errorTypes: sprint.errorTypes } : {}) }); setSelectedDay(0); };
   const toggleTask = (taskIndex: number) => {
     if (!sprint) return;
     const key = `${activeDay}-${taskIndex}`;
@@ -326,7 +375,7 @@ function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpen
     if (!sprint) return;
     onUpdate({ ...sprint, errorTypes: { ...(sprint.errorTypes || {}), [questionId]: errorType } });
   };
-  const reset = () => { if (confirmReset) { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {}, ...(sprint?.errorTypes ? { errorTypes: sprint.errorTypes } : {}) }); setSelectedDay(0); setConfirmReset(false); } else setConfirmReset(true); };
+  const reset = () => { if (confirmReset) { onUpdate({ startedOn: localDateKey(), dailyHours: hours, completedTasks: {}, taskQuestionIds: {}, ...(sprint?.errorTypes ? { errorTypes: sprint.errorTypes } : {}) }); setSelectedDay(0); setConfirmReset(false); } else setConfirmReset(true); };
   const checklists = todayTasks;
 
   return <section className="qbank-sprint qbank-panel mt-5 overflow-hidden rounded-[26px] border border-black/[0.06] bg-white shadow-[0_12px_38px_rgba(15,23,42,0.05)] sm:rounded-[30px]">
@@ -343,7 +392,28 @@ function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpen
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><div><p className="text-xs font-medium text-[#737B86]">{daysUntilFmge() === 0 ? 'Exam day · final review plan' : `Day ${currentDay + 1} of 20 · ${daysUntilFmge()} days until FMGE`} · {sprint.dailyHours} focused study hours/day · started {sprint.startedOn}</p><p className="mt-1 text-xs font-semibold text-blue-700">Working toward 165/300 · pass mark 150</p><p className="mt-1 text-[11px] text-[#7A8491]">Priorities use recent subject accuracy, guessed answers and your latest mock weaknesses. Blueprint marks follow the published distribution; priorities also use recent accuracy, confidence, tagged errors and mock weaknesses.</p></div><button type="button" onClick={reset} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#7A818C] hover:bg-[#F3F5F7] hover:text-[#3F4650]"><RotateCcw className="h-3.5 w-3.5"/>{confirmReset ? 'Tap again to restart' : 'Restart plan'}</button></div>
         <div className="mb-5 flex gap-2 overflow-x-auto pb-2" aria-label="Sprint day selector">{sprintDays.map((day, i) => { const done = isDayComplete(i); return <button key={i} type="button" onClick={() => setSelectedDay(i)} aria-current={activeDay === i ? 'step' : undefined} className={`flex h-12 min-w-12 shrink-0 flex-col items-center justify-center rounded-xl border text-xs font-semibold transition ${activeDay === i ? 'border-blue-600 bg-blue-600 text-white shadow-sm' : done ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-[#E5E8ED] bg-white text-[#69717D] hover:border-blue-300'}`}>{done ? <Check className="h-3.5 w-3.5"/> : <span>{i + 1}</span>}</button>; })}</div>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 sm:p-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-[0.13em] text-blue-700">Day {activeDay + 1}</p><h3 className="mt-1 text-lg font-semibold tracking-tight">{plan.title}</h3><BlueprintPills subjectIds={plan.subjects}/></div><span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#69717D] ring-1 ring-[#E6EAF0]">{questionTarget} Q target</span></div><p className="mt-2 text-sm leading-6 text-[#69717D]">{plan.focus}</p><div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/70 p-3.5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">{todayComplete ? 'Today’s plan complete' : 'Your next step'}</p><p className="mt-1 text-sm font-semibold text-[#344054]">{todayComplete ? 'Keep the review light and protect your sleep.' : checklists[nextTaskIndex]}</p></div><span className="shrink-0 text-xs font-semibold text-blue-700">{activeTaskStates.filter(Boolean).length}/4</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-blue-100"><div className="h-full rounded-full bg-blue-600 transition-all" style={{width:`${activeTaskStates.filter(Boolean).length/4*100}%`}}/></div></div><div className="mt-3 space-y-2">{checklists.map((item, task) => { const done = activeTaskStates[task]; return <button key={task} type="button" onClick={() => task === 2 ? undefined : toggleTask(task)} aria-pressed={done} className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${done ? 'border-emerald-200 bg-emerald-50/70' : task === nextTaskIndex ? 'border-blue-200 bg-white shadow-sm' : 'border-[#E9ECF1] bg-white hover:border-blue-200'} ${task === 2 ? 'cursor-default' : ''}`}><span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${done ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#C9D0DA] bg-white'}`}>{done && <Check className="h-3.5 w-3.5"/>}</span><span className={`text-xs leading-5 ${done ? 'text-emerald-900' : 'text-[#535C68]'}`}>{task === 2 && !plan.fullMock ? `${item} · ${todayQuestionAttempts.length}/${questionTarget} today` : item}</span></button>; })}</div><div className="mt-4 flex flex-col gap-2 sm:flex-row">{plan.fullMock ? <button type="button" onClick={onOpenGrandTests} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white transition hover:bg-[#0F5FCC] sm:w-auto"><Target className="h-4 w-4"/>Open full mock tracker<ChevronRight className="h-4 w-4"/></button> : <button type="button" onClick={() => onPractice(plan.subjects[0] || '', Math.min(50, plan.questions))} disabled={loading} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white transition hover:bg-[#0F5FCC] disabled:opacity-60 sm:w-auto"><BookOpenCheck className="h-4 w-4"/>{activeDay === 0 ? 'Start 50-question baseline' : `Start ${Math.min(50, plan.questions)}-question set`}<ChevronRight className="h-4 w-4"/></button>}{(activeDay === 16 || activeDay === 18) && <button type="button" onClick={onOpenGrandTests} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#DCE3ED] bg-white px-4 text-sm font-semibold text-[#394353] hover:border-blue-300 hover:text-blue-700"><Target className="h-4 w-4"/>Log full mock score</button>}</div></div>
+          <div className="rounded-2xl border border-[#E7EAF0] bg-[#FBFCFE] p-4 sm:p-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-[0.13em] text-blue-700">Day {activeDay + 1}</p><h3 className="mt-1 text-lg font-semibold tracking-tight">{plan.title}</h3><BlueprintPills subjectIds={plan.subjects}/></div><span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#69717D] ring-1 ring-[#E6EAF0]">{questionTarget} Q target</span></div><p className="mt-2 text-sm leading-6 text-[#69717D]">{plan.focus}</p><div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/70 p-3.5"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">{todayComplete ? 'Today’s plan complete' : 'Your next step'}</p><p className="mt-1 text-sm font-semibold text-[#344054]">{todayComplete ? 'Keep the review light and protect your sleep.' : checklists[nextTaskIndex]}</p></div><span className="shrink-0 text-xs font-semibold text-blue-700">{activeTaskStates.filter(Boolean).length}/4</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-blue-100"><div className="h-full rounded-full bg-blue-600 transition-all" style={{width:`${activeTaskStates.filter(Boolean).length/4*100}%`}}/></div></div><div className="mt-3 space-y-2">{checklists.map((item, task) => {
+            const done = activeTaskStates[task];
+            const taskKey = taskSessionKey(task);
+            const savedIds = taskQuestionIds(task);
+            const recallCount = Math.min(10, Math.max(1, questionTarget));
+            const taskAction = task === 0
+              ? () => onOpenSubject(plan.subjects[0] || 'medicine')
+              : task === 1
+                ? () => onPractice(plan.subjects[0] || '', recallCount, 'Active recall', savedIds.length ? savedIds : undefined, taskKey)
+                : task === 2
+                  ? () => plan.fullMock ? onOpenGrandTests() : onPractice(plan.subjects[0] || '', Math.min(50, remainingQuestionCount), 'Question practice', undefined, undefined, [...todayQuestionIds])
+                  : () => onPractice(plan.subjects[0] || '', savedIds.length ? savedIds.length : errorQuestionIds.length, 'Error review', savedIds.length ? savedIds : errorQuestionIds, taskKey);
+            const actionLabel = task === 0 ? 'Open focused subject'
+              : task === 1 ? (done ? 'Recall complete' : savedIds.length ? 'Continue recall' : `Start ${recallCount}-question recall`)
+                : task === 2 ? (plan.fullMock ? 'Open mock tracker' : remainingQuestionCount ? `Practice next ${Math.min(50, remainingQuestionCount)}` : 'Daily target complete')
+                  : done ? 'Review complete' : errorQuestionIds.length ? `Review ${savedIds.length || errorQuestionIds.length} flagged questions` : 'No flagged errors';
+            const disabled = loading || (task === 1 && done) || (task === 2 && !plan.fullMock && !remainingQuestionCount) || (task === 3 && (done || !errorQuestionIds.length));
+            return <div key={task} className={`rounded-xl border p-3 transition ${done ? 'border-emerald-200 bg-emerald-50/70' : task === nextTaskIndex ? 'border-blue-200 bg-white shadow-sm' : 'border-[#E9ECF1] bg-white'}`}>
+              <div className="flex items-start gap-3"><span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${done ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-[#C9D0DA] bg-white'}`}>{done && <Check className="h-3.5 w-3.5"/>}</span><div className="min-w-0 flex-1"><p className={`text-xs leading-5 ${done ? 'text-emerald-900' : 'text-[#535C68]'}`}>{task === 2 && !plan.fullMock ? `${item} · ${new Set(todayQuestionAttempts.map((attempt) => attempt.questionId).filter(Boolean)).size}/${questionTarget} unique questions today` : item}</p><p className="mt-1 text-[11px] leading-4 text-[#87909B]">{task === 0 ? 'Open the planned subject in Study, then mark this block complete when you finish revising.' : task === 1 ? 'A short retrieval set. Your answers are saved and this block checks off when you finish that set.' : task === 2 ? 'Question practice is counted from unique questions answered today; the button only starts the remaining target.' : errorQuestionIds.length ? 'Reattempt your recent wrong or uncertain questions. This checks off after all selected errors are answered.' : 'No wrong or uncertain questions are waiting in this subject yet.'}</p></div></div>
+              <div className="mt-2 flex justify-end gap-2">{task === 0 && <button type="button" onClick={() => toggleTask(0)} aria-pressed={done} className="min-h-8 rounded-lg border border-[#DCE3ED] px-3 text-[11px] font-semibold text-[#586273] hover:bg-white">{done ? 'Undo completion' : 'Mark revised'}</button>}<button type="button" disabled={disabled} onClick={taskAction} className="min-h-8 rounded-lg bg-blue-600 px-3 text-[11px] font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300">{actionLabel}</button></div>
+            </div>;
+          })}</div>{plan.fullMock && <div className="mt-4 flex flex-col gap-2 sm:flex-row"><button type="button" onClick={onOpenGrandTests} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#1769E0] px-4 text-sm font-semibold text-white transition hover:bg-[#0F5FCC] sm:w-auto"><Target className="h-4 w-4"/>Open full mock tracker<ChevronRight className="h-4 w-4"/></button></div>}</div>
           <aside className="rounded-2xl border border-[#E7EAF0] bg-white p-4"><h4 className="text-sm font-semibold">Readiness check</h4>{latestGrandTest?<><p className="mt-2 text-2xl font-semibold tracking-tight text-[#263244]">{latestGrandTest.score}<span className="text-sm font-medium text-[#8993A0]"> / 300</span></p><p className={`text-xs font-semibold ${latestGrandTest.score>=165?'text-emerald-700':latestGrandTest.score>=150?'text-amber-700':'text-rose-700'}`}>{latestGrandTest.score>=165?'Above your 165 working target':latestGrandTest.score>=150?'At pass mark; build a safety buffer':`${150-latestGrandTest.score} marks below pass mark`}</p><p className="mt-1 text-[10px] text-[#858C96]">Latest logged mock · exam score is the clearest readiness signal.</p><MockScoreTrend grandTests={grandTests}/></>:<p className="mt-2 text-xs leading-5 text-[#68717E]">No full mock score logged yet. Your question practice will identify subject gaps, but it cannot predict a 300-mark exam result.</p>}{qbankAccuracy!==null&&<div className="mt-3 flex items-center justify-between border-t border-[#EEF0F3] pt-3 text-[11px]"><span className="text-[#737B86]">Recent question accuracy</span><b className="text-[#344054]">{qbankAccuracy}%</b></div>}{recentQbankAttempts.length>0&&<div className="mt-3 grid grid-cols-3 gap-1.5 border-t border-[#EEF0F3] pt-3"><SignalMetric label="Secure correct" value={secureCorrectCount}/><SignalMetric label="Right but unsure" value={unsureCorrectCount}/><SignalMetric label="Confident miss" value={confidentMissCount}/></div>}{recentReviewGaps>0&&<p className="mt-2 text-[11px] leading-5 text-amber-800">{recentReviewGaps} recent misses or unsure answers are feeding your revision priorities.</p>}<SprintErrorReview attempts={recentQbankAttempts} errorTypes={sprint.errorTypes || {}} onSetErrorType={setErrorType}/><h4 className="mt-4 border-t border-[#EEF0F3] pt-3 text-sm font-semibold">How to use the day</h4><ol className="mt-3 space-y-3 text-xs leading-5 text-[#68717E]"><li><b className="text-[#303741]">1. Recall first.</b> Try to retrieve before rereading.</li><li><b className="text-[#303741]">2. Practise timed.</b> Review wrong and guessed answers.</li><li><b className="text-[#303741]">3. Keep a tiny error list.</b> Revisit it tomorrow.</li><li><b className="text-[#303741">4. Protect sleep.</b> Exhaustion makes recall worse.</li></ol><div className="mt-4 rounded-xl bg-amber-50 p-3 text-[11px] leading-5 text-amber-900">If you fall behind, continue with the next day and carry only your highest-impact weak areas forward. Do not try to “repay” missed hours with an all-nighter.</div><p className="mt-3 text-[10px] leading-4 text-[#858C96]">This plan supports revision; it cannot predict or guarantee an exam result.</p></aside>
         </div>
       </>}

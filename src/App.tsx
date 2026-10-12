@@ -1118,6 +1118,10 @@ function AppInner() {
                     grandTests={state.grandTests || []}
                     onUpdateSprint={(fmgeSprint) => setState((prev) => ({ ...prev, fmgeSprint }))}
                     onOpenGrandTests={() => handleSetActiveTab('grandtests')}
+                    onOpenSprintSubject={(subjectId) => {
+                      handleSelectSubject(subjectId);
+                      handleSetActiveTab('syllabus');
+                    }}
                   />
                 )}
 

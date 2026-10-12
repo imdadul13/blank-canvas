@@ -164,10 +164,13 @@ app.post("/api/question-bank/session", createRequestRateLimit({ windowMs: 60_000
     const requestedIds = Array.isArray(req.body?.questionIds)
       ? [...new Set(req.body.questionIds.filter((id: unknown): id is string => typeof id === "string" && id.length <= 200))].slice(0, 50)
       : [];
+    const excludedIds = new Set(Array.isArray(req.body?.excludeQuestionIds)
+      ? req.body.excludeQuestionIds.filter((id: unknown): id is string => typeof id === "string" && id.length <= 200).slice(0, 1000)
+      : []);
     const bank = loadImportedQuestionBank();
     let pool = requestedIds.length
       ? requestedIds.map((id: string) => bank.find((question) => question.id === id)).filter((question): question is ImportedBankQuestion => Boolean(question))
-      : bank.filter((q) =>
+      : bank.filter((q) => !excludedIds.has(q.id) &&
           (!exam || q.exam === exam) && (!subjectId || q.subjectId === subjectId) && (!year || q.year === year) &&
           (imageMode === "all" || (imageMode === "image" ? q.isImageBased : !q.isImageBased))
         );

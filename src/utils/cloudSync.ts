@@ -386,6 +386,14 @@ export function resolveCloudConflict(localState: AppState, cloudState: AppState)
             ...(cloudState.fmgeSprint?.errorTypes || {}),
             ...(localState.fmgeSprint?.errorTypes || {}),
           },
+          taskQuestionIds: {
+            ...(cloudState.fmgeSprint?.taskQuestionIds || {}),
+            ...(localState.fmgeSprint?.taskQuestionIds || {}),
+          },
+          taskQuestionStartedAt: {
+            ...(cloudState.fmgeSprint?.taskQuestionStartedAt || {}),
+            ...(localState.fmgeSprint?.taskQuestionStartedAt || {}),
+          },
         }
       : undefined,
     // These checklist maps are user progress too. Keep distinct keys from both

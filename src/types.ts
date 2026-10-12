@@ -1077,6 +1077,10 @@ export interface AppState {
     startedOn: string;
     dailyHours: number;
     completedTasks: Record<string, boolean>;
+    /** Question ids selected for a sprint retrieval or error-review task. */
+    taskQuestionIds?: Record<string, string[]>;
+    /** Start time for each selected retrieval/error-review question set. */
+    taskQuestionStartedAt?: Record<string, string>;
     /** Learner-tagged reason for recent QBank errors, keyed by question id. */
     errorTypes?: Record<string, 'knowledge' | 'confusion' | 'misread' | 'guess'>;
   };
