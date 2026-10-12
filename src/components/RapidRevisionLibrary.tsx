@@ -1,8 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, BookOpenCheck, Check, ChevronLeft, ChevronRight, FileText, FlaskConical, HeartPulse, Microscope, Pill, Search, Stethoscope, X } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, BookOpenCheck, Check, ChevronLeft, ChevronRight, FileText, FlaskConical, HeartPulse, Maximize2, Microscope, Minus, Pill, Plus, Search, Stethoscope, X } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
+import { getDocument, GlobalWorkerOptions, type PDFDocumentProxy, type RenderTask } from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { RAPID_REVISION_PART3_PAGES } from '../data/rapidRevisionPart3Pages';
 import { apiFetch } from '../utils/api';
+
+GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 type SourceId = 'day1' | 'part3';
 type SourcePage = { page: number; label: string; subject: string; note?: string };
@@ -57,8 +62,13 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
   const [query, setQuery] = useState('');
   const [pageGroup, setPageGroup] = useState(0);
   const [openError, setOpenError] = useState('');
-  const [viewer, setViewer] = useState<{ url: string; pages: SourcePage[]; index: number } | null>(null);
+  const [viewer, setViewer] = useState<{ document: PDFDocumentProxy; pages: SourcePage[]; index: number } | null>(null);
   const [viewerLoading, setViewerLoading] = useState(false);
+  const [viewerError, setViewerError] = useState('');
+  const [zoom, setZoom] = useState(1);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasAreaRef = useRef<HTMLDivElement>(null);
+  const viewerDocumentRef = useRef<PDFDocumentProxy | null>(null);
   const reduceMotion = useReducedMotion();
   const source = SOURCES[sourceId];
   const pages = useMemo<SourcePage[]>(() => Array.from({ length: source.pages }, (_, index) => {
@@ -81,26 +91,77 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
   const changeQuery = (value: string) => { setQuery(value); setPageGroup(0); };
   const openSourcePage = async (page: number) => {
     setOpenError('');
+    setViewerError('');
+    setZoom(1);
     setViewerLoading(true);
     try {
       const response = await apiFetch(`${source.endpoint}/access`, { method: 'POST' });
       if (!response.ok) throw new Error(response.status === 401 ? 'Sign in to open this licensed source.' : 'The source PDF could not be loaded. Please try again.');
       const access = await response.json() as { url?: string };
       if (!access.url) throw new Error('The source viewer could not be prepared. Please try again.');
+      const document = await getDocument({ url: new URL(access.url, window.location.origin).toString(), rangeChunkSize: 64 * 1024 }).promise;
       const selected = pages.find((item) => item.page === page);
       const subjectPages = sourceId === 'day1' && selected
         ? filteredPages.filter((item) => item.subject === selected.subject)
         : filteredPages;
       const slidePages = subjectPages.some((item) => item.page === page) ? subjectPages : pages;
-      setViewer({ url: new URL(access.url, window.location.origin).toString(), pages: slidePages, index: Math.max(0, slidePages.findIndex((item) => item.page === page)) });
+      viewerDocumentRef.current = document;
+      setViewer({ document, pages: slidePages, index: Math.max(0, slidePages.findIndex((item) => item.page === page)) });
     } catch (error) {
       setOpenError(error instanceof Error ? error.message : 'The source PDF could not be loaded. Please try again.');
     } finally {
       setViewerLoading(false);
     }
   };
-  const closeViewer = () => setViewer(null);
-  const moveViewer = (delta: number) => setViewer((current) => current ? { ...current, index: Math.max(0, Math.min(current.pages.length - 1, current.index + delta)) } : current);
+  const closeViewer = () => {
+    const activeDocument = viewerDocumentRef.current;
+    viewerDocumentRef.current = null;
+    void activeDocument?.destroy();
+    setViewer(null);
+  };
+  const moveViewer = (delta: number) => {
+    setViewerError('');
+    setViewer((current) => current ? { ...current, index: Math.max(0, Math.min(current.pages.length - 1, current.index + delta)) } : current);
+  };
+  useEffect(() => () => { void viewerDocumentRef.current?.destroy(); }, []);
+  useEffect(() => {
+    if (!viewer || !canvasRef.current || !canvasAreaRef.current) return;
+    let cancelled = false;
+    let renderTask: RenderTask | undefined;
+    const renderCurrentPage = async () => {
+      renderTask?.cancel();
+      try {
+        const page = await viewer.document.getPage(viewer.pages[viewer.index].page);
+        if (cancelled || !canvasRef.current || !canvasAreaRef.current) return;
+        const naturalViewport = page.getViewport({ scale: 1 });
+        const bounds = canvasAreaRef.current.getBoundingClientRect();
+        const availableWidth = Math.max(160, bounds.width - 40);
+        const availableHeight = Math.max(160, bounds.height - 40);
+        const fitScale = Math.min(availableWidth / naturalViewport.width, availableHeight / naturalViewport.height, 2);
+        const scale = Math.max(0.25, fitScale * zoom);
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        const viewport = page.getViewport({ scale: scale * pixelRatio });
+        const canvas = canvasRef.current;
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+        canvas.style.width = `${viewport.width / pixelRatio}px`;
+        canvas.style.height = `${viewport.height / pixelRatio}px`;
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('This browser could not prepare the slide canvas.');
+        renderTask = page.render({ canvasContext: context, viewport });
+        await renderTask.promise;
+        if (!cancelled) setViewerError('');
+      } catch (error) {
+        if (!cancelled && !(error instanceof Error && error.name === 'RenderingCancelledException')) {
+          setViewerError('This source page could not be rendered. Try another page or reload the viewer.');
+        }
+      }
+    };
+    void renderCurrentPage();
+    const observer = new ResizeObserver(() => { void renderCurrentPage(); });
+    observer.observe(canvasAreaRef.current);
+    return () => { cancelled = true; observer.disconnect(); renderTask?.cancel(); };
+  }, [viewer, zoom]);
   useEffect(() => {
     if (!viewer) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -196,25 +257,34 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
     <div className="flex justify-end"><button type="button" onClick={() => onPractice('medicine')} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-blue-200 hover:text-blue-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">Go to question practice <ArrowUpRight className="h-4 w-4" /></button></div>
     {viewer && (() => {
       const currentPage = viewer.pages[viewer.index];
-      const pdfUrl = `${viewer.url}#page=${currentPage.page}&toolbar=0&navpanes=0&view=FitH`;
-      return <div className="fixed inset-0 z-[100] flex flex-col bg-[#0b1020] text-white" role="dialog" aria-modal="true" aria-label={`${source.title} slide viewer`}>
+      return createPortal(<div className="fixed inset-0 z-[10000] flex flex-col bg-[#0b1020] text-white" role="dialog" aria-modal="true" aria-label={`${source.title} slide viewer`}>
         <header className="flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-[#111827] px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <div className={`hidden h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-white sm:flex ${sourceArt.gradient}`}>{sourceArt.icon}</div>
-            <div className="min-w-0"><p className="truncate text-sm font-semibold sm:text-base">{source.title}</p><p className="truncate text-xs text-slate-400">{currentPage.label} · Slide {viewer.index + 1} of {viewer.pages.length}</p></div>
+            <div className="min-w-0"><p className="truncate text-sm font-semibold sm:text-base">Rapid Revision <span className="font-normal text-slate-400">/ {source.title}</span></p><p className="truncate text-xs text-slate-400">{currentPage.subject} · Page {currentPage.page} of {viewer.document.numPages} <span className="px-1">·</span> Slide {viewer.index + 1} of {viewer.pages.length}</p></div>
           </div>
           <button type="button" onClick={closeViewer} aria-label="Close slide viewer" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-slate-200 transition hover:bg-white/20"><X className="h-5 w-5" /></button>
         </header>
-        <div className="relative flex min-h-0 flex-1 items-center justify-center p-2 sm:p-5">
-          <button type="button" disabled={viewer.index === 0} onClick={() => moveViewer(-1)} aria-label="Previous slide" className="absolute left-2 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-slate-900/90 text-white shadow-lg transition hover:bg-slate-700 disabled:opacity-30 sm:left-5"><ArrowLeft className="h-5 w-5" /></button>
-          <iframe title={`${currentPage.label} source slide`} src={pdfUrl} className="h-full w-full max-w-6xl rounded-xl bg-white shadow-2xl" />
-          <button type="button" disabled={viewer.index === viewer.pages.length - 1} onClick={() => moveViewer(1)} aria-label="Next slide" className="absolute right-2 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-slate-900/90 text-white shadow-lg transition hover:bg-slate-700 disabled:opacity-30 sm:right-5"><ArrowRight className="h-5 w-5" /></button>
+        <div ref={canvasAreaRef} className="relative flex min-h-0 flex-1 items-center justify-center overflow-auto bg-[radial-gradient(ellipse_at_top,rgba(37,99,235,0.12),transparent_55%),#0b1020] p-3 sm:p-8">
+          <button type="button" disabled={viewer.index === 0} onClick={() => moveViewer(-1)} aria-label="Previous slide" className="absolute left-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-slate-900/90 text-white shadow-lg transition hover:bg-slate-700 disabled:opacity-30 sm:left-5 sm:h-12 sm:w-12"><ArrowLeft className="h-5 w-5" /></button>
+          <div className="relative flex min-h-0 max-w-full items-center justify-center overflow-auto rounded-xl bg-white p-1 shadow-[0_25px_80px_rgba(0,0,0,0.42)] ring-1 ring-white/10 sm:p-2">
+            <canvas ref={canvasRef} className="block max-w-none rounded-md bg-white" aria-label={`${currentPage.subject}, source page ${currentPage.page}`} />
+            {viewerError && <p role="alert" className="absolute inset-x-4 bottom-4 rounded-xl bg-rose-950/95 px-4 py-3 text-center text-sm text-rose-100">{viewerError}</p>}
+          </div>
+          <button type="button" disabled={viewer.index === viewer.pages.length - 1} onClick={() => moveViewer(1)} aria-label="Next slide" className="absolute right-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-slate-900/90 text-white shadow-lg transition hover:bg-slate-700 disabled:opacity-30 sm:right-5 sm:h-12 sm:w-12"><ArrowRight className="h-5 w-5" /></button>
+          <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/10 bg-[#111827]/95 p-1.5 shadow-xl backdrop-blur-xl">
+            <button type="button" aria-label="Zoom out" onClick={() => setZoom((value) => Math.max(0.75, value - 0.25))} className="flex h-9 w-9 items-center justify-center rounded-full text-slate-200 transition hover:bg-white/10"><Minus className="h-4 w-4" /></button>
+            <span className="min-w-12 text-center text-xs font-semibold tabular-nums text-slate-300">{Math.round(zoom * 100)}%</span>
+            <button type="button" aria-label="Zoom in" onClick={() => setZoom((value) => Math.min(2, value + 0.25))} className="flex h-9 w-9 items-center justify-center rounded-full text-slate-200 transition hover:bg-white/10"><Plus className="h-4 w-4" /></button>
+            <span className="mx-1 h-5 w-px bg-white/10" />
+            <button type="button" aria-label="Fit slide to screen" onClick={() => setZoom(1)} className="flex h-9 w-9 items-center justify-center rounded-full text-slate-200 transition hover:bg-white/10"><Maximize2 className="h-4 w-4" /></button>
+          </div>
         </div>
         <footer className="flex min-h-16 items-center justify-between gap-3 border-t border-white/10 bg-[#111827] px-4 sm:px-6">
-          <p className="min-w-0 truncate text-xs text-slate-400 sm:text-sm">Use ← → to move between {currentPage.subject === 'Part 3' ? 'slides' : `${currentPage.subject} slides`}</p>
+          <div className="min-w-0 flex-1"><div className="mb-1 h-1 max-w-48 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-violet-500 transition-all" style={{ width: `${((viewer.index + 1) / viewer.pages.length) * 100}%` }} /></div><p className="truncate text-[11px] text-slate-400 sm:text-xs">{currentPage.label} · Use ← → to navigate</p></div>
           <div className="flex shrink-0 items-center gap-2"><button type="button" disabled={viewer.index === 0} onClick={() => moveViewer(-1)} className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold disabled:opacity-35">Previous</button><button type="button" disabled={viewer.index === viewer.pages.length - 1} onClick={() => moveViewer(1)} className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold shadow-lg shadow-blue-900/30 disabled:opacity-35">Next slide</button></div>
         </footer>
-      </div>;
+      </div>, document.body);
     })()}
   </section>;
 };
