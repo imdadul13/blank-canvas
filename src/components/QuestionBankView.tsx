@@ -28,7 +28,8 @@ export const QuestionBankView: React.FC<{
   grandTests?: GrandTest[];
   onUpdateSprint: (sprint: NonNullable<AppState['fmgeSprint']>) => void;
   onOpenGrandTests: () => void;
-}> = ({ onRecordAttempt, sprint, attempts = [], grandTests = [], onUpdateSprint, onOpenGrandTests }) => {
+  initialSubjectFocus?: string;
+}> = ({ onRecordAttempt, sprint, attempts = [], grandTests = [], onUpdateSprint, onOpenGrandTests, initialSubjectFocus }) => {
   const reducedMotion = useReducedMotion();
   const [exam, setExam] = useState<Exam>('FMGE');
   const [subjectId, setSubjectId] = useState('');
@@ -42,6 +43,15 @@ export const QuestionBankView: React.FC<{
   const [sessionId, setSessionId] = useState('');
   const [sessionLabel, setSessionLabel] = useState('Practice set');
   const [reviewClock, setReviewClock] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (initialSubjectFocus) {
+      setExam('FMGE');
+      setSubjectId(initialSubjectFocus);
+      setYear('');
+      setImageMode('all');
+    }
+  }, [initialSubjectFocus]);
 
   useEffect(() => {
     let active = true;

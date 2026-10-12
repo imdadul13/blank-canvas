@@ -105,6 +105,23 @@ app.use("/api/telegram", (req, res, next) => {
 app.use("/api/ai", createRequestRateLimit({ windowMs: 60_000, maxRequests: 30 }));
 app.use("/uploads/telegram/media", express.static(path.join(process.cwd(), "public", "uploads", "telegram", "media")));
 
+// Licensed rapid-revision PDFs are kept outside the public web root and are
+// delivered only to signed-in OneShot users. Whitelist names to avoid path traversal.
+app.get("/api/user/revision-sources/:source", (req, res) => {
+  const sourceFiles: Record<string, string> = {
+    "day-1": "final-aid-day-1.pdf",
+    "part-3": "paras-jamwwal-part-3.pdf",
+  };
+  const filename = sourceFiles[req.params.source];
+  if (!filename) { res.status(404).json({ error: "Revision source not found." }); return; }
+  res.setHeader("Cache-Control", "private, no-store");
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+  res.sendFile(path.join(process.cwd(), "server", "private", "revision-sources", filename), (error) => {
+    if (error && !res.headersSent) res.status(404).json({ error: "Revision source could not be opened." });
+  });
+});
+
 // Licensed question bank: answer keys remain server-side until an answer is submitted.
 app.get("/api/question-bank/facets", (req, res) => {
   try {

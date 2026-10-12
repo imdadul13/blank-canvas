@@ -161,6 +161,22 @@ function AppInner() {
     } catch (_) {}
     return 'dashboard';
   });
+  const [qbankSubjectFocus, setQbankSubjectFocus] = useState<string | undefined>();
+
+  const toggleRapidRevisionItem = (key: string) => {
+    setState((prev) => ({
+      ...prev,
+      rapidRevisionProgress: {
+        ...(prev.rapidRevisionProgress || {}),
+        [key]: !prev.rapidRevisionProgress?.[key],
+      },
+    }));
+  };
+
+  const openRapidRevisionPractice = (subjectId: string) => {
+    setQbankSubjectFocus(subjectId);
+    handleSetActiveTab('questionbank');
+  };
 
   const handleSetActiveTab = (tab: ActiveTab) => {
     if (tab !== activeTab) {
@@ -1073,6 +1089,9 @@ function AppInner() {
                       if (tab === 'curriculum') handleSetActiveTab('syllabus');
                       if (tab === 'revision') handleSetActiveTab('revision');
                     }}
+                    rapidRevisionProgress={state.rapidRevisionProgress}
+                    onToggleRapidRevisionItem={toggleRapidRevisionItem}
+                    onRapidRevisionPractice={openRapidRevisionPractice}
                     onNavigateTab={handleSetActiveTab}
                   />
                 )}
@@ -1093,6 +1112,7 @@ function AppInner() {
                 {activeTab === 'questionbank' && (
                   <QuestionBankView
                     onRecordAttempt={recordQuestionAttempt}
+                    initialSubjectFocus={qbankSubjectFocus}
                     sprint={state.fmgeSprint}
                     attempts={state.mcqAttempts || []}
                     grandTests={state.grandTests || []}
@@ -1208,6 +1228,9 @@ function AppInner() {
                       if (tab === 'curriculum') handleSetActiveTab('syllabus');
                       if (tab === 'revision') handleSetActiveTab('revision');
                     }}
+                    rapidRevisionProgress={state.rapidRevisionProgress}
+                    onToggleRapidRevisionItem={toggleRapidRevisionItem}
+                    onRapidRevisionPractice={openRapidRevisionPractice}
                     onNavigateTab={handleSetActiveTab}
                   />
                 )}

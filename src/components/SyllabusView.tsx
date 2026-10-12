@@ -43,6 +43,7 @@ import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmos
 import { HeaderTabInsignia } from './HeaderTabInsignia';
 import { CircadianFocusDropdown } from './CircadianFocusDropdown';
 import { HeaderGlassIcon } from './HeaderGlassIcon';
+import { RapidRevisionLibrary } from './RapidRevisionLibrary';
 
 interface SyllabusViewProps {
   state: AppState;
@@ -55,8 +56,11 @@ interface SyllabusViewProps {
   ) => void;
   onUpdateConfidence: (subjectId: string, confidence: ConfidenceLevel) => void;
   onUpdateSubjectRevisionDate?: (subjectId: string, date: string) => void;
-  subTab?: 'curriculum' | 'revision';
-  onSubTabChange?: (tab: 'curriculum' | 'revision') => void;
+  subTab?: 'curriculum' | 'revision' | 'rapid';
+  onSubTabChange?: (tab: 'curriculum' | 'revision' | 'rapid') => void;
+  rapidRevisionProgress?: Record<string, boolean>;
+  onToggleRapidRevisionItem?: (key: string) => void;
+  onRapidRevisionPractice?: (subjectId: string) => void;
   onNavigateTab?: (tab: any) => void;
 }
 
@@ -82,8 +86,11 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
   subTab,
   onSubTabChange,
   onNavigateTab,
+  rapidRevisionProgress = {},
+  onToggleRapidRevisionItem,
+  onRapidRevisionPractice,
 }) => {
-  const [currentSubTab, setCurrentSubTab] = useState<'curriculum' | 'revision'>(
+  const [currentSubTab, setCurrentSubTab] = useState<'curriculum' | 'revision' | 'rapid'>(
     subTab || 'curriculum'
   );
 
@@ -93,7 +100,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
     }
   }, [subTab]);
 
-  const handleSubTabChange = (tab: 'curriculum' | 'revision') => {
+  const handleSubTabChange = (tab: 'curriculum' | 'revision' | 'rapid') => {
     setCurrentSubTab(tab);
     onSubTabChange?.(tab);
   };
@@ -178,17 +185,17 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
     <div
       data-accent="study"
       className={`w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5 font-sans ${
-        currentSubTab === 'revision' ? 'pb-28 sm:pb-20' : 'pb-20'
+        currentSubTab === 'revision' || currentSubTab === 'rapid' ? 'pb-28 sm:pb-20' : 'pb-20'
       }`}
     >
-      {currentSubTab === 'revision' && (
+      {(currentSubTab === 'revision' || currentSubTab === 'rapid') && (
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-[rgba(60,60,67,0.08)] bg-white/85 px-4 py-3 shadow-sm backdrop-blur-xl">
           <div className="flex items-center gap-2 text-sm font-semibold text-[#3A3A3C]">
             <BookOpen className="h-4 w-4 text-[#30A854]" strokeWidth={2.2} />
-            <span>Study Plan</span>
+            <span>{currentSubTab === 'rapid' ? 'Rapid Revision' : 'Study Plan'}</span>
           </div>
           <div className="inline-flex rounded-full border border-[rgba(60,60,67,0.08)] bg-[#F2F2F7] p-1">
-            {(['curriculum', 'revision'] as const).map((tab) => (
+            {(['curriculum', 'revision', 'rapid'] as const).map((tab) => (
               <button
                 key={tab}
                 type="button"
@@ -198,7 +205,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                   currentSubTab === tab ? 'bg-white text-[#1D1D1F] shadow-sm' : 'text-[#6E6E73] hover:text-[#1D1D1F]'
                 }`}
               >
-                {tab === 'curriculum' ? 'Curriculum' : 'Revision'}
+                {tab === 'curriculum' ? 'Curriculum' : tab === 'revision' ? 'Revision' : 'Rapid'}
               </button>
             ))}
           </div>
@@ -209,7 +216,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className={`premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)] ${currentSubTab === 'revision' ? 'hidden' : ''}`}
+        className={`premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)] ${currentSubTab === 'revision' || currentSubTab === 'rapid' ? 'hidden' : ''}`}
         style={{ background: 'linear-gradient(135deg, #E8F9EE 0%, #D0F2DC 40%, #B8E8C8 70%, #9EDDB6 100%)' }}
       >
         {/* Decorative right glow */}
@@ -229,7 +236,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
 
             {/* Segmented tab switcher */}
             <div className="inline-flex p-1 rounded-full bg-white/60 backdrop-blur-md border border-white/80 shadow-sm">
-              {(['curriculum', 'revision'] as const).map((tab) => (
+              {(['curriculum', 'revision', 'rapid'] as const).map((tab) => (
                 <button
                   key={tab}
                   type="button"
@@ -245,7 +252,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                       className="absolute inset-0 rounded-full bg-white shadow-sm"
                     />
                   )}
-                  <span className="relative z-10">{tab === 'curriculum' ? 'Curriculum' : 'Revision'}</span>
+                  <span className="relative z-10">{tab === 'curriculum' ? 'Curriculum' : tab === 'revision' ? 'Revision' : 'Rapid review'}</span>
                 </button>
               ))}
             </div>
@@ -509,7 +516,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
             </div>
           )}
         </>
-      ) : (
+      ) : currentSubTab === 'revision' ? (
         <RevisionMatrixView
           state={state}
           stats={stats || calculateAppStats(state)}
@@ -518,6 +525,12 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
           onUpdateSubjectRevisionDate={onUpdateSubjectRevisionDate || (() => {})}
           onBackToCurriculum={() => handleSubTabChange('curriculum')}
           onNavigateTab={onNavigateTab}
+        />
+      ) : (
+        <RapidRevisionLibrary
+          progress={rapidRevisionProgress}
+          onToggle={onToggleRapidRevisionItem || (() => {})}
+          onPractice={onRapidRevisionPractice || ((subjectId) => onSelectSubject(subjectId))}
         />
       )}
     </div>

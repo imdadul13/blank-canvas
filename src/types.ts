@@ -1080,6 +1080,8 @@ export interface AppState {
     /** Learner-tagged reason for recent QBank errors, keyed by question id. */
     errorTypes?: Record<string, 'knowledge' | 'confusion' | 'misread' | 'guess'>;
   };
+  /** Personal progress through the user's rapid-revision source index. */
+  rapidRevisionProgress?: Record<string, boolean>;
 }
 
 // =================== FMGE PREDICTION ENGINE TYPES ===================
