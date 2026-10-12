@@ -70,6 +70,32 @@ type ImportedBankQuestion = {
 };
 let questionBankCache: { mtimeMs: number; questions: ImportedBankQuestion[] } | null = null;
 const activeQuestionBankSessions = new Map<string, { uid: string; expiresAt: number; questionIds: Set<string>; answers: Map<string, { selectedAnswer: string; confidence?: string; timeTakenSeconds?: number }> }>();
+type QuestionBankSessionClaims = { uid: string; expiresAt: number; nonce: string; questionIds: string[] };
+type QuestionBankAnswerReceipt = { uid: string; expiresAt: number; nonce: string; questionId: string; selectedAnswer: string; confidence?: string; timeTakenSeconds?: number };
+function questionBankSigningSecret() {
+  return process.env.SESSION_ENCRYPTION_KEY?.trim() || (process.env.NODE_ENV === "production" ? "" : "oneshot-local-practice-session-dev-key");
+}
+function signQuestionBankClaims(claims: QuestionBankSessionClaims | QuestionBankAnswerReceipt) {
+  const secret = questionBankSigningSecret();
+  if (!secret) throw new Error("Question bank session signing is not configured.");
+  const payload = Buffer.from(JSON.stringify(claims)).toString("base64url");
+  const signature = crypto.createHmac("sha256", secret).update(payload).digest("base64url");
+  return `${payload}.${signature}`;
+}
+function readQuestionBankClaims<T extends QuestionBankSessionClaims | QuestionBankAnswerReceipt>(token: unknown): T | null {
+  if (typeof token !== "string" || token.length > 16_384) return null;
+  const [payload, signature, extra] = token.split(".");
+  const secret = questionBankSigningSecret();
+  if (!secret || !payload || !signature || extra) return null;
+  const expected = Buffer.from(crypto.createHmac("sha256", secret).update(payload).digest("base64url"));
+  const supplied = Buffer.from(signature);
+  if (expected.length !== supplied.length || !crypto.timingSafeEqual(expected, supplied)) return null;
+  try {
+    const claims = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as T;
+    if (!claims || typeof claims !== "object" || !Number.isFinite(claims.expiresAt) || claims.expiresAt <= Date.now()) return null;
+    return claims;
+  } catch { return null; }
+}
 function loadImportedQuestionBank(): ImportedBankQuestion[] {
   const bankPath = path.join(process.cwd(), "server", "data", "question-bank.json");
   const stat = fs.statSync(bankPath);
@@ -152,11 +178,15 @@ app.post("/api/question-bank/session", createRequestRateLimit({ windowMs: 60_000
       for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
     }
     const questions = pool.slice(0, requestedIds.length ? 50 : requested).map(publicBankQuestion);
-    const sessionId = `qbank-${crypto.randomBytes(24).toString("hex")}`;
     const now = Date.now();
     for (const [key, value] of activeQuestionBankSessions) if (value.expiresAt <= now) activeQuestionBankSessions.delete(key);
     const uid = (res.locals.firebaseUser as { uid: string }).uid;
-    activeQuestionBankSessions.set(sessionId, { uid, expiresAt: now + 2 * 60 * 60 * 1000, questionIds: new Set(questions.map((q) => q.id)), answers: new Map() });
+    // The signed set travels with the learner's request, so valid practice still
+    // works if Render restarts the process or routes the next request elsewhere.
+    const expiresAt = now + 24 * 60 * 60 * 1000;
+    const claims: QuestionBankSessionClaims = { uid, expiresAt, nonce: crypto.randomBytes(16).toString("hex"), questionIds: questions.map((q) => q.id) };
+    const sessionId = signQuestionBankClaims(claims);
+    activeQuestionBankSessions.set(sessionId, { uid, expiresAt, questionIds: new Set(claims.questionIds), answers: new Map() });
     res.setHeader("Cache-Control", "no-store");
     res.json({ sessionId, totalAvailable: pool.length, questions });
   } catch {
@@ -168,29 +198,33 @@ app.post("/api/question-bank/answer", (req, res) => {
   const { questionId, selectedAnswer, sessionId, confidence, timeTakenSeconds } = req.body || {};
   if (typeof questionId !== "string" || typeof sessionId !== "string" || !/^[A-D]$/.test(selectedAnswer)) return res.status(400).json({ error: "A session, question ID and selected option A–D are required." });
   try {
+    const claims = readQuestionBankClaims<QuestionBankSessionClaims>(sessionId);
+    const uid = (res.locals.firebaseUser as { uid: string }).uid;
+    if (!claims || claims.uid !== uid || !Array.isArray(claims.questionIds) || !claims.questionIds.includes(questionId)) return res.status(403).json({ error: "This question is not part of your active practice set. Start a new set." });
     const session = activeQuestionBankSessions.get(sessionId);
-    if (!session || session.uid !== (res.locals.firebaseUser as { uid: string }).uid || session.expiresAt <= Date.now() || !session.questionIds.has(questionId)) return res.status(403).json({ error: "This question is not part of your active practice set. Start a new set." });
-    if (session.answers.has(questionId)) return res.status(409).json({ error: "This answer has already been submitted." });
+    if (session?.answers.has(questionId)) return res.status(409).json({ error: "This answer has already been submitted." });
     const question = loadImportedQuestionBank().find((q) => q.id === questionId);
     if (!question) return res.status(404).json({ error: "Question not found." });
     const validConfidence = ["guess", "low", "high"].includes(confidence) ? confidence : undefined;
     const responseSeconds = Number.isFinite(timeTakenSeconds) ? Math.min(1800, Math.max(1, Math.round(timeTakenSeconds))) : undefined;
-    session.answers.set(questionId, { selectedAnswer, confidence: validConfidence, timeTakenSeconds: responseSeconds });
+    const answer: QuestionBankAnswerReceipt = { uid, expiresAt: claims.expiresAt, nonce: claims.nonce, questionId, selectedAnswer, confidence: validConfidence, timeTakenSeconds: responseSeconds };
+    session?.answers.set(questionId, { selectedAnswer, confidence: validConfidence, timeTakenSeconds: responseSeconds });
     res.setHeader("Cache-Control", "no-store");
-    res.json({ correct: selectedAnswer === question.correctAnswer, correctAnswer: question.correctAnswer, explanation: question.explanation, sourceExplanationAvailable: question.sourceExplanationAvailable !== false, source: question.source, sourcePage: question.sourcePage });
+    res.json({ correct: selectedAnswer === question.correctAnswer, correctAnswer: question.correctAnswer, explanation: question.explanation, sourceExplanationAvailable: question.sourceExplanationAvailable !== false, source: question.source, sourcePage: question.sourcePage, answerReceipt: signQuestionBankClaims(answer) });
   } catch {
     res.status(503).json({ error: "The question bank is not available on this deployment yet." });
   }
 });
 
 app.post("/api/question-bank/tutor", createRequestRateLimit({ windowMs: 60_000, maxRequests: 8 }), async (req, res) => {
-  const { questionId, sessionId } = req.body || {};
-  if (typeof questionId !== "string" || typeof sessionId !== "string") return res.status(400).json({ error: "An active practice session and question ID are required." });
+  const { questionId, sessionId, answerReceipt } = req.body || {};
+  if (typeof questionId !== "string" || typeof sessionId !== "string" || typeof answerReceipt !== "string") return res.status(400).json({ error: "Submit an answer in the active practice set before requesting a tutor review." });
   try {
-    const session = activeQuestionBankSessions.get(sessionId);
-    const learnerResponse = session?.answers.get(questionId);
+    const session = readQuestionBankClaims<QuestionBankSessionClaims>(sessionId);
+    const learnerResponse = readQuestionBankClaims<QuestionBankAnswerReceipt>(answerReceipt);
+    const uid = (res.locals.firebaseUser as { uid: string }).uid;
     const selectedAnswer = learnerResponse?.selectedAnswer;
-    if (!session || session.uid !== (res.locals.firebaseUser as { uid: string }).uid || session.expiresAt <= Date.now() || !session.questionIds.has(questionId) || !selectedAnswer) return res.status(403).json({ error: "Answer this question in your active practice set before requesting a tutor review." });
+    if (!session || !learnerResponse || session.uid !== uid || learnerResponse.uid !== uid || learnerResponse.nonce !== session.nonce || !session.questionIds.includes(questionId) || learnerResponse.questionId !== questionId || !selectedAnswer || !/^[A-D]$/.test(selectedAnswer)) return res.status(403).json({ error: "Answer this question in your active practice set before requesting a tutor review." });
     const question = loadImportedQuestionBank().find((q) => q.id === questionId);
     if (!question) return res.status(404).json({ error: "Question not found." });
     const optionList = question.options.map((o) => `${o.key}. ${o.text}${o.key === question.correctAnswer ? " [CORRECT]" : ""}${o.key === selectedAnswer ? " [STUDENT SELECTED]" : ""}`).join("\n");

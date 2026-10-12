@@ -374,7 +374,27 @@ export function resolveCloudConflict(localState: AppState, cloudState: AppState)
     ),
     // A queued snapshot represents the most recent local plan edits. Retain it
     // on recovery while still preserving a cloud plan if the cache has none.
-    fmgeSprint: localState.fmgeSprint || cloudState.fmgeSprint,
+    fmgeSprint: localState.fmgeSprint || cloudState.fmgeSprint
+      ? {
+          ...(cloudState.fmgeSprint || localState.fmgeSprint!),
+          ...(localState.fmgeSprint || {}),
+          completedTasks: {
+            ...(cloudState.fmgeSprint?.completedTasks || {}),
+            ...(localState.fmgeSprint?.completedTasks || {}),
+          },
+          errorTypes: {
+            ...(cloudState.fmgeSprint?.errorTypes || {}),
+            ...(localState.fmgeSprint?.errorTypes || {}),
+          },
+        }
+      : undefined,
+    // These checklist maps are user progress too. Keep distinct keys from both
+    // snapshots and let the pending local snapshot win for overlapping keys,
+    // including explicit `false` values when a learner resets an item.
+    rapidRevisionProgress: {
+      ...(cloudState.rapidRevisionProgress || {}),
+      ...(localState.rapidRevisionProgress || {}),
+    },
     telegramQuestions: [...(cloudState.telegramQuestions || []), ...(localState.telegramQuestions || [])].filter(
       (q, idx, arr) => arr.findIndex((x) => x.id === q.id) === idx
     ),

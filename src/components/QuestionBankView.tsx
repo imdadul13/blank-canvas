@@ -11,7 +11,7 @@ import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 type Exam = 'FMGE' | 'NEET-PG' | 'INI-CET';
 type BankQuestion = { id: string; exam: Exam; year: number | null; subjectId: string; subjectName: string; topicName: string; stem: string; options: Array<{key: string; text: string}>; imageUrl: string | null; imageUrls: string[]; source: string; sourcePage: number; isImageBased: boolean };
 type Facets = { exams: Exam[]; subjects: Array<{id: string; name: string; count: number}>; years: number[]; count: number; imageCount: number };
-type Review = { correct: boolean; correctAnswer: string; explanation: string; sourceExplanationAvailable?: boolean; source: string; sourcePage: number };
+type Review = { correct: boolean; correctAnswer: string; explanation: string; sourceExplanationAvailable?: boolean; source: string; sourcePage: number; answerReceipt: string };
 type TutorReview = { learnerChoiceInsight: string; decisionRule: string; retrievalQuestion: string; retrievalAnswer: string; optionAnalysis: Array<{key: string; verdict: string; reason: string}>; examTrap: string; memoryAid: string; clinicalPearl: string; aiGenerated: boolean };
 type SprintErrorType = NonNullable<AppState['fmgeSprint']>['errorTypes'] extends Record<string, infer T> | undefined ? T : never;
 
@@ -502,11 +502,11 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
   const availableTopics=q.exam==='FMGE' ? FMGE_SUBJECTS.find((subject)=>subject.id===q.subjectId)?.topics || [] : [];
   const selectedTopic=availableTopics.find((topic)=>topic.id===selectedSubtopic);
 
-  const requestTutorReview=async()=>{
+  const requestTutorReview=async(answerReceipt?:string)=>{
     if (tutorLoading || tutor) return;
     setTutorLoading(true); setTutorError('');
     try {
-      const data = await responseJson(await apiFetch('/api/question-bank/tutor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({questionId:q.id,sessionId})}));
+      const data = await responseJson(await apiFetch('/api/question-bank/tutor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({questionId:q.id,sessionId,answerReceipt})}));
       setTutor(data);
     } catch (err: any) { setTutorError(err.message || 'Gemini could not prepare the review.'); }
     finally { setTutorLoading(false); }
@@ -522,7 +522,7 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
       setReview(answer);
       setAnswered((prev)=>({...prev,[q.id]:{selected:choice,correct:data.correct,seconds,confidence}}));
       onRecordAttempt({questionId:q.id,subjectId:q.subjectId,topicId:selectedTopic?.id||q.subjectId,topicName:selectedTopic?.name||q.subjectName,subtopicId:selectedTopic?.id,subtopic:selectedTopic?.name,isCorrect:data.correct,selectedAnswer:choice,correctAnswer:data.correctAnswer,timeTakenSeconds:seconds,difficulty:'high-yield',confidence,source:'qbank',sessionId,isImageBased:q.isImageBased,imageUrl:q.imageUrl||undefined,exam:q.exam});
-      if(!data.correct) await requestTutorReview();
+      if(!data.correct) await requestTutorReview(answer.answerReceipt);
     } catch(err:any) { setTutorError(err.message||'Could not submit this answer.'); }
     finally { setLoading(false); }
   };
@@ -544,7 +544,7 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
           {!review?<><fieldset className="mt-4"><legend className="mb-2 text-xs font-semibold text-[#69717D]">How sure are you? This helps choose what to revisit.</legend><div className="grid grid-cols-3 gap-2">{([{value:'guess',label:'Guessed'},{value:'low',label:'Unsure'},{value:'high',label:'Confident'}] as const).map((item)=><button key={item.value} type="button" aria-pressed={confidence===item.value} onClick={()=>setConfidence(item.value)} className={`min-h-10 rounded-xl border px-2 text-xs font-semibold transition ${confidence===item.value?'border-blue-300 bg-blue-50 text-blue-800':'border-[#E7EAF0] bg-white text-[#68717E] hover:border-blue-200'}`}>{item.label}</button>)}</div></fieldset>{availableTopics.length>0&&<details className="mt-3 rounded-xl border border-[#E7EAF0] bg-[#FBFCFE] px-3 py-2.5"><summary className="cursor-pointer text-xs font-semibold text-[#596270]">Tag the tested topic <span className="font-normal text-[#8A929D]">· optional, learner-selected</span></summary><p className="mt-2 text-[11px] leading-4 text-[#7A8491]">Choose only if you recognize the main concept. This is not automatically inferred from the question.</p><select value={selectedSubtopic} onChange={(event)=>setSelectedSubtopic(event.target.value)} className="mt-2 h-10 w-full rounded-lg border border-[#E1E6ED] bg-white px-3 text-xs text-[#344054]"><option value="">Leave untagged</option>{availableTopics.map((topic)=><option key={topic.id} value={topic.id}>{topic.name}</option>)}</select></details>}<button type="button" disabled={!choice||loading} onClick={submit} className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#1769E0] text-sm font-semibold text-white shadow-[0_5px_14px_rgba(23,105,224,0.18)] transition hover:bg-[#0F5FCC] disabled:opacity-45 sm:w-auto sm:px-7">{loading?<><LoaderCircle className="h-4 w-4 animate-spin"/>Checking answer…</>:'Check answer'}{!loading&&<ChevronRight className="h-4 w-4"/>}</button>{tutorError&&<p role="alert" className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm leading-5 text-rose-800">{tutorError}</p>}</>:<div className="qbank-review mt-6 space-y-4" ref={(node)=>node&&node.scrollIntoView({behavior:'smooth',block:'nearest'})}>
             <div className={`flex items-start gap-3 rounded-2xl border p-4 ${review.correct?'border-emerald-200 bg-emerald-50/80':'border-rose-200 bg-rose-50/80'}`}><div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${review.correct?'bg-emerald-600 text-white':'bg-rose-600 text-white'}`}>{review.correct?<Check className="h-4 w-4"/>:<CircleHelp className="h-4 w-4"/>}</div><div><p className={`text-sm font-semibold ${review.correct?'text-emerald-950':'text-rose-950'}`}>{review.correct?'That’s correct.':`Not quite — the correct answer is ${review.correctAnswer}.`}</p>{answerText&&<p className="mt-1 text-xs leading-5 text-[#5F6B78]">{answerText}</p>}</div></div>
             <SourceExplanation review={review} correctAnswer={answerText} />
-            {tutor||tutorLoading||tutorError?<GeminiReviewPanel correct={review.correct} tutor={tutor} loading={tutorLoading} error={tutorError} onRequest={requestTutorReview}/>:<button type="button" onClick={requestTutorReview} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50/70 px-3.5 text-xs font-semibold text-violet-800 transition hover:bg-violet-100"><MessageSquareText className="h-3.5 w-3.5"/>Ask Gemini to compare all options</button>}
+            {tutor||tutorLoading||tutorError?<GeminiReviewPanel correct={review.correct} tutor={tutor} loading={tutorLoading} error={tutorError} onRequest={()=>requestTutorReview(review.answerReceipt)}/>:<button type="button" onClick={()=>requestTutorReview(review.answerReceipt)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-violet-200 bg-violet-50/70 px-3.5 text-xs font-semibold text-violet-800 transition hover:bg-violet-100"><MessageSquareText className="h-3.5 w-3.5"/>Ask Gemini to compare all options</button>}
             <button type="button" onClick={next} disabled={loading||tutorLoading} className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#1769E0] text-sm font-semibold text-white shadow-[0_5px_14px_rgba(23,105,224,0.18)] transition hover:bg-[#0F5FCC] disabled:opacity-55 sm:w-auto sm:px-7">{index+1===questions.length?'Finish set':'Next question'}<ChevronRight className="h-4 w-4"/></button>
           </div>}
         </article><p className="mt-3 text-center text-[11px] text-[#959BA4]">{q.exam}{q.year?` · ${q.year}`:' · year not listed'} · {q.source} · page {q.sourcePage}</p>
