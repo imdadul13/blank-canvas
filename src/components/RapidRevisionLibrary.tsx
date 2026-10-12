@@ -4,11 +4,12 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, BookOpenCheck, Check, Ch
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { RAPID_REVISION_DECK_TEXT } from '../data/rapidRevisionDeckText';
 import { RAPID_REVISION_PART3_PAGES } from '../data/rapidRevisionPart3Pages';
+import { RAPID_REVISION_VISUALS } from '../data/rapidRevisionVisuals';
 
 type SourceId = 'day1' | 'part3';
 type SubjectId = 'anatomy' | 'physiology' | 'pathology' | 'pharmacology' | 'biochemistry' | 'microbiology' | 'radiology' | 'dermatology' | 'pediatrics' | 'gynecology' | 'obstetrics';
 type DeckSubject = { id: SubjectId; title: string; range: [number, number]; color: string; wash: string; icon: React.ReactNode };
-type Slide = { page: number; title: string; summary: string; lines: string[] };
+type Slide = { page: number; title: string; summary: string; lines: string[]; visuals: string[] };
 
 const SOURCE_INFO: Record<SourceId, { title: string; description: string; gradient: string; pages: number }> = {
   day1: { title: 'Foundation review', description: 'Anatomy, physiology and para-clinical subjects', gradient: 'from-blue-600 via-indigo-600 to-violet-600', pages: 146 },
@@ -60,7 +61,7 @@ function buildSlides(source: SourceId, subject: DeckSubject): Slide[] {
     if (source === 'day1' && !content.lines.length) continue;
     const summary = content.summary.replace(/\b(image|image continuation)\b/gi, 'visual review');
     const title = content.title.length > 96 ? `${content.title.slice(0, 93).trimEnd()}…` : content.title;
-    slides.push({ page, title, summary, lines: content.lines });
+    slides.push({ page, title, summary, lines: content.lines, visuals: RAPID_REVISION_VISUALS[source][String(page)] || [] });
   }
   return slides;
 }
@@ -162,7 +163,7 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
     </div>
     {!subjects.length && <p className="rounded-2xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">No subject or topic matches that search.</p>}
 
-    <div className="rounded-2xl border border-amber-200/80 bg-amber-50/80 p-4 text-sm leading-6 text-amber-950 dark:border-amber-400/20 dark:bg-amber-300/5 dark:text-amber-100"><strong>Source note:</strong> slide layouts and selectable text are made by OneShot from the supplied revision material. Source page numbers are retained for checking. Scanned handwriting and figures are not independently fact-checked.</div>
+    <div className="rounded-2xl border border-amber-200/80 bg-amber-50/80 p-4 text-sm leading-6 text-amber-950 dark:border-amber-400/20 dark:bg-amber-300/5 dark:text-amber-100"><strong>Source note:</strong> OneShot presents the revision material in its own slide layout, with selectable text and extracted study figures. Source page numbers are retained for reference; handwriting and clinical content have not been independently fact-checked.</div>
     <div className="flex justify-end"><button type="button" onClick={() => onPractice('medicine')} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-blue-200 hover:text-blue-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">Go to question practice <ArrowUpRight className="h-4 w-4" /></button></div>
 
     {deck && currentSlide && createPortal(<div className="fixed inset-0 z-[10000] flex flex-col bg-[#0b1020] text-white" role="dialog" aria-modal="true" aria-label={`${deck.subject.title} slide deck`}>
@@ -180,6 +181,15 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({ prog
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">{currentSlide.summary ? 'Rapid review' : 'Study notes'}</p>
               <h2 className="mt-2 max-w-4xl text-2xl font-bold leading-tight tracking-[-0.035em] text-[#172235] sm:text-4xl">{currentSlide.title}</h2>
               {currentSlide.summary && <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-600 sm:text-base">{currentSlide.summary}</p>}
+              {!!currentSlide.visuals.length && <section className="mt-6" aria-label="Study visuals">
+                <div className="mb-3 flex items-center justify-between gap-3"><h3 className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Study visuals</h3><span className="text-xs font-medium text-slate-400">{currentSlide.visuals.length} figure{currentSlide.visuals.length === 1 ? '' : 's'}</span></div>
+                <div className={`grid gap-3 ${currentSlide.visuals.length === 1 ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-3'}`}>
+                  {currentSlide.visuals.map((visual, index) => <figure key={visual} className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_4px_16px_rgba(30,64,175,0.06)]">
+                    <img src={visual} alt={`${currentSlide.title} study figure ${index + 1}`} loading="lazy" decoding="async" className={`w-full rounded-xl object-contain ${currentSlide.visuals.length === 1 ? 'max-h-[360px]' : 'max-h-[260px]'}`} />
+                    <figcaption className="px-2 pb-1 pt-2 text-[11px] font-medium text-slate-400">Figure {index + 1}</figcaption>
+                  </figure>)}
+                </div>
+              </section>}
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {currentSlide.lines.map((line, index) => {
                   const relation = splitRelationship(line.replace(/^[•●▪#\-–—\s]+/, ''));
