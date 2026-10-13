@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Activity, ArrowRight, Baby, Bone, BookOpenCheck, Bot, Brain, Bug, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Dna, Ear, Eye, Fingerprint, Flower2, HeartPulse, Image as ImageIcon, Layers, LoaderCircle, MessageSquareText, Microscope, Pill, RotateCcw, Scale, ScanLine, Scissors, Stethoscope, Syringe, Target, Users, X, Zap } from 'lucide-react';
+import { Activity, ArrowRight, Baby, BarChart3, Bone, BookOpenCheck, Bot, Brain, Bug, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Dna, Ear, Eye, Filter, Fingerprint, Flower2, HeartPulse, Image as ImageIcon, Layers, LoaderCircle, MessageSquareText, Microscope, Pill, Play, RotateCcw, Scale, ScanLine, Scissors, Search, Stethoscope, Syringe, Target, Users, X, Zap } from 'lucide-react';
 import { apiFetch } from '../utils/api';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
 import { buildDueReviewQueue, type ReviewQueueItem } from '../utils/qbankReviewQueue';
@@ -32,6 +32,28 @@ async function responseJson(response: Response) {
   if (!response.ok) throw new Error(data.error || 'Could not reach the question bank.');
   return data;
 }
+
+// Circular progress gauge matching Revision Matrix standard
+const Gauge: React.FC<{
+  pct: number; size?: number; sw?: number; color?: string; track?: string;
+}> = ({ pct, size = 52, sw = 4.5, color = '#007AFF', track = '#E5E7EB' }) => {
+  const r = (size - sw) / 2;
+  const circ = 2 * Math.PI * r;
+  const off = circ - (Math.min(100, Math.max(0, pct)) / 100) * circ;
+  return (
+    <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
+      <svg className="-rotate-90" width={size} height={size}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth={sw} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={sw}
+          strokeDasharray={circ} strokeDashoffset={off} strokeLinecap="round"
+          className="transition-all duration-700 ease-out" />
+      </svg>
+      <span className="absolute font-mono text-[11px] font-black text-slate-900 dark:text-white tracking-tight leading-none">
+        {pct}%
+      </span>
+    </div>
+  );
+};
 
 type SubjectTone = { from: string; to: string; ink: string; soft: string; icon: React.ComponentType<{ className?: string }> };
 // Assorted Apple-system hues per subject: gradient pair, readable ink and a soft tint.
@@ -137,14 +159,75 @@ export const QuestionBankView: React.FC<{
   const reviewQueue = useMemo(() => buildDueReviewQueue(attempts), [attempts]);
   const dueReviewQueue = reviewQueue.filter((item) => item.dueAt <= reviewClock);
 
+  const [matrixSearch, setMatrixSearch] = useState('');
+  const [matrixSortBy, setMatrixSortBy] = useState<'weight' | 'questions' | 'accuracy' | 'alpha'>('weight');
+  const [matrixFilter, setMatrixFilter] = useState<'all' | 'high-weight' | 'unattempted'>('all');
+
+  // Performance calculations matching Revision Matrix standards
+  const totalQbankAttempts = useMemo(() => attempts.filter((a) => a.source === 'qbank').length, [attempts]);
+  const correctQbankAttempts = useMemo(() => attempts.filter((a) => a.source === 'qbank' && a.isCorrect).length, [attempts]);
+  const overallQbankAccuracy = totalQbankAttempts > 0 ? Math.round((correctQbankAttempts / totalQbankAttempts) * 100) : 0;
+  const qbankCoveragePct = Math.min(100, Math.round((totalQbankAttempts / Math.max(1, facets?.count || 1200)) * 100));
+
+  const totalImageAttempts = useMemo(() => attempts.filter((a) => a.source === 'qbank' && (a.questionId?.includes('img') || a.subtopic?.toLowerCase().includes('image'))).length, [attempts]);
+  const imageCoveragePct = Math.min(100, Math.round((totalImageAttempts / Math.max(1, facets?.imageCount || 250)) * 100));
+
+  const dueCount = dueReviewQueue.length;
+  const totalQueue = reviewQueue.length;
+  const dueClearedPct = totalQueue > 0 ? Math.round(((totalQueue - dueCount) / totalQueue) * 100) : 100;
+
+  const subjectMatrixData = useMemo(() => {
+    return FMGE_SUBJECTS.map((sub) => {
+      const facetSub = facets?.subjects.find((s) => s.id === sub.id);
+      const totalQs = facetSub?.count || 0;
+      const subAttempts = attempts.filter((a) => a.subjectId === sub.id);
+      const correct = subAttempts.filter((a) => a.isCorrect).length;
+      const accuracy = subAttempts.length > 0 ? Math.round((correct / subAttempts.length) * 100) : null;
+      const weightage = sub.weightage;
+      const tone = toneFor(sub.id);
+
+      return {
+        sub,
+        totalQs,
+        imageCount: (facetSub as any)?.imageCount || 0,
+        attemptsCount: subAttempts.length,
+        accuracy,
+        weightage,
+        tone,
+      };
+    });
+  }, [facets, attempts]);
+
+  const filteredMatrix = useMemo(() => {
+    let list = [...subjectMatrixData];
+    if (matrixSearch.trim()) {
+      const q = matrixSearch.toLowerCase();
+      list = list.filter((item) => item.sub.name.toLowerCase().includes(q) || item.sub.code.toLowerCase().includes(q));
+    }
+    if (matrixFilter === 'high-weight') {
+      list = list.filter((item) => item.weightage >= 15);
+    } else if (matrixFilter === 'unattempted') {
+      list = list.filter((item) => item.attemptsCount === 0);
+    }
+
+    if (matrixSortBy === 'weight') {
+      list.sort((a, b) => b.weightage - a.weightage);
+    } else if (matrixSortBy === 'accuracy') {
+      list.sort((a, b) => (b.accuracy ?? -1) - (a.accuracy ?? -1));
+    } else if (matrixSortBy === 'questions') {
+      list.sort((a, b) => b.totalQs - a.totalQs);
+    } else {
+      list.sort((a, b) => a.sub.name.localeCompare(b.sub.name));
+    }
+    return list;
+  }, [subjectMatrixData, matrixSearch, matrixFilter, matrixSortBy]);
+
   const examTones: Record<Exam, { from: string; to: string }> = { 'FMGE': { from: '#0A84FF', to: '#5E5CE6' }, 'NEET-PG': { from: '#BF5AF2', to: '#FF2D92' }, 'INI-CET': { from: '#30B0C7', to: '#34C759' } };
-  const summaryTone = selectedSubject ? toneFor(selectedSubject.id) : { ...DEFAULT_TONE, ...examTones[exam] };
-  const SummaryIcon = selectedSubject ? summaryTone.icon : Layers;
   const rise = (delay = 0) => ({ initial: reducedMotion ? false as const : { opacity: 0, y: 16, scale: 0.985 }, animate: { opacity: 1, y: 0, scale: 1 }, transition: reducedMotion ? { duration: 0 } : { ...SOFT_SPRING, delay } });
   const styleOptions = [{ value: 'all', label: 'All', icon: BookOpenCheck, from: '#0A84FF', to: '#5E5CE6' }, { value: 'image', label: 'Images', icon: ImageIcon, from: '#BF5AF2', to: '#FF2D92' }, { value: 'standard', label: 'Text', icon: MessageSquareText, from: '#30D158', to: '#00A88F' }] as const;
 
-  return <div data-accent="practice" className="qbank-root qbx space-y-6 sm:space-y-8 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 animate-in fade-in duration-150 pb-24 sm:pb-20 lg:pb-16 text-slate-900 dark:text-slate-100">
-    {/* Apple HIG Deep Sapphire / Oceanic Blue Hero Header — Matching Revision Matrix & Grand Tests */}
+  return <div data-accent="practice" className="qbank-root qbx space-y-6 sm:space-y-8 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 animate-in fade-in duration-150 pb-24 sm:pb-20 lg:pb-16 text-slate-900 dark:text-slate-100 font-['Plus_Jakarta_Sans']">
+    {/* Apple HIG Deep Sapphire / Oceanic Blue Hero Header — Matching Revision Matrix */}
     <motion.header
       {...rise(0)}
       className="premium-page-hero qbx-hero relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] text-white shadow-[0_8px_40px_rgba(0,112,204,0.28),0_2px_8px_rgba(0,0,0,0.12)]"
@@ -171,7 +254,7 @@ export const QuestionBankView: React.FC<{
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white">
             <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] animate-pulse" />
-            <span className="uppercase tracking-[0.14em] text-[10.5px] font-mono font-bold text-white/80">Question Library</span>
+            <span className="uppercase tracking-[0.14em] text-[10.5px] font-mono font-bold text-white/80">Question Bank Matrix</span>
             <span className="text-white/30">·</span>
             <span className="text-white/80 font-normal hidden sm:inline">FMGE · NEET-PG · INI-CET</span>
           </div>
@@ -204,6 +287,23 @@ export const QuestionBankView: React.FC<{
             <p className="text-[13px] sm:text-[14px] text-white/70 leading-snug max-w-lg">
               Authentic board question archive with step-by-step diagnostic reasoning, option breakdown analysis, and automated spaced repetition queues.
             </p>
+
+            {/* QBank Coverage Progress Bar */}
+            <div className="max-w-xs space-y-1.5 pt-1">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                <span>Coverage progress</span>
+                <span style={{ color: '#60B3FF' }}>{qbankCoveragePct}% ({totalQbankAttempts} / {facets?.count || 1200} Qs)</span>
+              </div>
+              <div className="h-2 w-full bg-white/15 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${qbankCoveragePct}%` }}
+                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="h-full rounded-full"
+                  style={{ background: 'linear-gradient(90deg, #60B3FF 0%, #007AFF 100%)', boxShadow: '0 0 10px rgba(96,179,255,0.6)' }}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-2.5 sm:gap-3 lg:min-w-[420px]">
@@ -215,130 +315,396 @@ export const QuestionBankView: React.FC<{
       </div>
     </motion.header>
 
-    {/* Session builder */}
-    <motion.section {...rise(0.08)} className="qbank-builder qbank-panel qbx-panel overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#181B26] shadow-sm">
-      <div className="qbx-panel-head flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5 border-b border-slate-200/70 dark:border-white/10">
+    {/* ═══ 3 FOCUS BENTO CARDS (Revision Matrix Standard) ═══ */}
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+      {[
+        {
+          phase: 'MCQ',
+          title: 'Core Board MCQs',
+          subtitle: 'Clinical Vignettes & Rationale',
+          pct: overallQbankAccuracy || qbankCoveragePct,
+          statText: `${totalQbankAttempts} / ${facets?.count || 1200} answered`,
+          color: '#007AFF',
+          track: '#E0EEFF',
+          gradient: 'from-blue-500 to-indigo-600',
+          border: 'border-blue-200/60 dark:border-blue-500/20',
+          description: '4-option clinical stems with diagnostic reasoning, distractor rationale & Gemini tutor analysis.',
+          actionLabel: 'Start 20 High-Yield MCQs',
+          onAction: () => startSession({ exam, subjectId: '', imageMode: 'all', count: 20, label: 'High-yield practice' }),
+          disabled: loading,
+        },
+        {
+          phase: 'IMG',
+          title: 'Image Clinical Vault',
+          subtitle: 'Radiology, Path & Derm Signs',
+          pct: imageCoveragePct,
+          statText: `${facets?.imageCount || 0} image questions`,
+          color: '#AF52DE',
+          track: '#F3E8FF',
+          gradient: 'from-purple-500 to-pink-600',
+          border: 'border-purple-200/60 dark:border-purple-500/20',
+          description: 'High-res CT/MRI scans, histopathology slides, gross specimens, and dermatologic signs with zoomable lightbox.',
+          actionLabel: 'Start 15 Image Cases',
+          onAction: () => startSession({ exam, subjectId: '', imageMode: 'image', count: 15, label: 'Image cases' }),
+          disabled: loading,
+        },
+        {
+          phase: 'SR',
+          title: 'Daily Spaced Recall',
+          subtitle: 'Active Memory Retrieval',
+          pct: dueClearedPct,
+          statText: `${dueReviewQueue.length} due today`,
+          color: '#FF9500',
+          track: '#FFF4E0',
+          gradient: 'from-amber-500 to-orange-600',
+          border: 'border-amber-200/60 dark:border-amber-500/20',
+          description: 'Targeted retrieval sets scheduled at 1, 3, 7, and 14-day intervals to beat the forgetting curve and lock memory.',
+          actionLabel: dueReviewQueue.length > 0 ? `Review Due (${dueReviewQueue.length})` : 'Queue Clear Today',
+          onAction: () => startSession({ exam: 'FMGE', subjectId: '', year: '', imageMode: 'all', count: Math.min(20, dueReviewQueue.length), questionIds: dueReviewQueue.slice(0, 20).map((item) => item.questionId), label: 'Daily review' }),
+          disabled: loading || dueReviewQueue.length === 0,
+        },
+      ].map(({ phase, title, subtitle, pct, statText, color, track, gradient, border, description, actionLabel, onAction, disabled }, i) => (
+        <motion.div
+          key={phase}
+          initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={reducedMotion ? { duration: 0 } : { duration: 0.35, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+          className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border ${border} bg-white dark:bg-[#181B26] p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.09)] transition-all group flex flex-col justify-between`}
+        >
+          <div className="space-y-3.5">
+            {/* Top row */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${gradient} text-white flex items-center justify-center shrink-0 shadow-sm`}
+                  style={{ boxShadow: `0 3px 10px ${color}35` }}
+                >
+                  <span className="font-mono font-black text-[12px]">{phase}</span>
+                </div>
+                <div>
+                  <div className="font-bold text-[#1D1D1F] dark:text-white text-[14px] leading-tight">{title}</div>
+                  <div className="text-[11px] text-[#8E8E93] dark:text-slate-400 mt-0.5">{subtitle}</div>
+                </div>
+              </div>
+              <Gauge pct={pct} size={50} sw={4.5} color={color} track={track} />
+            </div>
+
+            {/* Progress bar */}
+            <div className="space-y-1">
+              <div className="h-1.5 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.max(pct > 0 ? 5 : 0, pct)}%` }}
+                  transition={{ duration: 0.9, ease: 'easeOut' }}
+                  className="h-full rounded-full"
+                  style={{ background: `linear-gradient(90deg, ${color} 0%, ${color}CC 100%)` }}
+                />
+              </div>
+              <div className="flex items-center justify-between text-[10.5px]">
+                <span className="font-mono text-slate-500 dark:text-slate-400">{statText}</span>
+                <span className="font-semibold" style={{ color }}>{pct}%</span>
+              </div>
+            </div>
+
+            {/* Description */}
+            <p className="text-[11px] text-[#8E8E93] dark:text-slate-400 leading-snug border-t border-slate-100 dark:border-white/5 pt-2.5">
+              {description}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={onAction}
+            className="mt-4 w-full py-2.5 px-3 rounded-xl font-bold text-xs text-white transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.98]"
+            style={{ background: `linear-gradient(135deg, ${color}, ${color}DD)` }}
+          >
+            <Play className="w-3.5 h-3.5 fill-current" />
+            <span>{actionLabel}</span>
+          </button>
+        </motion.div>
+      ))}
+    </div>
+
+    {/* ═══ MAIN SUBJECT QUESTION BANK MATRIX (Revision Matrix Layout) ═══ */}
+    <div className="rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#181B26] shadow-[0_2px_16px_rgba(0,0,0,0.05)] overflow-hidden">
+      {/* Card Header */}
+      <div className="px-4 sm:px-6 py-4 border-b border-slate-100 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <GradientIcon from={examTones[exam].from} to={examTones[exam].to}><Layers/></GradientIcon>
+          <div className="w-9 h-9 rounded-xl bg-[#007AFF]/10 border border-[#007AFF]/20 flex items-center justify-center text-[#007AFF] shrink-0">
+            <BarChart3 className="h-4 w-4" />
+          </div>
           <div>
-            <p className="qbx-kicker">Targeted Session</p>
-            <h2 className="qbx-h2 mt-0.5">Build your question set</h2>
-            <p className="qbx-muted mt-0.5 text-xs sm:text-sm">Shape a session around high-yield subjects and tested formats.</p>
+            <h2 className="font-bold text-[#1D1D1F] dark:text-white text-[15px] leading-tight">Subject Question Bank Matrix</h2>
+            <p className="text-[11px] text-[#8E8E93] dark:text-slate-400 font-mono">19 subjects · {facets?.count || 0} board questions · NBE Exam Distribution</p>
           </div>
         </div>
-        <div className="qbx-segment relative inline-flex w-full rounded-full p-1 sm:w-auto" role="group" aria-label="Choose exam">
+
+        {/* Filter pills & Sort */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100/80 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
+            {(['all', 'high-weight', 'unattempted'] as const).map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setMatrixFilter(f)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold font-mono transition-all cursor-pointer ${
+                  matrixFilter === f
+                    ? 'bg-white dark:bg-white/15 text-[#1D1D1F] dark:text-white shadow-xs'
+                    : 'text-[#8E8E93] dark:text-slate-400 hover:text-[#1D1D1F] dark:hover:text-white'
+                }`}
+              >
+                {f === 'all' ? 'All Subjects' : f === 'high-weight' ? 'High Weightage (≥15M)' : 'Unattempted'}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative">
+            <select
+              value={matrixSortBy}
+              onChange={(e) => setMatrixSortBy(e.target.value as any)}
+              className="appearance-none pl-3 pr-7 py-1.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-[11.5px] font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 cursor-pointer"
+            >
+              <option value="weight">Exam Weightage ↓</option>
+              <option value="questions">Questions Count ↓</option>
+              <option value="accuracy">Accuracy ↓</option>
+              <option value="alpha">A–Z</option>
+            </select>
+            <ChevronDown className="h-3 w-3 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
+      </div>
+
+      {/* Search row */}
+      <div className="px-4 sm:px-6 py-2.5 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/[0.02]">
+        <div className="relative">
+          <Search className="h-3.5 w-3.5 text-[#8E8E93] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            value={matrixSearch}
+            onChange={(e) => setMatrixSearch(e.target.value)}
+            placeholder="Search subjects or clinical disciplines…"
+            className="w-full pl-8 pr-8 py-1.5 text-[12.5px] text-[#1D1D1F] dark:text-white placeholder:text-[#8E8E93] bg-transparent border-none outline-none"
+          />
+          {matrixSearch && (
+            <button
+              type="button"
+              onClick={() => setMatrixSearch('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#C7C7CC] dark:bg-white/20 flex items-center justify-center text-white cursor-pointer hover:bg-[#8E8E93] transition-colors"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Column Headers */}
+      <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 sm:px-6 py-2 border-b border-slate-100 dark:border-white/10 bg-slate-50/30 dark:bg-white/[0.01]">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93]">Subject</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 w-24 text-center">Questions</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400 w-20 text-center">Images</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[#007AFF] w-20 text-center">Accuracy</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93] w-28 text-right">Practice</span>
+      </div>
+
+      {/* Subject Rows */}
+      <div className="divide-y divide-slate-100/80 dark:divide-white/5">
+        {filteredMatrix.map((item, idx) => {
+          const subColor = item.sub.color || item.tone.from;
+          const SubIcon = item.tone.icon;
+          return (
+            <div
+              key={item.sub.id}
+              className="px-4 sm:px-6 py-3 flex flex-col sm:grid sm:grid-cols-[1fr_auto_auto_auto_auto] gap-2.5 sm:gap-4 items-start sm:items-center hover:bg-slate-50/70 dark:hover:bg-white/[0.02] transition-colors"
+            >
+              {/* Subject Info */}
+              <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+                <div className="flex items-center gap-2.5 shrink-0">
+                  <div className="w-1 h-8 rounded-full shrink-0" style={{ background: subColor }} />
+                  <span className="w-5 h-5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 font-mono text-[10px] font-semibold flex items-center justify-center shrink-0">
+                    {idx + 1}
+                  </span>
+                </div>
+
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 shadow-xs" style={{ background: `linear-gradient(135deg, ${item.tone.from}, ${item.tone.to})` }}>
+                  <SubIcon className="w-4 h-4" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-[13.5px] text-[#1D1D1F] dark:text-white truncate">
+                      {item.sub.name}
+                    </span>
+                    <span
+                      className="px-2 py-0.5 rounded-full text-[9.5px] font-bold border shrink-0"
+                      style={{ color: subColor, background: `${subColor}15`, borderColor: `${subColor}30` }}
+                    >
+                      {item.weightage} Marks
+                    </span>
+                    {item.weightage >= 25 && (
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 shrink-0">
+                        High Yield
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Total Qs */}
+              <div className="w-24 text-center hidden sm:block">
+                <span className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">
+                  {item.totalQs.toLocaleString()} Qs
+                </span>
+              </div>
+
+              {/* Images */}
+              <div className="w-20 text-center hidden sm:block">
+                <span className="font-mono text-xs font-bold text-purple-600 dark:text-purple-400">
+                  {item.imageCount > 0 ? `${item.imageCount} Img` : '—'}
+                </span>
+              </div>
+
+              {/* Accuracy */}
+              <div className="w-20 text-center hidden sm:block">
+                {item.accuracy !== null ? (
+                  <span className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-mono font-bold ${
+                    item.accuracy >= 70 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' :
+                    item.accuracy >= 50 ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300' :
+                    'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300'
+                  }`}>
+                    {item.accuracy}%
+                  </span>
+                ) : (
+                  <span className="text-[11px] font-mono text-slate-400">—</span>
+                )}
+              </div>
+
+              {/* Action Button */}
+              <div className="w-full sm:w-28 flex justify-end shrink-0 pt-1 sm:pt-0">
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => startSession({ exam, subjectId: item.sub.id, imageMode: 'all', count: 20, label: `${item.sub.name} Practice` })}
+                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl font-bold text-xs text-white transition-all shadow-xs flex items-center justify-center gap-1.5 hover:brightness-105 active:scale-95 cursor-pointer disabled:opacity-50"
+                  style={{ background: `linear-gradient(135deg, ${item.tone.from}, ${item.tone.to})` }}
+                >
+                  <Play className="w-3 h-3 fill-current" />
+                  <span>Practice</span>
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    {/* ═══ CUSTOM SESSION BUILDER (Clean Apple HIG style, zero gimmicks) ═══ */}
+    <motion.section {...rise(0.08)} className="rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#181B26] shadow-[0_2px_16px_rgba(0,0,0,0.05)] overflow-hidden">
+      <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-slate-100 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
+            <Layers className="h-4 w-4" />
+          </div>
+          <div>
+            <h3 className="font-bold text-[#1D1D1F] dark:text-white text-[15px] leading-tight">Custom Session Builder</h3>
+            <p className="text-[11px] text-[#8E8E93] dark:text-slate-400 font-mono">Create a custom mock or targeted clinical set</p>
+          </div>
+        </div>
+
+        {/* Exam pills */}
+        <div className="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
           {(['FMGE', 'NEET-PG', 'INI-CET'] as Exam[]).map((value) => (
             <button
               key={value}
               type="button"
-              aria-pressed={exam === value}
               onClick={() => { setExam(value); setYear(''); }}
-              className={`relative min-h-9 flex-1 rounded-full px-3.5 text-xs font-bold transition-all sm:flex-none ${exam === value ? 'text-white' : 'qbx-segment-idle'}`}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                exam === value ? 'bg-white dark:bg-white/15 text-[#007AFF] dark:text-white shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
+              }`}
             >
-              {exam === value && (
-                <motion.span
-                  layoutId="qbx-exam-pill"
-                  transition={reducedMotion ? { duration: 0 } : SPRING}
-                  className="absolute inset-0 rounded-full shadow-[0_4px_12px_rgba(0,122,255,0.28)]"
-                  style={{ background: `linear-gradient(120deg, ${examTones[value].from}, ${examTones[value].to})` }}
-                />
-              )}
-              <span className="relative z-10 flex items-center justify-center gap-1.5">{value}{exam === value && <Check className="h-3.5 w-3.5"/>}</span>
+              {value}
             </button>
           ))}
         </div>
       </div>
-      <div className="grid lg:grid-cols-[minmax(0,1fr)_310px]">
-        <div className="min-w-0 space-y-6 p-5 sm:p-6">
+
+      <div className="p-5 sm:p-6 space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Subject Dropdown */}
           <div>
-            <div className="mb-3 flex items-center justify-between">
-              <p className="qbx-label"><i className="qbx-step">01</i>Subject focus</p>
-              {subjectId && <button type="button" onClick={() => setSubjectId('')} className="qbx-link text-xs font-bold text-[#007AFF] hover:underline">Clear filter</button>}
-            </div>
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-4">
-              <SubjectChip id="" name="All subjects" count={facets?.count} active={!subjectId} onSelect={() => setSubjectId('')} reduceMotion={reducedMotion} index={0}/>
-              {facets?.subjects.map((item, i) => (
-                <SubjectChip key={item.id} id={item.id} name={item.name} count={item.count} active={subjectId === item.id} onSelect={() => setSubjectId(item.id)} reduceMotion={reducedMotion} index={i + 1}/>
-              ))}
-              {!facets && loading && Array.from({ length: 7 }).map((_, i) => <div key={i} className="qbx-skeleton h-[58px] rounded-2xl"/>)}
-            </div>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
-            <SelectField label="Exam year" step="02">
-              <select value={year} onChange={(e) => setYear(e.target.value)}>
-                <option value="">Any year</option>
-                {facets?.years.map((value) => <option key={value} value={value}>{value}</option>)}
-              </select>
-            </SelectField>
-            <fieldset>
-              <legend className="qbx-label mb-2"><i className="qbx-step">03</i>Question style</legend>
-              <div className="qbx-segment relative grid grid-cols-3 gap-1 rounded-full p-1">
-                {styleOptions.map(({ value, label, icon: Icon, from, to }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={imageMode === value}
-                    onClick={() => setImageMode(value)}
-                    className={`relative inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full px-2 text-xs font-bold transition-colors ${imageMode === value ? 'text-white' : 'qbx-segment-idle'}`}
-                  >
-                    {imageMode === value && (
-                      <motion.span
-                        layoutId="qbx-style-pill"
-                        transition={reducedMotion ? { duration: 0 } : SPRING}
-                        className="absolute inset-0 rounded-full shadow-[0_4px_12px_rgba(94,92,230,0.25)]"
-                        style={{ background: `linear-gradient(120deg, ${from}, ${to})` }}
-                      />
-                    )}
-                    <Icon className="relative z-10 h-3.5 w-3.5"/>
-                    <span className="relative z-10">{label}</span>
-                  </button>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Subject Focus</label>
+            <div className="relative">
+              <select
+                value={subjectId}
+                onChange={(e) => setSubjectId(e.target.value)}
+                className="w-full appearance-none rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3.5 py-2.5 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 cursor-pointer"
+              >
+                <option value="">All Subjects (Mixed Full Exam)</option>
+                {facets?.subjects.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name} ({s.count} Qs)</option>
                 ))}
-              </div>
-            </fieldset>
+              </select>
+              <ChevronDown className="h-4 w-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           </div>
-          <fieldset>
-            <legend className="qbx-label mb-2"><i className="qbx-step">04</i>Number of questions</legend>
-            <div className="qbx-segment relative grid grid-cols-4 gap-1 rounded-full p-1">
-              {[5, 10, 20, 50].map((value) => (
+
+          {/* Question Style Pills */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Question Format</label>
+            <div className="grid grid-cols-3 gap-1 rounded-xl p-1 bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
+              {styleOptions.map(({ value, label, icon: Icon }) => (
                 <button
                   key={value}
                   type="button"
-                  aria-pressed={count === value}
-                  onClick={() => setCount(value)}
-                  className={`relative min-h-9 rounded-full text-xs font-bold tabular-nums transition-colors ${count === value ? 'text-white' : 'qbx-segment-idle'}`}>
-                  {count === value && (
-                    <motion.span
-                      layoutId="qbx-count-pill"
-                      transition={reducedMotion ? { duration: 0 } : SPRING}
-                      className="absolute inset-0 rounded-full shadow-[0_4px_12px_rgba(255,100,40,0.28)]"
-                      style={{ background: 'linear-gradient(120deg, #FF9F0A, #FF453A)' }}
-                    />
-                  )}
-                  <span className="relative z-10">{value}</span>
+                  onClick={() => setImageMode(value)}
+                  className={`py-1.5 px-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                    imageMode === value ? 'bg-white dark:bg-white/15 text-[#007AFF] dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
+                  }`}
+                >
+                  <Icon className="h-3 w-3" />
+                  <span>{label}</span>
                 </button>
               ))}
             </div>
-          </fieldset>
-        </div>
-        <aside className="qbx-summary relative isolate flex flex-col justify-between overflow-hidden p-5 sm:p-6 border-t lg:border-t-0 lg:border-l border-slate-200/80 dark:border-white/10 bg-slate-900 text-white" style={{ background: `radial-gradient(120% 80% at 100% 0%, ${summaryTone.from}66, transparent 60%), radial-gradient(90% 70% at 0% 100%, ${summaryTone.to}55, transparent 62%), linear-gradient(160deg, #121829, #1C1936)` }}>
-          <div aria-hidden="true" className="qbx-summary-dots pointer-events-none absolute inset-0 -z-10"/>
+          </div>
+
+          {/* Number of Questions */}
           <div>
-            <motion.div key={selectedSubject?.id || `all-${exam}`} initial={reducedMotion ? false : { scale: 0.6, rotate: -14, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={reducedMotion ? { duration: 0 } : SPRING} className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-[0_10px_24px_rgba(0,0,0,0.35)] ring-1 ring-white/25" style={{ background: `linear-gradient(140deg, ${summaryTone.from}, ${summaryTone.to})` }}><SummaryIcon className="h-5 w-5"/></motion.div>
-            <p className="qbx-summary-kicker mt-4 text-[10px] font-bold uppercase tracking-[0.16em]">Ready when you are</p>
-            <h3 className="qbx-summary-title mt-1 text-lg font-semibold tracking-tight">{selectedSubject ? selectedSubject.name : 'All subjects'}</h3>
-            <div className="mt-3 flex flex-wrap gap-1.5">{[exam, year || 'Any year', imageMode === 'all' ? 'All styles' : imageMode === 'image' ? 'Image cases' : 'Text only', `${count} questions`].map((tag) => <span key={tag} className="rounded-full bg-white/10 px-2.5 py-1 text-[10.5px] font-semibold text-white/85 ring-1 ring-white/15 backdrop-blur">{tag}</span>)}</div>
-            <p className="qbx-summary-body mt-4 text-xs leading-5">Answers stay hidden until you submit. Results feed performance tracking, with an optional Gemini review.</p>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Question Count</label>
+            <div className="grid grid-cols-4 gap-1 rounded-xl p-1 bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
+              {[10, 25, 50, 100].map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setCount(val)}
+                  className={`py-1.5 text-xs font-mono font-bold rounded-lg transition-all cursor-pointer ${
+                    count === val ? 'bg-white dark:bg-white/15 text-[#007AFF] dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
+                  }`}
+                >
+                  {val}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="mt-6">
-            <motion.button type="button" onClick={() => startSession()} disabled={loading || !facets?.count} whileHover={reducedMotion ? undefined : { y: -2, scale: 1.01 }} whileTap={reducedMotion ? undefined : { scale: 0.97 }} transition={SPRING} className="qbx-cta group relative inline-flex min-h-[52px] w-full items-center justify-center gap-2 overflow-hidden rounded-2xl px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-55"><span aria-hidden="true" className="qbx-cta-shine"/>{loading ? <><LoaderCircle className="relative h-4 w-4 animate-spin"/><span className="relative">Preparing set…</span></> : <><Zap className="relative h-4 w-4 text-[#FF9F0A]"/><span className="relative">Start practice</span><ArrowRight className="relative h-4 w-4 transition-transform group-hover:translate-x-0.5"/></>}</motion.button>
-            {error && <p role="alert" className="mt-3 rounded-xl border border-rose-300/40 bg-rose-500/15 px-3 py-2 text-xs leading-5 text-rose-100">{error}</p>}
-          </div>
-        </aside>
-      </div>
-      <div className="qbx-feature-strip grid grid-cols-1 sm:grid-cols-3">
-        <FeatureNote icon={<ImageIcon/>} title="Figures in context" body="Image questions stay with their source material." from="#BF5AF2" to="#FF2D92"/>
-        <FeatureNote icon={<BookOpenCheck/>} title="Clear explanations" body="Readable rationale with the answer and source." from="#0A84FF" to="#5E5CE6"/>
-        <FeatureNote icon={<Activity/>} title="Progress recorded" body="Attempts feed your subject performance." from="#30D158" to="#00A88F"/>
+        </div>
+
+        {/* Launch CTA */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-white/5">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Selected: <b className="text-slate-800 dark:text-slate-200">{selectedSubject ? selectedSubject.name : 'All Subjects'}</b> · {imageMode === 'all' ? 'All Styles' : imageMode === 'image' ? 'Images Only' : 'Text Only'} · {count} Questions (~{Math.round(count * 1.2)} mins)
+          </p>
+
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => startSession()}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs text-white transition-all shadow-md flex items-center justify-center gap-2 hover:brightness-105 active:scale-95 cursor-pointer disabled:opacity-50"
+            style={{ background: 'linear-gradient(135deg, #0070CC, #005699)' }}
+          >
+            {loading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
+            <span>Launch Practice Session</span>
+          </button>
+        </div>
       </div>
     </motion.section>
 
