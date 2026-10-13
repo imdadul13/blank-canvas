@@ -260,10 +260,14 @@
 .dark .qbank-primary-action { background-image: linear-gradient(105deg,#1672E8,#315FE7 55%,#554FD8); }
 .dark .qbank-primary-action:hover { background-image: linear-gradient(105deg,#2580F1,#416DF0 55%,#655EE6); }
 .dark .qbank-feature:hover { background-color: rgba(255,255,255,.025); }
-.dark .qbank-root button:focus-visible,
-.dark .qbank-session button:focus-visible { outline: 2px solid #64A9FF; outline-offset: 2px; }
-.qbank-root button:focus-visible,
-.qbank-session button:focus-visible { outline: 2px solid #1769E0; outline-offset: 2px; }
+.dark .qbank-root button:not(.rounded-full):not(.qbx-ghost-btn):focus-visible,
+.dark .qbank-session button:not(.rounded-full):not(.qbx-ghost-btn):focus-visible { outline: 2px solid #64A9FF; outline-offset: 2px; }
+.qbank-root button:not(.rounded-full):not(.qbx-ghost-btn):focus-visible,
+.qbank-session button:not(.rounded-full):not(.qbx-ghost-btn):focus-visible { outline: 2px solid #1769E0; outline-offset: 2px; }
+.qbank-root button.rounded-full:focus-visible,
+.qbank-root .qbx-ghost-btn:focus-visible { outline: none !important; box-shadow: 0 0 0 2px rgba(23, 105, 224, 0.4); }
+.dark .qbank-root button.rounded-full:focus-visible,
+.dark .qbank-root .qbx-ghost-btn:focus-visible { outline: none !important; box-shadow: 0 0 0 2px rgba(100, 169, 255, 0.4); }
 
 /* Question Bank: give the setup flow its own calm, editorial hierarchy. */
 .qbank-banner { box-shadow: 0 18px 48px rgba(35,65,110,.10), inset 0 1px 0 rgba(255,255,255,.75); }
@@ -757,14 +761,36 @@
   background: rgba(60, 60, 67, 0.06);
   border: 1px solid rgba(60, 60, 67, 0.12);
   color: #374151;
+  border-radius: 9999px;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 .qbx-ghost-btn:hover {
   background: rgba(60, 60, 67, 0.10);
+}
+.qbx-ghost-btn:focus,
+.qbx-ghost-btn:active {
+  outline: none !important;
+}
+.qbx-ghost-btn:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4);
 }
 .dark .qbx-ghost-btn {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.12);
   color: #F3F4F6;
+  border-radius: 9999px;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+.dark .qbx-ghost-btn:focus,
+.dark .qbx-ghost-btn:active {
+  outline: none !important;
+}
+.dark .qbx-ghost-btn:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(100, 169, 255, 0.4);
 }
 .dark .qbx-ghost-btn:hover {
   background: rgba(255, 255, 255, 0.14);
