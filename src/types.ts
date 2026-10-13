@@ -1076,6 +1076,8 @@ export interface AppState {
   fmgeSprint?: {
     startedOn: string;
     dailyHours: number;
+    /** Last local/cloud update, used to recover the newest sprint across devices. */
+    updatedAt?: string;
     completedTasks: Record<string, boolean>;
     /** Question ids selected for a sprint retrieval or error-review task. */
     taskQuestionIds?: Record<string, string[]>;

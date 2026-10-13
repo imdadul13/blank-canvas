@@ -27,6 +27,7 @@ import {
   getPendingOfflineWrite,
   clearPendingOfflineWrite,
   resolveCloudConflict,
+  mergeFmgeSprintSnapshots,
   clearUserLocalCache,
   hasLegacyLocalData,
   getLegacyLocalData,
@@ -332,12 +333,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // 2. Load cloud study data
         let cloudState = await getUserStateFromCloud(currentUser.uid);
         if (session !== authSessionRef.current) return;
+        const localCachedState = loadUserLocalCache(currentUser.uid);
 
         // A queued local snapshot means the last edit may not have reached the
         // server before a refresh, close, or connection loss. Recover and retry
         // it before treating the cloud snapshot as current.
         const pendingLocalState = getPendingOfflineWrite(currentUser.uid)
-          || (!cloudState ? loadUserLocalCache(currentUser.uid) : null);
+          || (!cloudState ? localCachedState : null);
         if (pendingLocalState) {
           const recovered = cloudState
             ? resolveCloudConflict(pendingLocalState, cloudState)
@@ -358,6 +360,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (syncError) {
             console.warn('[AUTH] Recovered local changes are waiting to sync:', syncError);
             setSyncStatus(navigator.onLine ? 'error' : 'offline');
+          }
+        }
+
+        // A cloud acknowledgement can race a browser refresh or a stale
+        // multi-device snapshot. Preserve a newer locally cached sprint and
+        // immediately repair the cloud copy instead of silently resetting it.
+        if (!pendingLocalState && cloudState && localCachedState?.fmgeSprint) {
+          const recoveredSprint = mergeFmgeSprintSnapshots(localCachedState.fmgeSprint, cloudState.fmgeSprint);
+          if (JSON.stringify(recoveredSprint) !== JSON.stringify(cloudState.fmgeSprint)) {
+            cloudState = { ...cloudState, fmgeSprint: recoveredSprint };
+            const recovered = cloudState;
+            pendingStateRef.current = recovered;
+            hasPendingLocalChangesRef.current = true;
+            saveUserLocalCache(currentUser.uid, recovered);
+            setAppState(recovered);
+            setSyncStatus('syncing');
+            try {
+              await saveUserStateToCloud(currentUser.uid, recovered);
+              clearPendingOfflineWrite(currentUser.uid);
+              pendingStateRef.current = null;
+              hasPendingLocalChangesRef.current = false;
+              lastCloudSavedStringRef.current = JSON.stringify(recovered);
+              setSyncStatus('synced');
+            } catch (syncError) {
+              console.warn('[AUTH] Recovered sprint progress is waiting to sync:', syncError);
+              setSyncStatus(navigator.onLine ? 'error' : 'offline');
+            }
           }
         }
 
@@ -444,12 +473,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const remoteStr = JSON.stringify(remoteState);
             if (remoteStr !== lastCloudSavedStringRef.current && !hasPendingLocalChangesRef.current) {
               console.log('[AUTH] Syncing updated state from Firestore snapshot');
+              const localCache = loadUserLocalCache(currentUser.uid);
+              const sprint = mergeFmgeSprintSnapshots(localCache?.fmgeSprint, remoteState.fmgeSprint);
+              const reconciledState = sprint === remoteState.fmgeSprint ? remoteState : { ...remoteState, fmgeSprint: sprint };
+              const hasRecoveredSprint = JSON.stringify(reconciledState.fmgeSprint) !== JSON.stringify(remoteState.fmgeSprint);
               isSyncingFromCloudRef.current = true;
-              setAppState(remoteState);
+              setAppState(reconciledState);
               lastCloudSavedStringRef.current = remoteStr;
-              saveUserLocalCache(currentUser.uid, remoteState);
+              saveUserLocalCache(currentUser.uid, reconciledState);
               setTimeout(() => {
                 isSyncingFromCloudRef.current = false;
+                if (hasRecoveredSprint) {
+                  pendingStateRef.current = reconciledState;
+                  hasPendingLocalChangesRef.current = true;
+                  savePendingOfflineWrite(currentUser.uid, reconciledState);
+                  setSyncStatus('syncing');
+                  void saveUserStateToCloud(currentUser.uid, reconciledState).then(() => {
+                    if (activeUidRef.current !== currentUser.uid) return;
+                    clearPendingOfflineWrite(currentUser.uid);
+                    pendingStateRef.current = null;
+                    hasPendingLocalChangesRef.current = false;
+                    lastCloudSavedStringRef.current = JSON.stringify(reconciledState);
+                    setSyncStatus('synced');
+                  }).catch((syncError) => {
+                    console.warn('[AUTH] Newer sprint progress is waiting to sync:', syncError);
+                    setSyncStatus(navigator.onLine ? 'error' : 'offline');
+                  });
+                }
               }, 100);
             }
           },

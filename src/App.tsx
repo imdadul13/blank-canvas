@@ -1121,7 +1121,7 @@ function AppInner() {
                     sprint={state.fmgeSprint}
                     attempts={state.mcqAttempts || []}
                     grandTests={state.grandTests || []}
-                    onUpdateSprint={(fmgeSprint) => setState((prev) => ({ ...prev, fmgeSprint }))}
+                    onUpdateSprint={(fmgeSprint) => setState((prev) => ({ ...prev, fmgeSprint: { ...fmgeSprint, updatedAt: new Date().toISOString() } }))}
                     onOpenGrandTests={() => handleSetActiveTab('grandtests')}
                     onOpenSprintSubject={(subjectId) => {
                       setRapidRevisionFocusSubjectId(subjectId);

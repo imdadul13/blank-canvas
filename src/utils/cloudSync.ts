@@ -99,6 +99,33 @@ export function clearLegacyLocalData(): void {
 
 const userStateSaveQueues = new Map<string, Promise<void>>();
 
+/** Pick the newest sprint snapshot without carrying checklist keys across a restart. */
+export function mergeFmgeSprintSnapshots(localSprint: AppState['fmgeSprint'], cloudSprint: AppState['fmgeSprint'], preferLocalOnTie = false): AppState['fmgeSprint'] {
+  if (!localSprint) return cloudSprint;
+  if (!cloudSprint) return localSprint;
+
+  const localUpdatedAt = Date.parse(localSprint.updatedAt || '') || Date.parse(`${localSprint.startedOn}T12:00:00`);
+  const cloudUpdatedAt = Date.parse(cloudSprint.updatedAt || '') || Date.parse(`${cloudSprint.startedOn}T12:00:00`);
+  const localIsNewer = localUpdatedAt || cloudUpdatedAt
+    ? localUpdatedAt > cloudUpdatedAt || (localUpdatedAt === cloudUpdatedAt && preferLocalOnTie)
+    : preferLocalOnTie;
+
+  if (localSprint.startedOn !== cloudSprint.startedOn) {
+    return localIsNewer ? localSprint : cloudSprint;
+  }
+
+  const newer = localIsNewer ? localSprint : cloudSprint;
+  const older = localIsNewer ? cloudSprint : localSprint;
+  return {
+    ...older,
+    ...newer,
+    completedTasks: { ...(older.completedTasks || {}), ...(newer.completedTasks || {}) },
+    errorTypes: { ...(older.errorTypes || {}), ...(newer.errorTypes || {}) },
+    taskQuestionIds: { ...(older.taskQuestionIds || {}), ...(newer.taskQuestionIds || {}) },
+    taskQuestionStartedAt: { ...(older.taskQuestionStartedAt || {}), ...(newer.taskQuestionStartedAt || {}) },
+  };
+}
+
 async function postgresJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await apiFetch(url, init);
   if (!response.ok) throw new Error(`Saved data request failed (${response.status}).`);
@@ -374,28 +401,7 @@ export function resolveCloudConflict(localState: AppState, cloudState: AppState)
     ),
     // A queued snapshot represents the most recent local plan edits. Retain it
     // on recovery while still preserving a cloud plan if the cache has none.
-    fmgeSprint: localState.fmgeSprint || cloudState.fmgeSprint
-      ? {
-          ...(cloudState.fmgeSprint || localState.fmgeSprint!),
-          ...(localState.fmgeSprint || {}),
-          completedTasks: {
-            ...(cloudState.fmgeSprint?.completedTasks || {}),
-            ...(localState.fmgeSprint?.completedTasks || {}),
-          },
-          errorTypes: {
-            ...(cloudState.fmgeSprint?.errorTypes || {}),
-            ...(localState.fmgeSprint?.errorTypes || {}),
-          },
-          taskQuestionIds: {
-            ...(cloudState.fmgeSprint?.taskQuestionIds || {}),
-            ...(localState.fmgeSprint?.taskQuestionIds || {}),
-          },
-          taskQuestionStartedAt: {
-            ...(cloudState.fmgeSprint?.taskQuestionStartedAt || {}),
-            ...(localState.fmgeSprint?.taskQuestionStartedAt || {}),
-          },
-        }
-      : undefined,
+    fmgeSprint: mergeFmgeSprintSnapshots(localState.fmgeSprint, cloudState.fmgeSprint, true),
     // These checklist maps are user progress too. Keep distinct keys from both
     // snapshots and let the pending local snapshot win for overlapping keys,
     // including explicit `false` values when a learner resets an item.
