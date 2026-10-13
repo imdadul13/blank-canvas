@@ -254,11 +254,11 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     name: 'General Medicine',
     code: 'MED',
     phase: 'clinical',
-    weightage: 33, // NBEMS FMGE June 2026 blueprint
+    weightage: 35, // Mega clinical subject!
     color: '#ec4899', // Pink (cooler pink tone)
     iconName: 'Stethoscope',
     description: 'Cardiology, Pulmonology, Nephrology, Gastroenterology, Neurology, Endocrinology, Rheumatology, and Infectious Diseases.',
-    highYieldTips: 'HIGH YIELD (33 blueprint marks). Prioritize ECG patterns, heart failure, stroke localization, acid–base interpretation, diabetes, and tuberculosis.',
+    highYieldTips: 'MEGA HIGH YIELD (35 Marks). Must master ECG patterns, Heart Failure (GDMT), Stroke localization, Acid-Base arterial blood gases, Diabetes guidelines, and Tuberculosis regimens.',
     topics: [
       { id: 'med-1', name: 'Cardiology - ECGs (STEMI, Arrhythmias, Heart Blocks, WPW)', isHighYield: true, notesDone: false, qBankDone: false, r1Done: false, r2Done: false, r3Done: false },
       { id: 'med-2', name: 'Cardiology - Acute Coronary Syndromes (ACS) & Heart Failure', isHighYield: true, notesDone: false, qBankDone: false, r1Done: false, r2Done: false, r3Done: false },
@@ -283,11 +283,11 @@ export const FMGE_SUBJECTS: FMGESubject[] = [
     name: 'General Surgery',
     code: 'SURG',
     phase: 'clinical',
-    weightage: 32, // NBEMS FMGE June 2026 blueprint
+    weightage: 35, // Mega clinical subject!
     color: '#007AFF', // Teal-dark
     iconName: 'Scissors',
     description: 'Trauma & ATLS, burns, shock, surgical oncology, GI surgery, thyroid/breast lesions, and urology.',
-    highYieldTips: 'HIGH YIELD (32 blueprint marks). Prioritize trauma/ATLS, burns, breast and thyroid lesions, acute abdomen, and surgical emergencies.',
+    highYieldTips: 'MEGA HIGH YIELD (30 Marks). Must master ATLS protocols, Burns fluid Parkland formula, Breast cancer staging/triple assessment, Thyroid swellings, and Acute Abdomen.',
     topics: [
       { id: 'surg-1', name: 'Trauma & ATLS Protocol (Primary & Secondary Survey, FAST)', isHighYield: true, notesDone: false, qBankDone: false, r1Done: false, r2Done: false, r3Done: false },
       { id: 'surg-2', name: 'Burns Management - Parkland Formula & Rule of Nines', isHighYield: true, notesDone: false, qBankDone: false, r1Done: false, r2Done: false, r3Done: false },

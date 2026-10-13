@@ -302,8 +302,9 @@ export function getPendingQueueKey(uid: string): string {
   return `fmge_pending_sync_queue_${uid}`;
 }
 
-export function savePendingOfflineWrite(uid: string, _state: AppState): void {
+export function savePendingOfflineWrite(uid: string, state: AppState): void {
   try {
+    saveUserLocalCache(uid, state);
     // The full snapshot is already written to the user cache. Keep only a
     // small durable marker here so large study histories are not duplicated.
     localStorage.setItem(getPendingQueueKey(uid), JSON.stringify({ version: 1, updatedAt: Date.now() }));
