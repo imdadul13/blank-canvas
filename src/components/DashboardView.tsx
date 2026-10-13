@@ -56,6 +56,7 @@ import {
   ShieldAlert,
   Headphones,
   ClipboardCheck,
+  Sparkles,
 } from 'lucide-react';
 import { AppState, DailyTask, DailyStudyLog, PracticeSessionContext, GrandTest, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -150,35 +151,178 @@ function DashboardTodayHub({
   onStartMock: () => void; onStartStudy: () => void; onOpenPlanner: () => void;
 }) {
   const focusAction = dueQbankReviews > 0
-    ? { title: 'Review your due questions', detail: `${dueQbankReviews} missed or unsure ${dueQbankReviews === 1 ? 'answer is' : 'answers are'} ready for another retrieval attempt.`, label: 'Open review queue', run: onOpenReviewQueue }
+    ? {
+        category: 'Spaced Retrieval',
+        badge: 'Due Now',
+        icon: RotateCcw,
+        iconGradient: 'from-[#007AFF] to-[#5856D6]',
+        badgeStyle: 'border-[#CCE0FF] bg-[#EEF5FF] text-[#0066CC]',
+        title: 'Review your due questions',
+        detail: `${dueQbankReviews} missed or unsure ${dueQbankReviews === 1 ? 'answer is' : 'answers are'} ready for another retrieval attempt.`,
+        label: 'Open review queue',
+        run: onOpenReviewQueue,
+        tags: [
+          { label: `${dueQbankReviews} Questions Due`, dotColor: 'bg-[#007AFF]' },
+          { label: 'Spaced Recall', dotColor: 'bg-[#5856D6]' },
+          { label: 'Active Queue', dotColor: 'bg-[#30D158]' },
+        ],
+      }
     : dueErrors > 0
-      ? { title: 'Repair your due mistakes', detail: `${dueErrors} saved error ${dueErrors === 1 ? 'needs' : 'items need'} a fresh attempt.`, label: 'Retest mistakes', run: onOpenErrors }
+      ? {
+          category: 'Error Vault',
+          badge: 'High Priority',
+          icon: ShieldAlert,
+          iconGradient: 'from-[#FF3B30] to-[#FF9500]',
+          badgeStyle: 'border-[#FFD0CC] bg-[#FFF0EF] text-[#D70015]',
+          title: 'Repair your due mistakes',
+          detail: `${dueErrors} saved error ${dueErrors === 1 ? 'needs' : 'items need'} a fresh attempt.`,
+          label: 'Retest mistakes',
+          run: onOpenErrors,
+          tags: [
+            { label: `${dueErrors} Errors to Fix`, dotColor: 'bg-[#FF3B30]' },
+            { label: 'Mistake Retest', dotColor: 'bg-[#FF9500]' },
+            { label: 'High Yield', dotColor: 'bg-[#AF52DE]' },
+          ],
+        }
       : dueRevisions > 0
-        ? { title: 'Revisit spaced topics', detail: `${dueRevisions} syllabus ${dueRevisions === 1 ? 'topic is' : 'topics are'} due for recall.`, label: 'Open revision', run: onOpenRevision }
+        ? {
+            category: 'Syllabus Recall',
+            badge: 'Scheduled',
+            icon: BookOpen,
+            iconGradient: 'from-[#AF52DE] to-[#5856D6]',
+            badgeStyle: 'border-[#ECD8FC] bg-[#F8EEFF] text-[#8944AB]',
+            title: 'Revisit spaced topics',
+            detail: `${dueRevisions} syllabus ${dueRevisions === 1 ? 'topic is' : 'topics are'} due for recall.`,
+            label: 'Open revision',
+            run: onOpenRevision,
+            tags: [
+              { label: `${dueRevisions} Topics Due`, dotColor: 'bg-[#AF52DE]' },
+              { label: 'Spaced Revision', dotColor: 'bg-[#007AFF]' },
+              { label: 'Retention Boost', dotColor: 'bg-[#30D158]' },
+            ],
+          }
         : mockDue
-          ? { title: latestMock ? 'Time for your next mock' : 'Set your mock baseline', detail: latestMock ? 'Your study cadence says it is time to check progress under timed conditions.' : 'A timed baseline gives your study plan an observed score to work from.', label: 'Start NBE simulation', run: onStartMock }
-          : { title: focusTopic ? `Focus on ${focusTopic}` : 'Continue today’s study plan', detail: `${focusSubject} is your current highest-priority focus from saved practice and mock data.`, label: 'Start focused study', run: onStartStudy };
+          ? {
+              category: 'Diagnostic Simulation',
+              badge: latestMock ? 'Cadence Due' : 'NBE Baseline',
+              icon: Target,
+              iconGradient: 'from-[#007AFF] to-[#00C7BE]',
+              badgeStyle: 'border-[#C2EBF7] bg-[#E8F8FC] text-[#007D99]',
+              title: latestMock ? 'Time for your next mock' : 'Set your mock baseline',
+              detail: latestMock ? 'Your study cadence says it is time to check progress under timed conditions.' : 'A timed baseline gives your study plan an observed score to work from.',
+              label: 'Start NBE simulation',
+              run: onStartMock,
+              tags: [
+                { label: '300 MCQs Timed', dotColor: 'bg-[#007AFF]' },
+                { label: '150 Pass Target', dotColor: 'bg-[#30D158]' },
+                { label: latestMock ? `Previous: ${latestMock.score}/300` : 'Calibrate Study Plan', dotColor: 'bg-[#AF52DE]' },
+              ],
+            }
+          : {
+              category: 'High-Yield Study',
+              badge: 'Focus Priority',
+              icon: Compass,
+              iconGradient: 'from-[#5856D6] to-[#AF52DE]',
+              badgeStyle: 'border-[#E0D8FB] bg-[#F2EDFD] text-[#5856D6]',
+              title: focusTopic ? `Focus on ${focusTopic}` : 'Continue today’s study plan',
+              detail: `${focusSubject} is your current highest-priority focus from saved practice and mock data.`,
+              label: 'Start focused study',
+              run: onStartStudy,
+              tags: [
+                { label: focusSubject || 'Core Subject', dotColor: 'bg-[#007AFF]' },
+                { label: focusTopic ? 'High-Yield Topic' : 'Daily Syllabus', dotColor: 'bg-[#AF52DE]' },
+                { label: 'Active Cadence', dotColor: 'bg-[#30D158]' },
+              ],
+            };
   const studyProgress = plannedMinutes > 0 ? Math.min(100, Math.round(todayMinutes / plannedMinutes * 100)) : 0;
   return <motion.section initial={reducedMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reducedMotion ? 0 : 0.25 }} className="relative overflow-hidden rounded-[26px] border border-[#E5E8EF] bg-white shadow-[0_8px_26px_rgba(26,46,78,0.07)]">
     <div className="h-1 bg-gradient-to-r from-[#007AFF] via-[#AF52DE] to-[#30D158]" />
     <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-5 lg:p-6">
-      <div className="relative flex min-w-0 flex-col overflow-hidden rounded-[22px] border border-[#E8EDFA] bg-[linear-gradient(145deg,#EAF4FF_0%,#F8FAFF_52%,#F5F0FF_100%)] p-4 sm:p-5">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-14 h-40 w-40 rounded-full bg-[#6E7BFF]/10 blur-2xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-16 -left-10 h-36 w-36 rounded-full bg-[#5AC8FA]/10 blur-2xl" />
-        <div className="relative z-10 mb-5 flex items-center gap-3">
-          <motion.span whileHover={reducedMotion ? undefined : { scale: 1.08, rotate: -4 }} whileTap={reducedMotion ? undefined : { scale: 0.96 }} transition={{ type: 'spring', stiffness: 380, damping: 24 }} className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#007AFF] to-[#6554D9] text-white shadow-[0_5px_14px_rgba(0,122,255,0.24)]"><ClipboardCheck className="h-5 w-5" /></motion.span>
-          <div className="min-w-0"><h2 className="text-base font-semibold tracking-tight text-[#1D1D1F]">Your next best step</h2><p className="text-xs text-[#7B8795]">A recommendation from your study activity</p></div>
+      <motion.div
+        whileHover={reducedMotion ? undefined : { y: -3, scale: 1.008 }}
+        transition={{ type: 'spring', stiffness: 340, damping: 26 }}
+        className="relative flex min-w-0 flex-col justify-between overflow-hidden rounded-[22px] border border-[#CFE2FE] bg-gradient-to-br from-[#EDF5FF] via-[#FAFCFF] to-white p-4.5 sm:p-5 shadow-[0_4px_20px_rgba(0,122,255,0.07)]"
+      >
+        <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[#007AFF]/10 blur-2xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-[#AF52DE]/10 blur-2xl" />
+
+        {/* Header row matching sibling bento cards */}
+        <div className="relative z-10 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <span className={`grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-xl bg-gradient-to-br ${focusAction.iconGradient} text-white shadow-sm`}>
+              <focusAction.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </span>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#0066CC]">
+                Your next best step
+              </p>
+              <p className="text-[11px] font-medium text-[#7A8A9E] leading-none mt-0.5">
+                {focusAction.category}
+              </p>
+            </div>
+          </div>
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${focusAction.badgeStyle}`}>
+            <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
+            {focusAction.badge}
+          </span>
         </div>
-        <div className="relative z-10 flex flex-1 flex-col">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#52719B]">Recommended now</p>
-          <h3 className="text-xl font-semibold leading-snug tracking-tight text-[#1D2735] sm:text-2xl">{focusAction.title}</h3>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-[#687585]">{focusAction.detail}</p>
-          <div className="mt-5 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={focusAction.run} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#087CFA] px-4 text-sm font-semibold text-white shadow-[0_4px_12px_rgba(0,122,255,0.2)] transition hover:bg-[#0069DF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#087CFA]">{focusAction.label}<ArrowRight className="h-4 w-4" /></button>
-            <button type="button" onClick={onOpenPlanner} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#DCE4EF] bg-white/80 px-4 text-sm font-semibold text-[#536174] transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#087CFA]">Today’s plan <span className="text-[#8A94A3]">{taskCount}</span></button>
+
+        {/* Content body */}
+        <div className="relative z-10 mt-3.5 flex flex-1 flex-col justify-between">
+          <div>
+            <h3 className="text-xl font-bold leading-snug tracking-tight text-[#1D2735] sm:text-2xl">
+              {focusAction.title}
+            </h3>
+            <p className="mt-2 text-xs leading-5 text-[#627184] sm:text-sm">
+              {focusAction.detail}
+            </p>
+
+            {/* Contextual tags matching Daily Recall pearl tags */}
+            <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
+              {focusAction.tags.map((tag, idx) => (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#DCE7F5] bg-white/90 px-2.5 py-1 text-[11px] font-medium text-[#4B5B6E] shadow-2xs backdrop-blur-xs"
+                >
+                  <span className={`h-1.5 w-1.5 rounded-full ${tag.dotColor}`} />
+                  {tag.label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="mt-5 flex flex-wrap items-center gap-2 sm:gap-2.5">
+            <button
+              type="button"
+              onClick={focusAction.run}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-[#007AFF] to-[#0062E3] px-4.5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(0,122,255,0.25)] transition hover:from-[#006DEB] hover:to-[#0051C4] hover:shadow-[0_6px_18px_rgba(0,122,255,0.32)] active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#087CFA]"
+            >
+              <focusAction.icon className="h-4 w-4" />
+              {focusAction.label}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              type="button"
+              onClick={onOpenPlanner}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#D5E2F3] bg-white/95 px-3.5 text-sm font-semibold text-[#4A5B70] shadow-2xs transition hover:bg-white hover:text-[#1D2735] hover:border-[#BED2ED] active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#087CFA]"
+            >
+              <Calendar className="h-4 w-4 text-[#7A8A9E]" />
+              Today’s plan
+              <span className="rounded-full bg-[#EDF3FA] px-2 py-0.5 text-xs font-bold text-[#4B6382]">{taskCount}</span>
+            </button>
           </div>
         </div>
-      </div>
+
+        {/* Micro-footer matching the precision of companion cards */}
+        <div className="relative z-10 mt-4 flex items-center justify-between border-t border-[#E3EDF9] pt-3 text-[11px] text-[#7A8A9E]">
+          <span className="inline-flex items-center gap-1.5">
+            <Sparkles className="h-3 w-3 text-[#007AFF]" />
+            Adaptive recommendation based on study activity
+          </span>
+          <span className="font-medium text-[#4D627D]">Updated live</span>
+        </div>
+      </motion.div>
       <div className="grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3">
         <motion.div whileHover={reducedMotion ? undefined : { y: -3, scale: 1.012 }} transition={{ type: 'spring', stiffness: 340, damping: 26 }} className="min-w-0 rounded-[20px] border border-[#FFE8C8] bg-gradient-to-br from-[#FFF7EB] to-white p-3.5 shadow-[0_2px_8px_rgba(255,149,0,0.05)] sm:p-4"><div className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-xl bg-gradient-to-br from-[#FF9500] to-[#FFB340] text-white shadow-sm"><Clock className="h-3.5 w-3.5" /></span><p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#A56A1D]">Due today</p></div><p className="mt-3 text-xl font-semibold tabular-nums tracking-tight text-[#263244] sm:text-2xl">{dueQbankReviews}<span className="ml-1 text-xs font-medium text-[#8993A0]">questions</span></p><p className="mt-1 text-[11px] leading-4 text-[#788391]">{dueErrors} errors · {dueRevisions} topics · {upcomingQbankReviews} scheduled</p></motion.div>
         <motion.div whileHover={reducedMotion ? undefined : { y: -3, scale: 1.012 }} transition={{ type: 'spring', stiffness: 340, damping: 26 }} className="min-w-0 rounded-[20px] border border-[#D9EAFE] bg-gradient-to-br from-[#EDF6FF] to-white p-3.5 shadow-[0_2px_8px_rgba(0,122,255,0.05)] sm:p-4"><div className="flex items-center justify-between gap-1"><div className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-xl bg-gradient-to-br from-[#007AFF] to-[#5AC8FA] text-white shadow-sm"><Activity className="h-3.5 w-3.5" /></span><p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#52719B]">Study today</p></div><span className="text-[10px] font-semibold text-[#087CFA]">{studyProgress}%</span></div><p className="mt-3 text-xl font-semibold tabular-nums tracking-tight text-[#263244] sm:text-2xl">{todayMinutes}<span className="ml-1 text-xs font-medium text-[#8993A0]">/ {plannedMinutes} min</span></p><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#DDEBFA]"><motion.div initial={reducedMotion ? false : { width: 0 }} animate={{ width: `${studyProgress}%` }} transition={{ duration: reducedMotion ? 0 : 0.65, ease: 'easeOut' }} className="h-full rounded-full bg-gradient-to-r from-[#007AFF] to-[#5AC8FA]" /></div></motion.div>
