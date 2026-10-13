@@ -653,26 +653,26 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
       </div>
 
       {/* ── 4. Two-Column Grid: Exam Priorities + Strategic Actions ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 min-w-0">
         {/* Exam priorities */}
         <div
-          className="rounded-2xl bg-white border shadow-sm p-5 flex flex-col gap-4"
+          className="rounded-2xl bg-white border shadow-sm p-4 sm:p-5 flex flex-col gap-4 min-w-0 overflow-hidden"
           style={{ borderColor: 'rgba(60,60,67,0.1)' }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
               <div
-                className="flex items-center justify-center w-9 h-9 rounded-xl"
+                className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
                 style={{ background: 'rgba(255,59,48,0.1)' }}
               >
                 <AlertTriangle className="w-4.5 h-4.5" style={{ color: '#FF3B30' }} />
               </div>
-              <div>
-                <h2 className="text-[15px] font-bold" style={{ color: '#1D1D1F' }}>
+              <div className="min-w-0">
+                <h2 className="text-[15px] font-bold truncate" style={{ color: '#1D1D1F' }}>
                   Exam Priorities
                 </h2>
-                <p className="text-[12px]" style={{ color: '#8E8E93' }}>
+                <p className="text-[12px] truncate" style={{ color: '#8E8E93' }}>
                   High-yield topics and revision gaps to review
                 </p>
               </div>
@@ -680,7 +680,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
             <button
               type="button"
               onClick={() => setShowAllRisks(!showAllRisks)}
-              className="flex items-center gap-1 text-[12px] font-bold cursor-pointer transition-opacity hover:opacity-70"
+              className="flex items-center gap-1 text-[12px] font-bold cursor-pointer transition-opacity hover:opacity-70 shrink-0 ml-2"
               style={{ color: '#007AFF' }}
             >
               {showAllRisks ? 'Show Less' : 'View All'}
@@ -703,7 +703,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
               </p>
             </div>
           ) : (
-            <div className="space-y-1">
+            <div className="space-y-1 w-full min-w-0">
               {displayedRisks.map((item, idx) => {
                 const isVeryHigh = item.level === 'VERY_HIGH';
                 return (
@@ -713,32 +713,32 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                     aria-label={`Open exam priority analysis for ${item.topicName}`}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleOpenModal(item)}
-                    className="relative flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all hover:bg-[#F2F2F7] group overflow-hidden"
+                    className="relative flex w-full min-w-0 items-center gap-2.5 sm:gap-3 px-3 py-2.5 sm:py-3 rounded-xl cursor-pointer transition-all hover:bg-[#F2F2F7] group overflow-hidden text-left"
                   >
                     {/* Left accent bar */}
                     <div
-                      className="absolute left-0 top-2 bottom-2 w-1 rounded-full"
+                      className="absolute left-0 top-2 bottom-2 w-1 rounded-full shrink-0"
                       style={{ background: isVeryHigh ? '#FF3B30' : '#FF9500' }}
                     />
                     {/* Rank */}
                     <div
-                      className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0 ml-2"
+                      className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0 ml-1"
                       style={{ background: '#F2F2F7', color: '#8E8E93' }}
                     >
                       {idx + 1}
                     </div>
                     {/* Text */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-bold truncate" style={{ color: '#1D1D1F' }}>
+                    <div className="flex-1 min-w-0 pr-1 overflow-hidden">
+                      <p className="text-[13px] font-bold truncate leading-tight" style={{ color: '#1D1D1F' }} title={item.topicName}>
                         {item.topicName}
                       </p>
-                      <p className="text-[12px]" style={{ color: '#8E8E93' }}>
+                      <p className="text-[11px] sm:text-[12px] truncate mt-0.5" style={{ color: '#8E8E93' }}>
                         {item.subjectName}
                       </p>
                     </div>
                     {/* Badge */}
                     <span
-                      className="shrink-0 rounded-full px-3 py-1.5 text-[12px] font-bold"
+                      className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold whitespace-nowrap"
                       style={
                         isVeryHigh
                           ? { background: 'rgba(255,59,48,0.1)', color: '#FF3B30' }
@@ -747,7 +747,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                     >
                       {isVeryHigh ? 'Very High' : 'High'}
                     </span>
-                    <ChevronRight className="w-4 h-4 shrink-0" style={{ color: '#8E8E93' }} />
+                    <ChevronRight className="w-4 h-4 shrink-0 text-[#8E8E93]" />
                   </motion.button>
                 );
               })}
@@ -761,7 +761,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
 
         {/* Strategic Actions */}
         <div
-          className="rounded-2xl bg-white border shadow-sm p-5 flex flex-col gap-4"
+          className="rounded-2xl bg-white border shadow-sm p-4 sm:p-5 flex flex-col gap-4 min-w-0 overflow-hidden"
           style={{ borderColor: 'rgba(60,60,67,0.1)' }}
         >
           {/* Header */}
