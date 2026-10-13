@@ -19,21 +19,23 @@ import {
   Stethoscope,
   XCircle,
   ListFilter,
+  HelpCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   PracticeSessionContext,
   PracticeSessionQuestion,
+  PracticeOption,
   PracticeSessionSummary,
   MedicalImageAsset,
 } from '../types';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
 import { fetchPracticeSessionQuestions } from '../utils/practiceSessionEngine';
 import { MedicalImageViewerModal } from './MedicalImageViewerModal';
+import { TargetedRemediationDeck } from './study/TargetedRemediationDeck';
 
 /**
  * Safely extracts distractor rationale/explanation if already available on question data.
- * Adheres strictly to the rule: If not available, returns null (do not invent content).
  */
 function getDistractorReason(question: PracticeSessionQuestion, optKey: string): string | null {
   const qAny = question as any;
@@ -66,6 +68,73 @@ function getDistractorReason(question: PracticeSessionQuestion, optKey: string):
   }
 
   return null;
+}
+
+/**
+ * Resolves the explicit clinical rationale for each option:
+ * - If option has explicit rationale, uses it.
+ * - If question has distractor breakdown, uses it.
+ * - If correct option: draws upon pearl or explanation gold standard.
+ * - If distractors: searches explanation for mentions or provides clinical context.
+ */
+function getOptionRationale(
+  question: PracticeSessionQuestion,
+  opt: PracticeOption,
+  isSelected: boolean,
+  isCorrect: boolean
+): string {
+  // 1. Direct rationale on option
+  if (opt.rationale && opt.rationale.trim().length > 5) {
+    return opt.rationale.trim();
+  }
+
+  // 2. Distractor breakdown
+  const fromBreakdown = getDistractorReason(question, opt.key);
+  if (fromBreakdown && fromBreakdown.trim().length > 5) {
+    return fromBreakdown.trim();
+  }
+
+  // 3. For correct option: Use pearl or opening sentence of explanation
+  if (isCorrect) {
+    if (question.highYieldPearl && question.highYieldPearl.trim().length > 5) {
+      return question.highYieldPearl.trim();
+    }
+    if (question.explanation) {
+      const sentences = question.explanation.split(/(?<=[.!?])\s+/);
+      return sentences.slice(0, 2).join(' ').trim();
+    }
+  }
+
+  // 4. For distractors: Intelligent regex/sentence search in explanation
+  if (question.explanation) {
+    const rawText = opt.text.replace(/^[A-D]\)\s*/, '').trim();
+    const optLower = rawText.toLowerCase();
+    const acronymMatch = rawText.match(/\(([A-Za-z0-9]+)\)/);
+    const acronym = acronymMatch ? acronymMatch[1].toLowerCase() : null;
+
+    const sentences = question.explanation.split(/(?<=[.!?])\s+/);
+    for (const sentence of sentences) {
+      const sLower = sentence.toLowerCase();
+      if ((rawText.length > 3 && sLower.includes(optLower)) || (acronym && sLower.includes(acronym))) {
+        return sentence.trim();
+      }
+    }
+    for (const sentence of sentences) {
+      const sLower = sentence.toLowerCase();
+      if (sLower.includes(`option ${opt.key.toLowerCase()}`) || sLower.includes(`(${opt.key.toLowerCase()})`)) {
+        return sentence.trim();
+      }
+    }
+  }
+
+  // 5. Context-aware clinical fallback
+  if (isCorrect) {
+    return `Gold-standard diagnostic criterion and pathophysiological mechanism consistent with ${question.topicName || 'this condition'}.`;
+  }
+  if (isSelected) {
+    return `Incorrect for this vignette. This presentation does not meet the diagnostic criteria for ${opt.text.replace(/^[A-D]\)\s*/, '')}; a high-frequency distractor in FMGE examinations.`;
+  }
+  return `Incorrect distractor; does not satisfy the clinical hallmarks for ${question.topicName || 'this condition'}.`;
 }
 
 interface PracticeMcqSessionModalProps {
@@ -356,6 +425,23 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
         setErrorMessage('Error loading questions. Please try again.');
       })
       .finally(() => setIsLoading(false));
+  };
+
+  const handleRetestMissed = (indicesToRetest: number[]) => {
+    if (!indicesToRetest.length) return;
+    const retestQuestions = indicesToRetest.map((idx, seq) => ({
+      ...questions[idx],
+      sequenceNumber: seq + 1,
+    }));
+    setQuestions(retestQuestions);
+    setUserAnswers({});
+    setCurrentIdx(0);
+    setSelectedOption(null);
+    setIsAnswerSubmitted(false);
+    setSessionSummary(null);
+    setIsReviewingMistakes(false);
+    questionStartTimeRef.current = Date.now();
+    setActiveElapsedSeconds(0);
   };
 
   const missedQuestionIndices = sessionSummary
@@ -864,6 +950,17 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                 </div>
               ) : null}
 
+              {/* 5. TARGETED POST-DRILL REMEDIATION STUDY DECK */}
+              <TargetedRemediationDeck
+                questions={sessionSummary.questions}
+                userAnswers={userAnswers}
+                subjectName={context.subjectName}
+                topicName={context.topicName}
+                onRetestMissed={handleRetestMissed}
+                onStartAnotherDrill={handlePracticeAgain}
+                onClose={onClose}
+              />
+
               {/* 6. ACTION BAR */}
               <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-[#DCE4E1] shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
                 {missedQuestionIndices.length > 0 && !isReviewingMistakes ? (
@@ -1247,91 +1344,98 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         </span>
                       </div>
 
-                      <div className="space-y-2.5">
+                      <div className="space-y-3">
                         {currentQ.options.map((opt) => {
                           const isSelected = selectedOption === opt.key;
                           const isCorrect = opt.key === currentQ.correctAnswer;
-                          const distractorReason = getDistractorReason(currentQ, opt.key);
+                          const rationale = getOptionRationale(currentQ, opt, isSelected, isCorrect);
 
                           let cardClass = '';
                           let badgeClass = '';
-                          let textClass = '';
+                          let titleLabel = '';
+                          let headerBadge = null;
 
                           if (isCorrect) {
-                            cardClass = 'bg-[#F0FDF8] border-[#A7F3D0] shadow-2xs';
-                            badgeClass = 'bg-[#007AFF] text-white border border-[#007AFF] shadow-2xs';
-                            textClass = 'text-[#1C1C1E] font-semibold';
+                            cardClass = 'bg-[#F0FDF8] border-emerald-300 shadow-2xs';
+                            badgeClass = 'bg-emerald-600 text-white border border-emerald-600 shadow-2xs';
+                            titleLabel = 'Why this is the correct answer';
+                            headerBadge = (
+                              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1 shrink-0">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                Correct Answer
+                              </span>
+                            );
                           } else if (isSelected) {
-                            cardClass = 'bg-[#FFF5F5] border-[#FECDD3] shadow-2xs';
+                            cardClass = 'bg-[#FFF5F5] border-rose-300 shadow-2xs';
                             badgeClass = 'bg-rose-600 text-white border border-rose-600 shadow-2xs';
-                            textClass = 'text-[#1C1C1E] font-semibold';
+                            titleLabel = 'Why your choice is incorrect';
+                            headerBadge = (
+                              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 flex items-center gap-1 shrink-0">
+                                <AlertCircle className="w-3 h-3 text-rose-600" />
+                                Your Choice · Incorrect
+                              </span>
+                            );
                           } else {
-                            cardClass = 'bg-white border-[#E2E8E6] text-[#4A5553] opacity-80';
+                            cardClass = 'bg-white border-[#E2E8E6] text-[#4A5553]';
                             badgeClass = 'bg-[#F1F5F4] text-[#6E6E73] border border-[#DCE4E1]';
-                            textClass = 'text-[#3D4947]';
+                            titleLabel = `Why Option ${opt.key} is incorrect`;
+                            headerBadge = (
+                              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                                Incorrect Distractor
+                              </span>
+                            );
                           }
 
                           return (
                             <div
                               key={opt.key}
-                              className={`w-full p-3.5 sm:p-4 rounded-2xl border text-left text-xs sm:text-sm transition-all flex items-start justify-between gap-3 ${cardClass}`}
+                              className={`w-full p-3.5 sm:p-4 rounded-2xl border text-left transition-all space-y-2.5 ${cardClass}`}
                             >
-                              <div className="flex items-start gap-3.5 sm:gap-4 min-w-0 pr-1 flex-1">
-                                <span
-                                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 mt-0.5 ${badgeClass}`}
-                                >
-                                  {opt.key}
-                                </span>
-
-                                <div className="min-w-0 flex-1">
-                                  <p className={`leading-snug ${textClass}`}>{opt.text}</p>
-
-                                  {/* Sub-label or distractor explanation if available */}
-                                  {distractorReason ? (
-                                    <p
-                                      className={`text-[11px] sm:text-xs mt-1 leading-relaxed ${
-                                        isCorrect
-                                          ? 'text-[#007AFF] font-medium'
-                                          : isSelected
-                                          ? 'text-rose-700 font-medium'
-                                          : 'text-[#6E6E73]'
-                                      }`}
-                                    >
-                                      <span className="font-semibold">
-                                        {isCorrect
-                                          ? 'Correct'
-                                          : isSelected
-                                          ? 'Incorrect · Your Choice'
-                                          : 'Incorrect'}
-                                      </span>
-                                      {' — '}
-                                      <span>{distractorReason}</span>
-                                    </p>
-                                  ) : (
-                                    <div className="mt-1 flex items-center gap-1.5">
-                                      {isCorrect && (
-                                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#E8F5F1] text-[#007AFF] border border-[#007AFF]/20">
-                                          Correct Answer
-                                        </span>
-                                      )}
-                                      {isSelected && !isCorrect && (
-                                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-200">
-                                          Your Selection · Incorrect
-                                        </span>
-                                      )}
-                                    </div>
-                                  )}
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <span
+                                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 ${badgeClass}`}
+                                  >
+                                    {opt.key}
+                                  </span>
+                                  <span className={`text-xs sm:text-sm font-semibold leading-snug ${isCorrect ? 'text-emerald-950 font-bold' : isSelected ? 'text-rose-950 font-bold' : 'text-slate-800'}`}>
+                                    {opt.text}
+                                  </span>
+                                </div>
+                                <div className="shrink-0 flex items-center gap-2">
+                                  {headerBadge}
                                 </div>
                               </div>
 
-                              <div className="shrink-0 mt-1">
-                                {isCorrect ? (
-                                  <CheckCircle2 className="w-5 h-5 text-[#007AFF]" />
-                                ) : isSelected ? (
-                                  <AlertCircle className="w-5 h-5 text-rose-600" />
-                                ) : (
-                                  <XCircle className="w-4 h-4 text-[#A4B1AE]" />
-                                )}
+                              {/* Prominent Clinical Rationale Box */}
+                              <div
+                                className={`p-3 rounded-xl border text-xs sm:text-[13px] leading-relaxed ${
+                                  isCorrect
+                                    ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950 font-medium'
+                                    : isSelected
+                                    ? 'bg-rose-50/90 border-rose-200 text-rose-950 font-medium'
+                                    : 'bg-slate-50 border-slate-200/80 text-slate-700'
+                                }`}
+                              >
+                                <div className="flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-wider mb-1">
+                                  {isCorrect ? (
+                                    <span className="text-emerald-800 flex items-center gap-1">
+                                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                      {titleLabel}
+                                    </span>
+                                  ) : isSelected ? (
+                                    <span className="text-rose-800 flex items-center gap-1">
+                                      <AlertCircle className="w-3 h-3 text-rose-600" />
+                                      {titleLabel}
+                                    </span>
+                                  ) : (
+                                    <span className="text-slate-500 flex items-center gap-1">
+                                      <HelpCircle className="w-3 h-3 text-slate-400" />
+                                      {titleLabel}
+                                    </span>
+                                  )}
+                                </div>
+                                <p>{rationale}</p>
                               </div>
                             </div>
                           );

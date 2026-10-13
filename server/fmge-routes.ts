@@ -850,7 +850,8 @@ app.post("/api/ai/practice-session-batch", async (req, res) => {
   } = req.body;
 
   try {
-    const prompt = `You are a Senior Medical Professor creating a 10-Question High-Yield Multiple Choice Question (MCQ) Practice Session for the Foreign Medical Graduate Examination (FMGE / NExT India).
+    const prompt = `You are a Senior Medical Professor and Chief FMGE / NExT Licensing Exam Question Author.
+Create a high-yield, authentic 10-Question Multiple Choice Question (MCQ) Practice Drill.
 
 Target Subject: ${subjectName} (ID: ${subjectId})
 Target Topic: ${topicName} (ID: ${topicId})
@@ -858,26 +859,57 @@ Subtopic: ${subtopic || "Core High-Yield Concepts"}
 Target Question Count: ${count}
 Difficulty: ${difficulty}
 
-CRITICAL CONSTRAINTS:
+CRITICAL MEDICAL REQUIREMENTS:
 1. Every question MUST strictly test ${subjectName} -> ${topicName}.
-2. DO NOT generate questions about unrelated subjects or conditions (e.g., if the topic is Anatomy Knee Joint or Nerve Lesions, ALL questions must be about lower limb anatomy/nerve injuries, NEVER myocardial infarction or pharmacology).
-3. Provide distinct clinical vignette scenarios, authentic discriminator options, and comprehensive explanations.
-4. Place the correct answer randomly among the 4 options.
+2. SCENARIOS: Rich clinical vignettes with patient demographics, physical examination, diagnostic investigations (ECG leads, laboratory markers, imaging features).
+3. EVERY OPTION MUST CONTAIN AN EXPLICIT CLINICAL RATIONALE:
+   - For the CORRECT option: Explain the exact mechanism, anatomical localization, gold-standard guideline, or criteria.
+   - For EACH INCORRECT OPTION: Explain why it is wrong for this patient (e.g. what pathology or leads it WOULD represent, such as "LAD supplies anteroseptal leads V1-V4, not inferior leads II, III, aVF").
+4. ZERO-TOLERANCE ANSWER-KEY ACCURACY:
+   - The option marked "isCorrect": true MUST 100% MATCH the diagnosis and evidence in your "explanation".
+   - If explanation says Right Coronary Artery (RCA) is the culprit vessel, RCA MUST be the option with "isCorrect": true. NEVER mismatch!
+5. REMEDIATION CARD: Provide structured mastery details for post-drill revision.
 
-Output valid JSON matching this schema:
+Output strictly valid JSON with this schema:
 {
   "questions": [
     {
-      "scenario": "A 28-year-old patient presents with...",
-      "question": "What is the most likely diagnosis / nerve injured / next step in management?",
+      "scenario": "A 58-year-old male presents with severe crushing retrosternal chest pain radiating to the epigastrium. ECG reveals ST-segment elevation in leads II, III, and aVF with reciprocal ST depression in leads I and aVL...",
+      "question": "Which culprit coronary artery is most likely occluded?",
       "options": [
-        { "optionId": "opt_1", "text": "First clinical option", "isCorrect": false },
-        { "optionId": "opt_2", "text": "Second clinical option", "isCorrect": true },
-        { "optionId": "opt_3", "text": "Third clinical option", "isCorrect": false },
-        { "optionId": "opt_4", "text": "Fourth clinical option", "isCorrect": false }
+        {
+          "optionId": "opt_1",
+          "text": "Right coronary artery (RCA)",
+          "isCorrect": true,
+          "rationale": "Correct. Leads II, III, and aVF reflect the diaphragmatic/inferior left ventricular wall, supplied by the posterior descending artery arising from the RCA in 85-90% of individuals."
+        },
+        {
+          "optionId": "opt_2",
+          "text": "Left anterior descending artery (LAD)",
+          "isCorrect": false,
+          "rationale": "Incorrect. Occlusion of the LAD causes anteroseptal STEMI with ST elevation in leads V1-V4."
+        },
+        {
+          "optionId": "opt_3",
+          "text": "Left circumflex artery (LCx)",
+          "isCorrect": false,
+          "rationale": "Incorrect. LCx occlusion causes lateral STEMI with ST elevation in leads I, aVL, V5, and V6."
+        },
+        {
+          "optionId": "opt_4",
+          "text": "Left main coronary artery (LMCA)",
+          "isCorrect": false,
+          "rationale": "Incorrect. LMCA occlusion results in widespread ST depression with ST elevation in lead aVR and cardiogenic shock."
+        }
       ],
-      "explanation": "Detailed explanation explaining why the correct option is right and why other options are incorrect.",
-      "highYieldPearl": "One concise memorable takeaway pearl for FMGE.",
+      "explanation": "Inferior wall myocardial infarction is characterized by ST elevation in leads II, III, and aVF. The Right Coronary Artery (RCA) is the culprit vessel in approximately 85-90% of cases. Right ventricular involvement (lead V4R) causes preload dependency; nitrates and diuretics are strictly contraindicated.",
+      "highYieldPearl": "Inferior STEMI (leads II, III, aVF) = RCA. Avoid Nitrates if RV involvement is present.",
+      "remediationCard": {
+        "concept": "Coronary Artery Territory & ECG Lead Localization",
+        "rule": "Leads II, III, aVF = RCA (Inferior); Leads V1-V4 = LAD (Anteroseptal); Leads I, aVL = LCx (Lateral)",
+        "trapAvoided": "Confusing inferior leads (II, III, aVF = RCA) with anteroseptal leads (V1-V4 = LAD)",
+        "pearl": "RCA -> Inferior (II, III, aVF); LAD -> Anterior (V1-V4); LCx -> High Lateral (I, aVL)"
+      },
       "subjectId": "${subjectId}",
       "subjectName": "${subjectName}",
       "topicId": "${topicId}",
@@ -892,7 +924,7 @@ Output valid JSON matching this schema:
       contents: prompt,
       config: {
         responseMimeType: "application/json",
-        systemInstruction: "You are an expert FMGE/NExT medical licensing examination tutor. Produce clean, strictly valid JSON.",
+        systemInstruction: "You are an expert FMGE/NExT medical licensing examination tutor. Produce clean, strictly valid JSON with flawless medical accuracy.",
       },
     });
 
@@ -906,10 +938,60 @@ Output valid JSON matching this schema:
         optionId: o.optionId || `opt_${i + 1}`,
         text: typeof o === "string" ? o.replace(/^[A-D]\)\s*/, "") : (o.text || "").replace(/^[A-D]\)\s*/, ""),
         isCorrect: Boolean(o.isCorrect) || o.key === q.correctAnswer,
+        rationale: o.rationale || o.reason || o.explanation || undefined,
       }));
 
+      // Medical Consistency Pass: Cross-validate explanation against option text
+      const explLower = (q.explanation || "").toLowerCase();
+      const MEDICAL_STOPWORDS = new Set([
+        'artery', 'vein', 'nerve', 'muscle', 'disease', 'syndrome',
+        'infection', 'fracture', 'ligament', 'vessel', 'stage', 'grade',
+        'type', 'sign', 'test', 'scan', 'duct', 'node', 'injury', 'level',
+        'lobe', 'wall', 'zone', 'tract', 'deficiency', 'disorder'
+      ]);
+
+      const scores = rawOpts.map((opt: any) => {
+        const optText = (opt.text || "").toLowerCase().trim();
+        if (!optText) return 0;
+        let score = 0;
+        if (explLower.includes(optText)) score += 15;
+        const words = optText.split(/[\s,()/-]+/).filter((w: string) => w.length > 2 && !MEDICAL_STOPWORDS.has(w));
+        for (const w of words) {
+          if (explLower.includes(w)) score += 4;
+        }
+        const acronymMatch = opt.text.match(/\(([A-Za-z0-9]+)\)/);
+        if (acronymMatch && explLower.includes(acronymMatch[1].toLowerCase())) {
+          score += 10;
+        }
+        return score;
+      });
+
+      let highestScore = 0;
+      let matchedIdx = -1;
+      scores.forEach((s: number, idx: number) => {
+        if (s > highestScore) {
+          highestScore = s;
+          matchedIdx = idx;
+        }
+      });
+
+      const currentCorrectIdx = rawOpts.findIndex((o: any) => o.isCorrect);
+      const currentScore = currentCorrectIdx !== -1 ? scores[currentCorrectIdx] : 0;
+
+      // If current option has low relevance while another option is prominently endorsed by explanation, correct the key
+      if (currentCorrectIdx !== -1 && matchedIdx !== -1 && currentCorrectIdx !== matchedIdx) {
+        if (highestScore >= 10 && highestScore > currentScore + 6) {
+          rawOpts[currentCorrectIdx].isCorrect = false;
+          rawOpts[matchedIdx].isCorrect = true;
+        }
+      }
+
       if (!rawOpts.some((o: any) => o.isCorrect) && rawOpts.length > 0) {
-        rawOpts[0].isCorrect = true;
+        if (matchedIdx !== -1) {
+          rawOpts[matchedIdx].isCorrect = true;
+        } else {
+          rawOpts[0].isCorrect = true;
+        }
       }
 
       // Shuffle options deterministically
@@ -931,6 +1013,7 @@ Output valid JSON matching this schema:
           key,
           text: opt.text,
           isCorrect: opt.isCorrect,
+          rationale: opt.rationale,
         };
       });
 
@@ -944,6 +1027,12 @@ Output valid JSON matching this schema:
         correctAnswer: correctLetter,
         explanation: q.explanation || "Verified evidence-based FMGE guideline standard.",
         highYieldPearl: q.highYieldPearl,
+        remediationCard: q.remediationCard || {
+          concept: `${topicName}: Core Diagnostic Criteria`,
+          rule: q.highYieldPearl || q.explanation,
+          trapAvoided: "Confusing distinguishing clinical hallmarks under timed exam conditions",
+          pearl: q.highYieldPearl || "High-Yield FMGE Recall",
+        },
         subjectId,
         subjectName,
         topicId,

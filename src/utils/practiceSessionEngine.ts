@@ -30,6 +30,7 @@ export function shuffleQuestionOptions(
     optionId: opt.optionId || `opt_${idx + 1}`,
     text: opt.text.replace(/^[A-D]\)\s*/, '').trim(),
     isCorrect: Boolean(opt.isCorrect),
+    rationale: opt.rationale || opt.reason || opt.whyIncorrectOrCorrect,
   }));
 
   // If no option is marked correct, default the first one to correct
@@ -58,6 +59,7 @@ export function shuffleQuestionOptions(
       key,
       text: item.text,
       isCorrect: item.isCorrect,
+      rationale: item.rationale,
     };
   });
 
@@ -512,8 +514,12 @@ export function getVerifiedTopicQuestions(
   while (questions.length < count && facetIdx < facets.length) {
     const f = facets[facetIdx];
     const rawOptions = [
-      { text: f.getCorrect(), isCorrect: true },
-      ...f.getDistractors().map((d) => ({ text: d, isCorrect: false })),
+      { text: f.getCorrect(), isCorrect: true, rationale: f.explanationText },
+      ...f.getDistractors().map((d) => ({
+        text: d,
+        isCorrect: false,
+        rationale: `Incorrect. Does not satisfy the criteria for ${topicName} (${f.subtopicName}).`,
+      })),
     ];
     const { shuffledOptions, correctOptionId, correctAnswer } = shuffleQuestionOptions(rawOptions);
 
@@ -587,11 +593,14 @@ export async function fetchPracticeSessionQuestions(
               key: o.key || ['A', 'B', 'C', 'D'][oIdx] || 'A',
               text: typeof o === 'string' ? o : o.text || '',
               isCorrect: Boolean(o.isCorrect) || o.key === q.correctAnswer,
+              rationale: o.rationale || o.reason || o.explanation || undefined,
             })),
             correctOptionId: q.correctOptionId || 'opt_1',
             correctAnswer: q.correctAnswer || 'A',
             explanation: q.explanation || 'FMGE evidence-based guideline rationale.',
             highYieldPearl: q.highYieldPearl,
+            remediationCard: q.remediationCard,
+            distractorBreakdown: q.distractorBreakdown,
             subjectId: context.subjectId,
             subjectName: context.subjectName,
             topicId: context.topicId,

@@ -654,6 +654,7 @@ export interface PracticeOption {
   key: string; // "A" | "B" | "C" | "D" (assigned after shuffle)
   text: string;
   isCorrect?: boolean;
+  rationale?: string; // Explicit clinical rationale (why correct or why incorrect)
 }
 
 export interface VisualIntent {
@@ -704,6 +705,13 @@ export interface PracticeSessionQuestion {
   imageAsset?: MedicalImageAsset;
   whatToLookFor?: string;
   visualIntent?: VisualIntent;
+  distractorBreakdown?: Array<{ key: string; reason: string; optionKey?: string; explanation?: string }> | Record<string, string>;
+  remediationCard?: {
+    concept: string;
+    rule: string;
+    trapAvoided: string;
+    pearl: string;
+  };
 }
 
 export interface PracticeSessionContext {
