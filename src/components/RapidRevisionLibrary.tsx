@@ -25,9 +25,49 @@ import {
   SlidersHorizontal,
   Flame,
   CheckCircle2,
-  Maximize2
+  Maximize2,
+  Zap,
+  Target,
+  Sparkles,
+  Play,
+  RotateCcw,
 } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+
+// — Circular SVG Gauge
+const Gauge: React.FC<{
+  pct: number;
+  size?: number;
+  sw?: number;
+  color?: string;
+  track?: string;
+}> = ({ pct, size = 52, sw = 4.5, color = '#F97316', track = '#FFEDD5' }) => {
+  const r = (size - sw) / 2;
+  const circ = 2 * Math.PI * r;
+  const off = circ - (Math.min(100, Math.max(0, pct)) / 100) * circ;
+  return (
+    <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
+      <svg className="-rotate-90" width={size} height={size}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth={sw} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth={sw}
+          strokeDasharray={circ}
+          strokeDashoffset={off}
+          strokeLinecap="round"
+          className="transition-all duration-700 ease-out"
+        />
+      </svg>
+      <span className="absolute font-mono text-[11px] font-black text-slate-900 dark:text-white tracking-tight leading-none">
+        {pct}%
+      </span>
+    </div>
+  );
+};
 import { RAPID_REVISION_DECK_TEXT } from '../data/rapidRevisionDeckText';
 import { RAPID_REVISION_PART3_PAGES } from '../data/rapidRevisionPart3Pages';
 import { RAPID_REVISION_VISUALS } from '../data/rapidRevisionVisuals';
@@ -357,6 +397,37 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({
 
   const overallProgressPct = Math.min(100, Math.round((totalReviewed / totalPossibleSlides) * 100));
 
+  // Category reviewed counts
+  const day1Reviewed = useMemo(() => {
+    return Object.keys(progress).filter((key) => key.startsWith('rapid:day1:') && progress[key]).length;
+  }, [progress]);
+
+  const part3Reviewed = useMemo(() => {
+    return Object.keys(progress).filter((key) => key.startsWith('rapid:part3:') && progress[key]).length;
+  }, [progress]);
+
+  const totalVisualSlides = useMemo(() => {
+    let count = 0;
+    (Object.keys(RAPID_REVISION_VISUALS) as SourceId[]).forEach((src) => {
+      count += Object.keys(RAPID_REVISION_VISUALS[src] || {}).length;
+    });
+    return count;
+  }, []);
+
+  const visualReviewed = useMemo(() => {
+    let count = 0;
+    (Object.keys(RAPID_REVISION_VISUALS) as SourceId[]).forEach((src) => {
+      Object.keys(RAPID_REVISION_VISUALS[src] || {}).forEach((pg) => {
+        if (progress[`rapid:${src}:${pg}`]) count++;
+      });
+    });
+    return count;
+  }, [progress]);
+
+  const day1Pct = Math.min(100, Math.round((day1Reviewed / 146) * 100));
+  const part3Pct = Math.min(100, Math.round((part3Reviewed / 140) * 100));
+  const visualPct = totalVisualSlides ? Math.min(100, Math.round((visualReviewed / totalVisualSlides) * 100)) : 0;
+
   // Gaps recommendations from user MCQ attempts
   const recommendations = useMemo(() => {
     const latest = attempts
@@ -469,389 +540,643 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({
 
   return (
     <section className="space-y-6 sm:space-y-8 pb-12 font-sans" aria-label="Rapid revision slide decks">
-      {/* ================= 1. PREMIUM SWIFTUI HERO HEADER ================= */}
+      {/* ═══ 1. ATMOSPHERIC SUNSET FLAME HERO BANNER ═══ */}
       <motion.div
-        initial={reduceMotion ? false : { opacity: 0, y: -12 }}
+        initial={reduceMotion ? false : { opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-[28px] sm:rounded-[36px] border border-black/[0.06] dark:border-white/[0.08] bg-white/95 dark:bg-[#141824]/90 p-6 sm:p-8 lg:p-10 shadow-[0_20px_60px_-15px_rgba(0,122,255,0.12),0_4px_16px_rgba(0,0,0,0.04)] backdrop-blur-2xl"
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] text-white shadow-[0_8px_40px_rgba(234,88,12,0.28),0_2px_8px_rgba(0,0,0,0.12)]"
+        style={{
+          background: 'linear-gradient(135deg, #451A03 0%, #78350F 35%, #9A3412 70%, #EA580C 100%)',
+        }}
       >
-        {/* Ambient background glows */}
-        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gradient-to-br from-indigo-500/20 via-blue-500/15 to-transparent blur-3xl dark:from-indigo-500/30 dark:via-purple-500/20" />
-        <div className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-tr from-emerald-500/15 via-teal-500/10 to-transparent blur-3xl dark:from-teal-500/25 dark:via-emerald-500/15" />
+        {/* Radial glow */}
+        <div
+          className="absolute right-0 top-0 bottom-0 w-2/3 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 85% 40%, rgba(249,115,22,0.38) 0%, transparent 65%)' }}
+        />
+        <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          {/* Left Column: Heading & Context */}
-          <div className="max-w-2xl space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-500/15 border border-blue-200/60 dark:border-blue-400/25 text-blue-700 dark:text-blue-300 font-mono text-[10px] font-bold uppercase tracking-wider shadow-2xs">
-                <BookOpen className="h-3 w-3 text-blue-600 dark:text-blue-400" />
-                HIGH-YIELD REVISION SUITE
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 font-mono text-[10px] font-medium">
-                11 SUBJECT DECKS · 286 SLIDES
-              </span>
-            </div>
+        {/* Decorative orbital rings */}
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 w-40 h-40 sm:w-56 sm:h-56 rounded-full border border-white/[0.08] pointer-events-none" />
+        <div className="absolute right-16 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-36 sm:h-36 rounded-full border border-white/[0.06] pointer-events-none" />
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black font-display tracking-[-0.035em] leading-[1.08] text-slate-900 dark:text-white">
-              Accelerated Rapid Revision
-            </h1>
-
-            <p className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300 max-w-xl">
-              Distilled board-tested medical slides, pathognomonic visual tables, and rapid-recall clinical cards across Foundation and Clinical review libraries.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-              <span className="px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 font-semibold text-slate-700 dark:text-slate-200">
-                Foundation (Day 1): 146 Slides
-              </span>
-              <span className="px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 font-semibold text-slate-700 dark:text-slate-200">
-                Clinical (Part 3): 140 Slides
-              </span>
-              <span className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200/60 dark:border-emerald-400/25 text-emerald-800 dark:text-emerald-300 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                Auto-saved to Study Ledger
-              </span>
-            </div>
-          </div>
-
-          {/* Right Column: Hero Interactive Stats Card */}
-          <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-4">
-            <div className="p-5 rounded-3xl bg-slate-50/90 dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/10 shadow-sm min-w-[240px] space-y-3">
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400">
-                <span className="uppercase font-mono tracking-wider">Overall Progress</span>
-                <span className="font-bold text-slate-900 dark:text-white text-sm">{overallProgressPct}%</span>
+        <div className="relative z-10 p-5 sm:p-7 lg:p-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10">
+            {/* Left Content */}
+            <div className="flex-1 min-w-0 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white">
+                  <Flame className="h-4 w-4" />
+                </div>
+                <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-white/70">
+                  RAPID REVISION DECK
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 font-mono text-[10px] font-medium border border-white/10">
+                  11 DECKS · 286 SLIDES
+                </span>
               </div>
 
-              {/* Progress Bar Track */}
-              <div className="h-2.5 w-full bg-slate-200/80 dark:bg-white/10 rounded-full overflow-hidden p-0.5">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${overallProgressPct}%` }}
-                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500 shadow-sm"
-                />
-              </div>
+              <h1 className="text-[34px] sm:text-[46px] font-black tracking-[-0.04em] leading-[0.92] text-white">
+                Scan.<br />
+                <span style={{ color: '#FDBA74' }}>Blitz. High-Yield Recall.</span>
+              </h1>
 
-              <div className="flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-300 pt-1">
-                <span>{totalReviewed} reviewed</span>
-                <span className="text-slate-400">{totalPossibleSlides - totalReviewed} remaining</span>
+              <p className="text-[13px] sm:text-[14px] text-white/70 leading-snug max-w-xl">
+                Distilled board-tested medical slides, pathognomonic visual tables, and rapid-recall clinical cards across Foundation and Clinical review libraries.
+              </p>
+
+              {/* Overall Progress Bar Track */}
+              <div className="max-w-xs space-y-1.5 pt-1">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
+                  <span>Reviewed Coverage</span>
+                  <span style={{ color: '#FDBA74' }}>{overallProgressPct}% ({totalReviewed}/{totalPossibleSlides})</span>
+                </div>
+                <div className="h-2 w-full bg-white/15 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${overallProgressPct}%` }}
+                    transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full rounded-full"
+                    style={{
+                      background: 'linear-gradient(90deg, #FDBA74 0%, #EA580C 100%)',
+                      boxShadow: '0 0 10px rgba(253,186,116,0.6)',
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-400/20 text-indigo-950 dark:text-indigo-200 text-xs leading-5">
-              <Flame className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
-              <span>Tap any subject deck below to begin instant slide-by-slide revision.</span>
+            {/* Right Badge Cluster */}
+            <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-3">
+              <div className="p-4 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md min-w-[220px] space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold text-white/80">
+                  <span className="uppercase font-mono text-[10px] tracking-wider">Review Pace</span>
+                  <span className="font-bold text-white text-sm">{totalReviewed} Done</span>
+                </div>
+                <div className="text-xs text-white/70">
+                  {totalPossibleSlides - totalReviewed} high-yield slides remaining across Day 1 & Part 3.
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-amber-500/20 border border-amber-400/30 text-amber-200 text-xs">
+                <Sparkles className="h-4 w-4 text-amber-300 shrink-0" />
+                <span>Auto-saved to your personal study ledger on every slide mark.</span>
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Segmented Library Filter & Search Toolbar */}
-        <div className="mt-8 pt-6 border-t border-slate-200/70 dark:border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-          {/* Segmented Pill Tabs */}
-          <div className="inline-flex p-1 rounded-2xl bg-slate-100/90 dark:bg-black/30 border border-slate-200/80 dark:border-white/10 self-start md:self-auto overflow-x-auto scrollbar-none max-w-full">
-            {(
-              [
-                { id: 'all', label: 'All Decks', count: 11 },
-                { id: 'day1', label: 'Foundation Review', count: 6 },
-                { id: 'part3', label: 'Clinical Review', count: 5 },
-              ] as const
-            ).map((tab) => {
-              const isSelected = sourceFilter === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => {
-                    setSourceFilter(tab.id);
-                    setQuery('');
-                  }}
-                  className={`relative px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                    isSelected
-                      ? 'text-slate-900 dark:text-white shadow-xs font-bold'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  {isSelected && (
-                    <motion.div
-                      layoutId="rapid-source-tab"
-                      transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-                      className="absolute inset-0 rounded-xl bg-white dark:bg-slate-800 shadow-sm"
-                    />
-                  )}
-                  <span className="relative z-10">{tab.label}</span>
-                  <span
-                    className={`relative z-10 px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
-                      isSelected
-                        ? 'bg-blue-100 dark:bg-blue-400/20 text-blue-700 dark:text-blue-300'
-                        : 'bg-slate-200/80 dark:bg-white/10 text-slate-500 dark:text-slate-400'
-                    }`}
-                  >
-                    {tab.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Search Capsule */}
-          <div className="relative flex-1 md:max-w-xs">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search subjects or key topics..."
-              className="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-200/80 dark:border-white/10 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => setQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full cursor-pointer"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
           </div>
         </div>
       </motion.div>
 
-      {/* ================= 2. SMART DIAGNOSTIC GAPS INTELLIGENCE ================= */}
-      {recommendations.length > 0 ? (
-        <motion.section
-          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="overflow-hidden rounded-[26px] border border-blue-200/80 dark:border-blue-400/20 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/50 dark:from-blue-950/25 dark:via-[#131826] dark:to-indigo-950/20 p-5 sm:p-7 shadow-[0_12px_36px_-10px_rgba(37,99,235,0.08)]"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-blue-100 dark:border-white/10">
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25">
-                <TrendingDown className="h-5 w-5" />
-              </span>
-              <div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">
-                  DIAGNOSTIC ADAPTIVE INTELLIGENCE
-                </span>
-                <h3 className="text-base sm:text-lg font-bold font-display text-slate-900 dark:text-white">
-                  Targeted Revision From Recent Question Bank Gaps
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                  High-yield decks selected automatically based on your latest missed or low-confidence questions.
-                </p>
-              </div>
-            </div>
-            <span className="px-3 py-1 rounded-full bg-blue-100/90 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 text-xs font-semibold font-mono self-start sm:self-center">
-              {recommendations.length} PRIORITY DECKS
-            </span>
-          </div>
+      {/* ═══ 2. 3 BENTO GAUGE CARDS ═══ */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        {[
+          {
+            id: 'day1',
+            title: 'Foundation Review',
+            subtitle: 'Day 1 Pre- & Para-Clinical',
+            slidesCount: 146,
+            reviewedCount: day1Reviewed,
+            pct: day1Pct,
+            color: '#3B82F6',
+            track: '#DBEAFE',
+            gradient: 'from-blue-500 via-indigo-600 to-purple-600',
+            border: 'border-blue-200/70 dark:border-blue-500/20',
+            description: 'Anatomy, Physiology, Pathology, Pharmacology, Biochemistry, Microbiology (146 slides)',
+          },
+          {
+            id: 'part3',
+            title: 'Clinical Review',
+            subtitle: 'Part 3 Clinicals & Shorts',
+            slidesCount: 140,
+            reviewedCount: part3Reviewed,
+            pct: part3Pct,
+            color: '#10B981',
+            track: '#D1FAE5',
+            gradient: 'from-emerald-500 via-teal-600 to-cyan-600',
+            border: 'border-emerald-200/70 dark:border-emerald-500/20',
+            description: 'Radiology, Dermatology, Pediatrics, Gynecology, Obstetrics (140 slides)',
+          },
+          {
+            id: 'visuals',
+            title: 'Visual IBQ Hallmarks',
+            subtitle: 'High-Yield Figures & Imaging',
+            slidesCount: totalVisualSlides,
+            reviewedCount: visualReviewed,
+            pct: visualPct,
+            color: '#F59E0B',
+            track: '#FEF3C7',
+            gradient: 'from-amber-500 via-orange-500 to-rose-600',
+            border: 'border-amber-200/70 dark:border-amber-500/20',
+            description: 'Radiographs, CT scans, histopathology stains, and clinical dermatological hallmarks',
+          },
+        ].map((card, idx) => (
+          <motion.div
+            key={card.id}
+            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+            className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border ${card.border} bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.09)] transition-all group`}
+          >
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+              style={{ background: `${card.color}08` }}
+            />
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {recommendations.map((item) => (
-              <motion.article
-                key={`${item.source}-${item.subject.id}`}
-                whileHover={reduceMotion ? undefined : { y: -3 }}
-                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                className="flex flex-col justify-between rounded-2xl border border-white/90 dark:border-white/10 bg-white/90 dark:bg-slate-900/80 p-5 shadow-xs backdrop-blur-md"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.subject.wash}`}>
-                      {item.subject.icon}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">
-                      {SOURCE_INFO[item.source].title}
-                    </span>
+            <div className="relative flex flex-col gap-3.5">
+              {/* Header row */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${card.gradient} text-white flex items-center justify-center shrink-0 shadow-sm`}
+                    style={{ boxShadow: `0 3px 10px ${card.color}35` }}
+                  >
+                    <BookOpenCheck className="h-5 w-5" />
                   </div>
-
                   <div>
-                    <h4 className="text-base font-bold font-display text-slate-900 dark:text-white">{item.subject.title}</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      {item.attempts} recent questions ·{' '}
-                      <span className="text-rose-600 dark:text-rose-400 font-semibold">{item.wrong} missed</span> ·{' '}
-                      <span className="text-amber-600 dark:text-amber-400 font-semibold">{item.unsure} uncertain</span>
+                    <div className="font-bold text-slate-900 dark:text-white text-[14px] leading-tight">
+                      {card.title}
+                    </div>
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      {card.subtitle}
+                    </div>
+                  </div>
+                </div>
+                <Gauge pct={card.pct} size={52} sw={4.5} color={card.color} track={card.track} />
+              </div>
+
+              {/* Progress bar */}
+              <div className="space-y-1">
+                <div className="h-1.5 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.max(card.pct > 0 ? 5 : 0, card.pct)}%` }}
+                    transition={{ duration: 0.9, ease: 'easeOut' }}
+                    className="h-full rounded-full"
+                    style={{ background: `linear-gradient(90deg, ${card.color} 0%, ${card.color}CC 100%)` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[10.5px]">
+                  <span className="font-mono text-slate-500 dark:text-slate-400">
+                    {card.reviewedCount} / {card.slidesCount} slides
+                  </span>
+                  <span className="font-semibold" style={{ color: card.color }}>
+                    {card.pct}% reviewed
+                  </span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug border-t border-slate-100 dark:border-white/10 pt-2.5">
+                {card.description}
+              </p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* ═══ 3. MAIN SPLIT: 8-COL DECKS LIST + 4-COL SIDEBAR ═══ */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Main Panel — 8 columns */}
+        <div className="lg:col-span-8 space-y-5">
+          {/* Diagnostic intelligence section if gaps exist */}
+          {recommendations.length > 0 && (
+            <motion.section
+              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="overflow-hidden rounded-2xl sm:rounded-3xl border border-orange-200/80 dark:border-orange-400/20 bg-gradient-to-br from-orange-50/80 via-white to-amber-50/50 dark:from-orange-950/25 dark:via-slate-900 dark:to-amber-950/20 p-5 sm:p-6 shadow-[0_6px_20px_rgba(249,115,22,0.06)]"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-orange-100 dark:border-white/10">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25">
+                    <TrendingDown className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400">
+                      DIAGNOSTIC ADAPTIVE INTELLIGENCE
+                    </span>
+                    <h3 className="text-base font-bold font-display text-slate-900 dark:text-white">
+                      Targeted Revision From Recent MCQ Gaps
+                    </h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                      Prioritized slides matched to your latest incorrect or low-confidence questions.
                     </p>
                   </div>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-orange-100/90 dark:bg-orange-500/20 text-orange-800 dark:text-orange-300 text-xs font-semibold font-mono self-start sm:self-center">
+                  {recommendations.length} PRIORITY DECKS
+                </span>
+              </div>
 
-                  <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300 min-h-[36px]">
-                    {item.topicMatched
-                      ? `Matches your recent incorrect topics. Suggested entry at source page ${item.slides[item.targetIndex]?.page}.`
-                      : `Continue from your next unreviewed slide in ${item.subject.title}.`}
+              <div className="mt-4 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                {recommendations.map((item) => (
+                  <div
+                    key={`${item.source}-${item.subject.id}`}
+                    className="flex flex-col justify-between rounded-2xl border border-slate-200/70 dark:border-white/10 bg-white/95 dark:bg-slate-900/90 p-4 shadow-2xs backdrop-blur-md"
+                  >
+                    <div className="space-y-2.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${item.subject.wash}`}>
+                          {item.subject.icon}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">
+                          {SOURCE_INFO[item.source].title}
+                        </span>
+                      </div>
+
+                      <div>
+                        <h4 className="text-sm font-bold font-display text-slate-900 dark:text-white">{item.subject.title}</h4>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          {item.attempts} Qs ·{' '}
+                          <span className="text-rose-600 dark:text-rose-400 font-semibold">{item.wrong} missed</span>
+                        </p>
+                      </div>
+
+                      <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300 min-h-[30px]">
+                        {item.topicMatched
+                          ? `Target slide page ${item.slides[item.targetIndex]?.page} matches missed topics.`
+                          : `Resume from next unreviewed slide.`}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => openRecommendation(item)}
+                      className={`mt-3 inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-gradient-to-r ${SOURCE_INFO[item.source].gradient} text-white text-xs font-semibold font-display shadow-xs transition hover:brightness-105 cursor-pointer`}
+                    >
+                      <span>Study {item.subject.title}</span>
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </motion.section>
+          )}
+
+          {/* Subject Decks Card Container */}
+          <div className="rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-slate-900 shadow-[0_2px_16px_rgba(0,0,0,0.05)] overflow-hidden">
+            {/* Card Header & Filter Toolbar */}
+            <div className="px-5 sm:px-6 py-4 border-b border-slate-100 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-600 dark:text-orange-400 shrink-0">
+                  <Layers className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-[15px] leading-tight">
+                    Rapid Revision Decks
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {subjects.length} active subject decks · Board-tested slides
                   </p>
                 </div>
+              </div>
 
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => openRecommendation(item)}
-                  className={`mt-4 inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gradient-to-r ${SOURCE_INFO[item.source].gradient} text-white text-xs font-semibold font-display shadow-xs transition hover:brightness-105 cursor-pointer`}
-                >
-                  <span>Study {item.subject.title} Deck</span>
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                </motion.button>
-              </motion.article>
-            ))}
-          </div>
-        </motion.section>
-      ) : fmgeQbankAttempts.length ? (
-        hasUnmappedGaps ? (
-          <div className="rounded-2xl border border-amber-200/80 dark:border-amber-400/20 bg-amber-50/70 dark:bg-amber-950/20 p-4 text-xs leading-relaxed text-amber-900 dark:text-amber-200">
-            <strong>Question Bank Notice:</strong> Recent misses are in subjects outside the 11 Rapid Revision decks. Browse all standard subject decks below for systematic review.
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-emerald-200/80 dark:border-emerald-400/20 bg-emerald-50/70 dark:bg-emerald-950/20 p-4 text-xs leading-relaxed text-emerald-900 dark:text-emerald-200 flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>
-              <strong>Strong Question Bank Performance:</strong> No urgent diagnostic revision gaps detected in your recent answers. Keep practicing to maintain high accuracy!
-            </span>
-          </div>
-        )
-      ) : (
-        <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-50/80 dark:bg-slate-900/40 p-4 text-xs text-slate-600 dark:text-slate-400">
-          <strong>Smart Recommendations:</strong> As you practice Questions in the Question Bank, high-yield revision recommendations will automatically appear here based on your misses.
-        </div>
-      )}
-
-      {/* ================= 3. SUBJECT DECKS GRID ================= */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between px-1">
-          <div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
-              BOARD-CERTIFIED LIBRARIES
-            </span>
-            <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-slate-900 dark:text-white">
-              Choose a Subject Deck
-            </h3>
-          </div>
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-            {subjects.length} DECKS ACTIVE
-          </span>
-        </div>
-
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {subjects.map(({ sourceId: deckSourceId, subject, slides, complete }, index) => {
-            const isCompleted = complete === slides.length && slides.length > 0;
-            const completionPct = slides.length ? Math.round((complete / slides.length) * 100) : 0;
-
-            return (
-              <motion.article
-                key={`${deckSourceId}-${subject.id}`}
-                initial={reduceMotion ? false : { opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={reduceMotion ? undefined : { y: -4 }}
-                transition={{
-                  delay: reduceMotion ? 0 : index * 0.03,
-                  duration: 0.28,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-black/[0.06] dark:border-white/[0.08] bg-white/95 dark:bg-[#151924] p-5 sm:p-6 shadow-[0_6px_24px_rgba(15,23,42,0.05)] hover:shadow-[0_16px_40px_rgba(15,23,42,0.12)] transition-all"
-              >
-                {/* Decorative Top Accent Stripe */}
-                <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${subject.gradient}`} />
-
-                {/* Ambient Glow */}
-                <div
-                  className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full blur-2xl opacity-40 group-hover:opacity-80 transition-opacity"
-                  style={{ background: subject.glowColor }}
-                />
-
-                <div className="space-y-4 relative z-10">
-                  {/* Card Header */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${subject.wash} shadow-xs`}>
-                        {subject.icon}
+              {/* Filter Pills */}
+              <div className="inline-flex p-1 rounded-xl bg-slate-100/90 dark:bg-black/30 border border-slate-200/80 dark:border-white/10 self-start sm:self-auto overflow-x-auto scrollbar-none">
+                {(
+                  [
+                    { id: 'all', label: 'All', count: 11 },
+                    { id: 'day1', label: 'Day 1 Core', count: 6 },
+                    { id: 'part3', label: 'Part 3 Clinical', count: 5 },
+                  ] as const
+                ).map((tab) => {
+                  const isSelected = sourceFilter === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        setSourceFilter(tab.id);
+                        setQuery('');
+                      }}
+                      className={`relative px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'text-slate-900 dark:text-white shadow-xs font-bold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      {isSelected && (
+                        <motion.div
+                          layoutId="rapid-filter-pill"
+                          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                          className="absolute inset-0 rounded-lg bg-white dark:bg-slate-800 shadow-sm"
+                        />
+                      )}
+                      <span className="relative z-10">{tab.label}</span>
+                      <span
+                        className={`relative z-10 px-1 py-0.2 rounded-full text-[9px] font-mono ${
+                          isSelected
+                            ? 'bg-orange-100 dark:bg-orange-400/20 text-orange-700 dark:text-orange-300'
+                            : 'bg-slate-200/80 dark:bg-white/10 text-slate-500 dark:text-slate-400'
+                        }`}
+                      >
+                        {tab.count}
                       </span>
-                      <div>
-                        <h4 className="text-lg font-bold font-display text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {subject.title}
-                        </h4>
-                        <span className="text-[11px] font-mono text-slate-400">
-                          {SOURCE_INFO[deckSourceId].title}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Search Input Bar */}
+            <div className="px-5 sm:px-6 py-3 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/[0.02]">
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search subject decks or key clinical topics..."
+                  className="w-full pl-9 pr-8 py-2 rounded-xl bg-white dark:bg-black/30 border border-slate-200/80 dark:border-white/10 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition-all"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Subject Decks Grid */}
+            <div className="p-5 sm:p-6 grid gap-4 sm:grid-cols-2">
+              {subjects.map(({ sourceId: deckSourceId, subject, slides, complete }, index) => {
+                const isCompleted = complete === slides.length && slides.length > 0;
+                const completionPct = slides.length ? Math.round((complete / slides.length) * 100) : 0;
+
+                return (
+                  <motion.article
+                    key={`${deckSourceId}-${subject.id}`}
+                    initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={reduceMotion ? undefined : { y: -3 }}
+                    transition={{
+                      delay: reduceMotion ? 0 : index * 0.02,
+                      duration: 0.25,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-50/50 dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-900 p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all"
+                  >
+                    {/* Top Accent Stripe */}
+                    <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${subject.gradient}`} />
+
+                    <div className="space-y-3.5 relative z-10">
+                      {/* Header */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${subject.wash} shadow-xs`}>
+                            {subject.icon}
+                          </span>
+                          <div>
+                            <h4 className="text-[15px] font-bold font-display text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                              {subject.title}
+                            </h4>
+                            <span className="text-[10px] font-mono text-slate-400">
+                              {SOURCE_INFO[deckSourceId].title}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-white dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-white/10 shrink-0">
+                          {slides.length} slides
                         </span>
+                      </div>
+
+                      {/* High-Yield Topics Badges */}
+                      <div className="flex flex-wrap gap-1">
+                        {subject.highYieldTopics.slice(0, 3).map((topic, tIdx) => (
+                          <span
+                            key={tIdx}
+                            className="px-2 py-0.5 rounded-md text-[9.5px] font-medium bg-white/80 dark:bg-white/[0.06] text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-white/5 truncate max-w-[150px]"
+                            title={topic}
+                          >
+                            {topic}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="space-y-1 pt-1">
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                          <span>{complete} / {slides.length} reviewed</span>
+                          <span className={isCompleted ? 'text-emerald-600 font-bold' : ''}>{completionPct}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-200/80 dark:bg-white/10 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${completionPct}%` }}
+                            transition={{ duration: 0.6 }}
+                            className={`h-full rounded-full ${
+                              isCompleted
+                                ? 'bg-emerald-500'
+                                : `bg-gradient-to-r ${subject.gradient}`
+                            }`}
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 shrink-0">
-                      {slides.length} slides
-                    </span>
-                  </div>
-
-                  {/* High-Yield Topics Preview Badges */}
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {subject.highYieldTopics.slice(0, 3).map((topic, tIdx) => (
-                      <span
-                        key={tIdx}
-                        className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100/80 dark:bg-white/[0.06] text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-white/5 truncate max-w-[170px]"
-                        title={topic}
-                      >
-                        {topic}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Progress Section */}
-                  <div className="space-y-1.5 pt-2">
-                    <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400">
-                      <span>{complete} of {slides.length} reviewed</span>
-                      <span className={isCompleted ? 'text-emerald-600 font-bold' : ''}>{completionPct}%</span>
-                    </div>
-
-                    <div className="h-1.5 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${completionPct}%` }}
-                        transition={{ duration: 0.6 }}
-                        className={`h-full rounded-full ${
+                    {/* Dual Action Buttons: Open Deck + Practice 10 MCQs */}
+                    <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-white/10 flex items-center gap-2">
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.98 }}
+                        disabled={!slides.length}
+                        onClick={() => openDeck(deckSourceId, subject, slides)}
+                        className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold font-display transition-all cursor-pointer shadow-xs ${
                           isCompleted
-                            ? 'bg-emerald-500'
-                            : `bg-gradient-to-r ${subject.gradient}`
-                        }`}
-                      />
-                    </div>
-                  </div>
-                </div>
+                            ? 'bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white'
+                            : `bg-gradient-to-r ${subject.gradient} text-white hover:brightness-105`
+                        } disabled:opacity-50`}
+                      >
+                        <span>{isCompleted ? 'Review Deck' : 'Open Deck'}</span>
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </motion.button>
 
-                {/* Card Action Button */}
-                <motion.button
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => onPractice(subject.id)}
+                        title={`Launch 10-MCQ drill on ${subject.title}`}
+                        className="px-3 py-2 rounded-xl bg-orange-50 dark:bg-orange-500/10 hover:bg-orange-100 dark:hover:bg-orange-500/20 text-orange-700 dark:text-orange-400 border border-orange-200/80 dark:border-orange-500/20 text-xs font-semibold font-display flex items-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <Zap className="h-3.5 w-3.5" />
+                        <span>10 MCQs</span>
+                      </motion.button>
+                    </div>
+                  </motion.article>
+                );
+              })}
+            </div>
+
+            {!subjects.length && (
+              <div className="p-8 text-center bg-white dark:bg-slate-900 space-y-2">
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  No subject decks matched "{query}".
+                </p>
+                <button
                   type="button"
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.97 }}
-                  disabled={!slides.length}
-                  onClick={() => openDeck(deckSourceId, subject, slides)}
-                  className={`mt-5 inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold font-display transition-all cursor-pointer shadow-xs ${
-                    isCompleted
-                      ? 'bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white'
-                      : `bg-gradient-to-r ${subject.gradient} text-white hover:brightness-105`
-                  } disabled:opacity-50`}
+                  onClick={() => {
+                    setQuery('');
+                    setSourceFilter('all');
+                  }}
+                  className="text-xs font-semibold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer"
                 >
-                  <span>{isCompleted ? `Review ${subject.title} Deck` : `Open ${subject.title} Deck`}</span>
-                  <ArrowUpRight className="h-4 w-4" />
-                </motion.button>
-              </motion.article>
-            );
-          })}
+                  Reset filters & search
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {!subjects.length && (
-          <div className="p-8 text-center rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-slate-900 space-y-2">
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              No subject decks matched "{query}".
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setQuery('');
-                setSourceFilter('all');
-              }}
-              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
-            >
-              Reset filters & search
-            </button>
+        {/* Right Sidebar — 4 columns */}
+        <div className="lg:col-span-4 space-y-4">
+          {/* Quick Actions Card */}
+          <div className="rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-slate-900 shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 dark:border-white/10 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-[#EA580C]/10 border border-[#EA580C]/20 flex items-center justify-center text-[#EA580C]">
+                <Zap className="h-3.5 w-3.5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-[14px] leading-tight">
+                  Rapid Actions
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Jump right into high-yield review</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 space-y-2">
+              {[
+                {
+                  label: totalReviewed > 0 ? 'Continue Rapid Review' : 'Start Rapid Review',
+                  sub: totalReviewed > 0 ? `Resume next unreviewed slide` : `Begin Day 1 Anatomy deck`,
+                  icon: Play,
+                  iconBg: '#EA580C',
+                  iconFill: true,
+                  onClick: () => {
+                    // Open first subject with unreviewed slides
+                    const firstIncomplete = subjects.find((s) => s.complete < s.slides.length) || subjects[0];
+                    if (firstIncomplete) {
+                      openDeck(firstIncomplete.sourceId, firstIncomplete.subject, firstIncomplete.slides);
+                    }
+                  },
+                },
+                {
+                  label: 'Launch 10-MCQ Drill',
+                  sub: 'Practice board questions right now',
+                  icon: Target,
+                  iconBg: '#3B82F6',
+                  iconFill: false,
+                  onClick: () => onPractice(subjects[0]?.subject.id || 'anatomy'),
+                },
+                {
+                  label: 'Day 1 Pre-Clinical Core',
+                  sub: 'Filter 6 Foundation Decks (146 slides)',
+                  icon: BookOpen,
+                  iconBg: '#10B981',
+                  iconFill: false,
+                  onClick: () => {
+                    setSourceFilter('day1');
+                    setQuery('');
+                  },
+                },
+                {
+                  label: 'Part 3 Clinical Review',
+                  sub: 'Filter 5 Clinical Decks (140 slides)',
+                  icon: Stethoscope,
+                  iconBg: '#8B5CF6',
+                  iconFill: false,
+                  onClick: () => {
+                    setSourceFilter('part3');
+                    setQuery('');
+                  },
+                },
+              ].map(({ label, sub, icon: Icon, iconBg, iconFill, onClick }) => (
+                <motion.button
+                  key={label}
+                  type="button"
+                  whileHover={{ x: 2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 28 }}
+                  onClick={onClick}
+                  className="w-full p-3 rounded-xl bg-slate-50/80 hover:bg-slate-100/90 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] border border-slate-200/60 dark:border-white/10 flex items-center gap-3 text-left cursor-pointer transition-colors group"
+                >
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-white transition-transform group-hover:scale-105"
+                    style={{ background: iconBg, boxShadow: `0 2px 8px ${iconBg}40` }}
+                  >
+                    <Icon className={`h-4 w-4 ${iconFill ? 'fill-white' : ''}`} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-[13px] text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors leading-tight">
+                      {label}
+                    </div>
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{sub}</div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors shrink-0" />
+                </motion.button>
+              ))}
+            </div>
           </div>
-        )}
+
+          {/* Stats Tile */}
+          <div className="rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-slate-900 shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 sm:p-5 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                <Award className="h-3.5 w-3.5" />
+              </div>
+              <h3 className="font-bold text-slate-900 dark:text-white text-[14px]">Rapid Review Stats</h3>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: 'Total Slides', value: totalPossibleSlides, icon: BookOpen, color: '#EA580C' },
+                { label: 'Reviewed', value: totalReviewed, icon: CheckCircle2, color: '#10B981' },
+                { label: 'Coverage', value: `${overallProgressPct}%`, icon: Clock, color: '#3B82F6' },
+              ].map(({ label, value, icon: Icon, color }) => (
+                <div
+                  key={label}
+                  className="rounded-xl bg-slate-50/80 dark:bg-white/[0.03] border border-slate-100 dark:border-white/10 p-3 text-center"
+                >
+                  <Icon className="h-3.5 w-3.5 mx-auto mb-1" style={{ color }} />
+                  <div className="font-black text-[18px] text-slate-900 dark:text-white leading-none tracking-tight">
+                    {value}
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">{label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Rapid Blitz Maxim Banner */}
+            <div
+              className="relative overflow-hidden rounded-xl p-4"
+              style={{
+                background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
+                border: '1px solid rgba(234,88,12,0.25)',
+              }}
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Flame className="h-4 w-4" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-orange-900">
+                    The Blitz Rule
+                  </h4>
+                  <p className="text-[12px] text-orange-950/90 leading-snug">
+                    "Review 20 high-yield slides before breakfast. Blitz 10 MCQs right after. Pattern recognition beats memorization every time."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ================= 4. PRESENTATION MODAL / SLIDE VIEWER ================= */}
