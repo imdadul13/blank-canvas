@@ -29,6 +29,7 @@ import {
   PracticeSessionContext,
   FlashcardDeck,
   SlideDeck,
+  VisualSlideItem,
   TopicClinicalCasesDeck,
   TopicHighYieldPearl,
   EducationalVideo,
@@ -174,7 +175,81 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
 
   // Step 1: Rapid Revision & Slides
   const [videos, setVideos] = useState<EducationalVideo[]>([]);
-  const slideDeck = useMemo<SlideDeck>(() => generateSlideDeck(subjectId, topicId, topicName), [subjectId, topicId, topicName]);
+  const baseSlideDeck = useMemo<SlideDeck>(() => generateSlideDeck(subjectId, topicId, topicName), [subjectId, topicId, topicName]);
+  const slideDeck = useMemo<SlideDeck>(() => {
+    if (aiMasteryData?.slides && Array.isArray(aiMasteryData.slides) && aiMasteryData.slides.length > 0) {
+      return {
+        topicId,
+        topicName,
+        subjectId,
+        subjectName: subjectId,
+        slides: aiMasteryData.slides.map((s: any, idx: number) => ({
+          id: `ai-slide-${subjectId}-${topicId}-${idx + 1}`,
+          slideNumber: idx + 1,
+          title: s.title || `${topicName} — Clinical Review ${idx + 1}`,
+          subtitle: s.subtitle || 'Gemini AI Deepened High-Yield Slide',
+          category: (s.category === 'management' ? 'pharmacology_mgmt' : s.category) || (idx === 0 ? 'overview' : idx === 1 ? 'diagnostics' : 'pharmacology_mgmt'),
+          bullets: Array.isArray(s.bullets) && s.bullets.length > 0 ? s.bullets : [s.text || 'Clinical key point'],
+          keyTakeaways: Array.isArray(s.keyTakeaways) ? s.keyTakeaways : s.takeaway ? [s.takeaway] : undefined,
+          examTrapWarning: s.examTrapWarning || s.trap || undefined,
+        })),
+      };
+    }
+    if (aiMasteryData && (aiMasteryData.highYieldSummary || aiMasteryData.coreConcepts)) {
+      const deepenedSlides: VisualSlideItem[] = [
+        {
+          id: `ai-slide-${subjectId}-${topicId}-1`,
+          slideNumber: 1,
+          title: `${topicName} — Pathophysiology & Clinical Core`,
+          subtitle: `${subjectId.toUpperCase()} • Gemini AI Deepened Synthesis`,
+          category: 'overview',
+          bullets: [
+            aiMasteryData.highYieldSummary,
+            ...(Array.isArray(aiMasteryData.coreConcepts) ? aiMasteryData.coreConcepts.slice(0, 3) : []),
+          ].filter(Boolean),
+          keyTakeaways: Array.isArray(aiMasteryData.keyTakeaways) ? aiMasteryData.keyTakeaways.slice(0, 2) : undefined,
+          examTrapWarning: aiMasteryData.examTrap || undefined,
+        },
+        {
+          id: `ai-slide-${subjectId}-${topicId}-2`,
+          slideNumber: 2,
+          title: 'Diagnostic Workup, Gold Standards & Triads',
+          subtitle: 'Best Initial vs Confirmatory Investigations',
+          category: 'diagnostics',
+          bullets: [
+            aiMasteryData.diagnosticTriads ? `Pathognomonic Triad/Finding: ${aiMasteryData.diagnosticTriads}` : null,
+            aiMasteryData.goldStandardTest ? `Definitive Gold-Standard: ${aiMasteryData.goldStandardTest}` : null,
+            aiMasteryData.classicPresentation ? `Classic Vignette Stem: ${aiMasteryData.classicPresentation}` : null,
+            ...(Array.isArray(aiMasteryData.coreConcepts) ? aiMasteryData.coreConcepts.slice(3, 5) : []),
+          ].filter(Boolean) as string[],
+          keyTakeaways: aiMasteryData.goldStandardTest ? [`Definitive test: ${aiMasteryData.goldStandardTest}`] : undefined,
+          examTrapWarning: aiMasteryData.examTrap || undefined,
+        },
+        {
+          id: `ai-slide-${subjectId}-${topicId}-3`,
+          slideNumber: 3,
+          title: 'First-Line Protocols, Drug of Choice & Pitfalls',
+          subtitle: 'Emergency Management & Board Traps',
+          category: 'pharmacology_mgmt',
+          bullets: [
+            aiMasteryData.firstLineTreatment ? `First-Line Rx / DOC: ${aiMasteryData.firstLineTreatment}` : null,
+            aiMasteryData.examTrap ? `NBE Board Pitfall / Distractor: ${aiMasteryData.examTrap}` : null,
+            ...(Array.isArray(aiMasteryData.keyTakeaways) ? aiMasteryData.keyTakeaways : []),
+          ].filter(Boolean) as string[],
+          keyTakeaways: aiMasteryData.firstLineTreatment ? [`DOC: ${aiMasteryData.firstLineTreatment}`] : undefined,
+          examTrapWarning: aiMasteryData.examTrap || undefined,
+        },
+      ];
+      return {
+        topicId,
+        topicName,
+        subjectId,
+        subjectName: subjectId,
+        slides: deepenedSlides,
+      };
+    }
+    return baseSlideDeck;
+  }, [aiMasteryData, baseSlideDeck, subjectId, topicId, topicName]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
   // Step 2: Recall (Flashcards)
@@ -293,23 +368,27 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subjectId, topicId, topicName }),
       });
+      if (!res.ok) {
+        throw new Error(`Server returned HTTP ${res.status}`);
+      }
       const result = await res.json();
       if (activeTopicKeyRef.current !== requestTopicKey) {
         return;
       }
       if (result.success && result.data) {
         setAiMasteryData(result.data);
-        setAiStatus('Live Gemini AI rapid revision master pack loaded!');
+        setCurrentSlideIndex(0);
+        setAiStatus('Live Gemini AI study pack & deepened slides loaded!');
         confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
       } else {
         const detail = result.error ? `Notice: ${result.error}. ` : '';
         setAiStatus(`${detail}Loaded verified NBE blueprint knowledge base.`);
       }
-    } catch {
+    } catch (err: any) {
       if (activeTopicKeyRef.current !== requestTopicKey) {
         return;
       }
-      setAiStatus('Serving verified NBE blueprint knowledge base.');
+      setAiStatus(err?.message ? `Notice: ${err.message}. Serving verified base knowledge.` : 'Serving verified NBE blueprint knowledge base.');
     } finally {
       if (activeTopicKeyRef.current === requestTopicKey) {
         setIsAiLoading(false);
@@ -837,9 +916,36 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 {slideDeck.slides.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between border-b border-stone-100 pb-2">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
-                        Textbook Notes & Synthesis ({currentSlideIndex + 1} of {slideDeck.slides.length})
-                      </span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
+                          {aiMasteryData ? 'Gemini AI Deepened Slides' : 'Textbook Notes & Synthesis'} ({currentSlideIndex + 1} of {slideDeck.slides.length})
+                        </span>
+                        {aiMasteryData ? (
+                          <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/60 text-[10px] font-mono font-semibold flex items-center gap-1">
+                            <Brain className="h-2.5 w-2.5 text-indigo-600" />
+                            GEMINI AI DEEPENED
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={fetchGeminiMastery}
+                            disabled={isAiLoading}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/70 text-[11px] font-semibold font-display transition-colors cursor-pointer disabled:opacity-60"
+                          >
+                            {isAiLoading ? (
+                              <>
+                                <RefreshCw className="h-3 w-3 animate-spin text-indigo-600" />
+                                <span>Deepening Slides...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="h-3 w-3 text-indigo-600" />
+                                <span>Deepen Slides with Gemini</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
                       <div className="flex items-center gap-1.5">
                         <button
                           type="button"
@@ -861,7 +967,18 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                     </div>
 
                     {/* Slide Content Card */}
-                    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-3">
+                    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-3 relative overflow-hidden">
+                      {isAiLoading && (
+                        <div className="absolute inset-0 bg-white/85 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-10 transition-all">
+                          <RefreshCw className="h-5 w-5 animate-spin text-indigo-600" />
+                          <p className="text-xs font-semibold font-display text-indigo-700">
+                            Gemini AI is deepening high-yield study slides...
+                          </p>
+                          <p className="text-[11px] text-stone-500 font-mono">
+                            Synthesizing clinical correlations, gold standard tests & board traps
+                          </p>
+                        </div>
+                      )}
                       <h3 className="text-lg sm:text-xl font-bold font-display text-stone-900">
                         {slideDeck.slides[currentSlideIndex]?.title}
                       </h3>

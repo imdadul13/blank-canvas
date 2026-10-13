@@ -383,21 +383,21 @@ async function callGeminiWithRetry(params: any, retries = 1, delayMs = 300): Pro
   const requestedModel = params.model;
   
   // Sanitize and prioritize active models:
-  // 1. "gemini-3.5-flash-lite": ultra-low latency (~1s), high availability
-  // 2. "gemini-flash-lite-latest": robust structured JSON output
-  // 3. "gemini-3.1-flash-lite": high availability fallback
-  // 4. "gemini-3-flash-preview": high-speed fallback
-  // 5. "gemini-3.7-flash": Gemini 3.7 Flash clinical reasoning engine
-  const validRequested = (requestedModel && requestedModel !== "gemini-2.5-flash" && requestedModel !== "gemini-2.5-flash-lite")
-    ? requestedModel
-    : null;
+  // 1. "gemini-3-flash-preview": high-speed (~1-2s), verified responsive
+  // 2. "gemini-flash-lite-latest": structured JSON generation
+  // 3. "gemini-3.5-flash-lite": low-latency fallback
+  // 4. "gemini-3.7-flash": clinical reasoning fallback
+  let validRequested = requestedModel;
+  if (!validRequested || validRequested.startsWith("gemini-2.5-") || validRequested === "gemini-3.1-flash-lite") {
+    validRequested = "gemini-3-flash-preview";
+  }
 
   const models = Array.from(new Set([
-    validRequested || "gemini-3.5-flash-lite",
-    "gemini-3.5-flash-lite",
-    "gemini-flash-lite-latest",
-    "gemini-3.1-flash-lite",
+    validRequested,
     "gemini-3-flash-preview",
+    "gemini-3.5-flash",
+    "gemini-3.8-flash",
+    "gemini-3.1-flash-lite",
     "gemini-3.7-flash",
   ])).filter(Boolean);
 
@@ -406,7 +406,7 @@ async function callGeminiWithRetry(params: any, retries = 1, delayMs = 300): Pro
   for (const model of models) {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        const timeoutMs = params.timeoutMs || 10000;
+        const timeoutMs = params.timeoutMs || 25000;
         const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error(`Timeout on ${model} after ${timeoutMs / 1000}s`)), timeoutMs)
         );
@@ -420,27 +420,36 @@ async function callGeminiWithRetry(params: any, retries = 1, delayMs = 300): Pro
         return response;
       } catch (err: any) {
         lastErr = err;
+        const isTimeout = err?.message?.includes("Timeout");
+        if (isTimeout) {
+          console.warn(`[Gemini API] Model ${model} timed out. Instantly trying next fallback model...`);
+          break; // Never retry a timed-out model — jump immediately to next model!
+        }
+
         const isHighDemand =
           err?.status === 503 ||
           err?.message?.includes("503") ||
           err?.message?.includes("high demand") ||
           err?.message?.includes("UNAVAILABLE");
 
-        // If 503 high demand, immediately break to next model without wasting time in retry loop!
         if (isHighDemand) {
-          console.warn(`[Gemini API] Model ${model} is experiencing high demand (503). Instantly switching to next fallback model...`);
+          if (attempt < retries) {
+            console.warn(`[Gemini API] Temporary 503 spike on ${model}. Retrying in 500ms...`);
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            continue;
+          }
+          console.warn(`[Gemini API] Model ${model} unavailable (503). Instantly trying next fallback model...`);
           break;
         }
 
         const isTransient =
           err?.status === 429 ||
           err?.message?.includes("429") ||
-          err?.message?.includes("RESOURCE_EXHAUSTED") ||
-          err?.message?.includes("Timeout");
+          err?.message?.includes("RESOURCE_EXHAUSTED");
 
         if (isTransient && attempt < retries) {
           const waitTime = delayMs * Math.pow(1.5, attempt);
-          console.warn(`[Gemini API] Transient error on ${model} (attempt ${attempt + 1}/${retries + 1}), retrying in ${Math.round(waitTime)}ms:`, err.message);
+          console.warn(`[Gemini API] Transient 429 on ${model} (attempt ${attempt + 1}/${retries + 1}), retrying in ${Math.round(waitTime)}ms:`, err.message);
           await new Promise((resolve) => setTimeout(resolve, waitTime));
           continue;
         }
@@ -1057,7 +1066,7 @@ JSON Schema:
     "Takeaway 2: Treatment or diagnostic rule.",
     "Takeaway 3: Volatile memory anchor / mnemonic."
   ],
-  "rapidRevisionTable": {
+    "rapidRevisionTable": {
     "headers": ["Entity / Subtype", "Hallmark Finding / Sign", "Investigation of Choice", "First-Line Rx / DOC"],
     "rows": [
       ["Type 1 / Acute", "Finding A", "Test A", "Treatment A"],
@@ -1065,6 +1074,47 @@ JSON Schema:
       ["Complication / Trap", "Finding C", "Test C", "Treatment C"]
     ]
   },
+  "slides": [
+    {
+      "title": "Clinical Presentation & Essential Mechanisms",
+      "subtitle": "High-Yield Pathophysiology & Diagnostic Criteria",
+      "category": "overview",
+      "bullets": [
+        "Hallmark board finding and exact numerical diagnostic criteria.",
+        "Underlying pathophysiology and anatomical relations.",
+        "Clinical risk factors and demographic patterns.",
+        "High-frequency FMGE vignette presentation clues."
+      ],
+      "keyTakeaways": ["Core discriminatory mechanism to remember."],
+      "examTrapWarning": "Common student misconception or distractor trap."
+    },
+    {
+      "title": "Investigation of Choice & Confirmatory Modalities",
+      "subtitle": "Best Initial vs Gold Standard Diagnostic Workup",
+      "category": "diagnostics",
+      "bullets": [
+        "Best initial test to order first in the emergency room / clinic.",
+        "Definitive confirmatory investigation of choice (gold standard).",
+        "Pathognomonic signs / diagnostic triads / lab abnormalities.",
+        "Specific imaging or ECG patterns tested in FMGE."
+      ],
+      "keyTakeaways": ["Definitive diagnostic investigation and criteria."],
+      "examTrapWarning": "Do not confuse best initial test with gold standard."
+    },
+    {
+      "title": "First-Line Management, Protocols & Board Pearls",
+      "subtitle": "Drug of Choice, Acute Resuscitation & Interventions",
+      "category": "management",
+      "bullets": [
+        "Drug of Choice (DOC) or first-line protocol with exact names.",
+        "Acute stabilization and immediate emergency interventions.",
+        "Refractory cases, second-line therapy, and surgical indications.",
+        "Contraindicated medications and fatal traps to avoid."
+      ],
+      "keyTakeaways": ["First-line protocol and drug of choice."],
+      "examTrapWarning": "Top lethal drug interaction or management trap."
+    }
+  ],
   "flashcards": [
     {
       "front": "Specific high-yield question 1?",
@@ -1129,7 +1179,8 @@ JSON Schema:
 }`;
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3.1-flash-lite",
+      model: "gemini-3-flash-preview",
+      timeoutMs: 30000,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -1159,7 +1210,56 @@ JSON Schema:
     const isContaminated = (content: string) =>
       validateTopicContentConsistency(content, subjectId, authoritativeTopic).hasContamination;
 
-    // Redact per-artifact contamination (flashcards, clinical cases, pearls).
+    // Redact per-artifact contamination (slides, flashcards, clinical cases, pearls).
+    if (Array.isArray(data.slides)) {
+      data.slides = data.slides.filter((s: any) =>
+        s && typeof s.title === 'string' &&
+        !isContaminated(`${s.title || ''} ${s.subtitle || ''} ${(s.bullets || []).join(' ')} ${s.examTrapWarning || ''}`)
+      );
+    }
+
+    // Ensure at least 3 high-yield study slides are always available
+    if (!Array.isArray(data.slides) || data.slides.length === 0) {
+      data.slides = [
+        {
+          title: `${detectedTopic || topicName} — Clinical Pathophysiology & Core`,
+          subtitle: `${detectedSubject || subjectId} • NBE Blueprint Core`,
+          category: 'overview',
+          bullets: [
+            data.highYieldSummary || 'Clinical pathophysiology and presentation.',
+            ...(Array.isArray(data.coreConcepts) ? data.coreConcepts.slice(0, 3) : []),
+          ].filter(Boolean),
+          keyTakeaways: Array.isArray(data.keyTakeaways) ? data.keyTakeaways.slice(0, 2) : undefined,
+          examTrapWarning: data.examTrap || undefined,
+        },
+        {
+          title: 'Diagnostic Workup, Gold Standards & Triads',
+          subtitle: 'Best Initial vs Confirmatory Investigations',
+          category: 'diagnostics',
+          bullets: [
+            data.diagnosticTriads ? `Hallmark Triad/Finding: ${data.diagnosticTriads}` : null,
+            data.goldStandardTest ? `Investigation of Choice / Gold Standard: ${data.goldStandardTest}` : null,
+            data.classicPresentation ? `Classic Vignette Presentation: ${data.classicPresentation}` : null,
+            ...(Array.isArray(data.coreConcepts) ? data.coreConcepts.slice(3, 5) : []),
+          ].filter(Boolean),
+          keyTakeaways: data.goldStandardTest ? [`Definitive test: ${data.goldStandardTest}`] : undefined,
+          examTrapWarning: data.examTrap || undefined,
+        },
+        {
+          title: 'First-Line Management, Protocols & Board Traps',
+          subtitle: 'Drug of Choice & Clinical Protocols',
+          category: 'management',
+          bullets: [
+            data.firstLineTreatment ? `First-Line Rx / Drug of Choice: ${data.firstLineTreatment}` : null,
+            data.examTrap ? `NBE Exam Trap & Distractor: ${data.examTrap}` : null,
+            ...(Array.isArray(data.keyTakeaways) ? data.keyTakeaways : []),
+          ].filter(Boolean),
+          keyTakeaways: data.firstLineTreatment ? [`DOC: ${data.firstLineTreatment}`] : undefined,
+          examTrapWarning: data.examTrap || undefined,
+        },
+      ];
+    }
+
     if (Array.isArray(data.flashcards)) {
       data.flashcards = data.flashcards.filter((fc: any) =>
         !isContaminated(`${fc.front || ''} ${fc.back || ''} ${fc.clinicalPearl || ''}`)
@@ -2369,7 +2469,7 @@ The **\`GEMINI_API_KEY\`** environment variable is not configured on this server
     const contents = normalizeGeminiContents(rawContents);
 
     // Prioritize ultra-fast models with sub-second time-to-first-token
-    const models = ["gemini-3.5-flash-lite", "gemini-flash-lite-latest", "gemini-3.1-flash-lite", "gemini-3-flash-preview", "gemini-3.7-flash"];
+    const models = ["gemini-3-flash-preview", "gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-3.7-flash"];
     let streamSuccess = false;
 
     for (const model of models) {
