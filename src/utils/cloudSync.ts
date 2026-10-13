@@ -400,6 +400,40 @@ export function resolveCloudConflict(localState: AppState, cloudState: AppState)
     customPearls: [...(cloudState.customPearls || []), ...(localState.customPearls || [])].filter(
       (p, idx, arr) => arr.findIndex((x) => x.id === p.id) === idx
     ),
+    // Subject progress: merge targetRevisionDate and custom topics
+    subjectProgress: {
+      ...(cloudState.subjectProgress || {}),
+      ...(localState.subjectProgress || {}),
+    },
+    // Daily tasks: merge by id
+    dailyTasks: [
+      ...(localState.dailyTasks || []),
+      ...(cloudState.dailyTasks || []).filter(
+        (ct) => !(localState.dailyTasks || []).some((lt) => lt.id === ct.id)
+      ),
+    ],
+    // Topic mastery learning packages: merge by topic id
+    topicMasteryPackages: {
+      ...(cloudState.topicMasteryPackages || {}),
+      ...(localState.topicMasteryPackages || {}),
+    },
+    streakFreezesAvailable:
+      localState.streakFreezesAvailable !== undefined
+        ? localState.streakFreezesAvailable
+        : cloudState.streakFreezesAvailable,
+    streakFreezeDates: Array.from(
+      new Set([...(cloudState.streakFreezeDates || []), ...(localState.streakFreezeDates || [])])
+    ),
+    audioRecallConfig: {
+      ...(cloudState.audioRecallConfig || {}),
+      ...(localState.audioRecallConfig || {}),
+    },
+    videoInteractions: [
+      ...(localState.videoInteractions || []),
+      ...(cloudState.videoInteractions || []).filter(
+        (cv) => !(localState.videoInteractions || []).some((lv) => lv.videoId === cv.videoId)
+      ),
+    ],
     // A queued snapshot represents the most recent local plan edits. Retain it
     // on recovery while still preserving a cloud plan if the cache has none.
     fmgeSprint: mergeFmgeSprintSnapshots(localState.fmgeSprint, cloudState.fmgeSprint, true),
@@ -413,6 +447,12 @@ export function resolveCloudConflict(localState: AppState, cloudState: AppState)
     telegramQuestions: [...(cloudState.telegramQuestions || []), ...(localState.telegramQuestions || [])].filter(
       (q, idx, arr) => arr.findIndex((x) => x.id === q.id) === idx
     ),
+    telegramChannels: localState.telegramChannels || cloudState.telegramChannels,
+    telegramAnnouncements: localState.telegramAnnouncements || cloudState.telegramAnnouncements,
+    rawTelegramMessages: localState.rawTelegramMessages || cloudState.rawTelegramMessages,
+    canonicalQuestions: localState.canonicalQuestions || cloudState.canonicalQuestions,
+    questionSources: localState.questionSources || cloudState.questionSources,
+    telegramDiagnostics: { ...(cloudState.telegramDiagnostics || {}), ...(localState.telegramDiagnostics || {}) },
   };
 }
 

@@ -193,9 +193,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const parsed = JSON.parse(localRaw);
           return normalizeAppState(parsed);
         }
+      } else {
+        const lastUid = localStorage.getItem('fmge_last_active_uid');
+        if (lastUid) {
+          const pending = getPendingOfflineWrite(lastUid);
+          const cached = pending || loadUserLocalCache(lastUid);
+          if (cached) {
+            return normalizeAppState(cached);
+          }
+        }
       }
     } catch (e) {
-      console.warn('Could not read local guest data:', e);
+      console.warn('Could not read local data on init:', e);
     }
     return getInitialAppState();
   });
@@ -266,6 +275,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
     setShowOnboarding(false);
     setShowMigrationPrompt(false);
+    try {
+      localStorage.removeItem('fmge_last_active_uid');
+    } catch {}
     // Reset in-memory state cleanly so no User A data leaks to User B
     setAppState(getInitialAppState());
   };
@@ -302,8 +314,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('[AUTH] setting authenticated user', currentUser.uid);
       try {
         localStorage.removeItem('fmge_guest_mode');
+        localStorage.setItem('fmge_last_active_uid', currentUser.uid);
       } catch (e) {
-        console.warn('Could not clear guest mode flag:', e);
+        console.warn('Could not update local auth storage:', e);
       }
       setIsGuest(false);
       setUser(currentUser);
@@ -332,132 +345,97 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return userProf;
         });
 
-        // 2. Load cloud study data
+        // 2. Load cloud study data & local cached state
         let cloudState = await getUserStateFromCloud(currentUser.uid);
         if (session !== authSessionRef.current) return;
         const localCachedState = loadUserLocalCache(currentUser.uid);
+        const pendingLocalState = getPendingOfflineWrite(currentUser.uid);
 
-        // A queued local snapshot means the last edit may not have reached the
-        // server before a refresh, close, or connection loss. Recover and retry
-        // it before treating the cloud snapshot as current.
-        const pendingLocalState = getPendingOfflineWrite(currentUser.uid)
-          || (!cloudState ? localCachedState : null);
-        if (pendingLocalState) {
-          const recovered = cloudState
-            ? resolveCloudConflict(pendingLocalState, cloudState)
-            : pendingLocalState;
-          cloudState = recovered;
-          pendingStateRef.current = recovered;
-          hasPendingLocalChangesRef.current = true;
-          saveUserLocalCache(currentUser.uid, recovered);
-          setAppState(recovered);
-          setSyncStatus('syncing');
-          try {
-            await saveUserStateToCloud(currentUser.uid, recovered);
-            clearPendingOfflineWrite(currentUser.uid);
-            pendingStateRef.current = null;
-            hasPendingLocalChangesRef.current = false;
-            lastCloudSavedStringRef.current = JSON.stringify(recovered);
-            setSyncStatus('synced');
-          } catch (syncError) {
-            console.warn('[AUTH] Recovered local changes are waiting to sync:', syncError);
-            setSyncStatus(navigator.onLine ? 'error' : 'offline');
-          }
-        }
+        // Effective candidate state: combine local cache and pending writes if present
+        const effectiveLocal = pendingLocalState
+          ? (localCachedState ? resolveCloudConflict(localCachedState, pendingLocalState) : pendingLocalState)
+          : localCachedState;
 
-        // A cloud acknowledgement can race a browser refresh or a stale
-        // multi-device snapshot. Preserve a newer locally cached sprint and
-        // immediately repair the cloud copy instead of silently resetting it.
-        if (!pendingLocalState && cloudState && localCachedState?.fmgeSprint) {
-          const recoveredSprint = mergeFmgeSprintSnapshots(localCachedState.fmgeSprint, cloudState.fmgeSprint);
-          if (JSON.stringify(recoveredSprint) !== JSON.stringify(cloudState.fmgeSprint)) {
-            cloudState = { ...cloudState, fmgeSprint: recoveredSprint };
-            const recovered = cloudState;
-            pendingStateRef.current = recovered;
-            hasPendingLocalChangesRef.current = true;
-            saveUserLocalCache(currentUser.uid, recovered);
-            setAppState(recovered);
-            setSyncStatus('syncing');
-            try {
-              await saveUserStateToCloud(currentUser.uid, recovered);
-              clearPendingOfflineWrite(currentUser.uid);
-              pendingStateRef.current = null;
-              hasPendingLocalChangesRef.current = false;
-              lastCloudSavedStringRef.current = JSON.stringify(recovered);
-              setSyncStatus('synced');
-            } catch (syncError) {
-              console.warn('[AUTH] Recovered sprint progress is waiting to sync:', syncError);
-              setSyncStatus(navigator.onLine ? 'error' : 'offline');
-            }
-          }
+        let resolvedState: AppState | null = null;
+        let requiresCloudSave = false;
+
+        if (effectiveLocal && cloudState) {
+          // Reconcile differences deterministically so local progress is never erased by stale cloud snapshots
+          resolvedState = resolveCloudConflict(effectiveLocal, cloudState);
+          requiresCloudSave = JSON.stringify(resolvedState) !== JSON.stringify(cloudState);
+        } else if (effectiveLocal) {
+          // Local progress exists but no cloud state found yet (or network was down) -> preserve local state as ground truth
+          resolvedState = effectiveLocal;
+          requiresCloudSave = true;
+        } else if (cloudState) {
+          resolvedState = cloudState;
         }
 
         // Check if there is local legacy data to migrate for a new user
         const hasLegacy = hasLegacyLocalData();
 
-        if (!cloudState && isNewAccount && hasLegacy) {
+        if (!resolvedState && isNewAccount && hasLegacy) {
           // New user and legacy data exists in browser -> prompt migration
           setShowMigrationPrompt(true);
-          // Set initial default state in the meantime
           const initial = getInitialAppState();
-          if (userProf.displayName) {
-            initial.settings.userName = userProf.displayName;
-          }
-          if (userProf.examDate) {
-            initial.settings.examDate = userProf.examDate;
-          }
-          if (userProf.targetScore) {
-            initial.settings.targetScore = userProf.targetScore;
-          }
-          if (userProf.dailyHoursTarget) {
-            initial.settings.dailyStudyHourGoal = userProf.dailyHoursTarget;
-          }
+          if (userProf.displayName) initial.settings.userName = userProf.displayName;
+          if (userProf.examDate) initial.settings.examDate = userProf.examDate;
+          if (userProf.targetScore) initial.settings.targetScore = userProf.targetScore;
+          if (userProf.dailyHoursTarget) initial.settings.dailyStudyHourGoal = userProf.dailyHoursTarget;
           setAppState(initial);
-        } else if (!cloudState) {
-          // Brand new cloud state
+        } else if (!resolvedState) {
+          // Brand new user with no previous cloud state and no local cache
           const initial = getInitialAppState();
-          if (userProf.displayName) {
-            initial.settings.userName = userProf.displayName;
-          }
-          if (userProf.examDate) {
-            initial.settings.examDate = userProf.examDate;
-          }
-          if (userProf.targetScore) {
-            initial.settings.targetScore = userProf.targetScore;
-          }
-          if (userProf.dailyHoursTarget) {
-            initial.settings.dailyStudyHourGoal = userProf.dailyHoursTarget;
-          }
+          if (userProf.displayName) initial.settings.userName = userProf.displayName;
+          if (userProf.examDate) initial.settings.examDate = userProf.examDate;
+          if (userProf.targetScore) initial.settings.targetScore = userProf.targetScore;
+          if (userProf.dailyHoursTarget) initial.settings.dailyStudyHourGoal = userProf.dailyHoursTarget;
 
           setAppState(initial);
           saveUserLocalCache(currentUser.uid, initial);
           await saveUserStateToCloud(currentUser.uid, initial);
           lastCloudSavedStringRef.current = JSON.stringify(initial);
 
-          // If onboarding wasn't completed, show onboarding (but never re-show for a
-          // profile already completed by the in-flight flow).
           if (!userProf.onboardingCompleted && !profileRefCompleted()) {
             setShowOnboarding(true);
           }
         } else {
-          // Existing user data found in Cloud
-          // Sync settings from profile if needed
+          // User data found (from cloud, local cache, or merged conflict resolution)
           const mergedState: AppState = {
-            ...cloudState,
+            ...resolvedState,
             settings: {
-              ...cloudState.settings,
-              userName: userProf.displayName || cloudState.settings.userName,
-              examDate: userProf.examDate || cloudState.settings.examDate,
-              targetScore: userProf.targetScore || cloudState.settings.targetScore,
-              dailyStudyHourGoal: userProf.dailyHoursTarget || cloudState.settings.dailyStudyHourGoal,
+              ...resolvedState.settings,
+              userName: userProf.displayName || resolvedState.settings.userName,
+              examDate: userProf.examDate || resolvedState.settings.examDate,
+              targetScore: userProf.targetScore || resolvedState.settings.targetScore,
+              dailyStudyHourGoal: userProf.dailyHoursTarget || resolvedState.settings.dailyStudyHourGoal,
             },
           };
 
           setAppState(mergedState);
-          lastCloudSavedStringRef.current = JSON.stringify(mergedState);
           saveUserLocalCache(currentUser.uid, mergedState);
 
-          // Returning user with incomplete onboarding -> resume the flow.
+          if (requiresCloudSave || JSON.stringify(mergedState) !== JSON.stringify(cloudState)) {
+            pendingStateRef.current = mergedState;
+            hasPendingLocalChangesRef.current = true;
+            savePendingOfflineWrite(currentUser.uid, mergedState);
+            setSyncStatus('syncing');
+            try {
+              await saveUserStateToCloud(currentUser.uid, mergedState);
+              clearPendingOfflineWrite(currentUser.uid);
+              pendingStateRef.current = null;
+              hasPendingLocalChangesRef.current = false;
+              lastCloudSavedStringRef.current = JSON.stringify(mergedState);
+              setSyncStatus('synced');
+            } catch (syncError) {
+              console.warn('[AUTH] Reconciled local changes are waiting to sync:', syncError);
+              setSyncStatus(navigator.onLine ? 'error' : 'offline');
+            }
+          } else {
+            lastCloudSavedStringRef.current = JSON.stringify(mergedState);
+            setSyncStatus('synced');
+          }
+
           if (!userProf.onboardingCompleted && !profileRefCompleted()) {
             setShowOnboarding(true);
           }
@@ -474,18 +452,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (!remoteState) return;
             const remoteStr = JSON.stringify(remoteState);
             if (remoteStr !== lastCloudSavedStringRef.current && !hasPendingLocalChangesRef.current) {
-              console.log('[AUTH] Syncing updated state from Firestore snapshot');
+              console.log('[AUTH] Syncing updated state from snapshot');
               const localCache = loadUserLocalCache(currentUser.uid);
-              const sprint = mergeFmgeSprintSnapshots(localCache?.fmgeSprint, remoteState.fmgeSprint);
-              const reconciledState = sprint === remoteState.fmgeSprint ? remoteState : { ...remoteState, fmgeSprint: sprint };
-              const hasRecoveredSprint = JSON.stringify(reconciledState.fmgeSprint) !== JSON.stringify(remoteState.fmgeSprint);
+              const reconciledState = localCache
+                ? resolveCloudConflict(localCache, remoteState)
+                : remoteState;
+              const hasNewerLocal = JSON.stringify(reconciledState) !== remoteStr;
               isSyncingFromCloudRef.current = true;
               setAppState(reconciledState);
               lastCloudSavedStringRef.current = remoteStr;
               saveUserLocalCache(currentUser.uid, reconciledState);
               setTimeout(() => {
                 isSyncingFromCloudRef.current = false;
-                if (hasRecoveredSprint) {
+                if (hasNewerLocal) {
                   pendingStateRef.current = reconciledState;
                   hasPendingLocalChangesRef.current = true;
                   savePendingOfflineWrite(currentUser.uid, reconciledState);
@@ -498,7 +477,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     lastCloudSavedStringRef.current = JSON.stringify(reconciledState);
                     setSyncStatus('synced');
                   }).catch((syncError) => {
-                    console.warn('[AUTH] Newer sprint progress is waiting to sync:', syncError);
+                    console.warn('[AUTH] Newer local progress is waiting to sync:', syncError);
                     setSyncStatus(navigator.onLine ? 'error' : 'offline');
                   });
                 }
@@ -552,6 +531,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Continue as Guest (Local practice mode)
   const continueAsGuest = (guestName?: string) => {
     try {
+      localStorage.removeItem('fmge_last_active_uid');
       localStorage.setItem('fmge_guest_mode', 'true');
       setIsGuest(true);
       setUser(null);
@@ -705,20 +685,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [isGuest]);
 
-  // Commit immediately when the learner switches tabs or refreshes. The
-  // persisted pending snapshot remains the recovery path if the browser ends
-  // the request before the server acknowledges it.
+  // Commit immediately when the learner switches tabs, refreshes, or closes.
+  // Synchronous localStorage persistence guarantees cached state is preserved on hard refresh.
   useEffect(() => {
+    const flushImmediately = () => {
+      const uid = activeUidRef.current;
+      const stateToSave = pendingStateRef.current || appStateRef.current;
+      if (uid && stateToSave) {
+        try {
+          saveUserLocalCache(uid, stateToSave);
+          savePendingOfflineWrite(uid, stateToSave);
+        } catch (e) {
+          console.warn('Failed synchronous unload save:', e);
+        }
+      }
+      void flushPendingSave().catch(() => {});
+    };
+
     const flushWhenHidden = () => {
       if (document.visibilityState === 'hidden') {
-        void flushPendingSave().catch(() => {});
+        flushImmediately();
       }
     };
+
+    window.addEventListener('beforeunload', flushImmediately);
+    window.addEventListener('pagehide', flushImmediately);
     document.addEventListener('visibilitychange', flushWhenHidden);
-    window.addEventListener('pagehide', flushWhenHidden);
     return () => {
+      window.removeEventListener('beforeunload', flushImmediately);
+      window.removeEventListener('pagehide', flushImmediately);
       document.removeEventListener('visibilitychange', flushWhenHidden);
-      window.removeEventListener('pagehide', flushWhenHidden);
     };
   }, [flushPendingSave]);
 

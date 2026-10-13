@@ -144,64 +144,69 @@ export const QuestionBankView: React.FC<{
   const styleOptions = [{ value: 'all', label: 'All', icon: BookOpenCheck, from: '#0A84FF', to: '#5E5CE6' }, { value: 'image', label: 'Images', icon: ImageIcon, from: '#BF5AF2', to: '#FF2D92' }, { value: 'standard', label: 'Text', icon: MessageSquareText, from: '#30D158', to: '#00A88F' }] as const;
 
   return <div data-accent="practice" className="qbank-root qbx space-y-6 sm:space-y-8 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 animate-in fade-in duration-150 pb-24 sm:pb-20 lg:pb-16 text-slate-900 dark:text-slate-100">
-    {/* Apple HIG Luminous Royal Blue Hero Header — Matching Grand Tests & Dashboard */}
+    {/* Apple HIG Deep Sapphire / Oceanic Blue Hero Header — Matching Revision Matrix & Grand Tests */}
     <motion.header
       {...rise(0)}
-      className="premium-page-hero qbx-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(0,122,255,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
+      className="premium-page-hero qbx-hero relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] text-white shadow-[0_8px_40px_rgba(0,112,204,0.28),0_2px_8px_rgba(0,0,0,0.12)]"
       style={{
-        background: 'linear-gradient(135deg, #EEF5FF 0%, #E0EEFF 35%, #C8E0FF 65%, #A8CCFF 100%)',
+        background: 'linear-gradient(135deg, #0A2540 0%, #1A3A5C 35%, #0E4F8C 70%, #0070CC 100%)',
       }}
     >
-      {/* Decorative right glow */}
+      {/* Radial glow */}
       <div
-        className="pointer-events-none absolute right-0 top-0 bottom-0 w-1/2"
+        className="pointer-events-none absolute right-0 top-0 bottom-0 w-2/3"
         style={{
-          background: 'radial-gradient(ellipse at 80% 50%, rgba(10,132,255,0.28) 0%, rgba(94,92,230,0.16) 50%, transparent 70%)',
+          background: 'radial-gradient(ellipse at 85% 40%, rgba(0,122,255,0.38) 0%, transparent 65%)',
         }}
       />
       {/* Top inner shine */}
-      <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/35 to-transparent pointer-events-none rounded-t-[2rem] sm:rounded-t-[2.5rem]" />
+      <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
 
-      <div className="relative z-10 p-5 sm:p-6 lg:p-7 space-y-4">
+      {/* Decorative orbital rings */}
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 w-40 h-40 sm:w-56 sm:h-56 rounded-full border border-white/[0.08] pointer-events-none" />
+      <div className="absolute right-16 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-36 sm:h-36 rounded-full border border-white/[0.06] pointer-events-none" />
+
+      <div className="relative z-10 p-5 sm:p-7 lg:p-8 space-y-4">
         {/* Top Metadata Row */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/75 dark:bg-white/10 backdrop-blur-md border border-[rgba(60,60,67,0.08)] dark:border-white/10 text-xs font-semibold text-[#007AFF] dark:text-[#64D2FF]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white">
             <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] animate-pulse" />
-            <span className="uppercase tracking-wider text-[10.5px] font-bold">Question Library</span>
-            <span className="text-[#C7C7CC] dark:text-white/30">·</span>
-            <span className="text-[#3C3C43] dark:text-slate-300 font-normal hidden sm:inline">FMGE · NEET-PG · INI-CET</span>
+            <span className="uppercase tracking-[0.14em] text-[10.5px] font-mono font-bold text-white/80">Question Library</span>
+            <span className="text-white/30">·</span>
+            <span className="text-white/80 font-normal hidden sm:inline">FMGE · NEET-PG · INI-CET</span>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/80 dark:bg-white/10 backdrop-blur-md border border-[rgba(60,60,67,0.10)] dark:border-white/10 text-[#1D1D1F] dark:text-slate-100 shadow-xs">
-              <BookOpenCheck className="w-3.5 h-3.5 text-[#007AFF] dark:text-[#64D2FF]" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md border border-white/15 text-white shadow-xs">
+              <BookOpenCheck className="w-3.5 h-3.5 text-[#60B3FF]" />
               <span>{facets ? facets.count.toLocaleString() : loading ? '…' : '—'} Questions</span>
             </div>
 
-            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/80 dark:bg-white/10 backdrop-blur-md border border-purple-200/80 dark:border-purple-500/30 text-purple-700 dark:text-purple-300 shadow-xs">
-              <ImageIcon className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 backdrop-blur-md border border-purple-400/30 text-purple-200 shadow-xs">
+              <ImageIcon className="w-3.5 h-3.5 text-purple-300" />
               <span>{facets ? facets.imageCount.toLocaleString() : loading ? '…' : '—'} Images</span>
             </div>
 
-            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/80 dark:bg-white/10 backdrop-blur-md border border-amber-200/80 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 shadow-xs">
-              <Clock3 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 backdrop-blur-md border border-amber-400/30 text-amber-200 shadow-xs">
+              <Clock3 className="w-3.5 h-3.5 text-amber-300" />
               <span>{dueReviewQueue.length} Due Recall</span>
             </div>
           </div>
         </div>
 
         {/* Main Row: Title & Subtitle + Right Stat Widgets */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-          <div className="space-y-2 min-w-0 max-w-xl">
-            <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black tracking-[-0.03em] leading-tight text-[#1D1D1F] dark:text-white">
-              Question Bank <span className="text-[#007AFF] dark:text-[#64D2FF]">&amp; Clinical Practice</span>
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10">
+          <div className="space-y-3 min-w-0 max-w-xl">
+            <h1 className="text-[34px] sm:text-[46px] font-black tracking-[-0.04em] leading-[0.92] text-white">
+              Practice.<br />
+              <span style={{ color: '#60B3FF' }}>Test. Clinical Mastery.</span>
             </h1>
-            <p className="text-xs sm:text-[13px] text-[#334155] dark:text-slate-300 font-medium leading-relaxed">
-              Build a focused set from real exam questions. Learn the clinical reasoning, spot the traps, and carry each insight forward into spaced recall.
+            <p className="text-[13px] sm:text-[14px] text-white/70 leading-snug max-w-lg">
+              Authentic board question archive with step-by-step diagnostic reasoning, option breakdown analysis, and automated spaced repetition queues.
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:min-w-[420px]">
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3 lg:min-w-[420px]">
             <Stat label="Total Questions" value={facets ? facets.count.toLocaleString() : loading ? '…' : '—'} icon={<BookOpenCheck/>} from="#0A84FF" to="#5E5CE6" delay={0.12} reduceMotion={reducedMotion}/>
             <Stat label="Image Cases" value={facets ? facets.imageCount.toLocaleString() : loading ? '…' : '—'} icon={<ImageIcon/>} from="#BF5AF2" to="#FF2D92" delay={0.18} reduceMotion={reducedMotion}/>
             <Stat label="Due Today" value={String(dueReviewQueue.length)} icon={<Clock3/>} from="#FF9F0A" to="#FF453A" delay={0.24} reduceMotion={reducedMotion}/>
