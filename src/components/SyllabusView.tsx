@@ -194,23 +194,25 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
       }`}
     >
       {(currentSubTab === 'revision' || currentSubTab === 'rapid') && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-[rgba(60,60,67,0.08)] bg-white/85 px-4 py-3 shadow-sm backdrop-blur-xl">
-          <div className="flex items-center gap-2 text-sm font-semibold text-[#3A3A3C]">
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-[rgba(60,60,67,0.08)] bg-white/85 dark:bg-slate-900/85 dark:border-white/10 px-4 py-3 shadow-sm backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[#3A3A3C] dark:text-slate-200">
             <BookOpen className="h-4 w-4 text-[#30A854]" strokeWidth={2.2} />
-            <span>{currentSubTab === 'rapid' ? 'Rapid Revision' : 'Study Plan'}</span>
+            <span>{currentSubTab === 'rapid' ? 'Rapid Revision' : 'Revision Matrix'}</span>
           </div>
-          <div className="inline-flex rounded-full border border-[rgba(60,60,67,0.08)] bg-[#F2F2F7] p-1">
+          <div className="inline-flex rounded-full border border-[rgba(60,60,67,0.08)] bg-[#F2F2F7] dark:bg-white/10 p-1">
             {(['curriculum', 'revision', 'rapid'] as const).map((tab) => (
               <button
                 key={tab}
                 type="button"
                 aria-pressed={currentSubTab === tab}
                 onClick={() => handleSubTabChange(tab)}
-                className={`min-h-9 rounded-full px-4 text-xs font-semibold transition-colors ${
-                  currentSubTab === tab ? 'bg-white text-[#1D1D1F] shadow-sm' : 'text-[#6E6E73] hover:text-[#1D1D1F]'
+                className={`min-h-9 rounded-full px-4 text-xs font-semibold transition-all cursor-pointer ${
+                  currentSubTab === tab
+                    ? 'bg-white dark:bg-slate-800 text-[#1D1D1F] dark:text-white shadow-sm font-bold'
+                    : 'text-[#6E6E73] dark:text-slate-400 hover:text-[#1D1D1F] dark:hover:text-white'
                 }`}
               >
-                {tab === 'curriculum' ? 'Curriculum' : tab === 'revision' ? 'Revision' : 'Rapid'}
+                {tab === 'curriculum' ? 'Curriculum' : tab === 'revision' ? 'Revision' : 'Rapid Revision'}
               </button>
             ))}
           </div>
