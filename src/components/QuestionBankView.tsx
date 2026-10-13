@@ -230,69 +230,51 @@ export const QuestionBankView: React.FC<{
     {/* Apple HIG Deep Sapphire / Oceanic Blue Hero Header — Matching Revision Matrix */}
     <motion.header
       {...rise(0)}
-      className="premium-page-hero qbx-hero relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] text-white shadow-[0_8px_40px_rgba(0,112,204,0.28),0_2px_8px_rgba(0,0,0,0.12)]"
+      className="revision-matrix-hero relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] text-white shadow-[0_8px_40px_rgba(0,112,204,0.28),0_2px_8px_rgba(0,0,0,0.12)]"
       style={{
-        background: 'linear-gradient(135deg, #0A2540 0%, #1A3A5C 35%, #0E4F8C 70%, #0070CC 100%)',
+        background: 'linear-gradient(135deg, #0A2540 0%, #1A3A5C 40%, #0E4F8C 70%, #0070CC 100%)',
       }}
     >
       {/* Radial glow */}
       <div
         className="pointer-events-none absolute right-0 top-0 bottom-0 w-2/3"
         style={{
-          background: 'radial-gradient(ellipse at 85% 40%, rgba(0,122,255,0.38) 0%, transparent 65%)',
+          background: 'radial-gradient(ellipse at 85% 40%, rgba(0,122,255,0.35) 0%, transparent 65%)',
         }}
       />
       {/* Top inner shine */}
       <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
 
-      {/* Decorative orbital rings */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 w-40 h-40 sm:w-56 sm:h-56 rounded-full border border-white/[0.08] pointer-events-none" />
-      <div className="absolute right-16 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-36 sm:h-36 rounded-full border border-white/[0.06] pointer-events-none" />
+      {/* Decorative orbit circles */}
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 w-40 h-40 sm:w-52 sm:h-52 rounded-full border border-white/[0.08] pointer-events-none" />
+      <div className="absolute right-16 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full border border-white/[0.06] pointer-events-none" />
 
-      <div className="relative z-10 p-5 sm:p-7 lg:p-8 space-y-4">
-        {/* Top Metadata Row */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] animate-pulse" />
-            <span className="uppercase tracking-[0.14em] text-[10.5px] font-mono font-bold text-white/80">Question Bank Matrix</span>
-            <span className="text-white/30">·</span>
-            <span className="text-white/80 font-normal hidden sm:inline">FMGE · NEET-PG · INI-CET</span>
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md border border-white/15 text-white shadow-xs">
-              <BookOpenCheck className="w-3.5 h-3.5 text-[#60B3FF]" />
-              <span>{facets ? facets.count.toLocaleString() : loading ? '…' : '—'} Questions</span>
+      <div className="relative z-10 p-5 sm:p-7 lg:p-8">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
+          <div className="flex-1 min-w-0 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white">
+                <BookOpenCheck className="h-4 w-4" />
+              </div>
+              <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-white/60">
+                QUESTION BANK
+              </span>
             </div>
 
-            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 backdrop-blur-md border border-purple-400/30 text-purple-200 shadow-xs">
-              <ImageIcon className="w-3.5 h-3.5 text-purple-300" />
-              <span>{facets ? facets.imageCount.toLocaleString() : loading ? '…' : '—'} Images</span>
-            </div>
-
-            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 backdrop-blur-md border border-amber-400/30 text-amber-200 shadow-xs">
-              <Clock3 className="w-3.5 h-3.5 text-amber-300" />
-              <span>{dueReviewQueue.length} Due Recall</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Row: Title & Subtitle + Right Stat Widgets */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10">
-          <div className="space-y-3 min-w-0 max-w-xl">
-            <h1 className="text-[34px] sm:text-[46px] font-black tracking-[-0.04em] leading-[0.92] text-white">
+            <h1 className="text-[36px] sm:text-[48px] font-black tracking-[-0.04em] leading-[0.88] text-white">
               Practice.<br />
-              <span style={{ color: '#60B3FF' }}>Test. Clinical Mastery.</span>
+              <span style={{ color: '#60B3FF' }}>Test. Retain.</span>
             </h1>
-            <p className="text-[13px] sm:text-[14px] text-white/70 leading-snug max-w-lg">
-              Authentic board question archive with step-by-step diagnostic reasoning, option breakdown analysis, and automated spaced repetition queues.
+
+            <p className="text-[13px] sm:text-[14px] text-white/60 leading-snug max-w-sm">
+              Authentic board question archive with step-by-step diagnostic reasoning, clinical images, and automated spaced recall.
             </p>
 
-            {/* QBank Coverage Progress Bar */}
+            {/* Overall progress bar */}
             <div className="max-w-xs space-y-1.5 pt-1">
-              <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
-                <span>Coverage progress</span>
-                <span style={{ color: '#60B3FF' }}>{qbankCoveragePct}% ({totalQbankAttempts} / {facets?.count || 1200} Qs)</span>
+              <div className="flex items-center justify-between text-[11px] font-semibold text-white/60">
+                <span>Bank coverage</span>
+                <span style={{ color: '#60B3FF' }}>{qbankCoveragePct}%</span>
               </div>
               <div className="h-2 w-full bg-white/15 rounded-full overflow-hidden">
                 <motion.div
@@ -304,12 +286,6 @@ export const QuestionBankView: React.FC<{
                 />
               </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2.5 sm:gap-3 lg:min-w-[420px]">
-            <Stat label="Total Questions" value={facets ? facets.count.toLocaleString() : loading ? '…' : '—'} icon={<BookOpenCheck/>} from="#0A84FF" to="#5E5CE6" delay={0.12} reduceMotion={reducedMotion}/>
-            <Stat label="Image Cases" value={facets ? facets.imageCount.toLocaleString() : loading ? '…' : '—'} icon={<ImageIcon/>} from="#BF5AF2" to="#FF2D92" delay={0.18} reduceMotion={reducedMotion}/>
-            <Stat label="Due Today" value={String(dueReviewQueue.length)} icon={<Clock3/>} from="#FF9F0A" to="#FF453A" delay={0.24} reduceMotion={reducedMotion}/>
           </div>
         </div>
       </div>
