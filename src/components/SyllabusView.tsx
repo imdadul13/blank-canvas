@@ -30,6 +30,7 @@ import {
   RotateCw,
   Layers,
   BarChart3,
+  Zap,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AppState, SubjectPhase, ConfidenceLevel } from '../types';
@@ -44,7 +45,11 @@ import { HeaderTabInsignia } from './HeaderTabInsignia';
 import { CircadianFocusDropdown } from './CircadianFocusDropdown';
 import { HeaderGlassIcon } from './HeaderGlassIcon';
 import { RapidRevisionLibrary } from './RapidRevisionLibrary';
+import { ExamSprintView } from './study/ExamSprintView';
+import { StudyFlashcardHub } from './study/StudyFlashcardHub';
 import type { McqAttempt } from '../types';
+
+export type StudySubTab = 'curriculum' | 'sprint' | 'flashcards' | 'rapid' | 'revision';
 
 interface SyllabusViewProps {
   state: AppState;
@@ -57,14 +62,21 @@ interface SyllabusViewProps {
   ) => void;
   onUpdateConfidence: (subjectId: string, confidence: ConfidenceLevel) => void;
   onUpdateSubjectRevisionDate?: (subjectId: string, date: string) => void;
-  subTab?: 'curriculum' | 'revision' | 'rapid';
-  onSubTabChange?: (tab: 'curriculum' | 'revision' | 'rapid') => void;
+  subTab?: StudySubTab;
+  onSubTabChange?: (tab: StudySubTab) => void;
   rapidRevisionProgress?: Record<string, boolean>;
   onToggleRapidRevisionItem?: (key: string) => void;
   onRapidRevisionPractice?: (subjectId: string) => void;
   rapidRevisionAttempts?: McqAttempt[];
   rapidRevisionFocusSubjectId?: string;
   onNavigateTab?: (tab: any) => void;
+  onLaunchPracticeSession?: (subjectId: string, topicId?: string, topicName?: string) => void;
+  onOpenAiCoach?: (
+    tab?: 'vignette' | 'concept' | 'diagnosis' | 'strategy',
+    subjectId?: string,
+    topicName?: string
+  ) => void;
+  onUpdateSprint?: (sprint: NonNullable<AppState['fmgeSprint']>) => void;
 }
 
 // Subject Icon & Accent Palette Map aligned with clinical editorial aesthetics
@@ -94,10 +106,14 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
   onRapidRevisionPractice,
   rapidRevisionAttempts = [],
   rapidRevisionFocusSubjectId,
+  onLaunchPracticeSession,
+  onOpenAiCoach,
+  onUpdateSprint,
 }) => {
-  const [currentSubTab, setCurrentSubTab] = useState<'curriculum' | 'revision' | 'rapid'>(
+  const [currentSubTab, setCurrentSubTab] = useState<StudySubTab>(
     subTab || 'curriculum'
   );
+  const [flashcardFocusSubjectId, setFlashcardFocusSubjectId] = useState<string>('obg');
 
   React.useEffect(() => {
     if (subTab) {
@@ -105,7 +121,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
     }
   }, [subTab]);
 
-  const handleSubTabChange = (tab: 'curriculum' | 'revision' | 'rapid') => {
+  const handleSubTabChange = (tab: StudySubTab) => {
     setCurrentSubTab(tab);
     onSubTabChange?.(tab);
   };
@@ -186,33 +202,49 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
     { id: 'clinical',     label: 'Clinical',     short: 'Clinical' },
   ] as const;
 
+  const STUDY_SUBTABS = [
+    { id: 'curriculum', label: 'Curriculum' },
+    { id: 'sprint', label: '20-Day Sprint' },
+    { id: 'flashcards', label: 'Flashcards' },
+    { id: 'rapid', label: 'Rapid Revision' },
+    { id: 'revision', label: 'Revision Matrix' },
+  ] as const;
+
   return (
     <div
       data-accent="study"
       className={`w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5 font-sans ${
-        currentSubTab === 'revision' || currentSubTab === 'rapid' ? 'pb-28 sm:pb-20' : 'pb-20'
+        currentSubTab !== 'curriculum' ? 'pb-28 sm:pb-20' : 'pb-20'
       }`}
     >
-      {(currentSubTab === 'revision' || currentSubTab === 'rapid') && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-[rgba(60,60,67,0.08)] bg-white/85 dark:bg-slate-900/85 dark:border-white/10 px-4 py-3 shadow-sm backdrop-blur-xl">
+      {currentSubTab !== 'curriculum' && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[rgba(60,60,67,0.08)] bg-white/85 dark:bg-slate-900/85 dark:border-white/10 px-4 py-3 shadow-sm backdrop-blur-xl">
           <div className="flex items-center gap-2 text-sm font-semibold text-[#3A3A3C] dark:text-slate-200">
             <BookOpen className="h-4 w-4 text-[#30A854]" strokeWidth={2.2} />
-            <span>{currentSubTab === 'rapid' ? 'Rapid Revision' : 'Revision Matrix'}</span>
+            <span>
+              {currentSubTab === 'sprint'
+                ? '20-Day High-Yield Sprint'
+                : currentSubTab === 'flashcards'
+                ? 'Flashcard Mastery'
+                : currentSubTab === 'rapid'
+                ? 'Rapid Revision'
+                : 'Revision Matrix'}
+            </span>
           </div>
-          <div className="inline-flex rounded-full border border-[rgba(60,60,67,0.08)] bg-[#F2F2F7] dark:bg-white/10 p-1">
-            {(['curriculum', 'revision', 'rapid'] as const).map((tab) => (
+          <div className="inline-flex rounded-full border border-[rgba(60,60,67,0.08)] bg-[#F2F2F7] dark:bg-white/10 p-1 overflow-x-auto max-w-full">
+            {STUDY_SUBTABS.map((tab) => (
               <button
-                key={tab}
+                key={tab.id}
                 type="button"
-                aria-pressed={currentSubTab === tab}
-                onClick={() => handleSubTabChange(tab)}
-                className={`min-h-9 rounded-full px-4 text-xs font-semibold transition-all cursor-pointer ${
-                  currentSubTab === tab
+                aria-pressed={currentSubTab === tab.id}
+                onClick={() => handleSubTabChange(tab.id)}
+                className={`min-h-9 rounded-full px-3 sm:px-4 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  currentSubTab === tab.id
                     ? 'bg-white dark:bg-slate-800 text-[#1D1D1F] dark:text-white shadow-sm font-bold'
                     : 'text-[#6E6E73] dark:text-slate-400 hover:text-[#1D1D1F] dark:hover:text-white'
                 }`}
               >
-                {tab === 'curriculum' ? 'Curriculum' : tab === 'revision' ? 'Revision' : 'Rapid Revision'}
+                {tab.label}
               </button>
             ))}
           </div>
@@ -223,7 +255,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className={`premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)] ${currentSubTab === 'revision' || currentSubTab === 'rapid' ? 'hidden' : ''}`}
+        className={`premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)] ${currentSubTab !== 'curriculum' ? 'hidden' : ''}`}
         style={{ background: 'linear-gradient(135deg, #E8F9EE 0%, #D0F2DC 40%, #B8E8C8 70%, #9EDDB6 100%)' }}
       >
         {/* Decorative right glow */}
@@ -242,24 +274,24 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
             </div>
 
             {/* Segmented tab switcher */}
-            <div className="inline-flex p-1 rounded-full bg-white/60 backdrop-blur-md border border-white/80 shadow-sm">
-              {(['curriculum', 'revision', 'rapid'] as const).map((tab) => (
+            <div className="inline-flex p-1 rounded-full bg-white/60 backdrop-blur-md border border-white/80 shadow-sm overflow-x-auto max-w-full">
+              {STUDY_SUBTABS.map((tab) => (
                 <button
-                  key={tab}
+                  key={tab.id}
                   type="button"
-                  onClick={() => handleSubTabChange(tab)}
-                  className={`relative px-3.5 sm:px-4 py-1.5 rounded-full text-[12px] font-semibold transition-all cursor-pointer ${
-                    currentSubTab === tab ? 'text-[#1D1D1F]' : 'text-[#3A3A3C]/70 hover:text-[#1D1D1F]'
+                  onClick={() => handleSubTabChange(tab.id)}
+                  className={`relative px-3 sm:px-3.5 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                    currentSubTab === tab.id ? 'text-[#1D1D1F]' : 'text-[#3A3A3C]/70 hover:text-[#1D1D1F]'
                   }`}
                 >
-                  {currentSubTab === tab && (
+                  {currentSubTab === tab.id && (
                     <motion.span
                       layoutId="study-subtab"
                       transition={{ type: 'spring', stiffness: 500, damping: 32 }}
                       className="absolute inset-0 rounded-full bg-white shadow-sm"
                     />
                   )}
-                  <span className="relative z-10">{tab === 'curriculum' ? 'Curriculum' : tab === 'revision' ? 'Revision' : 'Rapid review'}</span>
+                  <span className="relative z-10">{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -497,24 +529,59 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                           </div>
                         )}
 
-                        {/* CTA button */}
-                        <motion.button
-                          type="button"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.94 }}
-                          onClick={(e) => { e.stopPropagation(); onSelectSubject(sub.id); }}
-                          aria-label={`${isComplete ? 'Review' : 'Study'} ${sub.name}`}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-semibold text-white cursor-pointer transition-all shrink-0 shadow-sm"
-                          style={{
-                            background: isComplete
-                              ? 'linear-gradient(135deg, #30D158 0%, #25A244 100%)'
-                              : `linear-gradient(135deg, ${visual.color} 0%, ${visual.color}CC 100%)`,
-                            boxShadow: `0 2px 8px ${visual.color}35`,
-                          }}
-                        >
-                          <span>{isComplete ? 'Review' : 'Study'}</span>
-                          <ArrowRight className="h-3.5 w-3.5" />
-                        </motion.button>
+                        {/* Quick Study & Drill Actions */}
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          {onLaunchPracticeSession && (
+                            <motion.button
+                              type="button"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.94 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onLaunchPracticeSession(sub.id, nextTopic?.id, nextTopic?.name || sub.name);
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl text-[11px] sm:text-[12px] font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs cursor-pointer transition-all active:scale-95"
+                              title={`Launch 10-MCQ Drill on ${sub.name}`}
+                            >
+                              <Zap className="h-3 w-3 fill-current" />
+                              <span>10 MCQs</span>
+                            </motion.button>
+                          )}
+
+                          <motion.button
+                            type="button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.94 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFlashcardFocusSubjectId(sub.id);
+                              handleSubTabChange('flashcards');
+                            }}
+                            className="hidden sm:inline-flex items-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl text-[11px] sm:text-[12px] font-bold bg-[#F2F2F7] dark:bg-white/10 hover:bg-[#E5E5EA] dark:hover:bg-white/20 text-[#1D1D1F] dark:text-white border border-[rgba(60,60,67,0.08)] dark:border-white/10 shadow-xs cursor-pointer transition-all active:scale-95"
+                            title={`Review Flashcards for ${sub.name}`}
+                          >
+                            <Layers className="h-3 w-3" />
+                            <span>Cards</span>
+                          </motion.button>
+
+                          <motion.button
+                            type="button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.94 }}
+                            onClick={(e) => { e.stopPropagation(); onSelectSubject(sub.id); }}
+                            aria-label={`${isComplete ? 'Review' : 'Study'} ${sub.name}`}
+                            className="inline-flex items-center gap-1 px-3 sm:px-3.5 py-2 rounded-xl text-[11px] sm:text-[12px] font-semibold text-white cursor-pointer transition-all shrink-0 shadow-sm"
+                            style={{
+                              background: isComplete
+                                ? 'linear-gradient(135deg, #30D158 0%, #25A244 100%)'
+                                : `linear-gradient(135deg, ${visual.color} 0%, ${visual.color}CC 100%)`,
+                              boxShadow: `0 2px 8px ${visual.color}35`,
+                            }}
+                          >
+                            <span>{isComplete ? 'Review' : 'Study'}</span>
+                            <ArrowRight className="h-3.5 w-3.5" />
+                          </motion.button>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -523,6 +590,35 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
             </div>
           )}
         </>
+      ) : currentSubTab === 'sprint' ? (
+        <ExamSprintView
+          state={state}
+          onLaunchPracticeMcq={(subId, topicId, topicName) => {
+            if (onLaunchPracticeSession) {
+              onLaunchPracticeSession(subId, topicId, topicName);
+            } else {
+              onSelectSubject(subId);
+            }
+          }}
+          onOpenFlashcards={(subId) => {
+            setFlashcardFocusSubjectId(subId);
+            handleSubTabChange('flashcards');
+          }}
+          onSelectSubject={onSelectSubject}
+          onUpdateSprint={onUpdateSprint}
+        />
+      ) : currentSubTab === 'flashcards' ? (
+        <StudyFlashcardHub
+          initialSubjectId={flashcardFocusSubjectId}
+          onLaunchPracticeMcq={(subId, topicId, topicName) => {
+            if (onLaunchPracticeSession) {
+              onLaunchPracticeSession(subId, topicId, topicName);
+            } else {
+              onSelectSubject(subId);
+            }
+          }}
+          onSelectSubject={onSelectSubject}
+        />
       ) : currentSubTab === 'revision' ? (
         <RevisionMatrixView
           state={state}

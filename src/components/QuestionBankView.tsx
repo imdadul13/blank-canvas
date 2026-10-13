@@ -7,13 +7,25 @@ import { NewMcqAttemptInput } from '../utils/performanceEngine';
 import { buildDueReviewQueue, type ReviewQueueItem } from '../utils/qbankReviewQueue';
 import type { AppState, GrandTest, McqAttempt } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
+import {
+  type SprintDay,
+  type SprintErrorType,
+  SPRINT_DAYS,
+  FMGE_BLUEPRINT_MARKS,
+  localDateKey,
+  FMGE_EXAM_DATE,
+  daysUntilFmge,
+  sprintDateForIndex,
+  sprintDayIndex,
+  checklistsForPlan,
+  buildAdaptiveSprintDays,
+} from '../utils/sprintEngine';
 
 type Exam = 'FMGE' | 'NEET-PG' | 'INI-CET';
 type BankQuestion = { id: string; exam: Exam; year: number | null; subjectId: string; subjectName: string; topicName: string; stem: string; options: Array<{key: string; text: string}>; imageUrl: string | null; imageUrls: string[]; source: string; sourcePage: number; isImageBased: boolean };
 type Facets = { exams: Exam[]; subjects: Array<{id: string; name: string; count: number}>; years: number[]; count: number; imageCount: number };
 type Review = { correct: boolean; correctAnswer: string; explanation: string; sourceExplanationAvailable?: boolean; source: string; sourcePage: number; answerReceipt: string };
 type TutorReview = { learnerChoiceInsight: string; decisionRule: string; retrievalQuestion: string; retrievalAnswer: string; optionAnalysis: Array<{key: string; verdict: string; reason: string}>; examTrap: string; memoryAid: string; clinicalPearl: string; aiGenerated: boolean };
-type SprintErrorType = NonNullable<AppState['fmgeSprint']>['errorTypes'] extends Record<string, infer T> | undefined ? T : never;
 
 async function responseJson(response: Response) {
   const data = await response.json().catch(() => ({}));
@@ -331,144 +343,7 @@ export const QuestionBankView: React.FC<{
   </div>;
 };
 
-type SprintDay = { title: string; subjects: string[]; focus: string; questions: number; fullMock?: boolean; restDay?: boolean; checkpoint?: boolean };
 
-const SPRINT_DAYS: SprintDay[] = [
-  { title: 'Baseline · mixed diagnostic', subjects: [], focus: 'Start with a timed 50-question mixed set. Review every wrong, guessed and slow answer; this is a diagnostic, not a prediction of your final score.', questions: 50 },
-  { title: 'Medicine · foundations & emergencies', subjects: ['medicine'], focus: 'Approach, common presentations, ECG, shock, fluids and emergency first steps.', questions: 60 },
-  { title: 'Medicine · systems & image cases', subjects: ['medicine'], focus: 'Cardiology, respiratory, neurology, renal and endocrine patterns; review ECGs and radiology.', questions: 60 },
-  { title: 'Surgery · core decisions', subjects: ['surgery'], focus: 'Trauma, acute abdomen, fluids, wound healing, breast and thyroid; practise the next best step.', questions: 60 },
-  { title: 'Obstetrics & gynaecology', subjects: ['obg'], focus: 'Antenatal care, labour, obstetric emergencies, contraception, malignancy and key thresholds.', questions: 60 },
-  { title: 'Pediatrics', subjects: ['pediatrics'], focus: 'Growth, development, vaccines, neonatology, nutrition and common pediatric emergencies.', questions: 50 },
-  { title: 'PSM · prevention & programs', subjects: ['psm'], focus: 'Screening, epidemiology, biostatistics, national programs and prevention levels.', questions: 50 },
-  { title: 'Pathology', subjects: ['pathology'], focus: 'General pathology, hematology, neoplasia and image-based morphology.', questions: 50 },
-  { title: 'Pharmacology', subjects: ['pharmacology'], focus: 'Mechanisms, adverse effects, antidotes, interactions and drug of choice.', questions: 50 },
-  { title: 'Microbiology', subjects: ['microbiology'], focus: 'Organism-to-disease links, lab diagnosis, vaccines and antimicrobial choices.', questions: 50 },
-  { title: 'Anatomy & physiology', subjects: ['anatomy', 'physiology'], focus: 'Neuroanatomy, nerves, embryology, reflexes and high-yield physiology graphs.', questions: 50 },
-  { title: 'Biochemistry & forensic medicine', subjects: ['biochemistry', 'fmt'], focus: 'Metabolic diseases, vitamins, molecular methods, toxicology and legal essentials.', questions: 50 },
-  { title: 'ENT & ophthalmology', subjects: ['ent', 'ophthalmology'], focus: 'Visual and clinical spotters, red flags, common nerve lesions and first-line management.', questions: 50 },
-  { title: 'Short subjects & radiotherapy', subjects: ['dermatology', 'psychiatry', 'orthopedics', 'radiology', 'anesthesia'], focus: 'Recognize classic images, emergency actions, common drugs and frequently confused pairs; include core radiotherapy principles because it carries a separate 5-mark blueprint allocation.', questions: 60 },
-  { title: 'Checkpoint · mixed timed set', subjects: [], focus: 'Take a timed 100-question mixed set. Compare accuracy and pacing with your baseline, then use the next study blocks for the weakest areas.', questions: 100, checkpoint: true },
-  { title: 'Repair your highest-impact gaps', subjects: [], focus: 'Use recent question accuracy, uncertain answers and mock weaknesses to choose two priority subjects. Revisit missed concepts before new content.', questions: 70 },
-  { title: 'Checkpoint · full mock', subjects: [], focus: 'Complete a 300-question mock as two 150-question blocks, each timed for 150 minutes, with a break between them. Review wrong, guessed and skipped answers, then record weak subjects in Grand Tests.', questions: 300, fullMock: true, checkpoint: true },
-  { title: 'Repair the final gaps', subjects: [], focus: 'Target the three weakest subjects from your mock; finish image questions and revisit your error list.', questions: 80 },
-  { title: 'Final checkpoint · mixed recall', subjects: [], focus: 'Do a 100-question mixed set, or a full mock only if you are rested and have not completed one recently. Review recurring errors; avoid exhausting yourself before the exam.', questions: 100, checkpoint: true },
-  { title: 'Exam eve · light recall & rest', subjects: [], focus: 'Review only your own concise error list, essential images and formulas. Prepare exam logistics, stop early, eat normally and protect sleep. No full mock or new chapters.', questions: 20, restDay: true },
-];
-
-// NBEMS June 2026 bulletin, section 12.2. These are blueprint marks, not
-// promised question counts in each sitting. The bank currently lacks a
-// separate Radiotherapy subject tag, so those 5 marks remain an allied-topic gap.
-const FMGE_BLUEPRINT_MARKS: Record<string, number> = {
-  anatomy: 17, physiology: 17, biochemistry: 17, pathology: 13, microbiology: 13, pharmacology: 13, fmt: 10,
-  medicine: 33, psychiatry: 5, dermatology: 5, radiotherapy: 5,
-  surgery: 32, anesthesia: 5, orthopedics: 5, radiology: 5,
-  pediatrics: 15, ophthalmology: 15, ent: 15, obg: 30, psm: 30,
-};
-
-function localDateKey(date = new Date()) { const y = date.getFullYear(); const m = String(date.getMonth() + 1).padStart(2, '0'); const d = String(date.getDate()).padStart(2, '0'); return `${y}-${m}-${d}`; }
-const FMGE_EXAM_DATE = '2026-10-31';
-function daysUntilFmge(examDate = FMGE_EXAM_DATE) {
-  const today = new Date(`${localDateKey()}T12:00:00`);
-  const exam = new Date(`${examDate}T12:00:00`);
-  return Math.max(0, Math.ceil((exam.getTime() - today.getTime()) / 86_400_000));
-}
-function sprintDateForIndex(dayIndex: number, examDate = FMGE_EXAM_DATE) {
-  const date = new Date(`${examDate}T12:00:00`);
-  date.setDate(date.getDate() - (SPRINT_DAYS.length - dayIndex));
-  return localDateKey(date);
-}
-function sprintDayIndex(_startedOn: string, examDate = FMGE_EXAM_DATE) {
-  // The sprint is anchored to the known exam date so refreshes and late starts
-  // cannot drift beyond the final review day or index past the schedule.
-  return Math.min(SPRINT_DAYS.length - 1, Math.max(0, 20 - daysUntilFmge(examDate)));
-}
-
-function checklistsForPlan(plan: SprintDay, hours: number, questionTarget: number) {
-  return [
-    `Focused revision (${(hours * (plan.restDay ? 0.35 : 0.4)).toFixed(1)} h): ${plan.focus}`,
-    `Active recall (${(hours * 0.2).toFixed(1)} h): retrieve key facts without notes, then correct only what you missed.`,
-    plan.fullMock
-      ? 'Timed mock: complete two 150-question blocks in 150 minutes each, with an exam-style break; answer every question because FMGE has no negative marking.'
-      : `Question practice (${(hours * (plan.restDay ? 0.1 : 0.3)).toFixed(1)} h): aim for about ${questionTarget} questions, then review the reasoning.`,
-    plan.restDay ? 'Exam readiness: prepare documents and route, set a reasonable bedtime, and avoid late-night cramming.' : `Error review (${(hours * 0.1).toFixed(1)} h): explain each miss or guess, write the corrected rule, and revisit due cards tomorrow.`,
-  ];
-}
-
-function buildAdaptiveSprintDays(attempts: McqAttempt[], grandTests: GrandTest[], errorTypes: Record<string, SprintErrorType> = {}): SprintDay[] {
-  const recentCutoff = Date.now() - 30 * 86_400_000;
-  const recentAttempts = attempts.filter((attempt) => attempt.timestamp && Date.parse(attempt.timestamp) >= recentCutoff && !['NEET-PG', 'INI-CET'].includes(attempt.exam || ''));
-  const latestTests = [...grandTests].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
-  const weakFromMocks = new Set(latestTests.flatMap((test) => test.weakSubjectIds || []));
-  const strongFromMocks = new Set(latestTests.flatMap((test) => test.strongSubjectIds || []));
-  const bySubject = new Map<string, McqAttempt[]>();
-  [...recentAttempts]
-    .filter((attempt) => attempt.subjectId && attempt.timestamp)
-    .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
-    .forEach((attempt) => {
-      const list = bySubject.get(attempt.subjectId) || [];
-      list.push(attempt);
-      bySubject.set(attempt.subjectId, list);
-    });
-
-  const ranked = FMGE_SUBJECTS.map((subject) => {
-    const sample = (bySubject.get(subject.id) || []).slice(-40);
-    const accuracy = sample.length ? sample.filter((attempt) => attempt.isCorrect).length / sample.length : null;
-    // A correct answer marked as a guess or low confidence still needs spaced review.
-    const secureCorrect = sample.filter((attempt) => attempt.isCorrect && !['guess', 'low'].includes(attempt.confidence || '')).length;
-    const reviewWeightedAccuracy = sample.length ? (secureCorrect + sample.filter((attempt) => attempt.isCorrect && ['guess', 'low'].includes(attempt.confidence || '')).length * 0.35) / sample.length : null;
-    const evidence = Math.min(1, sample.length / 15);
-    const adjustedWeakness = reviewWeightedAccuracy === null ? 0.5 : 0.5 + (0.5 - reviewWeightedAccuracy) * evidence;
-    const taggedErrors = sample.filter((attempt) => errorTypes[attempt.questionId]);
-    const knowledgeErrors = taggedErrors.filter((attempt) => errorTypes[attempt.questionId] === 'knowledge').length;
-    const confusionErrors = taggedErrors.filter((attempt) => errorTypes[attempt.questionId] === 'confusion').length;
-    const guessErrors = taggedErrors.filter((attempt) => errorTypes[attempt.questionId] === 'guess').length;
-    const misreadErrors = taggedErrors.filter((attempt) => errorTypes[attempt.questionId] === 'misread').length;
-    const confidentMisses = sample.filter((attempt) => !attempt.isCorrect && ['high', 'certain'].includes(attempt.confidence || '')).length;
-    const topicErrors = new Map<string, number>();
-    for (const attempt of sample) {
-      const topic = (attempt.subtopic || (attempt.subtopicId && attempt.subtopicId !== subject.id ? attempt.subtopicId : '')).trim();
-      if (topic && (!attempt.isCorrect || ['guess', 'low'].includes(attempt.confidence || ''))) topicErrors.set(topic, (topicErrors.get(topic) || 0) + 1);
-    }
-    const weakTopics = [...topicErrors].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([topic]) => topic);
-    // FMGE_SUBJECTS carries the app's approximate blueprint weights. Keep the
-    // copy explicit that these are priorities, not guaranteed question counts.
-    const blueprintWeight = FMGE_BLUEPRINT_MARKS[subject.id] ?? subject.weightage;
-    const score = (blueprintWeight / 35) * 0.62 + adjustedWeakness * 0.38
-      + Math.min(0.2, knowledgeErrors * 0.035 + confusionErrors * 0.025 + misreadErrors * 0.02 + guessErrors * 0.02 + confidentMisses * 0.025)
-      + (weakFromMocks.has(subject.id) ? 0.28 : 0)
-      - (strongFromMocks.has(subject.id) ? 0.12 : 0);
-    return { id: subject.id, name: subject.name, blueprintWeight, score, accuracy, count: sample.length, uncertain: sample.filter((attempt) => attempt.confidence === 'guess' || attempt.confidence === 'low' || attempt.confidence === 'medium').length, knowledgeErrors, confusionErrors, confidentMisses, weakTopics };
-  }).sort((a, b) => b.score - a.score);
-
-  const hasEvidence = recentAttempts.length > 0 || grandTests.length > 0;
-  const makeAdaptiveDay = (index: number, selected: typeof ranked, label: string) => {
-    const names = selected.map((subject) => subject.name);
-    const details = selected.map((subject) => {
-      if (subject.count >= 5 && subject.accuracy !== null) return `${subject.name} (${subject.blueprintWeight} blueprint marks; ${Math.round(subject.accuracy * 100)}% raw accuracy${subject.uncertain ? `; ${subject.uncertain} guessed or unsure` : ''}${subject.knowledgeErrors ? `; ${subject.knowledgeErrors} tagged knowledge gaps` : ''}${subject.confusionErrors ? `; ${subject.confusionErrors} tagged option confusions` : ''}${subject.confidentMisses ? `; ${subject.confidentMisses} confident errors` : ''}${subject.weakTopics.length ? `; revisit ${subject.weakTopics.join(', ')}` : ''} across ${subject.count} recent attempts)`;
-      if (weakFromMocks.has(subject.id)) return `${subject.name} (flagged weak in a recent mock)`;
-      return `${subject.name} (high blueprint weight; gather more answers to calibrate)`;
-    });
-    return {
-      ...SPRINT_DAYS[index],
-      title: names.length ? `${label} · ${names.join(' & ')}` : SPRINT_DAYS[index].title,
-      subjects: names.length ? selected.map((subject) => subject.id) : SPRINT_DAYS[index].subjects,
-      focus: hasEvidence
-        ? `Prioritize ${details.join('; ')}. Review missed and guessed questions, then retrieve the key rules without notes.`
-        : `Start with high-weight areas: ${names.join(', ')}. Take the baseline set so later revision can target your actual gaps.`,
-    };
-  };
-
-  const days = [...SPRINT_DAYS];
-  for (const index of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 17]) {
-    const selected = index < 13
-      ? ranked.filter((subject) => SPRINT_DAYS[index].subjects.includes(subject.id)).sort((a, b) => b.score - a.score).slice(0, 2)
-      : ranked.slice(0, index === 18 ? 3 : 2);
-    if (selected.length) days[index] = makeAdaptiveDay(index, selected, hasEvidence ? 'Personalized focus' : 'High-yield focus');
-  }
-  // Keep diagnostic/checkpoint/mock and exam-eve days intact; those are the structure of the countdown.
-  return days;
-}
 
 function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpenSubject, onOpenGrandTests, loading }: { sprint?: AppState['fmgeSprint']; attempts: McqAttempt[]; grandTests: GrandTest[]; onUpdate: (value: NonNullable<AppState['fmgeSprint']>) => void; onPractice: (subjectId: string, count?: number, label?: string, questionIds?: string[], taskKey?: string, excludeQuestionIds?: string[]) => void; onOpenSubject: (subjectId: string) => void; onOpenGrandTests: () => void; loading: boolean }) {
   const [expanded, setExpanded] = useState(false);

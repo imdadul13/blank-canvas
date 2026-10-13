@@ -163,7 +163,7 @@ function AppInner() {
     return 'dashboard';
   });
   const [qbankSubjectFocus, setQbankSubjectFocus] = useState<string | undefined>();
-  const [syllabusSubTab, setSyllabusSubTab] = useState<'curriculum' | 'rapid'>('curriculum');
+  const [syllabusSubTab, setSyllabusSubTab] = useState<'curriculum' | 'sprint' | 'flashcards' | 'rapid' | 'revision'>('curriculum');
   const [rapidRevisionFocusSubjectId, setRapidRevisionFocusSubjectId] = useState<string | undefined>();
 
   const toggleRapidRevisionItem = (key: string) => {
@@ -1090,8 +1090,10 @@ function AppInner() {
                     subTab={syllabusSubTab}
                     onSubTabChange={(tab) => {
                       if (tab === 'curriculum') { setSyllabusSubTab('curriculum'); handleSetActiveTab('syllabus'); }
-                      if (tab === 'rapid') { setSyllabusSubTab('rapid'); handleSetActiveTab('syllabus'); }
-                      if (tab === 'revision') handleSetActiveTab('revision');
+                      else if (tab === 'sprint') { setSyllabusSubTab('sprint'); handleSetActiveTab('syllabus'); }
+                      else if (tab === 'flashcards') { setSyllabusSubTab('flashcards'); handleSetActiveTab('syllabus'); }
+                      else if (tab === 'rapid') { setSyllabusSubTab('rapid'); handleSetActiveTab('syllabus'); }
+                      else if (tab === 'revision') handleSetActiveTab('revision');
                     }}
                     rapidRevisionProgress={state.rapidRevisionProgress}
                     onToggleRapidRevisionItem={toggleRapidRevisionItem}
@@ -1099,6 +1101,9 @@ function AppInner() {
                     rapidRevisionAttempts={state.mcqAttempts || []}
                     rapidRevisionFocusSubjectId={rapidRevisionFocusSubjectId}
                     onNavigateTab={handleSetActiveTab}
+                    onLaunchPracticeSession={handleLaunchPracticeSession}
+                    onOpenAiCoach={handleOpenAiCoach}
+                    onUpdateSprint={saveFmgeSprintProgress}
                   />
                 )}
 
@@ -1237,7 +1242,10 @@ function AppInner() {
                     subTab="revision"
                     onSubTabChange={(tab) => {
                       if (tab === 'curriculum') handleSetActiveTab('syllabus');
-                      if (tab === 'revision') handleSetActiveTab('revision');
+                      else if (tab === 'sprint') { setSyllabusSubTab('sprint'); handleSetActiveTab('syllabus'); }
+                      else if (tab === 'flashcards') { setSyllabusSubTab('flashcards'); handleSetActiveTab('syllabus'); }
+                      else if (tab === 'rapid') { setSyllabusSubTab('rapid'); handleSetActiveTab('syllabus'); }
+                      else if (tab === 'revision') handleSetActiveTab('revision');
                     }}
                     rapidRevisionProgress={state.rapidRevisionProgress}
                     onToggleRapidRevisionItem={toggleRapidRevisionItem}
@@ -1245,6 +1253,9 @@ function AppInner() {
                     rapidRevisionAttempts={state.mcqAttempts || []}
                     rapidRevisionFocusSubjectId={rapidRevisionFocusSubjectId}
                     onNavigateTab={handleSetActiveTab}
+                    onLaunchPracticeSession={handleLaunchPracticeSession}
+                    onOpenAiCoach={handleOpenAiCoach}
+                    onUpdateSprint={saveFmgeSprintProgress}
                   />
                 )}
 
