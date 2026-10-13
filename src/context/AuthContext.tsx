@@ -108,6 +108,8 @@ interface AuthContextType {
   signOutUser: () => Promise<void>;
   updateProfileData: (updates: Partial<UserProfile>) => Promise<void>;
   updateAppState: (updater: AppState | ((prev: AppState) => AppState)) => void;
+  /** Persist sprint edits immediately so a refresh cannot outrun the normal debounce. */
+  saveFmgeSprintProgress: (sprint: NonNullable<AppState['fmgeSprint']>) => void;
   recordQuestionAttempt: (input: NewMcqAttemptInput) => McqAttempt;
   forceSyncToCloud: () => Promise<void>;
   completeOnboarding: (
@@ -729,6 +731,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [scheduleCloudSave]);
 
+  const saveFmgeSprintProgress = useCallback((sprint: NonNullable<AppState['fmgeSprint']>) => {
+    const uid = user?.uid;
+    const next: AppState = {
+      ...appStateRef.current,
+      fmgeSprint: { ...sprint, updatedAt: new Date().toISOString() },
+    };
+
+    // Keep the UI state and the recovery snapshot current synchronously. The
+    // normal whole-app save is debounced, which is too easy to interrupt with
+    // a fast refresh on a critical plan edit.
+    appStateRef.current = next;
+    setAppState(next);
+
+    try {
+      if (DEV_AUTH_BYPASS) {
+        localStorage.setItem('fmge_study_tracker_dev', JSON.stringify(next));
+        setSyncStatus('synced');
+        return;
+      }
+      if (isGuest) {
+        localStorage.setItem('fmge_study_tracker_v2', JSON.stringify(next));
+        setSyncStatus('synced');
+        return;
+      }
+      if (!uid) return;
+
+      saveUserLocalCache(uid, next);
+      savePendingOfflineWrite(uid, next);
+      pendingStateRef.current = next;
+      hasPendingLocalChangesRef.current = true;
+      setSyncStatus('syncing');
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+
+      void saveUserStateToCloud(uid, next).then(() => {
+        if (activeUidRef.current !== uid || JSON.stringify(pendingStateRef.current) !== JSON.stringify(next)) return;
+        clearPendingOfflineWrite(uid);
+        pendingStateRef.current = null;
+        hasPendingLocalChangesRef.current = false;
+        lastCloudSavedStringRef.current = JSON.stringify(next);
+        setSyncStatus('synced');
+      }).catch((err) => {
+        console.error('[AUTH] Failed to save FMGE sprint progress:', err);
+        if (activeUidRef.current === uid && JSON.stringify(pendingStateRef.current) === JSON.stringify(next)) {
+          setSyncStatus(navigator.onLine ? 'error' : 'offline');
+        }
+      });
+    } catch (err) {
+      console.error('[AUTH] Failed to persist FMGE sprint progress locally:', err);
+      setSyncStatus(navigator.onLine ? 'error' : 'offline');
+    }
+  }, [isGuest, user]);
+
   // Record an individual MCQ / question attempt into the Performance Engine
   const recordQuestionAttempt = useCallback((input: NewMcqAttemptInput): McqAttempt => {
     let recordedAttempt: McqAttempt | null = null;
@@ -1031,6 +1088,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signOutUser,
         updateProfileData,
         updateAppState,
+        saveFmgeSprintProgress,
         recordQuestionAttempt,
         forceSyncToCloud,
         completeOnboarding,
