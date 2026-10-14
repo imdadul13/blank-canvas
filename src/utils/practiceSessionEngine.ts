@@ -89,13 +89,13 @@ export function reconcileQuestionMedicalKey(question: PracticeSessionQuestion): 
   }
 
   const expl = `${question.explanation || ''} ${question.highYieldPearl || ''}`.toLowerCase();
-  if (expl.trim().length < 10) return question;
 
   const MEDICAL_STOPWORDS = new Set([
     'artery', 'vein', 'nerve', 'muscle', 'disease', 'syndrome',
     'infection', 'fracture', 'ligament', 'vessel', 'stage', 'grade',
     'type', 'sign', 'test', 'scan', 'duct', 'node', 'injury', 'level',
-    'lobe', 'wall', 'zone', 'tract', 'deficiency', 'disorder', 'roots', 'trunk', 'cord', 'branch'
+    'lobe', 'wall', 'zone', 'tract', 'deficiency', 'disorder', 'roots', 'trunk', 'cord', 'branch',
+    'acute', 'chronic', 'urgent', 'immediate', 'initial', 'definitive', 'management', 'infusion', 'bolus'
   ]);
 
   const scores = question.options.map((opt) => {
@@ -103,38 +103,74 @@ export function reconcileQuestionMedicalKey(question: PracticeSessionQuestion): 
     if (!rawText) return 0;
     let score = 0;
 
-    // Full direct match
-    if (expl.includes(rawText)) score += 25;
-
-    // Individual words
-    const words = rawText.split(/[\s,()/-]+/).filter((w) => w.length > 2 && !MEDICAL_STOPWORDS.has(w));
-    for (const w of words) {
-      if (expl.includes(w)) score += 5;
+    // Check option rationale for explicit confirmatory vs negative distractor wording
+    if (opt.rationale) {
+      const rLower = opt.rationale.trim().toLowerCase();
+      if (
+        rLower.startsWith('correct') ||
+        rLower.startsWith('right') ||
+        rLower.includes('is the correct') ||
+        rLower.includes('treatment of choice') ||
+        rLower.includes('first-line') ||
+        rLower.includes('gold standard')
+      ) {
+        score += 50;
+      }
+      if (
+        rLower.startsWith('incorrect') ||
+        rLower.startsWith('wrong') ||
+        rLower.startsWith('false') ||
+        rLower.includes('is ineffective') ||
+        rLower.includes('contraindicated') ||
+        rLower.includes('should not delay')
+      ) {
+        score -= 40;
+      }
     }
 
-    // Alphanumeric tokens (e.g. C5-C6, C8-T1, V1-V4, HLA-B27)
+    // Full direct match in clinical explanation
+    if (expl && expl.includes(rawText)) score += 30;
+
+    // Multi-word phrase / bigram matching (e.g. 'temporary pacing', 'upper trunk', 'complete heart block')
+    const meaningfulWords = rawText.split(/[\s,()/-]+/).filter((w) => w.length > 2 && !MEDICAL_STOPWORDS.has(w));
+    for (let i = 0; i < meaningfulWords.length - 1; i++) {
+      const bigram = `${meaningfulWords[i]} ${meaningfulWords[i + 1]}`;
+      if (expl && expl.includes(bigram)) {
+        score += 25;
+      }
+    }
+
+    // Individual significant words
+    for (const w of meaningfulWords) {
+      if (expl && expl.includes(w)) score += 6;
+    }
+
+    // Alphanumeric tokens (e.g. C5-C6, C8-T1, V1-V4, AV, STEMI)
     const alphaNumTokens = rawText.match(/[a-z]+\d+|\d+[a-z]+|[a-z]+\-[a-z0-9]+|\d+\-\d+/g);
     if (alphaNumTokens) {
       for (const token of alphaNumTokens) {
-        if (expl.includes(token)) score += 12;
+        if (expl && expl.includes(token)) score += 15;
       }
     }
 
     // Acronym in parenthesis: e.g. (RCA), (LAD), (CT)
     const acronymMatch = opt.text.match(/\(([A-Za-z0-9]+)\)/);
-    if (acronymMatch && expl.includes(acronymMatch[1].toLowerCase())) {
-      score += 12;
+    if (acronymMatch && expl && expl.includes(acronymMatch[1].toLowerCase())) {
+      score += 15;
     }
 
-    // Explicit negative phrasing deduction: "not <opt>", "unlike <opt>", "<opt> is incorrect"
+    // Explicit negative phrasing deduction in explanation
     if (
-      expl.includes(`not ${rawText}`) ||
-      expl.includes(`unlike ${rawText}`) ||
-      expl.includes(`${rawText} is incorrect`) ||
-      expl.includes(`rules out ${rawText}`) ||
-      expl.includes(`ruling out ${rawText}`)
+      expl && (
+        expl.includes(`not ${rawText}`) ||
+        expl.includes(`unlike ${rawText}`) ||
+        expl.includes(`${rawText} is incorrect`) ||
+        expl.includes(`rules out ${rawText}`) ||
+        expl.includes(`ruling out ${rawText}`) ||
+        expl.includes(`${rawText} is ineffective`)
+      )
     ) {
-      score -= 20;
+      score -= 30;
     }
 
     return score;
@@ -143,7 +179,7 @@ export function reconcileQuestionMedicalKey(question: PracticeSessionQuestion): 
   const currentIdx = question.options.findIndex(
     (o) => o.key === question.correctAnswer || o.isCorrect || o.optionId === question.correctOptionId
   );
-  let highestScore = -1;
+  let highestScore = -Infinity;
   let bestIdx = -1;
   scores.forEach((s, idx) => {
     if (s > highestScore) {
@@ -154,9 +190,9 @@ export function reconcileQuestionMedicalKey(question: PracticeSessionQuestion): 
 
   const currentScore = currentIdx !== -1 ? scores[currentIdx] : 0;
 
-  // If current option has low relevance while another option is decisively endorsed by explanation, correct the key
+  // Reconcile if current option is penalized (e.g. its rationale says "Incorrect") or best option is significantly higher
   if (bestIdx !== -1 && currentIdx !== -1 && bestIdx !== currentIdx) {
-    if (highestScore >= 15 && highestScore > currentScore + 10) {
+    if (currentScore < 0 || (highestScore >= 8 && highestScore > currentScore + 6)) {
       const reconciledOptions = question.options.map((opt, idx) => ({
         ...opt,
         isCorrect: idx === bestIdx,

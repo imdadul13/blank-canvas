@@ -954,22 +954,57 @@ Output strictly valid JSON with this schema:
         const optText = (opt.text || "").toLowerCase().trim();
         if (!optText) return 0;
         let score = 0;
-        if (explLower.includes(optText)) score += 25;
-        const words = optText.split(/[\s,()/-]+/).filter((w: string) => w.length > 2 && !MEDICAL_STOPWORDS.has(w));
-        for (const w of words) {
-          if (explLower.includes(w)) score += 5;
+
+        // Check option rationale for explicit confirmatory vs negative distractor wording
+        if (opt.rationale) {
+          const rLower = String(opt.rationale).trim().toLowerCase();
+          if (
+            rLower.startsWith('correct') ||
+            rLower.startsWith('right') ||
+            rLower.includes('is the correct') ||
+            rLower.includes('treatment of choice') ||
+            rLower.includes('first-line') ||
+            rLower.includes('gold standard')
+          ) {
+            score += 50;
+          }
+          if (
+            rLower.startsWith('incorrect') ||
+            rLower.startsWith('wrong') ||
+            rLower.startsWith('false') ||
+            rLower.includes('is ineffective') ||
+            rLower.includes('contraindicated') ||
+            rLower.includes('should not delay')
+          ) {
+            score -= 40;
+          }
+        }
+
+        if (explLower.includes(optText)) score += 30;
+
+        // Multi-word phrase / bigram matching
+        const meaningfulWords = optText.split(/[\s,()/-]+/).filter((w: string) => w.length > 2 && !MEDICAL_STOPWORDS.has(w));
+        for (let i = 0; i < meaningfulWords.length - 1; i++) {
+          const bigram = `${meaningfulWords[i]} ${meaningfulWords[i + 1]}`;
+          if (explLower.includes(bigram)) {
+            score += 25;
+          }
+        }
+
+        for (const w of meaningfulWords) {
+          if (explLower.includes(w)) score += 6;
         }
 
         const alphaNumTokens = optText.match(/[a-z]+\d+|\d+[a-z]+|[a-z]+\-[a-z0-9]+|\d+\-\d+/g);
         if (alphaNumTokens) {
           for (const token of alphaNumTokens) {
-            if (explLower.includes(token)) score += 12;
+            if (explLower.includes(token)) score += 15;
           }
         }
 
         const acronymMatch = opt.text.match(/\(([A-Za-z0-9]+)\)/);
         if (acronymMatch && explLower.includes(acronymMatch[1].toLowerCase())) {
-          score += 12;
+          score += 15;
         }
 
         if (
@@ -977,15 +1012,16 @@ Output strictly valid JSON with this schema:
           explLower.includes(`unlike ${optText}`) ||
           explLower.includes(`${optText} is incorrect`) ||
           explLower.includes(`rules out ${optText}`) ||
-          explLower.includes(`ruling out ${optText}`)
+          explLower.includes(`ruling out ${optText}`) ||
+          explLower.includes(`${optText} is ineffective`)
         ) {
-          score -= 20;
+          score -= 30;
         }
 
         return score;
       });
 
-      let highestScore = 0;
+      let highestScore = -Infinity;
       let matchedIdx = -1;
       scores.forEach((s: number, idx: number) => {
         if (s > highestScore) {
@@ -997,9 +1033,9 @@ Output strictly valid JSON with this schema:
       const currentCorrectIdx = rawOpts.findIndex((o: any) => o.isCorrect);
       const currentScore = currentCorrectIdx !== -1 ? scores[currentCorrectIdx] : 0;
 
-      // If current option has low relevance while another option is prominently endorsed by explanation, correct the key
+      // If current option has negative score (its rationale says Incorrect) or another option is significantly higher, correct the key
       if (currentCorrectIdx !== -1 && matchedIdx !== -1 && currentCorrectIdx !== matchedIdx) {
-        if (highestScore >= 15 && highestScore > currentScore + 10) {
+        if (currentScore < 0 || (highestScore >= 8 && highestScore > currentScore + 6)) {
           rawOpts[currentCorrectIdx].isCorrect = false;
           rawOpts[matchedIdx].isCorrect = true;
         }

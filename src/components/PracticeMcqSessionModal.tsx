@@ -86,9 +86,22 @@ function getOptionRationale(
   // 1. Direct rationale on option (if provided and context-consistent)
   if (opt.rationale && opt.rationale.trim().length > 5) {
     const rLower = opt.rationale.toLowerCase();
-    const isConfirmatory = rLower.startsWith('correct') || rLower.includes('is the correct') || rLower.includes('is the culprit');
-    if (isCorrect || !isConfirmatory) {
-      return opt.rationale.trim();
+    const isNegativeDistractorText =
+      rLower.startsWith('incorrect') ||
+      rLower.startsWith('wrong') ||
+      rLower.startsWith('false') ||
+      rLower.startsWith('not indicated') ||
+      rLower.startsWith('contraindicated') ||
+      rLower.includes('is ineffective') ||
+      rLower.includes('should not delay');
+
+    // If this option is the correct answer, NEVER return negative distractor text as its rationale!
+    if (isCorrect && !isNegativeDistractorText) {
+      return opt.rationale.trim().replace(/^correct[.:\s-]*/i, '').trim();
+    }
+    // If this option is a distractor, and it has negative distractor text, return it cleanly
+    if (!isCorrect && isNegativeDistractorText) {
+      return opt.rationale.trim().replace(/^incorrect[.:\s-]*/i, '').trim();
     }
   }
 
@@ -100,12 +113,12 @@ function getOptionRationale(
 
   // 3. For correct option: Use pearl or opening sentence of explanation
   if (isCorrect) {
-    if (question.highYieldPearl && question.highYieldPearl.trim().length > 5) {
-      return question.highYieldPearl.trim();
-    }
     if (question.explanation) {
       const sentences = question.explanation.split(/(?<=[.!?])\s+/);
       return sentences.slice(0, 2).join(' ').trim();
+    }
+    if (question.highYieldPearl && question.highYieldPearl.trim().length > 5) {
+      return question.highYieldPearl.trim();
     }
   }
 

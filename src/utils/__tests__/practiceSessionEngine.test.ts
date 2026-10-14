@@ -362,6 +362,37 @@ async function runPracticeSessionTests() {
   assert(untouchedQuestion.correctAnswer === 'B', 'Already correct question preserved as Option B');
   assert(untouchedQuestion.options.find((o) => o.key === 'B')?.isCorrect === true, 'Option B remains isCorrect: true');
 
+  // Second test: Complete heart block pacing question (miskeyed to Atropine whose rationale says 'Incorrect')
+  const buggyHeartBlockQuestion: PracticeSessionQuestion = {
+    id: 'test-heart-block-glitch',
+    sessionId: 'session-med-1',
+    sequenceNumber: 5,
+    scenario: 'A 75-year-old female is brought to the emergency department after a syncopal episode. ECG reveals complete dissociation between atrial and ventricular activity. P waves march through at a rate of 85/min, while an independent escape rhythm drives the ventricles at 34/min with wide QRS complexes.',
+    question: 'What is the definitive initial medical/device management required for this patient?',
+    options: [
+      { key: 'A', optionId: 'opt_1', text: 'Immediate electrical cardioversion', isCorrect: false, rationale: 'Incorrect. Cardioversion is indicated for tachyarrhythmias with hemodynamic instability, not for bradyarrhythmias like complete heart block.' },
+      { key: 'B', optionId: 'opt_2', text: 'Urgent temporary cardiac pacing', isCorrect: false },
+      { key: 'C', optionId: 'opt_3', text: 'Intravenous adenosine bolus', isCorrect: false, rationale: 'Incorrect. Adenosine is used for supraventricular tachycardias; it would worsen bradycardia in complete heart block.' },
+      { key: 'D', optionId: 'opt_4', text: 'Intravenous atropine infusion', isCorrect: true, rationale: 'Incorrect. Atropine is ineffective for infranodal complete heart blocks (wide QRS escape) and should not delay pacing in unstable patients.' }
+    ],
+    correctAnswer: 'D',
+    correctOptionId: 'opt_4',
+    explanation: 'Third-degree heart block is a complete failure of AV conduction where atria and ventricles beat independently (AV dissociation). When accompanied by syncope, dizziness, or heart failure (symptomatic bradycardia), temporary pacing is required immediately, followed by permanent pacemaker implantation.',
+    highYieldPearl: 'Third-degree AV block = Complete AV dissociation. Wide QRS escape = Infranodal block requiring pacemaker.',
+    subjectId: 'medicine',
+    subjectName: 'Medicine',
+    topicId: 'med-1',
+    topicName: 'Cardiology - ECGs (STEMI, Arrhythmias, Heart Blocks, WPW)',
+    difficulty: 'high-yield',
+    isAiGenerated: true,
+  };
+
+  const fixedHeartBlock = reconcileQuestionMedicalKey(buggyHeartBlockQuestion);
+  assert(fixedHeartBlock.correctAnswer === 'B', 'reconcileQuestionMedicalKey automatically corrected heart block from Atropine (D) to Pacing (B)');
+  assert(fixedHeartBlock.options.find((o) => o.key === 'B')?.isCorrect === true, 'Urgent temporary cardiac pacing is accurately marked isCorrect: true');
+  assert(fixedHeartBlock.options.find((o) => o.key === 'D')?.isCorrect === false, 'Atropine infusion is demoted to isCorrect: false');
+  assert(fixedHeartBlock.correctOptionId === 'opt_2', 'correctOptionId re-pointed to opt_2 for pacing');
+
   console.log(`\n================================================`);
   console.log(`ALL PRACTICE SESSION TESTS COMPLETED: ${passed} passed, ${failed} failed.`);
   console.log(`================================================`);
