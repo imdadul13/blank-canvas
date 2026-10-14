@@ -606,6 +606,10 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
           }}
           onSelectSubject={onSelectSubject}
           onUpdateSprint={onUpdateSprint}
+          onOpenDailyPlanner={() => onNavigateTab?.('daily')}
+          onOpenRevisionMatrix={() => handleSubTabChange('revision')}
+          onNavigateTab={onNavigateTab}
+          onToggleTopicState={onToggleTopicState}
         />
       ) : currentSubTab === 'flashcards' ? (
         <StudyFlashcardHub

@@ -33,7 +33,7 @@ import {
   getLegacyLocalData,
   clearLegacyLocalData,
 } from '../utils/cloudSync';
-import { normalizeAppState } from '../utils/storage';
+import { normalizeAppState, createLocalSnapshot } from '../utils/storage';
 import { recordMcqAttempt, hydrateAttemptsFromExistingState, NewMcqAttemptInput } from '../utils/performanceEngine';
 
 /**
@@ -153,10 +153,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch {}
       return DEV_PROFILE;
     }
+    try {
+      if (localStorage.getItem('fmge_guest_mode') === 'true') {
+        const saved = localStorage.getItem('fmge_guest_profile');
+        if (saved) return JSON.parse(saved);
+        return {
+          uid: 'guest_local_user',
+          email: 'local@device',
+          displayName: 'Dr. Aspirant',
+          createdAt: new Date().toISOString(),
+          lastActiveAt: new Date().toISOString(),
+          examDate: '2026-10-15',
+          targetScore: 185,
+          dailyHoursTarget: 6,
+          onboardingCompleted: localStorage.getItem('fmge_guest_onboarded') === 'true',
+        };
+      }
+    } catch {}
     return null;
   });
 
-  const [isLoading, setIsLoading] = useState(() => (DEV_AUTH_BYPASS ? false : true));
+  const [isLoading, setIsLoading] = useState(() => {
+    if (DEV_AUTH_BYPASS) return false;
+    try {
+      if (localStorage.getItem('fmge_guest_mode') === 'true') return false;
+    } catch {}
+    return true;
+  });
   const [isGuest, setIsGuest] = useState<boolean>(() => {
     if (DEV_AUTH_BYPASS) return false;
     try {
@@ -201,6 +224,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (cached) {
             return normalizeAppState(cached);
           }
+        }
+        // Fallback: check general local storage so pre-login/guest progress is not lost on reload
+        const localRaw = localStorage.getItem('fmge_study_tracker_v2');
+        if (localRaw) {
+          const parsed = JSON.parse(localRaw);
+          return normalizeAppState(parsed);
         }
       }
     } catch (e) {
@@ -303,6 +332,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (!currentUser) {
         console.log('[AUTH] onAuthStateChanged: No user (logged out)');
+        const isGuestMode = localStorage.getItem('fmge_guest_mode') === 'true';
+        if (isGuestMode) {
+          console.log('[AUTH] Preserving active guest session on auth resolution');
+          setIsGuest(true);
+          setUser(null);
+          setIsLoading(false);
+          setIsRestoringData(false);
+          setSyncStatus('synced');
+          setProfile((prev) => {
+            if (prev) return prev;
+            try {
+              const saved = localStorage.getItem('fmge_guest_profile');
+              if (saved) return JSON.parse(saved);
+            } catch {}
+            return {
+              uid: 'guest_local_user',
+              email: 'local@device',
+              displayName: 'Dr. Aspirant',
+              createdAt: new Date().toISOString(),
+              lastActiveAt: new Date().toISOString(),
+              examDate: '2026-10-15',
+              targetScore: 185,
+              dailyHoursTarget: 6,
+              onboardingCompleted: localStorage.getItem('fmge_guest_onboarded') === 'true',
+            };
+          });
+          return;
+        }
+
         cleanupUserSession();
         setUser(null);
         setIsLoading(false);
@@ -351,21 +409,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const localCachedState = loadUserLocalCache(currentUser.uid);
         const pendingLocalState = getPendingOfflineWrite(currentUser.uid);
 
-        // Effective candidate state: combine local cache and pending writes if present
+        // Effective candidate state: combine local cache, pending writes, and any guest progress
         const effectiveLocal = pendingLocalState
           ? (localCachedState ? resolveCloudConflict(localCachedState, pendingLocalState) : pendingLocalState)
           : localCachedState;
 
+        const legacyData = hasLegacyLocalData() ? getLegacyLocalData() : null;
+        const candidateLocal = effectiveLocal
+          ? (legacyData ? resolveCloudConflict(effectiveLocal, legacyData) : effectiveLocal)
+          : legacyData;
+
         let resolvedState: AppState | null = null;
         let requiresCloudSave = false;
 
-        if (effectiveLocal && cloudState) {
+        if (candidateLocal && cloudState) {
           // Reconcile differences deterministically so local progress is never erased by stale cloud snapshots
-          resolvedState = resolveCloudConflict(effectiveLocal, cloudState);
+          resolvedState = resolveCloudConflict(candidateLocal, cloudState);
           requiresCloudSave = JSON.stringify(resolvedState) !== JSON.stringify(cloudState);
-        } else if (effectiveLocal) {
+        } else if (candidateLocal) {
           // Local progress exists but no cloud state found yet (or network was down) -> preserve local state as ground truth
-          resolvedState = effectiveLocal;
+          resolvedState = candidateLocal;
           requiresCloudSave = true;
         } else if (cloudState) {
           resolvedState = cloudState;
@@ -549,6 +612,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         onboardingCompleted: hasOnboarded,
       };
       setProfile(guestProfile);
+      localStorage.setItem('fmge_guest_profile', JSON.stringify(guestProfile));
       if (!hasOnboarded) {
         setShowOnboarding(true);
       }
@@ -691,10 +755,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const flushImmediately = () => {
       const uid = activeUidRef.current;
       const stateToSave = pendingStateRef.current || appStateRef.current;
-      if (uid && stateToSave) {
+      if (stateToSave) {
         try {
-          saveUserLocalCache(uid, stateToSave);
-          savePendingOfflineWrite(uid, stateToSave);
+          if (DEV_AUTH_BYPASS) {
+            localStorage.setItem('fmge_study_tracker_dev', JSON.stringify(stateToSave));
+          } else if (isGuest || localStorage.getItem('fmge_guest_mode') === 'true') {
+            localStorage.setItem('fmge_study_tracker_v2', JSON.stringify(stateToSave));
+          } else if (uid) {
+            saveUserLocalCache(uid, stateToSave);
+            savePendingOfflineWrite(uid, stateToSave);
+          }
         } catch (e) {
           console.warn('Failed synchronous unload save:', e);
         }
@@ -722,10 +792,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateAppState = useCallback((updater: (prev: AppState) => AppState | AppState) => {
     setAppState((prev) => {
       const next = typeof updater === 'function' ? (updater as (prev: AppState) => AppState)(prev) : updater;
+      appStateRef.current = next;
+      try {
+        if (DEV_AUTH_BYPASS) {
+          localStorage.setItem('fmge_study_tracker_dev', JSON.stringify(next));
+        } else if (isGuest || localStorage.getItem('fmge_guest_mode') === 'true') {
+          localStorage.setItem('fmge_study_tracker_v2', JSON.stringify(next));
+        } else {
+          const targetUid = user?.uid || activeUidRef.current;
+          if (targetUid) {
+            saveUserLocalCache(targetUid, next);
+            savePendingOfflineWrite(targetUid, next);
+          }
+          // Always mirror to general local storage and rolling snapshots as a safety fallback
+          localStorage.setItem('fmge_study_tracker_v2', JSON.stringify(next));
+          createLocalSnapshot(next);
+        }
+      } catch (err) {
+        console.warn('Failed synchronous local save in updateAppState:', err);
+      }
       scheduleCloudSave(next);
       return next;
     });
-  }, [scheduleCloudSave]);
+  }, [scheduleCloudSave, isGuest, user]);
 
   const saveFmgeSprintProgress = useCallback((sprint: NonNullable<AppState['fmgeSprint']>) => {
     const uid = user?.uid;
@@ -788,11 +877,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAppState((prev) => {
       const { updatedState, attempt } = recordMcqAttempt(prev, input);
       recordedAttempt = attempt;
+      appStateRef.current = updatedState;
+      try {
+        if (DEV_AUTH_BYPASS) {
+          localStorage.setItem('fmge_study_tracker_dev', JSON.stringify(updatedState));
+        } else if (isGuest || localStorage.getItem('fmge_guest_mode') === 'true') {
+          localStorage.setItem('fmge_study_tracker_v2', JSON.stringify(updatedState));
+        } else if (user?.uid) {
+          saveUserLocalCache(user.uid, updatedState);
+          savePendingOfflineWrite(user.uid, updatedState);
+        }
+      } catch (e) {
+        console.warn('Failed synchronous local save in recordQuestionAttempt:', e);
+      }
       scheduleCloudSave(updatedState);
       return updatedState;
     });
     return recordedAttempt!;
-  }, [scheduleCloudSave]);
+  }, [scheduleCloudSave, isGuest, user]);
 
   // Force sync immediately
   const forceSyncToCloud = async () => {
@@ -884,8 +986,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      if (isGuest) {
+      if (isGuest || localStorage.getItem('fmge_guest_mode') === 'true') {
         localStorage.removeItem('fmge_guest_mode');
+        localStorage.removeItem('fmge_guest_profile');
+        localStorage.removeItem('fmge_guest_onboarded');
         setIsGuest(false);
         setProfile(null);
         cleanupUserSession();
@@ -914,6 +1018,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           localStorage.setItem('fmge_dev_profile', JSON.stringify(updated));
         } catch {}
+        return updated;
+      });
+
+      updateAppState((prev) => ({
+        ...prev,
+        settings: {
+          ...prev.settings,
+          userName: updates.displayName ?? prev.settings.userName,
+          examDate: updates.examDate ?? prev.settings.examDate,
+          targetScore: updates.targetScore ?? prev.settings.targetScore,
+          dailyStudyHourGoal: updates.dailyHoursTarget ?? prev.settings.dailyStudyHourGoal,
+        },
+      }));
+      return;
+    }
+
+    if (isGuest || localStorage.getItem('fmge_guest_mode') === 'true') {
+      setProfile((prev) => {
+        const updated = prev ? { ...prev, ...updates } : null;
+        if (updated) {
+          try {
+            localStorage.setItem('fmge_guest_profile', JSON.stringify(updated));
+          } catch {}
+        }
         return updated;
       });
 

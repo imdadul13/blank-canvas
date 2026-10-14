@@ -202,6 +202,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
   const [questions, setQuestions] = useState<PracticeSessionQuestion[]>([]);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [confidence, setConfidence] = useState<'guess' | 'low' | 'high'>('high');
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -356,13 +357,14 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
       correctAnswer: currentQ.correctAnswer,
       timeTakenSeconds: timeTaken,
       difficulty: 'high-yield',
-      confidence: 'high',
+      confidence,
       source: 'recommended_video_practice',
       sessionId: activeSessionId,
       isImageBased: Boolean(currentQ.imageUrl),
       imageCategory: currentQ.imageAsset?.imageCategory || currentQ.mediaType,
       imageUrl: currentQ.imageUrl,
       imageAssetId: currentQ.imageAsset?.assetId,
+      notes: currentQ.question,
     });
 
     setIsAnswerSubmitted(true);
@@ -407,6 +409,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
       setCurrentIdx((prev) => prev + 1);
       setSelectedOption(null);
       setIsAnswerSubmitted(false);
+      setConfidence('high');
       questionStartTimeRef.current = Date.now();
     } else {
       // Session Complete -> Compute Summary
@@ -1190,6 +1193,45 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                         </motion.button>
                       );
                     })}
+
+                    {/* Confidence Level Selector */}
+                    {selectedOption && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="pt-2"
+                      >
+                        <div className="flex items-center justify-between mb-1.5 px-0.5">
+                          <span className="text-xs font-semibold text-[#4A5553]">
+                            Confidence Level
+                          </span>
+                          <span className="text-[11px] text-[#8C9895]">
+                            Guessed answers enter review queue
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#F1F5F4] rounded-xl border border-[#DCE4E1]">
+                          {([
+                            { value: 'guess', label: 'Guessed' },
+                            { value: 'low', label: 'Unsure' },
+                            { value: 'high', label: 'Confident' },
+                          ] as const).map((item) => (
+                            <button
+                              key={item.value}
+                              type="button"
+                              aria-pressed={confidence === item.value}
+                              onClick={() => setConfidence(item.value)}
+                              className={`py-2 px-3 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                                confidence === item.value
+                                  ? 'bg-white text-[#007AFF] shadow-xs'
+                                  : 'text-[#6E6E73] hover:text-[#1C1C1E]'
+                              }`}
+                            >
+                              {item.label}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
                   </div>
                 ) : (
                   /* Post-Answer State (Stage 3C — Redesigned Answer & Explanation Experience) */

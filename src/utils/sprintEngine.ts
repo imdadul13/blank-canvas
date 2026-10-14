@@ -100,26 +100,26 @@ export const SPRINT_TIERS: SprintSubjectTier[] = [
 ];
 
 export const SPRINT_DAYS: SprintDay[] = [
-  { title: 'Baseline · mixed diagnostic', subjects: [], focus: 'Start with a timed 50-question mixed set. Review every wrong, guessed and slow answer; this is a diagnostic, not a prediction of your final score.', questions: 50 },
-  { title: 'Medicine · foundations & emergencies', subjects: ['medicine'], focus: 'Approach, common presentations, ECG, shock, fluids and emergency first steps.', questions: 60 },
-  { title: 'Medicine · systems & image cases', subjects: ['medicine'], focus: 'Cardiology, respiratory, neurology, renal and endocrine patterns; review ECGs and radiology.', questions: 60 },
-  { title: 'Surgery · core decisions', subjects: ['surgery'], focus: 'Trauma, acute abdomen, fluids, wound healing, breast and thyroid; practise the next best step.', questions: 60 },
-  { title: 'Obstetrics & gynaecology', subjects: ['obg'], focus: 'Antenatal care, labour, obstetric emergencies, contraception, malignancy and key thresholds.', questions: 60 },
-  { title: 'Pediatrics', subjects: ['pediatrics'], focus: 'Growth, development, vaccines, neonatology, nutrition and common pediatric emergencies.', questions: 50 },
-  { title: 'PSM · prevention & programs', subjects: ['psm'], focus: 'Screening, epidemiology, biostatistics, national programs and prevention levels.', questions: 50 },
-  { title: 'Pathology', subjects: ['pathology'], focus: 'General pathology, hematology, neoplasia and image-based morphology.', questions: 50 },
-  { title: 'Pharmacology', subjects: ['pharmacology'], focus: 'Mechanisms, adverse effects, antidotes, interactions and drug of choice.', questions: 50 },
-  { title: 'Microbiology', subjects: ['microbiology'], focus: 'Organism-to-disease links, lab diagnosis, vaccines and antimicrobial choices.', questions: 50 },
-  { title: 'Anatomy & physiology', subjects: ['anatomy', 'physiology'], focus: 'Neuroanatomy, nerves, embryology, reflexes and high-yield physiology graphs.', questions: 50 },
-  { title: 'Biochemistry & forensic medicine', subjects: ['biochemistry', 'fmt'], focus: 'Metabolic diseases, vitamins, molecular methods, toxicology and legal essentials.', questions: 50 },
-  { title: 'ENT & ophthalmology', subjects: ['ent', 'ophthalmology'], focus: 'Visual and clinical spotters, red flags, common nerve lesions and first-line management.', questions: 50 },
-  { title: 'Short subjects & radiotherapy', subjects: ['dermatology', 'psychiatry', 'orthopedics', 'radiology', 'anesthesia'], focus: 'Recognize classic images, emergency actions, common drugs and frequently confused pairs; include core radiotherapy principles because it carries a separate 5-mark blueprint allocation.', questions: 60 },
-  { title: 'Checkpoint · mixed timed set', subjects: [], focus: 'Take a timed 100-question mixed set. Compare accuracy and pacing with your baseline, then use the next study blocks for the weakest areas.', questions: 100, checkpoint: true },
-  { title: 'Repair your highest-impact gaps', subjects: [], focus: 'Use recent question accuracy, uncertain answers and mock weaknesses to choose two priority subjects. Revisit missed concepts before new content.', questions: 70 },
-  { title: 'Checkpoint · full mock', subjects: [], focus: 'Complete a 300-question mock as two 150-question blocks, each timed for 150 minutes, with a break between them. Review wrong, guessed and skipped answers, then record weak subjects in Grand Tests.', questions: 300, fullMock: true, checkpoint: true },
-  { title: 'Repair the final gaps', subjects: [], focus: 'Target the three weakest subjects from your mock; finish image questions and revisit your error list.', questions: 80 },
-  { title: 'Final checkpoint · mixed recall', subjects: [], focus: 'Do a 100-question mixed set, or a full mock only if you are rested and have not completed one recently. Review recurring errors; avoid exhausting yourself before the exam.', questions: 100, checkpoint: true },
-  { title: 'Exam eve · light recall & rest', subjects: [], focus: 'Review only your own concise error list, essential images and formulas. Prepare exam logistics, stop early, eat normally and protect sleep. No full mock or new chapters.', questions: 20, restDay: true },
+  { title: 'Baseline · mixed diagnostic', subjects: [], focus: 'Diagnostic 50-question mixed set to establish baseline accuracy and pacing across disciplines.', questions: 50 },
+  { title: 'Foundation & high-yield setup', subjects: ['medicine'], focus: 'Approach, common presentations, ECG, shock, fluids and emergency first steps.', questions: 50 },
+  { title: 'Pre-sprint review & recall kickstart', subjects: ['surgery'], focus: 'Trauma triage, acute abdomen, burns Parkland formula, wound healing and core algorithms.', questions: 50 },
+  { title: 'Obstetrics & Gynaecology · Part 1', subjects: ['obg'], focus: 'Antenatal care, labor partogram, eclampsia (Pritchard regimen), PPH algorithm and obstetric emergencies.', questions: 60 },
+  { title: 'Obstetrics & Gynaecology · Part 2', subjects: ['obg'], focus: 'Gynaecological oncology (cervical, endometrial, ovarian), contraception methods, USG markers and reproductive endocrinology.', questions: 60 },
+  { title: 'PSM / Community Medicine · Part 1', subjects: ['psm'], focus: 'Epidemiology study designs, biostatistics tests of significance, screening 2x2 tables, sensitivity, specificity and PPV/NPV.', questions: 60 },
+  { title: 'PSM / Community Medicine · Part 2', subjects: ['psm'], focus: 'National health programs (NTEP, NVBDCP), vaccine cold chain, VVM stages, immunization schedule and demographic indicators.', questions: 60 },
+  { title: 'Biochemistry + FMT', subjects: ['biochemistry', 'fmt'], focus: 'Inborn errors of metabolism, vitamin deficiencies, toxicology (organophosphates, snake bite, opioids), thanatology and IPC medical jurisprudence.', questions: 60 },
+  { title: 'Anatomy · Nerves & Relations', subjects: ['anatomy'], focus: 'Brachial plexus, upper & lower limb nerve lesions (foot drop, claw hand), cranial nerve foramina and brainstem cross-sections.', questions: 60 },
+  { title: 'Microbiology · Bugs & Antibiograms', subjects: ['microbiology'], focus: 'Bacterial staining & culture media, virology (hepatitis serology, HIV, rabies), parasitology (malaria, amoebiasis) and infection control.', questions: 60 },
+  { title: 'Pharmacology · Receptors & DOCs', subjects: ['pharmacology'], focus: 'Autonomic nervous system drugs, antimicrobial drugs of choice, cardiovascular pharmacology, antiepileptics and emergency antidotes.', questions: 60 },
+  { title: 'Pathology + Core Physiology', subjects: ['pathology', 'physiology'], focus: 'Neoplasia hallmarks & tumor markers, hematology (leukemias, anemias), glomerulonephritis, Wiggers diagram, cardiac PV loops and countercurrent mechanism.', questions: 60 },
+  { title: 'General Surgery + Orthopedics · Part 1', subjects: ['surgery', 'orthopedics'], focus: 'ATLS trauma primary survey, burns Parkland formula, acute abdomen, pediatric fractures (Colles, Monteggia, Galeazzi) and nerve injuries.', questions: 60 },
+  { title: 'General Surgery + Orthopedics · Part 2', subjects: ['surgery', 'orthopedics'], focus: 'Breast triple assessment, thyroid malignancies, intestinal obstruction, arterial disorders and bone tumors by age & X-ray spotters.', questions: 60 },
+  { title: 'Selective Medicine + Short Subjects · Part 1', subjects: ['medicine', 'dermatology', 'psychiatry'], focus: 'STEMI localization & arrhythmias, diabetic emergencies (DKA vs HHS), bullous disorders (pemphigus vs pemphigoid), schizophrenia and psychopharmacology side effects.', questions: 65 },
+  { title: 'Selective Medicine + Short Subjects · Part 2', subjects: ['medicine', 'radiology', 'anesthesia', 'radiotherapy'], focus: 'Tuberculosis NTEP algorithms, chest X-ray signs, trauma CT head (EDH vs SDH vs SAH), BLS/ACLS CPR guidelines and core radiotherapy principles.', questions: 65 },
+  { title: 'Pediatrics, ENT & Ophthalmology', subjects: ['pediatrics', 'ent', 'ophthalmology'], focus: 'Developmental milestones, neonatal jaundice, congenital heart diseases, otosclerosis, epistaxis, glaucoma, cataract and diabetic retinopathy fundus spotters.', questions: 60 },
+  { title: 'Timed Mixed Recall & Mock Review · Part 1', subjects: [], focus: 'Full 300-question mock exam or two 150-question timed blocks. Simulate exam pacing: 1 minute per question. Review every wrong, guessed and skipped answer.', questions: 300, fullMock: true, checkpoint: true },
+  { title: 'Timed Mixed Recall & Mock Review · Part 2', subjects: [], focus: 'Target recurring traps from mock review, volatile numbers, staging classifications, and 100-question mixed recall blitz.', questions: 100, checkpoint: true },
+  { title: 'Light Revision, Volatile Facts, Image Review & Rest', subjects: [], focus: 'Review only your personalized Error Vault and 20th Notebook, key visual spotters and formulas. Stop early, verify hall ticket and logistics, protect sleep. No heavy testing.', questions: 20, restDay: true },
 ];
 
 export function localDateKey(date = new Date()): string {
@@ -131,20 +131,27 @@ export function localDateKey(date = new Date()): string {
 
 export const FMGE_EXAM_DATE = '2026-10-31';
 
+function resolveSafeExamDate(examDate?: string): string {
+  return examDate && /^\d{4}-\d{2}-\d{2}$/.test(examDate) ? examDate : FMGE_EXAM_DATE;
+}
+
 export function daysUntilFmge(examDate = FMGE_EXAM_DATE): number {
+  const safeExamDate = resolveSafeExamDate(examDate);
   const today = new Date(`${localDateKey()}T12:00:00`);
-  const exam = new Date(`${examDate}T12:00:00`);
+  const exam = new Date(`${safeExamDate}T12:00:00`);
   return Math.max(0, Math.ceil((exam.getTime() - today.getTime()) / 86_400_000));
 }
 
 export function sprintDateForIndex(dayIndex: number, examDate = FMGE_EXAM_DATE): string {
-  const date = new Date(`${examDate}T12:00:00`);
+  const safeExamDate = resolveSafeExamDate(examDate);
+  const date = new Date(`${safeExamDate}T12:00:00`);
   date.setDate(date.getDate() - (SPRINT_DAYS.length - dayIndex));
   return localDateKey(date);
 }
 
 export function sprintDayIndex(_startedOn: string, examDate = FMGE_EXAM_DATE): number {
-  return Math.min(SPRINT_DAYS.length - 1, Math.max(0, 20 - daysUntilFmge(examDate)));
+  const safeExamDate = resolveSafeExamDate(examDate);
+  return Math.min(SPRINT_DAYS.length - 1, Math.max(0, SPRINT_DAYS.length - daysUntilFmge(safeExamDate)));
 }
 
 export function checklistsForPlan(plan: SprintDay, hours: number, questionTarget: number): string[] {
@@ -299,20 +306,31 @@ export function buildAdaptiveSprintDays(
   };
 
   const days = [...SPRINT_DAYS];
-  for (const index of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 17]) {
-    const selected =
-      index < 13
-        ? ranked
-            .filter((subject) => SPRINT_DAYS[index].subjects.includes(subject.id))
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 2)
-        : ranked.slice(0, index === 18 ? 3 : 2);
-    if (selected.length) {
-      days[index] = makeAdaptiveDay(
-        index,
-        selected,
-        hasEvidence ? 'Personalized focus' : 'High-yield focus'
-      );
+  for (let index = 0; index < days.length; index++) {
+    const day = SPRINT_DAYS[index];
+    if (day.restDay) continue;
+
+    if (day.subjects && day.subjects.length > 0) {
+      const selected = ranked
+        .filter((subject) => day.subjects.includes(subject.id))
+        .sort((a, b) => b.score - a.score);
+
+      if (selected.length) {
+        days[index] = makeAdaptiveDay(
+          index,
+          selected,
+          hasEvidence ? 'Personalized focus' : 'High-yield focus'
+        );
+      }
+    } else if ((day.checkpoint || day.fullMock) && hasEvidence) {
+      const topWeak = ranked.slice(0, 2);
+      if (topWeak.length) {
+        const weakNames = topWeak.map((s) => s.name).join(' & ');
+        days[index] = {
+          ...day,
+          focus: `${day.focus} Focus post-test review on your weakest areas: ${weakNames}.`,
+        };
+      }
     }
   }
 

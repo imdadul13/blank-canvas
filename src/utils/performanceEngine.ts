@@ -520,23 +520,44 @@ export function recordMcqAttempt(
     },
   };
 
-  // Automatically record incorrect MCQ attempts into Error Vault
+  // Automatically record incorrect MCQ attempts and uncertain/guessed answers into Error Vault
   let updatedErrorNotebook = state.errorNotebook || [];
-  if (!input.isCorrect) {
-    const alreadyInErrors = updatedErrorNotebook.some(
-      (e) => input.questionId && (e.id === `err-${input.questionId}` || e.id === input.questionId)
+  const isGuess = input.confidence === 'guess';
+  const shouldEnterErrorVault = !input.isCorrect || isGuess;
+
+  if (input.questionId) {
+    const existingIdx = updatedErrorNotebook.findIndex(
+      (e) => e.id === `err-${input.questionId}` || e.id === input.questionId
     );
-    if (!alreadyInErrors) {
+
+    if (existingIdx >= 0) {
+      if (shouldEnterErrorVault) {
+        const existing = updatedErrorNotebook[existingIdx];
+        const updatedCard = {
+          ...existing,
+          myMistake: !input.isCorrect
+            ? (input.selectedAnswer ? `Selected option ${input.selectedAnswer} (Incorrect)` : existing.myMistake)
+            : `Lucky guess (Option ${input.selectedAnswer || 'Correct'}); concept still uncertain`,
+          correctConcept: input.correctAnswer
+            ? `Correct answer: Option ${input.correctAnswer}`
+            : existing.correctConcept,
+          isReviewed: false,
+        };
+        updatedErrorNotebook = updatedErrorNotebook.map((card, i) => (i === existingIdx ? updatedCard : card));
+      }
+    } else if (shouldEnterErrorVault) {
       const newErrorItem = {
-        id: `err-${input.questionId || Date.now()}`,
+        id: `err-${input.questionId}`,
         subjectId: input.subjectId,
-        topic: input.topicName || input.topicId || 'Clinical MCQ Error',
+        topic: input.topicName || input.topicId || (isGuess ? 'Uncertain / Guessed Concept' : 'Clinical MCQ Error'),
         topicId: input.topicId,
         subtopicId: input.subtopicId,
         conceptName: input.subtopic || input.topicName,
-        questionGist: input.notes || `Mistake logged for ${input.topicName || input.subjectId}`,
-        myMistake: `Selected option ${input.selectedAnswer || 'Incorrect'}`,
-        correctConcept: `Correct answer: Option ${input.correctAnswer || 'Verified standard'}`,
+        questionGist: input.notes || `${isGuess ? 'Lucky guess' : 'Mistake'} logged for ${input.topicName || input.subjectId}`,
+        myMistake: !input.isCorrect
+          ? `Selected option ${input.selectedAnswer || 'Incorrect'}`
+          : `Answered correctly by guessing (Option ${input.selectedAnswer || 'Selected'}); fragile recall requires review`,
+        correctConcept: `Correct answer: Option ${input.correctAnswer || input.selectedAnswer || 'Verified standard'}`,
         isReviewed: false,
         dateAdded: new Date().toISOString().split('T')[0],
       };
