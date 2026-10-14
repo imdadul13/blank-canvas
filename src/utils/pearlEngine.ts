@@ -418,6 +418,62 @@ export const VERIFIED_TOPIC_PEARLS: Record<string, TopicHighYieldPearl[]> = {
       discriminatorTip: 'Absolute refractory period is caused by closed-inactivated Na+ channel gates.',
     },
   ],
+
+  // Neurology - Epilepsy Classification & Antiepileptic Drugs
+  'med-10': [
+    {
+      id: 'pearl-med-10-1',
+      topicId: 'med-10',
+      subjectId: 'medicine',
+      statement: 'Juvenile Myoclonic Epilepsy (JME / Janz syndrome) classic triad: Morning myoclonic jerks (dropping items shortly after waking) + GTCS precipitated by sleep deprivation/alcohol + Absence seizures (~30%).',
+      category: 'Epilepsy Syndromes',
+      discriminatorTip: 'EEG shows 4–6 Hz generalized polyspike-and-wave discharges accentuated by photic flicker.',
+    },
+    {
+      id: 'pearl-med-10-2',
+      topicId: 'med-10',
+      subjectId: 'medicine',
+      statement: 'In females of childbearing potential with JME, first-line therapy is Levetiracetam or Lamotrigine. Sodium Valproate is avoided due to severe teratogenicity (neural tube defects e.g., spina bifida and cognitive impairment).',
+      category: 'Teratogenicity & Treatment',
+      examTrapWarning: 'Carbamazepine, Phenytoin, and Oxcarbazepine are strictly contraindicated in JME because sodium channel blockers selectively aggravate myoclonic and absence seizures.',
+    },
+    {
+      id: 'pearl-med-10-3',
+      topicId: 'med-10',
+      subjectId: 'medicine',
+      statement: 'Status Epilepticus protocol: Seizure lasting >= 5 minutes (T1) requires immediate intervention. Phase 1 (0–5 min): IV Lorazepam 4 mg push. Phase 2 (10–20 min, established): IV Levetiracetam (60 mg/kg), IV Fosphenytoin (20 mg PE/kg), or IV Valproate (40 mg/kg) with equivalent ~50% efficacy per the ESETT trial.',
+      category: 'Emergency Protocol',
+      discriminatorTip: 'Refractory status (>20-30 min) requires intubation and continuous general anesthetic infusion (Propofol or Midazolam) titrated to burst suppression.',
+    },
+  ],
+
+  // Pharmacology - Anti-epileptics (Teratogenicity & Spectrum)
+  'pharm-5': [
+    {
+      id: 'pearl-pharm-5-1',
+      topicId: 'pharm-5',
+      subjectId: 'pharmacology',
+      statement: 'Ethosuximide is the drug of choice for pure childhood absence seizures (3 Hz spike-and-wave EEG) by blocking low-threshold T-type Ca2+ channels in the thalamus.',
+      category: 'Drug Mechanisms',
+      discriminatorTip: 'Ethosuximide has no efficacy against generalized tonic-clonic seizures.',
+    },
+    {
+      id: 'pearl-pharm-5-2',
+      topicId: 'pharm-5',
+      subjectId: 'pharmacology',
+      statement: 'Sodium Valproate carries the highest teratogenic risk of any antiepileptic (1-2% risk of neural tube defects / spina bifida). In reproductive-age females with JME, Levetiracetam or Lamotrigine is preferred.',
+      category: 'Teratogenic Toxicity',
+      examTrapWarning: 'Never give Carbamazepine, Phenytoin, or Vigabatrin in JME or absence seizures—they trigger paradoxical seizure aggravation.',
+    },
+    {
+      id: 'pearl-pharm-5-3',
+      topicId: 'pharm-5',
+      subjectId: 'pharmacology',
+      statement: 'Phase 1 Status Epilepticus DOC = IV Lorazepam (0.1 mg/kg, 4 mg IV bolus); if no IV access, give IM Midazolam (10 mg). Phase 2 non-sedating ASM = IV Levetiracetam (60 mg/kg) or IV Fosphenytoin (20 mg PE/kg).',
+      category: 'Emergency Pharmacology',
+      discriminatorTip: 'Fosphenytoin avoids the purple glove syndrome and cardiac arrhythmias associated with propylene glycol in IV Phenytoin.',
+    },
+  ],
 };
 
 /**

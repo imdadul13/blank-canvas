@@ -1341,6 +1341,141 @@ export const FMGE_TOPIC_KNOWLEDGE_BASE: Record<string, MedicalTopicKnowledge> = 
     },
   },
 
+  // =================== 13. NEUROLOGY / MEDICINE ===================
+  'med-10': {
+    topicId: 'med-10',
+    subjectId: 'medicine',
+    topicTitle: 'Neurology - Epilepsy Classification & Antiepileptic Drugs',
+    highYieldSummary: 'ILAE Classification categorizes seizures by onset (Focal vs Generalized) and defines specific syndromes (JME, Childhood Absence, Lennox-Gastaut, West syndrome). Juvenile Myoclonic Epilepsy (JME / Janz syndrome) presents in adolescents with morning myoclonic jerks (dropping items upon waking) + GTCS + absence, with 4–6 Hz polyspike-wave EEG. In females of childbearing potential, first-line is Levetiracetam or Lamotrigine; Sodium Valproate is avoided due to teratogenicity (neural tube defects), while Carbamazepine and Phenytoin are strictly contraindicated as they aggravate myoclonus. Status Epilepticus (convulsive seizure ≥ 5 min) protocol: Phase 1 (0–5 min) IV Lorazepam 0.1 mg/kg; Phase 2 (10–20 min, established) non-sedating IV ASM (Levetiracetam, Fosphenytoin, or Valproate per ESETT); Phase 3 (>20–30 min, refractory) general anesthesia with IV Propofol/Midazolam + intubation.',
+    coreConcepts: [
+      'ILAE 2017/2022 Seizure & Epilepsy Classification: Seizures are categorized by onset into Focal (focal aware, focal impaired awareness, focal motor/non-motor, focal evolving to bilateral tonic-clonic), Generalized (motor: tonic-clonic, myoclonic, atonic, clonic; non-motor: typical 3 Hz spike-and-wave absence, atypical absence), and Unknown onset. Epilepsy syndromes represent specific constellations (JME, Childhood Absence, West syndrome, Lennox-Gastaut).',
+      'Juvenile Myoclonic Epilepsy (JME / Janz Syndrome): Classic Triad: 1) Myoclonic jerks (bilateral shock-like jerks of upper extremities shortly after waking in the morning, dropping breakfast/brush/phone without loss of consciousness); 2) Generalized tonic-clonic seizures (provoked by sleep deprivation, alcohol, photic flicker); 3) Absence seizures (~30%). EEG Hallmark: 4–6 Hz generalized polyspike-and-wave discharges with normal interictal background, precipitated by photic stimulation.',
+      'Antiseizure Medication Selection & Critical Caveats in JME: Broad-spectrum agents (Valproate, Levetiracetam, Lamotrigine, Topiramate) treat both myoclonus and GTCS. In females of childbearing potential (e.g. 16-year-old female), LEVETIRACETAM or LAMOTRIGINE is first-line because Sodium Valproate causes severe teratogenicity (neural tube defects e.g. spina bifida, cardiac defects, autism, reduced IQ). Narrow-spectrum sodium channel blockers (Carbamazepine, Oxcarbazepine, Phenytoin) and GABA reuptake inhibitors (Tiagabine, Vigabatrin) are STRICTLY CONTRAINDICATED because they exacerbate myoclonic and absence seizures and can precipitate status epilepticus.',
+      'Status Epilepticus Management Protocol (ILAE/AES Guidelines): Defined as convulsive seizure activity ≥ 5 minutes (T1) without recovery of baseline consciousness. Phase 1 Emergent (0–5/10 min): Airway/oxygen, IV access, blood glucose test (50% Dextrose + Thiamine if hypoglycemic). Drug of Choice: IV Lorazepam 0.1 mg/kg (4 mg IV push over 2 min; repeat once at 5–10 min if seizing continues). Alternative if no IV: IM Midazolam (10 mg for >40 kg) or Rectal Diazepam (0.2 mg/kg).',
+      'Established & Refractory Status Epilepticus (Phases 2 & 3): Phase 2 Established (10–20/40 min): If seizure continues > 5–10 min after benzodiazepine, infuse non-sedating IV ASM (ESETT trial demonstrated equivalent ~50% efficacy): IV Levetiracetam (60 mg/kg, max 4500 mg over 10 min), IV Fosphenytoin (20 mg PE/kg, max 1500 mg PE, rate ≤ 150 mg PE/min with ECG telemetry), or IV Sodium Valproate (40 mg/kg, max 3000 mg over 5–10 min). Phase 3 Refractory (>20–40 min): Requires endotracheal intubation, ICU admission, and continuous IV infusion of general anesthetics (Propofol 2–10 mg/kg/hr or Midazolam 0.05–2 mg/kg/hr) titrated to burst suppression on continuous EEG.',
+    ],
+    keyTakeaways: [
+      'JME Triad = Morning myoclonic jerks (dropping cup/phone) + GTCS after sleep loss + Absence seizures.',
+      'JME EEG = 4–6 Hz generalized polyspike-and-wave discharges, photic stimulation sensitive.',
+      'JME in female of childbearing potential = DOC is Levetiracetam or Lamotrigine (Valproate avoided: teratogenicity / spina bifida).',
+      'Carbamazepine, Phenytoin, Oxcarbazepine STRICTLY CONTRAINDICATED in JME / Absence (aggravate myoclonus).',
+      'Status Epilepticus (>= 5 min) = IV Lorazepam (0-5m) -> IV Levetiracetam / Fosphenytoin / Valproate (10-20m) -> IV Propofol/Midazolam (Refractory).',
+    ],
+    goldStandardTest: 'Routine & Sleep-deprived Video-EEG telemetry (shows 4-6 Hz generalized polyspike-and-wave discharges in JME); 3T Brain MRI (epilepsy protocol) to rule out structural epileptogenic lesions.',
+    firstLineTreatment: 'In 16yo female with JME: Levetiracetam or Lamotrigine (Valproate avoided due to teratogenicity); In Status Epilepticus: IV Lorazepam 4 mg push (Phase 1) followed by IV Levetiracetam 60 mg/kg or IV Fosphenytoin 20 mg PE/kg (Phase 2).',
+    classicPresentation: 'A 16-year-old female presents with bilateral shock-like morning arm jerks causing her to drop her phone after waking, with a generalized tonic-clonic seizure following all-night exam study. EEG reveals 4–6 Hz generalized polyspike-wave discharges (Juvenile Myoclonic Epilepsy).',
+    examTrap: 'Carbamazepine, Phenytoin, and Oxcarbazepine are strictly contraindicated in JME because sodium channel blockers selectively aggravate myoclonic and absence seizures. In females of childbearing age, never initiate Sodium Valproate without documented specialist risk evaluation due to severe teratogenic risk (neural tube defects).',
+    flashcards: [
+      {
+        front: 'What is the characteristic clinical triad and EEG hallmark of Juvenile Myoclonic Epilepsy (JME / Janz syndrome)?',
+        back: 'Triad: 1) Morning bilateral myoclonic jerks (dropping objects upon waking);\n2) Generalized tonic-clonic seizures (provoked by sleep loss/alcohol);\n3) Absence seizures (in ~30% of patients).\nEEG: Bilateral synchronous 4–6 Hz polyspike-and-wave discharges on a normal background.',
+        clinicalPearl: 'Accentuated by intermittent photic stimulation and hyperventilation; morning clumsiness is the key clinical clue.',
+      },
+      {
+        front: 'In a 16-year-old female diagnosed with JME, what is the preferred first-line antiseizure medication and why is Sodium Valproate avoided?',
+        back: 'Preferred first-line: Oral Levetiracetam or Lamotrigine.\nSodium Valproate is avoided in females of childbearing potential due to high teratogenicity (neural tube defects like spina bifida, cardiac malformations, and 30-40% risk of neurodevelopmental delay/autism).',
+        clinicalPearl: 'Valproate should not be used in women of childbearing potential unless no suitable alternative exists and a pregnancy prevention plan is in place.',
+      },
+      {
+        front: 'Which commonly prescribed antiseizure medications are strictly contraindicated in JME and why?',
+        back: 'Narrow-spectrum sodium channel blockers: Carbamazepine, Oxcarbazepine, Phenytoin, plus Vigabatrin and Tiagabine.\nMechanism: They selectively exacerbate myoclonic jerks and absence seizures, potentially precipitating status epilepticus.',
+        clinicalPearl: 'Ethosuximide controls absence seizures, but does not protect against generalized tonic-clonic seizures in JME.',
+      },
+      {
+        front: 'What is the emergency pharmacological protocol for Phase 1 (0–5 min) Convulsive Status Epilepticus?',
+        back: 'First-line: IV Lorazepam 0.1 mg/kg (typically 4 mg IV push over 2 minutes; may repeat once at 5–10 min if seizing continues).\nIf no IV access: IM Midazolam 10 mg (>40 kg) or Rectal Diazepam 0.2 mg/kg.',
+        clinicalPearl: 'Seizure activity lasting >= 5 minutes represents status epilepticus (T1) requiring immediate pharmacotherapy.',
+      },
+      {
+        front: 'If convulsive status epilepticus persists beyond 10 minutes despite initial benzodiazepine, what is the established Phase 2 treatment?',
+        back: 'Infuse non-sedating IV Antiseizure Medication (ESETT trial demonstrated equivalent efficacy):\n1. IV Levetiracetam 60 mg/kg (max 4500 mg over 10 min) OR\n2. IV Fosphenytoin 20 mg PE/kg (max 1500 mg PE, max rate 150 mg PE/min) OR\n3. IV Sodium Valproate 40 mg/kg (max 3000 mg over 5–10 min).',
+        clinicalPearl: 'Refractory status (>20-30 min) requires intubation and continuous general anesthetic infusion (Propofol or Midazolam) titrated to EEG burst suppression.',
+      },
+    ],
+    clinicalCase: {
+      title: 'Adolescent Female with Morning Jerks & Exam-Related Convulsion',
+      patientDemographics: '16-year-old female high school student',
+      presentation: 'Brought to the neurology clinic by her parents after having a convulsive episode this morning. Her parents report that for the past 6 months, she has had sudden clumsy "electric shock-like" jerks of both arms within 30 to 60 minutes of waking, frequently spilling her breakfast cereal or dropping her school bag. Last night she stayed awake all night studying for her biology finals, and this morning she had a 2-minute generalized tonic-clonic seizure followed by confusion.',
+      physicalExamOrLabs: 'Neurological examination is completely normal. Sleep-deprived EEG demonstrates bilateral synchronous 4.5 Hz generalized polyspike-and-wave complexes on a normal background, markedly accentuated during photic stimulation.',
+      diagnosticQuestion: 'Which of the following represents the most appropriate long-term antiseizure monotherapy for this patient?',
+      options: [
+        { key: 'A', text: 'Oral Levetiracetam monotherapy', isCorrect: true },
+        { key: 'B', text: 'Oral Carbamazepine monotherapy', isCorrect: false },
+        { key: 'C', text: 'Oral Sodium Valproate monotherapy without pregnancy prevention counseling', isCorrect: false },
+        { key: 'D', text: 'Oral Phenytoin monotherapy', isCorrect: false },
+      ],
+      clinicalExplanation: 'This patient presents with Juvenile Myoclonic Epilepsy (JME / Janz syndrome), characterized by morning myoclonic jerks, generalized tonic-clonic seizures precipitated by sleep deprivation, and 4-6 Hz polyspike-wave EEG. In a 16-year-old female of childbearing potential, LEVETIRACETAM (or Lamotrigine) is the preferred first-line agent. Sodium Valproate is a broad-spectrum agent but carries an unacceptably high risk of teratogenicity (neural tube defects like spina bifida, cardiac malformations, and autism/cognitive reduction) and is contraindicated in females of childbearing potential unless other drugs fail and a strict pregnancy prevention programme is implemented. Carbamazepine and Phenytoin are sodium channel blockers that selectively aggravate myoclonus and absence seizures in JME and are strictly contraindicated.',
+      examPearl: 'JME in females of childbearing potential: DOC = Levetiracetam or Lamotrigine. Sodium Valproate = Teratogenic. Carbamazepine/Phenytoin = AGGRAVATE myoclonic seizures.',
+    },
+  },
+
+  // =================== 14. PHARMACOLOGY ===================
+  'pharm-5': {
+    topicId: 'pharm-5',
+    subjectId: 'pharmacology',
+    topicTitle: 'CNS - Anti-epileptics (Teratogenicity & Spectrum)',
+    highYieldSummary: 'Antiseizure medications (ASMs) are stratified into Broad-Spectrum (Valproate, Levetiracetam, Lamotrigine, Topiramate - effective for focal, GTCS, myoclonic, absence) and Narrow-Spectrum (Carbamazepine, Phenytoin, Oxcarbazepine - effective for focal seizures but AGGRAVATE myoclonic and absence seizures). Ethosuximide selectively blocks T-type Ca2+ channels in thalamus for pure absence seizures. Sodium Valproate is the most teratogenic ASM (neural tube defects: spina bifida, facial clefts, autism); in young females with JME, Levetiracetam or Lamotrigine is preferred. Status Epilepticus (convulsive seizure >= 5 min): Phase 1 (0-5m) IV Lorazepam 0.1 mg/kg; Phase 2 (10-20m) non-sedating IV ASM (Levetiracetam, Fosphenytoin, Valproate); Phase 3 (>20-30m) IV Propofol/Midazolam.',
+    coreConcepts: [
+      'Broad vs Narrow Spectrum Antiseizure Medications: Broad-spectrum (Levetiracetam, Lamotrigine, Valproate, Topiramate) treat both focal and generalized onset seizures. Narrow-spectrum sodium channel blockers (Carbamazepine, Phenytoin, Oxcarbazepine) treat focal seizures but worsen generalized myoclonic and absence seizures.',
+      'Absence Seizures & Ethosuximide: Drug of choice for pure childhood absence seizures is Ethosuximide (blocks low-threshold T-type Ca2+ channels in thalamic relay neurons). Characteristic 3 Hz spike-and-wave on EEG. Second-line: Sodium Valproate. Carbamazepine is contraindicated (worsens absence).',
+      'Teratogenicity & Drug Safety in Women: Valproate has the highest teratogenic risk (>10% major malformations, specifically neural tube defects e.g. spina bifida, plus neurocognitive deficits). Lamotrigine and Levetiracetam have the lowest documented malformation rates and are preferred in females of childbearing potential. High-dose Folic acid (5 mg/day) is co-administered to reduce neural tube risk.',
+      'Status Epilepticus Pharmacotherapy Algorithm: T1 (5 min) - initiate treatment immediately. Phase 1 (0–5 min): IV Lorazepam 4 mg push (or IM Midazolam 10 mg / Rectal Diazepam 0.2 mg/kg). Phase 2 (10–20 min): IV Levetiracetam 60 mg/kg (max 4500 mg), IV Fosphenytoin 20 mg PE/kg (max 1500 mg PE), or IV Valproate 40 mg/kg (ESETT trial). Phase 3 Refractory (>20–30 min): IV Propofol (1-2 mg/kg bolus + infusion) or IV Midazolam infusion + intubation.',
+      'Mechanisms & Distinctive Toxicities: Carbamazepine: Voltage-gated Na+ channel blocker, inducer of CYP3A4 (autoinduction), causes SIADH/hyponatremia, agranulocytosis, SJS/TEN (HLA-B*1502). Phenytoin: Zero-order kinetics at therapeutic doses, gingival hyperplasia, hirsutism, cerebellar ataxia, megaloblastic anemia. Lamotrigine: Blocks Na+ and glutamate release, risk of Stevens-Johnson syndrome (titrate slowly). Vigabatrin: Irreversible visual field constriction.',
+    ],
+    keyTakeaways: [
+      'DOC for pure Absence seizures = Ethosuximide (T-type Ca2+ channel blocker; 3 Hz spike-wave EEG).',
+      'DOC for JME in females of childbearing potential = Levetiracetam or Lamotrigine (Valproate causes neural tube defects).',
+      'Drugs that worsen myoclonus & absence = Carbamazepine, Phenytoin, Oxcarbazepine, Vigabatrin.',
+      'Phase 1 Status Epilepticus DOC = IV Lorazepam (4 mg push); Phase 2 = IV Levetiracetam, Fosphenytoin, or Valproate.',
+      'Carbamazepine side effects = Hyponatremia (SIADH), agranulocytosis, SJS (HLA-B*1502 screening in Asians).',
+    ],
+    goldStandardTest: 'Therapeutic Drug Monitoring (TDM) for narrow therapeutic index ASMs (Phenytoin: 10–20 mcg/mL, Carbamazepine: 4–12 mcg/mL); Video-EEG for syndromic classification.',
+    firstLineTreatment: 'Absence: Ethosuximide; JME (young female): Levetiracetam; Status Epilepticus: IV Lorazepam (Phase 1) followed by IV Levetiracetam or IV Fosphenytoin (Phase 2).',
+    classicPresentation: 'A 7-year-old schoolchild experiencing 10-second episodes of sudden unresponsiveness with eyelid fluttering during classes (absence seizures with 3 Hz spike-and-wave EEG), successfully managed with Ethosuximide.',
+    examTrap: 'Carbamazepine and Phenytoin worsen Absence and Myoclonic seizures! Never choose them for JME or pure absence.',
+    flashcards: [
+      {
+        front: 'What is the molecular mechanism of action and clinical indication for Ethosuximide?',
+        back: 'Mechanism: Selective blockade of T-type voltage-sensitive Ca2+ channels in thalamocortical relay neurons.\nIndication: First-line Drug of Choice for pure Childhood Absence Seizures (3 Hz spike-wave EEG).',
+        clinicalPearl: 'Does NOT treat generalized tonic-clonic seizures or focal seizures.',
+      },
+      {
+        front: 'Why is Sodium Valproate avoided in females of childbearing potential and what are its major teratogenic risks?',
+        back: 'Teratogenic risks: Neural tube defects (spina bifida / myelomeningocele: 1–2% incidence), craniofacial clefts, congenital cardiac defects, and dose-dependent long-term neurocognitive impairment / autism in exposed infants.',
+        clinicalPearl: 'Levetiracetam and Lamotrigine are the safest first-line alternatives in women of reproductive age.',
+      },
+      {
+        front: 'Which antiseizure medications are notorious for causing Stevens-Johnson Syndrome (SJS) and which pharmacogenetic test is recommended?',
+        back: 'Carbamazepine, Lamotrigine, and Phenytoin.\nPharmacogenetic screen: HLA-B*1502 allele screening (strongly associated with SJS/TEN in Asian / South Asian populations exposed to Carbamazepine).',
+        clinicalPearl: 'Lamotrigine must be escalated with a very slow dose-titration schedule to prevent severe cutaneous adverse reactions.',
+      },
+      {
+        front: 'What are the characteristic adverse effects of long-term Phenytoin therapy?',
+        back: '1. Gingival hyperplasia (increased PDGF)\n2. Hirsutism / coarse facial features\n3. Cerebellar atrophy / ataxia / nystagmus\n4. Megaloblastic anemia (folate antagonism)\n5. Peripheral neuropathy and osteomalacia (vitamin D catabolism)\n6. Fetal Hydantoin Syndrome.',
+        clinicalPearl: 'Follows zero-order (saturation) elimination kinetics at therapeutic serum concentrations (10–20 mcg/mL).',
+      },
+      {
+        front: 'What is the stepped pharmacotherapy protocol for Status Epilepticus (convulsive seizure >= 5 minutes)?',
+        back: '• 0–5 min (Emergent): IV Lorazepam 0.1 mg/kg (4 mg push) or IM Midazolam 10 mg.\n• 10–20 min (Established): Non-sedating IV ASM: IV Levetiracetam (60 mg/kg) or IV Fosphenytoin (20 mg PE/kg) or IV Valproate (40 mg/kg).\n• >20–30 min (Refractory): General anesthesia with IV Propofol or Midazolam infusion + intubation + continuous EEG.',
+        clinicalPearl: 'Fosphenytoin is a water-soluble prodrug that does not cause the purple glove syndrome or propylene glycol-induced arrhythmias seen with IV Phenytoin.',
+      },
+    ],
+    clinicalCase: {
+      title: 'Status Epilepticus Refractory to First-Line Benzodiazepine',
+      patientDemographics: '38-year-old male with known focal epilepsy',
+      presentation: 'Brought to the emergency department in continuous generalized convulsive status epilepticus lasting 12 minutes. Paramedics administered 4 mg of IV Lorazepam 6 minutes ago, but the patient continues to experience active bilateral tonic-clonic motor convulsions with snoring respirations and cyanosis.',
+      physicalExamOrLabs: 'Patient is unresponsive with rhythmic bilateral clonic limb jerking, clenched jaw, and dilated reactive pupils. Heart rate is 138 bpm, BP 154/92 mmHg, SpO2 91% on bag-valve-mask with high-flow oxygen. Bedside fingerstick blood glucose is 118 mg/dL.',
+      diagnosticQuestion: 'Which of the following is the most appropriate next pharmacological intervention according to the established status epilepticus protocol (ESETT trial)?',
+      options: [
+        { key: 'A', text: 'Administer an IV infusion of Levetiracetam (60 mg/kg, max 4500 mg) or Fosphenytoin (20 mg PE/kg)', isCorrect: true },
+        { key: 'B', text: 'Administer oral Carbamazepine via nasogastric tube', isCorrect: false },
+        { key: 'C', text: 'Repeat IV Lorazepam 4 mg every 2 minutes for 10 doses without adding other antiseizure medications', isCorrect: false },
+        { key: 'D', text: 'Administer subcutaneous Sumatriptan', isCorrect: false },
+      ],
+      clinicalExplanation: 'This patient has established convulsive status epilepticus failing initial first-line benzodiazepine therapy. Under the American Epilepsy Society guidelines and the landmark ESETT (Established Status Epilepticus Treatment Trial), the immediate second-line treatment is a non-sedating IV antiseizure medication: IV Levetiracetam (60 mg/kg), IV Fosphenytoin (20 mg PE/kg), or IV Sodium Valproate (40 mg/kg). All three demonstrated comparable efficacy (~50% termination of seizures within 60 minutes) and safety. Oral drugs (like Carbamazepine) have no role in acute status epilepticus due to erratic delayed absorption and aspiration risk.',
+      examPearl: 'Status Epilepticus: Benzodiazepine (Lorazepam 4 mg IV) is Phase 1. Non-sedating IV ASM (Levetiracetam, Fosphenytoin, Valproate) is Phase 2.',
+    },
+  },
 };
 
 /**
@@ -1828,6 +1963,12 @@ export function getMedicalTopicKnowledge(
   }
   if (tId === 'med-2' || (name.includes('acute coronary') || name.includes('heart failure') || name.includes('acs'))) {
     return FMGE_TOPIC_KNOWLEDGE_BASE['med-2'];
+  }
+  if (tId === 'med-10' || (name.includes('epilepsy') && (name.includes('classification') || name.includes('seizure') || name.includes('antiepileptic')))) {
+    return FMGE_TOPIC_KNOWLEDGE_BASE['med-10'];
+  }
+  if (tId === 'pharm-5' || (name.includes('anti-epileptics') && (name.includes('teratogenicity') || name.includes('spectrum')))) {
+    return FMGE_TOPIC_KNOWLEDGE_BASE['pharm-5'];
   }
 
   // 4. Dynamic topic-specific synthesis (GUARANTEES 100% topic consistency, NEVER leaks unrelated topics)

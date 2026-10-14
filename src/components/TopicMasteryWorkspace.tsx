@@ -21,6 +21,11 @@ import {
   RefreshCw,
   Eye,
   Award,
+  ShieldAlert,
+  HelpCircle,
+  Clock,
+  Target,
+  Sparkles,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
@@ -42,6 +47,7 @@ import { fetchTopicVideoRecommendations, getCuratedVideosForTopic } from '../uti
 import { getVerifiedVisualAssetForTopic } from '../utils/visualQuestionEngine';
 import { calculateTopicPerformanceMetrics } from '../utils/performanceEngine';
 import { getMedicalTopicKnowledge } from '../utils/topicKnowledgeBase';
+import { getVerifiedTopicQuestions } from '../utils/practiceSessionEngine';
 import { MedicalImageViewerModal } from './MedicalImageViewerModal';
 
 interface TopicMasteryWorkspaceProps {
@@ -282,8 +288,86 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
 
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
-  const [knownCardIds, setKnownCardIds] = useState<Set<string>>(new Set());
+
+  const [cardRatings, setCardRatings] = useState<Record<string, 'again' | 'difficult' | 'got_it'>>(() => {
+    try {
+      const saved = localStorage.getItem(`fmge_fc_ratings_${topicId}`);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {};
+  });
+
+  // Prioritize weak flashcards: 'again' (urgent) -> 'difficult' -> unrated -> 'got_it'
+  const prioritizedCards = useMemo(() => {
+    if (!flashcardDeck.cards || flashcardDeck.cards.length === 0) return [];
+    return [...flashcardDeck.cards].sort((a, b) => {
+      const getPriority = (id: string) => {
+        const rating = cardRatings[id];
+        if (rating === 'again') return 1;
+        if (rating === 'difficult') return 2;
+        if (!rating) return 3;
+        return 4;
+      };
+      return getPriority(a.id) - getPriority(b.id);
+    });
+  }, [flashcardDeck.cards, cardRatings]);
+
+  const activeCard = prioritizedCards[currentCardIndex] || prioritizedCards[0];
+
+  useEffect(() => {
+    if (prioritizedCards.length > 0 && currentCardIndex >= prioritizedCards.length) {
+      setCurrentCardIndex(Math.max(0, prioritizedCards.length - 1));
+    }
+  }, [prioritizedCards.length, currentCardIndex]);
+  const [knownCardIds, setKnownCardIds] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem(`fmge_fc_known_${topicId}`);
+      if (saved) return new Set(JSON.parse(saved));
+    } catch {}
+    return new Set();
+  });
   const [showAllFlashcardsGrid, setShowAllFlashcardsGrid] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(`fmge_fc_known_${topicId}`, JSON.stringify(Array.from(knownCardIds)));
+      localStorage.setItem(`fmge_fc_ratings_${topicId}`, JSON.stringify(cardRatings));
+    } catch {}
+  }, [topicId, knownCardIds, cardRatings]);
+
+  // Verified questions available for this topic in the question bank
+  const verifiedQuestionsAvailable = useMemo(() => {
+    return getVerifiedTopicQuestions(subjectId, topicId, topicName, 20);
+  }, [subjectId, topicId, topicName]);
+
+  // Attempt metrics for this topic
+  const topicAttempts = useMemo(() => {
+    return (state.mcqAttempts || []).filter((a) => {
+      if (a.subjectId !== subjectId) return false;
+      if (a.topicId === topicId) return true;
+      if (a.topicName && a.topicName.toLowerCase() === topicName.toLowerCase()) return true;
+      return false;
+    });
+  }, [state.mcqAttempts, subjectId, topicId, topicName]);
+
+  const incorrectAttemptsCount = useMemo(() => {
+    return topicAttempts.filter((a) => !a.isCorrect).length;
+  }, [topicAttempts]);
+
+  const luckyGuessesCount = useMemo(() => {
+    return topicAttempts.filter((a) => a.isCorrect && a.confidence === 'guess').length;
+  }, [topicAttempts]);
+
+  // Transparent topic mastery thresholds
+  const isDataInsufficient = topicMetrics.totalAttempts < 5;
+  const isMasteryEligible =
+    topicMetrics.totalAttempts >= 5 &&
+    topicMetrics.accuracy >= 80 &&
+    topicMetrics.repeatedErrorsCount === 0;
+  const needsRemediation = !isDataInsufficient && !isMasteryEligible;
+
+  const currentStepIndex = STEPS.findIndex((s) => s.id === activeStep);
+  const nextStep = currentStepIndex < STEPS.length - 1 ? STEPS[currentStepIndex + 1] : null;
 
   // Step 3: Apply (Clinical Cases)
   const baseCasesDeck = useMemo<TopicClinicalCasesDeck>(() => generateTopicClinicalCasesDeck(subjectId, topicId, topicName), [subjectId, topicId, topicName]);
@@ -355,6 +439,12 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
     setAiMasteryData(null);
     setAiStatus(null);
     setShowAllFlashcardsGrid(false);
+    try {
+      const savedKnown = localStorage.getItem(`fmge_fc_known_${topicId}`);
+      setKnownCardIds(savedKnown ? new Set(JSON.parse(savedKnown)) : new Set());
+      const savedRatings = localStorage.getItem(`fmge_fc_ratings_${topicId}`);
+      setCardRatings(savedRatings ? JSON.parse(savedRatings) : {});
+    } catch {}
   }, [subjectId, topicId, topicName]);
 
   // Fetch AI Live Deepening Pack
@@ -514,7 +604,41 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
               </p>
             </div>
 
-            <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-start">
+            <div className="flex flex-wrap items-center gap-2 shrink-0 self-end sm:self-start">
+              {/* Compact Session Progress Indicator */}
+              <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-stone-700 font-mono text-[11px] font-semibold border border-slate-200/60">
+                <span className="w-2 h-2 rounded-full bg-[#007AFF]" />
+                <span>Step {currentStepIndex + 1}/6: {STEPS[currentStepIndex].label}</span>
+              </div>
+
+              {/* Clear Next Action Shortcut */}
+              {nextStep && (
+                <button
+                  type="button"
+                  onClick={() => setActiveStep(nextStep.id)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display shadow-2xs transition-all cursor-pointer min-h-[36px]"
+                >
+                  <span>Next: {nextStep.label}</span>
+                  <ArrowRight className="h-3 w-3" />
+                </button>
+              )}
+
+              {/* Finish & Return to Sprint Checklist */}
+              <button
+                type="button"
+                onClick={() => {
+                  onToggleTopicState(subjectId, topicId, 'notesDone');
+                  if (topicMetrics.totalAttempts >= 5) {
+                    onToggleTopicState(subjectId, topicId, 'qBankDone');
+                  }
+                  onClose();
+                }}
+                className="px-3 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-800 text-xs font-semibold font-display transition-colors cursor-pointer min-h-[36px]"
+                title="Save study progress and return to Sprint plan"
+              >
+                Finish & Return
+              </button>
+
               {/* Live Deepening Button */}
               <motion.button
                 type="button"
@@ -523,7 +647,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                 onClick={fetchGeminiMastery}
                 disabled={isAiLoading}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-stone-900 border border-slate-200/80 hover:border-indigo-300 text-xs font-semibold font-display transition-all cursor-pointer shadow-2xs disabled:opacity-60 min-h-[38px] group"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-stone-900 border border-slate-200/80 hover:border-indigo-300 text-xs font-semibold font-display transition-all cursor-pointer shadow-2xs disabled:opacity-60 min-h-[36px] group"
                 title="Comprehensive Gemini-powered study pack"
               >
                 {isAiLoading ? (
@@ -633,71 +757,116 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                     </span>
                   </div>
 
-                  {/* High-Yield Clinical Summary */}
-                  <div className="space-y-1.5 p-4 rounded-xl bg-stone-50/70 border border-stone-200/60">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93]">
-                      High-Yield Pathophysiology & Core Mechanism
-                    </span>
-                    <p className="text-xs sm:text-sm text-stone-800 leading-relaxed font-normal">
-                      {activeSummary}
-                    </p>
+                  {/* Condensed High-Yield Opening Summary (Scannable Grid) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                    {/* 1. Hallmark Presentation & Cardinal Triads */}
+                    <div className="p-4 rounded-2xl bg-sky-50/50 border border-sky-200/80 shadow-2xs space-y-1.5 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold font-display text-sky-950 flex items-center gap-1.5">
+                          <Stethoscope className="h-3.5 w-3.5 text-sky-600 shrink-0" />
+                          Cardinal Presentation & Features
+                        </span>
+                        <p className="text-xs text-stone-700 font-normal leading-relaxed">
+                          {activeTriads ? <strong className="font-semibold text-stone-900">{activeTriads} • </strong> : null}
+                          {activeClassicPresentation}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono font-semibold uppercase text-sky-800 bg-sky-100/60 px-2 py-0.5 rounded w-fit">
+                        Differentiating Features
+                      </span>
+                    </div>
+
+                    {/* 2. Investigation of Choice (IOC) / Gold Standard */}
+                    <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200/80 shadow-2xs space-y-1.5 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold font-display text-indigo-950 flex items-center gap-1.5">
+                          <Activity className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                          Diagnostic Gold Standard (IOC)
+                        </span>
+                        <p className="text-xs text-stone-700 font-normal leading-relaxed">
+                          {activeGoldStandard}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono font-semibold uppercase text-indigo-800 bg-indigo-100/60 px-2 py-0.5 rounded w-fit">
+                        Investigations
+                      </span>
+                    </div>
+
+                    {/* 3. First-Line Management & DOC */}
+                    <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 shadow-2xs space-y-1.5 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold font-display text-emerald-950 flex items-center gap-1.5">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                          Treatment Principles & DOC
+                        </span>
+                        <p className="text-xs text-stone-700 font-normal leading-relaxed">
+                          {activeFirstLine}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono font-semibold uppercase text-emerald-800 bg-emerald-100/60 px-2 py-0.5 rounded w-fit">
+                        First-Line Therapy
+                      </span>
+                    </div>
+
+                    {/* 4. Core Classification & Subtypes */}
+                    <div className="p-4 rounded-2xl bg-purple-50/40 border border-purple-200/70 shadow-2xs space-y-1.5 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold font-display text-purple-950 flex items-center gap-1.5">
+                          <Layers className="h-3.5 w-3.5 text-purple-600 shrink-0" />
+                          Classification & Syndromes
+                        </span>
+                        <p className="text-xs text-stone-700 font-normal leading-relaxed">
+                          {activeCoreConcepts && activeCoreConcepts[0] ? activeCoreConcepts[0] : activeSummary}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono font-semibold uppercase text-purple-800 bg-purple-100/60 px-2 py-0.5 rounded w-fit">
+                        Syndromes & Subtypes
+                      </span>
+                    </div>
+
+                    {/* 5. Critical Safety Warnings & Contraindications */}
+                    <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 shadow-2xs space-y-1.5 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold font-display text-amber-950 flex items-center gap-1.5">
+                          <ShieldAlert className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                          Contraindications & Safety
+                        </span>
+                        <p className="text-xs text-stone-700 font-normal leading-relaxed">
+                          {activeExamTrap.includes('contraindicated') || activeExamTrap.includes('teratogen')
+                            ? activeExamTrap
+                            : `Always screen for patient-specific contraindications, teratogenic drug toxicity, and drug-disease aggravations before initiating first-line therapy.`}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono font-semibold uppercase text-amber-900 bg-amber-100/80 px-2 py-0.5 rounded w-fit">
+                        Safety Warnings
+                      </span>
+                    </div>
+
+                    {/* 6. FMGE Board Traps & Lookalikes */}
+                    <div className="p-4 rounded-2xl bg-rose-50/50 border border-rose-200/80 shadow-2xs space-y-1.5 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold font-display text-rose-950 flex items-center gap-1.5">
+                          <AlertCircle className="h-3.5 w-3.5 text-rose-600 shrink-0" />
+                          FMGE Board Traps & Mimics
+                        </span>
+                        <p className="text-xs text-rose-950 font-normal leading-relaxed">
+                          {activeExamTrap}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono font-semibold uppercase text-rose-900 bg-rose-100/80 px-2 py-0.5 rounded w-fit">
+                        High-Yield Trap
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Clinical Discriminator 2x2 Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                    {/* Hallmark Presentation / Triad */}
-                    <div className="p-4 rounded-xl bg-sky-50/30 border border-sky-200/70 shadow-2xs space-y-1">
-                      <span className="text-xs font-bold font-display text-sky-900 flex items-center gap-1.5">
-                        <Stethoscope className="h-3.5 w-3.5 text-sky-600" />
-                        Hallmark Presentation & Triad
-                      </span>
-                      <p className="text-xs text-stone-700 font-normal leading-relaxed">
-                        {activeTriads ? `${activeTriads} • ` : ''}{activeClassicPresentation}
-                      </p>
-                    </div>
-
-                    {/* Gold-Standard Investigation */}
-                    <div className="p-4 rounded-xl bg-indigo-50/30 border border-indigo-200/70 shadow-2xs space-y-1">
-                      <span className="text-xs font-bold font-display text-indigo-900 flex items-center gap-1.5">
-                        <Activity className="h-3.5 w-3.5 text-indigo-600" />
-                        Investigation of Choice (IOC) / Gold Standard
-                      </span>
-                      <p className="text-xs text-stone-700 font-normal leading-relaxed">
-                        {activeGoldStandard}
-                      </p>
-                    </div>
-
-                    {/* First-Line Management / DOC */}
-                    <div className="p-4 rounded-xl bg-emerald-50/30 border border-emerald-200/70 shadow-2xs space-y-1">
-                      <span className="text-xs font-bold font-display text-emerald-900 flex items-center gap-1.5">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                        First-Line Management / Drug of Choice (DOC)
-                      </span>
-                      <p className="text-xs text-stone-700 font-normal leading-relaxed">
-                        {activeFirstLine}
-                      </p>
-                    </div>
-
-                    {/* Exam Trap Warning */}
-                    <div className="p-4 rounded-xl bg-rose-50/50 border border-rose-200/70 shadow-2xs space-y-1">
-                      <span className="text-xs font-bold font-display text-rose-900 flex items-center gap-1.5">
-                        <AlertCircle className="h-3.5 w-3.5 text-rose-600" />
-                        FMGE Board Trap & Lookalike Distractor
-                      </span>
-                      <p className="text-xs text-rose-950 font-normal leading-relaxed">
-                        {activeExamTrap}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Core Concept Takeaways */}
-                  {activeCoreConcepts && activeCoreConcepts.length > 0 && (
+                  {/* Core Takeaways (Compact Bullets) */}
+                  {activeCoreConcepts && activeCoreConcepts.length > 1 && (
                     <div className="pt-2 border-t border-stone-100 space-y-2">
                       <span className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93]">
                         Essential Board High-Yield Takeaways
                       </span>
                       <ul className="space-y-1.5 text-xs text-stone-700">
-                        {activeCoreConcepts.map((concept: string, idx: number) => (
+                        {activeCoreConcepts.slice(1, 5).map((concept: string, idx: number) => (
                           <li key={idx} className="flex items-start gap-2">
                             <span className="h-1.5 w-1.5 rounded-full bg-[#8E8E93] mt-1.5 shrink-0" />
                             <span>{concept}</span>
@@ -1028,22 +1197,35 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
               <div className="space-y-6">
                 {flashcardDeck.cards.length > 0 ? (
                   <>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
-                        Active Recall Flashcards ({currentCardIndex + 1} of {flashcardDeck.cards.length})
-                      </span>
-                      <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
+                          Active Recall Flashcards ({currentCardIndex + 1} of {flashcardDeck.cards.length})
+                        </span>
+                        <p className="text-[11px] text-stone-500">Attempt mental recall before revealing answers to cement long-term memory</p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
                         <button
                           type="button"
                           onClick={() => setShowAllFlashcardsGrid((prev) => !prev)}
-                          className="text-xs font-semibold text-stone-600 hover:text-stone-900 flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-semibold text-stone-600 hover:text-stone-900 flex items-center gap-1 cursor-pointer mr-2"
                         >
                           <Layers className="h-3.5 w-3.5" />
                           <span>{showAllFlashcardsGrid ? 'Card by Card' : 'Show All Cards'}</span>
                         </button>
-                        <span className="font-mono text-xs text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">
+                        <span className="font-mono text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                           {knownCardIds.size} Mastered
                         </span>
+                        {Object.values(cardRatings).filter((r) => r === 'difficult').length > 0 && (
+                          <span className="font-mono text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                            {Object.values(cardRatings).filter((r) => r === 'difficult').length} Difficult
+                          </span>
+                        )}
+                        {Object.values(cardRatings).filter((r) => r === 'again').length > 0 && (
+                          <span className="font-mono text-[11px] font-semibold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+                            {Object.values(cardRatings).filter((r) => r === 'again').length} Missed
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -1051,32 +1233,158 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                       <>
                         {/* Flashcard Component */}
                         <div
-                          onClick={() => setIsCardFlipped((prev) => !prev)}
-                          className="p-6 sm:p-8 rounded-2xl bg-stone-50/90 hover:bg-stone-100/90 border border-stone-200/90 transition-all duration-200 min-h-[220px] flex flex-col justify-between cursor-pointer group shadow-2xs"
+                          className="p-6 sm:p-8 rounded-3xl bg-white border border-stone-200 shadow-sm transition-all duration-200 min-h-[250px] flex flex-col justify-between relative overflow-hidden"
                         >
-                          <div className="space-y-3">
-                            <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-stone-400">
-                              {isCardFlipped ? 'Answer & Clinical Rationale' : 'Question Prompt (Click to reveal answer)'}
-                            </span>
-                            <p className="text-base sm:text-lg font-bold font-display text-stone-900 leading-snug whitespace-pre-line break-words min-w-0">
-                              {isCardFlipped
-                                ? flashcardDeck.cards[currentCardIndex]?.back
-                                : flashcardDeck.cards[currentCardIndex]?.front}
-                            </p>
-                            {isCardFlipped && flashcardDeck.cards[currentCardIndex]?.clinicalPearl && (
-                              <div className="mt-3 p-3 rounded-xl bg-amber-50/80 border border-amber-200/70 text-xs text-amber-900 font-medium">
-                                Pearl: {flashcardDeck.cards[currentCardIndex].clinicalPearl}
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-stone-100 text-stone-600">
+                                {isCardFlipped ? 'Answer & Clinical Rationale' : 'Active Question Prompt · Test Yourself'}
+                              </span>
+                              {activeCard && cardRatings[activeCard.id] && (
+                                <span className={`text-[10px] font-mono uppercase font-semibold px-2 py-0.5 rounded ${
+                                  cardRatings[activeCard.id] === 'got_it'
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : cardRatings[activeCard.id] === 'difficult'
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                }`}>
+                                  {cardRatings[activeCard.id] === 'again'
+                                    ? 'Priority: Needs Review'
+                                    : `Rated: ${cardRatings[activeCard.id].toUpperCase()}`}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Front (Question) */}
+                            <div>
+                              <p className="text-base sm:text-lg font-bold font-display text-stone-900 leading-snug whitespace-pre-line break-words min-w-0">
+                                {activeCard?.front}
+                              </p>
+                              {!isCardFlipped && (
+                                <p className="text-xs text-stone-400 mt-2 font-normal italic">
+                                  Attempt mental recall of the key mechanism, diagnosis, or drug before viewing the answer.
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Back (Answer & Pearl) - ONLY Revealed after attempt */}
+                            {isCardFlipped ? (
+                              <div className="space-y-3 pt-3 border-t border-stone-100 animate-in fade-in duration-200">
+                                <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80 text-xs sm:text-sm text-stone-800 font-medium leading-relaxed whitespace-pre-line break-words">
+                                  {activeCard?.back}
+                                </div>
+                                {activeCard?.clinicalPearl && (
+                                  <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/70 text-xs text-amber-900 font-medium">
+                                    <strong className="font-semibold text-amber-950">Clinical Pearl:</strong> {activeCard.clinicalPearl}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="pt-4">
+                                <button
+                                  type="button"
+                                  onClick={() => setIsCardFlipped(true)}
+                                  className="w-full py-3 rounded-2xl bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-xs font-semibold font-display flex items-center justify-center gap-2 transition-colors cursor-pointer border border-stone-200/80 shadow-2xs"
+                                >
+                                  <Eye className="h-4 w-4 text-stone-600" />
+                                  <span>Reveal Answer & Explanation</span>
+                                </button>
                               </div>
                             )}
                           </div>
 
-                          <div className="flex items-center justify-between text-xs text-stone-400 pt-4 border-t border-stone-200/60">
-                            <span>Click card to flip</span>
-                            <RotateCcw className="h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
+                          <div className="flex items-center justify-between text-xs text-stone-400 pt-4 mt-2 border-t border-stone-100">
+                            <span>Card {currentCardIndex + 1} of {prioritizedCards.length}</span>
+                            <button
+                              type="button"
+                              onClick={() => setIsCardFlipped((prev) => !prev)}
+                              className="inline-flex items-center gap-1 text-stone-500 hover:text-stone-800 cursor-pointer"
+                            >
+                              <RotateCcw className="h-3.5 w-3.5" />
+                              <span>{isCardFlipped ? 'Hide Answer' : 'Flip'}</span>
+                            </button>
                           </div>
                         </div>
 
-                        {/* Flashcard Actions */}
+                        {/* Flashcard Rating Action Bar (Again, Difficult, Got It) */}
+                        {isCardFlipped && (
+                          <div className="space-y-2 pt-2 animate-in fade-in duration-200">
+                            <span className="text-[11px] font-mono uppercase tracking-wider text-stone-400 font-semibold block text-center">
+                              Rate Your Recall Performance:
+                            </span>
+                            <div className="grid grid-cols-3 gap-2.5">
+                              {/* 1. AGAIN (Missed) */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (activeCard) {
+                                    setCardRatings((prev) => ({ ...prev, [activeCard.id]: 'again' }));
+                                    setKnownCardIds((prev) => {
+                                      const next = new Set(prev);
+                                      next.delete(activeCard.id);
+                                      return next;
+                                    });
+                                  }
+                                  if (currentCardIndex < prioritizedCards.length - 1) {
+                                    setIsCardFlipped(false);
+                                    setCurrentCardIndex((prev) => prev + 1);
+                                  }
+                                }}
+                                className="flex flex-col items-center justify-center p-3 rounded-2xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-800 transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+                              >
+                                <span className="text-xs font-bold font-display flex items-center gap-1">
+                                  <RotateCcw className="h-3 w-3" /> Again
+                                </span>
+                                <span className="text-[10px] text-rose-600 font-normal">Missed · Review Soon</span>
+                              </button>
+
+                              {/* 2. DIFFICULT (Struggled) */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (activeCard) {
+                                    setCardRatings((prev) => ({ ...prev, [activeCard.id]: 'difficult' }));
+                                  }
+                                  if (currentCardIndex < prioritizedCards.length - 1) {
+                                    setIsCardFlipped(false);
+                                    setCurrentCardIndex((prev) => prev + 1);
+                                  }
+                                }}
+                                className="flex flex-col items-center justify-center p-3 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+                              >
+                                <span className="text-xs font-bold font-display flex items-center gap-1">
+                                  <HelpCircle className="h-3 w-3" /> Difficult
+                                </span>
+                                <span className="text-[10px] text-amber-600 font-normal">Hard · Review Later</span>
+                              </button>
+
+                              {/* 3. GOT IT (Mastered) */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (activeCard) {
+                                    setCardRatings((prev) => ({ ...prev, [activeCard.id]: 'got_it' }));
+                                    setKnownCardIds((prev) => new Set([...prev, activeCard.id]));
+                                  }
+                                  if (currentCardIndex < prioritizedCards.length - 1) {
+                                    setIsCardFlipped(false);
+                                    setCurrentCardIndex((prev) => prev + 1);
+                                  } else {
+                                    setActiveStep('apply');
+                                  }
+                                }}
+                                className="flex flex-col items-center justify-center p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+                              >
+                                <span className="text-xs font-bold font-display flex items-center gap-1">
+                                  <Check className="h-3 w-3" /> Got It
+                                </span>
+                                <span className="text-[10px] text-emerald-600 font-normal">Retained Securely</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Navigation Previous / Next */}
                         <div className="flex items-center justify-between gap-3 pt-2">
                           <button
                             type="button"
@@ -1090,40 +1398,47 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                             Previous Card
                           </button>
 
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const card = flashcardDeck.cards[currentCardIndex];
-                                if (card) {
-                                  setKnownCardIds((prev) => new Set([...prev, card.id]));
-                                }
-                                setIsCardFlipped(false);
-                                if (currentCardIndex < flashcardDeck.cards.length - 1) {
-                                  setCurrentCardIndex((prev) => prev + 1);
-                                } else {
-                                  setActiveStep('apply');
-                                }
-                              }}
-                              className="px-5 py-2 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[40px] shadow-2xs active:scale-[0.98]"
-                            >
-                              I Know This
-                            </button>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsCardFlipped(false);
+                              if (currentCardIndex < prioritizedCards.length - 1) {
+                                setCurrentCardIndex((prev) => prev + 1);
+                              } else {
+                                setActiveStep('apply');
+                              }
+                            }}
+                            className="px-4 py-2 rounded-xl border border-stone-200 text-xs font-semibold font-display text-stone-700 hover:bg-stone-50 cursor-pointer min-h-[40px] active:scale-[0.98]"
+                          >
+                            {currentCardIndex < prioritizedCards.length - 1 ? 'Next Card' : 'Finish Cards'}
+                          </button>
                         </div>
                       </>
                     ) : (
                       /* Show All Cards Grid */
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                        {flashcardDeck.cards.map((card, idx) => (
-                          <div key={card.id} className="p-4 sm:p-5 rounded-xl bg-white border border-stone-200 shadow-2xs space-y-2.5">
-                            <span className="text-[10px] font-mono font-semibold uppercase text-stone-400">
-                              Card {idx + 1}
-                            </span>
+                        {prioritizedCards.map((card, idx) => (
+                          <div key={card.id} className="p-4 sm:p-5 rounded-2xl bg-white border border-stone-200 shadow-2xs space-y-2.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-mono font-semibold uppercase text-stone-400">
+                                Card {idx + 1}
+                              </span>
+                              {cardRatings[card.id] && (
+                                <span className={`text-[10px] font-mono uppercase font-semibold px-2 py-0.5 rounded ${
+                                  cardRatings[card.id] === 'got_it'
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : cardRatings[card.id] === 'difficult'
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                }`}>
+                                  {cardRatings[card.id].toUpperCase()}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-sm font-semibold font-display text-stone-900">
                               {card.front}
                             </p>
-                            <div className="p-3 rounded-lg bg-stone-50 border border-stone-200/70 text-xs text-stone-800 font-medium whitespace-pre-line break-words">
+                            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/70 text-xs text-stone-800 font-medium whitespace-pre-line break-words">
                               {card.back}
                             </div>
                             {card.clinicalPearl && (
@@ -1320,52 +1635,169 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
             {/* ================= STEP 4: TEST ================= */}
             {activeStep === 'test' && (
               <div className="space-y-6">
-                <div className="relative overflow-hidden p-6 sm:p-8 rounded-3xl text-center space-y-5 border" style={{ background: 'linear-gradient(135deg, #E8F0FF 0%, #F0F8FF 60%, #E8F5FF 100%)', borderColor: 'rgba(0,122,255,0.2)' }}>
-                  {/* Decorative circles */}
-                  <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-20 pointer-events-none" style={{ background: 'radial-gradient(circle, #007AFF 0%, transparent 70%)' }} />
-                  <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full opacity-15 pointer-events-none" style={{ background: 'radial-gradient(circle, #5856D6 0%, transparent 70%)' }} />
-                  <div className="relative z-10 h-14 w-14 rounded-2xl bg-gradient-to-tr from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center mx-auto shadow-[0_4px_16px_rgba(0,122,255,0.35)]">
-                    <Activity className="h-7 w-7" />
-                  </div>
-                  <div className="relative z-10 space-y-2">
-                    <h3 className="text-[18px] sm:text-[20px] font-bold text-[#1D1D1F] tracking-tight">
-                      10-MCQ Adaptive Drill
-                    </h3>
-                    <p className="text-[13px] text-[#3A3A3C] max-w-sm mx-auto leading-snug">
-                      Authentic FMGE/NBE clinical stems on {topicName} · distractor rationale · Error Vault logging
-                    </p>
+                {/* Topic Question Practice Card */}
+                <div className="p-6 sm:p-7 rounded-3xl bg-white border border-stone-200/90 shadow-2xs space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-100">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-sky-50 text-sky-700 border border-sky-200/60">
+                          Verified Bank Practice
+                        </span>
+                        <span className="text-[11px] font-medium text-stone-500 font-mono">
+                          {subjectId.toUpperCase()} • {topicName}
+                        </span>
+                      </div>
+                      <h3 className="text-lg sm:text-xl font-bold font-display text-stone-900">
+                        Reliable Question Practice
+                      </h3>
+                      <p className="text-xs text-stone-600 max-w-xl">
+                        NBE/FMGE clinical vignettes with distractor rationales, verified correct keys, and direct Error Vault logging.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-mono">
+                      <ShieldAlert className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <div>
+                        <div className="font-bold text-stone-800">{verifiedQuestionsAvailable.length} Verified MCQs</div>
+                        <div className="text-[10px] text-stone-500">Curated & Validated</div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="relative z-10 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onClose();
-                        onLaunchPracticeMcq({
-                          sessionId: `drill-${Date.now()}`,
-                          source: 'dashboard_weak_topic',
-                          subjectId,
-                          subjectName: subjectId,
-                          topicId,
-                          topicName,
-                          targetQuestionCount: 10,
-                        });
-                      }}
-                      className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-sm font-bold transition-all shadow-[0_4px_16px_rgba(0,122,255,0.35)] cursor-pointer min-h-[48px] active:scale-[0.98]"
-                    >
-                      <Play className="h-4 w-4 fill-current" />
-                      <span>Launch Test Session</span>
-                    </button>
+                  {/* Topic Performance Status */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-100">
+                      <span className="text-lg sm:text-xl font-black font-mono text-stone-900">{topicMetrics.totalAttempts}</span>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">MCQs Attempted</p>
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-100">
+                      <span className={`text-lg sm:text-xl font-black font-mono ${topicMetrics.accuracy >= 80 ? 'text-emerald-600' : topicMetrics.accuracy >= 60 ? 'text-amber-600' : 'text-stone-900'}`}>
+                        {topicMetrics.totalAttempts > 0 ? `${topicMetrics.accuracy}%` : '—'}
+                      </span>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">Current Accuracy</p>
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-100">
+                      <span className={`text-lg sm:text-xl font-black font-mono ${incorrectAttemptsCount > 0 ? 'text-rose-600' : 'text-stone-600'}`}>
+                        {incorrectAttemptsCount}
+                      </span>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">Mistakes Logged</p>
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-100">
+                      <span className="text-lg sm:text-xl font-black font-mono text-amber-600">
+                        {luckyGuessesCount}
+                      </span>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">Lucky Guesses</p>
+                    </div>
+                  </div>
+
+                  {/* Practice Options */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    {/* Primary: 10-Question Diagnostic Set */}
+                    <div className="p-5 rounded-2xl border-2 border-sky-100 bg-sky-50/40 hover:bg-sky-50/70 transition-all flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono uppercase bg-sky-100 text-sky-800">
+                            Diagnostic Core
+                          </span>
+                          <span className="text-xs font-mono font-bold text-sky-700">10 Questions</span>
+                        </div>
+                        <h4 className="text-sm font-bold font-display text-stone-900">
+                          10-MCQ Diagnostic Drill
+                        </h4>
+                        <p className="text-xs text-stone-600 leading-relaxed">
+                          Core diagnostic challenge. Tests classic presentations, investigations, drug choices, and board traps for {topicName}.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          onLaunchPracticeMcq({
+                            sessionId: `drill-${Date.now()}`,
+                            source: 'dashboard_weak_topic',
+                            subjectId,
+                            subjectName: subjectId,
+                            topicId,
+                            topicName,
+                            targetQuestionCount: Math.min(10, Math.max(1, verifiedQuestionsAvailable.length)),
+                            initialQuestions: verifiedQuestionsAvailable.slice(0, 10),
+                          });
+                        }}
+                        className="w-full py-3 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-bold font-display inline-flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer min-h-[44px] active:scale-[0.98]"
+                      >
+                        <Play className="h-4 w-4 fill-current" />
+                        <span>Launch 10-Question Diagnostic</span>
+                      </button>
+                    </div>
+
+                    {/* Extended Timed Practice Set */}
+                    <div className="p-5 rounded-2xl border border-stone-200 bg-stone-50/60 hover:bg-stone-50 transition-all flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono uppercase bg-stone-200 text-stone-700">
+                            Extended Drill
+                          </span>
+                          <span className="text-xs font-mono font-bold text-stone-700">
+                            {verifiedQuestionsAvailable.length} Questions
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-bold font-display text-stone-900">
+                          Extended Timed Practice Set
+                        </h4>
+                        <p className="text-xs text-stone-600 leading-relaxed">
+                          Exhaustive topic coverage with visual IBQs and clinical vignettes from the verified question bank.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          onLaunchPracticeMcq({
+                            sessionId: `drill-ext-${Date.now()}`,
+                            source: 'dashboard_weak_topic',
+                            subjectId,
+                            subjectName: subjectId,
+                            topicId,
+                            topicName,
+                            targetQuestionCount: verifiedQuestionsAvailable.length,
+                            initialQuestions: verifiedQuestionsAvailable,
+                          });
+                        }}
+                        className="w-full py-3 rounded-xl border border-stone-300 bg-white hover:bg-stone-100 text-stone-800 text-xs font-bold font-display inline-flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[44px] active:scale-[0.98]"
+                      >
+                        <Target className="h-4 w-4 text-stone-600" />
+                        <span>Launch Extended Set ({verifiedQuestionsAvailable.length} MCQs)</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Verification Guarantee & Distinctions */}
+                  <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80 text-[11px] text-stone-600 flex items-start gap-2.5">
+                    <Check className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>
+                      <strong className="text-stone-800 font-semibold">Strict Verification Policy:</strong> All questions in this drill are sourced directly from verified clinical knowledge packs and standard exam questions with authentic explanations. No synthetic or hallucinated question counts.
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end pt-4 border-t border-stone-100">
+                {/* Bottom Navigation */}
+                <div className="flex items-center justify-between pt-4 border-t border-stone-100">
+                  <button
+                    type="button"
+                    onClick={() => setActiveStep('apply')}
+                    className="px-4 py-2 rounded-xl border border-stone-200 text-xs font-semibold font-display text-stone-700 hover:bg-stone-50 cursor-pointer min-h-[40px] active:scale-[0.98]"
+                  >
+                    Back: Clinical Cases
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setActiveStep('review')}
-                    className="inline-flex items-center gap-2 text-xs font-semibold font-display text-stone-600 hover:text-stone-900 cursor-pointer min-h-[40px]"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-semibold font-display transition-colors cursor-pointer min-h-[42px] shadow-2xs active:scale-[0.98]"
                   >
-                    <span>Skip to Mistake Review & Traps</span>
+                    <span>Next: Review & Weak Traps</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -1375,40 +1807,93 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
             {/* ================= STEP 5: REVIEW ================= */}
             {activeStep === 'review' && (
               <div className="space-y-6">
-                <div className="grid grid-cols-3 gap-3 sm:gap-4 text-center">
-                  {[
-                    { value: `${topicMetrics.accuracy}%`, label: 'Topic Accuracy', color: topicMetrics.accuracy >= 70 ? '#30D158' : '#FF9500' },
-                    { value: `${topicMetrics.totalAttempts}`, label: 'MCQs Solved', color: '#007AFF' },
-                    { value: topicMetrics.masteryStatus.toUpperCase(), label: 'Mastery Grade', color: '#5856D6' },
-                  ].map(({ value, label, color }) => (
-                    <div key={label} className="p-4 rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] shadow-[0_1px_6px_rgba(0,0,0,0.04)] space-y-1">
-                      <span className="text-xl sm:text-2xl font-black tracking-tight" style={{ color }}>{value}</span>
-                      <p className="text-[11px] text-[#8E8E93] font-medium">{label}</p>
-                    </div>
-                  ))}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                  <div className="p-3.5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs">
+                    <span className="text-xl sm:text-2xl font-black font-mono text-stone-900">{topicMetrics.totalAttempts}</span>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">MCQs Solved</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs">
+                    <span className={`text-xl sm:text-2xl font-black font-mono ${topicMetrics.accuracy >= 80 ? 'text-emerald-600' : topicMetrics.accuracy >= 60 ? 'text-amber-600' : 'text-stone-900'}`}>
+                      {topicMetrics.totalAttempts > 0 ? `${topicMetrics.accuracy}%` : '—'}
+                    </span>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">Topic Accuracy</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs">
+                    <span className={`text-xl sm:text-2xl font-black font-mono ${incorrectAttemptsCount > 0 ? 'text-rose-600' : 'text-stone-600'}`}>
+                      {incorrectAttemptsCount}
+                    </span>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">Incorrect Answers</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs">
+                    <span className="text-xl sm:text-2xl font-black font-mono text-amber-600">
+                      {luckyGuessesCount}
+                    </span>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">Lucky Guesses</p>
+                  </div>
                 </div>
 
-                {/* What Needs Review */}
-                <div className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
-                    Diagnostics & High-Yield Traps
-                  </span>
-                  <div className="p-4 rounded-xl bg-stone-50/70 border border-stone-200/80 text-xs text-stone-700 space-y-1.5">
+                {/* Diagnostics & Weakness Breakdown */}
+                <div className="p-5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
+                        Error Vault & Remediation Diagnostics
+                      </span>
+                      <h4 className="text-sm font-bold font-display text-stone-900">
+                        Mistake Analysis & Weak Anchors
+                      </h4>
+                    </div>
                     {topicMetrics.repeatedErrorsCount > 0 ? (
-                      <p className="text-rose-700 font-semibold">
-                        {topicMetrics.repeatedErrorsCount} repeated mistake(s) registered in Error Vault for this topic.
-                      </p>
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold font-mono bg-rose-50 text-rose-700 border border-rose-200">
+                        {topicMetrics.repeatedErrorsCount} Repeated Error{topicMetrics.repeatedErrorsCount > 1 ? 's' : ''}
+                      </span>
                     ) : (
-                      <p className="text-stone-600">
-                        Solid grasp of core clinical criteria. Review volatile memory anchors below before marking as mastered.
-                      </p>
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        Zero Repeat Errors
+                      </span>
                     )}
                   </div>
+
+                  {topicMetrics.repeatedErrorsCount > 0 ? (
+                    <div className="p-4 rounded-xl bg-rose-50/70 border border-rose-200/80 text-xs text-rose-900 space-y-2">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="font-semibold">Cognitive Trap Warning:</strong>
+                          <p className="mt-0.5 leading-relaxed text-rose-800">
+                            You have {topicMetrics.repeatedErrorsCount} persistent mistake pattern(s) logged in your Error Vault for {topicName}. Review the active recall deck to reinforce differentiating criteria before final testing.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="pt-2 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setActiveStep('recall')}
+                          className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition-colors cursor-pointer"
+                        >
+                          Review Flashcards (Step 2)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveStep('test')}
+                          className="px-3 py-1.5 rounded-lg bg-white border border-rose-300 text-rose-800 hover:bg-rose-100/60 font-medium text-xs transition-colors cursor-pointer"
+                        >
+                          Retest Diagnostic Drill (Step 4)
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/80 text-xs text-stone-700 space-y-1.5">
+                      <p className="text-stone-700 leading-relaxed">
+                        No recurring cognitive traps identified for this topic. Verify high-yield memory pearls in Step 6 to lock down your revision score.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Actions */}
                 <div className="flex items-center justify-between pt-4 border-t border-stone-100">
-                  {onOpenAiCoach && (
+                  {onOpenAiCoach ? (
                     <button
                       type="button"
                       onClick={() => onOpenAiCoach('concept', subjectId, topicName)}
@@ -1416,6 +1901,8 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                     >
                       Ask AI Study Coach →
                     </button>
+                  ) : (
+                    <div />
                   )}
 
                   <button
@@ -1469,26 +1956,142 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   />
                 )}
 
-                {/* Topic Status Checklist */}
-                <div className="p-4 rounded-xl bg-stone-50/70 border border-stone-200/80 text-xs space-y-2">
-                  <span className="font-semibold text-stone-900 font-display">Completed Learning Pathway:</span>
-                  <div className="flex flex-wrap items-center gap-4 text-stone-600 font-medium">
-                    <span className="flex items-center gap-1">
-                      <Check className="h-3.5 w-3.5 text-emerald-600" /> Rapid Revision
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Check className="h-3.5 w-3.5 text-emerald-600" /> Recall
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Check className="h-3.5 w-3.5 text-emerald-600" /> Apply
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Check className="h-3.5 w-3.5 text-emerald-600" /> Test
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Check className="h-3.5 w-3.5 text-emerald-600" /> Review
+                {/* Transparent Mastery Audit Card */}
+                <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
+                        Performance-Based Mastery Audit
+                      </span>
+                      <h4 className="text-sm font-bold font-display text-stone-900">
+                        Objective FMGE Mastery Thresholds
+                      </h4>
+                    </div>
+                    <span className="text-[11px] font-mono font-medium text-stone-500">
+                      Standard: ≥5 MCQs · ≥80% Accuracy · 0 Repeat Errors
                     </span>
                   </div>
+
+                  {/* 4-Metric Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
+                      <span className="text-lg font-black font-mono text-stone-900">
+                        {topicMetrics.totalAttempts} / 5
+                      </span>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">Min 5 Attempts</p>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
+                      <span className={`text-lg font-black font-mono ${topicMetrics.accuracy >= 80 ? 'text-emerald-600' : topicMetrics.totalAttempts > 0 ? 'text-amber-600' : 'text-stone-400'}`}>
+                        {topicMetrics.totalAttempts > 0 ? `${topicMetrics.accuracy}%` : '—'}
+                      </span>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">Target ≥80%</p>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
+                      <span className={`text-lg font-black font-mono ${incorrectAttemptsCount > 0 ? 'text-rose-600' : 'text-stone-600'}`}>
+                        {incorrectAttemptsCount}
+                      </span>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">Incorrect Logged</p>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
+                      <span className="text-lg font-black font-mono text-amber-600">
+                        {luckyGuessesCount}
+                      </span>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">Lucky Guesses</p>
+                    </div>
+                  </div>
+
+                  {/* Dynamic Status Banner */}
+                  {isDataInsufficient ? (
+                    <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200 text-xs space-y-2 text-amber-900">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="font-semibold text-amber-950">Not Enough Question Data:</strong>
+                          <p className="mt-0.5 leading-relaxed text-amber-800">
+                            Mastery cannot be awarded merely for viewing slides or pearls. You have completed {topicMetrics.totalAttempts} of the 5 required question attempts to reliably evaluate diagnostic accuracy.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="pt-1 flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClose();
+                            onLaunchPracticeMcq({
+                              sessionId: `drill-${Date.now()}`,
+                              source: 'dashboard_weak_topic',
+                              subjectId,
+                              subjectName: subjectId,
+                              topicId,
+                              topicName,
+                              targetQuestionCount: 10,
+                              initialQuestions: verifiedQuestionsAvailable.slice(0, 10),
+                            });
+                          }}
+                          className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold font-display text-xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Play className="h-3.5 w-3.5 fill-current" />
+                          <span>Take 10-Question Diagnostic Drill</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : needsRemediation ? (
+                    <div className="p-4 rounded-xl bg-rose-50/80 border border-rose-200 text-xs space-y-2 text-rose-900">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="font-semibold text-rose-950">Remediation Recommended Before Mastery:</strong>
+                          <p className="mt-0.5 leading-relaxed text-rose-800">
+                            Your topic accuracy is {topicMetrics.accuracy}% (benchmark ≥80% required) with {topicMetrics.repeatedErrorsCount} repeated mistakes registered in the Error Vault. Review flashcards or retest before locking in mastery.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="pt-1 flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setActiveStep('recall')}
+                          className="px-3.5 py-2 rounded-xl border border-rose-300 bg-white text-rose-900 hover:bg-rose-100/60 font-semibold font-display text-xs transition-colors cursor-pointer"
+                        >
+                          Review Flashcards (Step 2)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClose();
+                            onLaunchPracticeMcq({
+                              sessionId: `drill-retest-${Date.now()}`,
+                              source: 'dashboard_weak_topic',
+                              subjectId,
+                              subjectName: subjectId,
+                              topicId,
+                              topicName,
+                              targetQuestionCount: 10,
+                              initialQuestions: verifiedQuestionsAvailable.slice(0, 10),
+                            });
+                          }}
+                          className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold font-display text-xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />
+                          <span>Retest 10-MCQ Adaptive Drill</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs space-y-1.5 text-emerald-900">
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="font-semibold text-emerald-950">Mastery Criteria Verified:</strong>
+                          <p className="mt-0.5 leading-relaxed text-emerald-800">
+                            Rigorous FMGE standards satisfied: {topicMetrics.totalAttempts} attempts, {topicMetrics.accuracy}% accuracy, and 0 repeated errors. You are ready to confirm mastery for this sprint topic.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Final Actions */}
@@ -1496,32 +2099,60 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                   <button
                     type="button"
                     onClick={() => {
+                      onToggleTopicState(subjectId, topicId, 'notesDone');
+                      if (topicMetrics.totalAttempts >= 5) {
+                        onToggleTopicState(subjectId, topicId, 'qBankDone');
+                      }
                       onClose();
-                      onLaunchPracticeMcq({
-                        sessionId: `drill-${Date.now()}`,
-                        source: 'dashboard_weak_topic',
-                        subjectId,
-                        subjectName: subjectId,
-                        topicId,
-                        topicName,
-                        targetQuestionCount: 10,
-                      });
                     }}
                     className="px-4 py-2.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-800 text-xs font-semibold font-display transition-colors cursor-pointer min-h-[40px] active:scale-[0.98]"
                   >
-                    Retest Topic
+                    Finish Session & Return to Sprint
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleMarkMastered();
-                      onClose();
-                    }}
-                    className="px-5 py-2.5 rounded-xl bg-[#007AFF] hover:bg-[#0056CC] text-white text-xs font-semibold font-display shadow-2xs transition-colors cursor-pointer min-h-[40px] active:scale-[0.98]"
-                  >
-                    Mark Mastered
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        onLaunchPracticeMcq({
+                          sessionId: `drill-${Date.now()}`,
+                          source: 'dashboard_weak_topic',
+                          subjectId,
+                          subjectName: subjectId,
+                          topicId,
+                          topicName,
+                          targetQuestionCount: 10,
+                          initialQuestions: verifiedQuestionsAvailable.slice(0, 10),
+                        });
+                      }}
+                      className="px-4 py-2.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold font-display transition-colors cursor-pointer min-h-[40px] active:scale-[0.98]"
+                    >
+                      Retest Topic
+                    </button>
+
+                    {isMasteryEligible ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleMarkMastered();
+                          onClose();
+                        }}
+                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold font-display shadow-2xs transition-colors cursor-pointer min-h-[40px] active:scale-[0.98]"
+                      >
+                        Confirm Topic Mastery
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        className="px-5 py-2.5 rounded-xl bg-stone-200 text-stone-400 text-xs font-semibold font-display cursor-not-allowed min-h-[40px]"
+                        title={isDataInsufficient ? "Complete at least 5 MCQs to unlock topic mastery" : "Achieve ≥80% accuracy and 0 repeated errors to unlock topic mastery"}
+                      >
+                        Mastery Locked
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

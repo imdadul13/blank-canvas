@@ -47,6 +47,7 @@ import {
   TelegramChannelConfig,
   TelegramAnnouncement,
   PracticeSessionContext,
+  PracticeSessionQuestion,
   SyncStatus
 } from './types';
 import { FMGE_SUBJECTS } from './data/fmgeSubjects';
@@ -390,7 +391,9 @@ function AppInner() {
     topicId: string,
     topicName: string,
     subtopic?: string,
-    source: 'recommended_video' | 'dashboard_weak_topic' | 'ai_coach' = 'recommended_video'
+    source: 'recommended_video' | 'dashboard_weak_topic' | 'ai_coach' | 'daily_mission' = 'recommended_video',
+    targetQuestionCount: number = 10,
+    initialQuestions?: PracticeSessionQuestion[]
   ) => {
     const foundSub = FMGE_SUBJECTS.find((s) => s.id === subjectId);
     const subjectName = foundSub?.name || subjectId.toUpperCase();
@@ -402,8 +405,13 @@ function AppInner() {
       topicId,
       topicName,
       subtopic,
-      targetQuestionCount: 10,
+      targetQuestionCount,
+      initialQuestions,
     });
+  };
+
+  const handleLaunchPracticeContext = (context: PracticeSessionContext) => {
+    setPracticeSessionContext(context);
   };
 
   const handleOpenAiCoach = (
@@ -1384,7 +1392,7 @@ function AppInner() {
         onUpdateConfidence={handleUpdateConfidence}
         onAddCustomTopic={handleAddCustomTopic}
         onUpdateSubjectDetails={handleUpdateSubjectDetails}
-        onLaunchPracticeMcq={(ctx) => handleLaunchPracticeSession(ctx.subjectId, ctx.topicId, ctx.topicName)}
+        onLaunchPracticeMcq={handleLaunchPracticeContext}
         onOpenAiCoach={handleOpenAiCoach}
       />}
 

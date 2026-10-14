@@ -42,6 +42,8 @@ export interface NewMcqAttemptInput {
   imageAssetId?: string;
   tags?: string[];
   notes?: string;
+  explanation?: string;
+  highYieldPearl?: string;
 }
 
 /**
@@ -538,14 +540,18 @@ export function recordMcqAttempt(
           myMistake: !input.isCorrect
             ? (input.selectedAnswer ? `Selected option ${input.selectedAnswer} (Incorrect)` : existing.myMistake)
             : `Lucky guess (Option ${input.selectedAnswer || 'Correct'}); concept still uncertain`,
-          correctConcept: input.correctAnswer
-            ? `Correct answer: Option ${input.correctAnswer}`
-            : existing.correctConcept,
+          correctConcept: input.explanation
+            ? `${input.correctAnswer ? `Option ${input.correctAnswer}: ` : ''}${input.explanation}${input.highYieldPearl ? ` (Pearl: ${input.highYieldPearl})` : ''}`
+            : (input.correctAnswer ? `Correct answer: Option ${input.correctAnswer}` : existing.correctConcept),
           isReviewed: false,
         };
         updatedErrorNotebook = updatedErrorNotebook.map((card, i) => (i === existingIdx ? updatedCard : card));
       }
     } else if (shouldEnterErrorVault) {
+      const detailedConcept = input.explanation
+        ? `${input.correctAnswer ? `Option ${input.correctAnswer}: ` : ''}${input.explanation}${input.highYieldPearl ? ` (Pearl: ${input.highYieldPearl})` : ''}`
+        : `Correct answer: Option ${input.correctAnswer || input.selectedAnswer || 'Verified standard'}`;
+
       const newErrorItem = {
         id: `err-${input.questionId}`,
         subjectId: input.subjectId,
@@ -557,7 +563,7 @@ export function recordMcqAttempt(
         myMistake: !input.isCorrect
           ? `Selected option ${input.selectedAnswer || 'Incorrect'}`
           : `Answered correctly by guessing (Option ${input.selectedAnswer || 'Selected'}); fragile recall requires review`,
-        correctConcept: `Correct answer: Option ${input.correctAnswer || input.selectedAnswer || 'Verified standard'}`,
+        correctConcept: detailedConcept,
         isReviewed: false,
         dateAdded: new Date().toISOString().split('T')[0],
       };

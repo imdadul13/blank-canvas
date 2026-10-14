@@ -358,13 +358,15 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
       timeTakenSeconds: timeTaken,
       difficulty: 'high-yield',
       confidence,
-      source: 'recommended_video_practice',
+      source: (context.source as any) || 'recommended_video_practice',
       sessionId: activeSessionId,
       isImageBased: Boolean(currentQ.imageUrl),
       imageCategory: currentQ.imageAsset?.imageCategory || currentQ.mediaType,
       imageUrl: currentQ.imageUrl,
       imageAssetId: currentQ.imageAsset?.assetId,
       notes: currentQ.question,
+      explanation: currentQ.explanation,
+      highYieldPearl: currentQ.highYieldPearl,
     });
 
     setIsAnswerSubmitted(true);
@@ -397,8 +399,11 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
       correctAnswer: currentQ.correctAnswer,
       timeTakenSeconds: timeTaken,
       difficulty: 'high-yield',
-      source: 'recommended_video_practice',
+      source: (context.source as any) || 'recommended_video_practice',
       sessionId: activeSessionId,
+      notes: currentQ.question,
+      explanation: currentQ.explanation,
+      highYieldPearl: currentQ.highYieldPearl,
     });
 
     handleNextQuestion(updatedAnswers);
@@ -1063,9 +1068,16 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                   {/* Vignette Metadata Badge Row */}
                   <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-[#F1F5F4] text-[#4A5553] border border-[#E2E8E6]">
-                        CLINICAL VIGNETTE
-                      </span>
+                      {currentQ.isAiGenerated === false ? (
+                        <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200 flex items-center gap-1">
+                          <Check className="h-3 w-3 text-sky-600" />
+                          <span>Verified Question Bank</span>
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                          AI-Synthesized Practice
+                        </span>
+                      )}
                       {(currentQ.difficulty === 'high-yield' || Boolean(currentQ.highYieldPearl)) && (
                         <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#F0FDF4] text-[#166534] border border-[#BBF7D0]">
                           High Yield
@@ -1073,7 +1085,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                       )}
                     </div>
                     <span className="font-mono text-[11px] text-[#8C9895]">
-                      10 Questions Target
+                      Question {currentIdx + 1} of {targetCount}
                     </span>
                   </div>
 

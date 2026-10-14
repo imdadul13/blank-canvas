@@ -723,6 +723,7 @@ export interface PracticeSessionContext {
   topicName: string;
   subtopic?: string;
   targetQuestionCount: number; // 10
+  initialQuestions?: PracticeSessionQuestion[];
 }
 
 export interface PracticeSessionSummary {

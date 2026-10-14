@@ -612,6 +612,84 @@ export const VERIFIED_TOPIC_FLASHCARDS: Record<string, Omit<FlashcardItem, 'id' 
       difficulty: 'high-yield',
     },
   ],
+
+  // Neurology - Epilepsy Classification & Antiepileptic Drugs
+  'med-10': [
+    {
+      front: 'What is the classic clinical triad and EEG hallmark of Juvenile Myoclonic Epilepsy (JME / Janz syndrome)?',
+      back: 'Triad: 1) Morning bilateral myoclonic jerks (dropping objects upon waking);\n2) Generalized tonic-clonic seizures (provoked by sleep loss/alcohol);\n3) Absence seizures (in ~30% of patients).\nEEG: Bilateral synchronous 4–6 Hz polyspike-and-wave discharges on a normal background.',
+      clinicalPearl: 'Accentuated by intermittent photic stimulation and hyperventilation; morning clumsiness is the key clinical clue.',
+      category: 'Epilepsy Syndromes',
+      difficulty: 'high-yield',
+    },
+    {
+      front: 'In a 16-year-old female diagnosed with JME, what is the preferred first-line antiseizure medication and why is Sodium Valproate avoided?',
+      back: 'Preferred first-line: Oral Levetiracetam or Lamotrigine.\nSodium Valproate is avoided in females of childbearing potential due to high teratogenicity (neural tube defects like spina bifida, cardiac malformations, and 30-40% risk of neurodevelopmental delay/autism).',
+      clinicalPearl: 'Valproate should not be used in women of childbearing potential unless no suitable alternative exists and a pregnancy prevention plan is in place.',
+      category: 'Teratogenicity & Guidelines',
+      difficulty: 'high-yield',
+    },
+    {
+      front: 'Which commonly prescribed antiseizure medications are strictly contraindicated in JME and why?',
+      back: 'Narrow-spectrum sodium channel blockers: Carbamazepine, Oxcarbazepine, Phenytoin, plus Vigabatrin and Tiagabine.\nMechanism: They selectively exacerbate myoclonic jerks and absence seizures, potentially precipitating status epilepticus.',
+      clinicalPearl: 'Ethosuximide controls absence seizures, but does not protect against generalized tonic-clonic seizures in JME.',
+      category: 'Contraindications & Traps',
+      difficulty: 'trap',
+    },
+    {
+      front: 'What is the emergency pharmacological protocol for Phase 1 (0–5 min) Convulsive Status Epilepticus?',
+      back: 'First-line: IV Lorazepam 0.1 mg/kg (typically 4 mg IV push over 2 minutes; may repeat once at 5–10 min if seizing continues).\nIf no IV access: IM Midazolam 10 mg (>40 kg) or Rectal Diazepam 0.2 mg/kg.',
+      clinicalPearl: 'Seizure activity lasting >= 5 minutes represents status epilepticus (T1) requiring immediate pharmacotherapy.',
+      category: 'Emergency Protocol',
+      difficulty: 'high-yield',
+    },
+    {
+      front: 'If convulsive status epilepticus persists beyond 10 minutes despite initial benzodiazepine, what is the established Phase 2 treatment?',
+      back: 'Infuse non-sedating IV Antiseizure Medication (ESETT trial demonstrated equivalent efficacy):\n1. IV Levetiracetam 60 mg/kg (max 4500 mg over 10 min) OR\n2. IV Fosphenytoin 20 mg PE/kg (max 1500 mg PE, max rate 150 mg PE/min) OR\n3. IV Sodium Valproate 40 mg/kg (max 3000 mg over 5–10 min).',
+      clinicalPearl: 'Refractory status (>20-30 min) requires intubation and continuous general anesthetic infusion (Propofol or Midazolam) titrated to EEG burst suppression.',
+      category: 'Status Epilepticus Protocol',
+      difficulty: 'high-yield',
+    },
+  ],
+
+  // Pharmacology - Anti-epileptics (Teratogenicity & Spectrum)
+  'pharm-5': [
+    {
+      front: 'What is the molecular mechanism of action and clinical indication for Ethosuximide?',
+      back: 'Mechanism: Selective blockade of T-type voltage-sensitive Ca2+ channels in thalamocortical relay neurons.\nIndication: First-line Drug of Choice for pure Childhood Absence Seizures (3 Hz spike-wave EEG).',
+      clinicalPearl: 'Does NOT treat generalized tonic-clonic seizures or focal seizures.',
+      category: 'Drug Mechanisms',
+      difficulty: 'core',
+    },
+    {
+      front: 'Why is Sodium Valproate avoided in females of childbearing potential and what are its major teratogenic risks?',
+      back: 'Teratogenic risks: Neural tube defects (spina bifida / myelomeningocele: 1–2% incidence), craniofacial clefts, congenital cardiac defects, and dose-dependent long-term neurocognitive impairment / autism in exposed infants.',
+      clinicalPearl: 'Levetiracetam and Lamotrigine are the safest first-line alternatives in women of reproductive age.',
+      category: 'Teratogenic Toxicity',
+      difficulty: 'high-yield',
+    },
+    {
+      front: 'Which antiseizure medications are notorious for causing Stevens-Johnson Syndrome (SJS) and which pharmacogenetic test is recommended?',
+      back: 'Carbamazepine, Lamotrigine, and Phenytoin.\nPharmacogenetic screen: HLA-B*1502 allele screening (strongly associated with SJS/TEN in Asian / South Asian populations exposed to Carbamazepine).',
+      clinicalPearl: 'Lamotrigine must be escalated with a very slow dose-titration schedule to prevent severe cutaneous adverse reactions.',
+      category: 'Adverse Effects',
+      difficulty: 'trap',
+    },
+    {
+      front: 'What are the characteristic adverse effects of long-term Phenytoin therapy?',
+      back: '1. Gingival hyperplasia (increased PDGF)\n2. Hirsutism / coarse facial features\n3. Cerebellar atrophy / ataxia / nystagmus\n4. Megaloblastic anemia (folate antagonism)\n5. Peripheral neuropathy and osteomalacia (vitamin D catabolism)\n6. Fetal Hydantoin Syndrome.',
+      clinicalPearl: 'Follows zero-order (saturation) elimination kinetics at therapeutic serum concentrations (10–20 mcg/mL).',
+      category: 'Toxicology & Adverse Effects',
+      difficulty: 'high-yield',
+    },
+    {
+      front: 'What is the stepped pharmacotherapy protocol for Status Epilepticus (convulsive seizure >= 5 minutes)?',
+      back: '• 0–5 min (Emergent): IV Lorazepam 0.1 mg/kg (4 mg push) or IM Midazolam 10 mg.\n• 10–20 min (Established): Non-sedating IV ASM: IV Levetiracetam (60 mg/kg) or IV Fosphenytoin (20 mg PE/kg) or IV Valproate (40 mg/kg).\n• >20–30 min (Refractory): General anesthesia with IV Propofol or Midazolam infusion + intubation + continuous EEG.',
+      clinicalPearl: 'Fosphenytoin is a water-soluble prodrug that does not cause the purple glove syndrome or propylene glycol-induced arrhythmias seen with IV Phenytoin.',
+      category: 'Emergency Pharmacology',
+      difficulty: 'high-yield',
+    },
+  ],
 };
 
 /**

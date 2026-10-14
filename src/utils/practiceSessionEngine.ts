@@ -731,8 +731,11 @@ export async function fetchPracticeSessionQuestions(
   const targetCount = context.targetQuestionCount || 10;
   let questions: PracticeSessionQuestion[] = [];
 
-  // If in browser environment, attempt to fetch from server AI practice-session endpoint
-  if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
+  // If verified initial questions were explicitly provided, use them directly
+  if (context.initialQuestions && context.initialQuestions.length > 0) {
+    questions = context.initialQuestions.slice(0, targetCount);
+  } else if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
+    // If in browser environment, attempt to fetch from server AI practice-session endpoint
     try {
       const response = await fetch('/api/ai/practice-session-batch', {
         method: 'POST',
