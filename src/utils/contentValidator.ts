@@ -43,7 +43,9 @@ export function validateTopicContentConsistency(
 
   // Subject-specific cross-contamination negative terms
   // If target topic is NOT cardiology, reject prominent cardiology acute terms
-  const isCardiologyTopic = lowerTopic.includes('cardio') || lowerTopic.includes('stemi') || lowerTopic.includes('infarct') || lowerTopic.includes('heart') || lowerTopic.includes('ecg') || lowerTopic.includes('arrhythmia') || lowerTopic.includes('wpw') || lowerTopic.includes('rvmi');
+  const isCardiologyTopic = lowerTopic.includes('cardio') || lowerTopic.includes('stemi') || lowerTopic.includes('infarct') || lowerTopic.includes('heart') || lowerTopic.includes('ecg') || lowerTopic.includes('arrhythmia') || lowerTopic.includes('wpw') || lowerTopic.includes('rvmi') || lowerTopic.includes('valv') || lowerTopic.includes('endocard') || lowerTopic.includes('murmur');
+  const isValvularTopic = lowerTopic.includes('valv') || lowerTopic.includes('endocard') || lowerTopic.includes('murmur') || lowerTopic.includes('duke');
+  const isEcgTopic = lowerTopic.includes('ecg') || lowerTopic.includes('arrhythmia') || lowerTopic.includes('wpw') || lowerTopic.includes('heart block') || lowerTopic.includes('stemi');
   const isPulmonologyTopic = lowerTopic.includes('asthma') || lowerTopic.includes('copd') || lowerTopic.includes('pneumonia') || lowerTopic.includes('lung') || lowerTopic.includes('gina') || lowerTopic.includes('gold');
   const isBiochemistryTopic = lowerTopic.includes('kinetics') || lowerTopic.includes('lineweaver') || lowerTopic.includes('enzyme') || lowerTopic.includes('metabolism') || lowerTopic.includes('glycolysis') || lowerSub.includes('biochem');
   const isAnatomyTopic = lowerSub.includes('anatomy') || lowerTopic.includes('plexus') || lowerTopic.includes('nerve') || lowerTopic.includes('triangle') || lowerTopic.includes('canal') || lowerTopic.includes('peritoneum') || lowerTopic.includes('embryology');
@@ -55,6 +57,35 @@ export function validateTopicContentConsistency(
   const isLowerLimbTopic = lowerTopic.includes('lower limb') || lowerTopic.includes('knee') || lowerTopic.includes('peroneal') || lowerTopic.includes('tibial') || lowerTopic.includes('popliteal') || lowerTopic.includes('femoral') || lowerTopic.includes('foot drop');
 
   const disqualifyingTerms: string[] = [];
+
+  // Intra-cardiology cross-topic contamination:
+  // If user is studying Valvular diseases, pure acute STEMI or AV block questions must NOT contaminate the session
+  if (isValvularTopic && !isEcgTopic) {
+    const isPureEcgOrStemiContent =
+      (lowerContent.includes('st-segment elevation') ||
+        lowerContent.includes('inferior wall mi') ||
+        lowerContent.includes('rca occlusion') ||
+        lowerContent.includes('lad occlusion') ||
+        lowerContent.includes('rvmi') ||
+        lowerContent.includes('cannon \'a\' waves') ||
+        lowerContent.includes('cannon a waves') ||
+        lowerContent.includes('stokes-adams') ||
+        lowerContent.includes('complete heart block') ||
+        lowerContent.includes('third-degree heart block') ||
+        lowerContent.includes('av dissociation') ||
+        lowerContent.includes('wolff-parkinson-white')) &&
+      !lowerContent.includes('valve') &&
+      !lowerContent.includes('valvular') &&
+      !lowerContent.includes('murmur') &&
+      !lowerContent.includes('endocarditis') &&
+      !lowerContent.includes('stenosis') &&
+      !lowerContent.includes('regurgitation') &&
+      !lowerContent.includes('vegetation');
+
+    if (isPureEcgOrStemiContent) {
+      disqualifyingTerms.push('pure_stemi_or_heart_block_in_valvular_session');
+    }
+  }
 
   // Regional intra-anatomy cross-contamination checks
   if (isAbdomenTopic) {
@@ -150,6 +181,15 @@ export function validateTopicContentConsistency(
   } else if (topicType === 'anatomical_structure') {
     const anatTerms = ['root', 'trunk', 'nerve', 'artery', 'vein', 'relation', 'branch', 'canal', 'muscle', 'innervation', 'insertion', 'origin', 'fossa'];
     for (const term of anatTerms) {
+      if (lowerContent.includes(term) && !matchedKeywords.includes(term)) {
+        matchedKeywords.push(term);
+      }
+    }
+  }
+
+  if (isValvularTopic) {
+    const valvularTerms = ['valve', 'valvular', 'murmur', 'stenosis', 'regurgitation', 'endocarditis', 'duke', 'vegetation', 'osler', 'janeway', 'splinter', 'aortic', 'mitral', 'tricuspid', 'prolapse', 'opening snap', 'pulsus parvus', 'austin flint'];
+    for (const term of valvularTerms) {
       if (lowerContent.includes(term) && !matchedKeywords.includes(term)) {
         matchedKeywords.push(term);
       }

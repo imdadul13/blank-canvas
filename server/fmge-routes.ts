@@ -11,6 +11,7 @@ import { validateTopicContentConsistency } from "../src/utils/contentValidator";
 import {
   validateComprehensiveMcq,
   validateQuestionTopicMatch,
+  getVerifiedTopicQuestions,
 } from "../src/utils/practiceSessionEngine";
 import { imageRetrievalService } from "./image-retrieval-service";
 import express from "express";
@@ -531,6 +532,9 @@ export function getVerifiedSubjectQuestion(subject: string, topic?: string): any
 }
 
 export function getVerifiedSubjectQuestionsBatch(subject: string, topic?: string, count: number = 10): any[] {
+  if (topic) {
+    return getVerifiedTopicQuestions(subject, `topic-${subject}`, topic, count);
+  }
   const s = String(subject || "").toLowerCase().replace(/[^a-z]/g, '');
   let list = HY_SUBJECT_BANK[s];
   if (!list || list.length === 0) {
@@ -914,11 +918,12 @@ Output strictly valid JSON with this schema:
     const response = await callGeminiWithRetry({
       model: "gemini-flash-lite-latest",
       contents: prompt,
+      timeoutMs: 8000,
       config: {
         responseMimeType: "application/json",
         systemInstruction: "You are an expert FMGE/NExT medical licensing examination tutor. Produce clean, strictly valid JSON with flawless medical accuracy.",
       },
-    });
+    }, 1, 400);
 
     const text = response.text || "{}";
     const data = JSON.parse(text);
@@ -1134,75 +1139,64 @@ Output strictly valid JSON with this schema:
       // regional-anatomy contamination through to the user for the ACTIVE topic. Every AI
       // question is checked for 10-point validity AND semantic topic match; any contaminated
       // or off-topic question is redacted. If none remain, fall through to the verified bank.
-      const validQuestions = formattedQuestions.filter((q: any) =>
+      let validQuestions = formattedQuestions.filter((q: any) =>
         validateComprehensiveMcq(
           {
             scenario: q.scenario,
             question: q.question,
             options: q.options,
             explanation: q.explanation,
+            topicName: q.topicName || topicName,
+            topicId: q.topicId || topicId,
           },
           subjectName || subjectId,
           topicName
         ).isValid
       );
 
+      const targetCount = count || 10;
+      if (validQuestions.length < targetCount) {
+        // Supplement with verified topic questions so the aspirant ALWAYS receives the full target count
+        const verifiedTopUps = getVerifiedTopicQuestions(subjectId, topicId, topicName, targetCount);
+        for (const topUp of verifiedTopUps) {
+          if (validQuestions.length >= targetCount) break;
+          if (!validQuestions.some((vq: any) => vq.scenario === topUp.scenario || vq.question === topUp.question)) {
+            validQuestions.push({
+              ...topUp,
+              sequenceNumber: validQuestions.length + 1,
+            });
+          }
+        }
+      }
+
       if (validQuestions.length === 0) {
         throw new Error("AI practice-session questions failed topic-integrity validation (serving verified bank)");
       }
 
-    res.json({
-      success: true,
-      subjectId,
-      subjectName,
-      topicId,
-      topicName,
-      count: validQuestions.length,
-      questions: validQuestions,
-    });
-  } catch (error: any) {
-    console.warn("AI Practice Session batch generation notice (serving verified clinical bank):", error.message);
-    const fallbackQuestions = getVerifiedSubjectQuestionsBatch(subjectName || subjectId, topicName, count || 10);
-    const formattedFallback = fallbackQuestions.map((q: any, idx: number) => {
-      const opts = (q.options || []).map((o: any, oIdx: number) => ({
-        optionId: `opt_${oIdx + 1}`,
-        key: o.key || ['A', 'B', 'C', 'D'][oIdx] || 'A',
-        text: typeof o === 'string' ? o.replace(/^[A-D]\)\s*/, '') : (o.text || '').replace(/^[A-D]\)\s*/, ''),
-        isCorrect: (o.key || ['A', 'B', 'C', 'D'][oIdx]) === (q.correctKey || q.correctAnswer || 'A'),
-      }));
-
-      const correctOpt = opts.find((o: any) => o.isCorrect) || opts[0];
-
-      return {
-        id: `verified-fallback-${subjectId}-${topicId}-${Date.now()}-${idx + 1}`,
-        sequenceNumber: idx + 1,
-        scenario: q.question || `Clinical presentation for ${q.topic || topicName}.`,
-        question: "What is the most likely diagnosis, investigation of choice, or definitive management?",
-        options: opts,
-        correctOptionId: correctOpt?.optionId || 'opt_1',
-        correctAnswer: correctOpt?.key || 'A',
-        explanation: q.explanation || "This is the evidence-based guideline standard for FMGE.",
-        highYieldPearl: q.highYieldPearl || q.memoryHook,
+      res.json({
+        success: true,
         subjectId,
         subjectName,
         topicId,
         topicName,
-        difficulty: q.difficulty || "high-yield",
-        isAiGenerated: false,
-      };
-    });
+        count: validQuestions.length,
+        questions: validQuestions,
+      });
+    } catch (error: any) {
+      console.warn("AI Practice Session batch generation notice (serving verified clinical bank):", error.message);
+      const verifiedQuestions = getVerifiedTopicQuestions(subjectId, topicId, topicName, count || 10);
 
-    res.json({
-      success: true,
-      subjectId,
-      subjectName,
-      topicId,
-      topicName,
-      count: formattedFallback.length,
-      questions: formattedFallback,
-      fallback: true,
-    });
-  }
+      res.json({
+        success: true,
+        subjectId,
+        subjectName,
+        topicId,
+        topicName,
+        count: verifiedQuestions.length,
+        questions: verifiedQuestions,
+        fallback: true,
+      });
+    }
 });
 
 // AI: Generate Comprehensive FMGE Rapid Revision Master Deck (Topic Mastery Hub)

@@ -695,6 +695,190 @@ export const FMGE_TOPIC_KNOWLEDGE_BASE: Record<string, MedicalTopicKnowledge> = 
   },
 
   // =================== 9. GENERAL MEDICINE ===================
+  'med-1': {
+    topicId: 'med-1',
+    subjectId: 'medicine',
+    topicTitle: 'Cardiology - ECGs (STEMI, Arrhythmias, Heart Blocks, WPW)',
+    highYieldSummary: 'ECG localization of STEMI by leads and coronary arteries (II, III, aVF = RCA; V1-V4 = LAD; I, aVL, V5-V6 = LCx). AV blocks: 1st degree (PR > 0.20s), 2nd degree Mobitz I (Wenckebach progressive PR prolongation) vs Mobitz II (intermittent dropped QRS, pacing needed), 3rd degree (complete AV dissociation, Stokes-Adams syncope, PPI needed). WPW features short PR (<0.12s) + delta wave + wide QRS.',
+    coreConcepts: [
+      'Coronary Artery & Lead Localization: Leads II, III, aVF = Inferior wall (RCA); Leads V1-V2 = Septal (LAD); Leads V3-V4 = Anterior (LAD); Leads I, aVL, V5-V6 = Lateral (LCx); Lead aVR elevation with widespread depression = Left Main Coronary Artery (LMCA) occlusion.',
+      'Right Ventricular Myocardial Infarction (RVMI): Suspect in all inferior STEMIs with hypotension after nitroglycerin. ECG shows ST elevation in lead V4R. Preload-dependent: Treatment is rapid IV Normal Saline bolus. Nitrates, Morphine, and Diuretics are strictly contraindicated.',
+      'Atrioventricular (AV) Blocks: First degree (PR > 200 ms, all P conducted). Mobitz Type I / Wenckebach (progressive PR prolongation until dropped QRS; benign intranodal). Mobitz Type II (fixed PR interval with unexpected dropped QRS; infranodal, risk of complete heart block, requires pacemaker). Third degree / Complete Heart Block (complete AV dissociation, independent slow escape rhythm, cannon "a" waves in JVP, Stokes-Adams syncopal attacks, definitive treatment is Permanent Pacemaker Implantation).',
+      'Wolff-Parkinson-White (WPW) Pre-excitation Syndrome: Bundle of Kent accessory pathway bypassing AV node. Classic triad on ECG: (1) Short PR interval (<120 ms), (2) Slurred initial QRS upstroke (Delta wave), (3) Prolonged QRS duration (>120 ms). Acute stable orthodromic SVT: Vagal maneuvers -> IV Adenosine. WPW with atrial fibrillation: Procainamide or synchronized DC cardioversion (AV nodal blockers like ABCD - Adenosine, Beta-blockers, CCBs, Digoxin are strictly contraindicated as they accelerate conduction down accessory pathway causing VF). Definitive cure: Radiofrequency catheter ablation.',
+      'Tachyarrhythmias: Ventricular Fibrillation / Pulseless VT = Immediate Defibrillation (unsynchronized shock 200J biphasic) + CPR + Epinephrine/Amiodarone. Unstable Tachycardia with pulse = Synchronized DC Cardioversion. Stable narrow-complex SVT = Vagal maneuvers followed by rapid IV Adenosine 6 mg.',
+    ],
+    keyTakeaways: [
+      'Inferior STEMI (II, III, aVF) = RCA. If hypotensive with clear lungs -> RVMI -> give IV Normal Saline, NEVER nitrates.',
+      'Complete (3rd Degree) Heart Block = Complete AV dissociation + Cannon "a" waves. Definitive treatment = Permanent Pacemaker (PPI).',
+      'WPW Triad = Short PR (<120 ms) + Delta wave + Wide QRS. In AF + WPW: Use Procainamide or Cardioversion; avoid ABCD drugs.',
+      'Torsades de Pointes = Polymorphic VT with twisting QRS around isoelectric line. First-line treatment = IV Magnesium Sulfate.',
+    ],
+    goldStandardTest: '12-lead Electrocardiogram (ECG) with right-sided (V4R) and posterior (V7-V9) leads as clinically indicated.',
+    firstLineTreatment: 'Primary Percutaneous Coronary Intervention (PCI within 90 minutes) for STEMI; Permanent Pacemaker Implantation (PPI) for Complete Heart Block; Radiofrequency Catheter Ablation for WPW.',
+    classicPresentation: 'Elderly patient with sudden syncope, bradycardia at 34/min, and cannon "a" waves on neck exam, with ECG showing independent P waves and wide escape QRS.',
+    examTrap: 'In RVMI, lungs are CLEAR on auscultation (absence of pulmonary rales). Giving nitroglycerin or diuretics drops right ventricular preload and causes fatal cardiogenic shock. In WPW with AF, never give Adenosine, Digoxin, Beta-blockers, or Calcium Channel Blockers.',
+    flashcards: [
+      {
+        front: 'What culprit artery is occluded in an inferior STEMI presenting with ST elevation in leads II, III, and aVF?',
+        back: 'Right Coronary Artery (RCA) in 85–90% of individuals (dominant right circulation via Posterior Descending Artery).',
+        clinicalPearl: 'Check lead V4R for right ventricular involvement whenever inferior STEMI is identified.',
+      },
+      {
+        front: 'What is the characteristic hemodynamic finding and first-line treatment for Right Ventricular Infarction?',
+        back: '• Finding: Hypotension + Elevated JVP + CLEAR lung fields (no rales).\n• Treatment: Immediate aggressive IV Normal Saline fluid resuscitation to restore RV preload.\n• Contraindicated: Nitrates, Morphine, Diuretics.',
+        clinicalPearl: 'The right ventricle is non-compliant and preload-dependent; venodilators precipitate severe shock.',
+      },
+      {
+        front: 'What are the three diagnostic hallmarks of Wolff-Parkinson-White (WPW) syndrome on ECG?',
+        back: '1. Short PR interval (< 0.12 seconds / < 120 ms).\n2. Delta wave (slurred initial upstroke of the QRS complex).\n3. Widened QRS complex (> 0.12 seconds / > 120 ms) with secondary ST-T wave changes.',
+        clinicalPearl: 'Caused by an anomalous congenital accessory pathway (Bundle of Kent) connecting atria directly to ventricles.',
+      },
+      {
+        front: 'What is the mechanism of cannon "a" waves in the jugular venous pulse in Complete Heart Block?',
+        back: 'Cannon "a" waves occur when the right atrium contracts against a closed tricuspid valve due to atrioventricular (AV) dissociation.',
+        clinicalPearl: 'Also seen in ventricular tachycardia and junctional escape rhythms with retrograde conduction.',
+      },
+      {
+        front: 'What is the drug of choice for hemodynamically stable Torsades de Pointes?',
+        back: 'Intravenous Magnesium Sulfate (1–2 g IV over 15 minutes).',
+        clinicalPearl: 'Torsades is triggered by prolonged QTc interval (>500 ms) and often precipitated by hypokalemia or hypomagnesemia.',
+      },
+    ],
+    clinicalCase: {
+      title: 'Clinical Vignette: Inferior STEMI with Right Ventricular Infarction',
+      patientDemographics: '54-year-old male smoker with crushing retrosternal chest pain',
+      presentation: 'Presents to the emergency department 45 minutes after the sudden onset of crushing substernal chest pressure radiating to the jaw and epigastrium, accompanied by diaphoresis and nausea.',
+      physicalExamOrLabs: 'BP 82/54 mmHg, HR 52/min, RR 18/min. Jugular venous distension is visible up to the angle of the jaw. Chest auscultation reveals completely clear lung fields bilaterally without crackles or wheezes. 12-lead ECG demonstrates 3 mm ST elevation in leads II, III, and aVF with reciprocal ST depression in leads I and aVL. Lead V4R demonstrates 1.5 mm ST elevation.',
+      diagnosticQuestion: 'Which diagnosis is confirmed, and what is the most critical initial management step?',
+      options: [
+        { key: 'A', text: 'Inferior STEMI with Right Ventricular Infarction (RVMI); rapid intravenous 0.9% Normal Saline fluid bolus', isCorrect: true },
+        { key: 'B', text: 'Anterolateral STEMI with left ventricular failure; intravenous Furosemide bolus and sublingual Nitroglycerin', isCorrect: false },
+        { key: 'C', text: 'Acute Pulmonary Embolism; systemic intravenous unfractionated heparin bolus', isCorrect: false },
+        { key: 'D', text: 'Cardiac Tamponade; emergent bedside needle pericardiocentesis', isCorrect: false },
+      ],
+      clinicalExplanation: 'ST elevation in leads II, III, and aVF localizes to an Inferior Wall Myocardial Infarction (RCA culprit). ST elevation in right-sided lead V4R confirms Right Ventricular Myocardial Infarction (RVMI). The clinical triad of hypotension, elevated JVP, and clear lungs is pathognomonic. RVMI is preload-dependent; immediate management requires rapid volume expansion with IV isotonic crystalloid (Normal Saline). Nitrates and diuretics are strictly contraindicated as they cause fatal venodilatory drop in preload.',
+      examPearl: 'Inferior STEMI + Lead V4R ST elevation = RVMI. Triad: Hypotension + Elevated JVP + Clear lungs. Treatment = IV fluids; Avoid Nitrates.',
+    },
+  },
+  'med-2': {
+    topicId: 'med-2',
+    subjectId: 'medicine',
+    topicTitle: 'Cardiology - Acute Coronary Syndromes (ACS) & Heart Failure',
+    highYieldSummary: 'ACS spectrum encompasses STEMI, NSTEMI (positive cardiac troponin without persistent ST elevation), and Unstable Angina. Heart Failure with Reduced Ejection Fraction (HFrEF, EF <= 40%) requires guideline-directed medical therapy (GDMT) with the 4 pillars to reduce mortality.',
+    coreConcepts: [
+      'Four Pillars of GDMT in HFrEF (Mortality Reducers): (1) ARNI (Sacubitril-Valsartan) or ACEi/ARB, (2) Evidence-based Beta-Blocker (Bisoprolol, Carvedilol, or Metoprolol Succinate), (3) Mineralocorticoid Receptor Antagonist (MRA: Spironolactone or Eplerenone), (4) SGLT2 Inhibitor (Dapagliflozin or Empagliflozin). All four classes improve survival and reduce hospitalizations.',
+      'Symptom Relief vs Mortality in Heart Failure: Loop diuretics (Furosemide, Torsemide) and Digoxin improve symptoms and fluid congestion but DO NOT reduce mortality. Only the 4 GDMT pillars, hydralazine-isosorbide dinitrate (in self-identified Black patients), and ICD/CRT prolong survival.',
+      'Troponin Biomarkers in ACS: High-sensitivity Cardiac Troponin (hs-cTnI / hs-cTnT) is the gold standard for myocardial necrosis. Rises at 2-4 hours, peaks at 24 hours, and remains elevated for 10-14 days. CK-MB peaks at 18-24 hours and returns to baseline in 48-72 hours, making it the biomarker of choice for detecting early re-infarction.',
+      'Acute Decompensated Heart Failure (ADHF): Stevenson hemodynamic classification based on Congestion (Wet vs Dry) and Perfusion (Warm vs Cold). Most common is Warm & Wet (congestion without hypoperfusion) treated with IV Loop Diuretics and IV Vasodilators (Nitroglycerin/Nitroprusside). Cold & Wet (cardiogenic shock) requires inotropes (Dobutamine, Milrinone) and urgent mechanical circulatory support.',
+    ],
+    keyTakeaways: [
+      'The 4 Pillars of GDMT in HFrEF (Mortality Reducers): ARNI + Beta-blocker + MRA + SGLT2i.',
+      'Loop diuretics relieve congestion but DO NOT reduce mortality in heart failure.',
+      'CK-MB is the test of choice for diagnosing re-infarction occurring within 3 to 14 days after initial MI.',
+      'Sacubitril-Valsartan (ARNI) requires a 36-hour washout period when switching from an ACE inhibitor to prevent angioedema.',
+    ],
+    goldStandardTest: 'Transthoracic Echocardiography with Doppler (evaluates LVEF, wall motion, and diastolic dysfunction); hs-Troponin for acute ischemia.',
+    firstLineTreatment: 'Four-pillar GDMT (Sacubitril-Valsartan + Carvedilol/Metoprolol Succinate + Spironolactone + Dapagliflozin) for chronic HFrEF; IV Furosemide for acute decompensation.',
+    classicPresentation: 'Patient with ischemic cardiomyopathy presenting with orthopnea, paroxysmal nocturnal dyspnea (PND), bilateral lower extremity pitting edema, S3 gallop, and elevated BNP.',
+    examTrap: 'Never initiate or up-titrate beta-blockers during acute decompensated "wet & cold" heart failure; optimize diuresis to euvolemia first before stabilizing beta-blocker therapy.',
+    flashcards: [
+      {
+        front: 'Which four drug classes constitute the guideline-directed medical therapy (GDMT) that reduces mortality in HFrEF?',
+        back: '1. ARNI (Sacubitril-Valsartan) preferred over ACEi/ARB.\n2. Beta-blockers (Bisoprolol, Carvedilol, Metoprolol Succinate).\n3. Mineralocorticoid Receptor Antagonists (Spironolactone, Eplerenone).\n4. SGLT2 Inhibitors (Dapagliflozin, Empagliflozin).',
+        clinicalPearl: 'Loop diuretics (Furosemide) and Digoxin improve symptoms and hemodynamics but do NOT prolong survival.',
+      },
+      {
+        front: 'Why is CK-MB preferred over Cardiac Troponin for diagnosing re-infarction occurring 4 days after an acute MI?',
+        back: 'Cardiac Troponins remain elevated for 10 to 14 days, whereas CK-MB normalizes within 48 to 72 hours. A re-elevation of CK-MB after 48 hours confirms a new re-infarction.',
+        clinicalPearl: 'Troponin is superior for initial diagnosis due to greater cardiac sensitivity and specificity.',
+      },
+      {
+        front: 'What mandatory safety precaution is required when switching a patient from an ACE inhibitor to an ARNI (Sacubitril-Valsartan)?',
+        back: 'A mandatory 36-hour washout period off the ACE inhibitor is required before starting the ARNI to prevent life-threatening Angioedema.',
+        clinicalPearl: 'Both ACE inhibitors and Neprilysin inhibitors degrade bradykinin; concurrent inhibition causes massive bradykinin surge and angioedema.',
+      },
+    ],
+    clinicalCase: {
+      title: 'Clinical Vignette: Heart Failure with Reduced Ejection Fraction (HFrEF)',
+      patientDemographics: '62-year-old female with long-standing hypertension and prior anterior STEMI',
+      presentation: 'Presents to clinic with progressive shortness of breath on exertion and orthopnea requiring 3 pillows to sleep. Echocardiogram reveals dilated left ventricle with left ventricular ejection fraction (LVEF) of 32%.',
+      physicalExamOrLabs: 'BP 128/78 mmHg, HR 74/min. S3 gallop is audible at apex. Trace pedal edema is present. Serum creatinine 1.0 mg/dL, Potassium 4.2 mEq/L, NT-proBNP 1,840 pg/mL.',
+      diagnosticQuestion: 'Which comprehensive medical regimen represents the guideline-directed standard of care proven to reduce mortality in this patient?',
+      options: [
+        { key: 'A', text: 'Quadruple GDMT: Sacubitril-Valsartan (ARNI), Carvedilol, Spironolactone, and Dapagliflozin', isCorrect: true },
+        { key: 'B', text: 'Oral Furosemide and Digoxin maintenance therapy alone', isCorrect: false },
+        { key: 'C', text: 'Amlodipine monotherapy and oral Diltiazem', isCorrect: false },
+        { key: 'D', text: 'Verapamil and sublingual Isosorbide Dinitrate as needed', isCorrect: false },
+      ],
+      clinicalExplanation: 'In patients with Heart Failure with reduced Ejection Fraction (HFrEF, LVEF <= 40%), guideline-directed medical therapy (GDMT) with all four pillars (ARNI, evidence-based Beta-blocker, MRA, and SGLT2i) provides synergistic survival benefits, reducing all-cause mortality and hospitalizations. Furosemide relieves symptoms but does not prolong life. Non-dihydropyridine CCBs (Verapamil, Diltiazem) depress myocardial contractility and are contraindicated in HFrEF.',
+      examPearl: 'HFrEF 4 Pillars of Mortality Reduction = ARNI + Beta-blocker + MRA + SGLT2 inhibitor. Non-DHP CCBs are contraindicated.',
+    },
+  },
+  'med-3': {
+    topicId: 'med-3',
+    subjectId: 'medicine',
+    topicTitle: 'Cardiology - Valvular Heart Diseases & Infective Endocarditis (Duke Criteria)',
+    highYieldSummary: 'Valvular heart diseases present with characteristic murmurs (AS crescendo-decrescendo with carotids radiation, MS mid-diastolic with opening snap, AR early diastolic decrescendo, MR holosystolic radiating to axilla). Infective endocarditis is diagnosed using Modified Duke Criteria (2 major, or 1 major + 3 minor, or 5 minor) and treated with bactericidal IV regimens or valve surgery.',
+    coreConcepts: [
+      'Aortic Stenosis (AS): Classic triad of SAD (Syncope, Angina, Dyspnea). Auscultation shows harsh crescendo-decrescendo systolic murmur at right 2nd ICS radiating to carotids with pulsus parvus et tardus and soft/single S2. Indication for SAVR/TAVR is onset of any symptoms or mean gradient >= 40 mmHg / valve area <= 1.0 cm2.',
+      'Mitral Stenosis (MS): Most common etiology is Rheumatic Heart Disease. Auscultation features loud S1, Opening Snap (OS), and low-pitched mid-diastolic rumbling murmur at apex in left lateral decubitus. Shorter A2-OS interval indicates more severe stenosis. Investigation of choice is Echocardiography; first-line intervention for favorable morphology without clot/regurgitation is Percutaneous Mitral Balloon Valvotomy (PMBV).',
+      'Aortic Regurgitation (AR): High-pitched blowing early diastolic decrescendo murmur at left sternal border with wide pulse pressure and hyperdynamic circulation (Corrigan water-hammer pulse, de Musset head nodding, Quincke capillary pulsations, Duroziez double femoral bruit, Austin Flint murmur).',
+      'Mitral Regurgitation (MR): Holosystolic / pansystolic murmur at cardiac apex radiating to axilla, blowing in quality, does not increase with inspiration. Mitral Valve Prolapse (MVP) features mid-systolic click followed by late systolic murmur, made earlier and longer by Valsalva / standing (reduced preload).',
+      'Modified Duke Criteria for Infective Endocarditis (IE): Major Criteria: (1) Positive blood cultures for typical organisms (Streptococcus viridans, S. bovis/gallolyticus, HACEK, S. aureus, Enterococcus) in 2 separate cultures, (2) Evidence of endocardial involvement on Echocardiogram (oscillating vegetation, abscess, new partial dehiscence of prosthetic valve, new valvular regurgitation). Minor Criteria: Predisposing heart condition / IV drug use, Fever >= 38.0°C, Vascular phenomena (Janeway lesions - painless erythematous macules on palms/soles, septic emboli, mycotic aneurysm, splinter hemorrhages), Immunologic phenomena (Osler nodes - painful violaceous nodules on pulp of digits, Roth spots in retina, glomerulonephritis, positive rheumatoid factor), Microbiologic evidence not meeting major criteria. Definite IE requires 2 Major, OR 1 Major + 3 Minor, OR 5 Minor.',
+    ],
+    keyTakeaways: [
+      'AS = Crescendo-decrescendo systolic murmur radiating to carotids + Pulsus parvus et tardus. Onset of SAD triad indicates urgent SAVR/TAVR.',
+      'MS = Loud S1 + Opening Snap + Mid-diastolic rumbling murmur. Shorter A2-OS gap = more severe. Treatment = PMBV (if Wilkins score <= 8 and no LA thrombus).',
+      'Duke Criteria: Definite IE = 2 Major OR 1 Major + 3 Minor OR 5 Minor. Janeway lesions = Painless vascular micro-abscesses; Osler nodes = Painful immune complex nodules.',
+      'Native valve IE empiric treatment = IV Ampicillin/Sulbactam or Vancomycin + Gentamicin. Prosthetic valve (<1 yr) = Vancomycin + Gentamicin + Rifampin.',
+    ],
+    goldStandardTest: 'Transesophageal Echocardiography (TEE) for Infective Endocarditis and valvular vegetations; Transthoracic Echo (TTE) with Doppler for valvular gradients and valve area.',
+    firstLineTreatment: 'Targeted IV bactericidal antibiotic therapy for 4-6 weeks (e.g. Ceftriaxone / Penicillin G for S. viridans, Vancomycin for MRSA); Valve replacement (SAVR/TAVR for AS; PMBV or MVR for MS) when indicated.',
+    classicPresentation: 'Patient with prior valvular heart disease presenting with prolonged fever, new regurgitant murmur, splinter hemorrhages, and painless Janeway lesions on palms after dental extraction.',
+    examTrap: 'Blood cultures must ALWAYS be drawn BEFORE initiating empiric antibiotics in suspected endocarditis (3 sets from different venipuncture sites spaced at least 1 hour apart). Janeway lesions are painless vascular phenomena; Osler nodes are painful immunologic phenomena.',
+    flashcards: [
+      {
+        front: 'What are the two Major Criteria in the Modified Duke Criteria for Infective Endocarditis?',
+        back: '1. Positive blood cultures for typical microorganisms in 2 separate blood cultures.\n2. Evidence of endocardial involvement on Echocardiogram (oscillating intracardiac vegetation, perivalvular abscess, new dehiscence of prosthetic valve, or new regurgitant murmur).',
+        clinicalPearl: 'Transesophageal echocardiography (TEE) is more sensitive (>90%) than transthoracic echo (TTE) for detecting vegetations and abscesses.',
+      },
+      {
+        front: 'What distinguishes Janeway lesions from Osler nodes in Infective Endocarditis?',
+        back: '• Janeway lesions: PAINLESS erythematous/hemorrhagic macules on palms and soles caused by septic micro-emboli (Vascular phenomenon).\n• Osler nodes: PAINFUL violaceous nodules on finger and toe pads caused by immune complex deposition (Immunologic phenomenon).',
+        clinicalPearl: 'Mnemonic: "Janeway = Just don\'t hurt (Painless)". "Osler = Ouch! (Painful)".',
+      },
+      {
+        front: 'What are the classic auscultatory hallmarks of Mitral Stenosis?',
+        back: '1. Loud S1 (due to high LA pressure keeping pliable leaflets wide open until ventricular systole).\n2. Opening Snap (OS) following S2.\n3. Low-pitched mid-diastolic rumbling murmur with presystolic accentuation heard best at apex in left lateral decubitus.',
+        clinicalPearl: 'Severity indicator: The shorter the A2-to-Opening-Snap interval, the higher the LA pressure, indicating MORE SEVERE mitral stenosis.',
+      },
+      {
+        front: 'What is the classic murmur and pulse finding in Severe Aortic Stenosis?',
+        back: '• Murmur: Harsh crescendo-decrescendo systolic ejection murmur heard best at right 2nd intercostal space, radiating to the carotid arteries.\n• Pulse: Pulsus parvus et tardus (slow-rising, low-amplitude carotid pulse).\n• Heart sound: Single or paradoxically split S2.',
+        clinicalPearl: 'The SAD triad (Syncope, Angina, Dyspnea) signifies severe AS requiring surgical or transcatheter valve replacement (SAVR / TAVR).',
+      },
+      {
+        front: 'What is the empiric antibiotic regimen for prosthetic valve endocarditis (PVE) occurring within 12 months of surgery?',
+        back: 'Triple therapy: Intravenous Vancomycin + Gentamicin + Oral/IV Rifampin for at least 6 weeks.',
+        clinicalPearl: 'Rifampin penetrates biofilms formed on prosthetic materials by Coagulase-Negative Staphylococci (Staphylococcus epidermidis).',
+      },
+    ],
+    clinicalCase: {
+      title: 'Clinical Vignette: Early Prosthetic Valve Endocarditis with Ring Abscess',
+      patientDemographics: '45-year-old male with a prosthetic mechanical aortic valve',
+      presentation: 'Presents with 2 weeks of high swinging fevers, chills, night sweats, and shortness of breath. He underwent mechanical valve replacement 8 months ago.',
+      physicalExamOrLabs: 'BP 105/60 mmHg, HR 108/min, Temp 39.1°C. New diastolic murmur heard at left sternal border with a muffled mechanical click. Blood cultures drawn from 3 separate sites grow Methicillin-Resistant Staphylococcus epidermidis (MRSE). TEE demonstrates a 14 mm mobile mass on the valve sewing ring with a perivalvular ring abscess.',
+      diagnosticQuestion: 'Which therapeutic strategy is mandatory for this early prosthetic valve endocarditis with perivalvular abscess?',
+      options: [
+        { key: 'A', text: 'Urgent cardiac surgery (valve re-replacement and abscess debridement) plus IV Vancomycin, Gentamicin, and Rifampin', isCorrect: true },
+        { key: 'B', text: 'Outpatient oral Amoxicillin-Clavulanate for 14 days without surgical consultation', isCorrect: false },
+        { key: 'C', text: 'Observation with serial blood cultures every 24 hours until defervescence occurs', isCorrect: false },
+        { key: 'D', text: 'Immediate high-dose systemic thrombolysis with IV Alteplase', isCorrect: false },
+      ],
+      clinicalExplanation: 'Early Prosthetic Valve Endocarditis (<1 year post-op) complicated by perivalvular abscess, persistent bacteremia, hemodynamic instability, or large mobile vegetations (>10 mm) is an absolute indication for urgent surgical intervention combined with biofilm-active triple antibiotics (Vancomycin + Gentamicin + Rifampin).',
+      examPearl: 'Perivalvular abscess, fungal endocarditis, refractory heart failure, and prosthetic valve dehiscence MANDATE urgent cardiac surgery.',
+    },
+  },
   'med-4': {
     topicId: 'med-4',
     subjectId: 'medicine',
@@ -1576,7 +1760,7 @@ function synthesizeTopicKnowledge(
         { key: 'A', text: `Guideline-directed first-line diagnostic confirmation and management for ${rawTitle}`, isCorrect: true },
         { key: 'B', text: 'Inappropriate empirical high-risk therapy without diagnostic confirmation', isCorrect: false },
         { key: 'C', text: 'Discharge with reassurance and no follow-up plan', isCorrect: false },
-        { key: 'D', text: 'Immediate unindicated invasive exploratory intervention', isCorrect: false },
+        { key: 'D', text: 'Surgical re-exploration or biopsy prior to initial diagnostic workup', isCorrect: false },
       ],
       clinicalExplanation: `Management of ${rawTitle} requires structured clinical evaluation, objective diagnostic confirmation, and guideline-directed therapy.`,
       examPearl: `Focus on high-yield exam discriminators for ${rawTitle}.`,
@@ -1636,7 +1820,18 @@ export function getMedicalTopicKnowledge(
   if (tId === 'obg-4' || (sId.includes('obg') && (name.includes('preeclampsia') || name.includes('mgso4') || name.includes('pritchard')))) {
     return FMGE_TOPIC_KNOWLEDGE_BASE['obg-4'];
   }
+  if (tId === 'med-3' || (name.includes('valvular') || name.includes('endocarditis') || name.includes('duke'))) {
+    return FMGE_TOPIC_KNOWLEDGE_BASE['med-3'];
+  }
+  if (tId === 'med-1' || ((name.includes('ecg') || name.includes('arrhythmia') || name.includes('heart block') || name.includes('wpw')) && !name.includes('valvular'))) {
+    return FMGE_TOPIC_KNOWLEDGE_BASE['med-1'];
+  }
+  if (tId === 'med-2' || (name.includes('acute coronary') || name.includes('heart failure') || name.includes('acs'))) {
+    return FMGE_TOPIC_KNOWLEDGE_BASE['med-2'];
+  }
 
   // 4. Dynamic topic-specific synthesis (GUARANTEES 100% topic consistency, NEVER leaks unrelated topics)
   return synthesizeTopicKnowledge(subjectId, topicId, topicName);
 }
+
+export const getTopicKnowledge = getMedicalTopicKnowledge;

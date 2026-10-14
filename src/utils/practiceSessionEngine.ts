@@ -11,7 +11,7 @@ import {
   VISUAL_CONCEPT_REGISTRY,
   VisualConceptAsset,
 } from './visualQuestionEngine';
-import { FMGE_TOPIC_KNOWLEDGE_BASE } from './topicKnowledgeBase';
+import { FMGE_TOPIC_KNOWLEDGE_BASE, getTopicKnowledge } from './topicKnowledgeBase';
 import { VERIFIED_TOPIC_CLINICAL_CASES } from './clinicalCaseEngine';
 
 /**
@@ -259,6 +259,9 @@ export function validateComprehensiveMcq(
     question?: string;
     options?: Array<{ text?: string; isCorrect?: boolean; key?: string }>;
     explanation?: string;
+    topicName?: string;
+    subtopic?: string;
+    topicId?: string;
   },
   subjectName?: string,
   topicName?: string
@@ -326,12 +329,31 @@ function findMatchingVisualConcept(subjectId: string, topicName: string): Visual
   if (normTopic.includes('erythema multiforme')) return VISUAL_CONCEPT_REGISTRY['derm:target_lesions_jpg'];
   if (normTopic.includes('crao') || normTopic.includes('cherry red'))
     return VISUAL_CONCEPT_REGISTRY['ophth:cherry_red_spot_jpg'];
+  if (normTopic.includes('complete heart block') || normTopic.includes('3rd degree av block'))
+    return VISUAL_CONCEPT_REGISTRY['cardio:complete_heart_block_jpg'];
+  if (normTopic.includes('wpw') || normTopic.includes('wolff parkinson'))
+    return VISUAL_CONCEPT_REGISTRY['cardio:wpw_syndrome_jpg'];
+  if (normTopic.includes('atrial fibrillation') || normTopic.includes('afib'))
+    return VISUAL_CONCEPT_REGISTRY['cardio:afib_ecg_jpg'];
+
+  // Generic medical stopwords that should NEVER trigger a loose single-word match
+  const GENERIC_VISUAL_STOPWORDS = new Set([
+    'disease', 'diseases', 'syndrome', 'heart', 'clinical', 'acute', 'chronic',
+    'disorder', 'infection', 'normal', 'study', 'finding', 'test', 'exam', 'sign',
+    'criteria', 'presentation', 'management', 'review', 'recall', 'high', 'yield'
+  ]);
 
   for (const asset of Object.values(VISUAL_CONCEPT_REGISTRY)) {
     const subMatch = asset.subjects.some((s) => s === normSub || normSub.includes(s));
     if (!subMatch) continue;
-    const words = asset.visualTarget.toLowerCase().split(' ').filter((w) => w.length > 2);
-    if (words.some((w) => normTopic.includes(w))) {
+    const meaningfulWords = asset.visualTarget
+      .toLowerCase()
+      .split(/[\s,()/-]+/)
+      .filter((w) => w.length >= 4 && !GENERIC_VISUAL_STOPWORDS.has(w));
+
+    // Require either a very specific multi-word phrase or at least 2 distinctive words
+    const matchedCount = meaningfulWords.filter((w) => normTopic.includes(w)).length;
+    if (matchedCount >= 2 || (meaningfulWords.length === 1 && matchedCount === 1 && meaningfulWords[0].length >= 7)) {
       return asset;
     }
   }
@@ -349,8 +371,17 @@ export function getVerifiedTopicQuestions(
   count: number = 10
 ): PracticeSessionQuestion[] {
   const questions: PracticeSessionQuestion[] = [];
-  const knowledge = FMGE_TOPIC_KNOWLEDGE_BASE[topicId];
-  const clinicalCases = VERIFIED_TOPIC_CLINICAL_CASES[topicId] || [];
+  const knowledge = getTopicKnowledge(subjectId, topicId, topicName);
+  const normTopicName = topicName.toLowerCase();
+  const clinicalCases =
+    VERIFIED_TOPIC_CLINICAL_CASES[topicId] ||
+    (normTopicName.includes('valvular') || normTopicName.includes('endocarditis') || normTopicName.includes('duke')
+      ? VERIFIED_TOPIC_CLINICAL_CASES['med-3']
+      : undefined) ||
+    (normTopicName.includes('asthma') || normTopicName.includes('copd')
+      ? VERIFIED_TOPIC_CLINICAL_CASES['med-4']
+      : undefined) ||
+    [];
 
   // 1. Incorporate verified visual concept if available
   const matchingVisual = findMatchingVisualConcept(subjectId, topicName);
@@ -757,14 +788,43 @@ export async function fetchPracticeSessionQuestions(
     }
   }
 
-  // Fallback to verified topic questions if server returned nothing or ran offline
-  if (questions.length === 0) {
-    questions = getVerifiedTopicQuestions(
+  // 1. Strict topic validation: filter out any returned questions that fail topic matching
+  if (questions.length > 0) {
+    questions = questions.filter((q) =>
+      validateQuestionTopicMatch(
+        {
+          scenario: q.scenario,
+          question: q.question,
+          explanation: q.explanation,
+          topicName: q.topicName || context.topicName,
+          topicId: q.topicId || context.topicId,
+        },
+        context.subjectName,
+        context.topicName
+      )
+    );
+  }
+
+  // 2. Fallback / supplement: If server returned fewer than targetCount or ran offline,
+  // top up with verified topic questions so the student ALWAYS gets exactly targetCount questions
+  if (questions.length < targetCount) {
+    const verifiedFallback = getVerifiedTopicQuestions(
       context.subjectId,
       context.topicId,
       context.topicName,
       targetCount
     );
+
+    if (questions.length === 0) {
+      questions = verifiedFallback;
+    } else {
+      for (const vq of verifiedFallback) {
+        if (questions.length >= targetCount) break;
+        if (!questions.some((q) => q.scenario === vq.scenario || q.question === vq.question)) {
+          questions.push(vq);
+        }
+      }
+    }
   }
 
   // Lock sessionId, sequence numbers, and run authoritative medical reconciliation
