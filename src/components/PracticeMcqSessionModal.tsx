@@ -85,7 +85,7 @@ function getOptionRationale(
 ): string {
   // 1. Direct rationale on option (if provided and context-consistent)
   if (opt.rationale && opt.rationale.trim().length > 5) {
-    const rLower = opt.rationale.toLowerCase();
+    const rLower = opt.rationale.toLowerCase().trim();
     const isNegativeDistractorText =
       rLower.startsWith('incorrect') ||
       rLower.startsWith('wrong') ||
@@ -99,9 +99,20 @@ function getOptionRationale(
     if (isCorrect && !isNegativeDistractorText) {
       return opt.rationale.trim().replace(/^correct[.:\s-]*/i, '').trim();
     }
-    // If this option is a distractor, and it has negative distractor text, return it cleanly
-    if (!isCorrect && isNegativeDistractorText) {
-      return opt.rationale.trim().replace(/^incorrect[.:\s-]*/i, '').trim();
+    // If this option is a distractor, return its rationale cleanly (stripping any "incorrect" prefix)
+    // as long as it doesn't mistakenly claim to be the correct answer
+    if (!isCorrect) {
+      const isPositiveConfirmText =
+        rLower.startsWith('correct') ||
+        rLower.startsWith('right') ||
+        rLower.includes('is the correct') ||
+        rLower.includes('treatment of choice') ||
+        rLower.includes('first-line') ||
+        rLower.includes('gold standard');
+
+      if (!isPositiveConfirmText || isNegativeDistractorText) {
+        return opt.rationale.trim().replace(/^incorrect[.:\s-]*/i, '').trim();
+      }
     }
   }
 
@@ -1292,6 +1303,48 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
                             </div>
                           </div>
                         </div>
+
+                        {/* Direct High-Yield Comparison: Why your choice is wrong vs Why the right answer is correct */}
+                        {(() => {
+                          const selectedOpt = currentQ.options.find((o) => o.key === selectedOption);
+                          const correctOpt = currentQ.options.find((o) => o.key === currentQ.correctAnswer);
+                          const userRationale = selectedOpt ? getOptionRationale(currentQ, selectedOpt, true, false) : null;
+                          const correctRationale = correctOpt ? getOptionRationale(currentQ, correctOpt, false, true) : null;
+
+                          return (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-[#F0D5D8]">
+                              {selectedOpt && (
+                                <div className="p-3 sm:p-3.5 rounded-xl bg-rose-50/90 border border-rose-200/90 space-y-1.5 shadow-2xs">
+                                  <div className="flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-rose-800">
+                                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                                    <span>Why Option {selectedOpt.key} is Incorrect</span>
+                                  </div>
+                                  <div className="text-xs font-bold text-rose-950">
+                                    {selectedOpt.text}
+                                  </div>
+                                  <p className="text-xs text-rose-900 leading-relaxed font-normal">
+                                    {userRationale}
+                                  </p>
+                                </div>
+                              )}
+
+                              {correctOpt && (
+                                <div className="p-3 sm:p-3.5 rounded-xl bg-emerald-50/90 border border-emerald-200/90 space-y-1.5 shadow-2xs">
+                                  <div className="flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-800">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                    <span>Why Option {correctOpt.key} is the Correct Answer</span>
+                                  </div>
+                                  <div className="text-xs font-bold text-emerald-950">
+                                    {correctOpt.text}
+                                  </div>
+                                  <p className="text-xs text-emerald-900 leading-relaxed font-normal">
+                                    {correctRationale}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                         {/* Clinical Explanation Section */}
                         <div className="pt-3 border-t border-[#F0D5D8] space-y-2">

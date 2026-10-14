@@ -862,12 +862,12 @@ Difficulty: ${difficulty}
 CRITICAL MEDICAL REQUIREMENTS:
 1. Every question MUST strictly test ${subjectName} -> ${topicName}.
 2. SCENARIOS: Rich clinical vignettes with patient demographics, physical examination, diagnostic investigations (ECG leads, laboratory markers, imaging features).
-3. EVERY OPTION MUST CONTAIN AN EXPLICIT CLINICAL RATIONALE:
-   - For the CORRECT option: Explain the exact mechanism, anatomical localization, gold-standard guideline, or criteria.
-   - For EACH INCORRECT OPTION: Explain why it is wrong for this patient (e.g. what pathology or leads it WOULD represent, such as "LAD supplies anteroseptal leads V1-V4, not inferior leads II, III, aVF").
+3. EXPLICIT SEPARATION OF CORRECT ANSWER AND 3 CLINICAL DISTRACTORS:
+   - For "correctAnswer": Provide the exact correct diagnostic entity, investigation of choice, or drug of choice AND its comprehensive pathophysiological rationale ("clinicalReason").
+   - For "distractors": Provide EXACTLY 3 high-yield plausible distractors. For EACH distractor, provide a rigorous clinical explanation ("whyIncorrect") detailing why it is wrong for this patient (e.g. what alternative leads, condition, or pathology it WOULD represent).
 4. ZERO-TOLERANCE ANSWER-KEY ACCURACY:
-   - The option marked "isCorrect": true MUST 100% MATCH the diagnosis and evidence in your "explanation".
-   - If explanation says Right Coronary Artery (RCA) is the culprit vessel, RCA MUST be the option with "isCorrect": true. NEVER mismatch!
+   - The diagnosis described as correct in "correctAnswer" MUST 100% match your "explanation".
+   - Distractors must NEVER overlap or contradict the true diagnosis.
 5. REMEDIATION CARD: Provide structured mastery details for post-drill revision.
 
 Output strictly valid JSON with this schema:
@@ -876,30 +876,22 @@ Output strictly valid JSON with this schema:
     {
       "scenario": "A 58-year-old male presents with severe crushing retrosternal chest pain radiating to the epigastrium. ECG reveals ST-segment elevation in leads II, III, and aVF with reciprocal ST depression in leads I and aVL...",
       "question": "Which culprit coronary artery is most likely occluded?",
-      "options": [
+      "correctAnswer": {
+        "text": "Right coronary artery (RCA)",
+        "clinicalReason": "Leads II, III, and aVF reflect the diaphragmatic/inferior left ventricular wall, supplied by the posterior descending artery arising from the RCA in 85-90% of individuals."
+      },
+      "distractors": [
         {
-          "optionId": "opt_1",
-          "text": "Right coronary artery (RCA)",
-          "isCorrect": true,
-          "rationale": "Correct. Leads II, III, and aVF reflect the diaphragmatic/inferior left ventricular wall, supplied by the posterior descending artery arising from the RCA in 85-90% of individuals."
-        },
-        {
-          "optionId": "opt_2",
           "text": "Left anterior descending artery (LAD)",
-          "isCorrect": false,
-          "rationale": "Incorrect. Occlusion of the LAD causes anteroseptal STEMI with ST elevation in leads V1-V4."
+          "whyIncorrect": "Occlusion of the LAD causes anteroseptal STEMI with ST elevation in leads V1-V4, not inferior leads II, III, aVF."
         },
         {
-          "optionId": "opt_3",
           "text": "Left circumflex artery (LCx)",
-          "isCorrect": false,
-          "rationale": "Incorrect. LCx occlusion causes lateral STEMI with ST elevation in leads I, aVL, V5, and V6."
+          "whyIncorrect": "LCx occlusion causes lateral STEMI with ST elevation in leads I, aVL, V5, and V6."
         },
         {
-          "optionId": "opt_4",
           "text": "Left main coronary artery (LMCA)",
-          "isCorrect": false,
-          "rationale": "Incorrect. LMCA occlusion results in widespread ST depression with ST elevation in lead aVR and cardiogenic shock."
+          "whyIncorrect": "LMCA occlusion results in widespread ST depression with ST elevation in lead aVR and cardiogenic shock."
         }
       ],
       "explanation": "Inferior wall myocardial infarction is characterized by ST elevation in leads II, III, and aVF. The Right Coronary Artery (RCA) is the culprit vessel in approximately 85-90% of cases. Right ventricular involvement (lead V4R) causes preload dependency; nitrates and diuretics are strictly contraindicated.",
@@ -934,12 +926,48 @@ Output strictly valid JSON with this schema:
 
     const letters = ["A", "B", "C", "D"];
     const formattedQuestions = rawQuestions.map((q: any, qIdx: number) => {
-      const rawOpts = (q.options || []).map((o: any, i: number) => ({
-        optionId: o.optionId || `opt_${i + 1}`,
-        text: typeof o === "string" ? o.replace(/^[A-D]\)\s*/, "") : (o.text || "").replace(/^[A-D]\)\s*/, ""),
-        isCorrect: Boolean(o.isCorrect) || o.key === q.correctAnswer,
-        rationale: o.rationale || o.reason || o.explanation || undefined,
-      }));
+      let rawOpts: Array<{ optionId: string; text: string; isCorrect: boolean; rationale?: string }> = [];
+
+      // Primary: Explicit Decomposition Schema (correctAnswer + 3 distractors)
+      if (
+        q.correctAnswer &&
+        (typeof q.correctAnswer === "object" ? q.correctAnswer.text : typeof q.correctAnswer === "string") &&
+        Array.isArray(q.distractors) &&
+        q.distractors.length >= 3
+      ) {
+        const correctText = typeof q.correctAnswer === "string" ? q.correctAnswer : q.correctAnswer.text;
+        const correctReason =
+          typeof q.correctAnswer === "object"
+            ? q.correctAnswer.clinicalReason || q.correctAnswer.rationale || q.correctAnswer.reason
+            : undefined;
+
+        rawOpts = [
+          {
+            optionId: "opt_correct",
+            text: String(correctText || "").replace(/^[A-D]\)\s*/, "").trim(),
+            isCorrect: true,
+            rationale: correctReason ? String(correctReason).trim() : undefined,
+          },
+          ...q.distractors.slice(0, 3).map((d: any, idx: number) => {
+            const dText = typeof d === "string" ? d : d.text || "";
+            const dReason = typeof d === "object" ? d.whyIncorrect || d.rationale || d.reason : undefined;
+            return {
+              optionId: `opt_distractor_${idx + 1}`,
+              text: String(dText).replace(/^[A-D]\)\s*/, "").trim(),
+              isCorrect: false,
+              rationale: dReason ? String(dReason).trim() : undefined,
+            };
+          }),
+        ];
+      } else if (Array.isArray(q.options) && q.options.length > 0) {
+        // Fallback: Legacy options array format
+        rawOpts = q.options.map((o: any, i: number) => ({
+          optionId: o.optionId || `opt_${i + 1}`,
+          text: typeof o === "string" ? o.replace(/^[A-D]\)\s*/, "") : (o.text || "").replace(/^[A-D]\)\s*/, ""),
+          isCorrect: Boolean(o.isCorrect) || o.key === q.correctAnswer,
+          rationale: o.rationale || o.reason || o.explanation || undefined,
+        }));
+      }
 
       // Medical Consistency Pass: Cross-validate explanation against option text
       const explLower = (q.explanation || "").toLowerCase();
@@ -1049,7 +1077,7 @@ Output strictly valid JSON with this schema:
         }
       }
 
-      // Shuffle options deterministically
+      // Shuffle options deterministically across A, B, C, D
       for (let i = rawOpts.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [rawOpts[i], rawOpts[j]] = [rawOpts[j], rawOpts[i]];
@@ -1057,11 +1085,15 @@ Output strictly valid JSON with this schema:
 
       let correctLetter = "A";
       let correctOptionId = "";
+      const distractorBreakdown: Record<string, string> = {};
+
       const shuffledOptions = rawOpts.map((opt: any, idx: number) => {
         const key = letters[idx] || "A";
         if (opt.isCorrect) {
           correctLetter = key;
           correctOptionId = opt.optionId;
+        } else if (opt.rationale) {
+          distractorBreakdown[key] = String(opt.rationale).replace(/^incorrect[.:\s-]*/i, '').trim();
         }
         return {
           optionId: opt.optionId,
@@ -1082,6 +1114,7 @@ Output strictly valid JSON with this schema:
         correctAnswer: correctLetter,
         explanation: q.explanation || "Verified evidence-based FMGE guideline standard.",
         highYieldPearl: q.highYieldPearl,
+        distractorBreakdown: Object.keys(distractorBreakdown).length > 0 ? distractorBreakdown : (q.distractorBreakdown || undefined),
         remediationCard: q.remediationCard || {
           concept: `${topicName}: Core Diagnostic Criteria`,
           rule: q.highYieldPearl || q.explanation,
