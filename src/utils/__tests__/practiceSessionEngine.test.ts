@@ -3,6 +3,7 @@ import {
   fetchPracticeSessionQuestions,
   getVerifiedTopicQuestions,
   validateQuestionTopicMatch,
+  reconcileQuestionMedicalKey,
 } from '../practiceSessionEngine';
 import { recordMcqAttempt, countRepeatedErrors } from '../performanceEngine';
 import { PracticeSessionContext, PracticeSessionQuestion } from '../../types';
@@ -313,6 +314,53 @@ async function runPracticeSessionTests() {
       assert(!hasGeneric, `[${t.topicName}] Q${i + 1} contains NO generic placeholder options`);
     }
   }
+
+  // =========================================================================
+  // TEST SUITE 4: MEDICAL ANSWER-KEY RECONCILIATION & CLINICAL REASONING
+  // =========================================================================
+  console.log('\n--- 4. Medical Answer-Key Reconciliation Integrity ---');
+
+  // Exact scenario from student bug report: Erb-Duchenne Palsy miskeyed to Option D
+  const buggyQuestion: PracticeSessionQuestion = {
+    id: 'test-erb-palsy-glitch',
+    sessionId: 'session-anat-1',
+    sequenceNumber: 1,
+    scenario: "A newborn infant is delivered following a difficult shoulder dystocia delivery. On physical examination, the right upper limb hangs limply by the side in medial rotation, forearm pronation, and wrist flexion, resembling a 'waiter's tip' posture. Which component of the brachial plexus is most likely injured in this condition?",
+    question: "Which component of the brachial plexus is most likely injured in this condition?",
+    options: [
+      { key: 'A', optionId: 'opt_1', text: 'Lateral cord (C5-C7)', isCorrect: false },
+      { key: 'B', optionId: 'opt_2', text: 'Upper trunk (C5-C6)', isCorrect: false },
+      { key: 'C', optionId: 'opt_3', text: 'Lower trunk (C8-T1)', isCorrect: false },
+      { key: 'D', optionId: 'opt_4', text: 'Medial cord (C8-T1)', isCorrect: true }, // Glitched key
+    ],
+    correctAnswer: 'D',
+    correctOptionId: 'opt_4',
+    explanation: 'This infant presents with Erb-Duchenne palsy, caused by an injury to the upper trunk (C5-C6) of the brachial plexus, typically due to excessive lateral flexion of the neck during a difficult delivery. The affected muscles include the deltoid, biceps brachii, brachialis, and supraspinatus/infraspinatus, leading to the characteristic "waiter\'s tip" appearance (loss of abduction, lateral rotation, and flexion).',
+    highYieldPearl: "Erb's palsy involves upper trunk (C5-C6) with 'Waiter's tip' hand, affecting shoulder abductors, lateral rotators, and elbow flexors.",
+    subjectId: 'anatomy',
+    subjectName: 'Anatomy',
+    topicId: 'anat-1',
+    topicName: 'Upper Limb - Brachial Plexus & Nerve Injuries',
+    difficulty: 'high-yield',
+    isAiGenerated: true,
+  };
+
+  const fixedQuestion = reconcileQuestionMedicalKey(buggyQuestion);
+  assert(fixedQuestion.correctAnswer === 'B', 'reconcileQuestionMedicalKey automatically corrected glitched answer key from D to B');
+  assert(fixedQuestion.options.find((o) => o.key === 'B')?.isCorrect === true, 'Option B (Upper trunk C5-C6) is accurately marked isCorrect: true');
+  assert(fixedQuestion.options.find((o) => o.key === 'D')?.isCorrect === false, 'Option D (Medial cord C8-T1) is demoted to isCorrect: false');
+  assert(fixedQuestion.correctOptionId === 'opt_2', 'correctOptionId re-pointed to opt_2');
+
+  // Verify that an already correct question remains untouched
+  const alreadyCorrectQuestion: PracticeSessionQuestion = {
+    ...buggyQuestion,
+    correctAnswer: 'B',
+    correctOptionId: 'opt_2',
+    options: buggyQuestion.options.map((o) => ({ ...o, isCorrect: o.key === 'B' })),
+  };
+  const untouchedQuestion = reconcileQuestionMedicalKey(alreadyCorrectQuestion);
+  assert(untouchedQuestion.correctAnswer === 'B', 'Already correct question preserved as Option B');
+  assert(untouchedQuestion.options.find((o) => o.key === 'B')?.isCorrect === true, 'Option B remains isCorrect: true');
 
   console.log(`\n================================================`);
   console.log(`ALL PRACTICE SESSION TESTS COMPLETED: ${passed} passed, ${failed} failed.`);

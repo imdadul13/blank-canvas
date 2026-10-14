@@ -30,7 +30,7 @@ import {
   MedicalImageAsset,
 } from '../types';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
-import { fetchPracticeSessionQuestions } from '../utils/practiceSessionEngine';
+import { fetchPracticeSessionQuestions, reconcileQuestionMedicalKey } from '../utils/practiceSessionEngine';
 import { MedicalImageViewerModal } from './MedicalImageViewerModal';
 import { TargetedRemediationDeck } from './study/TargetedRemediationDeck';
 
@@ -83,9 +83,13 @@ function getOptionRationale(
   isSelected: boolean,
   isCorrect: boolean
 ): string {
-  // 1. Direct rationale on option
+  // 1. Direct rationale on option (if provided and context-consistent)
   if (opt.rationale && opt.rationale.trim().length > 5) {
-    return opt.rationale.trim();
+    const rLower = opt.rationale.toLowerCase();
+    const isConfirmatory = rLower.startsWith('correct') || rLower.includes('is the correct') || rLower.includes('is the culprit');
+    if (isCorrect || !isConfirmatory) {
+      return opt.rationale.trim();
+    }
   }
 
   // 2. Distractor breakdown
@@ -105,7 +109,7 @@ function getOptionRationale(
     }
   }
 
-  // 4. For distractors: Intelligent regex/sentence search in explanation
+  // 4. For distractors: Search explanation specifically for why this distractor is ruled out or different
   if (question.explanation) {
     const rawText = opt.text.replace(/^[A-D]\)\s*/, '').trim();
     const optLower = rawText.toLowerCase();
@@ -115,24 +119,45 @@ function getOptionRationale(
     const sentences = question.explanation.split(/(?<=[.!?])\s+/);
     for (const sentence of sentences) {
       const sLower = sentence.toLowerCase();
-      if ((rawText.length > 3 && sLower.includes(optLower)) || (acronym && sLower.includes(acronym))) {
-        return sentence.trim();
-      }
-    }
-    for (const sentence of sentences) {
-      const sLower = sentence.toLowerCase();
-      if (sLower.includes(`option ${opt.key.toLowerCase()}`) || sLower.includes(`(${opt.key.toLowerCase()})`)) {
+
+      // Check if this sentence specifically explains why this distractor is ruled out / different
+      const isExplicitDistractorSentence =
+        sLower.includes(`option ${opt.key.toLowerCase()}`) ||
+        sLower.includes(`(${opt.key.toLowerCase()})`) ||
+        sLower.includes('incorrect') ||
+        sLower.includes('distractor') ||
+        sLower.includes('unlike') ||
+        sLower.includes('not seen') ||
+        sLower.includes('rules out') ||
+        sLower.includes('spared') ||
+        sLower.includes('in contrast');
+
+      // If the sentence is positively explaining the correct diagnosis, NEVER use it as an incorrect distractor reason!
+      const isPositiveDiagnosisSentence =
+        sLower.includes('caused by') ||
+        sLower.includes('results from') ||
+        sLower.includes('is due to') ||
+        sLower.includes('presents with') ||
+        sLower.includes('characteristic of') ||
+        sLower.includes('hallmark of') ||
+        sLower.includes('diagnostic of') ||
+        sLower.includes('pathognomonic');
+
+      if (
+        ((rawText.length > 3 && sLower.includes(optLower)) || (acronym && sLower.includes(acronym))) &&
+        (isExplicitDistractorSentence || !isPositiveDiagnosisSentence)
+      ) {
         return sentence.trim();
       }
     }
   }
 
-  // 5. Context-aware clinical fallback
+  // 5. High-Yield Contextual Clinical Differential Fallback
   if (isCorrect) {
     return `Gold-standard diagnostic criterion and pathophysiological mechanism consistent with ${question.topicName || 'this condition'}.`;
   }
   if (isSelected) {
-    return `Incorrect for this vignette. This presentation does not meet the diagnostic criteria for ${opt.text.replace(/^[A-D]\)\s*/, '')}; a high-frequency distractor in FMGE examinations.`;
+    return `Incorrect for this clinical presentation. The patient's presentation localizes to the primary finding of ${question.topicName || 'the correct diagnosis'}, not ${opt.text.replace(/^[A-D]\)\s*/, '')}.`;
   }
   return `Incorrect distractor; does not satisfy the clinical hallmarks for ${question.topicName || 'this condition'}.`;
 }
@@ -237,7 +262,8 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
           if (loadedQuestions.length === 0) {
             setErrorMessage('Could not load practice questions for this topic. Please try again.');
           } else {
-            setQuestions(loadedQuestions);
+            const reconciled = loadedQuestions.map(reconcileQuestionMedicalKey);
+            setQuestions(reconciled);
             setCurrentIdx(0);
             questionStartTimeRef.current = Date.now();
             setActiveElapsedSeconds(0);
@@ -260,7 +286,8 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
   if (!isOpen || !context) return null;
 
-  const currentQ: PracticeSessionQuestion | undefined = questions[currentIdx];
+  const rawQ = questions[currentIdx];
+  const currentQ: PracticeSessionQuestion | undefined = rawQ ? reconcileQuestionMedicalKey(rawQ) : undefined;
   const targetCount = questions.length || context.targetQuestionCount || 10;
   const progressPct = Math.round(((currentIdx + 1) / targetCount) * 100);
 

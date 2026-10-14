@@ -947,22 +947,41 @@ Output strictly valid JSON with this schema:
         'artery', 'vein', 'nerve', 'muscle', 'disease', 'syndrome',
         'infection', 'fracture', 'ligament', 'vessel', 'stage', 'grade',
         'type', 'sign', 'test', 'scan', 'duct', 'node', 'injury', 'level',
-        'lobe', 'wall', 'zone', 'tract', 'deficiency', 'disorder'
+        'lobe', 'wall', 'zone', 'tract', 'deficiency', 'disorder', 'roots', 'trunk', 'cord', 'branch'
       ]);
 
       const scores = rawOpts.map((opt: any) => {
         const optText = (opt.text || "").toLowerCase().trim();
         if (!optText) return 0;
         let score = 0;
-        if (explLower.includes(optText)) score += 15;
+        if (explLower.includes(optText)) score += 25;
         const words = optText.split(/[\s,()/-]+/).filter((w: string) => w.length > 2 && !MEDICAL_STOPWORDS.has(w));
         for (const w of words) {
-          if (explLower.includes(w)) score += 4;
+          if (explLower.includes(w)) score += 5;
         }
+
+        const alphaNumTokens = optText.match(/[a-z]+\d+|\d+[a-z]+|[a-z]+\-[a-z0-9]+|\d+\-\d+/g);
+        if (alphaNumTokens) {
+          for (const token of alphaNumTokens) {
+            if (explLower.includes(token)) score += 12;
+          }
+        }
+
         const acronymMatch = opt.text.match(/\(([A-Za-z0-9]+)\)/);
         if (acronymMatch && explLower.includes(acronymMatch[1].toLowerCase())) {
-          score += 10;
+          score += 12;
         }
+
+        if (
+          explLower.includes(`not ${optText}`) ||
+          explLower.includes(`unlike ${optText}`) ||
+          explLower.includes(`${optText} is incorrect`) ||
+          explLower.includes(`rules out ${optText}`) ||
+          explLower.includes(`ruling out ${optText}`)
+        ) {
+          score -= 20;
+        }
+
         return score;
       });
 
@@ -980,7 +999,7 @@ Output strictly valid JSON with this schema:
 
       // If current option has low relevance while another option is prominently endorsed by explanation, correct the key
       if (currentCorrectIdx !== -1 && matchedIdx !== -1 && currentCorrectIdx !== matchedIdx) {
-        if (highestScore >= 10 && highestScore > currentScore + 6) {
+        if (highestScore >= 15 && highestScore > currentScore + 10) {
           rawOpts[currentCorrectIdx].isCorrect = false;
           rawOpts[matchedIdx].isCorrect = true;
         }

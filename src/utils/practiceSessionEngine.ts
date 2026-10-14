@@ -77,6 +77,104 @@ export function shuffleQuestionOptions(
 }
 
 /**
+ * Medical Answer-Key Reconciler:
+ * Cross-validates the marked correct option against the clinical explanation and pearl.
+ * If an LLM or question import inverted or misassigned the letter key (e.g. marking Option D
+ * while the explanation explicitly states Option B "Upper trunk (C5-C6)" is the diagnosis),
+ * this reconciler automatically fixes the key so the student is never penalized for the right answer.
+ */
+export function reconcileQuestionMedicalKey(question: PracticeSessionQuestion): PracticeSessionQuestion {
+  if (!question || !Array.isArray(question.options) || question.options.length < 2) {
+    return question;
+  }
+
+  const expl = `${question.explanation || ''} ${question.highYieldPearl || ''}`.toLowerCase();
+  if (expl.trim().length < 10) return question;
+
+  const MEDICAL_STOPWORDS = new Set([
+    'artery', 'vein', 'nerve', 'muscle', 'disease', 'syndrome',
+    'infection', 'fracture', 'ligament', 'vessel', 'stage', 'grade',
+    'type', 'sign', 'test', 'scan', 'duct', 'node', 'injury', 'level',
+    'lobe', 'wall', 'zone', 'tract', 'deficiency', 'disorder', 'roots', 'trunk', 'cord', 'branch'
+  ]);
+
+  const scores = question.options.map((opt) => {
+    const rawText = opt.text.replace(/^[A-D]\)\s*/, '').trim().toLowerCase();
+    if (!rawText) return 0;
+    let score = 0;
+
+    // Full direct match
+    if (expl.includes(rawText)) score += 25;
+
+    // Individual words
+    const words = rawText.split(/[\s,()/-]+/).filter((w) => w.length > 2 && !MEDICAL_STOPWORDS.has(w));
+    for (const w of words) {
+      if (expl.includes(w)) score += 5;
+    }
+
+    // Alphanumeric tokens (e.g. C5-C6, C8-T1, V1-V4, HLA-B27)
+    const alphaNumTokens = rawText.match(/[a-z]+\d+|\d+[a-z]+|[a-z]+\-[a-z0-9]+|\d+\-\d+/g);
+    if (alphaNumTokens) {
+      for (const token of alphaNumTokens) {
+        if (expl.includes(token)) score += 12;
+      }
+    }
+
+    // Acronym in parenthesis: e.g. (RCA), (LAD), (CT)
+    const acronymMatch = opt.text.match(/\(([A-Za-z0-9]+)\)/);
+    if (acronymMatch && expl.includes(acronymMatch[1].toLowerCase())) {
+      score += 12;
+    }
+
+    // Explicit negative phrasing deduction: "not <opt>", "unlike <opt>", "<opt> is incorrect"
+    if (
+      expl.includes(`not ${rawText}`) ||
+      expl.includes(`unlike ${rawText}`) ||
+      expl.includes(`${rawText} is incorrect`) ||
+      expl.includes(`rules out ${rawText}`) ||
+      expl.includes(`ruling out ${rawText}`)
+    ) {
+      score -= 20;
+    }
+
+    return score;
+  });
+
+  const currentIdx = question.options.findIndex(
+    (o) => o.key === question.correctAnswer || o.isCorrect || o.optionId === question.correctOptionId
+  );
+  let highestScore = -1;
+  let bestIdx = -1;
+  scores.forEach((s, idx) => {
+    if (s > highestScore) {
+      highestScore = s;
+      bestIdx = idx;
+    }
+  });
+
+  const currentScore = currentIdx !== -1 ? scores[currentIdx] : 0;
+
+  // If current option has low relevance while another option is decisively endorsed by explanation, correct the key
+  if (bestIdx !== -1 && currentIdx !== -1 && bestIdx !== currentIdx) {
+    if (highestScore >= 15 && highestScore > currentScore + 10) {
+      const reconciledOptions = question.options.map((opt, idx) => ({
+        ...opt,
+        isCorrect: idx === bestIdx,
+      }));
+      const winningOption = reconciledOptions[bestIdx];
+      return {
+        ...question,
+        options: reconciledOptions,
+        correctAnswer: winningOption.key,
+        correctOptionId: winningOption.optionId,
+      };
+    }
+  }
+
+  return question;
+}
+
+/**
  * Validates that an MCQ strictly tests the intended subject and topic without cross-contamination.
  */
 export function validateQuestionTopicMatch(
@@ -545,11 +643,14 @@ export function getVerifiedTopicQuestions(
     facetIdx++;
   }
 
-  // Deduplicate and ensure exact question count
-  return questions.slice(0, count).map((q, idx) => ({
-    ...q,
-    sequenceNumber: idx + 1,
-  }));
+  // Deduplicate, reconcile, and ensure exact question count
+  return questions.slice(0, count).map((q, idx) => {
+    const reconciled = reconcileQuestionMedicalKey(q);
+    return {
+      ...reconciled,
+      sequenceNumber: idx + 1,
+    };
+  });
 }
 
 /**
@@ -630,15 +731,18 @@ export async function fetchPracticeSessionQuestions(
     );
   }
 
-  // Lock sessionId and sequence numbers
-  const sessionBound = questions.map((q, idx) => ({
-    ...q,
-    sessionId: context.sessionId,
-    sequenceNumber: idx + 1,
-    subjectId: context.subjectId,
-    topicId: context.topicId,
-    topicName: context.topicName,
-  }));
+  // Lock sessionId, sequence numbers, and run authoritative medical reconciliation
+  const sessionBound = questions.map((q, idx) => {
+    const reconciled = reconcileQuestionMedicalKey(q);
+    return {
+      ...reconciled,
+      sessionId: context.sessionId,
+      sequenceNumber: idx + 1,
+      subjectId: context.subjectId,
+      topicId: context.topicId,
+      topicName: context.topicName,
+    };
+  });
 
   // Resolve authentic images and deduplicate within session
   return resolvePracticeSessionVisuals(sessionBound, visualValidationLogs);
