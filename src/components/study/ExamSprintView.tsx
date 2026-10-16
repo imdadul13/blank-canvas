@@ -2224,17 +2224,6 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
                   <span>Daily Planner</span>
                 </button>
               )}
-              {onOpenRevisionMatrix && (
-                <button
-                  type="button"
-                  onClick={onOpenRevisionMatrix}
-                  className="px-4 py-2.5 rounded-2xl bg-white/15 border border-white/20 text-white font-semibold text-xs hover:bg-white/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer backdrop-blur-sm"
-                  title="Open Revision Matrix for R1/R2/R3 scheduling"
-                >
-                  <Layers className="h-3.5 w-3.5 text-emerald-300" />
-                  <span>Revision Matrix</span>
-                </button>
-              )}
             </div>
           </div>
         </div>
