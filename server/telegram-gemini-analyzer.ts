@@ -167,7 +167,7 @@ Output STRICTLY valid JSON conforming to this schema:
   "fmgeRelevanceScore": 88
 }`;
 
-  const models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-flash-latest"];
+  const models = ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-3-flash-preview", "gemini-flash-latest"];
 
   for (const model of models) {
     try {

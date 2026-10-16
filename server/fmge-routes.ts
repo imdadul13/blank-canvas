@@ -245,7 +245,7 @@ app.post("/api/question-bank/tutor", createRequestRateLimit({ windowMs: 60_000, 
         parts.push({ inlineData: { mimeType: "image/webp", data: imageBytes.toString("base64") } });
       } catch { /* The text rationale remains sufficient if an image asset is unavailable. */ }
     }
-    const response = await callGeminiWithRetry({ model: "gemini-3.5-flash-lite", contents: [{ role: "user", parts }], config: { responseMimeType: "application/json", systemInstruction: "You are a careful FMGE, NEET-PG and INI-CET medical examination tutor. Preserve the authoritative answer key and distinguish supplied source facts from your teaching synthesis." } });
+    const response = await callGeminiWithRetry({ model: "gemini-3.8-flash", contents: [{ role: "user", parts }], config: { responseMimeType: "application/json", systemInstruction: "You are a careful FMGE, NEET-PG and INI-CET medical examination tutor. Preserve the authoritative answer key and distinguish supplied source facts from your teaching synthesis." } });
     const parsed = JSON.parse(response.text || "{}");
     const keys = new Set(["A", "B", "C", "D"]);
     const optionAnalysis = Array.isArray(parsed.optionAnalysis) ? parsed.optionAnalysis.filter((item: any) => keys.has(item?.key) && typeof item?.reason === "string" && ["correct", "incorrect"].includes(item?.verdict)).slice(0, 4) : [];
@@ -384,22 +384,22 @@ async function callGeminiWithRetry(params: any, retries = 1, delayMs = 300): Pro
   const requestedModel = params.model;
   
   // Sanitize and prioritize active models:
-  // 1. "gemini-3-flash-preview": high-speed (~1-2s), verified responsive
-  // 2. "gemini-flash-lite-latest": structured JSON generation
-  // 3. "gemini-3.5-flash-lite": low-latency fallback
+  // 1. "gemini-3.8-flash": flagship high-speed (~1-2s), verified responsive & structured JSON
+  // 2. "gemini-3.5-flash": fast backup
+  // 3. "gemini-3-flash-preview": responsive preview
   // 4. "gemini-3.7-flash": clinical reasoning fallback
   let validRequested = requestedModel;
-  if (!validRequested || validRequested.startsWith("gemini-2.5-") || validRequested === "gemini-3.1-flash-lite") {
-    validRequested = "gemini-3-flash-preview";
+  if (!validRequested || validRequested.startsWith("gemini-2.5-") || validRequested.startsWith("gemini-2.0-") || validRequested.startsWith("gemini-1.5-") || validRequested === "gemini-3.1-flash-lite") {
+    validRequested = "gemini-3.8-flash";
   }
 
   const models = Array.from(new Set([
     validRequested,
-    "gemini-3-flash-preview",
-    "gemini-3.5-flash",
     "gemini-3.8-flash",
-    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3-flash-preview",
     "gemini-3.7-flash",
+    "gemini-3.5-flash-lite",
   ])).filter(Boolean);
 
   let lastErr: any = null;
@@ -751,7 +751,7 @@ app.get("/api/ai/status", (req, res, next) => {
       configured: false,
       status: "missing_key",
       message: "GEMINI_API_KEY is not configured on the server. Set it in the Render dashboard environment variables or configure it in App Settings.",
-      activeModel: "gemini-3.5-flash-lite",
+      activeModel: "gemini-3.8-flash",
     });
     return;
   }
@@ -765,7 +765,7 @@ app.get("/api/ai/status", (req, res, next) => {
       const ai = getAI();
       const probeStart = Date.now();
       await ai.models.generateContent({
-        model: "gemini-3.5-flash-lite",
+        model: "gemini-3.8-flash",
         contents: "ping",
       });
       const latencyMs = Date.now() - probeStart;
@@ -774,7 +774,7 @@ app.get("/api/ai/status", (req, res, next) => {
         configured: true,
         status: "active",
         keyPreview,
-        activeModel: "gemini-3.5-flash-lite",
+        activeModel: "gemini-3.8-flash",
         latencyMs,
         message: "Gemini API is live and responsive.",
       });
@@ -787,7 +787,7 @@ app.get("/api/ai/status", (req, res, next) => {
         configured: true,
         status: isQuota ? "rate_limited" : isInvalid ? "invalid_key" : "error",
         keyPreview,
-        activeModel: "gemini-3.5-flash-lite",
+        activeModel: "gemini-3.8-flash",
         error: err.message,
         message: isQuota
           ? "Gemini API daily quota reached. Showing offline clinical high-yield notes."
@@ -803,7 +803,7 @@ app.get("/api/ai/status", (req, res, next) => {
     configured: true,
     status: "ready",
     keyPreview,
-    activeModel: "gemini-3.5-flash-lite",
+    activeModel: "gemini-3.8-flash",
     message: "GEMINI_API_KEY is configured and ready.",
   });
 });
@@ -821,7 +821,7 @@ app.post("/api/ai/config", requireAppOwner, async (req, res) => {
   try {
     const testAI = new GoogleGenAI({ apiKey: cleanKey });
     await testAI.models.generateContent({
-      model: "gemini-3.5-flash-lite",
+      model: "gemini-3.8-flash",
       contents: "ping",
     });
 
@@ -1350,7 +1350,7 @@ JSON Schema:
 }`;
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3-flash-preview",
+      model: "gemini-3.8-flash",
       timeoutMs: 30000,
       contents: prompt,
       config: {
@@ -2640,7 +2640,7 @@ The **\`GEMINI_API_KEY\`** environment variable is not configured on this server
     const contents = normalizeGeminiContents(rawContents);
 
     // Prioritize ultra-fast models with sub-second time-to-first-token
-    const models = ["gemini-3-flash-preview", "gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-3.7-flash"];
+    const models = ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-3-flash-preview", "gemini-3.7-flash", "gemini-flash-lite-latest"];
     let streamSuccess = false;
 
     for (const model of models) {
@@ -3142,7 +3142,7 @@ Output strictly valid JSON matching this schema:
     const contents = normalizeGeminiContents(rawContents);
 
     const response = await callGeminiWithRetry({
-      model: "gemini-3.5-flash-lite",
+      model: "gemini-3.8-flash",
       contents,
       config: {
         responseMimeType: "application/json",
