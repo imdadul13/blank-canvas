@@ -117,6 +117,11 @@ describe('Sprint Engine & High-Yield 20-Day System', () => {
     const adaptivePlan = buildAdaptiveSprintDays(attempts, grandTests, {});
     assert.equal(adaptivePlan.length, 20, 'Adaptive plan must still have 20 days');
     assert.ok(adaptivePlan[4].focus.length > 0, 'Must have calibrated focus text');
+
+    const uncalibratedPlan = buildAdaptiveSprintDays([], [], {});
+    assert.equal(uncalibratedPlan.length, 20);
+    assert.equal(uncalibratedPlan[4].title, SPRINT_DAYS[4].title, 'Must preserve custom title when !hasEvidence');
+    assert.equal(uncalibratedPlan[4].focus, SPRINT_DAYS[4].focus, 'Must preserve custom focus when !hasEvidence');
   });
 
   it('validates authentic flashcard deck generation across disciplines', () => {
@@ -178,11 +183,15 @@ describe('Sprint Engine & High-Yield 20-Day System', () => {
     assert.equal(sprintDateForIndex(13, examDate), '2026-10-24');
     assert.deepEqual(SPRINT_DAYS[13].subjects, ['surgery', 'orthopedics']);
 
-    // Oct 25–26: Selective Medicine + short subjects
+    // Oct 25: Selective Medicine
     assert.equal(sprintDateForIndex(14, examDate), '2026-10-25');
     assert.ok(SPRINT_DAYS[14].subjects.includes('medicine'));
+
+    // Oct 26: Short 5 Blitz (dermatology, psychiatry, anesthesia, radiology, radiotherapy)
     assert.equal(sprintDateForIndex(15, examDate), '2026-10-26');
-    assert.ok(SPRINT_DAYS[15].subjects.includes('medicine'));
+    assert.ok(SPRINT_DAYS[15].subjects.includes('dermatology'));
+    assert.ok(SPRINT_DAYS[15].subjects.includes('psychiatry'));
+    assert.ok(SPRINT_DAYS[15].subjects.includes('radiology'));
 
     // Oct 27: Pediatrics, ENT, Ophthalmology
     assert.equal(sprintDateForIndex(16, examDate), '2026-10-27');

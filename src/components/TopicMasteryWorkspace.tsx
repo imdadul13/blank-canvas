@@ -25,7 +25,7 @@ import {
   HelpCircle,
   Clock,
   Target,
-  Sparkles,
+  Maximize2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
@@ -133,6 +133,72 @@ const ContentUnavailableCard: React.FC<{
   </div>
 );
 
+const renderFormattedSlideText = (text: string) => {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return (
+    <span>
+      {parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          const boldText = part.slice(2, -2);
+          return (
+            <strong key={i} className="font-semibold text-stone-900 font-display">
+              {boldText}
+            </strong>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </span>
+  );
+};
+
+const getSlideCategoryBadge = (category?: string) => {
+  switch (category) {
+    case 'overview':
+      return {
+        label: 'Clinical Core',
+        badgeClass: 'bg-blue-50 text-blue-700 border-blue-200/80',
+        Icon: Stethoscope,
+      };
+    case 'anatomy_pathology':
+      return {
+        label: 'Anatomy & Pathology',
+        badgeClass: 'bg-amber-50 text-amber-800 border-amber-200/80',
+        Icon: Activity,
+      };
+    case 'diagnostics':
+      return {
+        label: 'Diagnostics & IOC',
+        badgeClass: 'bg-purple-50 text-purple-700 border-purple-200/80',
+        Icon: Eye,
+      };
+    case 'pharmacology_mgmt':
+      return {
+        label: 'DOC & Protocols',
+        badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
+        Icon: CheckCircle2,
+      };
+    case 'high_yield_traps':
+      return {
+        label: 'High-Yield Trap',
+        badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/80',
+        Icon: ShieldAlert,
+      };
+    case 'comparison_table':
+      return {
+        label: 'Comparative Table',
+        badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200/80',
+        Icon: Table,
+      };
+    default:
+      return {
+        label: 'High Yield',
+        badgeClass: 'bg-stone-100 text-stone-700 border-stone-200',
+        Icon: BookOpen,
+      };
+  }
+};
+
 export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
   subjectId,
   topicId,
@@ -189,16 +255,24 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
         topicName,
         subjectId,
         subjectName: subjectId,
-        slides: aiMasteryData.slides.map((s: any, idx: number) => ({
-          id: `ai-slide-${subjectId}-${topicId}-${idx + 1}`,
-          slideNumber: idx + 1,
-          title: s.title || `${topicName} — Clinical Review ${idx + 1}`,
-          subtitle: s.subtitle || 'Gemini AI Deepened High-Yield Slide',
-          category: (s.category === 'management' ? 'pharmacology_mgmt' : s.category) || (idx === 0 ? 'overview' : idx === 1 ? 'diagnostics' : 'pharmacology_mgmt'),
-          bullets: Array.isArray(s.bullets) && s.bullets.length > 0 ? s.bullets : [s.text || 'Clinical key point'],
-          keyTakeaways: Array.isArray(s.keyTakeaways) ? s.keyTakeaways : s.takeaway ? [s.takeaway] : undefined,
-          examTrapWarning: s.examTrapWarning || s.trap || undefined,
-        })),
+        slides: aiMasteryData.slides.map((s: any, idx: number) => {
+          const matchingBase = baseSlideDeck.slides[idx] || baseSlideDeck.slides[0];
+          return {
+            id: `ai-slide-${subjectId}-${topicId}-${idx + 1}`,
+            slideNumber: idx + 1,
+            title: s.title || matchingBase?.title || `${topicName} — Clinical Review ${idx + 1}`,
+            subtitle: s.subtitle || matchingBase?.subtitle || 'Gemini AI Deepened High-Yield Slide',
+            category: (s.category === 'management' ? 'pharmacology_mgmt' : s.category) || matchingBase?.category || (idx === 0 ? 'overview' : idx === 1 ? 'diagnostics' : 'pharmacology_mgmt'),
+            bullets: Array.isArray(s.bullets) && s.bullets.length > 0 ? s.bullets : (matchingBase?.bullets || [s.text || 'Clinical key point']),
+            keyTakeaways: Array.isArray(s.keyTakeaways) ? s.keyTakeaways : s.takeaway ? [s.takeaway] : matchingBase?.keyTakeaways,
+            examTrapWarning: s.examTrapWarning || s.trap || matchingBase?.examTrapWarning,
+            imageUrl: s.imageUrl || matchingBase?.imageUrl,
+            imageCaption: s.imageCaption || matchingBase?.imageCaption,
+            visualTarget: s.visualTarget || matchingBase?.visualTarget,
+            whatToLookFor: s.whatToLookFor || matchingBase?.whatToLookFor,
+            quickTable: matchingBase?.quickTable,
+          };
+        }),
       };
     }
     if (aiMasteryData && (aiMasteryData.highYieldSummary || aiMasteryData.coreConcepts)) {
@@ -213,8 +287,12 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
             aiMasteryData.highYieldSummary,
             ...(Array.isArray(aiMasteryData.coreConcepts) ? aiMasteryData.coreConcepts.slice(0, 3) : []),
           ].filter(Boolean),
-          keyTakeaways: Array.isArray(aiMasteryData.keyTakeaways) ? aiMasteryData.keyTakeaways.slice(0, 2) : undefined,
-          examTrapWarning: aiMasteryData.examTrap || undefined,
+          keyTakeaways: Array.isArray(aiMasteryData.keyTakeaways) ? aiMasteryData.keyTakeaways.slice(0, 2) : baseSlideDeck.slides[0]?.keyTakeaways,
+          examTrapWarning: aiMasteryData.examTrap || baseSlideDeck.slides[0]?.examTrapWarning,
+          imageUrl: baseSlideDeck.slides[0]?.imageUrl,
+          imageCaption: baseSlideDeck.slides[0]?.imageCaption,
+          visualTarget: baseSlideDeck.slides[0]?.visualTarget,
+          whatToLookFor: baseSlideDeck.slides[0]?.whatToLookFor,
         },
         {
           id: `ai-slide-${subjectId}-${topicId}-2`,
@@ -228,8 +306,12 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
             aiMasteryData.classicPresentation ? `Classic Vignette Stem: ${aiMasteryData.classicPresentation}` : null,
             ...(Array.isArray(aiMasteryData.coreConcepts) ? aiMasteryData.coreConcepts.slice(3, 5) : []),
           ].filter(Boolean) as string[],
-          keyTakeaways: aiMasteryData.goldStandardTest ? [`Definitive test: ${aiMasteryData.goldStandardTest}`] : undefined,
-          examTrapWarning: aiMasteryData.examTrap || undefined,
+          keyTakeaways: aiMasteryData.goldStandardTest ? [`Definitive test: ${aiMasteryData.goldStandardTest}`] : baseSlideDeck.slides[1]?.keyTakeaways,
+          examTrapWarning: aiMasteryData.examTrap || baseSlideDeck.slides[1]?.examTrapWarning,
+          imageUrl: baseSlideDeck.slides[1]?.imageUrl,
+          imageCaption: baseSlideDeck.slides[1]?.imageCaption,
+          visualTarget: baseSlideDeck.slides[1]?.visualTarget,
+          whatToLookFor: baseSlideDeck.slides[1]?.whatToLookFor,
         },
         {
           id: `ai-slide-${subjectId}-${topicId}-3`,
@@ -242,8 +324,12 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
             aiMasteryData.examTrap ? `NBE Board Pitfall / Distractor: ${aiMasteryData.examTrap}` : null,
             ...(Array.isArray(aiMasteryData.keyTakeaways) ? aiMasteryData.keyTakeaways : []),
           ].filter(Boolean) as string[],
-          keyTakeaways: aiMasteryData.firstLineTreatment ? [`DOC: ${aiMasteryData.firstLineTreatment}`] : undefined,
-          examTrapWarning: aiMasteryData.examTrap || undefined,
+          keyTakeaways: aiMasteryData.firstLineTreatment ? [`DOC: ${aiMasteryData.firstLineTreatment}`] : baseSlideDeck.slides[2]?.keyTakeaways,
+          examTrapWarning: aiMasteryData.examTrap || baseSlideDeck.slides[2]?.examTrapWarning,
+          imageUrl: baseSlideDeck.slides[2]?.imageUrl,
+          imageCaption: baseSlideDeck.slides[2]?.imageCaption,
+          visualTarget: baseSlideDeck.slides[2]?.visualTarget,
+          whatToLookFor: baseSlideDeck.slides[2]?.whatToLookFor,
         },
       ];
       return {
@@ -257,6 +343,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
     return baseSlideDeck;
   }, [aiMasteryData, baseSlideDeck, subjectId, topicId, topicName]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [zoomedSlideImage, setZoomedSlideImage] = useState<{ url: string; title?: string; whatToLookFor?: string } | null>(null);
 
   // Step 2: Recall (Flashcards)
   const baseFlashcardDeck = useMemo<FlashcardDeck>(() => generateFlashcardDeck(subjectId, topicId, topicName), [subjectId, topicId, topicName]);
@@ -1082,101 +1169,292 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                 )}
 
                 {/* 6. Slides Deck */}
-                {slideDeck.slides.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b border-stone-100 pb-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
-                          {aiMasteryData ? 'Gemini AI Deepened Slides' : 'Textbook Notes & Synthesis'} ({currentSlideIndex + 1} of {slideDeck.slides.length})
-                        </span>
-                        {aiMasteryData ? (
-                          <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/60 text-[10px] font-mono font-semibold flex items-center gap-1">
-                            <Brain className="h-2.5 w-2.5 text-indigo-600" />
-                            GEMINI AI DEEPENED
+                {slideDeck.slides.length > 0 && (() => {
+                  const currentSlide = slideDeck.slides[currentSlideIndex];
+                  const categoryBadge = getSlideCategoryBadge(currentSlide?.category);
+                  return (
+                    <div className="space-y-4">
+                      {/* Top Controls Bar */}
+                      <div className="flex items-center justify-between border-b border-stone-100 pb-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-semibold uppercase tracking-wider text-stone-400 font-mono">
+                            {aiMasteryData ? 'Gemini AI Deepened Slides' : 'Textbook Notes & Synthesis'} ({currentSlideIndex + 1} of {slideDeck.slides.length})
                           </span>
-                        ) : (
+                          {aiMasteryData ? (
+                            <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/60 text-[10px] font-mono font-semibold flex items-center gap-1">
+                              <Brain className="h-2.5 w-2.5 text-indigo-600" />
+                              GEMINI AI DEEPENED
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={fetchGeminiMastery}
+                              disabled={isAiLoading}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/70 text-[11px] font-semibold font-display transition-colors cursor-pointer disabled:opacity-60"
+                            >
+                              {isAiLoading ? (
+                                <>
+                                  <RefreshCw className="h-3 w-3 animate-spin text-indigo-600" />
+                                  <span>Deepening Slides...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Brain className="h-3 w-3 text-indigo-600" />
+                                  <span>Deepen Slides with Gemini</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="items-center gap-1 hidden sm:flex">
+                            {slideDeck.slides.map((_, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => setCurrentSlideIndex(idx)}
+                                className={`h-2 rounded-full transition-all cursor-pointer ${
+                                  idx === currentSlideIndex
+                                    ? 'w-5 bg-[#007AFF]'
+                                    : 'w-2 bg-stone-200 hover:bg-stone-300'
+                                }`}
+                                title={`Jump to slide ${idx + 1}`}
+                              />
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-1 ml-1">
+                            <button
+                              type="button"
+                              disabled={currentSlideIndex === 0}
+                              onClick={() => setCurrentSlideIndex((prev) => Math.max(0, prev - 1))}
+                              className="p-1.5 rounded-lg border border-stone-200 text-stone-600 disabled:opacity-30 hover:bg-stone-50 cursor-pointer"
+                              title="Previous slide"
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={currentSlideIndex === slideDeck.slides.length - 1}
+                              onClick={() => setCurrentSlideIndex((prev) => Math.min(slideDeck.slides.length - 1, prev + 1))}
+                              className="p-1.5 rounded-lg border border-stone-200 text-stone-600 disabled:opacity-30 hover:bg-stone-50 cursor-pointer"
+                              title="Next slide"
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Main Slide Card */}
+                      <div className="p-5 sm:p-7 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-5 relative overflow-hidden">
+                        {isAiLoading && (
+                          <div className="absolute inset-0 bg-white/90 backdrop-blur-xs flex flex-col items-center justify-center gap-2.5 z-20 transition-all">
+                            <RefreshCw className="h-6 w-6 animate-spin text-indigo-600" />
+                            <p className="text-sm font-semibold font-display text-indigo-700">
+                              Deepening study slides with Gemini AI...
+                            </p>
+                            <p className="text-xs text-stone-500 font-mono">
+                              Synthesizing clinical correlations, gold standard tests & board traps
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Slide Header */}
+                        <div className="space-y-1.5 border-b border-stone-100 pb-4">
+                          <div className="flex items-center gap-2">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${categoryBadge.badgeClass}`}>
+                              <categoryBadge.Icon className="h-3 w-3" />
+                              <span>{categoryBadge.label}</span>
+                            </span>
+                            <span className="text-[11px] font-mono text-stone-400">
+                              Slide {currentSlideIndex + 1} of {slideDeck.slides.length}
+                            </span>
+                          </div>
+                          <h3 className="text-xl sm:text-2xl font-bold font-display text-stone-900 tracking-tight">
+                            {currentSlide?.title}
+                          </h3>
+                          {currentSlide?.subtitle && (
+                            <p className="text-xs sm:text-sm text-stone-500 font-medium">
+                              {currentSlide.subtitle}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Slide Body */}
+                        <div className={`grid gap-6 ${currentSlide?.imageUrl ? 'grid-cols-1 lg:grid-cols-12 items-start' : 'grid-cols-1'}`}>
+                          {/* Content Column */}
+                          <div className={`space-y-4 ${currentSlide?.imageUrl ? 'lg:col-span-7' : 'max-w-3xl'}`}>
+                            {currentSlide?.bullets && currentSlide.bullets.length > 0 && (
+                              <ul className="space-y-2.5 text-stone-800 text-[13px] sm:text-sm leading-relaxed">
+                                {currentSlide.bullets.map((bp, i) => (
+                                  <li key={i} className="flex items-start gap-2.5">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-[#007AFF] mt-2 shrink-0" />
+                                    <div className="flex-1 font-normal text-stone-700">
+                                      {renderFormattedSlideText(bp)}
+                                    </div>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+
+                            {/* Quick Table */}
+                            {currentSlide?.quickTable && (
+                              <div className="rounded-xl border border-stone-200 overflow-hidden bg-white shadow-2xs my-3">
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                      <tr className="bg-stone-50/90 border-b border-stone-200 text-stone-600 font-display font-semibold">
+                                        {currentSlide.quickTable.headers.map((h, i) => (
+                                          <th key={i} className="px-3.5 py-2.5">
+                                            {h}
+                                          </th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-stone-100 text-stone-700">
+                                      {currentSlide.quickTable.rows.map((row, rIdx) => (
+                                        <tr key={rIdx} className="hover:bg-stone-50/50 transition-colors">
+                                          {row.map((cell, cIdx) => (
+                                            <td key={cIdx} className="px-3.5 py-2.5 font-medium">
+                                              {cell}
+                                            </td>
+                                          ))}
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Key Takeaways Card */}
+                            {currentSlide?.keyTakeaways && currentSlide.keyTakeaways.length > 0 && (
+                              <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200/80 text-emerald-950 space-y-1.5">
+                                <div className="flex items-center gap-1.5 text-xs font-semibold font-display text-emerald-800">
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                                  <span>High-Yield Pearls:</span>
+                                </div>
+                                <ul className="space-y-1 text-xs text-emerald-900 font-medium pl-5 list-disc marker:text-emerald-500">
+                                  {currentSlide.keyTakeaways.map((kt, i) => (
+                                    <li key={i}>{kt}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {/* High-Yield Trap Warning */}
+                            {currentSlide?.examTrapWarning && (
+                              <div className="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/80 text-rose-950 space-y-1">
+                                <div className="flex items-center gap-1.5 text-xs font-semibold font-display text-rose-800">
+                                  <ShieldAlert className="h-3.5 w-3.5 text-rose-600 shrink-0" />
+                                  <span>Board Pitfall / Trap:</span>
+                                </div>
+                                <p className="text-xs text-rose-900 leading-relaxed font-medium">
+                                  {currentSlide.examTrapWarning}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Medical Visual Column */}
+                          {currentSlide?.imageUrl && (
+                            <div className="lg:col-span-5 space-y-2.5">
+                              <div
+                                className="group relative rounded-xl border border-stone-200/80 bg-stone-900/5 overflow-hidden shadow-2xs hover:border-[#007AFF]/50 transition-all cursor-pointer"
+                                onClick={() => setZoomedSlideImage({
+                                  url: currentSlide.imageUrl!,
+                                  title: currentSlide.visualTarget || currentSlide.title,
+                                  whatToLookFor: currentSlide.whatToLookFor || currentSlide.imageCaption || "Verified high-yield board visual finding",
+                                })}
+                              >
+                                <div className="p-2 sm:p-3 flex items-center justify-center min-h-[200px] max-h-[290px]">
+                                  <img
+                                    src={currentSlide.imageUrl}
+                                    alt={currentSlide.visualTarget || currentSlide.title}
+                                    className="max-h-[270px] w-auto max-w-full object-contain rounded-lg transition-transform duration-200 group-hover:scale-[1.02]"
+                                    loading="lazy"
+                                    onError={(e) => {
+                                      (e.target as HTMLElement).style.display = 'none';
+                                    }}
+                                  />
+                                </div>
+                                <div className="absolute top-2.5 right-2.5">
+                                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-stone-900/75 backdrop-blur-xs text-white text-[11px] font-medium shadow-xs group-hover:bg-[#007AFF] transition-colors">
+                                    <Maximize2 className="h-3 w-3" />
+                                    <span>Zoom</span>
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Visual Diagnostic Cues */}
+                              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/80 space-y-1.5 text-left">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-stone-500 flex items-center gap-1">
+                                    <Eye className="h-3 w-3 text-stone-600" />
+                                    <span>High-Yield Board Visual</span>
+                                  </span>
+                                  {currentSlide.visualTarget && (
+                                    <span className="text-[11px] font-semibold text-stone-800 font-display truncate">
+                                      {currentSlide.visualTarget}
+                                    </span>
+                                  )}
+                                </div>
+                                {currentSlide.whatToLookFor && (
+                                  <p className="text-xs text-stone-700 leading-snug">
+                                    <span className="font-semibold text-stone-900">What to look for: </span>
+                                    {currentSlide.whatToLookFor}
+                                  </p>
+                                )}
+                                {currentSlide.imageCaption && (
+                                  <p className="text-[11px] text-stone-500 italic">
+                                    {currentSlide.imageCaption}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Slide Navigation Footer inside card */}
+                        <div className="flex items-center justify-between pt-3 border-t border-stone-100 text-xs">
                           <button
                             type="button"
-                            onClick={fetchGeminiMastery}
-                            disabled={isAiLoading}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/70 text-[11px] font-semibold font-display transition-colors cursor-pointer disabled:opacity-60"
+                            disabled={currentSlideIndex === 0}
+                            onClick={() => setCurrentSlideIndex((prev) => Math.max(0, prev - 1))}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer font-medium"
                           >
-                            {isAiLoading ? (
-                              <>
-                                <RefreshCw className="h-3 w-3 animate-spin text-indigo-600" />
-                                <span>Deepening Slides...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Brain className="h-3 w-3 text-indigo-600" />
-                                <span>Deepen Slides with Gemini</span>
-                              </>
-                            )}
+                            <ChevronLeft className="h-4 w-4" />
+                            <span>Previous Slide</span>
                           </button>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          disabled={currentSlideIndex === 0}
-                          onClick={() => setCurrentSlideIndex((prev) => Math.max(0, prev - 1))}
-                          className="p-1.5 rounded-lg border border-stone-200 text-stone-600 disabled:opacity-30 hover:bg-stone-50 cursor-pointer"
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          disabled={currentSlideIndex === slideDeck.slides.length - 1}
-                          onClick={() => setCurrentSlideIndex((prev) => Math.min(slideDeck.slides.length - 1, prev + 1))}
-                          className="p-1.5 rounded-lg border border-stone-200 text-stone-600 disabled:opacity-30 hover:bg-stone-50 cursor-pointer"
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </button>
+                          <div className="flex items-center gap-1.5">
+                            {slideDeck.slides.map((_, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => setCurrentSlideIndex(i)}
+                                className={`h-2 rounded-full transition-all cursor-pointer ${
+                                  i === currentSlideIndex
+                                    ? 'w-5 bg-[#007AFF]'
+                                    : 'w-2 bg-stone-200 hover:bg-stone-300'
+                                }`}
+                                title={`Jump to slide ${i + 1}`}
+                              />
+                            ))}
+                          </div>
+                          <button
+                            type="button"
+                            disabled={currentSlideIndex === slideDeck.slides.length - 1}
+                            onClick={() => setCurrentSlideIndex((prev) => Math.min(slideDeck.slides.length - 1, prev + 1))}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer font-medium"
+                          >
+                            <span>Next Slide</span>
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Slide Content Card */}
-                    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-3 relative overflow-hidden">
-                      {isAiLoading && (
-                        <div className="absolute inset-0 bg-white/85 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-10 transition-all">
-                          <RefreshCw className="h-5 w-5 animate-spin text-indigo-600" />
-                          <p className="text-xs font-semibold font-display text-indigo-700">
-                            Gemini AI is deepening high-yield study slides...
-                          </p>
-                          <p className="text-[11px] text-stone-500 font-mono">
-                            Synthesizing clinical correlations, gold standard tests & board traps
-                          </p>
-                        </div>
-                      )}
-                      <h3 className="text-lg sm:text-xl font-bold font-display text-stone-900">
-                        {slideDeck.slides[currentSlideIndex]?.title}
-                      </h3>
-                      {slideDeck.slides[currentSlideIndex]?.subtitle && (
-                        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-medium">
-                          {slideDeck.slides[currentSlideIndex].subtitle}
-                        </p>
-                      )}
-
-                      {slideDeck.slides[currentSlideIndex]?.bullets && (
-                        <ul className="space-y-1.5 pt-1 text-xs sm:text-sm text-stone-700">
-                          {slideDeck.slides[currentSlideIndex].bullets.map((bp, i) => (
-                            <li key={i} className="flex items-start gap-2.5">
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#8E8E93] mt-2 shrink-0" />
-                              <span>{bp}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-
-                      {slideDeck.slides[currentSlideIndex]?.examTrapWarning && (
-                        <div className="p-3.5 rounded-xl bg-rose-50/60 border border-rose-200/70 text-xs text-rose-950 space-y-1">
-                          <span className="font-semibold text-rose-800 font-display">High-Yield Trap:</span>
-                          <p>{slideDeck.slides[currentSlideIndex].examTrapWarning}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Step Navigation Action */}
                 <div className="flex items-center justify-end pt-4 border-t border-stone-100">
@@ -2161,13 +2439,16 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
       </div>
 
       {/* Image Zoom Modal */}
-      {zoomImage && (
+      {(zoomImage || zoomedSlideImage) && (
         <MedicalImageViewerModal
           isOpen={true}
-          onClose={() => setZoomImage(null)}
-          imageUrl={zoomImage}
-          title={topicName}
-          whatToLookFor="Verified diagnostic visual finding for this clinical concept."
+          onClose={() => {
+            setZoomImage(null);
+            setZoomedSlideImage(null);
+          }}
+          imageUrl={zoomedSlideImage?.url || zoomImage || ''}
+          title={zoomedSlideImage?.title || topicName}
+          whatToLookFor={zoomedSlideImage?.whatToLookFor || "Verified diagnostic visual finding for this clinical concept."}
         />
       )}
     </div>

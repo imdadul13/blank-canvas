@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Zap,
@@ -24,11 +24,24 @@ import {
   Search,
   X,
   Check,
+  Circle,
+  ChevronLeft,
   TrendingUp,
   FileText,
   Eye,
   HelpCircle,
   ExternalLink,
+  Copy,
+  CheckCheck,
+  Maximize2,
+  RefreshCw,
+  Sparkle,
+  BookmarkCheck,
+  Stethoscope,
+  Microscope,
+  Pill,
+  Brain,
+  Bookmark,
 } from 'lucide-react';
 import { FMGE_SUBJECTS } from '../../data/fmgeSubjects';
 import {
@@ -49,10 +62,1543 @@ import {
   type BlueprintTopic,
   type DailyStudyBlueprint,
 } from '../../data/sprintStudyBlueprints';
-import { VISUAL_CONCEPT_REGISTRY, type VisualConceptAsset } from '../../utils/visualQuestionEngine';
+import {
+  VISUAL_CONCEPT_REGISTRY,
+  VERIFIED_IBQ_BANK,
+  getVerifiedIBQsForSubject,
+  type VisualConceptAsset,
+  type RawIBQItem,
+} from '../../utils/visualQuestionEngine';
+import { INITIAL_PEARLS } from '../../data/initialPearls';
+import { FMGE_TOPIC_KNOWLEDGE_BASE, type MedicalTopicKnowledge } from '../../utils/topicKnowledgeBase';
+import { RAPID_REVISION_DECK_TEXT } from '../../data/rapidRevisionDeckText';
+import { IbqRapidRecallModal } from '../IbqRapidRecallModal';
 import { calculateTopicPerformanceMetrics } from '../../utils/performanceEngine';
 import type { AppState, McqAttempt, GrandTest } from '../../types';
 import { SubjectAppleIcon } from '../SubjectAppleIcon';
+
+export function getStoredTopicMastery(): Record<string, boolean> {
+  try {
+    const raw = localStorage.getItem('fmge_sprint_topic_mastery');
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function setStoredTopicMastery(mastery: Record<string, boolean>): void {
+  try {
+    localStorage.setItem('fmge_sprint_topic_mastery', JSON.stringify(mastery));
+  } catch {}
+}
+
+export function getMatchingPearls(subjectId: string, topicQuery: string, customPearls: any[] = []): any[] {
+  const all = [...INITIAL_PEARLS, ...(customPearls || [])];
+  const qTerms = (topicQuery || '')
+    .toLowerCase()
+    .split(/[\s,()\/&-]+/)
+    .filter((w) => w.length > 3);
+  const sLower = subjectId.toLowerCase();
+
+  const matched = all.filter((p) => {
+    if (p.subjectId?.toLowerCase() !== sLower) return false;
+    if (qTerms.length === 0) return true;
+    const text = `${p.title} ${p.highYieldKey} ${p.explanation}`.toLowerCase();
+    return qTerms.some((term) => text.includes(term));
+  });
+
+  return matched.length > 0 ? matched : all.filter((p) => p.subjectId?.toLowerCase() === sLower);
+}
+
+export function getMatchingKnowledgeBase(subjectId: string, topicQuery: string): MedicalTopicKnowledge | null {
+  const sLower = subjectId.toLowerCase();
+  const qTerms = (topicQuery || '')
+    .toLowerCase()
+    .split(/[\s,()\/&-]+/)
+    .filter((w) => w.length > 3);
+
+  for (const item of Object.values(FMGE_TOPIC_KNOWLEDGE_BASE)) {
+    if (item.subjectId.toLowerCase() === sLower) {
+      const titleLower = item.topicTitle.toLowerCase();
+      if (qTerms.length > 0 && qTerms.some((term) => titleLower.includes(term))) {
+        return item;
+      }
+    }
+  }
+
+  for (const item of Object.values(FMGE_TOPIC_KNOWLEDGE_BASE)) {
+    if (item.subjectId.toLowerCase() === sLower) {
+      return item;
+    }
+  }
+  return null;
+}
+
+export function searchRapidRevisionDeck(subjectName: string, topicQuery: string): Array<{ page: number; text: string }> {
+  const matchedPages: Array<{ page: number; text: string }> = [];
+  const deck = RAPID_REVISION_DECK_TEXT as unknown as Record<string, ReadonlyArray<{ page: number; text: string }>>;
+  const qTerms = (topicQuery || '')
+    .toLowerCase()
+    .split(/[\s,()\/&-]+/)
+    .filter((w) => w.length > 3);
+  const sLower = subjectName.toLowerCase();
+
+  for (const part of Object.values(deck)) {
+    if (!Array.isArray(part)) continue;
+    for (const item of part) {
+      const tLower = item.text.toLowerCase();
+      const matchesTopic = qTerms.some((term) => tLower.includes(term));
+      const matchesSubject = tLower.includes(sLower);
+      if (matchesTopic || (matchesSubject && qTerms.length === 0)) {
+        matchedPages.push(item);
+        if (matchedPages.length >= 3) break;
+      }
+    }
+    if (matchedPages.length >= 3) break;
+  }
+  return matchedPages;
+}
+
+export function getMatchingVisualAssets(subjectId: string, topicQuery: string): VisualConceptAsset[] {
+  const sLower = subjectId.toLowerCase();
+  const qTerms = (topicQuery || '')
+    .toLowerCase()
+    .split(/[\s,()\/&-]+/)
+    .filter((w) => w.length > 3);
+  const matched: VisualConceptAsset[] = [];
+
+  for (const asset of Object.values(VISUAL_CONCEPT_REGISTRY)) {
+    const assetSubjects = (asset.subjects || []).map((s) => s.toLowerCase());
+    const matchesSubject = assetSubjects.includes(sLower) || asset.conceptKey.toLowerCase().startsWith(sLower.slice(0, 4));
+    if (!matchesSubject) continue;
+
+    if (qTerms.length === 0) {
+      matched.push(asset);
+    } else {
+      const assetSearch = `${asset.conceptKey} ${asset.visualTarget} ${asset.keyVisualFinding} ${asset.whatToLookFor} ${(asset.searchTerms || []).join(' ')}`.toLowerCase();
+      if (qTerms.some((term) => assetSearch.includes(term))) {
+        matched.push(asset);
+      }
+    }
+    if (matched.length >= 4) break;
+  }
+
+  if (matched.length === 0) {
+    for (const asset of Object.values(VISUAL_CONCEPT_REGISTRY)) {
+      const assetSubjects = (asset.subjects || []).map((s) => s.toLowerCase());
+      if (assetSubjects.includes(sLower) || asset.conceptKey.toLowerCase().startsWith(sLower.slice(0, 4))) {
+        matched.push(asset);
+        if (matched.length >= 3) break;
+      }
+    }
+  }
+
+  return matched;
+}
+
+export function generateClinicalFallbackNotes(
+  subjectId: string,
+  subjectName: string,
+  topic: string,
+  mode: 'cram' | 'tables' | 'oneliners'
+): string {
+  const kb = getMatchingKnowledgeBase(subjectId, topic);
+  const pearls = getMatchingPearls(subjectId, topic);
+  const visualAssets = getMatchingVisualAssets(subjectId, topic);
+
+  if (mode === 'cram') {
+    return `# 📖 Complete Cram Notes: ${topic} (${subjectName})
+
+### 1. 🎯 Core Pathophysiology & Diagnostic Criteria
+${kb ? kb.coreConcepts.map((c) => `- ${c}`).join('\n') : `- Essential high-yield clinical mechanisms for ${topic} in ${subjectName}.\n- Pathognomonic clinical signs and criteria tested in NBEMS FMGE.`}
+
+### 2. 🔬 Gold Standard & Investigation of Choice (IOC)
+- **Investigation of Choice (IOC):** ${kb?.goldStandardTest || 'Targeted diagnostic protocol per national clinical guidelines.'}
+- **Gold Standard Test:** ${kb?.goldStandardTest || 'Confirmatory histopathology / definitive laboratory assay.'}
+- **Key Visual Finding:** ${visualAssets[0]?.keyVisualFinding || 'Characteristic radiological / morphological pattern.'}
+
+### 3. First-Line Management & Drug of Choice (DOC)
+- **Drug of Choice (DOC):** ${kb?.firstLineTreatment || 'First-line antimicrobial / pharmacotherapy per latest guidelines.'}
+- **Clinical Trap:** ${kb?.examTrap || 'Watch out for atypical presentations and contraindications.'}
+
+### 4. Named Signs, Triads & Radiology Spotters
+${visualAssets.map((a) => `- **${a.visualTarget}:** ${a.keyVisualFinding} (*What to look for:* ${a.whatToLookFor})`).join('\n') || '- Classic signs and eponymous presentations frequently tested.'}
+
+### 5. High-Yield Numbers & Diagnostic Cut-offs
+${kb ? kb.keyTakeaways.map((t) => `- **Key Rule:** ${t}`).join('\n') : `- Rapid recall formulas and time-sensitive treatment windows.`}`;
+  }
+
+  if (mode === 'tables') {
+    return `# Confused Pairs & Differentiator Tables: ${topic}
+
+### Table 1: Classic Clinical Differentiators for ${topic}
+
+| Clinical Parameter | Primary Entity (${topic}) | Key Mimic / Differential |
+|---|---|---|
+| **Etiology / Mechanism** | Hallmark pathophysiology | Alternative mechanism |
+| **Investigation of Choice** | ${kb?.goldStandardTest || 'Specific gold standard test'} | Routine baseline assessment |
+| **Drug of Choice** | ${kb?.firstLineTreatment || 'First-line targeted drug'} | Alternative management |
+| **Pathognomonic Sign** | ${visualAssets[0]?.keyVisualFinding || 'Classic hallmark sign'} | Distractor clinical finding |
+| **Common Exam Trap** | ${kb?.examTrap || 'Examiners test this contrast'} | Watch for atypical presentations |
+
+- **Exam Trap Warning:** Examiners frequently swap these two conditions in vignette distractor options!
+- **2-Second Rule of Thumb:** Look for the gold-standard test (${kb?.goldStandardTest || 'IOC'}) in the question stem.`;
+  }
+
+  const lines: string[] = [];
+  if (kb) {
+    kb.keyTakeaways.forEach((t) => {
+      lines.push(`${lines.length + 1}. **${t.split('=')[0] || t.slice(0, 30)}:** ${t.split('=')[1] || t} — *High frequency NBEMS recall*`);
+    });
+  }
+  pearls.forEach((p) => {
+    lines.push(`${lines.length + 1}. **${p.title}:** ${p.highYieldKey} — *Tested in recent cycles*`);
+  });
+  visualAssets.forEach((a) => {
+    lines.push(`${lines.length + 1}. **${a.visualTarget}:** ${a.keyVisualFinding} — *Image spotter clue*`);
+  });
+
+  while (lines.length < 15) {
+    const n = lines.length + 1;
+    lines.push(`${n}. **${topic} High-Yield Rule ${n}:** Investigation of Choice is ${kb?.goldStandardTest || 'the gold standard'}; DOC is ${kb?.firstLineTreatment || 'first-line protocol'}. — *Direct 1-point question*`);
+  }
+
+  return `# 🎯 5-Year Recall One-Liners: ${topic} (${subjectName})\n\n${lines.slice(0, 15).join('\n')}`;
+}
+
+export interface CustomMixedQuestion {
+  id: string;
+  type: 'text' | 'image';
+  stem: string;
+  imageUrl?: string;
+  options: Array<{ id: string; text: string }>;
+  correctOptionId: string;
+  rationale: string;
+  pearl?: string;
+  imageFinding?: string;
+  whatToLookFor?: string;
+}
+
+export function generateMixed10Quiz(subjectId: string, subjectName: string, topicName: string): CustomMixedQuestion[] {
+  const result: CustomMixedQuestion[] = [];
+  const sLower = subjectId.toLowerCase();
+
+  const kbTopics = Object.values(FMGE_TOPIC_KNOWLEDGE_BASE).filter(
+    (k) => k.subjectId.toLowerCase() === sLower
+  );
+
+  for (const kb of kbTopics) {
+    if (kb.clinicalCase && result.length < 5) {
+      const cc = kb.clinicalCase;
+      result.push({
+        id: `quiz-text-${subjectId}-${result.length + 1}`,
+        type: 'text',
+        stem: `${cc.patientDemographics} presents with ${cc.presentation}. Physical examination and initial labs reveal: ${cc.physicalExamOrLabs}. ${cc.diagnosticQuestion}`,
+        options: cc.options.map((o) => ({ id: o.key, text: o.text })),
+        correctOptionId: cc.options.find((o) => o.isCorrect)?.key || 'A',
+        rationale: cc.clinicalExplanation,
+        pearl: cc.examPearl,
+      });
+    }
+  }
+
+  const pearls = getMatchingPearls(subjectId, topicName);
+  let pearlIdx = 0;
+  while (result.length < 5) {
+    const p = pearls[pearlIdx % Math.max(1, pearls.length)];
+    pearlIdx++;
+    const num = result.length + 1;
+    result.push({
+      id: `quiz-text-synth-${subjectId}-${num}`,
+      type: 'text',
+      stem: `A 35-year-old patient presents for clinical evaluation regarding ${topicName} in ${subjectName}. Based on standard NBEMS guidelines, what is the definitive gold standard investigation or drug of choice?`,
+      options: [
+        { id: 'A', text: p ? p.highYieldKey.slice(0, 80) : 'Initiate first-line guideline-directed medical therapy' },
+        { id: 'B', text: 'Obtain immediate non-contrast CT and observe for 24 hours' },
+        { id: 'C', text: 'Administer broad-spectrum intravenous corticosteroids' },
+        { id: 'D', text: 'Perform exploratory surgical intervention without imaging' },
+      ],
+      correctOptionId: 'A',
+      rationale: p ? `${p.title}: ${p.explanation}` : `First-line management according to standard NBEMS clinical protocols for ${topicName}.`,
+      pearl: p?.highYieldKey || `Remember: always verify first-line DOC in ${subjectName}.`,
+    });
+  }
+
+  const ibqs = VERIFIED_IBQ_BANK.filter(
+    (q) => q.subject.toLowerCase() === sLower || q.subject.toLowerCase().includes(sLower)
+  );
+
+  for (const ibq of ibqs) {
+    if (result.length < 10) {
+      result.push({
+        id: `quiz-img-${ibq.id}`,
+        type: 'image',
+        stem: ibq.vignette,
+        imageUrl: ibq.imageSrc,
+        options: ibq.options,
+        correctOptionId: ibq.correctOptionId,
+        rationale: ibq.explanation.detailedRationale || 'Diagnostic clinical rationale for the image finding.',
+        imageFinding: ibq.explanation.imageFinding,
+        whatToLookFor: (ibq.explanation.highYieldBuzzwords || []).join(', '),
+      });
+    }
+  }
+
+  const visualAssets = Object.values(VISUAL_CONCEPT_REGISTRY).filter(
+    (a) => (a.subjects || []).includes(sLower) || a.conceptKey.startsWith(sLower.slice(0, 4))
+  );
+
+  let vIdx = 0;
+  while (result.length < 10) {
+    const asset = visualAssets[vIdx % Math.max(1, visualAssets.length)] || Object.values(VISUAL_CONCEPT_REGISTRY)[vIdx % Object.values(VISUAL_CONCEPT_REGISTRY).length];
+    vIdx++;
+    const qNum = result.length + 1;
+    result.push({
+      id: `quiz-img-synth-${asset.conceptKey}-${qNum}`,
+      type: 'image',
+      stem: `Examine the diagnostic image shown below (${asset.imageType}). Based on the classic morphological and clinical findings, what is the definitive diagnosis?`,
+      imageUrl: asset.imageUrl,
+      options: [
+        { id: 'A', text: asset.visualTarget },
+        { id: 'B', text: `Atypical variant in ${subjectName}` },
+        { id: 'C', text: `Reactive inflammatory changes` },
+        { id: 'D', text: `Benign architectural distortion` },
+      ],
+      correctOptionId: 'A',
+      rationale: `${asset.keyVisualFinding}\n\nWhat to look for: ${asset.whatToLookFor}`,
+      imageFinding: asset.keyVisualFinding,
+      whatToLookFor: asset.whatToLookFor,
+    });
+  }
+
+  return result;
+}
+
+const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
+  const lines = content.split('\n');
+  const elements: React.ReactNode[] = [];
+  let inTable = false;
+  let tableHeader: string[] = [];
+  let tableRows: string[][] = [];
+
+  const renderFormattedInline = (text: string) => {
+    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+    return parts.map((part, pIdx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={pIdx} className="font-bold text-slate-900">{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('*') && part.endsWith('*')) {
+        return <em key={pIdx} className="italic text-slate-600">{part.slice(1, -1)}</em>;
+      }
+      return part;
+    });
+  };
+
+  const flushTable = (key: string) => {
+    if (tableHeader.length > 0 || tableRows.length > 0) {
+      elements.push(
+        <div key={key} className="overflow-x-auto my-3 rounded-xl border border-slate-200 shadow-2xs">
+          <table className="w-full text-left text-xs border-collapse">
+            {tableHeader.length > 0 && (
+              <thead className="bg-slate-100 text-slate-800 font-bold border-b border-slate-200">
+                <tr>
+                  {tableHeader.map((th, i) => (
+                    <th key={i} className="p-2.5 font-bold border-r border-slate-200 last:border-r-0">
+                      {th.trim()}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+            )}
+            <tbody>
+              {tableRows.map((tr, rIdx) => (
+                <tr key={rIdx} className={rIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/70'}>
+                  {tr.map((td, cIdx) => (
+                    <td key={cIdx} className="p-2.5 border-t border-slate-100 border-r border-slate-100 last:border-r-0 text-slate-700">
+                      {renderFormattedInline(td.trim())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+      tableHeader = [];
+      tableRows = [];
+      inTable = false;
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      const cols = trimmed.split('|').slice(1, -1);
+      if (cols.every((c) => c.trim().replace(/-/g, '').replace(/:/g, '') === '')) {
+        continue;
+      }
+      if (!inTable) {
+        inTable = true;
+        tableHeader = cols;
+      } else {
+        tableRows.push(cols);
+      }
+      continue;
+    } else if (inTable) {
+      flushTable(`table-${i}`);
+    }
+
+    if (!trimmed) {
+      continue;
+    }
+
+    if (trimmed.startsWith('# ')) {
+      elements.push(<h2 key={i} className="text-base sm:text-lg font-black text-slate-900 mt-4 mb-2">{renderFormattedInline(trimmed.replace(/^#\s+/, ''))}</h2>);
+    } else if (trimmed.startsWith('## ')) {
+      elements.push(<h3 key={i} className="text-sm sm:text-base font-bold text-slate-800 mt-3 mb-1.5">{renderFormattedInline(trimmed.replace(/^##\s+/, ''))}</h3>);
+    } else if (trimmed.startsWith('### ')) {
+      elements.push(<h4 key={i} className="text-xs sm:text-sm font-bold text-emerald-800 mt-2.5 mb-1 flex items-center gap-1.5">{renderFormattedInline(trimmed.replace(/^###\s+/, ''))}</h4>);
+    } else if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+      elements.push(
+        <div key={i} className="flex items-start gap-2 text-xs text-slate-700 my-1 leading-relaxed pl-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
+          <span className="flex-1">{renderFormattedInline(trimmed.replace(/^[-•]\s+/, ''))}</span>
+        </div>
+      );
+    } else if (/^\d+\.\s/.test(trimmed)) {
+      const match = trimmed.match(/^(\d+)\.\s+(.*)$/);
+      elements.push(
+        <div key={i} className="flex items-start gap-2 text-xs text-slate-700 my-1 leading-relaxed pl-2">
+          <span className="font-mono font-bold text-emerald-700 shrink-0">{match ? match[1] + '.' : '•'}</span>
+          <span className="flex-1">{renderFormattedInline(match ? match[2] : trimmed)}</span>
+        </div>
+      );
+    } else {
+      elements.push(<p key={i} className="text-xs text-slate-700 my-1.5 leading-relaxed">{renderFormattedInline(trimmed)}</p>);
+    }
+  }
+
+  if (inTable) {
+    flushTable('table-end');
+  }
+
+  return <div className="space-y-1">{elements}</div>;
+};
+
+// ═══ SPRINT STUDY DESK MODAL (INSTANT NOTES + GEMINI DEEP DIVE) ═══
+interface SprintStudyDeskModalProps {
+  deskState: {
+    isOpen: boolean;
+    subjectId: string;
+    subjectName: string;
+    topicName: string;
+    matchedTopicId?: string;
+  };
+  onClose: () => void;
+  onLaunchPracticeMcq: (subjectId: string, topicId?: string, topicName?: string) => void;
+  onLaunchIbq: (subjectId: string, topicName?: string) => void;
+  onLaunchAiQuiz: (subjectId: string, topicName?: string) => void;
+  topicMastery: Record<string, boolean>;
+  toggleTopicMastery: (subId: string, topicName: string) => void;
+  customPearls?: any[];
+}
+
+const SprintStudyDeskModal: React.FC<SprintStudyDeskModalProps> = ({
+  deskState,
+  onClose,
+  onLaunchPracticeMcq,
+  onLaunchIbq,
+  onLaunchAiQuiz,
+  topicMastery,
+  toggleTopicMastery,
+  customPearls = [],
+}) => {
+  const [activeTab, setActiveTab] = useState<'notes' | 'gemini'>('notes');
+  const [geminiMode, setGeminiMode] = useState<'cram' | 'tables' | 'oneliners' | null>(null);
+  const [geminiContent, setGeminiContent] = useState<string>('');
+  const [isLoadingGemini, setIsLoadingGemini] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+
+  const masteryKey = `${deskState.subjectId.toLowerCase()}::${deskState.topicName.toLowerCase().trim()}`;
+  const isMastered = !!topicMastery[masteryKey];
+
+  const kb = useMemo(
+    () => getMatchingKnowledgeBase(deskState.subjectId, deskState.topicName),
+    [deskState.subjectId, deskState.topicName]
+  );
+  const visualAssets = useMemo(
+    () => getMatchingVisualAssets(deskState.subjectId, deskState.topicName),
+    [deskState.subjectId, deskState.topicName]
+  );
+  const pearls = useMemo(
+    () => getMatchingPearls(deskState.subjectId, deskState.topicName, customPearls),
+    [deskState.subjectId, deskState.topicName, customPearls]
+  );
+  const revisionSnippets = useMemo(
+    () => searchRapidRevisionDeck(deskState.subjectId, deskState.topicName),
+    [deskState.subjectId, deskState.topicName]
+  );
+
+  const handleCopy = () => {
+    if (!geminiContent) return;
+    navigator.clipboard.writeText(geminiContent);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleGenerateGemini = async (mode: 'cram' | 'tables' | 'oneliners') => {
+    const cacheKey = `fmge_sprint_material_${deskState.subjectId}_${deskState.topicName}_${mode}`.toLowerCase();
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      setGeminiContent(cached);
+      setGeminiMode(mode);
+      setActiveTab('gemini');
+      return;
+    }
+
+    setIsLoadingGemini(true);
+    setGeminiMode(mode);
+    setActiveTab('gemini');
+
+    let prompt = '';
+    if (mode === 'cram') {
+      prompt = `Act as an expert FMGE medical educator. Generate Complete Cram Notes for the FMGE exam on the topic "${deskState.topicName}" in the subject "${deskState.subjectName}". Include:
+1. Core Concepts & Pathophysiology
+2. Gold Standard & Investigation of Choice (IOC)
+3. Drug of Choice (DOC) & First-line management
+4. Named Signs, Triads & Visual spotters
+5. High-Yield Numbers & Diagnostic cut-offs.
+Keep it bullet-point, high-yield, and focused on scoring points in the upcoming NBEMS FMGE.`;
+    } else if (mode === 'tables') {
+      prompt = `Act as an expert FMGE medical educator. Generate Confused Pairs & Volatile Differentiator Tables for "${deskState.topicName}" in "${deskState.subjectName}". 
+Create clear markdown comparison tables contrasting easily confused diseases, mimickers, and volatile high-yield numbers that NBEMS frequently uses as traps in FMGE vignettes.`;
+    } else {
+      prompt = `Act as an expert FMGE medical educator. Generate exactly 15 rapid-fire FMGE 5-year recall one-liners for "${deskState.topicName}" in "${deskState.subjectName}".
+Format as a numbered list: 1. [Buzzword / Key finding]: [Definitive answer] — [Brief exam cue].`;
+    }
+
+    try {
+      const res = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: prompt,
+          studentContext: {
+            weakSubjects: [deskState.subjectId],
+            targetScore: 200,
+          },
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.reply) {
+          setGeminiContent(data.reply);
+          localStorage.setItem(cacheKey, data.reply);
+          setIsLoadingGemini(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Gemini chat request failed, using clinical fallback notes', err);
+    }
+
+    const fallback = generateClinicalFallbackNotes(deskState.subjectId, deskState.subjectName, deskState.topicName, mode);
+    setGeminiContent(fallback);
+    localStorage.setItem(cacheKey, fallback);
+    setIsLoadingGemini(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+        className="relative w-full max-w-4xl max-h-[92vh] flex flex-col bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
+      >
+        {/* Header */}
+        <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <SubjectAppleIcon subjectId={deskState.subjectId} size="md" />
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                  {deskState.subjectName}
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">Sprint Study Desk</span>
+              </div>
+              <h3 className="font-black text-base sm:text-lg text-white truncate leading-tight">
+                {deskState.topicName}
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => toggleTopicMastery(deskState.subjectId, deskState.topicName)}
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                isMastered
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                  : 'bg-white/10 text-white/80 border-white/20 hover:border-emerald-400'
+              }`}
+            >
+              {isMastered ? (
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+              ) : (
+                <Circle className="h-3.5 w-3.5 text-white/60" />
+              )}
+              <span>{isMastered ? 'Mastered ✓' : 'Mark Mastered'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-full hover:bg-white/10 text-white/70 hover:text-white cursor-pointer transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* 1-Click Action Bar */}
+        <div className="px-5 py-2.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-600">
+            <Zap className="h-3.5 w-3.5 text-emerald-600" />
+            <span>Launch Tests for this Topic:</span>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => onLaunchPracticeMcq(deskState.subjectId, deskState.matchedTopicId, deskState.topicName)}
+              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              <span>📝 Text MCQ Test</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onLaunchIbq(deskState.subjectId, deskState.topicName)}
+              className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+            >
+              <Eye className="h-3.5 w-3.5" />
+              <span>🖼️ Image (IBQ) Test</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onLaunchAiQuiz(deskState.subjectId, deskState.topicName)}
+              className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+            >
+              <Brain className="h-3.5 w-3.5" />
+              <span>AI Custom Quiz (5T+5I)</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="flex items-center px-5 border-b border-slate-200 bg-white shrink-0">
+          <button
+            type="button"
+            onClick={() => setActiveTab('notes')}
+            className={`py-3 px-4 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+              activeTab === 'notes'
+                ? 'border-emerald-600 text-emerald-950 bg-emerald-50/30'
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <BookOpen className="h-3.5 w-3.5 text-emerald-600" />
+            <span>Built-In High-Yield Material & Spotters</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('gemini')}
+            className={`py-3 px-4 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+              activeTab === 'gemini'
+                ? 'border-purple-600 text-purple-950 bg-purple-50/30'
+                : 'border-transparent text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <Brain className="h-3.5 w-3.5 text-purple-600" />
+            <span>Gemini AI Live Study Generator</span>
+          </button>
+        </div>
+
+        {/* Scrollable Content Body */}
+        <div className="p-5 overflow-y-auto flex-1 space-y-6">
+          {activeTab === 'notes' ? (
+            <>
+              {/* 1. Medical Topic Knowledge Base */}
+              {kb && (
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
+                      <Stethoscope className="h-4 w-4" />
+                    </div>
+                    <h4 className="font-bold text-sm text-slate-900">
+                      Standard High-Yield Clinical Profile
+                    </h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                        Gold Standard / Investigation of Choice:
+                      </span>
+                      <p className="text-xs font-bold text-slate-900 leading-snug">
+                        {kb.goldStandardTest}
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">
+                        First-Line Treatment / Drug of Choice:
+                      </span>
+                      <p className="text-xs font-bold text-slate-900 leading-snug">
+                        {kb.firstLineTreatment}
+                      </p>
+                    </div>
+                  </div>
+
+                  {kb.examTrap && (
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 space-y-1 text-xs">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700 flex items-center gap-1">
+                        <AlertTriangle className="h-3 w-3" />
+                        Examiner Clinical Trap:
+                      </span>
+                      <p className="text-rose-950 font-medium leading-relaxed">{kb.examTrap}</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5 pt-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      Core Concepts Tested:
+                    </span>
+                    <ul className="space-y-1 text-xs text-slate-700">
+                      {kb.coreConcepts.map((c, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
+                          <span>{c}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {kb.keyTakeaways.length > 0 && (
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        Key Diagnostic Rules & Formulas:
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        {kb.keyTakeaways.map((t, i) => (
+                          <div key={i} className="p-2.5 rounded-lg bg-emerald-50/60 border border-emerald-100 text-slate-800 font-medium leading-snug">
+                            {t}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 2. Visual Spotter Cards with Images */}
+              {visualAssets.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+                      <Eye className="h-4 w-4" />
+                    </div>
+                    <h4 className="font-bold text-sm text-slate-900">
+                      Verified Visual Spotters & Diagnostic Images ({visualAssets.length})
+                    </h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {visualAssets.map((asset, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-2xs space-y-3 p-3.5"
+                      >
+                        <div className="relative rounded-xl bg-slate-900 min-h-[170px] max-h-[220px] flex items-center justify-center overflow-hidden">
+                          <img
+                            src={asset.imageUrl}
+                            alt={asset.visualTarget}
+                            className="max-h-[200px] w-auto object-contain cursor-pointer hover:scale-105 transition-transform"
+                            onClick={() => setZoomedImage(asset.imageUrl)}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setZoomedImage(asset.imageUrl)}
+                            className="absolute bottom-2 right-2 p-1.5 rounded-lg bg-black/60 text-white hover:bg-black text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                          >
+                            <Maximize2 className="h-3 w-3" /> Zoom
+                          </button>
+                        </div>
+
+                        <div>
+                          <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
+                            {asset.imageType} Spotter
+                          </span>
+                          <h5 className="font-bold text-xs sm:text-sm text-slate-900 leading-snug">
+                            {asset.visualTarget}
+                          </h5>
+                          <p className="text-xs text-slate-600 mt-0.5 leading-snug">
+                            {asset.keyVisualFinding}
+                          </p>
+                        </div>
+
+                        <div className="p-2.5 rounded-xl bg-indigo-50/80 border border-indigo-100 text-[11px] text-indigo-950 space-y-0.5">
+                          <span className="font-bold text-indigo-800 block">What to look for on image:</span>
+                          <p className="leading-relaxed">{asset.whatToLookFor}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. High-Yield Medical Pearls */}
+              {pearls.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center">
+                      <Award className="h-4 w-4" />
+                    </div>
+                    <h4 className="font-bold text-sm text-slate-900">
+                      High-Yield Exam Pearls ({pearls.length})
+                    </h4>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {pearls.map((pearl, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <h5 className="font-bold text-xs sm:text-sm text-slate-900">
+                            {pearl.title}
+                          </h5>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold shrink-0">
+                            {pearl.category || 'High-Yield'}
+                          </span>
+                        </div>
+                        <p className="text-xs font-bold text-amber-950 leading-snug">
+                          Key Takeaway: {pearl.highYieldKey}
+                        </p>
+                        <p className="text-xs text-slate-700 leading-relaxed">
+                          {pearl.explanation}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Rapid Revision Text Extract */}
+              {revisionSnippets.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center">
+                      <Layers className="h-4 w-4" />
+                    </div>
+                    <h4 className="font-bold text-sm text-slate-900">
+                      Rapid Revision Deck Key Notes
+                    </h4>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-purple-50/50 border border-purple-200/80 space-y-2 text-xs">
+                    {revisionSnippets.map((snip, idx) => (
+                      <div key={idx} className="p-2.5 rounded-xl bg-white border border-purple-100/90 text-slate-800 leading-relaxed space-y-1">
+                        <span className="font-mono font-bold text-purple-700 block text-[10px] uppercase">
+                          Rapid Deck Page {snip.page}
+                        </span>
+                        <p className="line-clamp-4 leading-relaxed">{snip.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Tab 2: Gemini AI Live Generator */
+            <div className="space-y-5">
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50 to-emerald-50 border border-purple-200 space-y-3">
+                <div>
+                  <h4 className="font-bold text-sm text-slate-900">
+                    Gemini Live Medical Generator (@google/genai)
+                  </h4>
+                  <p className="text-xs text-slate-600 mt-0.5 leading-snug">
+                    Instant structured notes, differentiator tables, and PYQ one-liners tailored to NBEMS FMGE benchmarks.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateGemini('cram')}
+                    disabled={isLoadingGemini}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      geminiMode === 'cram'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800 shadow-2xs'
+                    }`}
+                  >
+                    <div className="font-bold text-xs flex items-center gap-1.5">
+                      <BookOpen className="h-3.5 w-3.5" />
+                      <span>Complete Cram Notes</span>
+                    </div>
+                    <p className={`text-[10px] mt-1 line-clamp-2 ${geminiMode === 'cram' ? 'text-emerald-100' : 'text-slate-500'}`}>
+                      Core mechanism, IOC, DOC, triads & high-yield formulas.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateGemini('tables')}
+                    disabled={isLoadingGemini}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      geminiMode === 'tables'
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800 shadow-2xs'
+                    }`}
+                  >
+                    <div className="font-bold text-xs flex items-center gap-1.5">
+                      <Zap className="h-3.5 w-3.5" />
+                      <span>Confused Pairs Tables</span>
+                    </div>
+                    <p className={`text-[10px] mt-1 line-clamp-2 ${geminiMode === 'tables' ? 'text-indigo-100' : 'text-slate-500'}`}>
+                      Markdown comparison tables contrasting lookalike mimickers.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateGemini('oneliners')}
+                    disabled={isLoadingGemini}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      geminiMode === 'oneliners'
+                        ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
+                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800 shadow-2xs'
+                    }`}
+                  >
+                    <div className="font-bold text-xs flex items-center gap-1.5">
+                      <Target className="h-3.5 w-3.5" />
+                      <span>5-Yr Recall One-Liners</span>
+                    </div>
+                    <p className={`text-[10px] mt-1 line-clamp-2 ${geminiMode === 'oneliners' ? 'text-purple-100' : 'text-slate-500'}`}>
+                      15 rapid-fire FMGE PYQ buzzword-to-answer facts.
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              {isLoadingGemini && (
+                <div className="p-8 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2">
+                  <RefreshCw className="h-6 w-6 text-purple-600 animate-spin mx-auto" />
+                  <p className="text-xs font-bold text-slate-800">
+                    Synthesizing high-yield NBEMS points with Gemini...
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Retrieving gold-standard criteria, contraindications, and volatile tables.
+                  </p>
+                </div>
+              )}
+
+              {!isLoadingGemini && geminiContent && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                    <span className="text-[11px] font-mono font-bold uppercase text-slate-500">
+                      Generated Clinical High-Yield Notes
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCopy}
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                    >
+                      {copied ? <CheckCheck className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                      <span>{copied ? 'Copied!' : 'Copy Markdown'}</span>
+                    </button>
+                  </div>
+
+                  <MarkdownRenderer content={geminiContent} />
+                </div>
+              )}
+
+              {!isLoadingGemini && !geminiContent && (
+                <div className="p-8 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2">
+                  <FileText className="h-8 w-8 text-purple-400 mx-auto" />
+                  <p className="text-sm font-bold text-slate-700">
+                    Select a Generator Mode Above
+                  </p>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    Click "Complete Cram Notes", "Confused Pairs Tables", or "5-Yr Recall One-Liners" to produce live study material.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-2 shrink-0">
+          <span className="text-xs text-slate-500">
+            {isMastered ? '✓ Topic is marked as Mastered' : '○ Not yet marked as mastered'}
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold cursor-pointer transition-all"
+          >
+            Done Studying
+          </button>
+        </div>
+
+        {/* Image Zoom Modal */}
+        <AnimatePresence>
+          {zoomedImage && (
+            <div
+              className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80"
+              onClick={() => setZoomedImage(null)}
+            >
+              <div className="relative max-w-3xl max-h-[90vh] bg-slate-900 p-2 rounded-2xl overflow-hidden">
+                <img
+                  src={zoomedImage}
+                  alt="Zoomed finding"
+                  className="max-h-[85vh] w-auto object-contain mx-auto rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => setZoomedImage(null)}
+                  className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-white cursor-pointer hover:bg-black"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
+};
+
+// ═══ INTERACTIVE IBQ SPOTTER QUIZ MODAL ═══
+interface InteractiveIbqQuizModalProps {
+  quiz: {
+    isOpen: boolean;
+    subjectId: string;
+    subjectName: string;
+    questions: Array<{
+      id: string;
+      vignette: string;
+      imageSrc: string;
+      options: Array<{ id: string; text: string }>;
+      correctOptionId: string;
+      imageFinding?: string;
+      whatToLookFor?: string;
+      rationale?: string;
+    }>;
+    currentIndex: number;
+    selectedAnswers: Record<number, string>;
+    isCompleted: boolean;
+    score: number;
+    showAnnotated: boolean;
+  };
+  onClose: () => void;
+  onSelectOption: (optionId: string) => void;
+  onNextQuestion: () => void;
+  onPrevQuestion: () => void;
+  onRetest: () => void;
+  onOpenStudyDesk: (subjectId: string) => void;
+}
+
+const InteractiveIbqQuizModal: React.FC<InteractiveIbqQuizModalProps> = ({
+  quiz,
+  onClose,
+  onSelectOption,
+  onNextQuestion,
+  onPrevQuestion,
+  onRetest,
+  onOpenStudyDesk,
+}) => {
+  const currentQ = quiz.questions[quiz.currentIndex];
+  const selectedAns = quiz.selectedAnswers[quiz.currentIndex];
+  const isAnswered = !!selectedAns;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
+      >
+        {/* Header */}
+        <div className="p-4 sm:p-5 border-b border-slate-200 bg-indigo-950 text-white flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+              <Eye className="h-4 w-4" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">
+                {quiz.subjectName} · IBQ Spotter Drill
+              </span>
+              <h3 className="font-bold text-sm sm:text-base text-white leading-tight">
+                Question {quiz.currentIndex + 1} of {quiz.questions.length}
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-bold bg-indigo-900 text-indigo-200 px-2.5 py-1 rounded-lg border border-indigo-700">
+              Score: {quiz.score} / {quiz.questions.length}
+            </span>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-full hover:bg-white/10 text-white/70 hover:text-white cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Quiz Body */}
+        <div className="p-5 overflow-y-auto flex-1 space-y-4">
+          {quiz.isCompleted ? (
+            <div className="py-6 text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-indigo-50 border-2 border-indigo-200 flex items-center justify-center mx-auto text-indigo-600">
+                <Award className="h-8 w-8" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-xl font-black text-slate-900">
+                  IBQ Spotter Test Complete!
+                </h4>
+                <p className="text-xs text-slate-500">
+                  You scored {quiz.score} out of {quiz.questions.length} ({Math.round((quiz.score / Math.max(1, quiz.questions.length)) * 100)}%)
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 max-w-md mx-auto text-xs text-indigo-950 font-medium">
+                {Math.round((quiz.score / Math.max(1, quiz.questions.length)) * 100) >= 70
+                  ? '🎯 Passing Benchmark Cleared! Your visual pattern recognition in this subject is exam-ready.'
+                  : '⚠️ Review Visual Spotters! Click Open Study Desk to review the image findings and buzzwords.'}
+              </div>
+
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={onRetest}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer"
+                >
+                  Retest Quiz
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenStudyDesk(quiz.subjectId);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold cursor-pointer"
+                >
+                  Open Study Desk
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          ) : currentQ ? (
+            <>
+              {/* Question Vignette */}
+              <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-relaxed">
+                {currentQ.vignette}
+              </p>
+
+              {/* Medical Image Display */}
+              <div className="relative rounded-2xl bg-slate-950 p-2 border border-slate-800 flex items-center justify-center min-h-[190px] max-h-[260px] overflow-hidden">
+                <img
+                  src={currentQ.imageSrc}
+                  alt="Clinical Diagnostic Finding"
+                  className="max-h-[240px] w-auto object-contain rounded-lg"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLElement).style.display = 'none';
+                  }}
+                />
+              </div>
+
+              {/* 4 Options */}
+              <div className="space-y-2 pt-1">
+                {currentQ.options.map((opt) => {
+                  const isSelected = selectedAns === opt.id;
+                  const isCorrect = opt.id === currentQ.correctOptionId;
+
+                  let btnStyle = 'bg-white border-slate-200 text-slate-800 hover:border-slate-400';
+                  if (isAnswered) {
+                    if (isCorrect) {
+                      btnStyle = 'bg-emerald-600 border-emerald-600 text-white font-bold';
+                    } else if (isSelected) {
+                      btnStyle = 'bg-rose-600 border-rose-600 text-white font-bold';
+                    } else {
+                      btnStyle = 'bg-slate-50 border-slate-200 text-slate-400 opacity-60';
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      disabled={isAnswered}
+                      onClick={() => onSelectOption(opt.id)}
+                      className={`w-full p-3 rounded-xl border text-left text-xs transition-all flex items-center gap-3 cursor-pointer ${btnStyle}`}
+                    >
+                      <span className="font-mono font-bold shrink-0">{opt.id}.</span>
+                      <span className="flex-1 leading-snug">{opt.text}</span>
+                      {isAnswered && isCorrect && <Check className="h-4 w-4 shrink-0" />}
+                      {isAnswered && isSelected && !isCorrect && <X className="h-4 w-4 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Post-Answer Explanation Box */}
+              {isAnswered && (
+                <div className="p-4 rounded-2xl bg-indigo-50/80 border border-indigo-200 space-y-2 text-xs text-indigo-950">
+                  <div className="font-bold text-sm text-indigo-900 flex items-center gap-1.5">
+                    <Target className="h-4 w-4 text-indigo-600" />
+                    <span>Visual Spotter Breakdown:</span>
+                  </div>
+
+                  {currentQ.imageFinding && (
+                    <div>
+                      <span className="font-bold text-indigo-800">Key Finding: </span>
+                      <span>{currentQ.imageFinding}</span>
+                    </div>
+                  )}
+
+                  {currentQ.whatToLookFor && (
+                    <div>
+                      <span className="font-bold text-indigo-800">What to look for on image: </span>
+                      <span>{currentQ.whatToLookFor}</span>
+                    </div>
+                  )}
+
+                  {currentQ.rationale && (
+                    <p className="pt-1 text-slate-700 leading-relaxed border-t border-indigo-100">
+                      {currentQ.rationale}
+                    </p>
+                  )}
+                </div>
+              )}
+            </>
+          ) : null}
+        </div>
+
+        {/* Footer Navigation */}
+        {!quiz.isCompleted && (
+          <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-2 shrink-0">
+            <button
+              type="button"
+              disabled={quiz.currentIndex === 0}
+              onClick={onPrevQuestion}
+              className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-40 cursor-pointer flex items-center gap-1"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" /> Previous
+            </button>
+
+            {isAnswered ? (
+              <button
+                type="button"
+                onClick={onNextQuestion}
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer flex items-center gap-1 active:scale-95"
+              >
+                <span>{quiz.currentIndex === quiz.questions.length - 1 ? 'Finish Drill' : 'Next Question'}</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            ) : (
+              <span className="text-[11px] text-slate-400 italic">Select an option to view rationale</span>
+            )}
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+};
+
+// ═══ INTERACTIVE AI CUSTOM QUIZ MODAL (5 TEXT + 5 IMAGE WITH 45S TIMER) ═══
+interface InteractiveAiCustomQuizModalProps {
+  quiz: {
+    isOpen: boolean;
+    subjectId: string;
+    subjectName: string;
+    topicName: string;
+    questions: CustomMixedQuestion[];
+    currentIndex: number;
+    selectedAnswers: Record<number, string>;
+    isCompleted: boolean;
+    score: number;
+    timeLeft: number;
+  };
+  onClose: () => void;
+  onSelectOption: (optionId: string) => void;
+  onNextQuestion: () => void;
+  onRetest: () => void;
+  onOpenStudyDesk: (subjectId: string, topicName: string) => void;
+}
+
+const InteractiveAiCustomQuizModal: React.FC<InteractiveAiCustomQuizModalProps> = ({
+  quiz,
+  onClose,
+  onSelectOption,
+  onNextQuestion,
+  onRetest,
+  onOpenStudyDesk,
+}) => {
+  const currentQ = quiz.questions[quiz.currentIndex];
+  const selectedAns = quiz.selectedAnswers[quiz.currentIndex];
+  const isAnswered = !!selectedAns;
+
+  const timerPct = Math.min(100, Math.max(0, (quiz.timeLeft / 45) * 100));
+  const timerColor = quiz.timeLeft > 15 ? 'bg-emerald-500' : quiz.timeLeft > 5 ? 'bg-amber-500' : 'bg-rose-500 animate-pulse';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
+      >
+        {/* Header */}
+        <div className="p-4 sm:p-5 border-b border-slate-200 bg-purple-950 text-white flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center">
+              <Brain className="h-4 w-4" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300">
+                {quiz.subjectName} · AI Custom Quiz (5T + 5I)
+              </span>
+              <h3 className="font-bold text-sm sm:text-base text-white leading-tight">
+                Question {quiz.currentIndex + 1} of 10
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-bold bg-purple-900 text-purple-200 px-2.5 py-1 rounded-lg border border-purple-700">
+              Score: {quiz.score} / 10
+            </span>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-full hover:bg-white/10 text-white/70 hover:text-white cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* 45s Pacing Alert Timer Bar */}
+        {!quiz.isCompleted && (
+          <div className="px-5 py-2 bg-slate-900 text-white border-b border-slate-800 shrink-0">
+            <div className="flex items-center justify-between text-[11px] font-mono font-bold mb-1">
+              <span className="text-slate-300 flex items-center gap-1">
+                <Clock className="h-3 w-3 text-purple-400" />
+                <span>45s Pacing Alert</span>
+              </span>
+              <span className={quiz.timeLeft <= 5 ? 'text-rose-400 animate-pulse' : 'text-slate-300'}>
+                {quiz.timeLeft}s
+              </span>
+            </div>
+            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+              <div
+                className={`h-full transition-all duration-1000 ease-linear rounded-full ${timerColor}`}
+                style={{ width: `${timerPct}%` }}
+              />
+            </div>
+            {quiz.timeLeft === 0 && !isAnswered && (
+              <div className="mt-1.5 text-[10px] font-bold text-rose-400">
+                ⏱️ Pacing Alert: 45 seconds elapsed! In FMGE, pacing 45s per MCQ guarantees finishing 300 questions. Select an option below.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Body */}
+        <div className="p-5 overflow-y-auto flex-1 space-y-4">
+          {quiz.isCompleted ? (
+            <div className="py-6 text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-purple-50 border-2 border-purple-200 flex items-center justify-center mx-auto text-purple-600">
+                <Award className="h-8 w-8" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-xl font-black text-slate-900">
+                  AI Custom Quiz Complete!
+                </h4>
+                <p className="text-xs text-slate-500">
+                  Final Score: {quiz.score} / 10 ({quiz.score * 10}%)
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200 max-w-md mx-auto text-xs text-purple-950 font-medium">
+                {quiz.score >= 7
+                  ? '🎯 Passing Benchmark Cleared! High retention of both text clinical vignettes and visual spotters.'
+                  : '⚠️ Review Study Notes! Revisit volatile numbers and visual clues to reach 70%+ benchmark.'}
+              </div>
+
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={onRetest}
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold cursor-pointer"
+                >
+                  Retest Quiz
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenStudyDesk(quiz.subjectId, quiz.topicName);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold cursor-pointer"
+                >
+                  Open Study Desk
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          ) : currentQ ? (
+            <>
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase ${
+                  currentQ.type === 'image'
+                    ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
+                    : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                }`}>
+                  {currentQ.type === 'image' ? '🖼️ Visual Spotter' : '📝 Clinical Vignette'}
+                </span>
+              </div>
+
+              <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-relaxed">
+                {currentQ.stem}
+              </p>
+
+              {currentQ.type === 'image' && currentQ.imageUrl && (
+                <div className="relative rounded-2xl bg-slate-950 p-2 border border-slate-800 flex items-center justify-center min-h-[180px] max-h-[240px] overflow-hidden">
+                  <img
+                    src={currentQ.imageUrl}
+                    alt="Clinical finding"
+                    className="max-h-[220px] w-auto object-contain rounded-lg"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* 4 Options */}
+              <div className="space-y-2 pt-1">
+                {currentQ.options.map((opt) => {
+                  const isSelected = selectedAns === opt.id;
+                  const isCorrect = opt.id === currentQ.correctOptionId;
+
+                  let btnStyle = 'bg-white border-slate-200 text-slate-800 hover:border-slate-400';
+                  if (isAnswered) {
+                    if (isCorrect) {
+                      btnStyle = 'bg-emerald-600 border-emerald-600 text-white font-bold';
+                    } else if (isSelected) {
+                      btnStyle = 'bg-rose-600 border-rose-600 text-white font-bold';
+                    } else {
+                      btnStyle = 'bg-slate-50 border-slate-200 text-slate-400 opacity-60';
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      disabled={isAnswered}
+                      onClick={() => onSelectOption(opt.id)}
+                      className={`w-full p-3 rounded-xl border text-left text-xs transition-all flex items-center gap-3 cursor-pointer ${btnStyle}`}
+                    >
+                      <span className="font-mono font-bold shrink-0">{opt.id}.</span>
+                      <span className="flex-1 leading-snug">{opt.text}</span>
+                      {isAnswered && isCorrect && <Check className="h-4 w-4 shrink-0" />}
+                      {isAnswered && isSelected && !isCorrect && <X className="h-4 w-4 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Post-Answer Explanation Box */}
+              {isAnswered && (
+                <div className="p-4 rounded-2xl bg-purple-50/80 border border-purple-200 space-y-2 text-xs text-purple-950">
+                  <div className="font-bold text-sm text-purple-900 flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-purple-600" />
+                    <span>Clinical Breakdown & Rationales:</span>
+                  </div>
+
+                  {currentQ.rationale && (
+                    <p className="text-slate-800 leading-relaxed font-medium">
+                      {currentQ.rationale}
+                    </p>
+                  )}
+
+                  {currentQ.imageFinding && (
+                    <div className="text-[11.5px] text-indigo-900">
+                      <span className="font-bold text-indigo-800">Visual Cue: </span>
+                      <span>{currentQ.imageFinding} ({currentQ.whatToLookFor})</span>
+                    </div>
+                  )}
+
+                  {currentQ.pearl && (
+                    <div className="p-2.5 rounded-xl bg-white border border-purple-200 text-[11.5px] text-purple-950">
+                      <span className="font-bold text-purple-700">Exam Pearl: </span>
+                      <span>{currentQ.pearl}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          ) : null}
+        </div>
+
+        {/* Footer Navigation */}
+        {!quiz.isCompleted && (
+          <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2 shrink-0">
+            {isAnswered ? (
+              <button
+                type="button"
+                onClick={onNextQuestion}
+                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold cursor-pointer flex items-center gap-1 active:scale-95"
+              >
+                <span>{quiz.currentIndex === 9 ? 'Finish Quiz' : 'Next Question'}</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            ) : (
+              <span className="text-[11px] text-slate-400 italic">Select an option before continuing</span>
+            )}
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+};
 
 interface ExamSprintViewProps {
   state: AppState;
@@ -125,6 +1671,65 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
   const [activeVisualAsset, setActiveVisualAsset] = useState<VisualConceptAsset | null>(null);
   const [showAnnotatedImage, setShowAnnotatedImage] = useState(false);
   const [showChecklistTasks, setShowChecklistTasks] = useState(false);
+
+  // Topic mastery tracking persisted in localStorage
+  const [topicMastery, setTopicMastery] = useState<Record<string, boolean>>(getStoredTopicMastery);
+
+  const toggleTopicMastery = (subId: string, topicName: string) => {
+    const key = `${subId.toLowerCase()}::${topicName.toLowerCase().trim()}`;
+    setTopicMastery((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      setStoredTopicMastery(next);
+      return next;
+    });
+  };
+
+  // Inline Study Material Desk state
+  const [deskState, setDeskState] = useState<{
+    isOpen: boolean;
+    subjectId: string;
+    subjectName: string;
+    topicName: string;
+    matchedTopicId?: string;
+  } | null>(null);
+
+  // Interactive IBQ Quiz Modal state
+  const [activeIbqQuiz, setActiveIbqQuiz] = useState<{
+    isOpen: boolean;
+    subjectId: string;
+    subjectName: string;
+    questions: Array<{
+      id: string;
+      vignette: string;
+      imageSrc: string;
+      options: Array<{ id: string; text: string }>;
+      correctOptionId: string;
+      imageFinding?: string;
+      whatToLookFor?: string;
+      rationale?: string;
+    }>;
+    currentIndex: number;
+    selectedAnswers: Record<number, string>;
+    isCompleted: boolean;
+    score: number;
+    showAnnotated: boolean;
+  } | null>(null);
+
+  // AI Custom Quiz Modal state (5 Text + 5 Image Qs with 45s timer)
+  const [activeCustomQuiz, setActiveCustomQuiz] = useState<{
+    isOpen: boolean;
+    subjectId: string;
+    subjectName: string;
+    topicName: string;
+    questions: CustomMixedQuestion[];
+    currentIndex: number;
+    selectedAnswers: Record<number, string>;
+    isCompleted: boolean;
+    score: number;
+    timeLeft: number;
+  } | null>(null);
+
+  const [isIbqBankModalOpen, setIsIbqBankModalOpen] = useState(false);
 
   const configuredExamDate = state.settings?.examDate || FMGE_EXAM_DATE;
   const daysLeft = daysUntilFmge(configuredExamDate);
@@ -251,22 +1856,173 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
       ? Math.round((mustStudyCompletedCount / totalBlueprintTopicsCount) * 100)
       : 100;
 
-  // Tier metrics computation
+  // Launchers for Study Desk, IBQ Quiz, and AI Custom Quiz
+  const handleOpenStudyDesk = (subjectId: string, topicName?: string, matchedTopicId?: string) => {
+    const subName = getSubjectName(subjectId);
+    const resolvedTopic = topicName || (activePlan.subjects.includes(subjectId) ? activePlan.title : 'High-Yield Core Review');
+    setDeskState({
+      isOpen: true,
+      subjectId,
+      subjectName: subName,
+      topicName: resolvedTopic,
+      matchedTopicId,
+    });
+  };
+
+  const handleLaunchIbqQuiz = (subjectId: string, topicName?: string) => {
+    const subName = getSubjectName(subjectId);
+    const sLower = subjectId.toLowerCase();
+
+    // 1. Check verified IBQ bank
+    const verified = VERIFIED_IBQ_BANK.filter(
+      (q) => q.subject.toLowerCase() === sLower || q.subject.toLowerCase().includes(sLower)
+    );
+
+    // 2. Also check visual concept registry
+    const visualAssets = Object.values(VISUAL_CONCEPT_REGISTRY).filter(
+      (a) => (a.subjects || []).map(s => s.toLowerCase()).includes(sLower) || a.conceptKey.toLowerCase().startsWith(sLower.slice(0, 4))
+    );
+
+    const questions: Array<{
+      id: string;
+      vignette: string;
+      imageSrc: string;
+      options: Array<{ id: string; text: string }>;
+      correctOptionId: string;
+      imageFinding?: string;
+      whatToLookFor?: string;
+      rationale?: string;
+    }> = [];
+
+    verified.forEach((q) => {
+      questions.push({
+        id: q.id,
+        vignette: q.vignette,
+        imageSrc: q.imageSrc,
+        options: q.options,
+        correctOptionId: q.correctOptionId,
+        imageFinding: q.explanation.imageFinding,
+        whatToLookFor: (q.explanation.highYieldBuzzwords || []).join(', '),
+        rationale: q.explanation.detailedRationale,
+      });
+    });
+
+    visualAssets.forEach((asset, idx) => {
+      if (questions.length < 8) {
+        questions.push({
+          id: `ibq-asset-${asset.conceptKey}-${idx}`,
+          vignette: `Examine the diagnostic image shown (${asset.imageType}). Which of the following is the characteristic pathognomonic finding?`,
+          imageSrc: asset.imageUrl,
+          options: [
+            { id: 'A', text: asset.visualTarget },
+            { id: 'B', text: `Benign architectural variant in ${subName}` },
+            { id: 'C', text: `Reactive post-inflammatory distortion` },
+            { id: 'D', text: `Non-specific artifactual radiographic shadow` },
+          ],
+          correctOptionId: 'A',
+          imageFinding: asset.keyVisualFinding,
+          whatToLookFor: asset.whatToLookFor,
+          rationale: `${asset.keyVisualFinding}. High-yield cue: ${asset.whatToLookFor}`,
+        });
+      }
+    });
+
+    if (questions.length === 0) {
+      Object.values(VISUAL_CONCEPT_REGISTRY).slice(0, 6).forEach((asset, idx) => {
+        questions.push({
+          id: `ibq-fallback-${idx}`,
+          vignette: `Clinical Spotter: Identify the diagnostic finding in this ${asset.imageType}:`,
+          imageSrc: asset.imageUrl,
+          options: [
+            { id: 'A', text: asset.visualTarget },
+            { id: 'B', text: 'Benign reactive change' },
+            { id: 'C', text: 'Post-traumatic fibrosis' },
+            { id: 'D', text: 'Normal anatomical variant' },
+          ],
+          correctOptionId: 'A',
+          imageFinding: asset.keyVisualFinding,
+          whatToLookFor: asset.whatToLookFor,
+          rationale: asset.keyVisualFinding,
+        });
+      });
+    }
+
+    setActiveIbqQuiz({
+      isOpen: true,
+      subjectId,
+      subjectName: subName,
+      questions,
+      currentIndex: 0,
+      selectedAnswers: {},
+      isCompleted: false,
+      score: 0,
+      showAnnotated: false,
+    });
+  };
+
+  const handleLaunchCustom10Quiz = (subjectId: string, topicName?: string) => {
+    const subName = getSubjectName(subjectId);
+    const resolvedTopic = topicName || 'High-Yield Core Review';
+    const questions = generateMixed10Quiz(subjectId, subName, resolvedTopic);
+
+    setActiveCustomQuiz({
+      isOpen: true,
+      subjectId,
+      subjectName: subName,
+      topicName: resolvedTopic,
+      questions,
+      currentIndex: 0,
+      selectedAnswers: {},
+      isCompleted: false,
+      score: 0,
+      timeLeft: 45,
+    });
+  };
+
+  // 45-Second Pacing Timer countdown
+  useEffect(() => {
+    if (!activeCustomQuiz || !activeCustomQuiz.isOpen || activeCustomQuiz.isCompleted) return;
+    const timer = setInterval(() => {
+      setActiveCustomQuiz((prev) => {
+        if (!prev || prev.isCompleted) return prev;
+        if (prev.timeLeft <= 1) {
+          return { ...prev, timeLeft: 0 };
+        }
+        return { ...prev, timeLeft: prev.timeLeft - 1 };
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [activeCustomQuiz?.currentIndex, activeCustomQuiz?.isOpen, activeCustomQuiz?.isCompleted]);
+
+  // Tier metrics computation - driven by mustKnowTopics and topicMastery check-offs
   const tierMetrics = useMemo(() => {
     return SPRINT_TIERS.map((tier) => {
       let totalTopics = 0;
       let completedTopics = 0;
 
       tier.subjectIds.forEach((subId) => {
-        const sub = FMGE_SUBJECTS.find((s) => s.id === subId);
-        if (!sub) return;
-        const subProgress = state.subjectProgress[subId];
-        const allTopics = [...sub.topics, ...(subProgress?.customTopics || [])];
-        totalTopics += allTopics.length;
-        completedTopics += allTopics.filter(
-          (t) => state.topicsState[`${subId}-${t.id}`]?.notesDone ?? t.notesDone
-        ).length;
+        const mustKnows = tier.mustKnowTopics[subId] || [];
+        totalTopics += mustKnows.length;
+        mustKnows.forEach((tName) => {
+          const key = `${subId.toLowerCase()}::${tName.toLowerCase().trim()}`;
+          if (topicMastery[key]) {
+            completedTopics++;
+          }
+        });
       });
+
+      if (totalTopics === 0) {
+        tier.subjectIds.forEach((subId) => {
+          const sub = FMGE_SUBJECTS.find((s) => s.id === subId);
+          if (!sub) return;
+          const subProgress = state.subjectProgress[subId];
+          const allTopics = [...sub.topics, ...(subProgress?.customTopics || [])];
+          totalTopics += allTopics.length;
+          completedTopics += allTopics.filter(
+            (t) => state.topicsState[`${subId}-${t.id}`]?.notesDone ?? t.notesDone
+          ).length;
+        });
+      }
 
       const pct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
       return {
@@ -276,7 +2032,7 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
         pct,
       };
     });
-  }, [state.subjectProgress, state.topicsState]);
+  }, [topicMastery, state.subjectProgress, state.topicsState]);
 
   // Overall sprint progress
   const overallSprintPct = Math.round(((20 - Math.min(20, Math.max(0, daysLeft))) / 20) * 100);
@@ -812,7 +2568,7 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
 
                 <div className="p-3.5 rounded-xl bg-white border border-emerald-200/80 space-y-1.5 shadow-2xs">
                   <div className="font-bold text-emerald-900 flex items-center gap-1.5">
-                    <Sparkles className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                     <span>Rule 4: Trust First Instinct</span>
                   </div>
                   <p className="text-slate-600 leading-relaxed">
@@ -981,6 +2737,77 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
                     </span>
                   </div>
                 </div>
+
+                {/* ═══ 1-CLICK VERIFICATION & MATERIAL DESK LAUNCHER ═══ */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-indigo-500/10 border border-emerald-500/25 flex flex-wrap items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <Zap className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs sm:text-sm text-slate-900 leading-tight">
+                        Today's Verification & High-Yield Material Desk
+                      </h4>
+                      <p className="text-[11px] text-slate-600">
+                        Read inline cram notes or launch instant test for today's subjects
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenStudyDesk(blueprint.subjects[0] || 'obg', blueprint.mustStudyTopics[0]?.name)}
+                      className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                      title="Open Instant High-Yield Notes & Gemini Study Generator"
+                    >
+                      <BookOpen className="h-3.5 w-3.5 text-emerald-400" />
+                      <span>📖 Study Desk</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onLaunchPracticeMcq(
+                          blueprint.subjects[0] || 'obg',
+                          blueprint.mustStudyTopics[0]?.id,
+                          blueprint.mustStudyTopics[0]?.name
+                        )
+                      }
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                      title="Launch clinical vignette practice test"
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      <span>📝 Text MCQ Test</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleLaunchIbqQuiz(blueprint.subjects[0] || 'obg', blueprint.mustStudyTopics[0]?.name)}
+                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                      title="Launch verified visual spotter test"
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                      <span>🖼️ Image (IBQ) Test</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleLaunchCustom10Quiz(blueprint.subjects[0] || 'obg', blueprint.mustStudyTopics[0]?.name)}
+                      className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                      title="Launch 10-Question Mixed Text + Image Test with 45s timer"
+                    >
+                      <Brain className="h-3.5 w-3.5" />
+                      <span>AI Custom Quiz (5T+5I)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsIbqBankModalOpen(true)}
+                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                      title="Browse Full 200+ Image Bank"
+                    >
+                      <Layers className="h-3.5 w-3.5 text-indigo-500" />
+                      <span>All IBQs</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* ═══ 2. MUST-STUDY TOPICS CHECKLIST ═══ */}
@@ -1074,9 +2901,11 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
                               </div>
 
                               <h5
-                                className={`text-sm sm:text-[15px] font-bold leading-tight ${
+                                onClick={() => handleOpenStudyDesk(topic.subjectId, topic.name, topic.id)}
+                                className={`text-sm sm:text-[15px] font-bold leading-tight cursor-pointer hover:text-emerald-700 transition-colors ${
                                   isDone ? 'line-through text-slate-500' : 'text-slate-900'
                                 }`}
+                                title="Click to open inline study notes & Gemini cram desk"
                               >
                                 {topic.name}
                               </h5>
@@ -1084,7 +2913,16 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
                           </div>
 
                           {/* Quick 1-Click Topic Actions */}
-                          <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+                          <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenStudyDesk(topic.subjectId, topic.name, topic.id)}
+                              className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1 active:scale-95"
+                              title="Open inline high-yield notes and visual spotters"
+                            >
+                              <BookOpen className="h-3 w-3 text-emerald-400" />
+                              <span>📖 Study</span>
+                            </button>
                             <button
                               type="button"
                               onClick={() => onLaunchPracticeMcq(topic.subjectId, topic.id, topic.name)}
@@ -1092,7 +2930,16 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
                               title="Launch 10-MCQ drill for this topic"
                             >
                               <Zap className="h-3 w-3" />
-                              <span>Practice 10 Qs</span>
+                              <span>10 Qs</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleLaunchIbqQuiz(topic.subjectId, topic.name)}
+                              className="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:scale-95"
+                              title="Launch IBQ spotter quiz for this topic"
+                            >
+                              <Eye className="h-3 w-3 text-indigo-600" />
+                              <span>IBQ</span>
                             </button>
                             <button
                               type="button"
@@ -1215,7 +3062,7 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600">
-                        <Sparkles className="h-4 w-4" />
+                        <Bookmark className="h-4 w-4" />
                       </div>
                       <div>
                         <h4 className="font-bold text-sm text-slate-900 leading-tight">
@@ -1626,51 +3473,111 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
                   return (
                     <div
                       key={subId}
-                      className="p-3.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-all flex flex-col justify-between gap-3 shadow-2xs"
+                      className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all flex flex-col justify-between gap-3.5 shadow-2xs"
                     >
-                      <div className="space-y-2">
+                      <div className="space-y-2.5">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <SubjectAppleIcon subjectId={subId} size="sm" />
+                            <SubjectAppleIcon subjectId={subId} size="md" />
                             <div>
                               <h5 className="font-bold text-xs sm:text-sm text-slate-900 leading-tight">
                                 {subject.name}
                               </h5>
-                              <span className="text-[10px] font-bold text-emerald-600">
-                                ~{subject.weightage} Marks (Tier {tier.tier})
+                              <span className="text-[11px] font-bold text-emerald-600">
+                                ~{subject.weightage} Marks · Tier {tier.tier}
                               </span>
                             </div>
                           </div>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenStudyDesk(subId)}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-200 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                            title="Open Study Desk with high-yield cram notes and spotters"
+                          >
+                            <BookOpen className="h-3 w-3 text-emerald-600" />
+                            <span>Study Desk</span>
+                          </button>
                         </div>
 
                         {mustKnow.length > 0 && (
-                          <div className="space-y-1">
-                            {mustKnow.slice(0, 2).map((t, idx) => (
-                              <p key={idx} className="text-[11px] text-slate-600 truncate flex items-center gap-1.5">
-                                <span className="h-1 w-1 rounded-full bg-emerald-500 shrink-0" />
-                                <span>{t}</span>
-                              </p>
-                            ))}
+                          <div className="space-y-1.5 pt-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                              Must-Know High-Yield Topics:
+                            </span>
+                            <div className="space-y-1 max-h-44 overflow-y-auto pr-1">
+                              {mustKnow.map((t, idx) => {
+                                const key = `${subId.toLowerCase()}::${t.toLowerCase().trim()}`;
+                                const isDone = !!topicMastery[key];
+                                return (
+                                  <div
+                                    key={idx}
+                                    className={`flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg border text-xs transition-all ${
+                                      isDone
+                                        ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950 font-medium'
+                                        : 'bg-slate-50/80 border-slate-100 text-slate-700 hover:border-slate-300'
+                                    }`}
+                                  >
+                                    <div
+                                      onClick={() => handleOpenStudyDesk(subId, t)}
+                                      className="flex items-center gap-2 truncate cursor-pointer flex-1"
+                                      title="Click to view notes and study desk"
+                                    >
+                                      <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${isDone ? 'bg-emerald-600' : 'bg-slate-400'}`} />
+                                      <span className={`truncate text-[11.5px] ${isDone ? 'line-through text-slate-400' : ''}`}>
+                                        {t}
+                                      </span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleTopicMastery(subId, t);
+                                      }}
+                                      className={`h-4.5 w-4.5 rounded border flex items-center justify-center shrink-0 cursor-pointer transition-colors ${
+                                        isDone
+                                          ? 'bg-emerald-600 border-emerald-600 text-white'
+                                          : 'border-slate-300 bg-white hover:border-emerald-500'
+                                      }`}
+                                      title={isDone ? 'Mark uncompleted' : 'Mark completed'}
+                                    >
+                                      {isDone && <Check className="h-3 w-3 stroke-[3]" />}
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
                         )}
                       </div>
 
-                      <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
+                      {/* 3 Explicit Test Launchers on every Subject Card */}
+                      <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5 flex-wrap">
                         <button
                           type="button"
                           onClick={() => onLaunchPracticeMcq(subId)}
-                          className="flex-1 py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-2xs transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1"
+                          className="flex-1 min-w-[75px] py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-2xs transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1"
+                          title="Launch clinical vignette text MCQs"
                         >
                           <Zap className="h-3 w-3" />
-                          <span>10 MCQs</span>
+                          <span>📝 Text</span>
                         </button>
                         <button
                           type="button"
-                          onClick={() => onOpenFlashcards(subId)}
-                          className="flex-1 py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+                          onClick={() => handleLaunchIbqQuiz(subId)}
+                          className="flex-1 min-w-[75px] py-1.5 px-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold shadow-2xs transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1"
+                          title="Launch image spotters"
                         >
-                          <Layers className="h-3 w-3 text-indigo-600" />
-                          <span>Cards</span>
+                          <Eye className="h-3 w-3" />
+                          <span>🖼️ IBQ</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleLaunchCustom10Quiz(subId)}
+                          className="flex-1 min-w-[75px] py-1.5 px-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold shadow-2xs transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1"
+                          title="Launch 10Q AI Mixed Test with 45s timer"
+                        >
+                          <Brain className="h-3 w-3" />
+                          <span>AI Quiz</span>
                         </button>
                         <button
                           type="button"
@@ -2005,6 +3912,140 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
           </div>
         )}
       </AnimatePresence>
+
+      {/* ═══ SPRINT STUDY & MATERIAL DESK MODAL ═══ */}
+      <AnimatePresence>
+        {deskState?.isOpen && (
+          <SprintStudyDeskModal
+            deskState={deskState}
+            onClose={() => setDeskState(null)}
+            onLaunchPracticeMcq={(sId, tId, tName) => {
+              setDeskState(null);
+              onLaunchPracticeMcq(sId, tId, tName);
+            }}
+            onLaunchIbq={(sId, tName) => {
+              setDeskState(null);
+              handleLaunchIbqQuiz(sId, tName);
+            }}
+            onLaunchAiQuiz={(sId, tName) => {
+              setDeskState(null);
+              handleLaunchCustom10Quiz(sId, tName);
+            }}
+            topicMastery={topicMastery}
+            toggleTopicMastery={toggleTopicMastery}
+            customPearls={state.customPearls}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ═══ INTERACTIVE IBQ SPOTTER QUIZ MODAL ═══ */}
+      <AnimatePresence>
+        {activeIbqQuiz?.isOpen && (
+          <InteractiveIbqQuizModal
+            quiz={activeIbqQuiz}
+            onClose={() => setActiveIbqQuiz(null)}
+            onSelectOption={(optionId) => {
+              setActiveIbqQuiz((prev) => {
+                if (!prev) return null;
+                const curQ = prev.questions[prev.currentIndex];
+                const isCorrect = optionId === curQ?.correctOptionId;
+                return {
+                  ...prev,
+                  selectedAnswers: { ...prev.selectedAnswers, [prev.currentIndex]: optionId },
+                  score: isCorrect ? prev.score + 1 : prev.score,
+                };
+              });
+            }}
+            onNextQuestion={() => {
+              setActiveIbqQuiz((prev) => {
+                if (!prev) return null;
+                if (prev.currentIndex >= prev.questions.length - 1) {
+                  return { ...prev, isCompleted: true };
+                }
+                return { ...prev, currentIndex: prev.currentIndex + 1 };
+              });
+            }}
+            onPrevQuestion={() => {
+              setActiveIbqQuiz((prev) => {
+                if (!prev || prev.currentIndex <= 0) return prev;
+                return { ...prev, currentIndex: prev.currentIndex - 1 };
+              });
+            }}
+            onRetest={() => {
+              setActiveIbqQuiz((prev) => {
+                if (!prev) return null;
+                return {
+                  ...prev,
+                  currentIndex: 0,
+                  selectedAnswers: {},
+                  isCompleted: false,
+                  score: 0,
+                };
+              });
+            }}
+            onOpenStudyDesk={(sId) => {
+              setActiveIbqQuiz(null);
+              handleOpenStudyDesk(sId);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ═══ INTERACTIVE AI CUSTOM QUIZ MODAL (5T + 5I WITH 45S TIMER) ═══ */}
+      <AnimatePresence>
+        {activeCustomQuiz?.isOpen && (
+          <InteractiveAiCustomQuizModal
+            quiz={activeCustomQuiz}
+            onClose={() => setActiveCustomQuiz(null)}
+            onSelectOption={(optionId) => {
+              setActiveCustomQuiz((prev) => {
+                if (!prev) return null;
+                const curQ = prev.questions[prev.currentIndex];
+                const isCorrect = optionId === curQ?.correctOptionId;
+                return {
+                  ...prev,
+                  selectedAnswers: { ...prev.selectedAnswers, [prev.currentIndex]: optionId },
+                  score: isCorrect ? prev.score + 1 : prev.score,
+                };
+              });
+            }}
+            onNextQuestion={() => {
+              setActiveCustomQuiz((prev) => {
+                if (!prev) return null;
+                if (prev.currentIndex >= prev.questions.length - 1) {
+                  return { ...prev, isCompleted: true };
+                }
+                return { ...prev, currentIndex: prev.currentIndex + 1, timeLeft: 45 };
+              });
+            }}
+            onRetest={() => {
+              setActiveCustomQuiz((prev) => {
+                if (!prev) return null;
+                return {
+                  ...prev,
+                  currentIndex: 0,
+                  selectedAnswers: {},
+                  isCompleted: false,
+                  score: 0,
+                  timeLeft: 45,
+                };
+              });
+            }}
+            onOpenStudyDesk={(sId, tName) => {
+              setActiveCustomQuiz(null);
+              handleOpenStudyDesk(sId, tName);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ═══ ALL-SUBJECT VERIFIED IBQ BANK MODAL ═══ */}
+      {isIbqBankModalOpen && (
+        <IbqRapidRecallModal
+          isOpen={isIbqBankModalOpen}
+          onClose={() => setIsIbqBankModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

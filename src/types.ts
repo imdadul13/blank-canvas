@@ -781,6 +781,10 @@ export interface VisualSlideItem {
     headers: string[];
     rows: string[][];
   };
+  imageUrl?: string;
+  imageCaption?: string;
+  visualTarget?: string;
+  whatToLookFor?: string;
 }
 
 export type TopicCategoryType =

@@ -56,12 +56,56 @@ export const SPRINT_TIERS: SprintSubjectTier[] = [
     badgeColor: '#30D158',
     subjectIds: ['psm', 'obg', 'surgery', 'medicine', 'pathology', 'pharmacology'],
     mustKnowTopics: {
-      psm: ['National Immunization Schedule & Cold Chain', 'Screening Tests (2x2 table, PPV/NPV)', 'Epidemiological Study Designs', 'Biostatistics (Tests of Significance)', 'National Health Programs (NTEP, NVBDCP)'],
-      obg: ['Pritchard Regimen for Eclampsia', 'Partogram & Active Management of Labor', 'Postpartum Hemorrhage (PPH) Algorithm', 'Contraception & USG Markers in Pregnancy', 'Cervical Cancer & Endometrial Hyperplasia'],
-      surgery: ['Burns (Parkland Formula & Fluid Resuscitation)', 'ATLS Primary Survey & Trauma Triage', 'Acute Abdomen & Intestinal Obstruction', 'Thyroid Malignancies & Post-Op Complications', 'Breast Carcinoma (Triple Assessment & Staging)'],
-      medicine: ['ECG STEMI Localization & Arrhythmias', 'Heart Failure & Hypertension Guidelines', 'Diabetic Emergencies (DKA vs HHS)', 'Acid-Base Disturbances & ABG Interpretation', 'Tuberculosis & Pneumonia Management'],
-      pathology: ['Neoplasia (Oncogenes, Tumor Markers, Hallmarks)', 'Glomerulonephritis (Nephritic vs Nephrotic EM Findings)', 'Leukemias & Lymphomas (Translocations & Markers)', 'Anemias & Peripheral Blood Smear Morphology', 'Shock & Thrombosis (Virchow Triad)'],
-      pharmacology: ['Autonomic Drugs (Receptors & Toxins)', 'Antimicrobial Drug of Choice (DOC) & Resistance', 'Cardiovascular Pharmacology (Anti-arrhythmics, Anti-HTN)', 'CNS Drugs & Antiepileptics', 'General Pharmacology (Half-Life, Clearance, Phase 1/2)'],
+      obg: [
+        'Labor & Partograph (Alert/Action line)',
+        'AMTSL & PPH Management Algorithm',
+        'Pritchard Regimen for Eclampsia (MgSO4)',
+        'Placenta Previa vs Abruption',
+        'Contraception & USG Markers in Pregnancy',
+        'Mullerian Anomalies & Molar Pregnancy',
+        'Ca Cervix & Ca Endometrium Staging',
+      ],
+      psm: [
+        '2x2 Screening Tables (Sens, Spec, PPV, NPV)',
+        'Cohort vs Case-Control Study Designs',
+        'NIS Vaccines, Cold Chain & Open Vial Policy',
+        'Biomedical Waste (BMW) Color Bins & Disposal',
+        'NTEP & NVBDCP National Health Programs',
+        'Mortality & Fertility Rate Formulas',
+      ],
+      surgery: [
+        'ATLS Primary Survey, GCS & FAST Exam',
+        'Parkland Formula for Fluid Resuscitation in Burns',
+        'Breast Carcinoma (Triple Assessment & Staging)',
+        'Thyroid Malignancies & Post-Op Complications',
+        'Inguinal & Femoral Hernias',
+        'Charcot Triad, Courvoisier Law & Acute Abdomen',
+        'Volvulus & Intestinal Obstruction X-Rays',
+      ],
+      medicine: [
+        'ECG STEMI Localization & Arrhythmias',
+        'Acid-Base Disturbances & ABG Interpretation',
+        'Diabetic Emergencies (DKA vs HHS)',
+        'Hyperkalemia & Electrolyte Emergencies',
+        'Acute Stroke CT & Thrombolysis Window',
+        'Infective Endocarditis (Modified Duke Criteria)',
+        'Pleural Effusion (Light Criteria)',
+        'Status Epilepticus Management Protocol',
+      ],
+      pathology: [
+        'Hypersensitivity Reactions Type I-IV',
+        'Translocations, Oncogenes & Tumor Markers',
+        'Nephritic vs Nephrotic Syndromes (Biopsy & EM)',
+        'Leukemias, Lymphomas & Blood Smear Morphology',
+        'Shock, Embolism & Virchow Triad',
+      ],
+      pharmacology: [
+        'Drug of Choice (DOC) Master Table',
+        'Specific Emergency Antidotes',
+        'Teratogenic Drugs & FDA Safety Categories',
+        'Anti-TB, Anti-Epileptic, Lithium & Digoxin Toxicities',
+        'Zero-Order vs First-Order Elimination Kinetics',
+      ],
     },
   },
   {
@@ -72,11 +116,39 @@ export const SPRINT_TIERS: SprintSubjectTier[] = [
     badgeColor: '#007AFF',
     subjectIds: ['pediatrics', 'ophthalmology', 'ent', 'microbiology', 'fmt'],
     mustKnowTopics: {
-      pediatrics: ['Developmental Milestones & Red Flags', 'Neonatal Resuscitation & Jaundice', 'Cyanotic vs Acyanotic Congenital Heart Diseases', 'Severe Acute Malnutrition (SAM) Protocols'],
-      ophthalmology: ['Glaucoma (Open vs Angle-Closure Management)', 'Cataract Types & Post-Op Complications', 'Fundus Lesions (Diabetic Retinopathy, CRVO, CRAO)', 'Neuro-ophthalmology & Pupillary Light Reflexes'],
-      ent: ['Tympanic Membrane Pathology & Otosclerosis', 'Tonsillitis, Quinsy & Deep Neck Infections', 'Stridor & Epiglottitis vs Croup', 'Epistaxis Management Algorithm'],
-      microbiology: ['Bacterial Staining & Culture Media', 'Parasitology (Malaria, Amoebiasis, Helminths)', 'Virology (Hepatitis Serology, HIV, Dengue, Rabies)', 'Hospital Infection Control & Autoclaving'],
-      fmt: ['Forensic Thanatology & Time Since Death', 'Firearm Injuries & Ballistics Patterns', 'Toxicology (Organophosphates, Snake Bite, Opioids)', 'Medical Law, IPC Sections & Consent'],
+      pediatrics: [
+        'Developmental Milestones & Red Flags',
+        'Neonatal Resuscitation Program (NRP) & Jaundice',
+        'Congenital Heart Diseases (Boot-shaped, Egg-on-string, Snowman)',
+        'Severe Acute Malnutrition (SAM) Protocols',
+        'Croup vs Acute Epiglottitis',
+      ],
+      ophthalmology: [
+        'Glaucoma (Open vs Angle-Closure Management)',
+        'Cataract Types & Post-Op Complications',
+        'Diabetic Retinopathy & Fundus Spotters (CRVO, CRAO)',
+        'Neuro-ophthalmology & Pupillary Reflexes',
+      ],
+      ent: [
+        'Tympanic Membrane Pathology, Otosclerosis & ASOM/CSOM',
+        'Rinne & Weber Tuning Fork Tests',
+        'Cholesteatoma & Deep Neck Infections',
+        'Stridor & Epiglottitis vs Croup',
+        'Epistaxis Management Algorithm',
+      ],
+      microbiology: [
+        'Selective Media, Bacterial Staining & Culture',
+        'Sterilization Controls & Autoclaving Standards',
+        'Hepatitis B Serology Markers & Window Period',
+        'HIV Staging & CD4 Opportunistic Infections',
+        'Fungi (Mucor, Aspergillus, Candida) & Parasite Eggs/Cysts',
+      ],
+      fmt: [
+        'Forensic Thanatology (Rigor & Livor Mortis, Algor Mortis)',
+        'Firearm Ballistics & Injury Patterns',
+        'Toxicology Antidotes (Organophosphates, Snake Bite, Opioids)',
+        'Medical Jurisprudence, IPC/BNS Sections & Consent',
+      ],
     },
   },
   {
@@ -85,16 +157,65 @@ export const SPRINT_TIERS: SprintSubjectTier[] = [
     markRange: '70 Marks',
     description: 'Focus exclusively on volatile one-liners, high-yield diagnostic spotters, and classic anatomical relationships.',
     badgeColor: '#AF52DE',
-    subjectIds: ['anatomy', 'physiology', 'biochemistry', 'dermatology', 'psychiatry', 'orthopedics', 'radiology', 'anesthesia'],
+    subjectIds: ['anatomy', 'physiology', 'biochemistry', 'dermatology', 'psychiatry', 'orthopedics', 'radiology', 'anesthesia', 'radiotherapy'],
     mustKnowTopics: {
-      anatomy: ['Brachial Plexus & Upper Limb Nerve Lesions', 'Knee Joint Ligaments & Foot Drop', 'Cranial Nerve Foramina & Brainstem Syndromes'],
-      physiology: ['Wiggers Diagram & Cardiac PV Loops', 'Renal Countercurrent Mechanism & Acid-Base', 'Endocrine Negative Feedback Axes'],
-      biochemistry: ['Inborn Errors of Metabolism & Enzyme Deficiencies', 'Vitamin Deficiencies & Biochemical Cycles', 'Lipoprotein Metabolism & Hyperlipidemias'],
-      dermatology: ['Bullous Disorders (Pemphigus vs Pemphigoid)', 'Leprosy Classification & Psoriasis', 'Sexually Transmitted Infections (Ulcer Algorithms)'],
-      psychiatry: ['Schizophrenia vs Bipolar Criteria', 'Defense Mechanisms & Substance Dependence', 'Psychopharmacology Side Effects (NMS, EPS)'],
-      orthopedics: ['Pediatric Fractures & Dislocations (Colles, Monteggia, Galeazzi)', 'Bone Tumors by Age & X-Ray Appearances', 'Peripheral Nerve Compression Syndromes'],
-      radiology: ['Classic Chest X-Ray Signs (Pneumothorax, Collapse, Kerley B)', 'CT Head in Trauma (EDH vs SDH vs SAH)', 'Contrast Studies & Radiation Protection Rules'],
-      anesthesia: ['Airway Assessment (Mallampati Score)', 'Local Anesthetics & Toxicity (LIPID Rescue)', 'CPR Guidelines (BLS & ACLS Algorithms)'],
+      anatomy: [
+        'Brachial Plexus (Erb vs Klumpke Palsy)',
+        'Upper & Lower Limb Nerve Palsies (Foot Drop, Claw Hand, Wrist Drop)',
+        'Cranial Nerve Foramina & Skull Base Syndromes',
+        'Pharyngeal Arches, Pouches & Clefts Derivatives',
+        'Dermatomes & Key Sensory Landmarks',
+      ],
+      physiology: [
+        'Wiggers Diagram & Cardiac PV Loops',
+        'Oxygen-Hemoglobin Dissociation Curve Shifts',
+        'Acid-Base & Renal Clearance Mechanisms',
+        'Countercurrent Multiplier & Glomerular Filtration',
+        'Endocrine Negative Feedback Axes',
+      ],
+      biochemistry: [
+        'Rate-Limiting Enzymes & Metabolic Cycles',
+        'Vitamin Deficiencies & Biochemical Manifestations',
+        'Glycogen Storage Diseases (Von Gierke, Pompe, McArdle)',
+        'Lysosomal Storage Diseases (Gaucher, Niemann-Pick, Tay-Sachs)',
+        'Inborn Errors of Metabolism & Lipoprotein Disorders',
+      ],
+      dermatology: [
+        'Bullous Disorders (Pemphigus Vulgaris vs Bullous Pemphigoid)',
+        'Sexually Transmitted Infections (STI Syndromic Color Kits)',
+        'Leprosy Ridley-Jopling Classification & Reactions',
+        'Psoriasis vs Lichen Planus Morphology',
+      ],
+      psychiatry: [
+        'Schizophrenia vs Bipolar Disorder Diagnostic Criteria',
+        'Extrapyramidal Symptoms (EPS) & Neuroleptic Malignant Syndrome (NMS)',
+        'Lithium Toxicity & Mood Stabilizers',
+        'Defense Mechanisms & Substance Dependence',
+      ],
+      orthopedics: [
+        'Bone Tumors by Age & Classic X-Rays (Sunburst, Codman, Onion-skin, Soap-bubble)',
+        'Pediatric Fractures & Dislocations (Colles, Smith, Monteggia, Galeazzi)',
+        'Peripheral Nerve Compression & Compartment Syndrome',
+        'Spinal Tuberculosis (Pott Spine)',
+      ],
+      radiology: [
+        'Classic Chest X-Ray Signs (Pneumothorax, Sail Sign, Kerley B Lines)',
+        'CT Head in Trauma (EDH vs SDH vs SAH)',
+        'Barium Studies (Bird-beak, Corkscrew, Apple-core)',
+        'Radiation Protection & Contrast Reactions',
+      ],
+      anesthesia: [
+        'Mallampati Airway Assessment & Intubation Guidelines',
+        'Capnography Waveforms (Curare Cleft, Shark-fin)',
+        'Local Anesthetics & Lipid Rescue Protocol',
+        'Malignant Hyperthermia & Dantrolene Dosing',
+        'CPR Guidelines (BLS & ACLS Algorithms)',
+      ],
+      radiotherapy: [
+        'Brachytherapy vs Teletherapy Sources (Co-60, Ir-192, I-131)',
+        'Linear Accelerator (LINAC) & Radiation Units (Gy, Sv)',
+        'Radiation Toxicity (Acute vs Late Effects & Radioprotectors)',
+      ],
     },
   },
 ];
@@ -104,22 +225,22 @@ export const SPRINT_DAYS: SprintDay[] = [
   { title: 'Foundation & high-yield setup', subjects: ['medicine'], focus: 'Approach, common presentations, ECG, shock, fluids and emergency first steps.', questions: 50 },
   { title: 'Pre-sprint review & recall kickstart', subjects: ['surgery'], focus: 'Trauma triage, acute abdomen, burns Parkland formula, wound healing and core algorithms.', questions: 50 },
   { title: 'Obstetrics & Gynaecology · Part 1', subjects: ['obg'], focus: 'Antenatal care, labor partogram, eclampsia (Pritchard regimen), PPH algorithm and obstetric emergencies.', questions: 60 },
-  { title: 'Obstetrics & Gynaecology · Part 2', subjects: ['obg'], focus: 'Gynaecological oncology (cervical, endometrial, ovarian), contraception methods, USG markers and reproductive endocrinology.', questions: 60 },
-  { title: 'PSM / Community Medicine · Part 1', subjects: ['psm'], focus: 'Epidemiology study designs, biostatistics tests of significance, screening 2x2 tables, sensitivity, specificity and PPV/NPV.', questions: 60 },
-  { title: 'PSM / Community Medicine · Part 2', subjects: ['psm'], focus: 'National health programs (NTEP, NVBDCP), vaccine cold chain, VVM stages, immunization schedule and demographic indicators.', questions: 60 },
-  { title: 'Biochemistry + FMT', subjects: ['biochemistry', 'fmt'], focus: 'Inborn errors of metabolism, vitamin deficiencies, toxicology (organophosphates, snake bite, opioids), thanatology and IPC medical jurisprudence.', questions: 60 },
-  { title: 'Anatomy · Nerves & Relations', subjects: ['anatomy'], focus: 'Brachial plexus, upper & lower limb nerve lesions (foot drop, claw hand), cranial nerve foramina and brainstem cross-sections.', questions: 60 },
-  { title: 'Microbiology · Bugs & Antibiograms', subjects: ['microbiology'], focus: 'Bacterial staining & culture media, virology (hepatitis serology, HIV, rabies), parasitology (malaria, amoebiasis) and infection control.', questions: 60 },
-  { title: 'Pharmacology · Receptors & DOCs', subjects: ['pharmacology'], focus: 'Autonomic nervous system drugs, antimicrobial drugs of choice, cardiovascular pharmacology, antiepileptics and emergency antidotes.', questions: 60 },
-  { title: 'Pathology + Core Physiology', subjects: ['pathology', 'physiology'], focus: 'Neoplasia hallmarks & tumor markers, hematology (leukemias, anemias), glomerulonephritis, Wiggers diagram, cardiac PV loops and countercurrent mechanism.', questions: 60 },
-  { title: 'General Surgery + Orthopedics · Part 1', subjects: ['surgery', 'orthopedics'], focus: 'ATLS trauma primary survey, burns Parkland formula, acute abdomen, pediatric fractures (Colles, Monteggia, Galeazzi) and nerve injuries.', questions: 60 },
-  { title: 'General Surgery + Orthopedics · Part 2', subjects: ['surgery', 'orthopedics'], focus: 'Breast triple assessment, thyroid malignancies, intestinal obstruction, arterial disorders and bone tumors by age & X-ray spotters.', questions: 60 },
-  { title: 'Selective Medicine + Short Subjects · Part 1', subjects: ['medicine', 'dermatology', 'psychiatry'], focus: 'STEMI localization & arrhythmias, diabetic emergencies (DKA vs HHS), bullous disorders (pemphigus vs pemphigoid), schizophrenia and psychopharmacology side effects.', questions: 65 },
-  { title: 'Selective Medicine + Short Subjects · Part 2', subjects: ['medicine', 'radiology', 'anesthesia', 'radiotherapy'], focus: 'Tuberculosis NTEP algorithms, chest X-ray signs, trauma CT head (EDH vs SDH vs SAH), BLS/ACLS CPR guidelines and core radiotherapy principles.', questions: 65 },
-  { title: 'Pediatrics, ENT & Ophthalmology', subjects: ['pediatrics', 'ent', 'ophthalmology'], focus: 'Developmental milestones, neonatal jaundice, congenital heart diseases, otosclerosis, epistaxis, glaucoma, cataract and diabetic retinopathy fundus spotters.', questions: 60 },
-  { title: 'Timed Mixed Recall & Mock Review · Part 1', subjects: [], focus: 'Full 300-question mock exam or two 150-question timed blocks. Simulate exam pacing: 1 minute per question. Review every wrong, guessed and skipped answer.', questions: 300, fullMock: true, checkpoint: true },
-  { title: 'Timed Mixed Recall & Mock Review · Part 2', subjects: [], focus: 'Target recurring traps from mock review, volatile numbers, staging classifications, and 100-question mixed recall blitz.', questions: 100, checkpoint: true },
-  { title: 'Light Revision, Volatile Facts, Image Review & Rest', subjects: [], focus: 'Review only your personalized Error Vault and 20th Notebook, key visual spotters and formulas. Stop early, verify hall ticket and logistics, protect sleep. No heavy testing.', questions: 20, restDay: true },
+  { title: 'Obstetrics & Gynaecology · High-Yield Focus', subjects: ['obg'], focus: 'Labor/Partograph, AMTSL & PPH, Pritchard MgSO4, Previa vs Abruption, Contraception, Mullerian, Molar, Ca Cervix/Endometrium.', questions: 60 },
+  { title: 'PSM / Community Medicine · Part 1 (Epidemiology & Biostats)', subjects: ['psm'], focus: '2x2 Screening (Sens/Spec/PPV/NPV), Cohort vs Case-Control, NIS Vaccines/Cold Chain/Open Vial, BMW Color Bins, NTEP/NVBDCP, Mortality formulas.', questions: 60 },
+  { title: 'PSM / Community Medicine · Part 2 (Programs & Vaccines)', subjects: ['psm'], focus: 'NIS Vaccines, Cold Chain, Open Vial Policy, BMW Color Bins, NTEP, NVBDCP, and mortality/fertility formulas.', questions: 60 },
+  { title: 'Biochemistry & FMT · Rapid Triage', subjects: ['biochemistry', 'fmt'], focus: 'Rate-limiting enzymes, Vitamins, Glycogen/Lysosomal storage diseases, Rigor/Livor mortis, Firearm ballistics, Toxicology antidotes, IPC/BNS.', questions: 60 },
+  { title: 'Anatomy · High-Yield Relations & Foramina', subjects: ['anatomy'], focus: 'Brachial plexus (Erb/Klumpke), Limb nerve palsies, Skull foramina, Pharyngeal arches, Dermatomes.', questions: 60 },
+  { title: 'Microbiology · Bugs, Stains & Serology', subjects: ['microbiology'], focus: 'Selective media & stains, Sterilization controls, Hep B serology, HIV CD4 infections, Fungi & Parasite eggs.', questions: 60 },
+  { title: 'Pharmacology · DOCs, Antidotes & Tox', subjects: ['pharmacology'], focus: 'DOC master table, Specific Antidotes, Teratogenic drugs, Anti-TB/Anti-epileptic/Lithium/Digoxin toxicities, Zero-order kinetics.', questions: 60 },
+  { title: 'Pathology & Physiology · Core Integration', subjects: ['pathology', 'physiology'], focus: 'Hypersensitivity I-IV, Translocations/Tumor markers, Nephritic/Nephrotic, Blood smears, Wiggers/PV loops, O2-Hb curve, ABG/Renal clearance.', questions: 60 },
+  { title: 'General Surgery & Orthopedics · Trauma & Acute Care', subjects: ['surgery', 'orthopedics'], focus: 'ATLS/GCS/FAST, Parkland Burns, Acute abdomen, Pediatric fractures, Peripheral nerve injuries, Compartment syndrome.', questions: 60 },
+  { title: 'General Surgery & Orthopedics · Systemic, Oncology & Tumors', subjects: ['surgery', 'orthopedics'], focus: 'Breast/Thyroid Ca, Hernias, Charcot triad/Courvoisier law, Volvulus X-rays, Bone tumors (Sunburst/Codman/Onion-skin/Soap-bubble), Named fractures.', questions: 60 },
+  { title: 'Selective Medicine · High-Yield Heavyweights', subjects: ['medicine'], focus: 'ECG localization (STEMI/Blocks/Arrhythmias), ABG interpretation, DKA vs HHS, Hyperkalemia, Stroke CT, IE Duke criteria, Pleural effusion Light criteria, Status epilepticus.', questions: 65 },
+  { title: 'Short 5 Blitz · Derma, Psych, Anaes, Radio, Radiotherapy', subjects: ['dermatology', 'psychiatry', 'anesthesia', 'radiology', 'radiotherapy'], focus: 'Pemphigus vs Pemphigoid, STI kits, EPS/NMS, Lithium, Mallampati/Capnography, Dantrolene/Lipid rescue, EDH vs SDH CT, CXR/Barium spotters, Co-60/Ir-192/I-131.', questions: 65 },
+  { title: 'Pediatrics, ENT & Ophthalmology · Clinical Triad', subjects: ['pediatrics', 'ent', 'ophthalmology'], focus: 'Milestones, NRP/Jaundice, CHD X-rays (Boot-shaped/Egg-on-string/Snowman), SAM, Croup vs Epiglottitis, Glaucoma vs Cataract, Fundus spotters, Cholesteatoma, Otosclerosis, Rinne/Weber.', questions: 60 },
+  { title: 'Full 300Q NBEMS Recall Mock', subjects: [], focus: 'Full 300-question mock exam across two 150-minute timed blocks. Simulate real exam pacing (1 minute per question). Answer every question (zero negative marking). Review all misses and guesses.', questions: 300, fullMock: true, checkpoint: true },
+  { title: '200-IBQ Visual Spotter Marathon & Weak-Subject Patch', subjects: [], focus: 'Target 200 high-yield image-based questions (IBQs), ECG spotters, histology slides, radiology signs, instruments, and surgical specimens. Patch recurring traps from yesterday’s 300Q mock.', questions: 200, checkpoint: true },
+  { title: 'Exam Eve Volatile Tables & Rest', subjects: [], focus: 'Review only high-yield volatile tables, drug of choice lists, tumor markers, IPC legal sections, and your personalized Error Vault. Stop early by 6 PM, verify hall ticket/ID proofs, and protect sleep.', questions: 30, restDay: true },
 ];
 
 export function localDateKey(date = new Date()): string {
@@ -280,6 +401,10 @@ export function buildAdaptiveSprintDays(
 
   const hasEvidence = recentAttempts.length > 0 || grandTests.length > 0;
   const makeAdaptiveDay = (index: number, selected: typeof ranked, label: string) => {
+    if (!hasEvidence) {
+      return SPRINT_DAYS[index];
+    }
+
     const names = selected.map((subject) => subject.name);
     const details = selected.map((subject) => {
       if (subject.count >= 5 && subject.accuracy !== null) {
@@ -299,13 +424,15 @@ export function buildAdaptiveSprintDays(
       ...SPRINT_DAYS[index],
       title: names.length ? `${label} · ${names.join(' & ')}` : SPRINT_DAYS[index].title,
       subjects: names.length ? selected.map((subject) => subject.id) : SPRINT_DAYS[index].subjects,
-      focus: hasEvidence
-        ? `Prioritize ${details.join('; ')}. Review missed and guessed questions, then retrieve the key rules without notes.`
-        : `Start with high-weight areas: ${names.join(', ')}. Take the baseline set so later revision can target your actual gaps.`,
+      focus: `Prioritize ${details.join('; ')}. Review missed and guessed questions, then retrieve the key rules without notes.`,
     };
   };
 
   const days = [...SPRINT_DAYS];
+  if (!hasEvidence) {
+    return days;
+  }
+
   for (let index = 0; index < days.length; index++) {
     const day = SPRINT_DAYS[index];
     if (day.restDay) continue;

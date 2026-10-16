@@ -108,5 +108,14 @@ export const INITIAL_PEARLS: MedicalPearl[] = [
     explanation: '• Osteosarcoma: Sunburst / Sun-ray appearance, Codman triangle (Metaphysis of long bones).\n• Ewing Sarcoma: Onion-skin appearance / multi-layered periosteal reaction (Diaphysis).\n• Giant Cell Tumor (Osteoclastoma): Soap-bubble appearance (Epiphysis, extending to articular margin).\n• Osteoid Osteoma: Radiolucent nidus surrounded by dense reactive sclerosis, relieved dramatically by Aspirin/NSAIDs.',
     tags: ['Triad/Sign'],
     isHighYield: true,
+  },
+  {
+    id: 'pearl-13',
+    subjectId: 'biochemistry',
+    title: 'Glycogen Storage Diseases (GSD) Key Enzyme Deficiencies',
+    highYieldKey: 'Type I (Von Gierke) = Glucose-6-Phosphatase • Type II (Pompe) = Lysosomal Acid Alpha-Glucosidase (Cardiomegaly) • Type V (McArdle) = Muscle Glycogen Phosphorylase',
+    explanation: '• Type I (Von Gierke Disease): Glucose-6-phosphatase deficiency. Severe fasting hypoglycemia, marked lactic acidosis, hyperuricemia, doll-like facies, massive hepatomegaly (normal heart).\n• Type II (Pompe Disease): Lysosomal acid α-1,4-glucosidase (acid maltase) deficiency. "Pompe trashes the pump" → massive hypertrophic cardiomyopathy, hypotonia, early infantile death, normal blood glucose.\n• Type III (Cori / Forbes): Debranching enzyme (α-1,6-glucosidase) deficiency. Mild hypoglycemia, abnormal limit dextrin accumulation.\n• Type V (McArdle Disease): Skeletal muscle glycogen phosphorylase deficiency. Painful muscle cramps and myoglobinuria after strenuous exercise, "second wind phenomenon", normal lactate curve after ischemic forearm exercise.',
+    tags: ['Classification', 'Rule/Formula'],
+    isHighYield: true,
   }
 ];
