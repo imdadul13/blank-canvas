@@ -13,6 +13,7 @@ import {
 import { generateFlashcardDeck } from '../flashcardEngine';
 import { FMGE_SUBJECTS } from '../../data/fmgeSubjects';
 import type { McqAttempt, GrandTest } from '../../types';
+import { generateMixed10Quiz } from '../../components/study/ExamSprintView';
 
 describe('Sprint Engine & High-Yield 20-Day System', () => {
   it('validates NBEMS blueprint marks cover all core examination subjects', () => {
@@ -483,5 +484,60 @@ describe('Sprint Engine & High-Yield 20-Day System', () => {
 
     // Oct 31 (Day 20): Official Exam Day Protocol
     assert.equal(getDailyStudyBlueprint(20).isExamDay, true);
+  });
+
+  it('guarantees generateMixed10Quiz produces 10 questions with 0 duplicate stems, shuffled options, and no cross-topic mismatches', () => {
+    const questions = generateMixed10Quiz('obg', 'Obstetrics & Gynecology', 'Cervical Cancer Screening & FIGO Staging');
+    assert.equal(questions.length, 10, 'Must generate exactly 10 questions (5 text + 5 image)');
+
+    // 1. Verify 5 text and 5 image questions
+    const textQuestions = questions.filter((q) => q.type === 'text');
+    const imgQuestions = questions.filter((q) => q.type === 'image');
+    assert.equal(textQuestions.length, 5, 'Must have exactly 5 text questions');
+    assert.equal(imgQuestions.length, 5, 'Must have exactly 5 image questions');
+
+    // 2. Verify all stems are unique (NO DUPLICATE QUESTIONS)
+    const stems = questions.map((q) => q.stem.trim());
+    const uniqueStems = new Set(stems);
+    assert.equal(uniqueStems.size, 10, 'All 10 questions must have completely unique stems');
+
+    // 3. Verify options are shuffled (not all option A)
+    const correctOptions = questions.map((q) => q.correctOptionId);
+    const uniqueCorrect = new Set(correctOptions);
+    assert.ok(uniqueCorrect.size > 1, 'Correct options must be shuffled across multiple letters, not always A');
+
+    // 4. Verify no cross-topic leak (Cervical Cancer quiz must NOT return Eclampsia / Pritchard regimen as correct answer)
+    for (const q of textQuestions) {
+      const correctOpt = q.options.find((o) => o.id === q.correctOptionId);
+      assert.ok(correctOpt, 'Each question must have a valid correct option');
+      assert.ok(
+        !correctOpt.text.toLowerCase().includes('pritchard') &&
+        !correctOpt.text.toLowerCase().includes('knee jerk') &&
+        !correctOpt.text.toLowerCase().includes('loading 4g iv'),
+        `Cervical cancer text question must never return eclampsia Pritchard regimen! Found: ${correctOpt.text}`
+      );
+    }
+
+    // 5. Verify clean grammar: NO "presents with Presents to" and NO double periods ".."
+    for (const q of questions) {
+      assert.ok(!q.stem.includes('presents with Presents'), 'Question stem must not contain duplicate presents with Presents');
+      assert.ok(!q.stem.includes('..'), 'Question stem must not contain double periods ..');
+    }
+
+    // 6. Verify image questions have valid URLs and smart stems
+    for (const q of imgQuestions) {
+      assert.ok(q.imageUrl, 'Image question must have an imageUrl');
+      assert.ok(q.options.length === 4, 'Image question must have 4 options');
+      // For instruments, distractors must not be generic non-instrument placeholders
+      if (q.stem.includes('surgical instrument')) {
+        for (const opt of q.options) {
+          assert.ok(
+            !opt.text.includes('Benign architectural variant') &&
+            !opt.text.includes('Non-specific artifactual radiographic shadow'),
+            `Instrument options must not contain generic dummy text: ${opt.text}`
+          );
+        }
+      }
+    }
   });
 });

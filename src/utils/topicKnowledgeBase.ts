@@ -1327,7 +1327,7 @@ export const FMGE_TOPIC_KNOWLEDGE_BASE: Record<string, MedicalTopicKnowledge> = 
     clinicalCase: {
       title: 'Severe Preeclampsia Seizure Prophylaxis Management',
       patientDemographics: '24-year-old primigravida at 34 weeks gestation',
-      presentation: 'Presents to the labor and delivery triage with a persistent throbbing frontal headache and photophobia for the past 6 hours. Blood pressure is 174/114 mmHg on two readings taken 15 minutes apart. Urinalysis shows 3+ protein.',
+      presentation: 'admitted to the labor and delivery triage with a persistent throbbing frontal headache and photophobia for the past 6 hours. Blood pressure is 174/114 mmHg on two readings taken 15 minutes apart. Urinalysis shows 3+ protein.',
       physicalExamOrLabs: 'Deep tendon reflexes are brisk (4+) with sustained ankle clonus. Platelet count is 110,000/μL, AST 95 U/L, ALT 88 U/L, and serum creatinine 0.9 mg/dL. Fetal heart rate tracing shows a baseline of 140 bpm with moderate variability.',
       diagnosticQuestion: 'Which regimen is the most appropriate next step to prevent eclamptic seizures in this patient?',
       options: [
@@ -1338,6 +1338,147 @@ export const FMGE_TOPIC_KNOWLEDGE_BASE: Record<string, MedicalTopicKnowledge> = 
       ],
       clinicalExplanation: 'This patient has preeclampsia with severe features (severe hypertension ≥160/110 mmHg, visual disturbances, and hyperreflexia with clonus). Under ACOG and Cochrane guidelines, Magnesium Sulfate is significantly superior to Phenytoin and Diazepam for the prevention of eclampsia. The loading dose is 4 g IV (Zuspan) or 4 g IV + 10 g IM (Pritchard). Blood pressure must concurrently be lowered using IV Labetalol or Hydralazine.',
       examPearl: 'MgSO4 is the drug of choice for eclampsia. ACE inhibitors (Enalapril) are strictly teratogenic.',
+    },
+  },
+  'obg-11': {
+    topicId: 'obg-11',
+    subjectId: 'obg',
+    topicTitle: 'Gynecology - Cervical Cancer Screening (Pap Smear, HPV) & Staging (FIGO)',
+    highYieldSummary: 'Cervical Cancer is primarily caused by persistent high-risk HPV (HPV 16 & 18 cause 70% of invasive cervical cancers). Screening begins at age 30 with high-risk HPV DNA testing (preferred) or Pap cytology. FIGO staging is clinical: Stage I to IIA1 are managed surgically with Radical Hysterectomy (Wertheim-Meigs operation); Stage IIB (parametrial invasion) and above require Concurrent Chemoradiotherapy (CCRT with weekly Cisplatin + radiation).',
+    coreConcepts: [
+      'Etiopathogenesis & High-Risk HPV: HPV 16 (most oncogenic, squamous cell carcinoma) and HPV 18 (adenocarcinoma). E6 oncoprotein degrades p53 tumor suppressor protein via ubiquitination; E7 oncoprotein binds and inactivates Retinoblastoma (Rb) protein, promoting uncontrolled cell cycle progression.',
+      'Screening Guidelines (WHO/NBEMS): Preferred screening: High-risk HPV DNA PCR every 5–10 years starting at age 30 (age 25 in HIV/immunocompromised). Alternative: Conventional Pap smear (Ayre spatula + cytobrush) every 3 years. Visual inspection with 3–5% acetic acid (VIA) demonstrates dense acetowhite epithelium in dysplastic areas.',
+      'Bethesda System Cytology: ASC-US (reflex HPV DNA testing); LSIL (Colposcopy evaluation); HSIL (Immediate Colposcopy and directed punch biopsy of atypical transformation zone).',
+      'FIGO 2018 Clinical Staging: Stage I: Confined to cervix (IA: Microscopic <5mm depth; IB: Clinically visible ≥5mm). Stage II: Extends beyond uterus but NOT to pelvic sidewall or lower 1/3 of vagina (IIA: Upper 2/3 of vagina without parametrial invasion; IIB: Parametrial invasion present on rectovaginal examination). Stage III: Pelvic sidewall, lower 1/3 of vagina, or hydronephrosis. Stage IV: Bladder/rectal mucosal involvement (IVA) or distant metastasis (IVB).',
+      'Definitive Management Protocol: Stage IA1 (no LVSI): Cervical conization or simple hysterectomy. Stage IA2–IIA1: Radical Hysterectomy (Wertheim-Meigs operation: removal of uterus, cervix, parametrium, upper vagina, and bilateral pelvic lymphadenectomy). Stage IIB and beyond (Parametrial involvement onwards): Primary surgery is CONTRAINDICATED. Definitive Treatment of Choice is Concurrent Chemoradiotherapy (CCRT with weekly Cisplatin + external beam radiation + intracavitary brachytherapy).',
+    ],
+    keyTakeaways: [
+      'Gold standard screening modality for Cervical Cancer = High-risk HPV DNA testing (age 30 onwards).',
+      'Site of origin for cervical carcinoma = Transformation zone (Squamocolumnar junction).',
+      'Parametrial invasion defines FIGO Stage IIB (diagnosed on clinical rectovaginal examination).',
+      'Definitive treatment of choice for FIGO Stage IIB onwards = Concurrent Chemoradiotherapy (CCRT with weekly Cisplatin); surgery is contraindicated.',
+    ],
+    goldStandardTest: 'Colposcopy-directed cervical punch biopsy (confirmatory); High-risk HPV DNA PCR testing (screening gold standard).',
+    firstLineTreatment: 'Radical Hysterectomy (Wertheim operation) for Stage IA2–IIA1; Concurrent Chemoradiotherapy (CCRT with weekly Cisplatin) for Stage IIB onwards.',
+    classicPresentation: 'A 46-year-old multiparous woman presenting with post-coital bleeding, watery foul-smelling vaginal discharge, and an irregular exophytic cervical ulcer that invades into the right parametrium without reaching the pelvic sidewall.',
+    examTrap: 'Primary surgery (Radical Hysterectomy) is CONTRAINDICATED once parametrial invasion is present (Stage IIB). Always select Concurrent Chemoradiotherapy (CCRT) for Stage IIB and above.',
+    flashcards: [
+      {
+        front: 'What are the molecular oncogenic mechanisms of HPV oncoproteins E6 and E7 in cervical cancer?',
+        back: '• E6 binds and targets p53 tumor suppressor for ubiquitin-mediated proteasomal degradation.\n• E7 binds and inactivates Retinoblastoma (Rb) protein, freeing E2F transcription factor.',
+        clinicalPearl: 'HPV 16 is most prevalent in squamous cell carcinoma; HPV 18 is disproportionately associated with cervical adenocarcinoma.',
+      },
+      {
+        front: 'What anatomical involvement defines FIGO Stage IIB Carcinoma Cervix, and what is its definitive management?',
+        back: '• Anatomy: Involvement of the Parametrium (does NOT extend to pelvic sidewall).\n• Management: Concurrent Chemoradiotherapy (CCRT with weekly Cisplatin + EBRT + intracavitary brachytherapy). Primary surgery is contraindicated.',
+        clinicalPearl: 'Parametrial involvement is clinically identified via bimanual rectovaginal examination.',
+      },
+      {
+        front: 'What is the recommended Cervical Cancer screening protocol according to standard WHO / NBEMS guidelines?',
+        back: '• Start at age 30 (age 25 in HIV-positive women).\n• High-risk HPV DNA testing every 5–10 years (preferred).\n• Alternatively, Cytology (Pap smear) every 3 years or Co-testing (Pap + HPV DNA) every 5 years.',
+        clinicalPearl: 'A satisfactory Pap smear must contain cells from the transformation zone (endocervical cells and squamous metaplastic cells).',
+      },
+      {
+        front: 'A 32-year-old woman with microinvasive Carcinoma Cervix Stage IA1 desires future pregnancy. What is the procedure of choice?',
+        back: 'Cervical Conization (Cold Knife Conization or LEEP) with negative surgical margins (≥3 mm clear margins) and absence of lymphovascular space invasion (LVSI).',
+        clinicalPearl: 'If margins are negative, conization is therapeutic and fertility-preserving.',
+      },
+    ],
+    clinicalCase: {
+      title: 'Parametrial Invasion in Carcinoma Cervix Management',
+      patientDemographics: '48-year-old multiparous woman (P4L4)',
+      presentation: 'admitted to the outpatient gynecology clinic with a 3-month history of post-coital spotting and irregular intermenstrual bleeding. Speculum examination reveals a 3.5 cm friable, exophytic mass on the anterior cervical lip that bleeds on contact.',
+      physicalExamOrLabs: 'Bimanual and rectovaginal examination confirms the induration extends into the medial right parametrium, but does not extend to the pelvic sidewall. Lower one-third of the vagina is uninvolved. Cervical punch biopsy confirms invasive squamous cell carcinoma.',
+      diagnosticQuestion: 'Based on the FIGO 2018 staging, what is the clinical stage and the definitive treatment of choice for this patient?',
+      options: [
+        {
+          key: 'A',
+          text: 'Stage IIB; Concurrent Chemoradiotherapy (CCRT) with weekly Cisplatin and external beam radiation',
+          isCorrect: true,
+        },
+        {
+          key: 'B',
+          text: 'Stage IB2; Radical Hysterectomy with bilateral pelvic lymphadenectomy (Wertheim operation)',
+          isCorrect: false,
+        },
+        {
+          key: 'C',
+          text: 'Stage IIA1; Total abdominal hysterectomy with bilateral salpingo-oophorectomy',
+          isCorrect: false,
+        },
+        {
+          key: 'D',
+          text: 'Stage IIB; Neoadjuvant chemotherapy followed by salvage radical hysterectomy',
+          isCorrect: false,
+        },
+      ],
+      clinicalExplanation: 'The presence of parametrial induration/invasion that does not reach the pelvic sidewall classifies this case as FIGO Stage IIB. In Carcinoma Cervix, Stage IIB and beyond are non-surgical; primary surgery is contraindicated because clear surgical margins cannot be obtained and outcomes are vastly superior with definitive Concurrent Chemoradiotherapy (CCRT with weekly Cisplatin).',
+      examPearl: 'Parametrial invasion = Stage IIB = CCRT (Chemoradiation). Never perform radical hysterectomy once the parametrium is involved!',
+    },
+  },
+  'obg-2': {
+    topicId: 'obg-2',
+    subjectId: 'obg',
+    topicTitle: 'Obstetrics - Postpartum Hemorrhage (PPH) & Active Management of Third Stage of Labor (AMTSL)',
+    highYieldSummary: 'PPH is blood loss ≥500 mL following vaginal delivery or ≥1000 mL following cesarean delivery. Most common cause is uterine atony (80%). AMTSL prevents PPH with 3 steps: 1) Oxytocin 10 IU IM within 1 min, 2) Controlled Cord Traction (Brandt-Andrews), 3) Uterine massage. Drug of choice is Oxytocin.',
+    coreConcepts: [
+      'Definition & Etiology: PPH: Blood loss ≥500 mL (vaginal) or ≥1000 mL (cesarean), or any blood loss causing hemodynamic instability. Primary PPH occurs within 24 hours (most common: uterine atony, 80%). Secondary PPH occurs between 24 hours and 12 weeks postpartum (most common: retained placental tissue/cotyledons or endometritis). The 4 T’s: Tone (atony), Trauma (tears), Tissue (retained placenta), Thrombin (coagulopathy).',
+      'AMTSL (Active Management of 3rd Stage of Labor): 1. Uterotonic administration: Oxytocin 10 IU IM immediately after delivery of the baby (within 1 minute; preferred over ergometrine). 2. Controlled Cord Traction (Brandt-Andrews maneuver) applied only during uterine contraction with counter-traction above pubic symphysis to prevent uterine inversion. 3. Immediate uterine massage after delivery of placenta, repeated every 15 min for 2 hours.',
+      'Uterotonic Pharmacotherapy: 1. Oxytocin (DOC): 10 IU IM or 20–40 IU in 500 mL saline IV infusion. 2. Methylergonovine (Ergometrine) 0.2 mg IM: causes tetanic contraction; contraindicated in Preeclampsia, Hypertension, Cardiac disease. 3. Carboprost (15-methyl PGF2α) 250 mcg deep IM: contraindicated in Bronchial Asthma. 4. Misoprostol (PGE1) 600–800 mcg sublingual/rectal.',
+      'Surgical & Tamponade Stepwise Protocol: 1. Bimanual uterine compression. 2. Uterine balloon tamponade (Bakri balloon, condom catheter, 300–500 mL warm saline). 3. B-Lynch compression sutures (uterine brace suture). 4. Stepwise devascularization: Bilateral uterine artery ligation (O’Leary) -> Ovarian artery ligation -> Internal iliac (hypogastric) artery ligation (anterior division). 5. Emergency peripartum hysterectomy as definitive life-saving measure.',
+    ],
+    keyTakeaways: [
+      'Most common cause of primary PPH = Uterine atony (80%).',
+      'First-line uterotonic for both prevention (AMTSL) and treatment of PPH = Oxytocin (10 IU IM).',
+      'Ergometrine is strictly contraindicated in = Hypertension / Preeclampsia.',
+      'Carboprost (PGF2α) is strictly contraindicated in = Bronchial Asthma.',
+    ],
+    goldStandardTest: 'Clinical evaluation and quantitative gravimetric blood loss estimation + bedside ultrasound for retained cotyledons.',
+    firstLineTreatment: 'Uterine massage + IV Oxytocin infusion (10–20 IU) + prompt bladder catheterization.',
+    classicPresentation: 'A P2L2 woman following precipitate vaginal delivery with sudden continuous dark red vaginal bleeding; on abdominal palpation, the uterus is soft, boggy, and relaxed above the umbilicus.',
+    examTrap: 'Ergometrine produces sustained tetanic contractions and causes severe vasospasm; it is strictly contraindicated in women with preeclampsia, hypertension, or heart disease. In asthmatic women, Carboprost (PGF2α) causes fatal bronchospasm.',
+    flashcards: [
+      {
+        front: 'What are the 3 mandatory components of AMTSL according to WHO / FIGO guidelines?',
+        back: '1. Administration of a uterotonic (Oxytocin 10 IU IM within 1 minute of fetal delivery).\n2. Controlled Cord Traction (CCT via Brandt-Andrews maneuver) during a contraction.\n3. Uterine massage immediately after placental delivery.',
+        clinicalPearl: 'Oxytocin is the uterotonic of choice because it acts rapidly without causing hypertension.',
+      },
+      {
+        front: 'Which uterotonic is contraindicated in preeclampsia and which is contraindicated in asthma?',
+        back: '• Preeclampsia/Hypertension: Methylergonovine (Ergometrine) is contraindicated due to severe peripheral vasoconstriction.\n• Bronchial Asthma: Carboprost (15-methyl PGF2α) is contraindicated due to potent bronchoconstriction.',
+        clinicalPearl: 'Misoprostol (PGE1) can be safely used in both asthmatic and hypertensive patients.',
+      },
+    ],
+    clinicalCase: {
+      title: 'Atonic Postpartum Hemorrhage Management',
+      patientDemographics: '28-year-old G2P1 woman at 39 weeks gestation',
+      presentation: 'delivered a 4.1 kg infant via uncomplicated vaginal delivery. Fifteen minutes following placental delivery, brisk vaginal hemorrhage of approximately 700 mL is noted. Abdominal palpation reveals the uterus is soft, flaccid, and palpable 3 cm above the umbilicus.',
+      physicalExamOrLabs: 'Pulse is 112 bpm, blood pressure is 94/60 mmHg. Speculum inspection excludes lower genital tract lacerations, and the placenta was delivered complete with intact membranes.',
+      diagnosticQuestion: 'Which initial intervention and drug regimen is the most appropriate next step in managing this hemorrhage?',
+      options: [
+        {
+          key: 'A',
+          text: 'Vigorous bimanual uterine massage, bladder catheterization, and IV Oxytocin 20 IU in 500 mL normal saline infusion',
+          isCorrect: true,
+        },
+        {
+          key: 'B',
+          text: 'Immediate exploratory laparotomy for bilateral internal iliac artery ligation',
+          isCorrect: false,
+        },
+        {
+          key: 'C',
+          text: 'Intravenous broad-spectrum antibiotics and observation for 2 hours',
+          isCorrect: false,
+        },
+        {
+          key: 'D',
+          text: 'Intramuscular Ergometrine 0.5 mg without uterine massage or catheterization',
+          isCorrect: false,
+        },
+      ],
+      clinicalExplanation: 'The clinical picture of a soft, boggy, poorly contracted uterus with heavy vaginal bleeding immediately postpartum confirms atonic PPH. Initial management begins with vigorous bimanual uterine massage, emptying the bladder with a Foley catheter (a full bladder displaces the uterus and impedes contraction), and starting an IV infusion of Oxytocin (20–40 IU in 500–1000 mL crystalloid).',
+      examPearl: 'Uterine atony is the cause in 80% of PPH cases. Initial management is always uterine massage + IV Oxytocin.',
     },
   },
 
@@ -1954,6 +2095,12 @@ export function getMedicalTopicKnowledge(
   }
   if (tId === 'obg-4' || (sId.includes('obg') && (name.includes('preeclampsia') || name.includes('mgso4') || name.includes('pritchard')))) {
     return FMGE_TOPIC_KNOWLEDGE_BASE['obg-4'];
+  }
+  if (tId === 'obg-11' || (sId.includes('obg') && (name.includes('cervic') || name.includes('pap') || name.includes('figo') || name.includes('hpv')))) {
+    return FMGE_TOPIC_KNOWLEDGE_BASE['obg-11'];
+  }
+  if (tId === 'obg-2' || (sId.includes('obg') && (name.includes('pph') || name.includes('postpartum') || name.includes('hemorrhage') || name.includes('amtsl')))) {
+    return FMGE_TOPIC_KNOWLEDGE_BASE['obg-2'];
   }
   if (tId === 'med-3' || (name.includes('valvular') || name.includes('endocarditis') || name.includes('duke'))) {
     return FMGE_TOPIC_KNOWLEDGE_BASE['med-3'];

@@ -1239,5 +1239,76 @@
       ],
       "detailedRationale": "The image demonstrates the pathognomonic 'Delta wave' (slurred QRS upstroke) and a short PR interval characteristic of Wolff-Parkinson-White (WPW) syndrome, caused by ventricular pre-excitation via an accessory pathway (Bundle of Kent). First-degree AV block features a prolonged PR interval (>200 ms). Brugada syndrome typically presents with coved ST-segment elevation in V1-V3 and right bundle branch block morphology. Atrial fibrillation shows irregularly irregular rhythm without discrete P waves, which is distinct from this single-lead pre-excitation morphology."
     }
+  },
+  {
+    "id": "fmge_ibq_35",
+    "subject": "Obstetrics & Gynecology",
+    "topic": "Complete Hydatidiform Mole (Snowstorm Ultrasound)",
+    "imageSrc": "/assets/medical-images/surgery-babcock-clamp.svg",
+    "vignette": "A 24-year-old primigravida presents at 10 weeks of gestation with dark brown vaginal bleeding ('prune-juice' discharge) and hyperemesis gravidarum. Uterine size is enlarged to 16 weeks gestation, and serum β-hCG is markedly elevated at >160,000 mIU/mL. Pelvic ultrasound demonstrates diffuse echogenic intrauterine tissue with multiple small anechoic cystic spaces ('snowstorm' pattern) without any fetal pole or gestational sac. What is the definitive diagnosis and recommended management?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Complete Hydatidiform Mole; Suction and evacuation with weekly serial β-hCG monitoring"
+      },
+      {
+        "id": "B",
+        "text": "Partial Hydatidiform Mole; Expectant management with repeat ultrasound in 4 weeks"
+      },
+      {
+        "id": "C",
+        "text": "Missed abortion; Immediate high-dose oral methotrexate therapy"
+      },
+      {
+        "id": "D",
+        "text": "Choriocarcinoma; Immediate radical hysterectomy without evacuation"
+      }
+    ],
+    "correctOptionId": "A",
+    "explanation": {
+      "imageFinding": "Characteristic vesicular 'snowstorm' or 'bunch of grapes' intrauterine sonographic appearance representing diffuse hydropic swelling of chorionic villi with absent fetal parts.",
+      "highYieldBuzzwords": [
+        "Snowstorm appearance",
+        "Paternal diploidy 46,XX",
+        "Markedly elevated hCG",
+        "Suction and evacuation"
+      ],
+      "detailedRationale": "Complete Hydatidiform Mole is characterized by androgenetic diploidy (typically 46,XX of purely paternal origin), absence of an embryo/fetus, and markedly elevated serum β-hCG. Ultrasound demonstrates the classic diffuse vesicular 'snowstorm' appearance. The primary management of choice is Suction and Evacuation, followed by weekly serial serum β-hCG surveillance until normal for 3 consecutive weeks."
+    }
+  },
+  {
+    "id": "fmge_ibq_36",
+    "subject": "Obstetrics & Gynecology",
+    "topic": "Babcock Tissue Grasping Forceps",
+    "imageSrc": "/assets/medical-images/surgery-babcock-clamp.svg",
+    "vignette": "Examine the surgical instrument shown in the image below. Identify the instrument and its primary clinical application in Obstetrics & Gynecology:",
+    "options": [
+      {
+        "id": "A",
+        "text": "Babcock tissue grasping forceps (Atraumatic grasping of Fallopian tubes during Pomeroy tubectomy)"
+      },
+      {
+        "id": "B",
+        "text": "Allis tissue forceps (Traumatic grasping of tough fascial margins and anterior rectus sheath)"
+      },
+      {
+        "id": "C",
+        "text": "Kocher hemostatic clamp (Crushing hemostasis of tough vascular pedicles during hysterectomy)"
+      },
+      {
+        "id": "D",
+        "text": "Green-Armytage clamp (Hemostasis of uterine incision angles during lower segment cesarean section)"
+      }
+    ],
+    "correctOptionId": "A",
+    "explanation": {
+      "imageFinding": "Fenestrated, non-crushing triangular/loop jaws that meet only at the tips, designed specifically for atraumatic grasping of delicate tubular viscera.",
+      "highYieldBuzzwords": [
+        "Babcock forceps",
+        "Fenestrated non-crushing loop",
+        "Fallopian tube grasping in tubectomy"
+      ],
+      "detailedRationale": "Babcock tissue grasping forceps feature fenestrated, rounded loop jaws without sharp teeth that meet only at the tips. This design allows atraumatic grasping of delicate tubular structures such as the Fallopian tube during female sterilization (Pomeroy tubectomy), the appendix in appendectomy, and bowel loops without causing crushing injury or luminal perforation."
+    }
   }
 ]

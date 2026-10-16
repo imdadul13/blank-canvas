@@ -70,7 +70,7 @@ import {
   type RawIBQItem,
 } from '../../utils/visualQuestionEngine';
 import { INITIAL_PEARLS } from '../../data/initialPearls';
-import { FMGE_TOPIC_KNOWLEDGE_BASE, type MedicalTopicKnowledge } from '../../utils/topicKnowledgeBase';
+import { FMGE_TOPIC_KNOWLEDGE_BASE, getMedicalTopicKnowledge, type MedicalTopicKnowledge } from '../../utils/topicKnowledgeBase';
 import { RAPID_REVISION_DECK_TEXT } from '../../data/rapidRevisionDeckText';
 import { IbqRapidRecallModal } from '../IbqRapidRecallModal';
 import { calculateTopicPerformanceMetrics } from '../../utils/performanceEngine';
@@ -111,27 +111,7 @@ export function getMatchingPearls(subjectId: string, topicQuery: string, customP
 }
 
 export function getMatchingKnowledgeBase(subjectId: string, topicQuery: string): MedicalTopicKnowledge | null {
-  const sLower = subjectId.toLowerCase();
-  const qTerms = (topicQuery || '')
-    .toLowerCase()
-    .split(/[\s,()\/&-]+/)
-    .filter((w) => w.length > 3);
-
-  for (const item of Object.values(FMGE_TOPIC_KNOWLEDGE_BASE)) {
-    if (item.subjectId.toLowerCase() === sLower) {
-      const titleLower = item.topicTitle.toLowerCase();
-      if (qTerms.length > 0 && qTerms.some((term) => titleLower.includes(term))) {
-        return item;
-      }
-    }
-  }
-
-  for (const item of Object.values(FMGE_TOPIC_KNOWLEDGE_BASE)) {
-    if (item.subjectId.toLowerCase() === sLower) {
-      return item;
-    }
-  }
-  return null;
+  return getMedicalTopicKnowledge(subjectId, '', topicQuery);
 }
 
 export function searchRapidRevisionDeck(subjectName: string, topicQuery: string): Array<{ page: number; text: string }> {
@@ -279,64 +259,448 @@ export interface CustomMixedQuestion {
   whatToLookFor?: string;
 }
 
+function formatClinicalStem(
+  demographics: string,
+  presentation: string,
+  physicalExamOrLabs: string,
+  diagnosticQuestion: string
+): string {
+  let demo = (demographics || '').trim();
+  let pres = (presentation || '').trim();
+  let exam = (physicalExamOrLabs || '').trim();
+  let q = (diagnosticQuestion || '').trim();
+
+  // Strip accidental redundant leading verbs from presentation
+  if (/^presents\s+with\s+/i.test(pres)) {
+    pres = pres.replace(/^presents\s+with\s+/i, '');
+  } else if (/^presents\s+to\s+/i.test(pres)) {
+    pres = pres.replace(/^presents\s+to\s+/i, 'to ');
+  } else if (/^presents\s+/i.test(pres)) {
+    pres = pres.replace(/^presents\s+/i, '');
+  } else if (/^admitted\s+to\s+/i.test(pres)) {
+    pres = pres.replace(/^admitted\s+to\s+/i, 'to ');
+  } else if (/^admitted\s+/i.test(pres)) {
+    pres = pres.replace(/^admitted\s+/i, '');
+  }
+
+  // Ensure clean lead-in
+  let combinedIntro = '';
+  if (/^(to|with|following|after|during|on|at)\s+/i.test(pres)) {
+    combinedIntro = `${demo} presents ${pres}`;
+  } else {
+    combinedIntro = `${demo} presents with ${pres}`;
+  }
+
+  // Strip trailing punctuation
+  combinedIntro = combinedIntro.replace(/\.+$/, '');
+  exam = exam.replace(/\.+$/, '');
+  q = q.replace(/\.+$/, '');
+
+  let full = `${combinedIntro}. Physical examination and initial labs reveal: ${exam}. ${q}`;
+  // Remove multiple periods
+  full = full.replace(/\.{2,}/g, '.');
+  return full;
+}
+
+function shuffleQuestionOptions<T extends { id: string; text: string }>(
+  options: T[],
+  correctId: string
+): { shuffled: T[]; newCorrectId: string } {
+  const items = [...options];
+  const correctItem = items.find((o) => o.id === correctId) || items[0];
+
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+
+  const letters = ['A', 'B', 'C', 'D'];
+  let newCorrectId = 'A';
+  const shuffled = items.map((item, idx) => {
+    const letter = letters[idx] || item.id;
+    if (item === correctItem || item.text === correctItem.text) {
+      newCorrectId = letter;
+    }
+    return {
+      ...item,
+      id: letter,
+    };
+  });
+
+  return { shuffled, newCorrectId };
+}
+
+function formatVisualOptionText(target: string, conceptKey?: string): string {
+  if (!target) return 'Characteristic clinical finding';
+
+  const key = (conceptKey || '').toLowerCase();
+  if (key.includes('babcock')) return 'Babcock tissue grasping forceps';
+  if (key.includes('hydatidiform_mole')) return 'Complete hydatidiform mole (Snowstorm appearance on USG)';
+  if (key.includes('brachial_plexus')) return "Erb's palsy (Upper trunk C5-C6 lesion, Waiter's tip)";
+  if (key.includes('claw_hand')) return 'Klumpke paralysis (Lower trunk C8-T1 total claw hand)';
+  if (key.includes('knee_cruciate')) return 'Anterior cruciate ligament (ACL) complete tear';
+  if (key.includes('action_potential')) return 'Ventricular cardiac action potential (Phase 0 Na+ influx)';
+  if (key.includes('na_k_atpase')) return 'Na+/K+-ATPase primary active transport pump';
+  if (key.includes('body_fluid')) return 'Total body water fluid compartments (Indicator dilution)';
+  if (key.includes('lineweaver')) return 'Lineweaver-Burk plot of competitive enzyme inhibition';
+  if (key.includes('dose_response')) return 'Log dose-response curve showing competitive antagonism';
+  if (key.includes('minimal_change')) return 'Minimal change disease (Podocyte foot process effacement on EM)';
+  if (key.includes('reed_sternberg')) return 'Reed-Sternberg cell (Classic Hodgkin lymphoma, Owl-eye)';
+  if (key.includes('acid_fast') || key.includes('mycobacterium')) return 'Acid-fast bacilli (Mycobacterium tuberculosis, ZN stain)';
+  if (key.includes('strep_pneumoniae')) return 'Streptococcus pneumoniae (Lancet-shaped Gram-positive diplococci)';
+  if (key.includes('inferior_stemi')) return 'Acute Inferior Wall STEMI (ST elevation in leads II, III, aVF)';
+  if (key.includes('complete_heart_block')) return 'Complete (Third-degree) AV heart block with AV dissociation';
+  if (key.includes('anterior_stemi')) return 'Acute Anterior Wall STEMI (LAD occlusion, V1-V4 elevation)';
+  if (key.includes('wpw_syndrome')) return 'Wolff-Parkinson-White (WPW) syndrome (Short PR & Delta wave)';
+  if (key.includes('pneumothorax')) return 'Tension pneumothorax (Visceral pleural line & mediastinal shift)';
+  if (key.includes('pneumoperitoneum')) return 'Pneumoperitoneum (Crescentic free gas under right diaphragm dome)';
+  if (key.includes('crao')) return 'Central retinal artery occlusion (CRAO with Cherry-red spot)';
+  if (key.includes('crvo')) return 'Central retinal vein occlusion (CRVO with Blood & Thunder fundus)';
+  if (key.includes('pemphigus')) return 'Pemphigus vulgaris (Suprabasal acantholysis & tombstone row)';
+  if (key.includes('erythema_multiforme')) return 'Erythema multiforme (Target / Iris erythematous lesion)';
+
+  return target
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function getSmartImageStem(imageType: string, index = 0): string {
+  const typeLower = (imageType || '').toLowerCase();
+  if (typeLower.includes('instrument')) {
+    const variations = [
+      'Examine the surgical instrument shown in the image below. Identify the instrument and its primary clinical application:',
+      'Review the surgical or obstetric instrument shown below. Which of the following is the definitive identification and purpose?',
+      'Identify the surgical instrument demonstrated in the clinical image below:',
+      'Based on the structural design and tips of the instrument shown below, what is the correct identification?',
+    ];
+    return variations[index % variations.length];
+  }
+  if (typeLower.includes('ecg')) {
+    const variations = [
+      'Examine the 12-lead ECG rhythm strip shown below. Which of the following is the definitive diagnosis?',
+      'Review the electrocardiogram tracing demonstrated below. What is the characteristic diagnostic rhythm?',
+      'A patient presents with acute symptoms; review the 12-lead ECG shown below. What is the primary diagnosis?',
+    ];
+    return variations[index % variations.length];
+  }
+  if (typeLower.includes('ultrasound') || typeLower.includes('usg')) {
+    const variations = [
+      'Examine the ultrasound imaging study shown below. Which classic diagnostic hallmark is demonstrated?',
+      'Review the sonographic scan shown below. What is the pathognomonic diagnostic feature?',
+      'A pelvic ultrasound is performed as shown below. Identify the characteristic diagnostic finding:',
+    ];
+    return variations[index % variations.length];
+  }
+  if (typeLower.includes('x-ray') || typeLower.includes('radiology') || typeLower.includes('ct')) {
+    const variations = [
+      'Review the radiological study shown below. Which of the following is the characteristic hallmark finding?',
+      'Examine the diagnostic radiograph shown below. What is the definitive imaging finding?',
+      'A diagnostic X-ray is obtained as shown below. Identify the characteristic pathological sign:',
+    ];
+    return variations[index % variations.length];
+  }
+  if (typeLower.includes('histopathology') || typeLower.includes('pathology')) {
+    const variations = [
+      'Examine the high-power histopathological section shown below. What is the classic diagnostic finding?',
+      'Review the microscopic biopsy section demonstrated below. Which pathognomonic feature is visible?',
+      'A tissue biopsy is stained as shown below. What is the definitive pathological diagnosis?',
+    ];
+    return variations[index % variations.length];
+  }
+  if (typeLower.includes('fundoscopy') || typeLower.includes('ophthalmology')) {
+    const variations = [
+      'Examine the fundoscopic examination finding shown below. What is the definitive clinical diagnosis?',
+      'Review the retinal photograph demonstrated below. Which pathognomonic sign is present?',
+    ];
+    return variations[index % variations.length];
+  }
+  if (typeLower.includes('dermatology')) {
+    const variations = [
+      'Examine the dermatological lesion shown in the clinical photograph below. What is the pathognomonic diagnosis?',
+      'Review the skin lesion illustrated in the clinical image below. What is the primary diagnosis?',
+    ];
+    return variations[index % variations.length];
+  }
+  const qVariations = [
+    `Examine the anatomical or diagnostic illustration shown below (${imageType}). Based on the structural relations and clinical findings, what is demonstrated?`,
+    `Review the provided clinical study (${imageType}). Which of the following represents the correct anatomical localization or pathological lesion?`,
+    `Identify the classic diagnostic feature shown in the accompanying ${imageType} study:`,
+    `Examine the morphological characteristics shown in this ${imageType}. What is the primary diagnosis?`,
+  ];
+  return qVariations[index % qVariations.length];
+}
+
+function getSmartVisualDistractors(asset: VisualConceptAsset, subName: string): string[] {
+  const typeLower = (asset.imageType || '').toLowerCase();
+  const keyLower = (asset.conceptKey || '').toLowerCase();
+
+  if (typeLower.includes('instrument') || keyLower.includes('instrument')) {
+    const instruments = [
+      'Allis tissue grasping forceps (Traumatic grasping of tough fascial edges)',
+      'Kocher hemostatic clamp (Crushing hemostasis of tough vascular pedicles)',
+      'Sponge holding forceps (Rampley forceps for antiseptic skin painting)',
+      'Green-Armytage clamp (Hemostasis of uterine angles during cesarean)',
+      'Sims double-bladed posterior vaginal speculum',
+      'Hegar uterine cervical dilators',
+    ];
+    return instruments.filter((inst) => !inst.toLowerCase().includes(asset.visualTarget.slice(0, 7)));
+  }
+
+  if (typeLower.includes('ecg') || keyLower.includes('ecg')) {
+    return [
+      'Atrial fibrillation with rapid ventricular response and absent P waves',
+      'Ventricular tachycardia (monomorphic) with AV dissociation',
+      'First-degree AV block with fixed PR prolongation > 200 ms',
+      'Sinus bradycardia with non-conducted premature atrial complexes',
+    ];
+  }
+
+  if (typeLower.includes('ultrasound') || keyLower.includes('ultrasound')) {
+    return [
+      'Normal intrauterine gestational sac with visible yolk sac and cardiac activity',
+      'Ectopic tubal pregnancy with adnexal mass and ring-of-fire vascularity',
+      'Corpus luteum hemorrhagic cyst with thick echogenic walls',
+      'Ovarian dermoid cyst with acoustic shadowing and Rokitansky protuberance',
+    ];
+  }
+
+  if (typeLower.includes('x-ray') || typeLower.includes('radiology') || keyLower.includes('xray')) {
+    return [
+      'Right middle lobe consolidation with air bronchograms',
+      'Pleural effusion with blunting of costophrenic angle and meniscus sign',
+      'Pneumoperitoneum with subdiaphragmatic crescent of free gas',
+      'Barium swallow showing Bird-beak appearance of Achalasia cardia',
+    ];
+  }
+
+  if (typeLower.includes('histopathology') || typeLower.includes('pathology') || keyLower.includes('histo')) {
+    return [
+      'Caseating granulomatous inflammation with Langhans multinucleated giant cells',
+      'Papillary thyroid carcinoma with Orphan Annie eye nuclei and psammoma bodies',
+      'Acute myeloid leukemia (AML) with intracellular Auer rods',
+      'Burkitt lymphoma with starry-sky pattern and tingible-body macrophages',
+    ];
+  }
+
+  if (typeLower.includes('fundoscopy') || typeLower.includes('ophthalmology')) {
+    return [
+      'Branch retinal vein occlusion with sectoral flame hemorrhages',
+      'Non-proliferative diabetic retinopathy with microaneurysms and hard exudates',
+      'Rhegmatogenous retinal detachment with corrugated grey retina',
+      'Bilateral optic disc edema (Papilledema) with blurred margins',
+    ];
+  }
+
+  if (typeLower.includes('dermatology') || keyLower.includes('derm')) {
+    return [
+      'Bullous pemphigoid with tense subepidermal bullae (BP180 autoantibodies)',
+      'Psoriasis vulgaris with silvery micaceous scales and Auspitz sign',
+      'Lichen planus with pruritic polygonal purple planar papules (Wickham striae)',
+      'Pityriasis rosea with herald patch and Christmas tree distribution',
+    ];
+  }
+
+  return [
+    `Characteristic pathognomonic presentation in ${subName}`,
+    `Reactive inflammatory response in ${subName}`,
+    `Atypical non-malignant variant in ${subName}`,
+    `Post-infectious cellular proliferation in ${subName}`,
+  ];
+}
+
 export function generateMixed10Quiz(subjectId: string, subjectName: string, topicName: string): CustomMixedQuestion[] {
   const result: CustomMixedQuestion[] = [];
   const sLower = subjectId.toLowerCase();
 
-  const kbTopics = Object.values(FMGE_TOPIC_KNOWLEDGE_BASE).filter(
-    (k) => k.subjectId.toLowerCase() === sLower
-  );
+  // 1. Resolve authentic topic knowledge
+  const kb = getMedicalTopicKnowledge(subjectId, '', topicName);
 
-  for (const kb of kbTopics) {
-    if (kb.clinicalCase && result.length < 5) {
-      const cc = kb.clinicalCase;
-      result.push({
-        id: `quiz-text-${subjectId}-${result.length + 1}`,
-        type: 'text',
-        stem: `${cc.patientDemographics} presents with ${cc.presentation}. Physical examination and initial labs reveal: ${cc.physicalExamOrLabs}. ${cc.diagnosticQuestion}`,
-        options: cc.options.map((o) => ({ id: o.key, text: o.text })),
-        correctOptionId: cc.options.find((o) => o.isCorrect)?.key || 'A',
-        rationale: cc.clinicalExplanation,
-        pearl: cc.examPearl,
-      });
-    }
-  }
-
-  const pearls = getMatchingPearls(subjectId, topicName);
-  let pearlIdx = 0;
-  while (result.length < 5) {
-    const p = pearls[pearlIdx % Math.max(1, pearls.length)];
-    pearlIdx++;
-    const num = result.length + 1;
+  // 2. Build 5 distinct high-yield text questions
+  if (kb?.clinicalCase) {
+    const cc = kb.clinicalCase;
+    const stem = formatClinicalStem(cc.patientDemographics, cc.presentation, cc.physicalExamOrLabs, cc.diagnosticQuestion);
+    const { shuffled, newCorrectId } = shuffleQuestionOptions(
+      cc.options.map((o) => ({ id: o.key, text: o.text })),
+      cc.options.find((o) => o.isCorrect)?.key || 'A'
+    );
     result.push({
-      id: `quiz-text-synth-${subjectId}-${num}`,
+      id: `quiz-text-${subjectId}-case`,
       type: 'text',
-      stem: `A 35-year-old patient presents for clinical evaluation regarding ${topicName} in ${subjectName}. Based on standard NBEMS guidelines, what is the definitive gold standard investigation or drug of choice?`,
-      options: [
-        { id: 'A', text: p ? p.highYieldKey.slice(0, 80) : 'Initiate first-line guideline-directed medical therapy' },
-        { id: 'B', text: 'Obtain immediate non-contrast CT and observe for 24 hours' },
-        { id: 'C', text: 'Administer broad-spectrum intravenous corticosteroids' },
-        { id: 'D', text: 'Perform exploratory surgical intervention without imaging' },
-      ],
-      correctOptionId: 'A',
-      rationale: p ? `${p.title}: ${p.explanation}` : `First-line management according to standard NBEMS clinical protocols for ${topicName}.`,
-      pearl: p?.highYieldKey || `Remember: always verify first-line DOC in ${subjectName}.`,
+      stem,
+      options: shuffled,
+      correctOptionId: newCorrectId,
+      rationale: cc.clinicalExplanation,
+      pearl: cc.examPearl,
     });
   }
 
+  // Question 2: Investigation / Screening Gold Standard
+  if (result.length < 5) {
+    const goldStandard = kb?.goldStandardTest || `High-resolution diagnostic evaluation and targeted tissue testing for ${topicName}`;
+    const dists = [
+      `Empirical observation without confirmatory testing or tissue sampling`,
+      `Non-contrast plain radiography and routine electrolyte profile alone`,
+      `Delayed follow-up evaluation in 12 months without immediate investigation`,
+    ];
+    if (sLower === 'obg' || topicName.toLowerCase().includes('cervic') || topicName.toLowerCase().includes('pap')) {
+      dists[0] = 'Pelvic ultrasound alone without cervical cytology or HPV testing';
+      dists[1] = 'Serum CA-125 measurement and observation for 6 months';
+      dists[2] = 'Empirical broad-spectrum oral antibiotics without tissue sampling';
+    } else if (sLower === 'surgery' || topicName.toLowerCase().includes('burn') || topicName.toLowerCase().includes('trauma')) {
+      dists[0] = 'Immediate oral fluid challenge without intravenous access';
+      dists[1] = 'Broad-spectrum systemic corticosteroid therapy';
+      dists[2] = 'Exploratory laparotomy without hemodynamic stabilization';
+    } else if (sLower === 'medicine' || topicName.toLowerCase().includes('ecg') || topicName.toLowerCase().includes('heart')) {
+      dists[0] = 'Serum troponin level at 72 hours without baseline 12-lead ECG';
+      dists[1] = 'Exercise treadmill testing during active resting chest pain';
+      dists[2] = 'Transthoracic echocardiogram after 3 months of observation';
+    }
+
+    const { shuffled, newCorrectId } = shuffleQuestionOptions(
+      [
+        { id: 'A', text: goldStandard },
+        { id: 'B', text: dists[0] },
+        { id: 'C', text: dists[1] },
+        { id: 'D', text: dists[2] },
+      ],
+      'A'
+    );
+    result.push({
+      id: `quiz-text-${subjectId}-inv`,
+      type: 'text',
+      stem: `A patient presents for clinical evaluation and initial diagnostic workup of ${topicName} in ${subjectName}. Based on standard NBEMS guidelines, what is the definitive gold standard investigation or primary screening modality?`,
+      options: shuffled,
+      correctOptionId: newCorrectId,
+      rationale: `Gold standard investigation: ${goldStandard}. ${kb?.highYieldSummary || ''}`,
+      pearl: kb?.keyTakeaways?.[0] || goldStandard,
+    });
+  }
+
+  // Question 3: First-line Treatment / Management Protocol
+  if (result.length < 5) {
+    const doc = kb?.firstLineTreatment || `Initiate guideline-directed first-line pharmacological or procedural protocol for ${topicName}`;
+    const dists = [
+      `Systemic high-dose corticosteroid pulse therapy`,
+      `Immediate exploratory surgical intervention without staging or resuscitation`,
+      `Discontinue all active treatment and adopt expectant watchful waiting`,
+    ];
+    if (sLower === 'obg' || topicName.toLowerCase().includes('cervic') || topicName.toLowerCase().includes('figo')) {
+      dists[0] = 'Total abdominal hysterectomy with conservation of parametrium in all stages';
+      dists[1] = 'Oral progestin therapy and expectant observation for 1 year';
+      dists[2] = 'Neoadjuvant immunotherapy without radiation or platinum chemotherapy';
+    } else if (sLower === 'medicine' || topicName.toLowerCase().includes('arrhythmia') || topicName.toLowerCase().includes('dka')) {
+      dists[0] = 'Oral calcium channel blockers without cardiac monitoring';
+      dists[1] = 'Immediate intravenous sodium bicarbonate bolus without fluid hydration';
+      dists[2] = 'Intravenous loop diuretics as monotherapy';
+    }
+
+    const { shuffled, newCorrectId } = shuffleQuestionOptions(
+      [
+        { id: 'A', text: doc },
+        { id: 'B', text: dists[0] },
+        { id: 'C', text: dists[1] },
+        { id: 'D', text: dists[2] },
+      ],
+      'A'
+    );
+    result.push({
+      id: `quiz-text-${subjectId}-doc`,
+      type: 'text',
+      stem: `In the clinical management of ${topicName}, what is the definitive first-line treatment of choice or therapeutic protocol recommended by NBEMS?`,
+      options: shuffled,
+      correctOptionId: newCorrectId,
+      rationale: `Definitive first-line management: ${doc}. ${kb?.examTrap || ''}`,
+      pearl: kb?.examTrap || doc,
+    });
+  }
+
+  // Question 4: Core Concept / Diagnostic Criteria
+  if (result.length < 5) {
+    const card = kb?.flashcards?.[0];
+    const correctConcept = card?.back?.split('\n')[0] || kb?.coreConcepts?.[0] || `Essential diagnostic criteria and staging rules for ${topicName}`;
+    const dists = [
+      `Pathology is limited to superficial epithelium without risk of deeper anatomical progression`,
+      `Clinical staging relies exclusively on post-operative histopathological specimens`,
+      `Routine screening is contraindicated in asymptomatic individuals due to low specificity`,
+    ];
+    if (sLower === 'obg' || topicName.toLowerCase().includes('cervic')) {
+      dists[0] = 'HPV 6 and 11 are the primary high-risk drivers of invasive cervical carcinoma';
+      dists[1] = 'Screening is recommended annually starting at age 18 regardless of sexual history';
+      dists[2] = 'Parametrial invasion represents FIGO Stage I and is managed with simple conization';
+    }
+
+    const { shuffled, newCorrectId } = shuffleQuestionOptions(
+      [
+        { id: 'A', text: correctConcept },
+        { id: 'B', text: dists[0] },
+        { id: 'C', text: dists[1] },
+        { id: 'D', text: dists[2] },
+      ],
+      'A'
+    );
+    result.push({
+      id: `quiz-text-${subjectId}-concept`,
+      type: 'text',
+      stem: card?.front || `Regarding the core clinical concepts and diagnostic staging for ${topicName}, which of the following statements is correct?`,
+      options: shuffled,
+      correctOptionId: newCorrectId,
+      rationale: card?.back || kb?.coreConcepts?.[0] || correctConcept,
+      pearl: card?.clinicalPearl || kb?.keyTakeaways?.[0],
+    });
+  }
+
+  // Question 5: High-Yield Exam Trap / Clinical Pitfall
+  if (result.length < 5) {
+    const card2 = kb?.flashcards?.[1] || kb?.flashcards?.[0];
+    const correctTrap = kb?.examTrap || card2?.clinicalPearl || kb?.keyTakeaways?.[1] || `Careful staging is mandatory to prevent inappropriate surgical or therapeutic intervention in ${topicName}`;
+    const dists = [
+      `Always proceed directly to radical surgical extirpation regardless of parametrial involvement`,
+      `Biopsy confirmation is unnecessary if physical examination is suggestive`,
+      `Diagnostic sensitivity is identical between rapid inspection and molecular assays`,
+    ];
+    if (sLower === 'obg' || topicName.toLowerCase().includes('cervic')) {
+      dists[0] = 'Primary radical hysterectomy is the preferred treatment for FIGO Stage IIB and above';
+      dists[1] = 'Colposcopy-directed punch biopsy should be avoided in premenopausal patients';
+      dists[2] = 'Visual inspection with acetic acid is 100% sensitive for endocervical canal lesions';
+    }
+
+    const { shuffled, newCorrectId } = shuffleQuestionOptions(
+      [
+        { id: 'A', text: correctTrap },
+        { id: 'B', text: dists[0] },
+        { id: 'C', text: dists[1] },
+        { id: 'D', text: dists[2] },
+      ],
+      'A'
+    );
+    result.push({
+      id: `quiz-text-${subjectId}-trap`,
+      type: 'text',
+      stem: `When managing a patient with ${topicName}, which of the following represents a high-yield clinical guideline rule or critical exam pitfall to avoid?`,
+      options: shuffled,
+      correctOptionId: newCorrectId,
+      rationale: `Clinical guideline takeaway: ${correctTrap}`,
+      pearl: correctTrap,
+    });
+  }
+
+  // 3. Build 5 distinct Image-Based Questions (Questions 6 to 10)
+  // Check verified IBQ bank first
   const ibqs = VERIFIED_IBQ_BANK.filter(
     (q) => q.subject.toLowerCase() === sLower || q.subject.toLowerCase().includes(sLower)
   );
 
   for (const ibq of ibqs) {
     if (result.length < 10) {
+      const { shuffled, newCorrectId } = shuffleQuestionOptions(ibq.options, ibq.correctOptionId);
       result.push({
         id: `quiz-img-${ibq.id}`,
         type: 'image',
         stem: ibq.vignette,
         imageUrl: ibq.imageSrc,
-        options: ibq.options,
-        correctOptionId: ibq.correctOptionId,
+        options: shuffled,
+        correctOptionId: newCorrectId,
         rationale: ibq.explanation.detailedRationale || 'Diagnostic clinical rationale for the image finding.',
         imageFinding: ibq.explanation.imageFinding,
         whatToLookFor: (ibq.explanation.highYieldBuzzwords || []).join(', '),
@@ -344,27 +708,46 @@ export function generateMixed10Quiz(subjectId: string, subjectName: string, topi
     }
   }
 
+  // Next, pull distinct visual assets from VISUAL_CONCEPT_REGISTRY
   const visualAssets = Object.values(VISUAL_CONCEPT_REGISTRY).filter(
-    (a) => (a.subjects || []).includes(sLower) || a.conceptKey.startsWith(sLower.slice(0, 4))
+    (a) => (a.subjects || []).map((s) => s.toLowerCase()).includes(sLower) || a.conceptKey.toLowerCase().startsWith(sLower.slice(0, 4))
   );
 
   let vIdx = 0;
+  const usedConceptKeys = new Set<string>();
   while (result.length < 10) {
-    const asset = visualAssets[vIdx % Math.max(1, visualAssets.length)] || Object.values(VISUAL_CONCEPT_REGISTRY)[vIdx % Object.values(VISUAL_CONCEPT_REGISTRY).length];
+    let asset = visualAssets[vIdx % Math.max(1, visualAssets.length)];
+    if (!asset || usedConceptKeys.has(asset.conceptKey)) {
+      // Find an unused asset from registry
+      const allAssets = Object.values(VISUAL_CONCEPT_REGISTRY);
+      const unused = allAssets.find((a) => !usedConceptKeys.has(a.conceptKey));
+      asset = unused || allAssets[vIdx % allAssets.length];
+    }
+    usedConceptKeys.add(asset.conceptKey);
     vIdx++;
+
     const qNum = result.length + 1;
+    const stem = getSmartImageStem(asset.imageType, qNum);
+    const targetText = formatVisualOptionText(asset.visualTarget, asset.conceptKey);
+    const dists = getSmartVisualDistractors(asset, subjectName);
+
+    const { shuffled, newCorrectId } = shuffleQuestionOptions(
+      [
+        { id: 'A', text: targetText },
+        { id: 'B', text: dists[0] || 'Benign reactive change' },
+        { id: 'C', text: dists[1] || 'Post-inflammatory cellular alteration' },
+        { id: 'D', text: dists[2] || 'Atypical non-diagnostic variant' },
+      ],
+      'A'
+    );
+
     result.push({
       id: `quiz-img-synth-${asset.conceptKey}-${qNum}`,
       type: 'image',
-      stem: `Examine the diagnostic image shown below (${asset.imageType}). Based on the classic morphological and clinical findings, what is the definitive diagnosis?`,
+      stem,
       imageUrl: asset.imageUrl,
-      options: [
-        { id: 'A', text: asset.visualTarget },
-        { id: 'B', text: `Atypical variant in ${subjectName}` },
-        { id: 'C', text: `Reactive inflammatory changes` },
-        { id: 'D', text: `Benign architectural distortion` },
-      ],
-      correctOptionId: 'A',
+      options: shuffled,
+      correctOptionId: newCorrectId,
       rationale: `${asset.keyVisualFinding}\n\nWhat to look for: ${asset.whatToLookFor}`,
       imageFinding: asset.keyVisualFinding,
       whatToLookFor: asset.whatToLookFor,
@@ -1895,31 +2278,43 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
     }> = [];
 
     verified.forEach((q) => {
+      const { shuffled, newCorrectId } = shuffleQuestionOptions(q.options, q.correctOptionId);
       questions.push({
         id: q.id,
         vignette: q.vignette,
         imageSrc: q.imageSrc,
-        options: q.options,
-        correctOptionId: q.correctOptionId,
+        options: shuffled,
+        correctOptionId: newCorrectId,
         imageFinding: q.explanation.imageFinding,
         whatToLookFor: (q.explanation.highYieldBuzzwords || []).join(', '),
         rationale: q.explanation.detailedRationale,
       });
     });
 
+    const usedKeys = new Set(verified.map((q) => q.id));
     visualAssets.forEach((asset, idx) => {
-      if (questions.length < 8) {
+      if (questions.length < 8 && !usedKeys.has(asset.conceptKey)) {
+        usedKeys.add(asset.conceptKey);
+        const stem = getSmartImageStem(asset.imageType);
+        const targetText = formatVisualOptionText(asset.visualTarget, asset.conceptKey);
+        const dists = getSmartVisualDistractors(asset, subName);
+
+        const { shuffled, newCorrectId } = shuffleQuestionOptions(
+          [
+            { id: 'A', text: targetText },
+            { id: 'B', text: dists[0] },
+            { id: 'C', text: dists[1] },
+            { id: 'D', text: dists[2] },
+          ],
+          'A'
+        );
+
         questions.push({
           id: `ibq-asset-${asset.conceptKey}-${idx}`,
-          vignette: `Examine the diagnostic image shown (${asset.imageType}). Which of the following is the characteristic pathognomonic finding?`,
+          vignette: stem,
           imageSrc: asset.imageUrl,
-          options: [
-            { id: 'A', text: asset.visualTarget },
-            { id: 'B', text: `Benign architectural variant in ${subName}` },
-            { id: 'C', text: `Reactive post-inflammatory distortion` },
-            { id: 'D', text: `Non-specific artifactual radiographic shadow` },
-          ],
-          correctOptionId: 'A',
+          options: shuffled,
+          correctOptionId: newCorrectId,
           imageFinding: asset.keyVisualFinding,
           whatToLookFor: asset.whatToLookFor,
           rationale: `${asset.keyVisualFinding}. High-yield cue: ${asset.whatToLookFor}`,
@@ -1929,17 +2324,26 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
 
     if (questions.length === 0) {
       Object.values(VISUAL_CONCEPT_REGISTRY).slice(0, 6).forEach((asset, idx) => {
+        const stem = getSmartImageStem(asset.imageType);
+        const targetText = formatVisualOptionText(asset.visualTarget, asset.conceptKey);
+        const dists = getSmartVisualDistractors(asset, subName);
+
+        const { shuffled, newCorrectId } = shuffleQuestionOptions(
+          [
+            { id: 'A', text: targetText },
+            { id: 'B', text: dists[0] },
+            { id: 'C', text: dists[1] },
+            { id: 'D', text: dists[2] },
+          ],
+          'A'
+        );
+
         questions.push({
           id: `ibq-fallback-${idx}`,
-          vignette: `Clinical Spotter: Identify the diagnostic finding in this ${asset.imageType}:`,
+          vignette: stem,
           imageSrc: asset.imageUrl,
-          options: [
-            { id: 'A', text: asset.visualTarget },
-            { id: 'B', text: 'Benign reactive change' },
-            { id: 'C', text: 'Post-traumatic fibrosis' },
-            { id: 'D', text: 'Normal anatomical variant' },
-          ],
-          correctOptionId: 'A',
+          options: shuffled,
+          correctOptionId: newCorrectId,
           imageFinding: asset.keyVisualFinding,
           whatToLookFor: asset.whatToLookFor,
           rationale: asset.keyVisualFinding,
