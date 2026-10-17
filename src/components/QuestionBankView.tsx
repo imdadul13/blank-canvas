@@ -1028,6 +1028,7 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
   const [loading,setLoading]=useState(false);
   const [tutorLoading,setTutorLoading]=useState(false);
   const [tutorError,setTutorError]=useState('');
+  const tutorCacheRef = React.useRef<Record<string, TutorReview>>({});
   const [imageOpen,setImageOpen]=useState<number | null>(null);
   const [answered,setAnswered]=useState<Record<string,{selected:string;correct:boolean;seconds:number;confidence:'guess'|'low'|'high'}>>({});
   const [finished,setFinished]=useState(false);
@@ -1043,9 +1044,14 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
 
   const requestTutorReview=async(answerReceipt?:string)=>{
     if (tutorLoading || tutor) return;
+    if (tutorCacheRef.current[q.id]) {
+      setTutor(tutorCacheRef.current[q.id]);
+      return;
+    }
     setTutorLoading(true); setTutorError('');
     try {
       const data = await responseJson(await apiFetch('/api/question-bank/tutor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({questionId:q.id,sessionId,answerReceipt})}));
+      tutorCacheRef.current[q.id] = data;
       setTutor(data);
     } catch (err: any) { setTutorError(err.message || 'Gemini could not prepare the review.'); }
     finally { setTutorLoading(false); }
@@ -1061,9 +1067,18 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
       setReview(answer);
       setAnswered((prev)=>({...prev,[q.id]:{selected:choice,correct:data.correct,seconds,confidence}}));
       onRecordAttempt({questionId:q.id,subjectId:q.subjectId,topicId:selectedTopic?.id||q.subjectId,topicName:selectedTopic?.name||q.subjectName,subtopicId:selectedTopic?.id,subtopic:selectedTopic?.name,isCorrect:data.correct,selectedAnswer:choice,correctAnswer:data.correctAnswer,timeTakenSeconds:seconds,difficulty:'high-yield',confidence,source:'qbank',sessionId,isImageBased:q.isImageBased,imageUrl:q.imageUrl||undefined,exam:q.exam});
-      if(!data.correct) await requestTutorReview(answer.answerReceipt);
-    } catch(err:any) { setTutorError(err.message||'Could not submit this answer.'); }
-    finally { setLoading(false); }
+      
+      // Instant answer response: release submit loading immediately so feedback renders without delay!
+      setLoading(false);
+
+      // Asynchronously trigger personalized tutor review in background
+      if(!data.correct) {
+        void requestTutorReview(answer.answerReceipt);
+      }
+    } catch(err:any) {
+      setTutorError(err.message||'Could not submit this answer.');
+      setLoading(false);
+    }
   };
 
   const next=()=>{if(index+1>=questions.length){setFinished(true);return;}setIndex((v)=>v+1);setChoice('');setConfidence('low');setReview(null);setTutor(null);setTutorError('');setSelectedSubtopic('');startedAt.current=Date.now();};
@@ -1121,7 +1136,7 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
             <div className={`qbx-verdict relative flex items-start gap-3 overflow-hidden rounded-2xl p-4 ${review.correct?'is-correct':'is-wrong'}`}><motion.div initial={{scale:0,rotate:-30}} animate={{scale:1,rotate:0}} transition={{type:'spring',stiffness:500,damping:18}} className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white shadow-lg ${review.correct?'bg-gradient-to-br from-[#30D158] to-[#00A88F] shadow-emerald-500/30':'bg-gradient-to-br from-[#FF453A] to-[#FF2D92] shadow-rose-500/30'}`}>{review.correct?<Check className="h-4 w-4"/>:<CircleHelp className="h-4 w-4"/>}</motion.div><div><p className={`text-sm font-semibold ${review.correct?'text-emerald-950 dark:text-emerald-200':'text-rose-950 dark:text-rose-200'}`}>{review.correct?'That’s correct.':`Not quite — the correct answer is ${review.correctAnswer}.`}</p>{answerText&&<p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-400">{answerText}</p>}</div></div>
             <SourceExplanation review={review} correctAnswer={answerText} />
             {tutor||tutorLoading||tutorError?<GeminiReviewPanel correct={review.correct} tutor={tutor} loading={tutorLoading} error={tutorError} onRequest={()=>requestTutorReview(review.answerReceipt)}/>:<motion.button type="button" whileHover={{y:-1}} whileTap={{scale:0.97}} transition={SPRING} onClick={()=>requestTutorReview(review.answerReceipt)} className="qbx-gemini-ask inline-flex min-h-10 items-center gap-2 rounded-xl px-3.5 text-xs font-semibold"><Bot className="h-3.5 w-3.5"/>Ask Gemini to compare all options</motion.button>}
-            <motion.button type="button" onClick={next} disabled={loading||tutorLoading} whileHover={loading||tutorLoading?undefined:{y:-1}} whileTap={loading||tutorLoading?undefined:{scale:0.97}} transition={SPRING} className="qbx-btn qbx-btn-blue h-12 w-full rounded-2xl text-sm sm:w-auto sm:px-8">{index+1===questions.length?'Finish set':'Next question'}<ChevronRight className="h-4 w-4"/></motion.button>
+            <motion.button type="button" onClick={next} disabled={loading} whileHover={loading?undefined:{y:-1}} whileTap={loading?undefined:{scale:0.97}} transition={SPRING} className="qbx-btn qbx-btn-blue h-12 w-full rounded-2xl text-sm sm:w-auto sm:px-8">{index+1===questions.length?'Finish set':'Next question'}<ChevronRight className="h-4 w-4"/></motion.button>
           </motion.div>}
         </motion.article>
         </AnimatePresence>

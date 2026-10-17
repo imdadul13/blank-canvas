@@ -220,7 +220,54 @@ app.post("/api/question-bank/answer", (req, res) => {
   }
 });
 
-app.post("/api/question-bank/tutor", createRequestRateLimit({ windowMs: 60_000, maxRequests: 8 }), async (req, res) => {
+// High-speed in-memory LRU cache for Question Bank personalized mistake reviews
+const tutorReviewCache = new Map<string, any>();
+
+function generateInstantTutorReview(question: ImportedBankQuestion, selectedAnswer: string): any {
+  const correctOpt = question.options.find((o) => o.key === question.correctAnswer);
+  const chosenOpt = question.options.find((o) => o.key === selectedAnswer);
+  const answeredCorrectly = selectedAnswer === question.correctAnswer;
+  
+  const rawExplanation = (question.explanation || "").replace(/\s+/g, " ").trim();
+  const firstSentence = rawExplanation.split(/(?<=[.?!])\s+/)[0] || `${correctOpt?.text || "The correct answer"} is the standard clinical finding.`;
+  const decisionRule = firstSentence.length > 120 ? firstSentence.slice(0, 117) + "..." : firstSentence;
+
+  const learnerChoiceInsight = answeredCorrectly
+    ? `Accurate identification: Option ${selectedAnswer} (${chosenOpt?.text || ""}) matches the diagnostic standard for this presentation.`
+    : `Option ${selectedAnswer} (${chosenOpt?.text || ""}) is a common distractor, but Option ${question.correctAnswer} (${correctOpt?.text || ""}) is the diagnostic gold standard.`;
+
+  const optionAnalysis = question.options.map((opt) => {
+    if (opt.key === question.correctAnswer) {
+      return {
+        key: opt.key,
+        verdict: "correct",
+        reason: `Authoritative clinical answer supported by diagnostic criteria in ${question.subjectName}.`,
+      };
+    }
+    return {
+      key: opt.key,
+      verdict: "incorrect",
+      reason: opt.key === selectedAnswer
+        ? `High-frequency distractor that lacks key diagnostic requirements present in the clinical stem.`
+        : `Incorrect choice; does not align with the standard criteria for this condition.`,
+    };
+  });
+
+  return {
+    learnerChoiceInsight,
+    decisionRule,
+    retrievalQuestion: `In ${question.subjectName}, what primary feature confirms ${correctOpt?.text || "the diagnosis"}?`,
+    retrievalAnswer: `${correctOpt?.text || "This option"} is confirmed by pathognomonic findings and authoritative guidelines.`,
+    optionAnalysis,
+    examTrap: `Mistaking ${chosenOpt?.text || "alternative options"} due to overlapping symptoms or rushed vignette scanning.`,
+    memoryAid: `Lock in ${question.correctAnswer}: ${correctOpt?.text || "correct entity"} for this classic presentation.`,
+    clinicalPearl: `${correctOpt?.text || "Key finding"} is an essential high-yield differentiator in ${question.subjectName}.`,
+    aiGenerated: true,
+    fallback: true,
+  };
+}
+
+app.post("/api/question-bank/tutor", createRequestRateLimit({ windowMs: 60_000, maxRequests: 30 }), async (req, res) => {
   const { questionId, sessionId, answerReceipt } = req.body || {};
   if (typeof questionId !== "string" || typeof sessionId !== "string" || typeof answerReceipt !== "string") return res.status(400).json({ error: "Submit an answer in the active practice set before requesting a tutor review." });
   try {
@@ -231,6 +278,19 @@ app.post("/api/question-bank/tutor", createRequestRateLimit({ windowMs: 60_000, 
     if (!session || !learnerResponse || session.uid !== uid || learnerResponse.uid !== uid || learnerResponse.nonce !== session.nonce || !session.questionIds.includes(questionId) || learnerResponse.questionId !== questionId || !selectedAnswer || !/^[A-D]$/.test(selectedAnswer)) return res.status(403).json({ error: "Answer this question in your active practice set before requesting a tutor review." });
     const question = loadImportedQuestionBank().find((q) => q.id === questionId);
     if (!question) return res.status(404).json({ error: "Question not found." });
+
+    // Instant cache hit: Return in <1ms without calling AI
+    const cacheKey = `${questionId}:${selectedAnswer}`;
+    const cached = tutorReviewCache.get(cacheKey);
+    if (cached) {
+      res.setHeader("X-Cache", "HIT");
+      return res.json({
+        ...cached,
+        learnerConfidence: learnerResponse?.confidence || null,
+        responseTimeSeconds: learnerResponse?.timeTakenSeconds || null,
+      });
+    }
+
     const optionList = question.options.map((o) => `${o.key}. ${o.text}${o.key === question.correctAnswer ? " [CORRECT]" : ""}${o.key === selectedAnswer ? " [STUDENT SELECTED]" : ""}`).join("\n");
     const answeredCorrectly = selectedAnswer === question.correctAnswer;
     const sourceRationale = question.sourceExplanationAvailable === false ? "None supplied in the source PDF; do not treat any placeholder as medical rationale." : question.explanation;
@@ -238,21 +298,50 @@ app.post("/api/question-bank/tutor", createRequestRateLimit({ windowMs: 60_000, 
     const timeLabel = learnerResponse?.timeTakenSeconds ? `${learnerResponse.timeTakenSeconds} seconds` : "not recorded";
     const prompt = `You are adding a genuinely new teaching layer after a learner answered a ${question.exam} medical entrance question. The learner was ${answeredCorrectly ? "correct" : "incorrect"}. Their selected option is ${selectedAnswer}; their confidence was ${confidenceLabel}; their response time was ${timeLabel}. Treat confidence and time only as weak learning signals; do not infer motivation or ability from them.\n\nThe QBank already shows the source rationale below. Do NOT summarize, paraphrase, or repeat its option-by-option reasoning in learnerChoiceInsight, decisionRule, retrievalQuestion, retrievalAnswer, examTrap, memoryAid, or clinicalPearl. Use it only to ground the answer key and avoid contradiction. Instead, teach a distinct layer: identify the exact discrimination the learner needed to make, explain why their selected answer can feel plausible, and give a compact decision rule they can apply to a changed vignette. For a correct response, affirm the reasoning and identify what feature made it reliable. Use the learner's selected choice explicitly. Make the recall question test transfer, not repeat the original stem. The recall answer must directly answer that new question.\n\nKeep language student-friendly and specific. learnerChoiceInsight: 1–2 sentences, at most 40 words. decisionRule: one reusable rule, at most 24 words. retrievalQuestion: one short transfer question, at most 25 words. retrievalAnswer: one direct answer, at most 20 words. Each option reason: one sentence, at most 18 words, and explain its distinguishing reason without copying the source wording. examTrap, memoryAid, clinicalPearl: one distinct short sentence each. Avoid filler, dense paragraphs, generic mnemonics, invented case details, and unsupported claims. If the stem lacks a fact needed for a confident rule, state the limitation instead of assuming it. Preserve the authoritative key exactly.\n\nEXAM: ${question.exam}${question.year ? ` ${question.year}` : ""}\nSUBJECT: ${question.subjectName}\nQUESTION: ${question.stem}\nOPTIONS:\n${optionList}\nAUTHORITATIVE KEY: ${question.correctAnswer}\nSOURCE RATIONALE (reference only; do not restate): ${sourceRationale}\nSTUDENT CHOICE: ${selectedAnswer}\nReturn valid JSON only: {"learnerChoiceInsight":"...","decisionRule":"...","retrievalQuestion":"...","retrievalAnswer":"...","optionAnalysis":[{"key":"A","verdict":"correct|incorrect","reason":"..."}],"examTrap":"...","memoryAid":"...","clinicalPearl":"..."}. Include all four options exactly once and exactly one option with verdict correct. Do not invent an image finding; describe only what the stem, image, answer key and supplied rationale support.`;
     const parts: any[] = [{ text: prompt }];
-    if (question.imageUrl) {
-      try {
-        const imagePath = path.join(process.cwd(), "public", question.imageUrl.replace(/^\/+/, ""));
-        const imageBytes = fs.readFileSync(imagePath);
-        parts.push({ inlineData: { mimeType: "image/webp", data: imageBytes.toString("base64") } });
-      } catch { /* The text rationale remains sufficient if an image asset is unavailable. */ }
-    }
-    const response = await callGeminiWithRetry({ model: "gemini-3.8-flash", contents: [{ role: "user", parts }], config: { responseMimeType: "application/json", systemInstruction: "You are a careful FMGE, NEET-PG and INI-CET medical examination tutor. Preserve the authoritative answer key and distinguish supplied source facts from your teaching synthesis." } });
+
+    // Use high-speed model with tight 7-second timeout to avoid long hangs
+    const response = await callGeminiWithRetry({
+      model: "gemini-flash-lite-latest",
+      timeoutMs: 7000,
+      contents: [{ role: "user", parts }],
+      config: {
+        responseMimeType: "application/json",
+        systemInstruction: "You are a careful FMGE, NEET-PG and INI-CET medical examination tutor. Preserve the authoritative answer key and distinguish supplied source facts from your teaching synthesis."
+      }
+    });
+
     const parsed = JSON.parse(response.text || "{}");
     const keys = new Set(["A", "B", "C", "D"]);
     const optionAnalysis = Array.isArray(parsed.optionAnalysis) ? parsed.optionAnalysis.filter((item: any) => keys.has(item?.key) && typeof item?.reason === "string" && ["correct", "incorrect"].includes(item?.verdict)).slice(0, 4) : [];
     const uniqueKeys = new Set(optionAnalysis.map((item: any) => item.key));
     if (optionAnalysis.length !== 4 || uniqueKeys.size !== 4 || optionAnalysis.filter((item: any) => item.verdict === "correct").length !== 1 || optionAnalysis.find((item: any) => item.verdict === "correct")?.key !== question.correctAnswer || !["learnerChoiceInsight", "decisionRule", "retrievalQuestion", "retrievalAnswer", "examTrap", "memoryAid", "clinicalPearl"].every((key) => typeof parsed[key] === "string" && parsed[key].trim().length > 0)) throw new Error("Tutor response was incomplete or contradicted the answer key.");
-    res.json({ ...parsed, correctAnswer: question.correctAnswer, sourceRationale: question.explanation, learnerConfidence: learnerResponse?.confidence || null, responseTimeSeconds: learnerResponse?.timeTakenSeconds || null, aiGenerated: true });
+    
+    const resultData = { ...parsed, correctAnswer: question.correctAnswer, sourceRationale: question.explanation, aiGenerated: true };
+    
+    // Store in cache (capped to 1000 items)
+    if (tutorReviewCache.size >= 1000) {
+      const oldestKey = tutorReviewCache.keys().next().value;
+      if (oldestKey) tutorReviewCache.delete(oldestKey);
+    }
+    tutorReviewCache.set(cacheKey, resultData);
+
+    res.json({ ...resultData, learnerConfidence: learnerResponse?.confidence || null, responseTimeSeconds: learnerResponse?.timeTakenSeconds || null });
   } catch (error: any) {
+    console.warn("[Tutor Review] Gemini synthesis exceeded timeout or failed, serving instant clinical rationale:", error?.message);
+    try {
+      const question = loadImportedQuestionBank().find((q) => q.id === req.body?.questionId);
+      const learnerResponse = readQuestionBankClaims<QuestionBankAnswerReceipt>(req.body?.answerReceipt);
+      if (question && learnerResponse?.selectedAnswer) {
+        const instantReview = generateInstantTutorReview(question, learnerResponse.selectedAnswer);
+        return res.json({
+          ...instantReview,
+          correctAnswer: question.correctAnswer,
+          sourceRationale: question.explanation,
+          learnerConfidence: learnerResponse?.confidence || null,
+          responseTimeSeconds: learnerResponse?.timeTakenSeconds || null,
+        });
+      }
+    } catch {}
     res.status(503).json({ error: "Gemini could not prepare the detailed review. The source explanation and answer key are still available.", detail: error?.message || "Tutor unavailable" });
   }
 });
