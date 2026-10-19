@@ -5,7 +5,6 @@ import {
   Trash2,
   Calendar,
   AlertTriangle,
-  Award,
   CheckCircle2,
   TrendingUp,
   BarChart3,
@@ -14,15 +13,10 @@ import {
   ChevronRight,
   Filter,
   Info,
-  Layers,
-  ArrowUpRight,
   ShieldAlert,
   ShieldCheck,
   BookOpen,
-  GraduationCap,
-  FileText,
   Clock,
-  HelpCircle,
   X,
   Target,
   ChevronDown,
@@ -293,7 +287,8 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(99,102,241,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
+        className="system-page-header premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(99,102,241,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
+        data-header-art="rings"
         style={{
           background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 32%, #C7D2FE 64%, #DDD6FE 84%, #F5D0FE 100%)',
         }}
@@ -346,37 +341,6 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 Log full-length mock results and compare your trajectory with the configured 150-mark benchmark.
               </p>
 
-              {/* Apple Segmented Pill Switch */}
-              <div className="inline-flex items-center gap-1 p-1 bg-white/65 backdrop-blur-md rounded-full border border-white/80 shadow-sm">
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter('all')}
-                  aria-pressed={statusFilter === 'all'}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                    statusFilter === 'all'
-                      ? 'bg-white text-[#4338CA] shadow-xs'
-                      : 'text-[#3A3A3C]/70 hover:text-[#1D1D1F]'
-                  }`}
-                >
-                  Overview
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowMockModal(true)}
-                  className="px-3 py-1 rounded-full text-xs font-bold text-[#3A3A3C]/70 hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
-                >
-                  <Clock className="w-3 h-3 text-[#4338CA]" />
-                  <span>Timed Practice</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowDiagnosticModal(true)}
-                  className="px-3 py-1 rounded-full text-xs font-bold text-[#3A3A3C]/70 hover:text-[#1D1D1F] transition-all cursor-pointer flex items-center gap-1.5"
-                >
-                  <BarChart3 className="w-3 h-3 text-[#4338CA]" />
-                  <span>Diagnostics</span>
-                </button>
-              </div>
             </div>
 
             {/* Right Compact Circular Gauge Widget Card */}

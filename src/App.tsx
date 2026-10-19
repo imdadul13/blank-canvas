@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { ArrowLeft, PanelLeftOpen } from 'lucide-react';
+import { PanelLeftOpen } from 'lucide-react';
 import { Navbar, SidebarDock, ActiveTab } from './components/Navbar';
 import { motion, AnimatePresence, MotionConfig, useReducedMotion } from 'motion/react';
 const DashboardView = lazy(() => import('./components/DashboardView').then((module) => ({ default: module.DashboardView })));
@@ -20,7 +20,6 @@ const AppSettingsModal = lazy(() => import('./components/AppSettingsModal').then
 import { AuthScreen } from './components/AuthScreen';
 import { OnboardingFlow } from './components/OnboardingFlow';
 const DataMigrationModal = lazy(() => import('./components/DataMigrationModal').then((module) => ({ default: module.DataMigrationModal })));
-const NotificationCenterModal = lazy(() => import('./components/NotificationCenterModal').then((module) => ({ default: module.NotificationCenterModal })));
 const CloudSyncModal = lazy(() => import('./components/CloudSyncModal').then((module) => ({ default: module.CloudSyncModal })));
 const CommandPaletteModal = lazy(() => import('./components/CommandPaletteModal').then((module) => ({ default: module.CommandPaletteModal })));
 const IbqRapidRecallModal = lazy(() => import('./components/IbqRapidRecallModal').then((module) => ({ default: module.IbqRapidRecallModal })));
@@ -35,7 +34,6 @@ import { AuthProvider, useAuth, DEV_AUTH_BYPASS } from './context/AuthContext';
 import {
   AppState,
   AppSettings,
-  FMGESubject,
   ConfidenceLevel,
   GrandTest,
   ErrorNotebookItem,
@@ -47,15 +45,13 @@ import {
   TelegramChannelConfig,
   TelegramAnnouncement,
   PracticeSessionContext,
-  PracticeSessionQuestion,
-  SyncStatus
+  PracticeSessionQuestion
 } from './types';
 import { FMGE_SUBJECTS } from './data/fmgeSubjects';
 import { calculateAppStats, deduplicateQuestions, deduplicateAnnouncements, saveAppState } from './utils/storage';
 import { getLocalDateKey } from './utils/date';
 import { useScrollDirection } from './hooks/useScrollDirection';
 import { resolveTimeOfDay } from './hooks/useCircadianTheme';
-import { getActiveNotificationCount } from './utils/notificationEngine';
 import { recordSpacedAttempt } from './utils/spacedRepetitionEngine';
 import { SPRING_SMOOTH } from './utils/motionTokens';
 const AudioRecallPlayerModal = lazy(() => import('./components/AudioRecallPlayerModal').then((module) => ({ default: module.AudioRecallPlayerModal })));
@@ -222,7 +218,6 @@ function AppInner() {
   const [practiceSessionContext, setPracticeSessionContext] = useState<PracticeSessionContext | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isCloudSyncOpen, setIsCloudSyncOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isGlobalIbqModalOpen, setIsGlobalIbqModalOpen] = useState(false);
@@ -373,8 +368,6 @@ function AppInner() {
 
   // Compute live application statistics
   const stats = useMemo(() => calculateAppStats(state), [state]);
-  const unreadNotificationCount = useMemo(() => getActiveNotificationCount(state), [state]);
-
   // Selected subject object for detail modal
   const selectedSubject = useMemo(
     () => (selectedSubjectId ? FMGE_SUBJECTS.find((s) => s.id === selectedSubjectId) || null : null),
@@ -880,10 +873,10 @@ function AppInner() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F2F2F7] text-slate-900 flex flex-col lg:flex-row selection:bg-slate-900 selection:text-white relative">
+    <div className="app-shell min-h-screen bg-[#F2F2F7] text-slate-900 flex flex-col xl:flex-row selection:bg-slate-900 selection:text-white relative">
       {/* Desktop Left Navigation Spacer (Smoothly pushes workspace when sidebar is ON or hovered) */}
       <div
-        className={`hidden lg:block shrink-0 pointer-events-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`hidden xl:block shrink-0 pointer-events-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isSidebarOpen || isSidebarHovered ? 'w-60 xl:w-64' : 'w-0'
         }`}
         aria-hidden="true"
@@ -893,16 +886,11 @@ function AppInner() {
       <SidebarDock
         activeTab={activeTab}
         setActiveTab={handleSetActiveTab}
-        stats={stats}
-        onOpenAiCoach={() => handleOpenAiCoach('strategy')}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenProfile={() => setIsProfileOpen(true)}
-        onOpenNotifications={() => setIsNotificationCenterOpen(true)}
-        unreadNotificationCount={unreadNotificationCount}
         onOpenCloudSync={() => setIsCloudSyncOpen(true)}
         onOpenOnboarding={handleOpenOnboarding}
         userName={profile?.displayName || state.settings.userName}
-        userEmail={user?.email || profile?.email || ''}
         photoURL={profile?.photoURL || user?.photoURL || undefined}
         syncStatus={syncStatus}
         isGuest={isGuest}
@@ -919,7 +907,7 @@ function AppInner() {
         <>
           {/* Left Edge Hover Trigger Zone (Active only when NOT already hovered to prevent event fighting) */}
           <div
-            className={`hidden lg:block fixed left-0 top-0 bottom-0 w-6 z-40 ${
+            className={`hidden xl:block fixed left-0 top-0 bottom-0 w-6 z-40 ${
               isSidebarHovered ? 'pointer-events-none' : 'pointer-events-auto'
             }`}
             onMouseEnter={handleSidebarHoverEnter}
@@ -942,7 +930,7 @@ function AppInner() {
             onMouseLeave={handleSidebarHoverLeave}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={`hidden lg:flex items-center gap-2 fixed top-3 left-3.5 z-40 h-9 px-3 rounded-xl bg-white/90 backdrop-blur-2xl border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#007AFF]/40 text-slate-700 hover:text-[#007AFF] transition-colors cursor-pointer select-none group ${
+            className={`hidden xl:flex items-center gap-2 fixed top-3 left-3.5 z-40 h-9 px-3 rounded-xl bg-white/90 backdrop-blur-2xl border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#007AFF]/40 text-slate-700 hover:text-[#007AFF] transition-colors cursor-pointer select-none group ${
               !isNavVisible || isSidebarHovered ? 'pointer-events-none' : 'pointer-events-auto'
             }`}
             title="Turn sidebar ON (⌘B) · Hover to peek"
@@ -955,14 +943,14 @@ function AppInner() {
       )}
 
       {/* Main Workspace Column */}
-      <div className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden">
+      <div className="workspace-column relative flex-1 flex flex-col min-w-0 overflow-x-clip">
         {/* Local Practice Mode — banner */}
         {isGuest && (
           <motion.div
             initial={{ y: -52, opacity: 0 }}
             animate={{ y: isNavVisible ? 0 : -52, opacity: isNavVisible ? 1 : 0 }}
             transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-            className="hidden lg:block sticky top-0 z-[30] select-none overflow-hidden"
+            className="hidden xl:block sticky top-0 z-[30] select-none overflow-hidden"
             style={{
               background: 'rgba(255,255,255,0.88)',
               backdropFilter: 'blur(20px) saturate(180%)',
@@ -1028,16 +1016,11 @@ function AppInner() {
         <Navbar
           activeTab={activeTab}
           setActiveTab={handleSetActiveTab}
-          stats={stats}
-          onOpenAiCoach={() => handleOpenAiCoach('strategy')}
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenProfile={() => setIsProfileOpen(true)}
-          onOpenNotifications={() => setIsNotificationCenterOpen(true)}
-          unreadNotificationCount={unreadNotificationCount}
           onOpenCloudSync={() => setIsCloudSyncOpen(true)}
           onOpenOnboarding={handleOpenOnboarding}
           userName={profile?.displayName || state.settings.userName}
-          userEmail={user?.email || profile?.email || ''}
           photoURL={profile?.photoURL || user?.photoURL || undefined}
           syncStatus={syncStatus}
           isGuest={isGuest}
@@ -1270,24 +1253,13 @@ function AppInner() {
                 {activeTab === 'more' && (
                   <MoreView
                     state={state}
-                    stats={stats}
                     onOpenSettings={() => setIsSettingsOpen(true)}
                     onOpenProfile={() => setIsProfileOpen(true)}
                     onOpenCloudSync={() => setIsCloudSyncOpen(true)}
                     onNavigateTab={handleSetActiveTab}
                     onOpenAiCoach={handleOpenAiCoach}
                     onAddErrorItem={handleAddErrorItem}
-                    onToggleErrorReviewed={handleToggleErrorReviewed}
-                    onDeleteErrorItem={handleDeleteErrorItem}
                     onUpdateAppState={setState}
-                    onAddTask={handleAddTask}
-                    onToggleTask={handleToggleTask}
-                    onDeleteTask={handleDeleteTask}
-                    onUpdateDailyLog={handleUpdateDailyLog}
-                    onToggleBookmark={handleToggleBookmark}
-                    onAddCustomPearl={handleAddCustomPearl}
-                    onLaunchPracticeSession={handleLaunchPracticeSession}
-                    onSelectSubject={handleSelectSubject}
                   />
                 )}
 
@@ -1418,16 +1390,6 @@ function AppInner() {
 
       {/* Legacy Local Data Migration Modal */}
       {showMigrationPrompt && <DataMigrationModal />}
-
-      {/* Global Notification Center Modal */}
-      {isNotificationCenterOpen && <NotificationCenterModal
-        isOpen={isNotificationCenterOpen}
-        onClose={() => setIsNotificationCenterOpen(false)}
-        state={state}
-        onNavigateTab={handleSetActiveTab}
-        onSelectSubject={handleSelectSubject}
-        onLaunchPracticeSession={handleLaunchPracticeSession}
-      />}
 
       {/* Global Cloud Sync & Telemetry Modal */}
       {isCloudSyncOpen && <CloudSyncModal

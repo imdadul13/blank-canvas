@@ -7,26 +7,18 @@ import {
   BarChart3,
   BookMarked,
   Users,
-  Settings,
   Settings2,
   MoreHorizontal,
   GraduationCap,
   Send,
-  Bell,
   ChevronRight,
-  ChevronDown,
   Compass,
   ArrowLeft,
-  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
-  Cloud,
-  ShieldCheck,
-  Target,
   ListChecks,
 } from 'lucide-react';
 import OneShotLogo from './OneShotLogo';
-import { AppStats } from '../utils/storage';
 import { SyncStatus } from '../types';
 import { EASE_SPRING } from '../utils/motionTokens';
 
@@ -49,16 +41,11 @@ export type ActiveTab =
 export interface NavbarProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
-  stats: AppStats;
-  onOpenAiCoach: () => void;
   onOpenSettings: () => void;
   onOpenProfile: () => void;
-  onOpenNotifications?: () => void;
-  unreadNotificationCount?: number;
   onOpenCloudSync?: () => void;
   onOpenOnboarding?: () => void;
   userName: string;
-  userEmail?: string;
   photoURL?: string | null;
   syncStatus?: SyncStatus;
   isGuest?: boolean;
@@ -72,7 +59,7 @@ export interface NavbarProps {
   isNavVisible?: boolean;
 }
 
-export const primaryNavItems = [
+const primaryNavItems = [
   { id: 'dashboard' as ActiveTab, label: 'Home',        desc: 'Your study command center', icon: Home,      color: '#007AFF', bg: '#EBF3FF', activeBg: '#007AFF' },
   { id: 'syllabus'  as ActiveTab, label: 'Study',       desc: 'Subjects & topic mastery',  icon: BookOpen,  color: '#30D158', bg: '#E3F9EC', activeBg: '#30D158' },
   { id: 'practice'  as ActiveTab, label: 'Practice',    desc: 'MCQs & timed sessions',     icon: Edit3,     color: '#FF9500', bg: '#FFF4E0', activeBg: '#FF9500' },
@@ -82,12 +69,7 @@ export const primaryNavItems = [
   { id: 'aicoach'   as ActiveTab, label: 'Mentor',      desc: 'AI-powered guidance',       icon: Users,     color: '#5856D6', bg: '#EEEDFA', activeBg: '#5856D6' },
 ];
 
-export const secondaryNavItems = [
-  { id: 'grandtests' as ActiveTab, label: 'Grand Tests', icon: GraduationCap, desc: 'Mock results & timed practice' },
-  { id: 'telegram' as ActiveTab, label: 'Telegram Hub', icon: Send, desc: 'Curated question feeds' },
-];
-
-export interface MoreUtilityItem {
+interface MoreUtilityItem {
   id: string;
   label: string;
   icon: typeof GraduationCap;
@@ -96,7 +78,7 @@ export interface MoreUtilityItem {
   action?: 'cloudsync' | 'settings' | 'onboarding';
 }
 
-export const moreUtilityItems: MoreUtilityItem[] = [
+const moreUtilityItems: MoreUtilityItem[] = [
   {
     id: 'grandtests',
     label: 'Grand Tests',
@@ -127,9 +109,9 @@ export const moreUtilityItems: MoreUtilityItem[] = [
   },
 ];
 
-export const mobileNavItems = primaryNavItems.filter(({ id }) => ['dashboard', 'syllabus', 'practice', 'questionbank', 'progress'].includes(id));
+const mobileNavItems = primaryNavItems.filter(({ id }) => ['dashboard', 'syllabus', 'practice', 'questionbank', 'progress'].includes(id));
 
-export const isTabActive = (id: ActiveTab, currentTab: ActiveTab) => {
+const isTabActive = (id: ActiveTab, currentTab: ActiveTab) => {
   if (currentTab === id) return true;
   if (id === 'syllabus' && currentTab === 'revision') return true;
   if (id === 'progress' && (currentTab === 'errors' || currentTab === 'predictor')) return true;
@@ -151,9 +133,6 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   setActiveTab,
   onOpenSettings,
   onOpenProfile,
-  onOpenAiCoach,
-  onOpenNotifications,
-  unreadNotificationCount,
   onOpenCloudSync,
   onOpenOnboarding,
   userName,
@@ -173,19 +152,6 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   const moreHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reducedMotion = useReducedMotion();
   const syncPresentation = syncStatusPresentation(syncStatus, isGuest);
-
-  const QUOTES = [
-    { text: 'Every question answered is a life better served.', author: null },
-    { text: 'The good physician treats the disease. The great physician treats the patient.', author: 'Osler' },
-    { text: 'Study hard today. Heal lives tomorrow.', author: null },
-    { text: 'Medicine is learned at the bedside, not in the classroom.', author: 'Osler' },
-    { text: 'Your future patients are counting on your focus right now.', author: null },
-  ] as const;
-  const [quoteIdx, setQuoteIdx] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setQuoteIdx(i => (i + 1) % QUOTES.length), 7000);
-    return () => clearInterval(t);
-  }, []);
 
   const isVisible = isSidebarOpen || isSidebarHovered;
 
@@ -257,7 +223,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       onMouseEnter={onSidebarHoverEnter}
       onMouseLeave={onSidebarHoverLeave}
-      className={`app-sidebar hidden lg:flex flex-col w-60 xl:w-64 h-screen select-none font-sans fixed inset-y-0 left-0 transition-colors duration-200 ${
+      className={`app-sidebar hidden xl:flex flex-col w-64 h-screen select-none font-sans fixed inset-y-0 left-0 transition-colors duration-200 ${
         isSidebarOpen
           ? 'bg-white/95 backdrop-blur-2xl saturate-150 border-r border-black/[0.07] z-40'
           : 'bg-white/98 backdrop-blur-2xl border-r border-black/[0.09] shadow-[0_24px_64px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.06)] z-50'
@@ -492,7 +458,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
         <div className="flex-1" />
       </div>
 
-      {/* ── Bottom: Sync + Apple Glass Quote Card ──────────── */}
+      {/* ── Bottom: sync status ─────────────────────────────── */}
       <div className="app-sidebar-footer px-3 pb-4 pt-2 shrink-0">
         <div className="app-sidebar-divider border-t border-black/[0.06] mb-3" />
 
@@ -510,60 +476,6 @@ export const SidebarDock: React.FC<NavbarProps> = ({
           <span className="app-sidebar-sync-auto text-[10px] font-medium text-[#C7C7CC]">{isGuest ? 'Device' : 'Auto'}</span>
         </button>
 
-        {/* Animated Quote Card */}
-        <div
-          className="app-sidebar-quote relative overflow-hidden rounded-2xl p-3.5 border border-black/[0.06] shadow-[0_2px_12px_rgba(0,0,0,0.03)] bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(245,245,247,0.92)_100%)]"
-        >
-          {/* Subtle ambient azure glow */}
-          <div className="pointer-events-none absolute -top-6 -right-6 h-16 w-16 rounded-full bg-[#007AFF]/10 blur-xl" />
-
-          {/* ECG art row */}
-          <div className="relative flex items-center gap-2 mb-2">
-            {/* Pulsing dot */}
-            <div className="relative shrink-0 flex items-center justify-center h-4 w-4">
-              <span className="absolute inset-0 rounded-full bg-[#007AFF]/25 animate-ping" style={{ animationDuration: '2.4s' }} />
-              <span className="relative h-2 w-2 rounded-full bg-[#007AFF] shadow-[0_0_6px_rgba(0,122,255,0.6)]" />
-            </div>
-
-            {/* ECG trace SVG */}
-            <svg viewBox="0 0 100 20" className="flex-1 h-3.5 overflow-visible" fill="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="ecg-grad-sb" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#007AFF" stopOpacity="0.9" />
-                  <stop offset="100%" stopColor="#5AC8FA" stopOpacity="0.8" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M0 10 L18 10 L22 4 L26 16 L30 3 L34 10 L44 10 L47 7 L50 10 L100 10"
-                stroke="url(#ecg-grad-sb)"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-
-          {/* Rotating quote */}
-          <div className="relative min-h-[2.8rem]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={quoteIdx}
-                initial={reducedMotion ? false : { opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reducedMotion ? undefined : { opacity: 0, y: -4 }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                className="space-y-1"
-              >
-                <p className="app-sidebar-quote-text text-[11.5px] font-semibold leading-[1.4] text-[#1D1D1F] tracking-tight">
-                  "{QUOTES[quoteIdx].text}"
-                </p>
-                {QUOTES[quoteIdx].author && (
-                  <p className="app-sidebar-quote-author text-[10px] font-bold text-[#8E8E93] tracking-wide">— {QUOTES[quoteIdx].author}</p>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
       </div>
     </motion.aside>
   );
@@ -630,7 +542,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           ? { opacity: isNavVisible ? 1 : 0 }
           : { y: isNavVisible ? 0 : -90, opacity: isNavVisible ? 1 : 0 }}
         transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 440, damping: 28 }}
-        className="lg:hidden sticky top-0 z-40 bg-white/85 backdrop-blur-2xl saturate-[180%] border-b border-black/[0.06] px-4 py-2.5 flex items-center justify-between font-sans shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all"
+        className="app-mobile-header xl:hidden sticky top-0 z-40 bg-white/85 backdrop-blur-2xl saturate-[180%] border-b border-black/[0.06] px-4 py-2.5 flex items-center justify-between font-sans shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all"
         style={{
           paddingTop: 'max(0.625rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
           paddingLeft: 'max(0.5rem, calc(0.5rem + env(safe-area-inset-left, 0px)))',
@@ -702,7 +614,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* ── iOS-style Floating Tab Bar ── */}
       <motion.nav
-        className="mobile-dock-anchor lg:hidden fixed left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-1rem)] sm:w-auto sm:max-w-[calc(100vw-2rem)]"
+        className="mobile-dock-anchor xl:hidden fixed left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-1rem)] sm:w-auto sm:max-w-[calc(100vw-2rem)]"
         style={{
           bottom: 'calc(0.625rem + env(safe-area-inset-bottom, 0px))',
           transformOrigin: 'center bottom',
@@ -716,7 +628,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       >
         {/* Glass pill container */}
         <div
-          className="mobile-tab-dock relative flex w-full items-end justify-between gap-0 px-1 pt-1.5 pb-1 rounded-[24px] select-none sm:w-auto sm:justify-start sm:gap-0.5 sm:px-2"
+          className="mobile-tab-dock premium-mobile-dock relative flex w-full items-end justify-between gap-0 px-1 pt-1.5 pb-1 rounded-[24px] select-none sm:w-auto sm:justify-start sm:gap-0.5 sm:px-2"
           style={{
             background: 'var(--mobile-dock-surface, rgba(255,255,255,0.88))',
             backdropFilter: 'blur(28px) saturate(200%)',
@@ -736,13 +648,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => { setActiveTab(id); setMobileMoreOpen(false); }}
                 aria-current={active ? 'page' : undefined}
                 aria-label={label}
-                className={`mobile-dock-button relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none transition-colors focus-visible:ring-2 sm:min-w-[52px] sm:flex-none${active ? ' is-active' : ''}`}
+                className={`mobile-dock-button relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none transition-colors focus-visible:ring-2 sm:min-w-[52px] sm:flex-none${id === 'questionbank' ? ' mobile-dock-questionbank' : ''}${active ? ' is-active' : ''}`}
                 style={{
                   paddingLeft: 2,
                   paddingRight: 2,
                   paddingBottom: 2,
                   // the ring follows the tab's own colour, like the drawer pill
                   ['--tw-ring-color' as string]: `${color}59`,
+                  ['--dock-item-accent' as string]: color,
                 }}
               >
                 {/* Active background capsule */}
@@ -759,7 +672,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <motion.div
                   animate={active ? { scale: 1.06 } : { scale: 1 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-                  className="relative z-10 mb-0.5"
+                  className="mobile-dock-icon relative z-10 mb-0.5"
                 >
                   <Icon
                     className="transition-all duration-150"
@@ -805,8 +718,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                   aria-haspopup="menu"
                   aria-current={active ? 'page' : undefined}
                   aria-label="More"
-                  className={`mobile-dock-button relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 sm:min-w-[52px] sm:flex-none${active ? ' is-active' : ''}`}
-                  style={{ paddingLeft: 2, paddingRight: 2, paddingBottom: 2 }}
+                  className={`mobile-dock-button mobile-dock-more relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 sm:min-w-[52px] sm:flex-none${active ? ' is-active' : ''}`}
+                  style={{
+                    paddingLeft: 2,
+                    paddingRight: 2,
+                    paddingBottom: 2,
+                    ['--dock-item-accent' as string]: '#007AFF',
+                  }}
                 >
                   {active && (
                     <motion.div
@@ -819,7 +737,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <motion.div
                     animate={active ? { scale: 1.06 } : { scale: 1 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-                    className="relative z-10 mb-0.5"
+                    className="mobile-dock-icon relative z-10 mb-0.5"
                   >
                     <MoreHorizontal
                       style={{

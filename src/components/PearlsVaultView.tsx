@@ -397,7 +397,8 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="premium-page-hero relative rounded-3xl overflow-hidden"
+        className="system-page-header premium-page-hero relative rounded-3xl overflow-hidden"
+        data-header-art="bloom"
         style={{ background: 'linear-gradient(135deg, #F5EAFF 0%, #E8CCFD 40%, #CE90F5 70%, #BF5AF2 100%)', boxShadow: '0 8px 40px rgba(191,90,242,0.14), 0 2px 8px rgba(0,0,0,0.06)' }}
       >
         {/* Decorative right glow */}

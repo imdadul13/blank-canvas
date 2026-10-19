@@ -1,19 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Activity, ArrowRight, Baby, BarChart3, Bone, BookOpenCheck, Bot, Brain, Bug, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Dna, Ear, Eye, Filter, Fingerprint, Flower2, HeartPulse, Image as ImageIcon, Layers, LoaderCircle, MessageSquareText, Microscope, Pill, Play, RotateCcw, Scale, ScanLine, Scissors, Search, Stethoscope, Syringe, Target, Users, X, Zap } from 'lucide-react';
+import { Activity, ArrowRight, Baby, BarChart3, Bone, BookOpenCheck, Bot, Brain, Bug, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Dna, Ear, Eye, Fingerprint, Flower2, HeartPulse, Image as ImageIcon, Layers, LoaderCircle, MessageSquareText, Microscope, Pill, Play, RotateCcw, Scale, ScanLine, Scissors, Search, Stethoscope, Syringe, Target, Users, X } from 'lucide-react';
 import { apiFetch } from '../utils/api';
 import { NewMcqAttemptInput } from '../utils/performanceEngine';
 import { buildDueReviewQueue, type ReviewQueueItem } from '../utils/qbankReviewQueue';
 import type { AppState, GrandTest, McqAttempt } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
+import { StudyInsightRail, StudyModuleHeader } from './study/StudyModuleHeader';
 import {
-  type SprintDay,
   type SprintErrorType,
   SPRINT_DAYS,
   FMGE_BLUEPRINT_MARKS,
   localDateKey,
-  FMGE_EXAM_DATE,
   daysUntilFmge,
   sprintDateForIndex,
   sprintDayIndex,
@@ -32,28 +30,6 @@ async function responseJson(response: Response) {
   if (!response.ok) throw new Error(data.error || 'Could not reach the question bank.');
   return data;
 }
-
-// Circular progress gauge matching Revision Matrix standard
-const Gauge: React.FC<{
-  pct: number; size?: number; sw?: number; color?: string; track?: string;
-}> = ({ pct, size = 52, sw = 4.5, color = '#007AFF', track = '#E5E7EB' }) => {
-  const r = (size - sw) / 2;
-  const circ = 2 * Math.PI * r;
-  const off = circ - (Math.min(100, Math.max(0, pct)) / 100) * circ;
-  return (
-    <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
-      <svg className="-rotate-90" width={size} height={size}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track} strokeWidth={sw} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={sw}
-          strokeDasharray={circ} strokeDashoffset={off} strokeLinecap="round"
-          className="transition-all duration-700 ease-out" />
-      </svg>
-      <span className="absolute font-mono text-[11px] font-black text-slate-900 dark:text-white tracking-tight leading-none">
-        {pct}%
-      </span>
-    </div>
-  );
-};
 
 type SubjectTone = { from: string; to: string; ink: string; soft: string; icon: React.ComponentType<{ className?: string }> };
 // Assorted Apple-system hues per subject: gradient pair, readable ink and a soft tint.
@@ -172,10 +148,6 @@ export const QuestionBankView: React.FC<{
   const totalImageAttempts = useMemo(() => attempts.filter((a) => a.source === 'qbank' && (a.questionId?.includes('img') || a.subtopic?.toLowerCase().includes('image'))).length, [attempts]);
   const imageCoveragePct = Math.min(100, Math.round((totalImageAttempts / Math.max(1, facets?.imageCount || 250)) * 100));
 
-  const dueCount = dueReviewQueue.length;
-  const totalQueue = reviewQueue.length;
-  const dueClearedPct = totalQueue > 0 ? Math.round(((totalQueue - dueCount) / totalQueue) * 100) : 100;
-
   const subjectMatrixData = useMemo(() => {
     return FMGE_SUBJECTS.map((sub) => {
       const facetSub = facets?.subjects.find((s) => s.id === sub.id);
@@ -226,470 +198,84 @@ export const QuestionBankView: React.FC<{
   const rise = (delay = 0) => ({ initial: reducedMotion ? false as const : { opacity: 0, y: 16, scale: 0.985 }, animate: { opacity: 1, y: 0, scale: 1 }, transition: reducedMotion ? { duration: 0 } : { ...SOFT_SPRING, delay } });
   const styleOptions = [{ value: 'all', label: 'All', icon: BookOpenCheck, from: '#0A84FF', to: '#5E5CE6' }, { value: 'image', label: 'Images', icon: ImageIcon, from: '#BF5AF2', to: '#FF2D92' }, { value: 'standard', label: 'Text', icon: MessageSquareText, from: '#30D158', to: '#00A88F' }] as const;
 
-  return <div data-accent="practice" className="qbank-root qbx space-y-6 sm:space-y-8 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 animate-in fade-in duration-150 pb-24 sm:pb-20 lg:pb-16 text-slate-900 dark:text-slate-100 font-['Plus_Jakarta_Sans']">
-    {/* Apple HIG Deep Sapphire / Oceanic Blue Hero Header — Matching Revision Matrix */}
-    <motion.header
-      {...rise(0)}
-      className="revision-matrix-hero relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] text-white shadow-[0_8px_40px_rgba(0,112,204,0.28),0_2px_8px_rgba(0,0,0,0.12)]"
-      style={{
-        background: 'linear-gradient(135deg, #0A2540 0%, #1A3A5C 40%, #0E4F8C 70%, #0070CC 100%)',
-      }}
-    >
-      {/* Radial glow */}
-      <div
-        className="pointer-events-none absolute right-0 top-0 bottom-0 w-2/3"
-        style={{
-          background: 'radial-gradient(ellipse at 85% 40%, rgba(0,122,255,0.35) 0%, transparent 65%)',
-        }}
-      />
-      {/* Top inner shine */}
-      <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+  return <div data-accent="practice" className="qbank-root qbank-overhaul qbx qbx-premium mx-auto max-w-7xl space-y-5 px-3 py-4 pb-24 font-sans text-slate-900 sm:space-y-6 sm:px-6 sm:py-6 sm:pb-20 lg:pb-16 dark:text-slate-100">
+    <StudyModuleHeader
+      accent="#0A84FF"
+      tint="#EEF6FF"
+      icon={BookOpenCheck}
+      eyebrow="Practice library"
+      title="Question"
+      accentTitle="Bank"
+      description="A focused practice workspace for board-pattern questions, clinical images, and confidence-aware recall."
+      progress={qbankCoveragePct}
+      progressLabel="Overall bank coverage"
+      progressMeta={`${totalQbankAttempts.toLocaleString()} questions answered`}
+      stats={[
+        { label: 'Questions', value: (facets?.count || 0).toLocaleString(), color: '#0A84FF' },
+        { label: 'Accuracy', value: `${overallQbankAccuracy}%`, color: '#30D158' },
+        { label: 'Due today', value: String(dueReviewQueue.length), color: '#FF9F0A' },
+      ]}
+      primaryAction={{ label: 'Start 20 questions', onClick: () => { if (!loading) startSession({ exam, subjectId: '', imageMode: 'all', count: 20, label: 'High-yield practice' }); } }}
+      secondaryAction={{ label: 'Open image vault', onClick: () => { if (!loading) startSession({ exam, subjectId: '', imageMode: 'image', count: 15, label: 'Image cases' }); } }}
+    />
 
-      {/* Decorative orbit circles */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 w-40 h-40 sm:w-52 sm:h-52 rounded-full border border-white/[0.08] pointer-events-none" />
-      <div className="absolute right-16 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full border border-white/[0.06] pointer-events-none" />
+    <StudyInsightRail
+      title="Choose the work your memory needs"
+      subtitle="Each route feeds the same performance and spaced-review system."
+      items={[
+        { eyebrow: 'Core practice', title: 'High-yield MCQs', value: totalQbankAttempts ? `${overallQbankAccuracy}%` : 'New', meta: `${totalQbankAttempts} answered`, description: 'Board-pattern questions with an immediate source rationale.', progress: overallQbankAccuracy, icon: BookOpenCheck, color: '#0A84FF' },
+        { eyebrow: 'Visual diagnosis', title: 'Clinical image vault', value: `${imageCoveragePct}%`, meta: `${facets?.imageCount || 0} image cases`, description: 'Radiology, pathology, dermatology, and gross specimens.', progress: imageCoveragePct, icon: ScanLine, color: '#AF52DE' },
+        { eyebrow: 'Memory loop', title: 'Daily spaced recall', value: dueReviewQueue.length ? `${dueReviewQueue.length} due` : 'Clear', meta: dueReviewQueue.length ? 'Ready now' : `${reviewQueue.length} scheduled`, description: 'Missed and uncertain answers return at the right interval.', progress: dueReviewQueue.length ? Math.min(100, dueReviewQueue.length * 10) : 100, icon: RotateCcw, color: '#FF9500' },
+      ]}
+    />
 
-      <div className="relative z-10 p-5 sm:p-7 lg:p-8">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
-          <div className="flex-1 min-w-0 space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white">
-                <BookOpenCheck className="h-4 w-4" />
-              </div>
-              <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-white/60">
-                QUESTION BANK
-              </span>
-            </div>
+    {error&&<motion.div initial={{opacity:0,y:-6}} animate={{opacity:1,y:0}} role="alert" className="rounded-2xl border border-fail/20 bg-fail-wash px-4 py-3 text-sm font-medium text-fail-ink">{error}</motion.div>}
 
-            <h1 className="text-[36px] sm:text-[48px] font-black tracking-[-0.04em] leading-[0.88] text-white">
-              Practice.<br />
-              <span style={{ color: '#60B3FF' }}>Test. Retain.</span>
-            </h1>
-
-            <p className="text-[13px] sm:text-[14px] text-white/60 leading-snug max-w-sm">
-              Authentic board question archive with step-by-step diagnostic reasoning, clinical images, and automated spaced recall.
-            </p>
-
-            {/* Overall progress bar */}
-            <div className="max-w-xs space-y-1.5 pt-1">
-              <div className="flex items-center justify-between text-[11px] font-semibold text-white/60">
-                <span>Bank coverage</span>
-                <span style={{ color: '#60B3FF' }}>{qbankCoveragePct}%</span>
-              </div>
-              <div className="h-2 w-full bg-white/15 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${qbankCoveragePct}%` }}
-                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="h-full rounded-full"
-                  style={{ background: 'linear-gradient(90deg, #60B3FF 0%, #007AFF 100%)', boxShadow: '0 0 10px rgba(96,179,255,0.6)' }}
-                />
-              </div>
-            </div>
-          </div>
+    <motion.section {...rise(.08)} className="qbank-builder qbank-studio qbx-panel overflow-hidden rounded-[2rem] sm:rounded-[2.5rem]">
+      <div className="qbx-panel-head flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+        <div className="flex items-center gap-3"><GradientIcon from="#5E5CE6" to="#BF5AF2"><Layers/></GradientIcon><div><p className="qbx-kicker">Session studio</p><h2 className="qbx-h2">Compose your practice set</h2><p className="qbx-muted mt-1 text-xs">Tune the exam, subject, format, and intensity.</p></div></div>
+        <div className="qbx-segment relative grid grid-cols-3 rounded-full p-1">
+          {(['FMGE','NEET-PG','INI-CET'] as Exam[]).map(value=><button key={value} type="button" aria-pressed={exam===value} onClick={()=>{setExam(value);setYear('');}} className={`relative min-h-9 rounded-full px-3 text-[11px] font-bold ${exam===value?'text-white':'qbx-segment-idle'}`}>{exam===value&&<motion.span layoutId="qbx-exam-pill" transition={SPRING} className="absolute inset-0 rounded-full" style={{background:`linear-gradient(135deg,${examTones[value].from},${examTones[value].to})`}}/>}<span className="relative z-10">{value}</span></button>)}
         </div>
       </div>
-    </motion.header>
-
-    {/* ═══ 3 FOCUS BENTO CARDS (Revision Matrix Standard) ═══ */}
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-      {[
-        {
-          phase: 'MCQ',
-          title: 'Core Board MCQs',
-          subtitle: 'Clinical Vignettes & Rationale',
-          pct: overallQbankAccuracy || qbankCoveragePct,
-          statText: `${totalQbankAttempts} / ${facets?.count || 1200} answered`,
-          color: '#007AFF',
-          track: '#E0EEFF',
-          gradient: 'from-blue-500 to-indigo-600',
-          border: 'border-blue-200/60 dark:border-blue-500/20',
-          description: '4-option clinical stems with diagnostic reasoning, distractor rationale & Gemini tutor analysis.',
-          actionLabel: 'Start 20 High-Yield MCQs',
-          onAction: () => startSession({ exam, subjectId: '', imageMode: 'all', count: 20, label: 'High-yield practice' }),
-          disabled: loading,
-        },
-        {
-          phase: 'IMG',
-          title: 'Image Clinical Vault',
-          subtitle: 'Radiology, Path & Derm Signs',
-          pct: imageCoveragePct,
-          statText: `${facets?.imageCount || 0} image questions`,
-          color: '#AF52DE',
-          track: '#F3E8FF',
-          gradient: 'from-purple-500 to-pink-600',
-          border: 'border-purple-200/60 dark:border-purple-500/20',
-          description: 'High-res CT/MRI scans, histopathology slides, gross specimens, and dermatologic signs with zoomable lightbox.',
-          actionLabel: 'Start 15 Image Cases',
-          onAction: () => startSession({ exam, subjectId: '', imageMode: 'image', count: 15, label: 'Image cases' }),
-          disabled: loading,
-        },
-        {
-          phase: 'SR',
-          title: 'Daily Spaced Recall',
-          subtitle: 'Active Memory Retrieval',
-          pct: dueClearedPct,
-          statText: `${dueReviewQueue.length} due today`,
-          color: '#FF9500',
-          track: '#FFF4E0',
-          gradient: 'from-amber-500 to-orange-600',
-          border: 'border-amber-200/60 dark:border-amber-500/20',
-          description: 'Targeted retrieval sets scheduled at 1, 3, 7, and 14-day intervals to beat the forgetting curve and lock memory.',
-          actionLabel: dueReviewQueue.length > 0 ? `Review Due (${dueReviewQueue.length})` : 'Queue Clear Today',
-          onAction: () => startSession({ exam: 'FMGE', subjectId: '', year: '', imageMode: 'all', count: Math.min(20, dueReviewQueue.length), questionIds: dueReviewQueue.slice(0, 20).map((item) => item.questionId), label: 'Daily review' }),
-          disabled: loading || dueReviewQueue.length === 0,
-        },
-      ].map(({ phase, title, subtitle, pct, statText, color, track, gradient, border, description, actionLabel, onAction, disabled }, i) => (
-        <motion.div
-          key={phase}
-          initial={reducedMotion ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={reducedMotion ? { duration: 0 } : { duration: 0.35, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-          className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border ${border} bg-white dark:bg-[#181B26] p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.09)] transition-all group flex flex-col justify-between`}
-        >
-          <div className="space-y-3.5">
-            {/* Top row */}
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2.5">
-                <div
-                  className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${gradient} text-white flex items-center justify-center shrink-0 shadow-sm`}
-                  style={{ boxShadow: `0 3px 10px ${color}35` }}
-                >
-                  <span className="font-mono font-black text-[12px]">{phase}</span>
-                </div>
-                <div>
-                  <div className="font-bold text-[#1D1D1F] dark:text-white text-[14px] leading-tight">{title}</div>
-                  <div className="text-[11px] text-[#8E8E93] dark:text-slate-400 mt-0.5">{subtitle}</div>
-                </div>
-              </div>
-              <Gauge pct={pct} size={50} sw={4.5} color={color} track={track} />
-            </div>
-
-            {/* Progress bar */}
-            <div className="space-y-1">
-              <div className="h-1.5 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.max(pct > 0 ? 5 : 0, pct)}%` }}
-                  transition={{ duration: 0.9, ease: 'easeOut' }}
-                  className="h-full rounded-full"
-                  style={{ background: `linear-gradient(90deg, ${color} 0%, ${color}CC 100%)` }}
-                />
-              </div>
-              <div className="flex items-center justify-between text-[10.5px]">
-                <span className="font-mono text-slate-500 dark:text-slate-400">{statText}</span>
-                <span className="font-semibold" style={{ color }}>{pct}%</span>
-              </div>
-            </div>
-
-            {/* Description */}
-            <p className="text-[11px] text-[#8E8E93] dark:text-slate-400 leading-snug border-t border-slate-100 dark:border-white/5 pt-2.5">
-              {description}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={onAction}
-            className="mt-4 w-full py-2.5 px-3 rounded-xl font-bold text-xs text-white transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.98]"
-            style={{ background: `linear-gradient(135deg, ${color}, ${color}DD)` }}
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>{actionLabel}</span>
-          </button>
-        </motion.div>
-      ))}
-    </div>
-
-    {/* ═══ MAIN SUBJECT QUESTION BANK MATRIX (Revision Matrix Layout) ═══ */}
-    <div className="rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#181B26] shadow-[0_2px_16px_rgba(0,0,0,0.05)] overflow-hidden">
-      {/* Card Header */}
-      <div className="px-4 sm:px-6 py-4 border-b border-slate-100 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#007AFF]/10 border border-[#007AFF]/20 flex items-center justify-center text-[#007AFF] shrink-0">
-            <BarChart3 className="h-4 w-4" />
-          </div>
-          <div>
-            <h2 className="font-bold text-[#1D1D1F] dark:text-white text-[15px] leading-tight">Subject Question Bank Matrix</h2>
-            <p className="text-[11px] text-[#8E8E93] dark:text-slate-400 font-mono">19 subjects · {facets?.count || 0} board questions · NBE Exam Distribution</p>
-          </div>
-        </div>
-
-        {/* Filter pills & Sort */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100/80 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
-            {(['all', 'high-weight', 'unattempted'] as const).map((f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setMatrixFilter(f)}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold font-mono transition-all cursor-pointer ${
-                  matrixFilter === f
-                    ? 'bg-white dark:bg-white/15 text-[#1D1D1F] dark:text-white shadow-xs'
-                    : 'text-[#8E8E93] dark:text-slate-400 hover:text-[#1D1D1F] dark:hover:text-white'
-                }`}
-              >
-                {f === 'all' ? 'All Subjects' : f === 'high-weight' ? 'High Weightage (≥15M)' : 'Unattempted'}
-              </button>
-            ))}
-          </div>
-
-          <div className="relative">
-            <select
-              value={matrixSortBy}
-              onChange={(e) => setMatrixSortBy(e.target.value as any)}
-              className="appearance-none pl-3 pr-7 py-1.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-[11.5px] font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 cursor-pointer"
-            >
-              <option value="weight">Exam Weightage ↓</option>
-              <option value="questions">Questions Count ↓</option>
-              <option value="accuracy">Accuracy ↓</option>
-              <option value="alpha">A–Z</option>
-            </select>
-            <ChevronDown className="h-3 w-3 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-        </div>
-      </div>
-
-      {/* Search row */}
-      <div className="px-4 sm:px-6 py-2.5 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/[0.02]">
-        <div className="relative">
-          <Search className="h-3.5 w-3.5 text-[#8E8E93] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={matrixSearch}
-            onChange={(e) => setMatrixSearch(e.target.value)}
-            placeholder="Search subjects or clinical disciplines…"
-            className="w-full pl-8 pr-8 py-1.5 text-[12.5px] text-[#1D1D1F] dark:text-white placeholder:text-[#8E8E93] bg-transparent border-none outline-none"
-          />
-          {matrixSearch && (
-            <button
-              type="button"
-              onClick={() => setMatrixSearch('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#C7C7CC] dark:bg-white/20 flex items-center justify-center text-white cursor-pointer hover:bg-[#8E8E93] transition-colors"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Column Headers */}
-      <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 sm:px-6 py-2 border-b border-slate-100 dark:border-white/10 bg-slate-50/30 dark:bg-white/[0.01]">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93]">Subject</span>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 w-24 text-center">Questions</span>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400 w-20 text-center">Images</span>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#007AFF] w-20 text-center">Accuracy</span>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#8E8E93] w-28 text-right">Practice</span>
-      </div>
-
-      {/* Subject Rows */}
-      <div className="divide-y divide-slate-100/80 dark:divide-white/5">
-        {filteredMatrix.map((item, idx) => {
-          const subColor = item.sub.color || item.tone.from;
-          const SubIcon = item.tone.icon;
-          return (
-            <div
-              key={item.sub.id}
-              className="px-4 sm:px-6 py-3 flex flex-col sm:grid sm:grid-cols-[1fr_auto_auto_auto_auto] gap-2.5 sm:gap-4 items-start sm:items-center hover:bg-slate-50/70 dark:hover:bg-white/[0.02] transition-colors"
-            >
-              {/* Subject Info */}
-              <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
-                <div className="flex items-center gap-2.5 shrink-0">
-                  <div className="w-1 h-8 rounded-full shrink-0" style={{ background: subColor }} />
-                  <span className="w-5 h-5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 font-mono text-[10px] font-semibold flex items-center justify-center shrink-0">
-                    {idx + 1}
-                  </span>
-                </div>
-
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 shadow-xs" style={{ background: `linear-gradient(135deg, ${item.tone.from}, ${item.tone.to})` }}>
-                  <SubIcon className="w-4 h-4" />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-[13.5px] text-[#1D1D1F] dark:text-white truncate">
-                      {item.sub.name}
-                    </span>
-                    <span
-                      className="px-2 py-0.5 rounded-full text-[9.5px] font-bold border shrink-0"
-                      style={{ color: subColor, background: `${subColor}15`, borderColor: `${subColor}30` }}
-                    >
-                      {item.weightage} Marks
-                    </span>
-                    {item.weightage >= 25 && (
-                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 shrink-0">
-                        High Yield
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Total Qs */}
-              <div className="w-24 text-center hidden sm:block">
-                <span className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">
-                  {item.totalQs.toLocaleString()} Qs
-                </span>
-              </div>
-
-              {/* Images */}
-              <div className="w-20 text-center hidden sm:block">
-                <span className="font-mono text-xs font-bold text-purple-600 dark:text-purple-400">
-                  {item.imageCount > 0 ? `${item.imageCount} Img` : '—'}
-                </span>
-              </div>
-
-              {/* Accuracy */}
-              <div className="w-20 text-center hidden sm:block">
-                {item.accuracy !== null ? (
-                  <span className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-mono font-bold ${
-                    item.accuracy >= 70 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' :
-                    item.accuracy >= 50 ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300' :
-                    'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300'
-                  }`}>
-                    {item.accuracy}%
-                  </span>
-                ) : (
-                  <span className="text-[11px] font-mono text-slate-400">—</span>
-                )}
-              </div>
-
-              {/* Action Button */}
-              <div className="w-full sm:w-28 flex justify-end shrink-0 pt-1 sm:pt-0">
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={() => startSession({ exam, subjectId: item.sub.id, imageMode: 'all', count: 20, label: `${item.sub.name} Practice` })}
-                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl font-bold text-xs text-white transition-all shadow-xs flex items-center justify-center gap-1.5 hover:brightness-105 active:scale-95 cursor-pointer disabled:opacity-50"
-                  style={{ background: `linear-gradient(135deg, ${item.tone.from}, ${item.tone.to})` }}
-                >
-                  <Play className="w-3 h-3 fill-current" />
-                  <span>Practice</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-
-    {/* ═══ CUSTOM SESSION BUILDER (Clean Apple HIG style, zero gimmicks) ═══ */}
-    <motion.section {...rise(0.08)} className="rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#181B26] shadow-[0_2px_16px_rgba(0,0,0,0.05)] overflow-hidden">
-      <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-slate-100 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
-            <Layers className="h-4 w-4" />
-          </div>
-          <div>
-            <h3 className="font-bold text-[#1D1D1F] dark:text-white text-[15px] leading-tight">Custom Session Builder</h3>
-            <p className="text-[11px] text-[#8E8E93] dark:text-slate-400 font-mono">Create a custom mock or targeted clinical set</p>
-          </div>
-        </div>
-
-        {/* Exam pills */}
-        <div className="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
-          {(['FMGE', 'NEET-PG', 'INI-CET'] as Exam[]).map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => { setExam(value); setYear(''); }}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                exam === value ? 'bg-white dark:bg-white/15 text-[#007AFF] dark:text-white shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
-              }`}
-            >
-              {value}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="p-5 sm:p-6 space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* Subject Dropdown */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Subject Focus</label>
-            <div className="relative">
-              <select
-                value={subjectId}
-                onChange={(e) => setSubjectId(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-3.5 py-2.5 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 cursor-pointer"
-              >
-                <option value="">All Subjects (Mixed Full Exam)</option>
-                {facets?.subjects.map((s) => (
-                  <option key={s.id} value={s.id}>{s.name} ({s.count} Qs)</option>
-                ))}
-              </select>
-              <ChevronDown className="h-4 w-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="grid lg:grid-cols-[1fr_19rem]">
+        <div className="space-y-6 p-4 sm:p-7">
+          <div><div className="mb-3 flex items-end justify-between gap-3"><div><p className="qbx-label"><i className="qbx-step">1</i>Choose a subject</p><p className="qbx-muted mt-1 text-[11px]">Each discipline carries its own Apple system color.</p></div><span className="text-[10px] font-semibold text-ink-3">{facets?.subjects.length || 0} available</span></div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+              {loading && !facets ? Array.from({ length: 8 }).map((_, index) => <span key={index} className="qbank-subject-skeleton h-[58px] animate-pulse rounded-2xl"/>) : <>
+                <SubjectChip id="" name="Mixed subjects" count={facets?.count} active={!subjectId} onSelect={()=>setSubjectId('')} reduceMotion={reducedMotion} index={0}/>
+                {facets?.subjects.map((subject,i)=><SubjectChip key={subject.id} id={subject.id} name={subject.name} count={subject.count} active={subjectId===subject.id} onSelect={()=>setSubjectId(subject.id)} reduceMotion={reducedMotion} index={i+1}/>)}
+              </>}
             </div>
           </div>
-
-          {/* Question Style Pills */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Question Format</label>
-            <div className="grid grid-cols-3 gap-1 rounded-xl p-1 bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
-              {styleOptions.map(({ value, label, icon: Icon }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setImageMode(value)}
-                  className={`py-1.5 px-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer ${
-                    imageMode === value ? 'bg-white dark:bg-white/15 text-[#007AFF] dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
-                  }`}
-                >
-                  <Icon className="h-3 w-3" />
-                  <span>{label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Number of Questions */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Question Count</label>
-            <div className="grid grid-cols-4 gap-1 rounded-xl p-1 bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
-              {[10, 25, 50, 100].map((val) => (
-                <button
-                  key={val}
-                  type="button"
-                  onClick={() => setCount(val)}
-                  className={`py-1.5 text-xs font-mono font-bold rounded-lg transition-all cursor-pointer ${
-                    count === val ? 'bg-white dark:bg-white/15 text-[#007AFF] dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
-                  }`}
-                >
-                  {val}
-                </button>
-              ))}
-            </div>
+          <div className="grid gap-5 border-t border-hairline pt-5 sm:grid-cols-2">
+            <div><p className="qbx-label mb-2"><i className="qbx-step">2</i>Question format</p><div className="qbx-segment grid grid-cols-3 gap-1 rounded-2xl p-1">{styleOptions.map(({value,label,icon:Icon,from,to})=><button key={value} type="button" aria-pressed={imageMode===value} onClick={()=>setImageMode(value)} className={`relative flex min-h-11 items-center justify-center gap-1.5 rounded-xl text-xs font-semibold ${imageMode===value?'text-white':'qbx-segment-idle'}`}>{imageMode===value&&<motion.span layoutId="qbx-format-pill" transition={SPRING} className="absolute inset-0 rounded-xl shadow-e2" style={{background:`linear-gradient(135deg,${from},${to})`}}/>}<Icon className="relative z-10 h-3.5 w-3.5"/><span className="relative z-10">{label}</span></button>)}</div></div>
+            <div><p className="qbx-label mb-2"><i className="qbx-step">3</i>Session length</p><div className="qbx-segment grid grid-cols-4 gap-1 rounded-2xl p-1">{[10,25,50,100].map(value=><button key={value} type="button" aria-pressed={count===value} onClick={()=>setCount(value)} className={`relative min-h-11 rounded-xl text-xs font-bold ${count===value?'text-white':'qbx-segment-idle'}`}>{count===value&&<motion.span layoutId="qbx-count-pill" transition={SPRING} className="absolute inset-0 rounded-xl bg-gradient-to-br from-ios-blue to-ios-indigo shadow-e2"/>}<span className="relative z-10">{value}</span></button>)}</div></div>
           </div>
         </div>
-
-        {/* Launch CTA */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-white/5">
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Selected: <b className="text-slate-800 dark:text-slate-200">{selectedSubject ? selectedSubject.name : 'All Subjects'}</b> · {imageMode === 'all' ? 'All Styles' : imageMode === 'image' ? 'Images Only' : 'Text Only'} · {count} Questions (~{Math.round(count * 1.2)} mins)
-          </p>
-
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => startSession()}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs text-white transition-all shadow-md flex items-center justify-center gap-2 hover:brightness-105 active:scale-95 cursor-pointer disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg, #0070CC, #005699)' }}
-          >
-            {loading ? <LoaderCircle className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
-            <span>Launch Practice Session</span>
-          </button>
-        </div>
+        <aside className="qbx-summary relative isolate flex min-h-72 flex-col justify-between overflow-hidden p-6 sm:p-7">
+          <span aria-hidden="true" className="qbx-summary-dots absolute inset-0 -z-10"/>
+          <div><p className="qbx-summary-kicker text-[10px] font-bold uppercase tracking-[.14em]">Your session</p><h3 className="qbx-summary-title mt-2 text-2xl font-bold tracking-tight">{selectedSubject?.name || 'Mixed subjects'}</h3><p className="qbx-summary-body mt-2 text-sm leading-6">{count} {imageMode==='image'?'visual cases':imageMode==='standard'?'text questions':'mixed questions'} · about {Math.round(count*1.2)} minutes</p><div className="qbx-summary-list mt-5 space-y-2 text-[11px]"><p className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ios-green"/>Instant source explanation</p><p className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ios-cyan"/>Confidence-aware review queue</p><p className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ios-pink"/>Gemini option analysis</p></div></div>
+          <motion.button type="button" disabled={loading} onClick={()=>startSession()} whileHover={loading?undefined:{y:-2}} whileTap={loading?undefined:{scale:.97}} transition={SPRING} className="qbx-cta relative mt-7 flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-full px-4 text-sm font-bold disabled:opacity-50"><span className="qbx-cta-shine"/>{loading?<LoaderCircle className="relative h-4 w-4 animate-spin"/>:<Play className="relative h-4 w-4 fill-current"/>}<span className="relative">Begin session</span><ArrowRight className="relative h-4 w-4"/></motion.button>
+        </aside>
       </div>
+      <div className="qbx-feature-strip grid sm:grid-cols-3"><FeatureNote icon={<Brain/>} title="Reason, don’t memorize" body="Compare distractors and learn the decision rule." from="#5E5CE6" to="#BF5AF2"/><FeatureNote icon={<Activity/>} title="Adaptive memory" body="Uncertain answers return on a spaced schedule." from="#30D158" to="#00A88F"/><FeatureNote icon={<BarChart3/>} title="Visible progress" body="Coverage and accuracy update after every set." from="#FF9F0A" to="#FF453A"/></div>
     </motion.section>
 
-    <DailyReviewQueue items={reviewQueue} dueItems={dueReviewQueue} now={reviewClock} loading={loading} onStart={() => startSession({ exam: 'FMGE', subjectId: '', year: '', imageMode: 'all', count: Math.min(20, dueReviewQueue.length), questionIds: dueReviewQueue.slice(0, 20).map((item) => item.questionId), label: 'Daily review' })}/>
-    <FmgeSprint sprint={sprint} attempts={attempts} grandTests={grandTests} onUpdate={onUpdateSprint} onPractice={(subjectId, count = 20, label = 'Focused practice', questionIds, taskKey, excludeQuestionIds) => startSession({ exam: 'FMGE', subjectId, year: '', imageMode: 'all', count, questionIds, excludeQuestionIds, label, taskKey })} onOpenSubject={onOpenSprintSubject} onOpenGrandTests={onOpenGrandTests} loading={loading} />
-    <QuestionSession key={sessionId} questions={questions} sessionId={sessionId} sessionLabel={sessionLabel} onClose={() => setQuestions([])} onRecordAttempt={onRecordAttempt}/>
+    <motion.section {...rise(.12)} className="qbank-library qbx-panel overflow-hidden rounded-[2rem] sm:rounded-[2.5rem]">
+      <div className="qbx-panel-head flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+        <div className="flex items-center gap-3"><GradientIcon from="#30B0C7" to="#0A84FF"><BarChart3/></GradientIcon><div><p className="qbx-kicker">Explore the bank</p><h2 className="qbx-h2">Subject intelligence</h2><p className="qbx-muted mt-1 text-xs">Compare weightage, coverage, and your recent accuracy.</p></div></div>
+        <div className="flex flex-wrap gap-2"><div className="qbx-segment flex rounded-full p-1">{(['all','high-weight','unattempted'] as const).map(value=><button key={value} type="button" onClick={()=>setMatrixFilter(value)} className={`rounded-full px-3 py-1.5 text-[10px] font-bold ${matrixFilter===value?'bg-white text-ink shadow-e1 dark:bg-white/12 dark:text-white':'text-ink-3'}`}>{value==='all'?'All':value==='high-weight'?'High yield':'New'}</button>)}</div><SelectField label=""><select value={matrixSortBy} onChange={event=>setMatrixSortBy(event.target.value as typeof matrixSortBy)}><option value="weight">Exam weight</option><option value="questions">Question count</option><option value="accuracy">Accuracy</option><option value="alpha">A–Z</option></select></SelectField></div>
+      </div>
+      <div className="border-b border-hairline bg-surface-row/60 px-5 py-3 dark:border-white/8 dark:bg-white/[.02]"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3"/><input value={matrixSearch} onChange={event=>setMatrixSearch(event.target.value)} placeholder="Search all medical disciplines" className="h-10 w-full rounded-xl border border-hairline bg-white pl-9 pr-9 text-xs text-ink outline-none transition focus:border-ios-blue/40 focus:ring-4 focus:ring-ios-blue/10 dark:border-white/10 dark:bg-white/5 dark:text-white"/>{matrixSearch&&<button type="button" onClick={()=>setMatrixSearch('')} className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-surface-muted text-white"><X className="h-3 w-3"/></button>}</div></div>
+      {filteredMatrix.length ? <div className="qbank-library-grid grid gap-2 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-3">{filteredMatrix.map((item,index)=>{const Icon=item.tone.icon;return <motion.button key={item.sub.id} type="button" disabled={loading} onClick={()=>startSession({exam,subjectId:item.sub.id,imageMode:'all',count:20,label:`${item.sub.name} Practice`})} initial={reducedMotion?false:{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={reducedMotion?{duration:0}:{...SOFT_SPRING,delay:Math.min(index,12)*.025}} whileHover={reducedMotion?undefined:{y:-2}} whileTap={reducedMotion?undefined:{scale:.985}} className="qbank-library-card group flex items-center gap-3 rounded-2xl border border-hairline bg-surface p-3 text-left shadow-e1 transition hover:shadow-e3 disabled:opacity-50 dark:border-white/8 dark:bg-white/[.025]"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-e2" style={{background:`linear-gradient(135deg,${item.tone.from},${item.tone.to})`}}><Icon className="h-5 w-5"/></span><span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-bold text-ink dark:text-white">{item.sub.name}</span><span className="mt-1 flex flex-wrap gap-x-2 text-[10px] font-medium text-ink-3"><span>{item.weightage} marks</span><span>{item.totalQs} Qs</span><span>{item.accuracy===null?'New':`${item.accuracy}% accuracy`}</span></span></span><ChevronRight className="h-4 w-4 shrink-0 text-ink-4 transition-transform group-hover:translate-x-0.5"/></motion.button>;})}</div> : <div className="qbank-empty-state px-5 py-12 text-center"><Search className="mx-auto h-5 w-5"/><h3 className="mt-3 text-sm font-bold">No matching subjects</h3><p className="mt-1 text-xs">Clear the search or choose a different filter.</p><button type="button" onClick={()=>{setMatrixSearch('');setMatrixFilter('all');}} className="mt-4 rounded-full px-4 py-2 text-xs font-bold">Reset filters</button></div>}
+    </motion.section>
+
+    <DailyReviewQueue items={reviewQueue} dueItems={dueReviewQueue} now={reviewClock} loading={loading} onStart={()=>startSession({exam:'FMGE',subjectId:'',year:'',imageMode:'all',count:Math.min(20,dueReviewQueue.length),questionIds:dueReviewQueue.slice(0,20).map(item=>item.questionId),label:'Daily review'})}/>
+    <FmgeSprint sprint={sprint} attempts={attempts} grandTests={grandTests} onUpdate={onUpdateSprint} onPractice={(subjectId,count=20,label='Focused practice',questionIds,taskKey,excludeQuestionIds)=>startSession({exam:'FMGE',subjectId,year:'',imageMode:'all',count,questionIds,excludeQuestionIds,label,taskKey})} onOpenSubject={onOpenSprintSubject} onOpenGrandTests={onOpenGrandTests} loading={loading}/>
+    <QuestionSession key={sessionId} questions={questions} sessionId={sessionId} sessionLabel={sessionLabel} onClose={()=>setQuestions([])} onRecordAttempt={onRecordAttempt}/>
   </div>;
 };
-
 
 
 function FmgeSprint({ sprint, attempts, grandTests, onUpdate, onPractice, onOpenSubject, onOpenGrandTests, loading }: { sprint?: AppState['fmgeSprint']; attempts: McqAttempt[]; grandTests: GrandTest[]; onUpdate: (value: NonNullable<AppState['fmgeSprint']>) => void; onPractice: (subjectId: string, count?: number, label?: string, questionIds?: string[], taskKey?: string, excludeQuestionIds?: string[]) => void; onOpenSubject: (subjectId: string) => void; onOpenGrandTests: () => void; loading: boolean }) {
@@ -893,14 +479,6 @@ function ProgressRing({ value, display, label, from, to, id, large = false }: { 
     <span className="relative text-center leading-none"><b className={`qbx-ring-value block font-bold tabular-nums ${large ? 'text-3xl tracking-tight' : 'text-[15px]'}`}>{display}</b><span className={`qbx-ring-label mt-1 block font-semibold uppercase tracking-wide ${large ? 'text-[10px]' : 'text-[8.5px]'}`}>{label}</span></span>
   </div>;
 }
-function Stat({ label, value, icon, from, to, delay = 0, reduceMotion }: { label: string; value: string; icon: React.ReactNode; from: string; to: string; delay?: number; reduceMotion: boolean | null }) {
-  return <motion.div initial={reduceMotion ? false : { opacity: 0, y: 14, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={reduceMotion ? { duration: 0 } : { ...SOFT_SPRING, delay }} whileHover={reduceMotion ? undefined : { y: -3 }} className="qbank-stat qbx-stat relative min-w-0 overflow-hidden rounded-2xl px-3 py-3 sm:px-4 sm:py-3.5">
-    <span aria-hidden="true" className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full opacity-30 blur-xl" style={{ background: `linear-gradient(140deg, ${from}, ${to})` }}/>
-    <span className="relative flex h-8 w-8 items-center justify-center rounded-xl text-white shadow-[0_6px_14px_rgba(0,0,0,0.12)] [&>svg]:h-4 [&>svg]:w-4" style={{ background: `linear-gradient(140deg, ${from}, ${to})` }}>{icon}</span>
-    <p className="relative mt-2.5 text-xl font-bold tabular-nums tracking-tight text-[#141A26] sm:text-2xl">{value}</p>
-    <p className="relative mt-0.5 truncate text-[10px] font-semibold uppercase tracking-[0.08em] text-[#7A8491] sm:text-[10.5px]">{label}</p>
-  </motion.div>;
-}
 function SubjectChip({ id, name, count, active, onSelect, reduceMotion, index }: { id: string; name: string; count?: number; active: boolean; onSelect: () => void; reduceMotion: boolean | null; index: number }) {
   const tone = id ? toneFor(id) : DEFAULT_TONE;
   const Icon = id ? tone.icon : Layers;
@@ -958,7 +536,7 @@ function parseSourceExplanation(raw: string, correctAnswer: string): ParsedExpla
 
 function SourceExplanation({ review, correctAnswer }: { review: Review; correctAnswer: string }) {
   const parsed = parseSourceExplanation(review.explanation, correctAnswer);
-  return <section className="qbank-explanation overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#141A29] shadow-sm">
+  return <section className="qbank-explanation qbank-source-review overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#141A29] shadow-sm">
     <div className="flex items-start gap-3 border-b border-slate-200/70 dark:border-white/10 px-4 py-4 sm:px-5">
       <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300"><BookOpenCheck className="h-4 w-4"/></div>
       <div>
@@ -996,7 +574,7 @@ function SourceExplanation({ review, correctAnswer }: { review: Review; correctA
 function GeminiReviewPanel({ correct, tutor, loading, error, onRequest }: { correct: boolean; tutor: TutorReview | null; loading: boolean; error: string; onRequest: () => void }) {
   const [showRetrievalAnswer, setShowRetrievalAnswer] = useState(false);
   useEffect(() => setShowRetrievalAnswer(false), [tutor]);
-  return <section className="qbank-gemini overflow-hidden rounded-2xl border border-violet-200/80 dark:border-violet-500/30 bg-[linear-gradient(145deg,#F8F6FF,#FFFFFF_68%,#F3F8FF)] dark:bg-[linear-gradient(145deg,#1A1629,#131724_68%,#161A29)] shadow-sm">
+  return <section className="qbank-gemini qbank-ai-review overflow-hidden rounded-2xl border border-violet-200/80 dark:border-violet-500/30 bg-[linear-gradient(145deg,#F8F6FF,#FFFFFF_68%,#F3F8FF)] dark:bg-[linear-gradient(145deg,#1A1629,#131724_68%,#161A29)] shadow-sm">
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-violet-100/80 dark:border-white/10 px-4 py-3.5 sm:px-5">
       <div className="flex items-center gap-2.5">
         <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300"><MessageSquareText className="h-4 w-4"/></div>
@@ -1093,7 +671,7 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
   const SubjectIcon=subjectTone.icon;
   const cardVars={['--chip-from' as string]:subjectTone.from,['--chip-to' as string]:subjectTone.to} as React.CSSProperties;
 
-  return createPortal(<AnimatePresence><motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="qbank-session qbx-session fixed inset-0 z-[9500] overflow-y-auto text-slate-900 dark:text-slate-100">
+  return <AnimatePresence><motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="qbank-session qbx-session fixed inset-0 z-[9500] overflow-y-auto text-slate-900 dark:text-slate-100">
     <div aria-hidden className="qbx-session-aurora pointer-events-none fixed inset-0 z-0"><span className="qbx-orb qbx-orb-a"/><span className="qbx-orb qbx-orb-b"/><span className="qbx-orb qbx-orb-c"/></div>
     <div className="relative z-[1] mx-auto flex min-h-[100dvh] max-w-3xl flex-col">
       <header className="qbank-session-header qbx-session-header sticky top-0 z-10 px-4 pb-3 pt-3 backdrop-blur-2xl sm:px-6">
@@ -1109,7 +687,7 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
         </div>
         {questions.length<=60?<div className="mt-3 flex gap-1" aria-hidden="true">{questions.map((item,i)=>{const a=answered[item.id];return <span key={item.id} className="qbx-seg relative h-1.5 flex-1 overflow-hidden rounded-full">{(a||i===index)&&<motion.span initial={{scaleX:0}} animate={{scaleX:1}} transition={SOFT_SPRING} style={{originX:0}} className={`absolute inset-0 rounded-full ${a?(a.correct?'bg-gradient-to-r from-[#30D158] to-[#00A88F]':'bg-gradient-to-r from-[#FF453A] to-[#FF2D92]'):'bg-gradient-to-r from-[#0A84FF] to-[#5E5CE6]'}`}/>}</span>;})}</div>:<div className="qbx-seg mt-3 h-1.5 overflow-hidden rounded-full" aria-hidden="true"><motion.div animate={{width:`${((index+1)/questions.length)*100}%`}} transition={SOFT_SPRING} className="h-full rounded-full bg-gradient-to-r from-[#0A84FF] via-[#5E5CE6] to-[#BF5AF2]"/></div>}
       </header>
-      {finished?<main className="m-auto w-full max-w-lg p-5 text-center">
+      {finished?<main className="qbank-finish-shell m-auto w-full max-w-lg rounded-[2rem] p-6 text-center sm:p-8">
         <motion.div initial={{scale:0.6,opacity:0}} animate={{scale:1,opacity:1}} transition={SPRING} className="flex justify-center"><ProgressRing value={accuracy} display={`${accuracy}%`} label="score" from="#30D158" to="#0A84FF" id="qbx-finish-ring" large/></motion.div>
         <motion.h2 initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{...SOFT_SPRING,delay:0.08}} className="mt-5 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{sessionLabel} complete</motion.h2>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{correctCount} correct out of {answeredCount} answered.</p>
@@ -1122,14 +700,14 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
           <div className="mb-4 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold" style={{color:subjectTone.ink,background:subjectTone.soft}}><SubjectIcon className="h-3 w-3"/>{q.subjectName}</span><span className="qbank-year-pill inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-white/10">{q.year ? `${q.exam} ${q.year}` : 'Year not listed in source'}</span>{q.isImageBased&&<span className="inline-flex items-center gap-1 rounded-full bg-violet-50 dark:bg-violet-950/40 px-2.5 py-1 text-[11px] font-semibold text-violet-700 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20"><ImageIcon className="h-3 w-3"/> Image question</span>}</div>
           <h1 className="whitespace-pre-wrap text-[17px] font-semibold leading-[1.6] tracking-[-0.015em] text-slate-900 dark:text-white sm:text-lg">{q.stem}</h1>
           {figures.map((figure,index)=><button key={`${q.id}-figure-${index}`} type="button" onClick={()=>setImageOpen(index)} className="qbank-figure group mt-5 block max-h-[min(52vh,500px)] w-full overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20 text-left"><img src={figure} alt={`Question figure${figures.length>1?` ${index+1}`:''}`} className="mx-auto max-h-[min(52vh,500px)] max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]" loading="lazy"/><span className="block border-t border-slate-200/60 dark:border-white/10 px-3 py-2.5 text-center text-xs font-medium text-slate-500 dark:text-slate-400">{figures.length>1?`Figure ${index+1} of ${figures.length} · `:''}Tap to view larger</span></button>)}
-          <div className="mt-5 space-y-2.5">{q.options.map((option,oi)=>{const isCorrect=Boolean(review&&option.key===review.correctAnswer);const isWrong=Boolean(review&&option.key===choice&&!isCorrect);const isPicked=!review&&choice===option.key;return <motion.button key={option.key} type="button" disabled={Boolean(review)||loading} onClick={()=>setChoice(option.key)} initial={{opacity:0,y:10}} animate={{opacity:1,y:0,scale:isPicked?1.01:1}} transition={{...SOFT_SPRING,delay:review?0:0.05+oi*0.04}} whileTap={review?undefined:{scale:0.985}} aria-pressed={choice===option.key} className={`qbx-option relative flex w-full items-start gap-3 overflow-hidden rounded-2xl px-3.5 py-3.5 text-left sm:px-4 ${isCorrect?'is-correct':isWrong?'is-wrong':isPicked?'is-picked':''}`}>
+          <div className="qbank-answer-stack mt-5 space-y-2.5">{q.options.map((option,oi)=>{const isCorrect=Boolean(review&&option.key===review.correctAnswer);const isWrong=Boolean(review&&option.key===choice&&!isCorrect);const isPicked=!review&&choice===option.key;return <motion.button key={option.key} type="button" disabled={Boolean(review)||loading} onClick={()=>setChoice(option.key)} initial={{opacity:0,y:10}} animate={{opacity:1,y:0,scale:isPicked?1.01:1}} transition={{...SOFT_SPRING,delay:review?0:0.05+oi*0.04}} whileTap={review?undefined:{scale:0.985}} aria-pressed={choice===option.key} className={`qbx-option relative flex w-full items-start gap-3 overflow-hidden rounded-2xl px-3.5 py-3.5 text-left sm:px-4 ${isCorrect?'is-correct':isWrong?'is-wrong':isPicked?'is-picked':''}`}>
             <span className="qbx-option-key relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold" aria-label={`Option ${option.key}`}>{isCorrect?<Check className="h-4 w-4"/>:isWrong?<X className="h-4 w-4"/>:option.key}</span>
             <span className="qbx-option-text relative z-10 pt-1 text-sm leading-6">{option.text}</span>
             {isCorrect&&<motion.span initial={{opacity:0,scale:0.6}} animate={{opacity:1,scale:1}} transition={SPRING} className="relative z-10 ml-auto mt-1 shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">Correct</motion.span>}
           </motion.button>;})}</div>
           {!review?<>
-            <fieldset className="mt-5"><legend className="mb-2 text-xs font-semibold text-slate-600 dark:text-slate-400">How sure are you? This helps choose what to revisit.</legend><div className="qbx-segment relative grid grid-cols-3 gap-1 rounded-full p-1">{([{value:'guess',label:'Guessed',from:'#FF9F0A',to:'#FF453A'},{value:'low',label:'Unsure',from:'#5E5CE6',to:'#BF5AF2'},{value:'high',label:'Confident',from:'#30D158',to:'#00A88F'}] as const).map((item)=><button key={item.value} type="button" aria-pressed={confidence===item.value} onClick={()=>setConfidence(item.value)} className={`relative min-h-9 rounded-full px-2 text-xs font-semibold transition-colors ${confidence===item.value?'text-white':'qbx-segment-idle'}`}>{confidence===item.value&&<motion.span layoutId="qbx-confidence-pill" transition={SPRING} className="absolute inset-0 rounded-full shadow-[0_4px_12px_rgba(30,40,90,0.18)]" style={{background:`linear-gradient(120deg,${item.from},${item.to})`}}/>}<span className="relative z-10">{item.label}</span></button>)}</div></fieldset>
-            {availableTopics.length>0&&<details className="mt-3 rounded-xl border border-slate-200/80 dark:border-white/10 bg-[#FBFCFE] dark:bg-white/5 px-3 py-2.5"><summary className="cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">Tag the tested topic <span className="font-normal text-slate-500 dark:text-slate-400">· optional, learner-selected</span></summary><p className="mt-2 text-[11px] leading-4 text-slate-500 dark:text-slate-400">Choose only if you recognize the main concept. This is not automatically inferred from the question.</p><select value={selectedSubtopic} onChange={(event)=>setSelectedSubtopic(event.target.value)} className="mt-2 h-10 w-full rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E2332] px-3 text-xs text-slate-800 dark:text-slate-200"><option value="">Leave untagged</option>{availableTopics.map((topic)=><option key={topic.id} value={topic.id}>{topic.name}</option>)}</select></details>}
+            <fieldset className="qbank-confidence mt-5"><legend className="mb-2 text-xs font-semibold text-slate-600 dark:text-slate-400">How sure are you? This helps choose what to revisit.</legend><div className="qbx-segment relative grid grid-cols-3 gap-1 rounded-full p-1">{([{value:'guess',label:'Guessed',from:'#FF9F0A',to:'#FF453A'},{value:'low',label:'Unsure',from:'#5E5CE6',to:'#BF5AF2'},{value:'high',label:'Confident',from:'#30D158',to:'#00A88F'}] as const).map((item)=><button key={item.value} type="button" aria-pressed={confidence===item.value} onClick={()=>setConfidence(item.value)} className={`relative min-h-9 rounded-full px-2 text-xs font-semibold transition-colors ${confidence===item.value?'text-white':'qbx-segment-idle'}`}>{confidence===item.value&&<motion.span layoutId="qbx-confidence-pill" transition={SPRING} className="absolute inset-0 rounded-full shadow-[0_4px_12px_rgba(30,40,90,0.18)]" style={{background:`linear-gradient(120deg,${item.from},${item.to})`}}/>}<span className="relative z-10">{item.label}</span></button>)}</div></fieldset>
+            {availableTopics.length>0&&<details className="qbank-topic-details mt-3 rounded-xl border border-slate-200/80 dark:border-white/10 bg-[#FBFCFE] dark:bg-white/5 px-3 py-2.5"><summary className="cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">Tag the tested topic <span className="font-normal text-slate-500 dark:text-slate-400">· optional, learner-selected</span></summary><p className="mt-2 text-[11px] leading-4 text-slate-500 dark:text-slate-400">Choose only if you recognize the main concept. This is not automatically inferred from the question.</p><select value={selectedSubtopic} onChange={(event)=>setSelectedSubtopic(event.target.value)} className="mt-2 h-10 w-full rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E2332] px-3 text-xs text-slate-800 dark:text-slate-200"><option value="">Leave untagged</option>{availableTopics.map((topic)=><option key={topic.id} value={topic.id}>{topic.name}</option>)}</select></details>}
             <motion.button type="button" disabled={!choice||loading} onClick={submit} whileHover={!choice||loading?undefined:{y:-1}} whileTap={!choice||loading?undefined:{scale:0.97}} transition={SPRING} className="qbx-btn qbx-btn-blue mt-5 h-12 w-full rounded-2xl text-sm sm:w-auto sm:px-8">{loading?<><LoaderCircle className="h-4 w-4 animate-spin"/>Checking answer…</>:'Check answer'}{!loading&&<ChevronRight className="h-4 w-4"/>}</motion.button>
             {tutorError&&<p role="alert" className="mt-3 rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-950/40 px-3.5 py-3 text-sm leading-5 text-rose-800 dark:text-rose-200">{tutorError}</p>}
           </>:<motion.div initial={{opacity:0,y:14}} animate={{opacity:1,y:0}} transition={SOFT_SPRING} className="qbank-review mt-6 space-y-4" ref={(node)=>node&&node.scrollIntoView({behavior:'smooth',block:'nearest'})}>
@@ -1143,6 +721,6 @@ function QuestionSession({questions,sessionId,sessionLabel,onClose,onRecordAttem
         <p className="mt-3 text-center text-[11px] text-slate-500 dark:text-slate-400">{q.exam}{q.year?` · ${q.year}`:' · year not listed'} · {q.source} · page {q.sourcePage}</p>
       </main>}
     </div>
-    {imageOpen!==null&&figures[imageOpen]&&<div className="fixed inset-0 z-[9600] flex items-center justify-center bg-black/90 p-3 backdrop-blur-sm" onClick={()=>setImageOpen(null)}><button className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white" aria-label="Close image"><X className="h-5 w-5"/></button>{figures.length>1&&<><button type="button" onClick={(e)=>{e.stopPropagation();setImageOpen((imageOpen+figures.length-1)%figures.length);}} className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white" aria-label="Previous figure"><ChevronLeft className="h-5 w-5"/></button><span className="absolute bottom-5 rounded-full bg-black/45 px-3 py-1 text-xs font-medium text-white">Figure {imageOpen+1} of {figures.length}</span><button type="button" onClick={(e)=>{e.stopPropagation();setImageOpen((imageOpen+1)%figures.length);}} className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white" aria-label="Next figure"><ChevronRight className="h-5 w-5"/></button></>}<motion.img initial={{scale:0.92,opacity:0}} animate={{scale:1,opacity:1}} transition={SOFT_SPRING} src={figures[imageOpen]} alt={`Enlarged question figure${figures.length>1?` ${imageOpen+1}`:''}`} onClick={(e)=>e.stopPropagation()} className="max-h-[92dvh] max-w-[96vw] object-contain"/></div>}
-  </motion.div></AnimatePresence>, document.body);
+    {imageOpen!==null&&figures[imageOpen]&&<div className="qbank-image-viewer fixed inset-0 z-[9600] flex items-center justify-center bg-black/90 p-3 backdrop-blur-sm" onClick={()=>setImageOpen(null)}><button type="button" onClick={()=>setImageOpen(null)} className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white" aria-label="Close image"><X className="h-5 w-5"/></button>{figures.length>1&&<><button type="button" onClick={(e)=>{e.stopPropagation();setImageOpen((imageOpen+figures.length-1)%figures.length);}} className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white" aria-label="Previous figure"><ChevronLeft className="h-5 w-5"/></button><span className="absolute bottom-5 rounded-full bg-black/45 px-3 py-1 text-xs font-medium text-white">Figure {imageOpen+1} of {figures.length}</span><button type="button" onClick={(e)=>{e.stopPropagation();setImageOpen((imageOpen+1)%figures.length);}} className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white" aria-label="Next figure"><ChevronRight className="h-5 w-5"/></button></>}<motion.img initial={{scale:0.92,opacity:0}} animate={{scale:1,opacity:1}} transition={SOFT_SPRING} src={figures[imageOpen]} alt={`Enlarged question figure${figures.length>1?` ${imageOpen+1}`:''}`} onClick={(e)=>e.stopPropagation()} className="max-h-[92dvh] max-w-[96vw] object-contain"/></div>}
+  </motion.div></AnimatePresence>;
 }

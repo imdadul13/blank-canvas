@@ -531,7 +531,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
     : [];
 
   return (
-    <div className="overflow-y-auto text-[#1C1C1E]" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9200, backgroundColor: '#1D1D1F' }}>
+    <div className="practice-session-modal overflow-y-auto text-[#1C1C1E]" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9200, backgroundColor: '#1D1D1F' }}>
       <div className="flex items-center justify-center p-0 sm:p-4 md:p-6" style={{ minHeight: '100vh' }}>
       <motion.div
         role="dialog"

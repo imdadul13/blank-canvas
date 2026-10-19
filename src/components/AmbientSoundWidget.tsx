@@ -94,7 +94,9 @@ export const AmbientSoundWidget: React.FC<AmbientSoundWidgetProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-            className="absolute right-0 top-full mt-2.5 w-72 bg-[#1C1C1E]/95 backdrop-blur-3xl border border-white/[0.10] rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.55),0_4px_16px_rgba(0,0,0,0.30)] z-[300] overflow-hidden"
+            className={`ambient-sound-popover absolute right-0 top-full mt-2.5 w-72 bg-[#1C1C1E]/95 backdrop-blur-3xl border border-white/[0.10] rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.55),0_4px_16px_rgba(0,0,0,0.30)] z-[300] overflow-hidden ${
+              isDark ? '' : 'is-light'
+            }`}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 pt-3.5 pb-2.5 border-b border-white/[0.07]">
@@ -183,7 +185,11 @@ export const AmbientSoundWidget: React.FC<AmbientSoundWidgetProps> = ({
                   type="range" min="0" max="1" step="0.01" value={volume}
                   onChange={e => ambientAudioEngine.setVolume(parseFloat(e.target.value))}
                   className="flex-1 h-1 rounded-full appearance-none cursor-pointer accent-[#007AFF]"
-                  style={{ background: `linear-gradient(to right, #007AFF ${volume * 100}%, rgba(255,255,255,0.12) ${volume * 100}%)` }}
+                  style={{
+                    background: `linear-gradient(to right, #007AFF ${volume * 100}%, ${
+                      isDark ? 'rgba(255,255,255,0.12)' : 'rgba(60,60,67,0.14)'
+                    } ${volume * 100}%)`,
+                  }}
                 />
                 <Volume2 className="h-3.5 w-3.5 text-white/30 shrink-0" />
               </div>

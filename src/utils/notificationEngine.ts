@@ -1095,29 +1095,3 @@ export function hasUnreadNotifications(state: AppState): boolean {
   });
 }
 
-/**
- * Returns the exact count of unread / actionable notification insights
- * eligible for badge display on bells and navigation rails.
- */
-export function getActiveNotificationCount(state: AppState): number {
-  try {
-    const dismissals = loadDismissals();
-    const noop: NotificationActions = {
-      onClose: () => {},
-      onNavigateTab: () => {},
-      onSelectSubject: () => {},
-      onLaunchPracticeSession: () => {},
-      onDismiss: () => {},
-      onBreakLogged: () => {},
-    };
-    const all = buildNotifications(state, dismissals, noop);
-    const store = loadInsightStore();
-    return all.filter((n) => {
-      const rec = store[n.id];
-      return !rec || rec.status === 'unseen';
-    }).length;
-  } catch {
-    return 0;
-  }
-}
-

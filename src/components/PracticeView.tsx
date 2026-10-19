@@ -100,7 +100,8 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         initial={reducedMotion ? false : { opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={reducedMotion ? { duration: 0 } : { duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="premium-page-hero relative rounded-[1.75rem] sm:rounded-[2.25rem] overflow-hidden"
+        className="system-page-header premium-page-hero relative rounded-[1.75rem] sm:rounded-[2.25rem] overflow-hidden"
+        data-header-art="orbit"
       >
         {/* Decorative right glow */}
         <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"

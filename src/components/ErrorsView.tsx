@@ -293,7 +293,7 @@ export const ErrorsView: React.FC<ErrorsViewProps> = ({
       </nav>
 
       {/* Hero header */}
-      <div className="error-vault-hero relative rounded-3xl overflow-hidden">
+      <div className="system-page-header error-vault-hero relative rounded-3xl overflow-hidden" data-header-art="signal" data-header-accent="danger">
         <div className="absolute right-0 top-0 bottom-0 w-2/3 pointer-events-none"
           style={{ background: 'radial-gradient(ellipse at 85% 40%, rgba(255,59,48,0.10) 0%, transparent 65%)' }} />
         <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/65 to-transparent pointer-events-none" />

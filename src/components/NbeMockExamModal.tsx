@@ -366,7 +366,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="mock-practice-title"
-      className={`fixed inset-0 z-[120] flex flex-col select-none ${
+      className={`nbe-mock-exam fixed inset-0 z-[120] flex flex-col select-none ${
         isTcsIonSkin ? 'bg-[#f4f7f9] text-slate-800' : 'bg-slate-950/95 backdrop-blur-md text-slate-100'
       }`}
     >

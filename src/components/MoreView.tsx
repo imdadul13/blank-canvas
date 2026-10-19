@@ -10,26 +10,18 @@ import {
   Cloud,
   User,
   ShieldCheck,
-  Database,
   BookOpen,
-  Target,
-  Clock,
-  Activity,
   CheckCircle2,
   Download,
-  Sun,
-  Moon,
-  Award,
   ChevronDown,
 } from 'lucide-react';
-import { AppState, ErrorNotebookItem, DailyTask, DailyStudyLog, MedicalPearl } from '../types';
-import { AppStats, downloadBackupFile } from '../utils/storage';
+import { AppState, ErrorNotebookItem } from '../types';
+import { downloadBackupFile } from '../utils/storage';
 import { TelegramHubView } from './TelegramHubView';
 import { ActiveTab } from './Navbar';
 
 interface MoreViewProps {
   state: AppState;
-  stats: AppStats;
   onOpenSettings: () => void;
   onOpenProfile?: () => void;
   onOpenCloudSync?: () => void;
@@ -40,22 +32,7 @@ interface MoreViewProps {
     topicName?: string
   ) => void;
   onAddErrorItem?: (item: ErrorNotebookItem) => void;
-  onToggleErrorReviewed?: (id: string) => void;
-  onDeleteErrorItem?: (id: string) => void;
   onUpdateAppState?: (updater: (prev: AppState) => AppState) => void;
-  onAddTask?: (task: DailyTask) => void;
-  onToggleTask?: (taskId: string) => void;
-  onDeleteTask?: (taskId: string) => void;
-  onUpdateDailyLog?: (dateStr: string, updates: Partial<DailyStudyLog>) => void;
-  onToggleBookmark?: (pearlId: string) => void;
-  onAddCustomPearl?: (pearl: MedicalPearl) => void;
-  onLaunchPracticeSession?: (
-    subjectId: string,
-    topicId: string,
-    topicName: string,
-    subtopic?: string
-  ) => void;
-  onSelectSubject?: (subjectId: string) => void;
 }
 
 type MoreSection = 'hub' | 'telegram';
@@ -69,7 +46,6 @@ function activateDirectoryCardWithKeyboard(event: React.KeyboardEvent<HTMLDivEle
 
 export const MoreView: React.FC<MoreViewProps> = ({
   state,
-  stats,
   onOpenSettings,
   onOpenProfile,
   onOpenCloudSync,
@@ -89,16 +65,6 @@ export const MoreView: React.FC<MoreViewProps> = ({
     setDownloadSuccess(true);
     setTimeout(() => setDownloadSuccess(false), 2400);
   };
-
-  const currentThemeMode = state.settings?.bgTheme || 'auto';
-  const themeLabel =
-    currentThemeMode === 'morning'
-      ? 'Morning Daylight'
-      : currentThemeMode === 'sunset'
-      ? 'Sunset Amber'
-      : currentThemeMode === 'night'
-      ? 'Night Indigo'
-      : 'Auto Circadian';
 
   return (
     <div
@@ -127,7 +93,8 @@ export const MoreView: React.FC<MoreViewProps> = ({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-            className="premium-page-hero relative rounded-[2rem] overflow-hidden bg-white border border-[rgba(60,60,67,0.08)] shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 sm:p-7"
+            className="system-page-header premium-page-hero relative rounded-[2rem] overflow-hidden bg-white border border-[rgba(60,60,67,0.08)] shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 sm:p-7"
+            data-header-art="aurora"
           >
             {/* Soft Ambient Background Highlights */}
             <div className="pointer-events-none absolute -right-20 -top-20 size-80 rounded-full bg-gradient-to-br from-[#007AFF]/10 via-[#5856D6]/5 to-transparent blur-3xl" />
@@ -395,7 +362,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
                 App preferences
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 gap-3.5">
                 {/* App Settings */}
                 <motion.div
                   whileHover={{ y: -3 }}
@@ -418,7 +385,7 @@ export const MoreView: React.FC<MoreViewProps> = ({
                       Preferences &amp; Calibration
                     </h3>
                     <p className="text-[12px] text-[#86868B] font-medium leading-relaxed">
-                      Target score, daily study hours, sound effects, and MCQ timer settings.
+                      Target score, daily study hours, appearance, sound effects, and MCQ timer settings.
                     </p>
                   </div>
 
@@ -428,37 +395,6 @@ export const MoreView: React.FC<MoreViewProps> = ({
                   </div>
                 </motion.div>
 
-                {/* Circadian Atmosphere Row */}
-                <motion.div
-                  whileHover={{ y: -3 }}
-                  transition={{ duration: 0.2 }}
-                  onClick={onOpenSettings}
-                  role="button" tabIndex={0} onKeyDown={activateDirectoryCardWithKeyboard}
-                  className="directory-card p-5 sm:p-6 rounded-[26px] bg-gradient-to-b from-[#FFF7ED] via-[#FFFBF7] to-white border border-[#FFEDD5]/70 hover:border-[#FB923C]/80 shadow-[0_4px_20px_rgba(249,115,22,0.04),0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(249,115,22,0.12)] cursor-pointer group transition-all space-y-4 flex flex-col justify-between"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="size-12 rounded-2xl bg-gradient-to-br from-[#FF9500] to-[#EA580C] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(255,149,0,0.30)] group-hover:scale-[1.06] transition-transform">
-                      <Sun className="size-5 stroke-[2.2]" />
-                    </div>
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#FF9500]/10 text-[#EA580C] text-[11px] font-mono font-bold border border-[#FF9500]/20">
-                      {themeLabel}
-                    </span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <h3 className="text-[15px] font-bold text-[#1D1D1F] group-hover:text-[#FF9500] transition-colors leading-snug">
-                      Theme &amp; appearance
-                    </h3>
-                    <p className="text-[12px] text-[#86868B] font-medium leading-relaxed">
-                      Choose a light, sunset, or night study background.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center text-[12px] font-semibold text-[#FF9500] gap-1 pt-1 group-hover:translate-x-0.5 transition-transform">
-                    <span>Adjust Theme</span>
-                    <ChevronRight className="size-3.5" />
-                  </div>
-                </motion.div>
               </div>
             </div>
           </div>

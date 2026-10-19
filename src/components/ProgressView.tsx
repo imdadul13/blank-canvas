@@ -13,7 +13,6 @@ import {
   ChevronDown,
   RotateCcw,
   Award,
-  Compass,
   BookOpen,
   Search,
   Activity,
@@ -202,7 +201,8 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-        className={`relative rounded-3xl overflow-hidden ${currentSubTab === 'overview' ? 'premium-page-hero' : 'bg-transparent'}`}
+        className={`relative rounded-3xl overflow-hidden ${currentSubTab === 'overview' ? 'system-page-header premium-page-hero' : 'bg-transparent'}`}
+        data-header-art={currentSubTab === 'overview' ? 'signal' : undefined}
         style={{
           background: currentSubTab === 'overview' ? 'linear-gradient(135deg, #EAF8FF 0%, #C2EAFE 40%, #80D4F8 70%, #5AC8FA 100%)' : 'transparent',
           boxShadow: currentSubTab === 'overview' ? '0 8px 40px rgba(90,200,250,0.18), 0 2px 8px rgba(0,0,0,0.06)' : 'none',
@@ -670,28 +670,13 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                       <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
                         style={{ background: `${color}0A`, border: `1px solid ${color}20` }}>
                         <Icon className="w-4 h-4 shrink-0" style={{ color }} />
-                        <span className="text-[12px] font-bold flex-1" style={{ color }}>
+                        <span className="text-[12px] font-bold" style={{ color }}>
                           {delta > 0 ? `Improving +${delta}%` : delta < 0 ? `Declining ${delta}%` : 'Stable trajectory'}
                         </span>
-                        <button type="button" onClick={() => setIsAccuracyTrendModalOpen(true)} className="text-[11px] font-bold text-[#007AFF] cursor-pointer shrink-0">
-                          Full Report
-                        </button>
                       </div>
                     );
                   })()}
-                  <div
-                    className="relative h-44 w-full cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]"
-                    role="button"
-                    tabIndex={0}
-                    aria-label="Open detailed accuracy trend report"
-                    onClick={() => setIsAccuracyTrendModalOpen(true)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        setIsAccuracyTrendModalOpen(true);
-                      }
-                    }}
-                  >
+                  <div className="relative h-44 w-full rounded-xl">
                     {[75, 50, 25].map((pct) => (
                       <div key={pct} className="absolute left-0 right-6 flex items-center"
                         style={{ bottom: `calc(${pct * 0.72}% + 14px)` }}>
@@ -754,8 +739,8 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               {grandTests.length > 0 ? (
                 <div className="space-y-3">
                   {latestGT && (
-                    <div onClick={() => setIsGrandTestModalOpen(true)}
-                      className="relative rounded-2xl overflow-hidden p-5 cursor-pointer"
+                    <div
+                      className="relative rounded-2xl overflow-hidden p-5"
                       style={{ background: 'linear-gradient(135deg, #007AFF 0%, #0A2463 100%)', boxShadow: '0 8px 24px rgba(0,122,255,0.25)' }}>
                       <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
                         style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.12) 0%, transparent 65%)' }} />
@@ -792,9 +777,9 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                       const pct = Math.round((gt.score / (gt.totalMarks || 300)) * 100);
                       const isPass = gt.score >= 150;
                       return (
-                        <div key={gt.id || idx} onClick={() => setIsGrandTestModalOpen(true)} className="cursor-pointer group space-y-1">
+                        <div key={gt.id || idx} className="space-y-1">
                           <div className="flex items-center justify-between text-[12px] font-mono">
-                            <span className="font-semibold text-[#3A3A3C] group-hover:text-[#007AFF] transition-colors">{gt.title || `GT ${idx + 1}`}</span>
+                            <span className="font-semibold text-[#3A3A3C]">{gt.title || `GT ${idx + 1}`}</span>
                             <span className="font-bold" style={{ color: isPass ? '#30D158' : '#FF3B30' }}>{gt.score}/300</span>
                           </div>
                           <div className="w-full h-2 rounded-full bg-[#F2F2F7] overflow-hidden">

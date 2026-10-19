@@ -408,7 +408,9 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(255,149,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-orange-200/50"
+        className="system-page-header relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(255,149,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-orange-200/50"
+        data-header-art="horizon"
+        data-header-accent="warm"
         style={{
           background: 'linear-gradient(135deg, #FFF9F2 0%, #FFF1E0 35%, #FFE2C2 70%, #FFD4A3 100%)',
         }}
@@ -1063,7 +1065,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <span>Session Preset</span>
                 <span>{timerMode === 'pomodoro' ? `${Math.round(totalDuration / 60)} min` : timerMode.replace('_', ' ')}</span>
               </div>
-              <div className="grid grid-cols-4 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 {[
                   { mode: 'pomodoro', minutes: 25, label: '25m Focus' },
                   { mode: 'pomodoro', minutes: 45, label: '45m Study' },
@@ -1106,7 +1108,7 @@ export const DailyPlannerView: React.FC<DailyPlannerViewProps> = ({
                 <span className="font-mono text-[10px] text-[#8E8E93]">Web Audio API</span>
               </div>
 
-              <div className="grid grid-cols-4 gap-1.5 text-xs font-medium">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs font-medium">
                 {[
                   { id: 'off', label: 'Mute' },
                   { id: 'alpha', label: 'Alpha 10Hz' },

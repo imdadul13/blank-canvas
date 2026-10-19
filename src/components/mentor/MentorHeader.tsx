@@ -57,7 +57,8 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="mentor-hero premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(14,165,233,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
+      className="system-page-header mentor-hero premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(14,165,233,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
+      data-header-art="signal"
       style={{
         background: 'linear-gradient(135deg, #E0F7FA 0%, #BAE6FD 35%, #7DD3FC 68%, #93C5FD 100%)',
       }}

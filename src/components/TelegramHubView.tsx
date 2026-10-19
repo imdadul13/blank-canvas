@@ -1195,7 +1195,8 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-        className="relative rounded-3xl overflow-hidden"
+        className="system-page-header system-page-header-dark relative rounded-3xl overflow-hidden"
+        data-header-art="ribbon"
         style={{
           background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 45%, #075985 80%, #0C4A6E 100%)',
           boxShadow: '0 8px 40px rgba(2,132,199,0.24), 0 2px 8px rgba(0,0,0,0.10)',

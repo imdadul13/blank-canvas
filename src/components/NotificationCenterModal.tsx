@@ -212,7 +212,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
           </div>
 
           {/* System Telemetry Intelligence Strip — 4 Apple Health Cards */}
-          <div className="mt-4 pt-3.5 border-t border-slate-100 grid grid-cols-4 gap-2 text-center">
+          <div className="mt-4 pt-3.5 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
             <div className="bg-slate-50/80 backdrop-blur-xs rounded-2xl px-2 py-2 border border-slate-200/70 shadow-2xs">
               <span className="text-[9.5px] uppercase font-semibold text-slate-400 tracking-wider block">
                 Target Score

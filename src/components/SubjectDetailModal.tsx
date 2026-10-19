@@ -137,9 +137,9 @@ export const SubjectDetailModal: React.FC<SubjectDetailModalProps> = ({
 
   return (
     <>
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9000, backgroundColor: '#1D1D1F', overflowY: 'auto' }} className="font-sans text-slate-900">
-        <div className="flex items-center justify-center p-2 sm:p-4 md:p-6" style={{ minHeight: '100vh' }}>
-          <div className="bg-[#F8FAFA] rounded-3xl max-w-4xl w-full my-auto flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80" style={{ maxHeight: '92vh' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9000, backgroundColor: '#1D1D1F', overflowY: 'auto' }} className="light-mode-workspace font-sans text-slate-900">
+        <div className="subject-workspace-shell flex items-center justify-center sm:p-4 md:p-6">
+          <div className="subject-workspace-panel bg-[#F8FAFA] sm:rounded-3xl max-w-4xl w-full my-auto flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.18)] border-0 sm:border border-slate-200/80 overflow-hidden">
             {/* ================= 1. WORKSPACE HEADER & NAVIGATION HIERARCHY ================= */}
             <div className="relative shrink-0 overflow-hidden p-4 sm:p-6 border-b border-slate-200/80 bg-gradient-to-br from-white via-white to-slate-50/70 space-y-4">
               {/* Subtle Subject Light Leak */}

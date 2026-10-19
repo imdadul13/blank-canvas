@@ -193,7 +193,8 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="revision-matrix-hero relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem]"
+        className="system-page-header system-page-header-dark revision-matrix-hero relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem]"
+        data-header-art="rings"
         style={{
           background: 'linear-gradient(135deg, #0A2540 0%, #1A3A5C 40%, #0E4F8C 70%, #0070CC 100%)',
           boxShadow: '0 8px 40px rgba(0,112,204,0.28), 0 2px 8px rgba(0,0,0,0.12)',

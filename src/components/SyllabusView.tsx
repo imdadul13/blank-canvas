@@ -203,11 +203,11 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
   ] as const;
 
   const STUDY_SUBTABS = [
-    { id: 'curriculum', label: 'Curriculum' },
-    { id: 'sprint', label: '20-Day Sprint' },
-    { id: 'flashcards', label: 'Flashcards' },
-    { id: 'rapid', label: 'Rapid Revision' },
-    { id: 'revision', label: 'Revision Matrix' },
+    { id: 'curriculum', label: 'Curriculum', icon: Compass },
+    { id: 'sprint', label: '20-Day Sprint', icon: Zap },
+    { id: 'flashcards', label: 'Flashcards', icon: Layers },
+    { id: 'rapid', label: 'Rapid Revision', icon: RotateCw },
+    { id: 'revision', label: 'Revision Matrix', icon: BarChart3 },
   ] as const;
 
   return (
@@ -218,7 +218,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
       }`}
     >
       {currentSubTab !== 'curriculum' && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[rgba(60,60,67,0.08)] bg-white/85 dark:bg-slate-900/85 dark:border-white/10 px-4 py-3 shadow-sm backdrop-blur-xl">
+        <div className="study-subnav flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[rgba(60,60,67,0.08)] bg-white/85 dark:bg-slate-900/85 dark:border-white/10 px-4 py-3 shadow-sm backdrop-blur-xl">
           <div className="flex items-center gap-2 text-sm font-semibold text-[#3A3A3C] dark:text-slate-200">
             <BookOpen className="h-4 w-4 text-[#30A854]" strokeWidth={2.2} />
             <span>
@@ -231,22 +231,25 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 : 'Revision Matrix'}
             </span>
           </div>
-          <div className="inline-flex rounded-full border border-[rgba(60,60,67,0.08)] bg-[#F2F2F7] dark:bg-white/10 p-1 overflow-x-auto max-w-full">
-            {STUDY_SUBTABS.map((tab) => (
+          <div className="study-subnav-track inline-flex rounded-full border border-[rgba(60,60,67,0.08)] bg-[#F2F2F7] dark:bg-white/10 p-1 overflow-x-auto max-w-full">
+            {STUDY_SUBTABS.map((tab) => {
+              const TabIcon = tab.icon;
+              return (
               <button
                 key={tab.id}
                 type="button"
                 aria-pressed={currentSubTab === tab.id}
                 onClick={() => handleSubTabChange(tab.id)}
-                className={`min-h-9 rounded-full px-3 sm:px-4 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 sm:px-4 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   currentSubTab === tab.id
                     ? 'bg-white dark:bg-slate-800 text-[#1D1D1F] dark:text-white shadow-sm font-bold'
                     : 'text-[#6E6E73] dark:text-slate-400 hover:text-[#1D1D1F] dark:hover:text-white'
                 }`}
               >
-                {tab.label}
+                <span className="study-tab-icon"><TabIcon className="h-3.5 w-3.5"/></span>
+                <span>{tab.label}</span>
               </button>
-            ))}
+            );})}
           </div>
         </div>
       )}
@@ -255,7 +258,8 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className={`premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)] ${currentSubTab !== 'curriculum' ? 'hidden' : ''}`}
+        className={`system-page-header premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(48,209,88,0.14),0_2px_8px_rgba(0,0,0,0.06)] ${currentSubTab !== 'curriculum' ? 'hidden' : ''}`}
+        data-header-art="aurora"
         style={{ background: 'linear-gradient(135deg, #E8F9EE 0%, #D0F2DC 40%, #B8E8C8 70%, #9EDDB6 100%)' }}
       >
         {/* Decorative right glow */}

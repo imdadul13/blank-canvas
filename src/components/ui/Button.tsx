@@ -99,8 +99,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <motion.button
         ref={ref}
         type={type}
+        data-variant={variant}
         className={cn(
-          'inline-flex select-none items-center justify-center whitespace-nowrap',
+          'ui-button inline-flex select-none items-center justify-center whitespace-nowrap',
           'font-semibold tracking-[-0.01em]',
           'transition-[background-color,color,filter,box-shadow] duration-150',
           'disabled:pointer-events-none disabled:opacity-45',
@@ -151,7 +152,7 @@ export interface PillProps extends React.HTMLAttributes<HTMLSpanElement> {
 export const Pill = React.forwardRef<HTMLElement, PillProps>(
   ({ tone = 'neutral', onClick, selected, disabled, className, children, ...props }, ref) => {
     const cls = cn(
-      'inline-flex min-h-7 items-center gap-1.5 rounded-full',
+      'ui-pill inline-flex min-h-7 items-center gap-1.5 rounded-full',
       'px-3 py-1 text-xs font-semibold tracking-[0.005em]',
       'transition-[background-color,color,border-color,filter] duration-150',
       onClick && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
@@ -227,7 +228,7 @@ export function Card({
   return (
     <div
       className={cn(
-        'surface-card',
+        'ui-card surface-card',
         raised && 'surface-card-raised material-thick',
         interactive && 'surface-card-interactive cursor-pointer',
         className,

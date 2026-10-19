@@ -431,7 +431,7 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
 
       {/* ── 2. Gradient Header Card ── */}
       <div
-        className="relative overflow-hidden rounded-3xl p-6 sm:p-8"
+        className="light-mode-hero relative overflow-hidden rounded-3xl p-6 sm:p-8"
         style={{
           background: 'linear-gradient(135deg, #001824 0%, #00324A 40%, #005A78 70%, #2B9FC4 100%)',
         }}

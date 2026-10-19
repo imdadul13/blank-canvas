@@ -72,6 +72,7 @@ import { RAPID_REVISION_DECK_TEXT } from '../data/rapidRevisionDeckText';
 import { RAPID_REVISION_PART3_PAGES } from '../data/rapidRevisionPart3Pages';
 import { RAPID_REVISION_VISUALS } from '../data/rapidRevisionVisuals';
 import type { McqAttempt } from '../types';
+import { StudyInsightRail, StudyModuleHeader } from './study/StudyModuleHeader';
 
 type SourceId = 'day1' | 'part3';
 type SourceFilter = SourceId | 'all';
@@ -539,206 +540,46 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({
   }, [deck]);
 
   return (
-    <section className="space-y-6 sm:space-y-8 pb-12 font-sans" aria-label="Rapid revision slide decks">
-      {/* ═══ 1. ATMOSPHERIC SUNSET FLAME HERO BANNER ═══ */}
-      <motion.div
-        initial={reduceMotion ? false : { opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem] text-white shadow-[0_8px_40px_rgba(234,88,12,0.28),0_2px_8px_rgba(0,0,0,0.12)]"
-        style={{
-          background: 'linear-gradient(135deg, #451A03 0%, #78350F 35%, #9A3412 70%, #EA580C 100%)',
+    <section className="study-module-root study-rapid-premium space-y-6 sm:space-y-8 pb-12 font-sans" aria-label="Rapid revision slide decks">
+      <StudyModuleHeader
+        eyebrow="Rapid revision library"
+        title="Review Faster."
+        accentTitle="Recall Under Pressure."
+        description="A concise visual library of board-tested facts, clinical tables, and image hallmarks built for focused final revision."
+        icon={Flame}
+        accent="#FF9500"
+        tint="#FFF4E5"
+        progress={overallProgressPct}
+        progressLabel="Library coverage"
+        progressMeta={`${totalReviewed} of ${totalPossibleSlides} slides reviewed`}
+        stats={[
+          { label: 'Decks', value: '11', color: '#FF9500' },
+          { label: 'Remaining', value: String(totalPossibleSlides - totalReviewed), color: '#007AFF' },
+          { label: 'Visual slides', value: String(totalVisualSlides), color: '#AF52DE' },
+        ]}
+        primaryAction={{
+          label: totalReviewed ? 'Resume revision' : 'Start revision',
+          onClick: () => {
+            const first = subjects[0];
+            if (first) openDeck(first.sourceId, first.subject, first.slides);
+          },
         }}
-      >
-        {/* Radial glow */}
-        <div
-          className="absolute right-0 top-0 bottom-0 w-2/3 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 85% 40%, rgba(249,115,22,0.38) 0%, transparent 65%)' }}
-        />
-        <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+      />
 
-        {/* Decorative orbital rings */}
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 w-40 h-40 sm:w-56 sm:h-56 rounded-full border border-white/[0.08] pointer-events-none" />
-        <div className="absolute right-16 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-36 sm:h-36 rounded-full border border-white/[0.06] pointer-events-none" />
-
-        <div className="relative z-10 p-5 sm:p-7 lg:p-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10">
-            {/* Left Content */}
-            <div className="flex-1 min-w-0 space-y-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white">
-                  <Flame className="h-4 w-4" />
-                </div>
-                <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-white/70">
-                  RAPID REVISION DECK
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 font-mono text-[10px] font-medium border border-white/10">
-                  11 DECKS · 286 SLIDES
-                </span>
-              </div>
-
-              <h1 className="text-[34px] sm:text-[46px] font-black tracking-[-0.04em] leading-[0.92] text-white">
-                Scan.<br />
-                <span style={{ color: '#FDBA74' }}>Blitz. High-Yield Recall.</span>
-              </h1>
-
-              <p className="text-[13px] sm:text-[14px] text-white/70 leading-snug max-w-xl">
-                Distilled board-tested medical slides, pathognomonic visual tables, and rapid-recall clinical cards across Foundation and Clinical review libraries.
-              </p>
-
-              {/* Overall Progress Bar Track */}
-              <div className="max-w-xs space-y-1.5 pt-1">
-                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
-                  <span>Reviewed Coverage</span>
-                  <span style={{ color: '#FDBA74' }}>{overallProgressPct}% ({totalReviewed}/{totalPossibleSlides})</span>
-                </div>
-                <div className="h-2 w-full bg-white/15 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${overallProgressPct}%` }}
-                    transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-                    className="h-full rounded-full"
-                    style={{
-                      background: 'linear-gradient(90deg, #FDBA74 0%, #EA580C 100%)',
-                      boxShadow: '0 0 10px rgba(253,186,116,0.6)',
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Right Badge Cluster */}
-            <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-3">
-              <div className="p-4 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md min-w-[220px] space-y-2">
-                <div className="flex items-center justify-between text-xs font-semibold text-white/80">
-                  <span className="uppercase font-mono text-[10px] tracking-wider">Review Pace</span>
-                  <span className="font-bold text-white text-sm">{totalReviewed} Done</span>
-                </div>
-                <div className="text-xs text-white/70">
-                  {totalPossibleSlides - totalReviewed} high-yield slides remaining across Day 1 & Part 3.
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-amber-500/20 border border-amber-400/30 text-amber-200 text-xs">
-                <Sparkles className="h-4 w-4 text-amber-300 shrink-0" />
-                <span>Auto-saved to your personal study ledger on every slide mark.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ═══ 2. 3 BENTO GAUGE CARDS ═══ */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        {[
-          {
-            id: 'day1',
-            title: 'Foundation Review',
-            subtitle: 'Day 1 Pre- & Para-Clinical',
-            slidesCount: 146,
-            reviewedCount: day1Reviewed,
-            pct: day1Pct,
-            color: '#3B82F6',
-            track: '#DBEAFE',
-            gradient: 'from-blue-500 via-indigo-600 to-purple-600',
-            border: 'border-blue-200/70 dark:border-blue-500/20',
-            description: 'Anatomy, Physiology, Pathology, Pharmacology, Biochemistry, Microbiology (146 slides)',
-          },
-          {
-            id: 'part3',
-            title: 'Clinical Review',
-            subtitle: 'Part 3 Clinicals & Shorts',
-            slidesCount: 140,
-            reviewedCount: part3Reviewed,
-            pct: part3Pct,
-            color: '#10B981',
-            track: '#D1FAE5',
-            gradient: 'from-emerald-500 via-teal-600 to-cyan-600',
-            border: 'border-emerald-200/70 dark:border-emerald-500/20',
-            description: 'Radiology, Dermatology, Pediatrics, Gynecology, Obstetrics (140 slides)',
-          },
-          {
-            id: 'visuals',
-            title: 'Visual IBQ Hallmarks',
-            subtitle: 'High-Yield Figures & Imaging',
-            slidesCount: totalVisualSlides,
-            reviewedCount: visualReviewed,
-            pct: visualPct,
-            color: '#F59E0B',
-            track: '#FEF3C7',
-            gradient: 'from-amber-500 via-orange-500 to-rose-600',
-            border: 'border-amber-200/70 dark:border-amber-500/20',
-            description: 'Radiographs, CT scans, histopathology stains, and clinical dermatological hallmarks',
-          },
-        ].map((card, idx) => (
-          <motion.div
-            key={card.id}
-            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border ${card.border} bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.09)] transition-all group`}
-          >
-            <div
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-              style={{ background: `${card.color}08` }}
-            />
-
-            <div className="relative flex flex-col gap-3.5">
-              {/* Header row */}
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${card.gradient} text-white flex items-center justify-center shrink-0 shadow-sm`}
-                    style={{ boxShadow: `0 3px 10px ${card.color}35` }}
-                  >
-                    <BookOpenCheck className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-slate-900 dark:text-white text-[14px] leading-tight">
-                      {card.title}
-                    </div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      {card.subtitle}
-                    </div>
-                  </div>
-                </div>
-                <Gauge pct={card.pct} size={52} sw={4.5} color={card.color} track={card.track} />
-              </div>
-
-              {/* Progress bar */}
-              <div className="space-y-1">
-                <div className="h-1.5 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.max(card.pct > 0 ? 5 : 0, card.pct)}%` }}
-                    transition={{ duration: 0.9, ease: 'easeOut' }}
-                    className="h-full rounded-full"
-                    style={{ background: `linear-gradient(90deg, ${card.color} 0%, ${card.color}CC 100%)` }}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-[10.5px]">
-                  <span className="font-mono text-slate-500 dark:text-slate-400">
-                    {card.reviewedCount} / {card.slidesCount} slides
-                  </span>
-                  <span className="font-semibold" style={{ color: card.color }}>
-                    {card.pct}% reviewed
-                  </span>
-                </div>
-              </div>
-
-              {/* Description */}
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug border-t border-slate-100 dark:border-white/10 pt-2.5">
-                {card.description}
-              </p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      <StudyInsightRail
+        title="Revision coverage"
+        subtitle="Two libraries · 286 slides"
+        items={[
+          { eyebrow: 'Foundation', title: 'Pre & para-clinical', value: `${day1Pct}%`, meta: `${day1Reviewed} of 146 slides`, progress: day1Pct, color: '#007AFF', icon: BookOpenCheck, description: 'Anatomy through Microbiology in one concentrated review path.' },
+          { eyebrow: 'Clinical', title: 'Clinical & short subjects', value: `${part3Pct}%`, meta: `${part3Reviewed} of 140 slides`, progress: part3Pct, color: '#30D158', icon: Stethoscope, description: 'Image-rich clinical recall across the final high-yield disciplines.' },
+          { eyebrow: 'Visual recall', title: 'IBQ hallmarks', value: `${visualPct}%`, meta: `${visualReviewed} of ${totalVisualSlides} visuals`, progress: visualPct, color: '#AF52DE', icon: Eye, description: 'Radiographs, pathology, dermatology, and classic visual signs.' },
+        ]}
+      />
 
       {/* ═══ 3. MAIN SPLIT: 8-COL DECKS LIST + 4-COL SIDEBAR ═══ */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <div className="study-rapid-workspace grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Main Panel — 8 columns */}
-        <div className="lg:col-span-8 space-y-5">
+        <div className="study-rapid-main lg:col-span-8 space-y-5">
           {/* Diagnostic intelligence section if gaps exist */}
           {recommendations.length > 0 && (
             <motion.section
@@ -903,7 +744,7 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({
             </div>
 
             {/* Subject Decks Grid */}
-            <div className="p-5 sm:p-6 grid gap-4 sm:grid-cols-2">
+            <div className="study-rapid-deck-list p-5 sm:p-6 grid gap-4 sm:grid-cols-2">
               {subjects.map(({ sourceId: deckSourceId, subject, slides, complete }, index) => {
                 const isCompleted = complete === slides.length && slides.length > 0;
                 const completionPct = slides.length ? Math.round((complete / slides.length) * 100) : 0;
@@ -919,7 +760,7 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({
                       duration: 0.25,
                       ease: [0.16, 1, 0.3, 1],
                     }}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-50/50 dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-900 p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all"
+                    className="study-rapid-deck-row group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-50/50 dark:bg-slate-900/60 hover:bg-white dark:hover:bg-slate-900 p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all"
                   >
                     {/* Top Accent Stripe */}
                     <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${subject.gradient}`} />
@@ -1036,7 +877,7 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({
         </div>
 
         {/* Right Sidebar — 4 columns */}
-        <div className="lg:col-span-4 space-y-4">
+        <div className="study-rapid-sidebar lg:col-span-4 space-y-4">
           {/* Quick Actions Card */}
           <div className="rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-slate-900 shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 dark:border-white/10 flex items-center gap-3">
@@ -1183,7 +1024,7 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({
       {deck && currentSlide &&
         createPortal(
           <div
-            className="fixed inset-0 z-[10000] flex flex-col bg-slate-950/90 backdrop-blur-2xl text-white select-none"
+            className="study-rapid-reader fixed inset-0 z-[10000] flex flex-col bg-slate-950/90 backdrop-blur-2xl text-white select-none"
             role="dialog"
             aria-modal="true"
             aria-label={`${deck.subject.title} slide deck`}

@@ -76,6 +76,7 @@ import { IbqRapidRecallModal } from '../IbqRapidRecallModal';
 import { calculateTopicPerformanceMetrics } from '../../utils/performanceEngine';
 import type { AppState, McqAttempt, GrandTest } from '../../types';
 import { SubjectAppleIcon } from '../SubjectAppleIcon';
+import { StudyInsightRail, StudyModuleHeader } from './StudyModuleHeader';
 
 export function getStoredTopicMastery(): Record<string, boolean> {
   try {
@@ -996,7 +997,7 @@ Format as a numbered list: 1. [Buzzword / Key finding]: [Definitive answer] — 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm">
+    <div className="study-suite-modal-backdrop fixed inset-0 z-[9100] flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1444,7 +1445,7 @@ Format as a numbered list: 1. [Buzzword / Key finding]: [Definitive answer] — 
         <AnimatePresence>
           {zoomedImage && (
             <div
-              className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80"
+              className="study-suite-modal-backdrop fixed inset-0 z-[9200] flex items-center justify-center p-4 bg-black/80"
               onClick={() => setZoomedImage(null)}
             >
               <div className="relative max-w-3xl max-h-[90vh] bg-slate-900 p-2 rounded-2xl overflow-hidden">
@@ -1513,7 +1514,7 @@ const InteractiveIbqQuizModal: React.FC<InteractiveIbqQuizModalProps> = ({
   const isAnswered = !!selectedAns;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-sm">
+    <div className="study-suite-modal-backdrop fixed inset-0 z-[9100] flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -1753,7 +1754,7 @@ const InteractiveAiCustomQuizModal: React.FC<InteractiveAiCustomQuizModalProps> 
   const timerColor = quiz.timeLeft > 15 ? 'bg-emerald-500' : quiz.timeLeft > 5 ? 'bg-amber-500' : 'bg-rose-500 animate-pulse';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-sm">
+    <div className="study-suite-modal-backdrop fixed inset-0 z-[9100] flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -2528,205 +2529,53 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
   }, [state.subjectProgress, state.topicsState, state.errorNotebook, attempts]);
 
   return (
-    <div className="space-y-5 sm:space-y-7 pb-24 sm:pb-20 lg:pb-16 font-['Plus_Jakarta_Sans'] text-[#1D1D1F]">
-      {/* ═══ 1. ATMOSPHERIC HERO BANNER (REVISION MATRIX SIGNATURE DESIGN) ═══ */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem]"
-        style={{
-          background: 'linear-gradient(135deg, #064E3B 0%, #065F46 35%, #047857 70%, #059669 100%)',
-          boxShadow: '0 8px 40px rgba(5,150,105,0.28), 0 2px 8px rgba(0,0,0,0.12)',
+    <div className="study-module-root study-sprint-premium space-y-5 sm:space-y-7 pb-24 sm:pb-20 lg:pb-16 font-sans text-[#1D1D1F]">
+      <StudyModuleHeader
+        eyebrow={isExamDay ? `Exam day · ${configuredExamDate}` : '20-day adaptive plan'}
+        title={isExamDay ? 'Exam Day' : 'Your 20-Day'}
+        accentTitle={isExamDay ? 'Calm. Clear. Ready.' : 'FMGE Sprint'}
+        description={isExamDay
+          ? 'A calm final protocol for two focused papers. Trust your preparation, keep moving, and answer every question.'
+          : 'A focused daily system that combines high-yield revision, active recall, targeted MCQs, and error repair.'}
+        icon={Flame}
+        accent="#30D158"
+        tint="#E8F9EE"
+        progress={isExamDay ? 100 : overallSprintPct}
+        progressLabel={isExamDay ? 'Exam status' : 'Sprint progress'}
+        progressMeta={isExamDay ? 'Ready for 300 questions' : `${daysLeft} days remaining · Day ${selectedDay + 1}`}
+        stats={[
+          { label: 'Today’s questions', value: String(todayAttempts.length), color: '#007AFF' },
+          { label: 'Accuracy', value: `${todayAccuracy}%`, color: '#30D158' },
+          { label: 'Open errors', value: String(readinessMetrics.unresolvedErrorsCount), color: '#FF9500' },
+        ]}
+        primaryAction={{
+          label: isExamDay ? 'Start volatile drill' : 'Begin today’s drill',
+          onClick: () => onLaunchPracticeMcq(blueprint.subjects[0] || activePlan.subjects[0] || 'obg'),
         }}
-      >
-        {/* Radial glow */}
-        <div
-          className="absolute right-0 top-0 bottom-0 w-2/3 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 85% 40%, rgba(52,211,153,0.35) 0%, transparent 65%)' }}
-        />
-        <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+        secondaryAction={onOpenDailyPlanner ? { label: 'Open Daily Planner', onClick: onOpenDailyPlanner } : undefined}
+      />
 
-        {/* Decorative orbit circles */}
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 w-40 h-40 sm:w-52 sm:h-52 rounded-full border border-white/[0.08] pointer-events-none" />
-        <div className="absolute right-16 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full border border-white/[0.06] pointer-events-none" />
-
-        <div className="relative z-10 p-5 sm:p-7 lg:p-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10">
-            {/* Left */}
-            <div className="flex-1 min-w-0 space-y-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white">
-                  <Flame className="h-4 w-4 text-emerald-300" />
-                </div>
-                <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-white/70">
-                  {isExamDay ? `EXAM DAY · ${configuredExamDate}` : 'EMERGENCY SPRINT BLUEPRINT'}
-                </span>
-              </div>
-
-              <h1 className="text-[36px] sm:text-[48px] font-black tracking-[-0.04em] leading-[0.88] text-white">
-                {isExamDay ? (
-                  <>
-                    Today is the Day, Doctor.<br />
-                    <span style={{ color: '#6EE7B7' }}>150+ to Victory.</span>
-                  </>
-                ) : (
-                  <>
-                    Speed. Focus.<br />
-                    <span style={{ color: '#6EE7B7' }}>150+ Mark Margin.</span>
-                  </>
-                )}
-              </h1>
-
-              <p className="text-[13px] sm:text-[14px] text-white/70 leading-snug max-w-lg">
-                {isExamDay
-                  ? '300 Questions across two 150-minute papers. Zero negative marking: never leave any question blank. Pacing: 1 minute per question. Stay calm and trust your preparation.'
-                  : 'Rule of 160: 6 heavyweight subjects deliver 165+ marks with zero negative marking. Replace textbook fatigue with daily focused recall and MCQ blitzes.'}
-              </p>
-
-              {/* Countdown progress bar */}
-              <div className="max-w-xs space-y-1.5 pt-1">
-                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
-                  <span>{isExamDay ? 'Exam Day Status' : 'Sprint Timeline'}</span>
-                  <span style={{ color: '#6EE7B7' }}>
-                    {isExamDay ? 'Active Today · Qualify (150+)' : `${daysLeft} Days Left (${overallSprintPct}%)`}
-                  </span>
-                </div>
-                <div className="h-2 w-full bg-white/15 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${isExamDay ? 100 : overallSprintPct}%` }}
-                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                    className="h-full rounded-full"
-                    style={{
-                      background: 'linear-gradient(90deg, #6EE7B7 0%, #10B981 100%)',
-                      boxShadow: '0 0 10px rgba(110,231,183,0.6)',
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Quick Action Pill & Shortcuts */}
-            <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col xl:flex-row items-stretch sm:items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => onLaunchPracticeMcq(blueprint.subjects[0] || activePlan.subjects[0] || 'obg')}
-                className="px-5 py-3 rounded-2xl bg-white text-emerald-950 font-bold text-xs sm:text-sm shadow-lg hover:bg-emerald-50 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Zap className="h-4 w-4 text-emerald-600" />
-                <span>{isExamDay ? 'Volatile Drill' : "Launch Today's Drill"}</span>
-              </button>
-              {onOpenDailyPlanner && (
-                <button
-                  type="button"
-                  onClick={onOpenDailyPlanner}
-                  className="px-4 py-2.5 rounded-2xl bg-white/15 border border-white/20 text-white font-semibold text-xs hover:bg-white/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer backdrop-blur-sm"
-                  title="Open Daily Planner with Pomodoro and study checklist"
-                >
-                  <Clock className="h-3.5 w-3.5 text-emerald-300" />
-                  <span>Daily Planner</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ═══ 2. 3 BENTO METRIC CARDS WITH CIRCULAR GAUGES (WEIGHTAGE TIERS) ═══ */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        {[
-          {
-            tier: 1,
-            title: 'Tier 1: Heavyweights',
-            subtitle: '~165 Marks · 6 Subjects',
-            pct: tierMetrics[0]?.pct || 0,
-            done: tierMetrics[0]?.completedTopics || 0,
-            total: tierMetrics[0]?.totalTopics || 0,
-            color: '#10B981',
-            track: '#D1FAE5',
-            gradient: 'from-emerald-500 to-teal-600',
-            border: 'border-emerald-200/70',
-            description: 'Medicine, Surgery, OBG, PSM, Pathology, Pharma. Where clearing the exam is won.',
-          },
-          {
-            tier: 2,
-            title: 'Tier 2: High-Yield Clinical',
-            subtitle: '~75 Marks · 6 Subjects',
-            pct: tierMetrics[1]?.pct || 0,
-            done: tierMetrics[1]?.completedTopics || 0,
-            total: tierMetrics[1]?.totalTopics || 0,
-            color: '#0891B2',
-            track: '#CFFAFE',
-            gradient: 'from-cyan-500 to-blue-600',
-            border: 'border-cyan-200/70',
-            description: 'Pediatrics, ENT, Ophthalmology, Ortho, Micro, FMT. High scoring yield per study hour.',
-          },
-          {
-            tier: 3,
-            title: 'Tier 3: Pre-Clinical & Shorts',
-            subtitle: '~60 Marks · 7 Subjects',
-            pct: tierMetrics[2]?.pct || 0,
-            done: tierMetrics[2]?.completedTopics || 0,
-            total: tierMetrics[2]?.totalTopics || 0,
-            color: '#8B5CF6',
-            track: '#EDE9FE',
-            gradient: 'from-purple-500 to-indigo-600',
-            border: 'border-purple-200/70',
-            description: 'Anatomy, Physio, Biochem, Derm, Psych, Radio, Anesthesia. Buzzword pattern recall.',
-          },
-        ].map((item, idx) => (
-          <motion.div
-            key={item.tier}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border ${item.border} bg-white p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.09)] transition-all group`}
-          >
-            <div className="relative flex flex-col gap-3.5">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${item.gradient} text-white flex items-center justify-center shrink-0 shadow-sm`}
-                    style={{ boxShadow: `0 3px 10px ${item.color}35` }}
-                  >
-                    <span className="font-mono font-black text-[13px]">T{item.tier}</span>
-                  </div>
-                  <div>
-                    <div className="font-bold text-[#1D1D1F] text-[14px] leading-tight">{item.title}</div>
-                    <div className="text-[11px] text-[#8E8E93] mt-0.5">{item.subtitle}</div>
-                  </div>
-                </div>
-                <Gauge pct={item.pct} size={52} sw={4.5} color={item.color} track={item.track} />
-              </div>
-
-              {/* Progress bar */}
-              <div className="space-y-1">
-                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.max(item.pct > 0 ? 5 : 0, item.pct)}%` }}
-                    transition={{ duration: 0.9, ease: 'easeOut' }}
-                    className="h-full rounded-full"
-                    style={{ background: `linear-gradient(90deg, ${item.color} 0%, ${item.color}CC 100%)` }}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-[10.5px]">
-                  <span className="font-mono text-slate-500">{item.done} / {item.total} topics</span>
-                  <span className="font-semibold" style={{ color: item.color }}>{item.pct}% done</span>
-                </div>
-              </div>
-
-              <p className="text-[11px] text-[#8E8E93] leading-snug border-t border-slate-100 pt-2.5">
-                {item.description}
-              </p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      <StudyInsightRail
+        title="Exam-weight priorities"
+        subtitle="Three layers · 300 marks"
+        items={tierMetrics.map((tier, index) => ({
+          eyebrow: `Tier ${index + 1}`,
+          title: index === 0 ? 'Heavyweights' : index === 1 ? 'High-yield clinical' : 'Pre-clinical & shorts',
+          value: `${tier.pct}%`,
+          meta: `${tier.completedTopics} of ${tier.totalTopics} topics complete`,
+          progress: tier.pct,
+          color: index === 0 ? '#30D158' : index === 1 ? '#30B0C7' : '#5856D6',
+          icon: index === 0 ? Target : index === 1 ? Activity : Brain,
+          description: index === 0
+            ? 'The six subjects that carry the largest share of your qualifying score.'
+            : index === 1
+            ? 'Clinical disciplines with strong marks gained per focused study hour.'
+            : 'Compact, pattern-rich subjects suited to rapid recall and visual revision.',
+        }))}
+      />
 
       {/* ═══ 2.5 TRANSPARENT READINESS SUMMARY (5 CRITICAL LEARNING METRICS) ═══ */}
-      <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] space-y-4">
+      <div className="study-readiness-panel rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600">
@@ -2866,9 +2715,9 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
       </div>
 
       {/* ═══ 3. MAIN SPRINT MATRIX (8 COLS) + SIDEBAR (4 COLS) ═══ */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <div className="study-sprint-workspace grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Left Column: 8 Cols */}
-        <div className="lg:col-span-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.05)] overflow-hidden space-y-5 p-4 sm:p-6">
+        <div className="study-sprint-main lg:col-span-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.05)] overflow-hidden space-y-5 p-4 sm:p-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div className="flex items-center gap-3">
@@ -3990,7 +3839,7 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
         </div>
 
         {/* Right Column: 4 Cols (Sidebar with Quick Actions & Stats) */}
-        <div className="lg:col-span-4 space-y-4">
+        <div className="study-sprint-sidebar lg:col-span-4 space-y-4">
           {/* Quick Actions Panel */}
           <div className="rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
@@ -4176,7 +4025,7 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
       {/* ═══ VERIFIED DIAGNOSTIC VISUAL ASSET PREVIEW MODAL ═══ */}
       <AnimatePresence>
         {activeVisualAsset && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="study-suite-modal-backdrop fixed inset-0 z-[9100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

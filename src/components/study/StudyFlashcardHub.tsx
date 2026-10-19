@@ -31,6 +31,7 @@ import { FMGE_SUBJECTS } from '../../data/fmgeSubjects';
 import { generateFlashcardDeck } from '../../utils/flashcardEngine';
 import type { FlashcardItem, FlashcardDeck } from '../../types';
 import { SubjectAppleIcon } from '../SubjectAppleIcon';
+import { StudyInsightRail, StudyModuleHeader } from './StudyModuleHeader';
 
 interface StudyFlashcardHubProps {
   initialSubjectId?: string;
@@ -217,187 +218,47 @@ export const StudyFlashcardHub: React.FC<StudyFlashcardHubProps> = ({
   );
 
   return (
-    <div className="space-y-5 sm:space-y-7 pb-24 sm:pb-20 lg:pb-16 font-['Plus_Jakarta_Sans'] text-[#1D1D1F]">
-      {/* ═══ 1. ATMOSPHERIC HERO BANNER (REVISION MATRIX SIGNATURE DESIGN) ═══ */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem]"
-        style={{
-          background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 35%, #4338CA 70%, #6366F1 100%)',
-          boxShadow: '0 8px 40px rgba(99,102,241,0.28), 0 2px 8px rgba(0,0,0,0.12)',
+    <div className="study-module-root study-flashcards-premium space-y-5 sm:space-y-7 pb-24 sm:pb-20 lg:pb-16 font-sans text-[#1D1D1F]">
+      <StudyModuleHeader
+        eyebrow="Active recall studio"
+        title="Remember More."
+        accentTitle="Forget Less."
+        description="Turn high-yield facts, diagnostic traps, and clinical pearls into durable recall with focused card sessions."
+        icon={Layers}
+        accent="#5856D6"
+        tint="#F0F0FE"
+        progress={masteryPct}
+        progressLabel="Current deck mastery"
+        progressMeta={`${currentSubject.name} · ${currentTopic.name}`}
+        stats={[
+          { label: 'Cards', value: String(flashcardDeck.cards.length), color: '#5856D6' },
+          { label: 'Mastered', value: String(totalMasteredCount), color: '#30D158' },
+          { label: 'Clinical pearls', value: String(highYieldCardsCount), color: '#FF9500' },
+        ]}
+        primaryAction={{
+          label: 'Start card session',
+          onClick: () => { setViewMode('flip'); setCurrentCardIndex(0); setIsFlipped(false); },
         }}
-      >
-        {/* Radial glow */}
-        <div
-          className="absolute right-0 top-0 bottom-0 w-2/3 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 85% 40%, rgba(165,180,252,0.35) 0%, transparent 65%)' }}
-        />
-        <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+        secondaryAction={{
+          label: 'Test with 10 MCQs',
+          onClick: () => onLaunchPracticeMcq(currentSubject.id, currentTopic?.id, currentTopic?.name),
+        }}
+      />
 
-        {/* Decorative orbit circles */}
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 w-40 h-40 sm:w-52 sm:h-52 rounded-full border border-white/[0.08] pointer-events-none" />
-        <div className="absolute right-16 top-1/2 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 rounded-full border border-white/[0.06] pointer-events-none" />
-
-        <div className="relative z-10 p-5 sm:p-7 lg:p-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10">
-            {/* Left */}
-            <div className="flex-1 min-w-0 space-y-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white">
-                  <Layers className="h-4 w-4 text-indigo-300" />
-                </div>
-                <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-white/70">
-                  FLASHCARD MASTERY ENGINE
-                </span>
-              </div>
-
-              <h1 className="text-[36px] sm:text-[48px] font-black tracking-[-0.04em] leading-[0.88] text-white">
-                Prompt. Recall.<br />
-                <span style={{ color: '#A5B4FC' }}>Retain Instantly.</span>
-              </h1>
-
-              <p className="text-[13px] sm:text-[14px] text-white/70 leading-snug max-w-lg">
-                High-frequency memory anchors across 19 FMGE disciplines. Rapidly drill gold-standard criteria, diagnostic traps, and high-yield buzzwords.
-              </p>
-
-              {/* Mastery progress bar */}
-              <div className="max-w-xs space-y-1.5 pt-1">
-                <div className="flex items-center justify-between text-[11px] font-semibold text-white/70">
-                  <span>Topic Retention Rate</span>
-                  <span style={{ color: '#A5B4FC' }}>
-                    {totalMasteredCount}/{flashcardDeck.cards.length} ({masteryPct}%)
-                  </span>
-                </div>
-                <div className="h-2 w-full bg-white/15 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${masteryPct}%` }}
-                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                    className="h-full rounded-full"
-                    style={{
-                      background: 'linear-gradient(90deg, #A5B4FC 0%, #6366F1 100%)',
-                      boxShadow: '0 0 10px rgba(165,180,252,0.6)',
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Quick Action Pill */}
-            <div className="shrink-0 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() =>
-                  onLaunchPracticeMcq(currentSubject.id, currentTopic?.id, currentTopic?.name)
-                }
-                className="px-5 py-3 rounded-2xl bg-white text-indigo-950 font-bold text-xs sm:text-sm shadow-lg hover:bg-indigo-50 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <Zap className="h-4 w-4 text-indigo-600" />
-                <span>10-MCQ Drill on Topic</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ═══ 2. 3 BENTO METRIC CARDS WITH CIRCULAR GAUGES (ACTIVE RECALL PILLARS) ═══ */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        {[
-          {
-            type: 'Core',
-            title: 'Core Concepts Deck',
-            subtitle: `${coreCardsCount || flashcardDeck.cards.length} High-Yield Cards`,
-            pct: masteryPct,
-            done: totalMasteredCount,
-            total: flashcardDeck.cards.length,
-            color: '#6366F1',
-            track: '#E0E7FF',
-            gradient: 'from-indigo-500 to-purple-600',
-            border: 'border-indigo-200/70',
-            description: 'Pathognomonic signs, normal laboratory benchmarks, gold-standard modalities.',
-          },
-          {
-            type: 'Traps',
-            title: 'Diagnostic Traps & Dilemmas',
-            subtitle: `${trapCardsCount || 4} Lookalike Pairs`,
-            pct: Math.round(masteryPct * 0.9),
-            done: Math.round(totalMasteredCount * 0.9),
-            total: flashcardDeck.cards.length,
-            color: '#F59E0B',
-            track: '#FEF3C7',
-            gradient: 'from-amber-500 to-orange-500',
-            border: 'border-amber-200/70',
-            description: 'Distractor pitfalls, lookalike syndromes, and frequent FMGE exam traps.',
-          },
-          {
-            type: 'Pearls',
-            title: 'Rapid Recall Buzzwords',
-            subtitle: `${highYieldCardsCount || flashcardDeck.cards.length} Clinical Pearls`,
-            pct: Math.min(100, Math.round(masteryPct * 1.1)),
-            done: Math.min(flashcardDeck.cards.length, Math.round(totalMasteredCount * 1.1)),
-            total: flashcardDeck.cards.length,
-            color: '#10B981',
-            track: '#D1FAE5',
-            gradient: 'from-emerald-500 to-teal-600',
-            border: 'border-emerald-200/70',
-            description: 'One-liner high-yield associations, classical tri-signs, and mnemonics.',
-          },
-        ].map((item, idx) => (
-          <motion.div
-            key={item.type}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border ${item.border} bg-white p-4 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.09)] transition-all group`}
-          >
-            <div className="relative flex flex-col gap-3.5">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${item.gradient} text-white flex items-center justify-center shrink-0 shadow-sm`}
-                    style={{ boxShadow: `0 3px 10px ${item.color}35` }}
-                  >
-                    <span className="font-mono font-black text-[12px]">{item.type.slice(0, 3)}</span>
-                  </div>
-                  <div>
-                    <div className="font-bold text-[#1D1D1F] text-[14px] leading-tight">{item.title}</div>
-                    <div className="text-[11px] text-[#8E8E93] mt-0.5">{item.subtitle}</div>
-                  </div>
-                </div>
-                <Gauge pct={item.pct} size={52} sw={4.5} color={item.color} track={item.track} />
-              </div>
-
-              {/* Progress bar */}
-              <div className="space-y-1">
-                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.max(item.pct > 0 ? 5 : 0, item.pct)}%` }}
-                    transition={{ duration: 0.9, ease: 'easeOut' }}
-                    className="h-full rounded-full"
-                    style={{ background: `linear-gradient(90deg, ${item.color} 0%, ${item.color}CC 100%)` }}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-[10.5px]">
-                  <span className="font-mono text-slate-500">{item.done} / {item.total} mastered</span>
-                  <span className="font-semibold" style={{ color: item.color }}>{item.pct}% done</span>
-                </div>
-              </div>
-
-              <p className="text-[11px] text-[#8E8E93] leading-snug border-t border-slate-100 pt-2.5">
-                {item.description}
-              </p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      <StudyInsightRail
+        title="Recall profile"
+        subtitle={`${currentSubject.name} · ${currentTopic.name}`}
+        items={[
+          { eyebrow: 'Foundation', title: 'Core concepts', value: String(coreCardsCount), meta: `${totalMasteredCount} mastered`, progress: masteryPct, color: '#5856D6', icon: Layers, description: 'Diagnostic rules, normal values, and gold-standard tests.' },
+          { eyebrow: 'Pitfalls', title: 'Exam traps', value: String(trapCardsCount), meta: 'Lookalikes and distractors', progress: Math.round(masteryPct * .9), color: '#FF9500', icon: AlertTriangle, description: 'Commonly confused pairs and high-frequency examiner traps.' },
+          { eyebrow: 'Memory', title: 'Clinical pearls', value: String(highYieldCardsCount), meta: 'High-yield associations', progress: Math.min(100, Math.round(masteryPct * 1.1)), color: '#30D158', icon: Sparkles, description: 'Fast one-line cues built for durable retrieval under pressure.' },
+        ]}
+      />
 
       {/* ═══ 3. MAIN FLASHCARD ENGINE (8 COLS) + SIDEBAR (4 COLS) ═══ */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <div className="study-flashcard-workspace grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Left Column: 8 Cols */}
-        <div className="lg:col-span-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.05)] overflow-hidden space-y-4 p-4 sm:p-6">
+        <div className="study-flashcard-deck lg:col-span-8 rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.05)] overflow-hidden space-y-4 p-4 sm:p-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div className="flex items-center gap-3">
@@ -507,7 +368,7 @@ export const StudyFlashcardHub: React.FC<StudyFlashcardHubProps> = ({
             ) : (
               <div className="space-y-4">
                 {/* 3D Flip Card Container */}
-                <div className="relative min-h-[360px] sm:min-h-[380px] w-full [perspective:1200px]">
+                <div className="study-flashcard-stage relative min-h-[360px] sm:min-h-[380px] w-full [perspective:1200px]">
                   <motion.div
                     className="w-full h-full relative cursor-pointer select-none [transform-style:preserve-3d] transition-transform duration-500"
                     animate={{ rotateY: isFlipped ? 180 : 0 }}
@@ -515,7 +376,7 @@ export const StudyFlashcardHub: React.FC<StudyFlashcardHubProps> = ({
                   >
                     {/* Front of Card */}
                     <div
-                      className={`w-full min-h-[360px] sm:min-h-[380px] p-6 sm:p-7 rounded-2xl sm:rounded-3xl border bg-white shadow-md flex flex-col justify-between [backface-visibility:hidden] ${
+                      className={`study-flashcard-face w-full min-h-[360px] sm:min-h-[380px] p-6 sm:p-7 rounded-2xl sm:rounded-3xl border bg-white shadow-md flex flex-col justify-between [backface-visibility:hidden] ${
                         isCurrentCardMastered
                           ? 'border-emerald-300 shadow-[0_4px_25px_rgba(16,185,129,0.08)]'
                           : 'border-indigo-200 shadow-[0_4px_25px_rgba(99,102,241,0.08)]'
@@ -571,7 +432,7 @@ export const StudyFlashcardHub: React.FC<StudyFlashcardHubProps> = ({
 
                     {/* Back of Card */}
                     <div
-                      className="w-full min-h-[360px] sm:min-h-[380px] p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-indigo-200 bg-gradient-to-br from-white via-indigo-50/20 to-white shadow-md flex flex-col justify-between [transform:rotateY(180deg)] [backface-visibility:hidden] absolute inset-0"
+                      className="study-flashcard-face w-full min-h-[360px] sm:min-h-[380px] p-6 sm:p-7 rounded-2xl sm:rounded-3xl border border-indigo-200 bg-gradient-to-br from-white via-indigo-50/20 to-white shadow-md flex flex-col justify-between [transform:rotateY(180deg)] [backface-visibility:hidden] absolute inset-0"
                     >
                       <div className="space-y-4">
                         <div className="flex items-center justify-between gap-2">
@@ -749,7 +610,7 @@ export const StudyFlashcardHub: React.FC<StudyFlashcardHubProps> = ({
         </div>
 
         {/* Right Column: 4 Cols (Sidebar with Quick Actions & Stats) */}
-        <div className="lg:col-span-4 space-y-4">
+        <div className="study-flashcard-sidebar lg:col-span-4 space-y-4">
           {/* Quick Actions Panel */}
           <div className="rounded-2xl sm:rounded-3xl border border-slate-200/80 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">

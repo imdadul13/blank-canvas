@@ -322,7 +322,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
   const targetScoreBuffer = Math.max(0, (Number(targetScore) || 200) - 150);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#F5F5F7] text-slate-900 selection:bg-[#007AFF]/20 selection:text-[#007AFF] font-sans overflow-hidden">
+    <div className="onboarding-flow fixed inset-0 z-50 flex flex-col bg-[#F5F5F7] text-slate-900 selection:bg-[#007AFF]/20 selection:text-[#007AFF] font-sans overflow-hidden">
       {/* ── Dynamic Ambient Mesh Gradients ── */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <motion.div
@@ -357,7 +357,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
       </div>
 
       {/* ── Fixed Apple Top Bar ── */}
-      <header className="relative shrink-0 w-full max-w-4xl mx-auto px-5 sm:px-8 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 flex items-center justify-between z-10">
+      <header className="onboarding-header relative shrink-0 w-full max-w-4xl mx-auto px-5 sm:px-8 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 flex items-center justify-between gap-2 z-10">
         <div className="flex items-center gap-3">
           <OneShotLogo variant="compact" size="sm" />
           <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/80 backdrop-blur-md text-[#1D1D1F] border border-black/[0.06] shadow-2xs">
@@ -378,7 +378,7 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
             title="Return to Welcome / Sign In"
           >
             <ArrowLeft className="size-3.5 text-[#007AFF]" />
-            <span>{isGuest ? 'Back to Sign In' : 'Exit Setup'}</span>
+            <span className="onboarding-exit-label">{isGuest ? 'Back to Sign In' : 'Exit Setup'}</span>
           </motion.button>
 
           {answerProgress !== null && (
@@ -386,8 +386,8 @@ export const OnboardingFlow: React.FC<{ onComplete?: () => void }> = ({ onComple
               <span className="text-[11px] font-mono font-bold text-[#007AFF] tabular-nums">
                 {String(answerProgress + 1).padStart(2, '0')} / {String(totalSteps).padStart(2, '0')}
               </span>
-              <span className="h-3 w-px bg-black/[0.08]" />
-              <span className="text-[11px] font-medium text-[#6E6E73] truncate max-w-[110px] sm:max-w-none">
+              <span className="onboarding-step-detail h-3 w-px bg-black/[0.08]" />
+              <span className="onboarding-step-detail text-[11px] font-medium text-[#6E6E73] truncate max-w-[110px] sm:max-w-none">
                 {STEP_TITLES[step]}
               </span>
             </div>

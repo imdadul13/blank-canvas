@@ -181,7 +181,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 30, scale: 0.96 }}
           transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-          className="relative w-full max-w-2xl bg-gradient-to-b from-slate-900/98 via-slate-900/95 to-slate-950/98 border border-white/10 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.7)] backdrop-blur-2xl text-slate-100 space-y-6 overflow-hidden"
+          className="audio-recall-panel relative w-full max-w-2xl bg-gradient-to-b from-slate-900/98 via-slate-900/95 to-slate-950/98 border border-white/10 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.7)] backdrop-blur-2xl text-slate-100 space-y-6 overflow-hidden"
         >
           {/* Ambient Frosted Aura */}
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-[#5856D6]/15 blur-3xl pointer-events-none rounded-full" />
@@ -417,7 +417,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
               <button
                 type="button"
                 onClick={handleTogglePlay}
-                className="flex items-center justify-center h-12 w-12 rounded-full bg-white hover:bg-slate-100 text-slate-950 shadow-xl shadow-white/20 active:scale-95 transition-all cursor-pointer"
+                className="audio-recall-primary flex items-center justify-center h-12 w-12 rounded-full bg-white hover:bg-slate-100 text-slate-950 shadow-xl shadow-white/20 active:scale-95 transition-all cursor-pointer"
                 title={playerState.isPlaying ? 'Pause Audio Recall' : 'Play Audio Recall'}
               >
                 {playerState.isPlaying ? (

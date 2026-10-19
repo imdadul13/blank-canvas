@@ -2119,7 +2119,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* ── Hero card: contained rounded card with light blue gradient ── */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-5">
         <div
-          className="premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(0,100,220,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
+          className="system-page-header premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(0,100,220,0.14),0_2px_8px_rgba(0,0,0,0.06)]"
+          data-header-art="horizon"
           style={{ background: 'linear-gradient(135deg, #EEF5FF 0%, #DDEEFF 35%, #C8E0FF 65%, #A8CCFF 100%)' }}
         >
           {/* Vertical accent text — far right, desktop only */}
@@ -3963,7 +3964,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 150/300 Passing Score Gap Analyzer Modal */}
       <AnimatePresence>
         {isPassingGapModalOpen && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 bg-[#1D1D1F]/60 backdrop-blur-sm">
+          <div className="light-mode-scrim fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 bg-[#1D1D1F]/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

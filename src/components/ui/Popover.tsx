@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 const PopoverCloseContext = React.createContext<() => void>(() => {});
 
 const SURFACE =
-  'z-popover w-72 origin-[var(--radix-popover-content-transform-origin)] overflow-hidden ' +
+  'ui-popover z-popover w-72 origin-[var(--radix-popover-content-transform-origin)] overflow-hidden ' +
   'rounded-2xl border border-[var(--color-hairline)] bg-white p-1.5 material-thick';
 
 export interface PopoverProps {

@@ -176,7 +176,7 @@ const Modal = React.forwardRef<
             <DialogPrimitive.Portal forceMount>
               <DialogPrimitive.Overlay asChild forceMount>
                 <motion.div
-                  className="fixed inset-0 z-scrim"
+                  className="ui-modal-backdrop fixed inset-0 z-scrim"
                   style={{
                     backgroundColor: 'var(--scrim)',
                     backdropFilter: 'blur(10px)',
@@ -217,11 +217,12 @@ const Modal = React.forwardRef<
                   not block pointer events. The visible panel is a child, so
                   Motion's transform never fights a centring translate.
                 */}
-                <motion.div
+                  <motion.div
                     ref={setRefs}
                     tabIndex={-1}
+                    data-variant={variant}
                     className={cn(
-                      'pointer-events-auto flex flex-col overflow-hidden outline-none',
+                      'ui-modal-panel pointer-events-auto flex flex-col overflow-hidden outline-none',
                       'focus:outline-none',
                       PANEL_LAYOUT[variant],
                       SIZE_APPLIES[variant] && SIZE_CLASS[size],

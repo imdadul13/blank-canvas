@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { SPRING_SMOOTH } from '@/utils/motionTokens';
+import { SPRING_SNAPPY, SPRING_SMOOTH } from '@/utils/motionTokens';
 
 /**
  * The icon tile. Radius is a quarter of the box — a continuous squircle ladder,
@@ -22,22 +23,24 @@ export function IconTile({
   strokeWidth?: number;
   className?: string;
 }) {
+  const reducedMotion = useReducedMotion();
+
   return (
-    <span
+    <motion.span
       aria-hidden="true"
-      className={cn('relative grid shrink-0 place-items-center', className)}
+      data-solid={solid || undefined}
+      className={cn('ui-icon-tile relative grid shrink-0 place-items-center', className)}
+      whileHover={reducedMotion ? undefined : { y: -1, scale: 1.045 }}
+      transition={SPRING_SNAPPY}
       style={{
+        '--icon-color': color,
         width: size,
         height: size,
         borderRadius: size / 4,
-        background: solid ? color : `color-mix(in srgb, ${color} 10%, white)`,
-        boxShadow: solid
-          ? `0 2px 10px color-mix(in srgb, ${color} 40%, transparent)`
-          : `0 2px 8px color-mix(in srgb, ${color} 21%, transparent)`,
-      }}
+      } as React.CSSProperties}
     >
       <Icon
-        className="stroke-[2]"
+        className="ui-symbol stroke-[2]"
         style={{
           color: solid ? 'white' : color,
           width: size * 0.4,
@@ -47,11 +50,11 @@ export function IconTile({
       />
       {!solid && (
         <span
-          className="pointer-events-none absolute inset-[0.5px] rounded-[inherit] border border-white/80"
+          className="pointer-events-none absolute inset-[0.5px] rounded-[inherit] border border-[var(--color-hairline-soft)]"
           style={{ borderRadius: size / 4 }}
         />
       )}
-    </span>
+    </motion.span>
   );
 }
 

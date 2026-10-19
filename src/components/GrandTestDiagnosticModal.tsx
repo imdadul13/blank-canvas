@@ -177,6 +177,7 @@ export const GrandTestDiagnosticModal: React.FC<GrandTestDiagnosticModalProps> =
             <>
               {/* Latest GT Hero Card */}
               <div
+                className="light-mode-hero"
                 style={{
                   borderRadius: '20px',
                   background: 'linear-gradient(135deg, #007AFF 0%, #0A2463 100%)',

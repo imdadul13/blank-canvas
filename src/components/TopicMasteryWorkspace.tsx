@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import {
   X,
   Play,
@@ -23,11 +22,10 @@ import {
   Award,
   ShieldAlert,
   HelpCircle,
-  Clock,
   Target,
   Maximize2,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import confetti from 'canvas-confetti';
 import {
   AppState,
@@ -2409,7 +2407,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                       Retest Topic
                     </button>
 
-                    {isMasteryEligible ? (
+                    {isMasteryEligible && (
                       <button
                         type="button"
                         onClick={() => {
@@ -2419,15 +2417,6 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
                         className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold font-display shadow-2xs transition-colors cursor-pointer min-h-[40px] active:scale-[0.98]"
                       >
                         Confirm Topic Mastery
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled
-                        className="px-5 py-2.5 rounded-xl bg-stone-200 text-stone-400 text-xs font-semibold font-display cursor-not-allowed min-h-[40px]"
-                        title={isDataInsufficient ? "Complete at least 5 MCQs to unlock topic mastery" : "Achieve ≥80% accuracy and 0 repeated errors to unlock topic mastery"}
-                      >
-                        Mastery Locked
                       </button>
                     )}
                   </div>
