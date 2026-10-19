@@ -42,8 +42,13 @@ if (import.meta.env.PROD && typeof window !== 'undefined' && 'serviceWorker' in 
       navigator.serviceWorker
         .register('/sw.js', { scope: '/', updateViaCache: 'none' })
         .then((registration) => {
-          // iOS can leave a PWA suspended for days. Check whenever it resumes
-          // instead of waiting for the browser's next periodic update pass.
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+              refreshing = true;
+              window.location.reload();
+            }
+          });
           const update = () => registration.update().catch(() => undefined);
           document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') update();
