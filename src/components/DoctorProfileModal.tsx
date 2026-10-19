@@ -273,7 +273,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))',
       }}
     >
-      <div className="relative bg-white/95 backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[0_24px_64px_rgba(0,0,0,0.14)] border border-slate-200/80 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90dvh] before:absolute before:inset-0 before:bg-gradient-to-tr before:from-teal-500/[0.03] before:via-white/0 before:to-emerald-500/[0.02] before:pointer-events-none animate-in zoom-in-95 duration-150">
+      <div className="relative bg-white/95 dark:bg-[#1C1D22] backdrop-blur-2xl rounded-3xl max-w-xl w-full shadow-[0_24px_64px_rgba(0,0,0,0.14)] border border-slate-200/80 dark:border-white/10 overflow-hidden flex flex-col max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90dvh] before:absolute before:inset-0 before:bg-gradient-to-tr before:from-teal-500/[0.03] before:via-white/0 before:to-emerald-500/[0.02] before:pointer-events-none animate-in zoom-in-95 duration-150">
         
         {/* Specular Top Shimmer Edge */}
         <div
@@ -282,7 +282,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         />
 
         {/* ── 1. Apple ID-Style Doctor Identity Banner ── */}
-        <div className="p-5 sm:p-6 border-b border-slate-200/80 bg-white/90 backdrop-blur-md relative z-10 shrink-0">
+        <div className="p-5 sm:p-6 border-b border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#1C1D22]/95 backdrop-blur-md relative z-10 shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3.5 min-w-0">
               {/* Doctor Avatar with Apple ID-style Squircle */}
@@ -302,21 +302,21 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 truncate">
+                  <h3 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white truncate">
                     {formData.userName || 'Dr. Aspirant'}
                   </h3>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-teal-50 text-[#007AFF] border border-teal-200/70 shrink-0">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-teal-50 dark:bg-teal-950/40 text-[#007AFF] dark:text-teal-300 border border-teal-200/70 dark:border-teal-800/40 shrink-0">
                     <ShieldCheck className="h-3 w-3 text-[#0071E3]" />
                     FMGE STUDY
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 flex-wrap">
+                <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
                   <span className="truncate max-w-[180px] sm:max-w-[240px]">
                     {user?.email || profile?.email || 'Local Doctor Session'}
                   </span>
-                  <span className="h-1 w-1 rounded-full bg-slate-300" />
-                  <span className="text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
+                  <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold text-[11px] flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     Study profile
                   </span>
@@ -327,7 +327,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+              className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0"
               aria-label="Close profile modal"
             >
               <X className="h-5 w-5" />
@@ -335,31 +335,31 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
           </div>
 
           {/* Apple Fitness-Style Quick Metrics Bar in Header */}
-          <div className="mt-4 pt-3.5 border-t border-slate-100 grid grid-cols-3 gap-2">
-            <div className="bg-slate-50/80 backdrop-blur-xs rounded-2xl px-3 py-2 border border-slate-200/70 text-center">
+          <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-white/10 grid grid-cols-3 gap-2">
+            <div className="bg-slate-50/80 dark:bg-white/[0.04] backdrop-blur-xs rounded-2xl px-3 py-2 border border-slate-200/70 dark:border-white/10 text-center">
               <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">
                 Target Score
               </span>
-              <span className="text-xs sm:text-sm font-bold text-slate-900 font-display">
+              <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white font-display">
                 {formData.targetScore ?? 200} <span className="text-[10px] text-slate-400 font-normal">/300</span>
               </span>
             </div>
 
-            <div className="bg-slate-50/80 backdrop-blur-xs rounded-2xl px-3 py-2 border border-slate-200/70 text-center">
+            <div className="bg-slate-50/80 dark:bg-white/[0.04] backdrop-blur-xs rounded-2xl px-3 py-2 border border-slate-200/70 dark:border-white/10 text-center">
               <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">
                 Plan Countdown
               </span>
-              <span className="text-xs sm:text-sm font-bold text-amber-600 font-display flex items-center justify-center gap-1">
+              <span className="text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 font-display flex items-center justify-center gap-1">
                 <Flame className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                 {daysRemaining === null ? 'Set date' : daysRemaining < 0 ? 'Date passed' : `${daysRemaining}d left`}
               </span>
             </div>
 
-            <div className="bg-slate-50/80 backdrop-blur-xs rounded-2xl px-3 py-2 border border-slate-200/70 text-center">
+            <div className="bg-slate-50/80 dark:bg-white/[0.04] backdrop-blur-xs rounded-2xl px-3 py-2 border border-slate-200/70 dark:border-white/10 text-center">
               <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">
                 Daily Goal
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#007AFF] font-display">
+              <span className="text-xs sm:text-sm font-bold text-[#007AFF] dark:text-teal-400 font-display">
                 {formData.dailyStudyHourGoal ?? 6}h <span className="text-[10px] text-slate-400 font-normal">/day</span>
               </span>
             </div>
@@ -367,8 +367,8 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         </div>
 
         {/* ── 2. iOS Segmented Pill Navigation ── */}
-        <div className="px-4 sm:px-6 py-2.5 border-b border-slate-200/80 bg-slate-50/70 flex items-center justify-between gap-1.5 overflow-x-auto scrollbar-none shrink-0">
-          <div className="p-1 bg-slate-200/60 rounded-2xl flex items-center gap-1 w-full sm:w-auto">
+        <div className="px-4 sm:px-6 py-2.5 border-b border-slate-200/80 dark:border-white/10 bg-slate-50/70 dark:bg-black/20 flex items-center justify-between gap-1.5 overflow-x-auto scrollbar-none shrink-0">
+          <div className="p-1 bg-slate-200/60 dark:bg-white/10 rounded-2xl flex items-center gap-1 w-full sm:w-auto">
             {[
               { id: 'blueprint', label: 'Exam Blueprint', shortLabel: 'Plan', icon: Target },
               { id: 'telemetry', label: 'Telemetry & Progress', shortLabel: 'Stats', icon: Activity },
@@ -385,8 +385,8 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   aria-pressed={active}
                   className={`flex min-w-0 flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-2 sm:px-3.5 py-2 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                     active
-                      ? 'bg-white text-slate-900 shadow-xs font-bold'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white dark:bg-[#2C2C2E] text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? 'text-[#007AFF]' : 'text-slate-400'}`} />
@@ -411,14 +411,14 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
         )}
 
         {/* ── 3. Modal Body Content ── */}
-        <div className="p-4 sm:p-6 pb-8 sm:pb-6 overflow-y-auto flex-1 space-y-6 bg-white">
+        <div className="p-4 sm:p-6 pb-8 sm:pb-6 overflow-y-auto flex-1 space-y-6 bg-white dark:bg-[#1C1D22]">
           {/* ================= TAB 1: EXAM BLUEPRINT ================= */}
           {activeTab === 'blueprint' && (
             <form onSubmit={handleSaveBlueprint} className="space-y-5 animate-in fade-in duration-150">
               
               {/* Doctor Display Name */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-700">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Doctor Display Name
                 </label>
                 <div className="relative">
@@ -428,22 +428,22 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                     value={formData.userName}
                     onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
                     placeholder="e.g. Dr. Aspirant"
-                    className="w-full h-11 pl-10 pr-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none transition-all"
+                    className="w-full h-11 pl-10 pr-3.5 rounded-2xl bg-slate-50/70 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-[#2C2C2E] focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none transition-all"
                     required
                   />
                 </div>
               </div>
 
               {/* Target Date Section — Grouped Inset Card */}
-              <div className="p-4 rounded-3xl bg-slate-50/70 border border-slate-200/70 space-y-3">
+              <div className="p-4 rounded-3xl bg-slate-50/70 dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/10 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-[#007AFF]" />
-                    <label className="text-xs font-bold text-slate-900">
+                    <label className="text-xs font-bold text-slate-900 dark:text-white">
                       Target FMGE Exam Date
                     </label>
                   </div>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/80">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/40">
                     <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
                     {daysRemaining === null ? 'Set a target date' : daysRemaining < 0 ? 'Date has passed' : `${daysRemaining} days remaining`}
                   </span>
@@ -455,17 +455,17 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                     type="date"
                     value={formData.examDate || ''}
                     onChange={(e) => setFormData({ ...formData, examDate: e.target.value })}
-                    className="h-10 px-3.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none cursor-pointer"
+                    className="h-10 px-3.5 rounded-xl bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-800 dark:text-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none cursor-pointer"
                   />
-                  <div className="text-xs text-slate-500 flex items-center gap-1.5">
+                  <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                     <span>Planned for:</span>
-                    <strong className="text-slate-900 font-semibold">{formattedExamDate}</strong>
+                    <strong className="text-slate-900 dark:text-white font-semibold">{formattedExamDate}</strong>
                   </div>
                 </div>
 
                 {/* One-Click Target Preset Chips */}
                 <div className="space-y-1.5 pt-1">
-                  <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">
+                  <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500 tracking-wider block">
                     Planning Shortcuts
                   </span>
                   <div className="flex flex-wrap items-center gap-1.5">
@@ -483,7 +483,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                           className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                             isSelected
                               ? 'bg-[#007AFF] text-white shadow-2xs font-bold'
-                              : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100'
+                              : 'bg-white dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/15'
                           }`}
                         >
                           {preset.label}
@@ -495,7 +495,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                         type="button"
                         onClick={() => setFormData({ ...formData, examDate: '' })}
                         aria-pressed={false}
-                        className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100 transition-all cursor-pointer"
+                        className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/15 transition-all cursor-pointer"
                       >
                         Clear date
                       </button>
@@ -508,10 +508,10 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-semibold text-slate-700">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                       Target Score (/300)
                     </label>
-                    <span className="text-[11px] text-emerald-700 font-semibold">
+                    <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">
                       +{targetScoreBuffer} safety buffer
                     </span>
                   </div>
@@ -523,7 +523,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                       max={300}
                       value={formData.targetScore}
                       onChange={(e) => setFormData({ ...formData, targetScore: Number(e.target.value) })}
-                      className="w-full h-11 pl-10 pr-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 text-sm font-semibold text-slate-900 focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none transition-all"
+                      className="w-full h-11 pl-10 pr-3.5 rounded-2xl bg-slate-50/70 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-[#2C2C2E] focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none transition-all"
                       required
                     />
                   </div>
@@ -533,7 +533,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Daily Study Target (Hours)
                   </label>
                   <div className="relative">
@@ -544,7 +544,7 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                       max={16}
                       value={formData.dailyStudyHourGoal}
                       onChange={(e) => setFormData({ ...formData, dailyStudyHourGoal: Number(e.target.value) })}
-                      className="w-full h-11 pl-10 pr-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 text-sm font-semibold text-slate-900 focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none transition-all"
+                      className="w-full h-11 pl-10 pr-3.5 rounded-2xl bg-slate-50/70 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-[#2C2C2E] focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none transition-all"
                       required
                     />
                   </div>
@@ -721,40 +721,40 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
               </div>
 
               {/* Calibrated Target Blueprint Card */}
-              <div className="p-4 rounded-3xl bg-slate-50/80 border border-slate-200/80 space-y-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+              <div className="p-4 rounded-3xl bg-slate-50/80 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 space-y-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
                   Calibrated Target Blueprint
                 </span>
                 <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="p-3 bg-white rounded-2xl border border-slate-200/70 shadow-2xs">
+                  <div className="p-3 bg-white dark:bg-[#25262B] rounded-2xl border border-slate-200/70 dark:border-white/10 shadow-2xs">
                     <Calendar className="h-4 w-4 text-[#007AFF] mx-auto mb-1" />
-                    <div className="text-xs font-bold text-slate-900">{formattedExamDate}</div>
-                    <p className="text-[10px] text-teal-700 font-semibold">{daysRemaining === null ? 'Set date' : daysRemaining < 0 ? 'Passed' : `${daysRemaining}d left`}</p>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white">{formattedExamDate}</div>
+                    <p className="text-[10px] text-teal-700 dark:text-teal-400 font-semibold">{daysRemaining === null ? 'Set date' : daysRemaining < 0 ? 'Passed' : `${daysRemaining}d left`}</p>
                   </div>
 
-                  <div className="p-3 bg-white rounded-2xl border border-slate-200/70 shadow-2xs">
+                  <div className="p-3 bg-white dark:bg-[#25262B] rounded-2xl border border-slate-200/70 dark:border-white/10 shadow-2xs">
                     <Target className="h-4 w-4 text-amber-500 mx-auto mb-1" />
-                    <div className="text-xs font-bold text-slate-900">{formData.targetScore ?? 200} / 300</div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white">{formData.targetScore ?? 200} / 300</div>
                     <p className="text-[10px] text-slate-400">Target Score</p>
                   </div>
 
-                  <div className="p-3 bg-white rounded-2xl border border-slate-200/70 shadow-2xs">
+                  <div className="p-3 bg-white dark:bg-[#25262B] rounded-2xl border border-slate-200/70 dark:border-white/10 shadow-2xs">
                     <Clock className="h-4 w-4 text-purple-600 mx-auto mb-1" />
-                    <div className="text-xs font-bold text-slate-900">{formData.dailyStudyHourGoal ?? 6}h / day</div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white">{formData.dailyStudyHourGoal ?? 6}h / day</div>
                     <p className="text-[10px] text-slate-400">Daily Pacing</p>
                   </div>
                 </div>
               </div>
 
               {/* Clinical Duty Shield & Streak Protection Card — Apple Watch Style */}
-              <div className="p-4 sm:p-5 rounded-3xl bg-white border border-teal-200/80 shadow-xs space-y-3.5 relative overflow-hidden">
+              <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#25262B] border border-teal-200/80 dark:border-teal-500/30 shadow-xs space-y-3.5 relative overflow-hidden">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-xs shadow-amber-500/25 flex items-center justify-center shrink-0">
                       <Shield className="h-5 w-5" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
                         Clinical Duty Shield
                         {streakStatus.isActiveToday ? (
                           <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
@@ -884,23 +884,23 @@ export const DoctorProfileModal: React.FC<DoctorProfileModalProps> = ({
                   <button
                     type="button"
                     onClick={handleExportBackup}
-                    className="p-4 rounded-3xl bg-white border border-slate-200/80 hover:bg-slate-50/80 transition-all text-left space-y-1.5 cursor-pointer group shadow-2xs"
+                    className="p-4 rounded-3xl bg-white dark:bg-[#25262B] border border-slate-200/80 dark:border-white/10 hover:bg-slate-50/80 dark:hover:bg-[#2C2D33] transition-all text-left space-y-1.5 cursor-pointer group shadow-2xs"
                   >
-                    <div className="flex items-center justify-between text-slate-900 font-bold text-xs">
+                    <div className="flex items-center justify-between text-slate-900 dark:text-white font-bold text-xs">
                       <span className="group-hover:text-[#007AFF] transition-colors">Download JSON Backup</span>
                       <Download className="h-4 w-4 text-slate-400 group-hover:text-[#007AFF] transition-colors" />
                     </div>
-                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                       Exports all 19-subject checkboxes, Error Notebook, and mock scores.
                     </p>
                   </button>
 
-                  <label className="p-4 rounded-3xl bg-white border border-slate-200/80 hover:bg-slate-50/80 transition-all text-left space-y-1.5 cursor-pointer group block shadow-2xs">
-                    <div className="flex items-center justify-between text-slate-900 font-bold text-xs">
+                  <label className="p-4 rounded-3xl bg-white dark:bg-[#25262B] border border-slate-200/80 dark:border-white/10 hover:bg-slate-50/80 dark:hover:bg-[#2C2D33] transition-all text-left space-y-1.5 cursor-pointer group block shadow-2xs">
+                    <div className="flex items-center justify-between text-slate-900 dark:text-white font-bold text-xs">
                       <span className="group-hover:text-purple-600 transition-colors">Restore From Backup</span>
                       <Upload className="h-4 w-4 text-slate-400 group-hover:text-purple-600 transition-colors" />
                     </div>
-                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                       Upload a JSON backup file to instantly restore full study state.
                     </p>
                     <input

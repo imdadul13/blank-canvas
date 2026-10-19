@@ -996,21 +996,17 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({
 
             {/* Rapid Blitz Maxim Banner */}
             <div
-              className="relative overflow-hidden rounded-xl p-4"
-              style={{
-                background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
-                border: '1px solid rgba(234,88,12,0.25)',
-              }}
+              className="relative overflow-hidden rounded-xl p-4 bg-orange-50/80 dark:bg-orange-950/40 border border-orange-200/60 dark:border-orange-800/40"
             >
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
                   <Flame className="h-4 w-4" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-bold text-xs uppercase tracking-wider text-orange-900">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-orange-900 dark:text-orange-200">
                     The Blitz Rule
                   </h4>
-                  <p className="text-[12px] text-orange-950/90 leading-snug">
+                  <p className="text-[12px] text-orange-950/90 dark:text-orange-300 leading-snug">
                     "Review 20 high-yield slides before breakfast. Blitz 10 MCQs right after. Pattern recognition beats memorization every time."
                   </p>
                 </div>

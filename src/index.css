@@ -1752,6 +1752,53 @@
 .study-readiness-panel {
   background: linear-gradient(180deg,#FFFFFF,#FBFCFD) !important;
 }
+.dark .study-readiness-panel {
+  background: var(--color-surface) !important;
+  border-color: var(--color-hairline) !important;
+}
+.dark .study-readiness-panel h2 {
+  color: var(--color-ink) !important;
+}
+.dark .study-readiness-panel p {
+  color: var(--color-ink-2) !important;
+}
+.dark .study-readiness-panel > div:first-child {
+  border-bottom-color: var(--color-hairline) !important;
+}
+.dark .study-readiness-panel [class*="bg-slate-50"] {
+  background-color: var(--color-surface-sunken) !important;
+  border-color: var(--color-hairline) !important;
+}
+.dark .study-readiness-panel [class*="text-slate-900"] {
+  color: var(--color-ink) !important;
+}
+.dark .study-readiness-panel [class*="bg-emerald-50"] {
+  background: rgba(48,209,88,0.12) !important;
+  color: #34D399 !important;
+  border-color: rgba(48,209,88,0.25) !important;
+}
+
+.study-phase-pill.is-active,
+.study-phase-pill[aria-pressed="true"] {
+  border-color: #30D158 !important;
+  background-color: #30D158 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(48, 209, 88, 0.28) !important;
+}
+.study-phase-pill.is-active span,
+.study-phase-pill[aria-pressed="true"] span {
+  color: #FFFFFF !important;
+}
+.dark .study-phase-pill.is-active,
+.dark .study-phase-pill[aria-pressed="true"] {
+  border-color: #30D158 !important;
+  background-color: #30D158 !important;
+  color: #05200F !important;
+}
+.dark .study-phase-pill.is-active span,
+.dark .study-phase-pill[aria-pressed="true"] span {
+  color: #05200F !important;
+}
 
 /* Full component language: controls, rows, states, and nested surfaces. */
 .study-module-root input,
@@ -1886,6 +1933,10 @@
   border-radius: 1.25rem !important;
   background: #F5F5F7 !important;
 }
+.dark .study-flashcard-deck [class*="p-3"][class*="bg-slate-50"] {
+  background: var(--color-surface-sunken) !important;
+  border-color: var(--color-hairline) !important;
+}
 .study-flashcard-stage + div {
   border: 0 !important;
   border-radius: 9999px !important;
@@ -1928,6 +1979,9 @@
 }
 .study-rapid-deck-list {
   background: #F8F9FB;
+}
+.dark .study-rapid-deck-list {
+  background: var(--color-surface-sunken) !important;
 }
 .study-rapid-deck-row {
   padding: 1.25rem 1.35rem !important;

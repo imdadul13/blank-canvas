@@ -88,7 +88,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
       }}
     >
       <div
-        className="relative bg-white/98 backdrop-blur-3xl rounded-3xl max-w-4xl w-full shadow-[0_24px_64px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.06)] border border-[rgba(60,60,67,0.12)] overflow-hidden flex flex-col max-h-[92dvh] animate-in zoom-in-95 duration-150"
+        className="relative bg-white/98 dark:bg-[#1C1D22] backdrop-blur-3xl rounded-3xl max-w-4xl w-full shadow-[0_24px_64px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.06)] border border-[rgba(60,60,67,0.12)] dark:border-white/10 overflow-hidden flex flex-col max-h-[92dvh] animate-in zoom-in-95 duration-150 text-[#1D1D1F] dark:text-[#F5F5F7]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Specular Edge */}
@@ -98,21 +98,21 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
         />
 
         {/* Top Header - Apple Glass */}
-        <header className="print:hidden flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[rgba(60,60,67,0.08)] bg-white/90 backdrop-blur-md shrink-0">
+        <header className="print:hidden flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[rgba(60,60,67,0.08)] dark:border-white/10 bg-white/90 dark:bg-[#1C1D22]/95 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[#AF52DE] to-[#5856D6] text-white flex items-center justify-center shrink-0 shadow-sm shadow-purple-500/25">
               <FileText className="h-5 w-5" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-base sm:text-lg font-bold text-[#1D1D1F] tracking-tight">
+                <h2 className="text-base sm:text-lg font-bold text-[#1D1D1F] dark:text-white tracking-tight">
                   High-Yield Clinical Revision Sheet
                 </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#AF52DE]/10 text-[#AF52DE] border border-[#AF52DE]/20 shrink-0">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#AF52DE]/10 dark:bg-[#AF52DE]/20 text-[#AF52DE] dark:text-[#D4A5FF] border border-[#AF52DE]/20 shrink-0">
                   PRINT &amp; PDF READY
                 </span>
               </div>
-              <p className="text-xs text-[#8E8E93] truncate">
+              <p className="text-xs text-[#8E8E93] dark:text-slate-400 truncate">
                 Curated drugs of choice, clinical triads &amp; critical formulas for final FMGE recall
               </p>
             </div>
@@ -132,7 +132,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
               type="button"
               onClick={onClose}
               aria-label="Close revision sheet"
-              className="h-8 w-8 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#3A3A3C] flex items-center justify-center transition-colors cursor-pointer"
+              className="h-8 w-8 rounded-full bg-[#F2F2F7] dark:bg-white/10 hover:bg-[#E5E5EA] dark:hover:bg-white/20 text-[#3A3A3C] dark:text-[#E5E5EA] flex items-center justify-center transition-colors cursor-pointer"
               title="Close (ESC)"
             >
               <X className="h-4 w-4" />
@@ -141,7 +141,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
         </header>
 
         {/* Filter Tabs */}
-        <div className="print:hidden px-5 sm:px-6 py-2.5 border-b border-[rgba(60,60,67,0.06)] flex items-center gap-1.5 overflow-x-auto bg-[#F2F2F7]/50 shrink-0 scrollbar-none">
+        <div className="print:hidden px-5 sm:px-6 py-2.5 border-b border-[rgba(60,60,67,0.06)] dark:border-white/10 flex items-center gap-1.5 overflow-x-auto bg-[#F2F2F7]/50 dark:bg-black/30 shrink-0 scrollbar-none">
           {[
             { id: 'all', label: 'All High-Yield' },
             { id: 'docs', label: 'Drugs of Choice (DOC)' },
@@ -155,8 +155,8 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
               onClick={() => setActiveFilter(tab.id as any)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 activeFilter === tab.id
-                  ? 'bg-white text-[#AF52DE] font-bold shadow-[0_1px_4px_rgba(0,0,0,0.08)] border border-[rgba(60,60,67,0.08)]'
-                  : 'text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-white/60'
+                  ? 'bg-white dark:bg-[#2C2C2E] text-[#AF52DE] dark:text-[#D4A5FF] font-bold shadow-[0_1px_4px_rgba(0,0,0,0.08)] border border-[rgba(60,60,67,0.08)] dark:border-white/15'
+                  : 'text-[#6E6E73] dark:text-[#98989D] hover:text-[#1D1D1F] dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10'
               }`}
             >
               {tab.label}
@@ -165,20 +165,20 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
         </div>
 
         {/* Scrollable Printable Sheet Viewport */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50/50 print:bg-white print:p-0">
-          <div className="bg-white p-5 sm:p-7 rounded-2xl shadow-xs border border-[rgba(60,60,67,0.08)] space-y-6 print:border-none print:shadow-none print:p-0">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50/50 dark:bg-black/20 print:bg-white print:p-0">
+          <div className="bg-white dark:bg-[#16171B] p-5 sm:p-7 rounded-2xl shadow-xs border border-[rgba(60,60,67,0.08)] dark:border-white/10 space-y-6 print:border-none print:shadow-none print:p-0">
 
             {/* Document Header */}
             <div className="border-b border-[#AF52DE]/30 pb-3 flex items-center justify-between flex-wrap gap-2">
               <div>
-                <div className="text-xl sm:text-2xl font-black text-[#1D1D1F] tracking-tight">
+                <div className="text-xl sm:text-2xl font-black text-[#1D1D1F] dark:text-white tracking-tight">
                   ONE SHOT FMGE — CLINICAL CHEAT SHEET
                 </div>
-                <div className="text-xs text-[#6E6E73] font-medium mt-0.5">
+                <div className="text-xs text-[#6E6E73] dark:text-slate-400 font-medium mt-0.5">
                   Target: 150+ Passing Buffer • Essential Drugs of Choice, Triads, Diagnostic Signs &amp; Formulas
                 </div>
               </div>
-              <div className="text-left sm:text-right text-[11px] text-[#8E8E93] font-mono">
+              <div className="text-left sm:text-right text-[11px] text-[#8E8E93] dark:text-slate-400 font-mono">
                 <div>Session: FMGE Rapid Recall</div>
                 <div>Printed: {new Date().toLocaleDateString()}</div>
               </div>
@@ -189,7 +189,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
               <section className="break-inside-avoid">
                 <div className="flex items-center gap-1.5 mb-3 pb-2 border-b border-[#30D158]/30">
                   <Pill className="h-4 w-4 text-[#30D158]" />
-                  <span className="text-xs sm:text-sm font-bold text-[#1D1D1F] uppercase tracking-wider">
+                  <span className="text-xs sm:text-sm font-bold text-[#1D1D1F] dark:text-white uppercase tracking-wider">
                     Top High-Frequency Drugs of Choice (DOC)
                   </span>
                 </div>
@@ -197,13 +197,13 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
                   {HIGH_YIELD_DOCS.map((doc, idx) => (
                     <div
                       key={idx}
-                      className="rounded-xl bg-[#F2F2F7]/70 hover:bg-[#F2F2F7] p-3 flex flex-col gap-1.5 border border-[rgba(60,60,67,0.06)] transition-colors"
+                      className="rounded-xl bg-[#F2F2F7]/70 dark:bg-white/[0.04] hover:bg-[#F2F2F7] dark:hover:bg-white/[0.07] p-3 flex flex-col gap-1.5 border border-[rgba(60,60,67,0.06)] dark:border-white/10 transition-colors"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-bold text-[#1D1D1F]">{doc.condition}</span>
-                        <span className="text-[10px] text-[#8E8E93] font-mono shrink-0">{doc.subject}</span>
+                        <span className="text-xs font-bold text-[#1D1D1F] dark:text-white">{doc.condition}</span>
+                        <span className="text-[10px] text-[#8E8E93] dark:text-slate-400 font-mono shrink-0">{doc.subject}</span>
                       </div>
-                      <div className="text-xs font-semibold text-[#288544] bg-[#EDFDF5] rounded-lg px-2.5 py-1.5 border border-[#30D158]/20">
+                      <div className="text-xs font-semibold text-[#288544] dark:text-[#34D399] bg-[#EDFDF5] dark:bg-[#30D158]/15 rounded-lg px-2.5 py-1.5 border border-[#30D158]/20">
                         {doc.doc}
                       </div>
                     </div>
@@ -217,7 +217,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
               <section className="break-inside-avoid">
                 <div className="flex items-center gap-1.5 mb-3 pb-2 border-b border-[#AF52DE]/30">
                   <Activity className="h-4 w-4 text-[#AF52DE]" />
-                  <span className="text-xs sm:text-sm font-bold text-[#1D1D1F] uppercase tracking-wider">
+                  <span className="text-xs sm:text-sm font-bold text-[#1D1D1F] dark:text-white uppercase tracking-wider">
                     Classic Clinical Triads &amp; Syndromes
                   </span>
                 </div>
@@ -225,13 +225,13 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
                   {HIGH_YIELD_TRIADS.map((triad, idx) => (
                     <div
                       key={idx}
-                      className="rounded-xl bg-[#F2F2F7]/70 hover:bg-[#F2F2F7] p-3 border border-[rgba(60,60,67,0.06)] flex flex-col justify-between gap-2 transition-colors"
+                      className="rounded-xl bg-[#F2F2F7]/70 dark:bg-white/[0.04] hover:bg-[#F2F2F7] dark:hover:bg-white/[0.07] p-3 border border-[rgba(60,60,67,0.06)] dark:border-white/10 flex flex-col justify-between gap-2 transition-colors"
                     >
                       <div>
-                        <div className="text-xs font-bold text-[#1D1D1F] mb-1">{triad.name}</div>
-                        <div className="text-[11.5px] text-[#3A3A3C] leading-relaxed">{triad.components}</div>
+                        <div className="text-xs font-bold text-[#1D1D1F] dark:text-white mb-1">{triad.name}</div>
+                        <div className="text-[11.5px] text-[#3A3A3C] dark:text-[#D1D1D6] leading-relaxed">{triad.components}</div>
                       </div>
-                      <div className="bg-[#F5EAFF] text-[#AF52DE] text-[11px] font-bold rounded-lg px-2.5 py-1 inline-block border border-[#AF52DE]/20 w-fit">
+                      <div className="bg-[#F5EAFF] dark:bg-[#AF52DE]/20 text-[#AF52DE] dark:text-[#D4A5FF] text-[11px] font-bold rounded-lg px-2.5 py-1 inline-block border border-[#AF52DE]/20 w-fit">
                         {triad.diagnosis}
                       </div>
                     </div>
@@ -245,7 +245,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
               <section className="break-inside-avoid">
                 <div className="flex items-center gap-1.5 mb-3 pb-2 border-b border-[#FF9500]/30">
                   <Calculator className="h-4 w-4 text-[#FF9500]" />
-                  <span className="text-xs sm:text-sm font-bold text-[#1D1D1F] uppercase tracking-wider">
+                  <span className="text-xs sm:text-sm font-bold text-[#1D1D1F] dark:text-white uppercase tracking-wider">
                     Essential Clinical Formulas &amp; Telemetry
                   </span>
                 </div>
@@ -253,13 +253,13 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
                   {HIGH_YIELD_FORMULAS.map((formula, idx) => (
                     <div
                       key={idx}
-                      className="rounded-xl bg-[#F2F2F7]/70 hover:bg-[#F2F2F7] p-3 border border-[rgba(60,60,67,0.06)] transition-colors"
+                      className="rounded-xl bg-[#F2F2F7]/70 dark:bg-white/[0.04] hover:bg-[#F2F2F7] dark:hover:bg-white/[0.07] p-3 border border-[rgba(60,60,67,0.06)] dark:border-white/10 transition-colors"
                     >
-                      <div className="text-xs font-bold text-[#1D1D1F] mb-1.5">{formula.name}</div>
-                      <div className="font-mono text-xs font-bold text-[#C97000] bg-[#FFF8EE] rounded-lg px-2.5 py-1.5 inline-block mb-1.5 border border-[#FF9500]/20">
+                      <div className="text-xs font-bold text-[#1D1D1F] dark:text-white mb-1.5">{formula.name}</div>
+                      <div className="font-mono text-xs font-bold text-[#C97000] dark:text-[#FFB340] bg-[#FFF8EE] dark:bg-[#FF9500]/15 rounded-lg px-2.5 py-1.5 inline-block mb-1.5 border border-[#FF9500]/20">
                         {formula.formula}
                       </div>
-                      <div className="text-[11px] text-[#6E6E73] italic leading-relaxed">{formula.note}</div>
+                      <div className="text-[11px] text-[#6E6E73] dark:text-slate-400 italic leading-relaxed">{formula.note}</div>
                     </div>
                   ))}
                 </div>
@@ -271,7 +271,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
               <section className="break-inside-avoid">
                 <div className="flex items-center gap-1.5 mb-3 pb-2 border-b border-[#FF9500]/30">
                   <Star className="h-4 w-4 text-[#FF9500] fill-[#FF9500]" />
-                  <span className="text-xs sm:text-sm font-bold text-[#1D1D1F] uppercase tracking-wider">
+                  <span className="text-xs sm:text-sm font-bold text-[#1D1D1F] dark:text-white uppercase tracking-wider">
                     Personal Starred Weak Spots ({starredPearls.length})
                   </span>
                 </div>
@@ -279,16 +279,16 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
                   {starredPearls.map((pearl, idx) => (
                     <div
                       key={pearl.id || idx}
-                      className="rounded-xl bg-[#F2F2F7]/70 p-3 border-l-4 border-[#FF9500] border-t border-r border-b border-[rgba(60,60,67,0.06)]"
+                      className="rounded-xl bg-[#F2F2F7]/70 dark:bg-white/[0.04] p-3 border-l-4 border-[#FF9500] border-t border-r border-b border-[rgba(60,60,67,0.06)] dark:border-white/10"
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-[#1D1D1F]">{pearl.title}</span>
-                        <span className="text-[10px] font-mono text-[#8E8E93]">{pearl.subjectId}</span>
+                        <span className="text-xs font-bold text-[#1D1D1F] dark:text-white">{pearl.title}</span>
+                        <span className="text-[10px] font-mono text-[#8E8E93] dark:text-slate-400">{pearl.subjectId}</span>
                       </div>
-                      <div className="text-[11px] font-semibold text-[#AF52DE] mb-1">
+                      <div className="text-[11px] font-semibold text-[#AF52DE] dark:text-[#D4A5FF] mb-1">
                         Key Takeaway: {pearl.highYieldKey}
                       </div>
-                      <div className="text-[10.5px] text-[#6E6E73] leading-snug line-clamp-2">
+                      <div className="text-[10.5px] text-[#6E6E73] dark:text-slate-400 leading-snug line-clamp-2">
                         {pearl.explanation}
                       </div>
                     </div>

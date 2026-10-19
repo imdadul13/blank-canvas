@@ -589,7 +589,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               ].map((tab) => (
                 <button key={tab.id} type="button" aria-pressed={selectedDiscipline === tab.id} onClick={() => setSelectedDiscipline(tab.id as any)}
                   className={`px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap cursor-pointer shrink-0 transition-all ${
-                    selectedDiscipline === tab.id ? 'bg-[#1D1D1F] text-white shadow-sm' : 'bg-white text-[#6E6E73] border border-[rgba(60,60,67,0.12)] hover:bg-[#F2F2F7]'
+                    selectedDiscipline === tab.id ? 'bg-[#007AFF] text-white shadow-sm' : 'bg-white dark:bg-white/[0.06] text-[#6E6E73] dark:text-slate-400 border border-[rgba(60,60,67,0.12)] dark:border-white/10 hover:bg-[#F2F2F7] dark:hover:bg-white/10'
                   }`}>
                   {tab.label}
                 </button>

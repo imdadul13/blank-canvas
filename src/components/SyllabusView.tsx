@@ -365,14 +365,14 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                     type="button"
                     aria-pressed={active}
                     onClick={() => setPhaseFilter(p.id as any)}
-                    className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all cursor-pointer border ${
+                    className={`study-phase-pill px-3.5 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all cursor-pointer border ${
                       active
-                        ? 'bg-[#1D1D1F] text-white border-[#1D1D1F] shadow-sm'
-                        : 'bg-white text-[#6E6E73] border-[rgba(60,60,67,0.12)] hover:text-[#1D1D1F] hover:border-[rgba(60,60,67,0.25)]'
+                        ? 'is-active bg-[#30D158] text-white border-[#30D158] shadow-[0_2px_8px_rgba(48,209,88,0.28)] dark:bg-[#30D158] dark:text-emerald-950 dark:border-[#30D158]'
+                        : 'bg-white dark:bg-white/[0.06] text-[#6E6E73] dark:text-slate-400 border-[rgba(60,60,67,0.12)] dark:border-white/10 hover:text-[#1D1D1F] dark:hover:text-white hover:border-[rgba(60,60,67,0.25)]'
                     }`}
                   >
-                    <span className="hidden sm:inline">{p.label}</span>
-                    <span className="sm:hidden">{p.short}</span>
+                    <span className="hidden sm:inline font-bold">{p.label}</span>
+                    <span className="sm:hidden font-bold">{p.short}</span>
                   </button>
                 );
               })}

@@ -335,13 +335,13 @@ export const StudyFlashcardHub: React.FC<StudyFlashcardHubProps> = ({
           </div>
 
           {/* Topic Select Dropdown */}
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-            <span className="text-xs font-bold text-slate-500 shrink-0">Topic:</span>
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0">Topic:</span>
             <div className="relative flex-1">
               <select
                 value={selectedTopicId}
                 onChange={(e) => setSelectedTopicId(e.target.value)}
-                className="w-full appearance-none bg-white border border-slate-200 text-slate-900 rounded-lg py-1.5 pl-3 pr-8 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-2xs"
+                className="w-full appearance-none bg-white dark:bg-[#1C1D22] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white rounded-lg py-1.5 pl-3 pr-8 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-2xs"
               >
                 {currentSubject.topics.map((t) => (
                   <option key={t.id} value={t.id}>
@@ -703,14 +703,10 @@ export const StudyFlashcardHub: React.FC<StudyFlashcardHubProps> = ({
 
             {/* Cognitive Science Maxim */}
             <div
-              className="relative overflow-hidden rounded-xl p-4"
-              style={{
-                background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)',
-                border: '1px solid rgba(99,102,241,0.25)',
-              }}
+              className="relative overflow-hidden rounded-xl p-4 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/60 dark:border-indigo-800/40"
             >
-              <Brain className="h-4 w-4 text-indigo-600 mb-2" />
-              <p className="text-[11.5px] font-medium text-indigo-900 leading-snug italic">
+              <Brain className="h-4 w-4 text-indigo-600 dark:text-indigo-400 mb-2" />
+              <p className="text-[11.5px] font-medium text-indigo-900 dark:text-indigo-200 leading-snug italic">
                 "Active retrieval creates neural pathways 300% more durable than re-reading notes or passive listening."
               </p>
             </div>

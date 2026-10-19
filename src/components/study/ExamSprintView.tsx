@@ -2575,20 +2575,20 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
       />
 
       {/* ═══ 2.5 TRANSPARENT READINESS SUMMARY (5 CRITICAL LEARNING METRICS) ═══ */}
-      <div className="study-readiness-panel rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+      <div className="study-readiness-panel rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#1B1C20] p-4 sm:p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-white/10 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="font-bold text-[#1D1D1F] text-[15px] leading-tight flex items-center gap-2">
+              <h2 className="font-bold text-[#1D1D1F] dark:text-white text-[15px] leading-tight flex items-center gap-2">
                 <span>Transparent Exam Readiness Verification</span>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
                   Oct 31, 2026 Target
                 </span>
               </h2>
-              <p className="text-[11px] text-[#8E8E93]">
+              <p className="text-[11px] text-[#8E8E93] dark:text-slate-400">
                 Honest progress tracking separating raw syllabus completion from verified MCQ accuracy and Error Vault status.
               </p>
             </div>
@@ -2597,7 +2597,7 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
             <button
               type="button"
               onClick={onOpenRevisionMatrix}
-              className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
+              className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
             >
               <span>View Revision Matrix</span>
               <ChevronRight className="h-3.5 w-3.5" />
@@ -2607,46 +2607,46 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
 
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           {/* 1. Material Reviewed */}
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold block">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/10 space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold block">
               Material Reviewed
             </span>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {readinessMetrics.reviewedTopics}
               </span>
               <span className="text-xs font-mono text-slate-400">/ {readinessMetrics.totalTopics}</span>
             </div>
-            <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden mt-1">
+            <div className="h-1.5 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden mt-1">
               <div
                 className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${readinessMetrics.reviewedPct}%` }}
               />
             </div>
-            <span className="text-[10px] text-slate-500 block pt-0.5 font-mono">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block pt-0.5 font-mono">
               {readinessMetrics.reviewedPct}% topics reviewed
             </span>
           </div>
 
           {/* 2. Questions Attempted */}
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold block">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/10 space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold block">
               Questions Solved
             </span>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {readinessMetrics.totalQuestions}
               </span>
               <span className="text-xs font-mono text-slate-400">MCQs</span>
             </div>
-            <p className="text-[10.5px] text-slate-500 leading-tight pt-1">
+            <p className="text-[10.5px] text-slate-500 dark:text-slate-400 leading-tight pt-1">
               Active volume across verified drills and mocks
             </p>
           </div>
 
           {/* 3. Overall Accuracy */}
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold block">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/10 space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold block">
               Overall Accuracy
             </span>
             <div className="flex items-baseline gap-1.5">
@@ -2654,16 +2654,16 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
                 readinessMetrics.totalQuestions === 0
                   ? 'text-slate-400'
                   : readinessMetrics.accuracy >= 70
-                  ? 'text-emerald-700'
+                  ? 'text-emerald-700 dark:text-emerald-400'
                   : readinessMetrics.accuracy >= 55
-                  ? 'text-amber-700'
-                  : 'text-rose-700'
+                  ? 'text-amber-700 dark:text-amber-400'
+                  : 'text-rose-700 dark:text-rose-400'
               }`}>
                 {readinessMetrics.totalQuestions > 0 ? `${readinessMetrics.accuracy}%` : '—'}
               </span>
               <span className="text-xs font-mono text-slate-400">target ≥65%</span>
             </div>
-            <p className="text-[10.5px] text-slate-500 leading-tight pt-1">
+            <p className="text-[10.5px] text-slate-500 dark:text-slate-400 leading-tight pt-1">
               {readinessMetrics.totalQuestions === 0
                 ? 'No MCQs logged yet'
                 : readinessMetrics.accuracy >= 70
@@ -2673,19 +2673,19 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
           </div>
 
           {/* 4. Unresolved Errors */}
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold block">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-100 dark:border-white/10 space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold block">
               Unresolved Errors
             </span>
             <div className="flex items-baseline gap-1.5">
               <span className={`text-xl sm:text-2xl font-black tracking-tight ${
-                readinessMetrics.unresolvedErrorsCount === 0 ? 'text-emerald-700' : 'text-rose-600'
+                readinessMetrics.unresolvedErrorsCount === 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
               }`}>
                 {readinessMetrics.unresolvedErrorsCount}
               </span>
               <span className="text-xs font-mono text-slate-400">in Error Vault</span>
             </div>
-            <p className="text-[10.5px] text-slate-500 leading-tight pt-1">
+            <p className="text-[10.5px] text-slate-500 dark:text-slate-400 leading-tight pt-1">
               {readinessMetrics.unresolvedErrorsCount === 0
                 ? 'Zero pending weak items'
                 : 'Prioritized for rapid retest'}
@@ -2693,19 +2693,19 @@ export const ExamSprintView: React.FC<ExamSprintViewProps> = ({
           </div>
 
           {/* 5. Demonstrated Mastery */}
-          <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 space-y-1 col-span-2 lg:col-span-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-800 font-semibold block">
+          <div className="p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/40 space-y-1 col-span-2 lg:col-span-1">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-800 dark:text-emerald-300 font-semibold block">
               Demonstrated Mastery
             </span>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-xl sm:text-2xl font-black text-emerald-950 tracking-tight">
+              <span className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-emerald-100 tracking-tight">
                 {readinessMetrics.totalQuestions < 10 ? '—' : readinessMetrics.demonstratedMasteryCount}
               </span>
-              <span className="text-xs font-mono text-emerald-700">
+              <span className="text-xs font-mono text-emerald-700 dark:text-emerald-400">
                 {readinessMetrics.totalQuestions < 10 ? 'insufficient data' : 'topics verified'}
               </span>
             </div>
-            <p className="text-[10px] text-emerald-900 leading-tight pt-1">
+            <p className="text-[10px] text-emerald-900 dark:text-emerald-200/80 leading-tight pt-1">
               {readinessMetrics.totalQuestions < 10
                 ? 'Solve ≥10 questions to establish performance'
                 : 'Strict rule: ≥5 MCQs, ≥80% accuracy, 0 unresolved errors'}
