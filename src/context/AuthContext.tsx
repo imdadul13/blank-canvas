@@ -46,7 +46,7 @@ import { recordMcqAttempt, hydrateAttemptsFromExistingState, NewMcqAttemptInput 
  * To RESTORE standard Firebase Authentication with real Firestore accounts:
  * Change this ONE line to: export const DEV_AUTH_BYPASS = false;
  */
-export const DEV_AUTH_BYPASS = true;
+export const DEV_AUTH_BYPASS = false;
 
 /** Development Session User Identity (Bypass Mode Only) */
 const DEV_USER: User = {
