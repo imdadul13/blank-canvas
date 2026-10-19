@@ -2905,9 +2905,9 @@ button:active:not(:disabled),
   max-height: 100dvh;
 }
 .dark .app-mobile-header {
-  border-color: var(--color-hairline);
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  box-shadow: 0 4px 20px rgba(0,0,0,.16);
+  border-color: color-mix(in srgb, var(--color-hairline) 50%, transparent);
+  background: color-mix(in srgb, var(--color-canvas) 85%, transparent) !important;
+  box-shadow: none !important;
 }
 @supports (min-height: 100dvh) {
   .app-shell,
@@ -8192,15 +8192,11 @@ html:not(.dark) :where(.grand-tests-page,.telegram-hub-page) :where(
   color: var(--color-ink-3);
 }
 .app-mobile-header {
-  border-bottom: 1px solid color-mix(in srgb, var(--color-ios-blue) 9%, var(--color-hairline));
-  background:
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--color-surface) 92%, transparent),
-      color-mix(in srgb, var(--color-surface) 80%, transparent)
-    ) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.76), 0 7px 24px -20px rgba(20,31,52,.32);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-hairline) 40%, transparent);
+  background: color-mix(in srgb, var(--color-canvas) 85%, transparent) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
 .app-mobile-exit,
 .app-mobile-sync {
@@ -8343,7 +8339,9 @@ html:not(.dark) :where(.grand-tests-page,.telegram-hub-page) :where(
   box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 26px 64px -26px rgba(0,0,0,.82) !important;
 }
 .dark .app-mobile-header {
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-hairline) 50%, transparent);
+  background: color-mix(in srgb, var(--color-canvas) 85%, transparent) !important;
+  box-shadow: none !important;
 }
 .dark .app-mobile-exit,
 .dark .app-mobile-sync,
