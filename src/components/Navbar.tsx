@@ -109,7 +109,28 @@ const moreUtilityItems: MoreUtilityItem[] = [
   },
 ];
 
-const mobileNavItems = primaryNavItems.filter(({ id }) => ['dashboard', 'syllabus', 'practice', 'questionbank', 'progress'].includes(id));
+const mobileNavOrder: ActiveTab[] = [
+  'dashboard',
+  'syllabus',
+  'aicoach',
+  'practice',
+  'questionbank',
+];
+
+const mobileNavItems = mobileNavOrder.map(
+  (id) => primaryNavItems.find((item) => item.id === id)!
+);
+
+const mobileMoreUtilityItems: MoreUtilityItem[] = [
+  {
+    id: 'progress',
+    label: 'Performance',
+    icon: BarChart3,
+    desc: 'Analytics, accuracy & errors',
+    tab: 'progress',
+  },
+  ...moreUtilityItems,
+];
 
 const isTabActive = (id: ActiveTab, currentTab: ActiveTab) => {
   if (currentTab === id) return true;
@@ -530,7 +551,13 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const isTabActiveLocal = (id: ActiveTab) => isTabActive(id, activeTab);
   const isSecondaryActive =
-    activeTab === 'grandtests' || activeTab === 'telegram' || activeTab === 'more';
+    activeTab === 'progress' ||
+    activeTab === 'errors' ||
+    activeTab === 'predictor' ||
+    activeTab === 'grandtests' ||
+    activeTab === 'telegram' ||
+    activeTab === 'pearls' ||
+    activeTab === 'more';
   const reducedMotion = useReducedMotion();
   const syncPresentation = syncStatusPresentation(syncStatus, isGuest);
 
@@ -638,7 +665,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* ── iOS-style Floating Tab Bar ── */}
       <motion.nav
-        className="mobile-dock-anchor xl:hidden fixed left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-1rem)] sm:w-auto sm:max-w-[calc(100vw-2rem)]"
+        className="mobile-dock-anchor xl:hidden fixed left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-1rem)] sm:w-auto"
         style={{
           bottom: 'calc(0.625rem + env(safe-area-inset-bottom, 0px))',
           transformOrigin: 'center bottom',
@@ -650,130 +677,95 @@ export const Navbar: React.FC<NavbarProps> = ({
         transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 440, damping: 32 }}
         aria-label="Mobile Navigation"
       >
-        {/* Glass pill container */}
-        <div className="mobile-tab-dock premium-mobile-dock relative flex w-full items-end justify-between gap-0 px-1 pt-1.5 pb-1 rounded-[24px] select-none sm:w-auto sm:justify-start sm:gap-0.5 sm:px-2">
-          {mobileNavItems.map(({ id, label, icon: Icon, color }) => {
-            const active = isTabActiveLocal(id);
-            return (
-              <motion.button
-                key={id}
-                type="button"
-                whileTap={reducedMotion ? undefined : { scale: 0.88 }}
-                transition={SPRING_SNAPPY}
-                onClick={() => { setActiveTab(id); setMobileMoreOpen(false); }}
-                aria-current={active ? 'page' : undefined}
-                aria-label={label}
-                className={`mobile-dock-button relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none transition-colors focus-visible:ring-2 sm:min-w-[52px] sm:flex-none${id === 'questionbank' ? ' mobile-dock-questionbank' : ''}${active ? ' is-active' : ''}`}
-                style={{
-                  ['--tw-ring-color' as string]: `${color}59`,
-                  ['--dock-item-accent' as string]: color,
-                }}
-              >
-                {/* Active background capsule */}
-                {active && (
-                  <motion.div
-                    layoutId="tab-active-bg"
-                    className="mobile-dock-active absolute inset-x-0 top-0 bottom-5 rounded-2xl"
-                    style={{ ['--dock-item-accent' as string]: color }}
-                  transition={TAB_PILL_TRANSITION(reducedMotion)}
-                  />
-                )}
+        <div className="premium-mobile-dock relative flex w-full items-end gap-2 select-none">
+          <div className="mobile-tab-dock mobile-dock-cluster relative flex min-w-0 flex-1 items-end">
+            {mobileNavItems.map(({ id, label, icon: Icon, color }) => {
+              const active = isTabActive(id, activeTab);
 
-                {/* Icon */}
-                <motion.div
-                  animate={active ? { scale: 1.06 } : { scale: 1 }}
-                  transition={SPRING_SNAPPY}
-                  className="mobile-dock-icon relative z-10 mb-0.5"
-                >
-                  <Icon
-                    className="transition-all duration-150"
-                  />
-                </motion.div>
-
-                {/* Label — always visible, iOS HIG */}
-                <span
-                  className="mobile-dock-item-label relative z-10 font-sans leading-none transition-all duration-150"
-                >
-                  {label === 'Performance' ? 'Stats' : label === 'Knowledge' ? 'Pearls' : label === 'Question Bank' ? 'Questions' : label}
-                </span>
-              </motion.button>
-            );
-          })}
-
-          {/* More tab */}
-          {(() => {
-            const active = activeTab === 'more' || isSecondaryActive;
-            return (
-              <div className="relative flex min-w-0 flex-1 sm:flex-none" ref={mobileMoreRef}>
+              return (
                 <motion.button
+                  key={id}
                   type="button"
                   whileTap={reducedMotion ? undefined : { scale: 0.88 }}
                   transition={SPRING_SNAPPY}
-                  onClick={() => {
-                    setMobileMoreOpen((prev) => !prev);
-                  }}
-                  aria-expanded={mobileMoreOpen}
-                  aria-haspopup="menu"
+                  onClick={() => { setActiveTab(id); setMobileMoreOpen(false); }}
                   aria-current={active ? 'page' : undefined}
-                  aria-label="More"
-                  className={`mobile-dock-button mobile-dock-more relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 sm:min-w-[52px] sm:flex-none${active ? ' is-active' : ''}`}
-                  style={{
-                    ['--dock-item-accent' as string]: '#007AFF',
-                  }}
+                  aria-label={label}
+                  className={`mobile-dock-button relative flex min-w-0 flex-1 flex-col items-center justify-end ${
+                    id === 'aicoach' ? 'mobile-dock-mentor' : ''
+                  } ${active ? 'is-active' : ''}`}
+                  style={
+                    {
+                      '--dock-item-accent': color,
+                    } as React.CSSProperties
+                  }
                 >
                   {active && (
                     <motion.div
                       layoutId="tab-active-bg"
-                      className="mobile-dock-active absolute inset-x-0 top-0 bottom-5 rounded-2xl"
-                      style={{ ['--dock-item-accent' as string]: '#007AFF' }}
+                      className="mobile-dock-active absolute"
+                      style={
+                        {
+                          '--dock-item-accent': color,
+                        } as React.CSSProperties
+                      }
                       transition={TAB_PILL_TRANSITION(reducedMotion)}
                     />
                   )}
-                  <motion.div
-                    animate={active ? { scale: 1.06 } : { scale: 1 }}
-                    transition={SPRING_SNAPPY}
-                    className="mobile-dock-icon relative z-10 mb-0.5"
-                  >
-                    <MoreHorizontal
-                      className="transition-all duration-150"
-                    />
-                  </motion.div>
-                  <span
-                    className="mobile-dock-item-label relative z-10 font-sans leading-none transition-all duration-150"
-                  >
-                    More
+
+                  <span className="mobile-dock-icon relative z-10">
+                    <Icon />
+                  </span>
+
+                  <span className="mobile-dock-item-label relative z-10">
+                    {label === 'Question Bank' ? 'Questions' : label}
                   </span>
                 </motion.button>
+              );
+            })}
+          </div>
 
-                {/* Mobile Floating Action Sheet / Popover anchored above bottom dock */}
-                <AnimatePresence>
-                  {mobileMoreOpen && (
-                    <motion.div
-                      initial={reducedMotion ? false : { opacity: 0, y: 12, scale: 0.96 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={reducedMotion ? undefined : { opacity: 0, y: 12, scale: 0.96 }}
-                      transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-                      className="mobile-more-popover absolute right-0 bottom-[calc(100%+0.75rem)] w-64 max-w-[calc(100vw-2rem)] z-[70] rounded-3xl p-2 font-sans"
-                      role="menu"
-                      aria-label="Secondary Utilities"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveTab('more');
-                          setMobileMoreOpen(false);
-                        }}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#F2F2F7] border-b border-black/[0.06] mb-1.5 pb-2 cursor-pointer text-left group transition-colors"
-                      >
-                        <div className="flex items-center gap-2 text-[#1D1D1F] group-hover:text-[#007AFF] font-bold text-xs transition-colors">
-                          <MoreHorizontal className="h-3.5 w-3.5 text-[#007AFF]" />
-                          <span>All Utilities &amp; Directory</span>
-                        </div>
-                        <ChevronRight className="h-3.5 w-3.5 text-[#8E8E93] group-hover:text-[#007AFF] group-hover:translate-x-0.5 transition-all" />
-                      </button>
+          <div className="mobile-more-shell relative flex shrink-0" ref={mobileMoreRef}>
+            <button
+              type="button"
+              className={`mobile-dock-button mobile-dock-more${activeTab === 'more' || isSecondaryActive ? ' is-active' : ''}`}
+              aria-label="More"
+              aria-expanded={mobileMoreOpen}
+              aria-haspopup="menu"
+              onClick={() => setMobileMoreOpen((prev) => !prev)}
+            >
+              <MoreHorizontal />
+            </button>
 
-                      <div className="space-y-0.5">
-                        {moreUtilityItems.map((item) => {
+            {/* Mobile Floating Action Sheet / Popover anchored above bottom dock */}
+            <AnimatePresence>
+              {mobileMoreOpen && (
+                <motion.div
+                  initial={reducedMotion ? false : { opacity: 0, y: 12, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={reducedMotion ? undefined : { opacity: 0, y: 12, scale: 0.96 }}
+                  transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+                  className="mobile-more-popover absolute right-0 bottom-[calc(100%+0.75rem)] w-64 max-w-[calc(100vw-2rem)] z-[70] rounded-3xl p-2 font-sans"
+                  role="menu"
+                  aria-label="Secondary Utilities"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('more');
+                      setMobileMoreOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#F2F2F7] border-b border-black/[0.06] mb-1.5 pb-2 cursor-pointer text-left group transition-colors"
+                  >
+                    <div className="flex items-center gap-2 text-[#1D1D1F] group-hover:text-[#007AFF] font-bold text-xs transition-colors">
+                      <MoreHorizontal className="h-3.5 w-3.5 text-[#007AFF]" />
+                      <span>All Utilities &amp; Directory</span>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 text-[#8E8E93] group-hover:text-[#007AFF] group-hover:translate-x-0.5 transition-all" />
+                  </button>
+
+                  <div className="space-y-0.5">
+                    {mobileMoreUtilityItems.map((item) => {
                           const { id, label, icon: Icon, desc } = item;
                           const itemActive = Boolean(item.tab && activeTab === item.tab);
                           return (
@@ -820,10 +812,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   )}
                 </AnimatePresence>
               </div>
-            );
-          })()}
-        </div>
-      </motion.nav>
+            </div>
+          </motion.nav>
     </>
   );
 };
