@@ -593,8 +593,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           ? { opacity: isNavVisible ? 1 : 0 }
           : { y: isNavVisible ? 0 : -90, opacity: isNavVisible ? 1 : 0 }}
         transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 440, damping: 28 }}
-        className="app-mobile-header xl:hidden sticky top-0 z-40 px-4 py-2.5 flex items-center justify-between font-sans transition-all bg-white dark:bg-[#101114]"
+        className="app-mobile-header xl:hidden sticky top-0 z-40 px-4 py-2.5 flex items-center justify-between font-sans transition-all"
         style={{
+          background: 'transparent',
           borderBottom: 'none',
           paddingTop: 'max(0.625rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
           paddingLeft: 'max(0.5rem, calc(0.5rem + env(safe-area-inset-left, 0px)))',

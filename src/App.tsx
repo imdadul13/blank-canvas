@@ -132,7 +132,7 @@ function AppInner() {
     const isNight = activeBg.id === 'night';
     document.documentElement.classList.toggle('dark', isNight);
     const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (themeColor) themeColor.content = isNight ? '#101114' : '#FFFFFF';
+    if (themeColor) themeColor.content = isNight ? '#101114' : '#F6F9FC';
   }, [activeBg.id]);
 
   const bgOpacity = state.settings?.bgOpacity ?? 0.8;
@@ -874,7 +874,7 @@ function AppInner() {
   };
 
   return (
-    <div className="app-shell min-h-screen bg-white dark:bg-[#101114] text-slate-900 dark:text-slate-100 flex flex-col xl:flex-row selection:bg-slate-900 selection:text-white relative">
+    <div className="app-shell min-h-screen bg-[#F6F9FC] dark:bg-[#101114] text-slate-900 dark:text-slate-100 flex flex-col xl:flex-row selection:bg-slate-900 selection:text-white relative">
       {/* Desktop Left Navigation Spacer (Smoothly pushes workspace when sidebar is ON or hovered) */}
       <div
         className={`hidden xl:block shrink-0 pointer-events-none transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
