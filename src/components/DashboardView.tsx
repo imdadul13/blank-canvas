@@ -1623,6 +1623,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isSearchExpanded]);
 
+  // Center Clinical Beacon rotating high-yield recall facts
+  const [beaconFactIndex, setBeaconFactIndex] = useState(0);
+  const [isBeaconHovered, setIsBeaconHovered] = useState(false);
+
+  const beaconFacts = useMemo(() => [
+    { tag: 'TRIAD', title: "Beck's Triad", detail: 'Hypotension + Muffled Heart Sounds + JVD → Tamponade', color: '#007AFF' },
+    { tag: 'DOC', title: 'Anaphylaxis', detail: 'Adrenaline (1:1000 IM Anterolateral Thigh)', color: '#FF2D55' },
+    { tag: 'TRIAD', title: "Virchow's Triad", detail: 'Endothelial Injury + Stasis + Hypercoagulability → DVT', color: '#5856D6' },
+    { tag: 'DOC', title: 'Severe Eclampsia', detail: 'Magnesium Sulfate (MgSO4 - Pritchard Regimen)', color: '#AF52DE' },
+    { tag: 'TRIAD', title: "Charcot's Triad", detail: 'Jaundice + Fever with Chills + RUQ Pain → Cholangitis', color: '#FF9500' },
+    { tag: 'DOC', title: 'Status Epilepticus', detail: 'IV Lorazepam (0.1 mg/kg) → Levetiracetam / Fosphenytoin', color: '#34C759' },
+    { tag: 'FORMULA', title: 'Parkland Burns', detail: '4 mL × Weight (kg) × % TBSA Burned (50% in 1st 8h)', color: '#FF3B30' },
+    { tag: 'TRIAD', title: "Whipple's Triad", detail: 'Hypoglycemia Symptoms + Low Glucose (<50) + Glucose Relief', color: '#007AFF' },
+  ], []);
+
+  useEffect(() => {
+    if (isBeaconHovered) return;
+    const interval = window.setInterval(() => {
+      setBeaconFactIndex((prev) => (prev + 1) % beaconFacts.length);
+    }, 5500);
+    return () => window.clearInterval(interval);
+  }, [isBeaconHovered, beaconFacts.length]);
+
+
 
   // Filter scroll ref for subject pills
   const filterScrollRef = useRef<HTMLDivElement>(null);
@@ -2295,6 +2319,82 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               )}
             </AnimatePresence>
           </div>
+
+          {/* ── Center: Animated Clinical ECG Rhythm & High-Yield Recall Beacon ── */}
+          <motion.div
+            initial={false}
+            animate={{
+              opacity: isSearchExpanded ? 0 : 1,
+              scale: isSearchExpanded ? 0.94 : 1,
+              pointerEvents: isSearchExpanded ? 'none' : 'auto',
+            }}
+            transition={reducedMotion ? { duration: 0 } : { duration: 0.22, ease: 'easeOut' }}
+            className="hidden md:flex items-center gap-2.5 flex-1 justify-center max-w-xl mx-2 min-w-0"
+          >
+            <button
+              type="button"
+              onMouseEnter={() => setIsBeaconHovered(true)}
+              onMouseLeave={() => setIsBeaconHovered(false)}
+              onClick={() => setBeaconFactIndex((prev) => (prev + 1) % beaconFacts.length)}
+              title="Click to shuffle high-yield exam pearl"
+              aria-label="High-Yield Rapid Recall Beacon"
+              className="group relative flex items-center gap-2.5 h-10 px-3.5 rounded-full bg-white/90 hover:bg-white border border-[rgba(60,60,67,0.10)] hover:border-[#007AFF]/30 shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_10px_rgba(0,122,255,0.10)] backdrop-blur-xl transition-all cursor-pointer max-w-full overflow-hidden select-none active:scale-[0.98]"
+            >
+              {/* Animated ECG Waveform */}
+              <div className="flex items-center shrink-0">
+                <svg className="w-12 h-4 text-[#007AFF] drop-shadow-[0_1px_4px_rgba(0,122,255,0.30)]" viewBox="0 0 54 18" fill="none">
+                  <path
+                    d="M0 9 L13 9 L16 3 L19 15 L22 1 L25 14 L28 9 L54 9"
+                    stroke="rgba(0,122,255,0.18)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <motion.path
+                    d="M0 9 L13 9 L16 3 L19 15 L22 1 L25 14 L28 9 L54 9"
+                    stroke="#007AFF"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    initial={{ pathOffset: 0, pathLength: 0.35 }}
+                    animate={reducedMotion ? undefined : { pathOffset: [0, 1] }}
+                    transition={reducedMotion ? undefined : { duration: 2.2, repeat: Infinity, ease: 'linear' }}
+                  />
+                  <circle cx="22" cy="1" r="2" fill="#007AFF" className="animate-ping opacity-60" />
+                  <circle cx="22" cy="1" r="1.5" fill="#007AFF" />
+                </svg>
+              </div>
+
+              {/* Tag chip */}
+              <span
+                className="text-[9.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md text-white shrink-0 shadow-2xs"
+                style={{ backgroundColor: beaconFacts[beaconFactIndex].color }}
+              >
+                {beaconFacts[beaconFactIndex].tag}
+              </span>
+
+              {/* Animated Fact Text with crossfade */}
+              <div className="relative min-w-0 flex-1 overflow-hidden h-4 flex items-center">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={beaconFactIndex}
+                    initial={reducedMotion ? undefined : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reducedMotion ? undefined : { opacity: 0, y: -6 }}
+                    transition={{ duration: 0.22, ease: 'easeOut' }}
+                    className="flex items-center gap-1.5 truncate"
+                  >
+                    <span className="text-[12px] font-bold text-[#1D1D1F] truncate group-hover:text-[#007AFF] transition-colors">
+                      {beaconFacts[beaconFactIndex].title}:
+                    </span>
+                    <span className="text-[11.5px] font-medium text-[#6E6E73] truncate">
+                      {beaconFacts[beaconFactIndex].detail}
+                    </span>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </button>
+          </motion.div>
 
           {/* ── Right controls ── */}
           <div className="flex items-center gap-1.5 shrink-0">
