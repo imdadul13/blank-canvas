@@ -2128,7 +2128,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     }}
                     placeholder="Search subjects, topics, questions…"
                     aria-label="Search blueprint topics"
-                    className="w-full text-sm bg-transparent text-[#1D1D1F] placeholder:text-[#8E8E93] focus:outline-none"
+                    className="dashboard-search-input border-0 w-full text-sm !bg-transparent text-[#1D1D1F] placeholder:text-[#8E8E93] focus:!outline-none !shadow-none !border-none"
+                    style={{
+                      background: 'transparent',
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      boxShadow: 'none',
+                    }}
                   />
 
                   {searchQuery ? (

@@ -9219,3 +9219,18 @@ html:not(.dark) :where(.grand-tests-page,.telegram-hub-page) :where(
     flex-direction: column;
   }
 }
+
+/* Dashboard expandable search input reset: remove global grey field styles */
+.dashboard-search-input,
+:where(main) .dashboard-search-input,
+:where(main) .dashboard-search-input:focus,
+:where(main) .dashboard-search-input:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  min-height: unset !important;
+  border-radius: 0 !important;
+}
+
