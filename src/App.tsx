@@ -132,7 +132,7 @@ function AppInner() {
     const isNight = activeBg.id === 'night';
     document.documentElement.classList.toggle('dark', isNight);
     const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (themeColor) themeColor.content = isNight ? '#101114' : '#F2F2F7';
+    if (themeColor) themeColor.content = isNight ? '#101114' : '#FFFFFF';
   }, [activeBg.id]);
 
   const bgOpacity = state.settings?.bgOpacity ?? 0.8;
