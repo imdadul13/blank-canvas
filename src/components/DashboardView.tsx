@@ -2335,9 +2335,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               type="button"
               onMouseEnter={() => setIsBeaconHovered(true)}
               onMouseLeave={() => setIsBeaconHovered(false)}
-              onClick={() => setBeaconFactIndex((prev) => (prev + 1) % beaconFacts.length)}
-              title="Click to shuffle high-yield exam pearl"
-              aria-label="High-Yield Rapid Recall Beacon"
+              onClick={() => setIsExamEveCheatSheetOpen(true)}
+              title="Click to open High-Yield Clinical Revision Sheet (DOCs, Triads & Formulas)"
+              aria-label="High-Yield Rapid Recall Beacon — Click to open revision vault"
               className="group relative flex items-center gap-2.5 h-10 px-3.5 rounded-full bg-white/90 hover:bg-white border border-[rgba(60,60,67,0.10)] hover:border-[#007AFF]/30 shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_10px_rgba(0,122,255,0.10)] backdrop-blur-xl transition-all cursor-pointer max-w-full overflow-hidden select-none active:scale-[0.98]"
             >
               {/* Animated ECG Waveform */}
