@@ -2084,10 +2084,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           opacity: isHeaderVisible || isAtTop ? 1 : 0,
         }}
         transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-        className={`sticky z-30 py-2 sm:py-2.5 transition-all duration-200 ${
+        className={`xl:sticky z-30 py-2 sm:py-2.5 transition-all duration-200 ${
           isAtTop
             ? 'bg-transparent'
-            : 'bg-white/85 backdrop-blur-2xl border-b border-[rgba(60,60,67,0.08)] shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+            : 'bg-transparent xl:bg-white/85 xl:backdrop-blur-2xl xl:border-b xl:border-[rgba(60,60,67,0.08)] xl:shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
         } relative ${
           isGuest ? 'top-[46px]' : 'top-0'
         }`}
