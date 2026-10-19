@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import OneShotLogo from './OneShotLogo';
 import { SyncStatus } from '../types';
-import { EASE_SPRING } from '../utils/motionTokens';
+import { SPRING_SNAPPY, TAB_PILL_TRANSITION } from '../utils/motionTokens';
 
 export type ActiveTab =
   | 'dashboard'
@@ -152,6 +152,12 @@ export const SidebarDock: React.FC<NavbarProps> = ({
   const moreHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reducedMotion = useReducedMotion();
   const syncPresentation = syncStatusPresentation(syncStatus, isGuest);
+  const initials = (userName || 'Dr')
+    .split(' ')
+    .map((word) => word[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   const isVisible = isSidebarOpen || isSidebarHovered;
 
@@ -225,14 +231,14 @@ export const SidebarDock: React.FC<NavbarProps> = ({
       onMouseLeave={onSidebarHoverLeave}
       className={`app-sidebar hidden xl:flex flex-col w-64 h-screen select-none font-sans fixed inset-y-0 left-0 transition-colors duration-200 ${
         isSidebarOpen
-          ? 'bg-white/95 backdrop-blur-2xl saturate-150 border-r border-black/[0.07] z-40'
-          : 'bg-white/98 backdrop-blur-2xl border-r border-black/[0.09] shadow-[0_24px_64px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.06)] z-50'
+          ? 'is-pinned z-40'
+          : 'is-floating z-50'
       } ${!isVisible ? 'pointer-events-none' : 'pointer-events-auto'}`}
       aria-label="Desktop Navigation"
     >
       {/* ── Top: Brand Header ───────────────────────────────── */}
       <div className="flex flex-col min-h-0 flex-1">
-        <div className="px-4 pt-4 pb-3 flex items-center justify-between gap-2 shrink-0">
+        <div className="app-sidebar-brand mx-3 mt-3 mb-3 px-3 py-3 flex items-center justify-between gap-2 shrink-0">
           <div
             onClick={() => handleNavClick('dashboard')}
             className="cursor-pointer min-w-0 flex-1 transition-opacity hover:opacity-80 active:opacity-50"
@@ -245,7 +251,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
           {onToggleSidebar && (
             <motion.button type="button" whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}
               onClick={onToggleSidebar}
-              className="h-7 w-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer shrink-0 text-[#8E8E93] hover:text-[#1D1D1F] hover:bg-black/[0.05]"
+              className="app-sidebar-toggle h-8 w-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer shrink-0"
               title={isSidebarOpen ? 'Collapse (⌘B)' : 'Pin (⌘B)'}
             >
               {isSidebarOpen ? <PanelLeftClose className="h-4 w-4 stroke-[1.8]" /> : <PanelLeftOpen className="h-4 w-4 stroke-[2]" />}
@@ -264,13 +270,13 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 {active && !reducedMotion && (
                   <motion.div
                     layoutId="sidebar-active-pill"
-                    transition={EASE_SPRING}
-                    className="absolute inset-0 rounded-xl"
-                    style={{ background: `${color}14`, border: `1px solid ${color}28` }}
+                    transition={TAB_PILL_TRANSITION(reducedMotion)}
+                    className="app-sidebar-active-pill absolute inset-0 rounded-2xl"
+                    style={{ '--nav-color': color } as React.CSSProperties}
                   />
                 )}
                 {active && reducedMotion && (
-                  <div className="absolute inset-0 rounded-xl" style={{ background: `${color}14`, border: `1px solid ${color}28` }} />
+                  <div className="app-sidebar-active-pill absolute inset-0 rounded-2xl" style={{ '--nav-color': color } as React.CSSProperties} />
                 )}
 
                 <motion.button
@@ -278,8 +284,8 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   onClick={() => handleNavClick(id)}
                   aria-current={active ? 'page' : undefined}
                   whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                  transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-                    className={`app-sidebar-item relative z-10 w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13.5px] transition-all duration-150 cursor-pointer outline-none group ${
+                  transition={SPRING_SNAPPY}
+                    className={`app-sidebar-item relative z-10 w-full flex items-center gap-3 px-2.5 py-2.5 rounded-2xl text-[13.5px] transition-all duration-150 cursor-pointer outline-none group ${
                     active
                       ? 'font-bold text-[#1D1D1F]'
                       : 'font-semibold text-[#48484A] hover:text-[#1D1D1F] hover:bg-black/[0.035]'
@@ -287,7 +293,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                 >
                   {/* Assorted Apple squircle icon container */}
                   <div
-                    className="app-sidebar-icon h-8 w-8 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200"
+                    className="app-sidebar-icon h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200"
                     style={{ '--nav-color': color, '--nav-bg': bg } as React.CSSProperties}
                   >
                     <Icon
@@ -340,30 +346,31 @@ export const SidebarDock: React.FC<NavbarProps> = ({
             {isSecondaryActive && !reducedMotion && (
               <motion.div
                 layoutId="sidebar-active-pill"
-                transition={EASE_SPRING}
-                className="absolute inset-0 rounded-xl bg-[#007AFF]/10 border border-[#007AFF]/25"
+                transition={TAB_PILL_TRANSITION(reducedMotion)}
+                className="app-sidebar-active-pill absolute inset-0 rounded-2xl"
+                style={{ '--nav-color': '#007AFF' } as React.CSSProperties}
               />
             )}
             {isSecondaryActive && reducedMotion && (
-              <div className="absolute inset-0 rounded-xl bg-[#007AFF]/10 border border-[#007AFF]/25" />
+              <div className="app-sidebar-active-pill absolute inset-0 rounded-2xl" style={{ '--nav-color': '#007AFF' } as React.CSSProperties} />
             )}
 
             <motion.button
               type="button"
               onClick={() => { handleNavClick('more'); setIsMoreMenuOpen((prev) => !prev); }}
               whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 450, damping: 28 }}
+              transition={SPRING_SNAPPY}
               aria-expanded={isMoreMenuOpen}
               aria-haspopup="menu"
               aria-label="More utilities"
-              className={`app-sidebar-more relative z-10 w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-[13.5px] transition-all duration-150 cursor-pointer outline-none group ${
+              className={`app-sidebar-more relative z-10 w-full flex items-center gap-3 px-2.5 py-2.5 rounded-2xl text-[13.5px] transition-all duration-150 cursor-pointer outline-none group ${
                 isSecondaryActive || isMoreMenuOpen
                   ? 'font-bold text-[#007AFF]'
                   : 'font-semibold text-[#48484A] hover:text-[#1D1D1F] hover:bg-black/[0.035]'
               }`}
             >
               <div
-                className={`app-sidebar-more-icon ${isSecondaryActive || isMoreMenuOpen ? 'is-active' : ''} h-8 w-8 rounded-[10px] flex items-center justify-center shrink-0 transition-all duration-200`}
+                className={`app-sidebar-more-icon ${isSecondaryActive || isMoreMenuOpen ? 'is-active' : ''} h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200`}
               >
                 <MoreHorizontal
                   className="h-4 w-4 stroke-[2.2]"
@@ -389,7 +396,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={reducedMotion ? undefined : { opacity: 0, x: -8, scale: 0.96 }}
                   transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-                  className="app-sidebar-popover absolute left-[calc(100%+12px)] bottom-0 w-64 bg-white/95 backdrop-blur-2xl rounded-2xl py-2.5 px-2 z-[60] border border-black/[0.08] shadow-[0_20px_52px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.06)]"
+                  className="app-sidebar-popover absolute left-[calc(100%+12px)] bottom-0 w-64 rounded-3xl py-2.5 px-2 z-[60]"
                 role="menu"
                 aria-label="Secondary Utilities"
               >
@@ -462,9 +469,26 @@ export const SidebarDock: React.FC<NavbarProps> = ({
       <div className="app-sidebar-footer px-3 pb-4 pt-2 shrink-0">
         <div className="app-sidebar-divider border-t border-black/[0.06] mb-3" />
 
+        <button
+          type="button"
+          onClick={onOpenProfile}
+          className="app-sidebar-profile w-full flex items-center gap-3 rounded-2xl p-2.5 text-left"
+        >
+          <span className="app-sidebar-avatar grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl text-xs font-bold">
+            {photoURL ? <img src={photoURL} alt="" className="h-full w-full object-cover" /> : initials}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[13px] font-bold text-[var(--color-ink)]">{userName || 'Doctor'}</span>
+            <span className="mt-0.5 block truncate text-[10.5px] font-medium text-[var(--color-ink-2)]">
+              {isGuest ? 'Local practice profile' : 'FMGE study profile'}
+            </span>
+          </span>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--color-ink-3)]" />
+        </button>
+
         {/* Sync row */}
         <button type="button" onClick={onOpenCloudSync}
-          className="app-sidebar-sync w-full flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-black/[0.03] transition-colors cursor-pointer group mb-3"
+          className="app-sidebar-sync mt-2 w-full flex items-center gap-2 px-2.5 py-2 rounded-xl transition-colors cursor-pointer group"
         >
           <span className="relative flex h-2 w-2 shrink-0">
             {syncPresentation.animating && <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-50" style={{ backgroundColor: syncPresentation.color }} />}
@@ -473,7 +497,7 @@ export const SidebarDock: React.FC<NavbarProps> = ({
           <span className="app-sidebar-sync-label text-[11px] font-semibold text-[#8E8E93] group-hover:text-[#1D1D1F] flex-1 text-left transition-colors">
             {syncPresentation.label}
           </span>
-          <span className="app-sidebar-sync-auto text-[10px] font-medium text-[#C7C7CC]">{isGuest ? 'Device' : 'Auto'}</span>
+          <span className="app-sidebar-sync-auto text-[10px] font-semibold">{isGuest ? 'Device' : 'Auto'}</span>
         </button>
 
       </div>
@@ -542,7 +566,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           ? { opacity: isNavVisible ? 1 : 0 }
           : { y: isNavVisible ? 0 : -90, opacity: isNavVisible ? 1 : 0 }}
         transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 440, damping: 28 }}
-        className="app-mobile-header xl:hidden sticky top-0 z-40 bg-white/85 backdrop-blur-2xl saturate-[180%] border-b border-black/[0.06] px-4 py-2.5 flex items-center justify-between font-sans shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all"
+        className="app-mobile-header xl:hidden sticky top-0 z-40 px-4 py-2.5 flex items-center justify-between font-sans transition-all"
         style={{
           paddingTop: 'max(0.625rem, calc(0.5rem + env(safe-area-inset-top, 0px)))',
           paddingLeft: 'max(0.5rem, calc(0.5rem + env(safe-area-inset-left, 0px)))',
@@ -572,7 +596,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.94 }}
               onClick={onExitGuest}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#EBF3FF] backdrop-blur-md border border-[#B8D9FF] text-[11px] font-extrabold text-[#007AFF] shadow-2xs cursor-pointer"
+              className="app-mobile-exit inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold cursor-pointer"
               title="Exit Local Practice Mode"
             >
               <ArrowLeft className="h-3 w-3 stroke-[2.5]" />
@@ -587,7 +611,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={onOpenCloudSync}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F2F2F7]/90 hover:bg-[#F0F6FF] border border-[rgba(60,60,67,0.12)] text-[11px] font-semibold text-[#3A3A3C] hover:text-[#007AFF] transition-colors cursor-pointer shadow-2xs"
+              className="app-mobile-sync flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-semibold transition-colors cursor-pointer"
               title="Cloud Sync & Local Snapshots"
             >
               <span className={`h-1.5 w-1.5 rounded-full ${syncPresentation.animating ? 'animate-pulse' : ''}`} style={{ backgroundColor: syncPresentation.color }} />
@@ -599,7 +623,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenProfile}
-            className="h-9 w-9 rounded-full bg-[#2A2322] text-white font-bold text-xs flex items-center justify-center ring-2 ring-[rgba(0,0,0,0.10)] shadow-xs cursor-pointer hover:ring-[#007AFF] transition-all overflow-hidden"
+            className="app-mobile-avatar h-9 w-9 rounded-xl text-white font-bold text-xs flex items-center justify-center cursor-pointer transition-all overflow-hidden"
             title={`${userName} — Doctor Profile`}
             aria-label={`${userName} — Doctor Profile`}
           >
@@ -627,33 +651,20 @@ export const Navbar: React.FC<NavbarProps> = ({
         aria-label="Mobile Navigation"
       >
         {/* Glass pill container */}
-        <div
-          className="mobile-tab-dock premium-mobile-dock relative flex w-full items-end justify-between gap-0 px-1 pt-1.5 pb-1 rounded-[24px] select-none sm:w-auto sm:justify-start sm:gap-0.5 sm:px-2"
-          style={{
-            background: 'var(--mobile-dock-surface, rgba(255,255,255,0.88))',
-            backdropFilter: 'blur(28px) saturate(200%)',
-            WebkitBackdropFilter: 'blur(28px) saturate(200%)',
-            border: '1px solid var(--mobile-dock-border, rgba(0,0,0,0.08))',
-            boxShadow: 'var(--mobile-dock-shadow, inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 36px rgba(0,0,0,0.12), 0 3px 8px rgba(0,0,0,0.06))',
-          }}
-        >
-          {mobileNavItems.map(({ id, label, icon: Icon, color, bg }) => {
+        <div className="mobile-tab-dock premium-mobile-dock relative flex w-full items-end justify-between gap-0 px-1 pt-1.5 pb-1 rounded-[24px] select-none sm:w-auto sm:justify-start sm:gap-0.5 sm:px-2">
+          {mobileNavItems.map(({ id, label, icon: Icon, color }) => {
             const active = isTabActiveLocal(id);
             return (
               <motion.button
                 key={id}
                 type="button"
                 whileTap={reducedMotion ? undefined : { scale: 0.88 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+                transition={SPRING_SNAPPY}
                 onClick={() => { setActiveTab(id); setMobileMoreOpen(false); }}
                 aria-current={active ? 'page' : undefined}
                 aria-label={label}
                 className={`mobile-dock-button relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none transition-colors focus-visible:ring-2 sm:min-w-[52px] sm:flex-none${id === 'questionbank' ? ' mobile-dock-questionbank' : ''}${active ? ' is-active' : ''}`}
                 style={{
-                  paddingLeft: 2,
-                  paddingRight: 2,
-                  paddingBottom: 2,
-                  // the ring follows the tab's own colour, like the drawer pill
                   ['--tw-ring-color' as string]: `${color}59`,
                   ['--dock-item-accent' as string]: color,
                 }}
@@ -664,37 +675,24 @@ export const Navbar: React.FC<NavbarProps> = ({
                     layoutId="tab-active-bg"
                     className="mobile-dock-active absolute inset-x-0 top-0 bottom-5 rounded-2xl"
                     style={{ ['--dock-item-accent' as string]: color }}
-                  transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }}
+                  transition={TAB_PILL_TRANSITION(reducedMotion)}
                   />
                 )}
 
                 {/* Icon */}
                 <motion.div
                   animate={active ? { scale: 1.06 } : { scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                  transition={SPRING_SNAPPY}
                   className="mobile-dock-icon relative z-10 mb-0.5"
                 >
                   <Icon
                     className="transition-all duration-150"
-                    style={{
-                      width: 21, height: 21,
-                      color: active ? color : 'var(--mobile-dock-icon, #3C3C43)',
-                      opacity: active ? 1 : 0.6,
-                      strokeWidth: active ? 2.2 : 1.9,
-                      fill: active ? `${color}26` : 'transparent',
-                    }}
                   />
                 </motion.div>
 
                 {/* Label — always visible, iOS HIG */}
                 <span
                   className="mobile-dock-item-label relative z-10 font-sans leading-none transition-all duration-150"
-                  style={{
-                  fontSize: 10,
-                    fontWeight: active ? 600 : 400,
-                    letterSpacing: '-0.01em',
-                    color: active ? color : 'var(--mobile-dock-label, rgba(60,60,67,0.6))',
-                  }}
                 >
                   {label === 'Performance' ? 'Stats' : label === 'Knowledge' ? 'Pearls' : label === 'Question Bank' ? 'Questions' : label}
                 </span>
@@ -710,7 +708,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <motion.button
                   type="button"
                   whileTap={reducedMotion ? undefined : { scale: 0.88 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+                  transition={SPRING_SNAPPY}
                   onClick={() => {
                     setMobileMoreOpen((prev) => !prev);
                   }}
@@ -720,9 +718,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                   aria-label="More"
                   className={`mobile-dock-button mobile-dock-more relative flex min-w-0 flex-1 flex-col items-center justify-end rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 sm:min-w-[52px] sm:flex-none${active ? ' is-active' : ''}`}
                   style={{
-                    paddingLeft: 2,
-                    paddingRight: 2,
-                    paddingBottom: 2,
                     ['--dock-item-accent' as string]: '#007AFF',
                   }}
                 >
@@ -731,31 +726,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                       layoutId="tab-active-bg"
                       className="mobile-dock-active absolute inset-x-0 top-0 bottom-5 rounded-2xl"
                       style={{ ['--dock-item-accent' as string]: '#007AFF' }}
-                      transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34 }}
+                      transition={TAB_PILL_TRANSITION(reducedMotion)}
                     />
                   )}
                   <motion.div
                     animate={active ? { scale: 1.06 } : { scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                    transition={SPRING_SNAPPY}
                     className="mobile-dock-icon relative z-10 mb-0.5"
                   >
                     <MoreHorizontal
-                      style={{
-                        width: 21, height: 21,
-                        color: active ? '#007AFF' : 'var(--mobile-dock-icon, #3C3C43)',
-                        opacity: active ? 1 : 0.6,
-                        strokeWidth: active ? 2.2 : 1.9,
-                      }}
+                      className="transition-all duration-150"
                     />
                   </motion.div>
                   <span
                     className="mobile-dock-item-label relative z-10 font-sans leading-none transition-all duration-150"
-                    style={{
-                      fontSize: 10,
-                      fontWeight: active ? 600 : 400,
-                      letterSpacing: '-0.01em',
-                      color: active ? '#007AFF' : 'var(--mobile-dock-label, rgba(60,60,67,0.6))',
-                    }}
                   >
                     More
                   </span>
@@ -769,7 +753,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={reducedMotion ? undefined : { opacity: 0, y: 12, scale: 0.96 }}
                       transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-                      className="mobile-more-popover absolute right-0 bottom-[calc(100%+0.75rem)] w-64 max-w-[calc(100vw-2rem)] z-[70] rounded-2xl bg-white/95 backdrop-blur-2xl saturate-[180%] border border-[rgba(60,60,67,0.10)] shadow-[0_20px_52px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.08)] p-2 font-sans"
+                      className="mobile-more-popover absolute right-0 bottom-[calc(100%+0.75rem)] w-64 max-w-[calc(100vw-2rem)] z-[70] rounded-3xl p-2 font-sans"
                       role="menu"
                       aria-label="Secondary Utilities"
                     >

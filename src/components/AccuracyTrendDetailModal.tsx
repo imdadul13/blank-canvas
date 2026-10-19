@@ -181,7 +181,7 @@ export const AccuracyTrendDetailModal: React.FC<AccuracyTrendDetailModalProps> =
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
+        <div className="p-6 sm:p-8 space-y-6 max-h-[75dvh] overflow-y-auto">
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Overall Accuracy */}

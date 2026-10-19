@@ -569,6 +569,9 @@ export interface UserSettings {
   explanationMode?: 'instant' | 'summary';
   breakReminderInterval?: number; // 30, 45, 60, 0
   hapticSoundEnabled?: boolean;
+  revisionRemindersEnabled?: boolean;
+  streakRemindersEnabled?: boolean;
+  mockRemindersEnabled?: boolean;
 }
 
 export type AppSettings = UserSettings;
@@ -1533,5 +1536,4 @@ export interface GeneratedDailyMission {
   studyStreakDays: number;
   summary?: DailyMissionSummary;
 }
-
 

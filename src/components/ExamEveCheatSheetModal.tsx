@@ -105,6 +105,7 @@ export const ExamEveCheatSheetModal: React.FC<ExamEveCheatSheetModalProps> = ({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close exam-eve revision sheet"
             className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95"
             title="Close"
           >

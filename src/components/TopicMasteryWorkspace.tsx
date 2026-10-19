@@ -25,8 +25,9 @@ import {
   Target,
   Maximize2,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import confetti from 'canvas-confetti';
+import { PRESENTATION_MOTION } from '../utils/motionTokens';
 import {
   AppState,
   PracticeSessionContext,
@@ -208,6 +209,7 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
   onToggleTopicState,
   onOpenAiCoach,
 }) => {
+  const reducedMotion = useReducedMotion();
   const topicStateKey = `${subjectId}-${topicId}`;
   const activeTopicKeyRef = useRef<string>(`${subjectId}::${topicId}`);
   const currentTopicState = state.topicsState?.[topicStateKey] || {};
@@ -639,7 +641,9 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
     onToggleTopicState(subjectId, topicId, 'notesDone');
     onToggleTopicState(subjectId, topicId, 'qBankDone');
     onToggleTopicState(subjectId, topicId, 'r1Done');
-    confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+    if (!reducedMotion) {
+      confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+    }
   };
 
   // High-Yield Active Data (AI enriched or Base verified)
@@ -655,13 +659,10 @@ export const TopicMasteryWorkspace: React.FC<TopicMasteryWorkspaceProps> = ({
 
   return (
     <div className="topic-mastery-workspace overflow-y-auto font-sans text-slate-900" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9100, backgroundColor: '#1D1D1F' }}>
-      <div className="flex items-center justify-center p-0 sm:p-4 md:p-6" style={{ minHeight: '100vh' }}>
+      <div className="flex min-h-[100dvh] items-center justify-center p-0 sm:p-4 md:p-6">
         <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 16 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 16 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-          className="bg-[#F8FAFA] backdrop-blur-2xl sm:rounded-3xl max-w-5xl w-full my-auto h-[100dvh] sm:h-auto sm:max-h-[94vh] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.18)] border-0 sm:border border-slate-200/80 overflow-hidden"
+          {...PRESENTATION_MOTION(reducedMotion, 'fullscreen')}
+          className="bg-[#F8FAFA] backdrop-blur-2xl sm:rounded-3xl max-w-5xl w-full my-auto h-[100dvh] sm:h-auto sm:max-h-[94dvh] flex flex-col shadow-[0_25px_60px_rgba(0,0,0,0.18)] border-0 sm:border border-slate-200/80 overflow-hidden"
         >
           {/* ================= EDITORIAL TEXTBOOK HEADER ================= */}
           <header className="p-4 sm:p-7 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-start justify-between gap-4 bg-white/80 backdrop-blur-md shrink-0">

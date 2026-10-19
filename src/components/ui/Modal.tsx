@@ -1,8 +1,9 @@
 import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { AnimatePresence, motion, type Transition } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BACKDROP_MOTION, PRESENTATION_MOTION } from '@/utils/motionTokens';
 
 /**
  * Modal — the single overlay primitive for the whole app.
@@ -27,23 +28,6 @@ import { cn } from '@/lib/utils';
  */
 
 export type ModalVariant = 'center' | 'sheet' | 'drawer' | 'fullscreen';
-
-const PANEL_SPRING: Transition = { type: 'spring', stiffness: 380, damping: 32, mass: 0.9 };
-const BACKDROP_SPRING: Transition = { type: 'spring', stiffness: 400, damping: 34 };
-
-/** In: rise + settle. Sheet/drawer/fullscreen slide from their own edge. */
-function panelMotion(variant: ModalVariant) {
-  switch (variant) {
-    case 'sheet':
-      return { initial: { y: '100%' }, animate: { y: 0 }, exit: { y: '100%' } };
-    case 'drawer':
-      return { initial: { x: '100%' }, animate: { x: 0 }, exit: { x: '100%' } };
-    case 'fullscreen':
-      return { initial: { opacity: 0, scale: 1.02 }, animate: { opacity: 1, scale: 1 }, exit: { opacity: 0, scale: 1.02 } };
-    default:
-      return { initial: { opacity: 0, scale: 0.94, y: 24 }, animate: { opacity: 1, scale: 1, y: 0 }, exit: { opacity: 0, scale: 0.96, y: 12 } };
-  }
-}
 
 const OVERLAY_LAYOUT: Record<ModalVariant, string> = {
   center: 'items-center justify-center p-3 sm:p-4',
@@ -151,7 +135,15 @@ const Modal = React.forwardRef<
     },
     ref,
   ) => {
-    const motionProps = panelMotion(variant);
+    const reducedMotion = useReducedMotion();
+    const presentation = variant === 'drawer'
+      ? 'drawer'
+      : variant === 'sheet'
+        ? 'sheet'
+      : variant === 'fullscreen'
+        ? 'fullscreen'
+        : 'center';
+    const motionProps = PRESENTATION_MOTION(reducedMotion, presentation);
     // Fullscreen viewers usually own their chrome inside the dialog body.
     // `hideClose` only removes the close affordance; it should not discard
     // the title/header for normal dialogs.
@@ -182,10 +174,7 @@ const Modal = React.forwardRef<
                     backdropFilter: 'blur(10px)',
                     WebkitBackdropFilter: 'blur(10px)',
                   }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={BACKDROP_SPRING}
+                  {...BACKDROP_MOTION(reducedMotion)}
                   onClick={dismissOnScrim ? undefined : (e) => e.stopPropagation()}
                 />
               </DialogPrimitive.Overlay>
@@ -229,10 +218,7 @@ const Modal = React.forwardRef<
                       className,
                     )}
                     style={accent ? ({ '--accent': accent } as React.CSSProperties) : undefined}
-                    initial={motionProps.initial}
-                    animate={motionProps.animate}
-                    exit={motionProps.exit}
-                    transition={PANEL_SPRING}
+                    {...motionProps}
                   >
                   {/* Sheet affordance — the only variant that reads as "pull me down". */}
                   {variant === 'sheet' && (

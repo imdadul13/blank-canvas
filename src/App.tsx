@@ -29,6 +29,7 @@ import { BackToTopButton } from './components/BackToTopButton';
 const KeyboardShortcutsModal = lazy(() => import('./components/KeyboardShortcutsModal').then((module) => ({ default: module.KeyboardShortcutsModal })));
 import { ErrorBoundary } from './components/error-boundary';
 import { AppSplashScreen } from './components/AppSplashScreen';
+import { WorkspaceLoadingState } from './components/ui/AsyncState';
 import { AuthProvider, useAuth, DEV_AUTH_BYPASS } from './context/AuthContext';
 
 import {
@@ -53,7 +54,7 @@ import { getLocalDateKey } from './utils/date';
 import { useScrollDirection } from './hooks/useScrollDirection';
 import { resolveTimeOfDay } from './hooks/useCircadianTheme';
 import { recordSpacedAttempt } from './utils/spacedRepetitionEngine';
-import { SPRING_SMOOTH } from './utils/motionTokens';
+import { PAGE_TRANSITION, SPRING_SMOOTH } from './utils/motionTokens';
 const AudioRecallPlayerModal = lazy(() => import('./components/AudioRecallPlayerModal').then((module) => ({ default: module.AudioRecallPlayerModal })));
 
 const STUDY_BACKGROUNDS = [
@@ -930,7 +931,7 @@ function AppInner() {
             onMouseLeave={handleSidebarHoverLeave}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={`hidden xl:flex items-center gap-2 fixed top-3 left-3.5 z-40 h-9 px-3 rounded-xl bg-white/90 backdrop-blur-2xl border border-black/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:bg-white hover:border-[#007AFF]/40 text-slate-700 hover:text-[#007AFF] transition-colors cursor-pointer select-none group ${
+            className={`sidebar-reveal-control hidden xl:flex items-center gap-2 fixed top-3 left-3.5 z-40 h-10 px-3 rounded-2xl transition-colors cursor-pointer select-none group ${
               !isNavVisible || isSidebarHovered ? 'pointer-events-none' : 'pointer-events-auto'
             }`}
             title="Turn sidebar ON (⌘B) · Hover to peek"
@@ -1031,14 +1032,11 @@ function AppInner() {
         {/* Main Content Area */}
         <main className="workspace-main relative flex-1 w-full mx-auto">
           <ErrorBoundary resetKey={activeTab}>
-            <Suspense fallback={<div role="status" className="flex min-h-[320px] items-center justify-center text-sm text-[#8E8E93]">Loading study workspace…</div>}>
-            <AnimatePresence mode="wait">
+            <Suspense fallback={<WorkspaceLoadingState />}>
+            <AnimatePresence mode="popLayout" initial={false}>
               <motion.div
                 key={activeTab}
-                initial={reducedMotion ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reducedMotion ? undefined : { opacity: 0, y: -6 }}
-                transition={reducedMotion ? { duration: 0 } : { duration: 0.15, ease: 'easeOut' }}
+                {...PAGE_TRANSITION(reducedMotion)}
               >
                 {activeTab === 'dashboard' && (
                   <DashboardView

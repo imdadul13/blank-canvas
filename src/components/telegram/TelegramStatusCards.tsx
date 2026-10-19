@@ -43,9 +43,9 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
   return (
     <>
       {/* DESKTOP STATUS CARDS: 3 COMPACT BALANCED CARDS */}
-      <div className="hidden sm:grid sm:grid-cols-3 gap-3.5 lg:gap-4">
+      <div className="telegram-status-grid hidden sm:grid sm:grid-cols-3 gap-3.5 lg:gap-4">
         {/* Card 1: Telegram Account */}
-        <div className="h-full rounded-2xl sm:rounded-3xl border border-sky-200/80 bg-gradient-to-tr from-sky-500/[0.04] via-white to-blue-500/[0.02] p-4 sm:p-4.5 shadow-2xs flex items-center justify-between gap-3 hover:border-sky-300 transition-colors">
+        <div className="telegram-status-card is-account h-full rounded-2xl sm:rounded-3xl border p-4 sm:p-4.5 flex items-center justify-between gap-3 transition-colors">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-400 to-blue-600 text-white shadow-xs shadow-sky-500/25 flex items-center justify-center shrink-0">
               <Send className="w-5 h-5 -translate-x-0.5 translate-y-0.5" />
@@ -84,10 +84,10 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
           <button
             type="button"
             onClick={isConnected ? onOpenManageModal || onOpenConnectModal : onOpenConnectModal}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer shrink-0 transition-all self-center ${
+            className={`telegram-status-action px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer shrink-0 transition-all self-center ${
               isConnected
-                ? "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
-                : "bg-[#007AFF] hover:bg-[#0062CC] text-white shadow-xs"
+                ? "is-secondary"
+                : "is-primary"
             }`}
           >
             {isConnected ? "Manage" : "Connect"}
@@ -95,7 +95,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
         </div>
 
         {/* Card 2: Ingestion Worker */}
-        <div className="h-full rounded-2xl sm:rounded-3xl border border-blue-500/20 bg-gradient-to-tr from-blue-500/[0.04] via-white to-sky-500/[0.02] p-4 sm:p-4.5 shadow-2xs flex items-center justify-between gap-3 hover:border-blue-500/30 transition-colors">
+        <div className="telegram-status-card is-worker h-full rounded-2xl sm:rounded-3xl border p-4 sm:p-4.5 flex items-center justify-between gap-3 transition-colors">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#007AFF] to-[#0284C7] text-white shadow-xs shadow-blue-500/25 flex items-center justify-center shrink-0">
               <Cpu className="w-5 h-5" />
@@ -135,7 +135,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
                 type="button"
                 onClick={onManualSync}
                 disabled={isManualSyncing}
-                className="px-2.5 py-1.5 rounded-xl bg-stone-50 hover:bg-stone-100 text-slate-700 border border-stone-200 text-xs font-medium cursor-pointer disabled:opacity-50"
+                className="telegram-status-action is-secondary px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer disabled:opacity-50"
                 title="Trigger immediate sync check"
               >
                 {isManualSyncing ? "Syncing..." : "Sync"}
@@ -151,7 +151,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
         </div>
 
         {/* Card 3: Database (PostgreSQL) */}
-        <div className="h-full rounded-2xl sm:rounded-3xl border border-indigo-200/80 bg-gradient-to-tr from-indigo-500/[0.04] via-white to-purple-500/[0.02] p-4 sm:p-4.5 shadow-2xs flex items-center justify-between gap-3 hover:border-indigo-300 transition-colors">
+        <div className="telegram-status-card is-database h-full rounded-2xl sm:rounded-3xl border p-4 sm:p-4.5 flex items-center justify-between gap-3 transition-colors">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white shadow-xs shadow-indigo-500/25 flex items-center justify-center shrink-0">
               <Database className="w-5 h-5" />
@@ -198,7 +198,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
         {/* Mobile Card 1: Telegram Account */}
         <div
           onClick={isConnected ? onOpenManageModal || onOpenConnectModal : onOpenConnectModal}
-          className="rounded-2xl border border-stone-200/90 bg-white p-3.5 shadow-2xs flex items-center justify-between gap-3 active:bg-stone-50 cursor-pointer transition-colors"
+          className="telegram-status-card is-account rounded-2xl border p-3.5 flex items-center justify-between gap-3 cursor-pointer transition-colors"
         >
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-[#229ED9]/10 text-[#229ED9] flex items-center justify-center shrink-0">
@@ -233,7 +233,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
         {/* Mobile Card 2: Ingestion Worker */}
         <div
           onClick={onManualSync}
-          className="rounded-2xl border border-stone-200/90 bg-white p-3.5 shadow-2xs flex items-center justify-between gap-3 active:bg-stone-50 cursor-pointer transition-colors"
+          className="telegram-status-card is-worker rounded-2xl border p-3.5 flex items-center justify-between gap-3 cursor-pointer transition-colors"
         >
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-blue-500/[0.08] text-[#007AFF] flex items-center justify-center shrink-0 border border-blue-500/20">
@@ -266,7 +266,7 @@ export const TelegramStatusCards: React.FC<TelegramStatusCardsProps> = ({
         </div>
 
         {/* Mobile Card 3: Database (PostgreSQL) */}
-        <div className="rounded-2xl border border-stone-200/90 bg-white p-3.5 shadow-2xs flex items-center justify-between gap-3">
+        <div className="telegram-status-card is-database rounded-2xl border p-3.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100/70">
               <Database className="w-5 h-5" />

@@ -1983,15 +1983,18 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
               transition={{ duration: 0.35, ease: 'easeOut' }}
               className="w-full px-2 py-4 sm:py-6"
             >
-              <div className="flex items-center justify-between pb-3.5 max-w-3xl mx-auto px-1">
-                <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#007AFF] animate-pulse" />
-                  <span className="text-[12px] font-bold uppercase tracking-wider text-[#6E6E73]">
-                    High-Yield Clinical Scenarios
-                  </span>
+              <div className="mentor-starter-heading flex items-end justify-between gap-4 pb-5 max-w-3xl mx-auto px-1">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="size-2 rounded-full bg-accent animate-pulse" />
+                    <span className="t-eyebrow text-accent">Faculty rounds</span>
+                  </div>
+                  <h2 className="mt-2 text-xl font-bold tracking-tight text-[var(--color-ink)]">
+                    Choose how you want to think today.
+                  </h2>
                 </div>
-                <span className="text-[12px] text-[#8E8E93] font-medium hidden sm:inline">
-                  Select a scenario to start consultation
+                <span className="hidden max-w-48 text-right text-xs leading-5 text-[var(--color-ink-2)] sm:inline">
+                  Every path adapts to your tracked weak areas.
                 </span>
               </div>
 
@@ -2019,48 +2022,40 @@ export const AiCoachView: React.FC<AiCoachViewProps> = ({
                       }
                       onClick={() => handleSendMessage(starter.query)}
                       className={cn(
-                        'group relative flex flex-col justify-between rounded-2xl border border-black/[0.06] bg-white p-5 text-left',
-                        'shadow-[0_2px_8px_rgba(0,0,0,0.02),0_1px_2px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.02)]',
-                        'hover:border-black/[0.12] transition-all duration-200 cursor-pointer',
+                        'mentor-starter-card group relative flex flex-col justify-between rounded-3xl border p-5 text-left',
+                        'transition-all duration-200 cursor-pointer',
                         'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent',
                       )}
+                      style={{ '--starter-color': h.bar, '--starter-tint': h.tint } as React.CSSProperties}
                     >
                       <div>
                         <div className="flex items-start justify-between gap-3 mb-3.5">
                           <span
                             aria-hidden="true"
-                            className="grid size-10 shrink-0 place-items-center rounded-xl shadow-xs transition-transform duration-200 group-hover:scale-105"
-                            style={{
-                              background: h.tint,
-                              border: `1px solid color-mix(in srgb, ${h.bar} 24%, transparent)`,
-                            }}
+                            className="mentor-starter-icon grid size-11 shrink-0 place-items-center rounded-2xl transition-transform duration-200 group-hover:scale-105"
                           >
                             <Icon className="size-5 stroke-[2]" style={{ color: h.bar }} />
                           </span>
                           <span
-                            className="text-[11px] font-semibold tracking-normal px-2.5 py-0.5 rounded-full"
-                            style={{
-                              background: h.tint,
-                              color: h.bar,
-                            }}
+                            className="mentor-starter-category text-[11px] font-semibold tracking-normal px-2.5 py-1 rounded-full"
                           >
                             {starter.category}
                           </span>
                         </div>
 
                         <div className="space-y-1.5">
-                          <div className="text-[15px] sm:text-[16px] font-bold leading-snug text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors">
+                          <div className="mentor-starter-title text-[15px] sm:text-[16px] font-bold leading-snug text-[var(--color-ink)] transition-colors">
                             {starter.title}
                           </div>
-                          <p className="text-[12.5px] sm:text-[13px] leading-relaxed text-[#6E6E73] line-clamp-2">
+                          <p className="text-[12.5px] sm:text-[13px] leading-relaxed text-[var(--color-ink-2)] line-clamp-2">
                             {starter.description}
                           </p>
                         </div>
                       </div>
 
-                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-black/[0.05] text-[12px] font-semibold text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors">
+                      <div className="mentor-starter-footer mt-5 flex items-center justify-between pt-3 text-[12px] font-semibold transition-colors">
                         <span>Start consultation</span>
-                        <span className="grid size-6 place-items-center rounded-full bg-black/[0.04] group-hover:bg-[#007AFF] group-hover:text-white transition-all">
+                        <span className="mentor-starter-arrow grid size-7 place-items-center rounded-full transition-all">
                           <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                         </span>
                       </div>

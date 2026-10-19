@@ -175,7 +175,7 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
         paddingBottom: 'max(1rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))'
       }}
     >
-      <div className="relative bg-white/95 backdrop-blur-2xl rounded-3xl max-w-lg w-full shadow-[0_24px_64px_rgba(0,0,0,0.14)] border border-slate-200/80 overflow-hidden max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90vh] flex flex-col before:absolute before:inset-0 before:bg-gradient-to-tr before:from-sky-500/[0.03] before:via-white/0 before:to-indigo-500/[0.02] before:pointer-events-none animate-in zoom-in-95 duration-150">
+      <div className="relative bg-white/95 backdrop-blur-2xl rounded-3xl max-w-lg w-full shadow-[0_24px_64px_rgba(0,0,0,0.14)] border border-slate-200/80 overflow-hidden max-h-[calc(100dvh-max(2.5rem,calc(1.5rem+env(safe-area-inset-top,0px)+env(safe-area-inset-bottom,0px))))] sm:max-h-[90dvh] flex flex-col before:absolute before:inset-0 before:bg-gradient-to-tr before:from-sky-500/[0.03] before:via-white/0 before:to-indigo-500/[0.02] before:pointer-events-none animate-in zoom-in-95 duration-150">
         
         {/* Specular Top Shimmer Edge */}
         <div

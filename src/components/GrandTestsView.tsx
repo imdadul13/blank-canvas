@@ -22,13 +22,16 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { GrandTest, AppState } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { getLocalDateKey } from '../utils/date';
 import { NbeMockExamModal } from './NbeMockExamModal';
 import { GrandTestDiagnosticModal } from './GrandTestDiagnosticModal';
 import { ErrorNotebookItem } from '../types';
+import { Button, Pill } from './ui/Button';
+import { IconTile } from './ui/surface';
+import { CARD_STAGGER } from '../utils/motionTokens';
 
 interface GrandTestsViewProps {
   state: AppState;
@@ -45,6 +48,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
   onNavigateTab,
   onAddErrorItem,
 }) => {
+  const reducedMotion = useReducedMotion();
   const [showAddGTModal, setShowAddGTModal] = useState(false);
   const [showMockModal, setShowMockModal] = useState(false);
   const [showDiagnosticModal, setShowDiagnosticModal] = useState(false);
@@ -272,7 +276,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
   return (
     <div
       data-accent="grandtests"
-      className="space-y-6 sm:space-y-8 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 animate-in fade-in duration-150 pb-24 sm:pb-20 lg:pb-16 text-slate-900"
+      className="grand-tests-page space-y-5 sm:space-y-6 max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-24 sm:pb-20 lg:pb-16 text-[var(--color-ink)]"
     >
       {/* Toast Notification */}
       {toastMessage && (
@@ -282,219 +286,102 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         </div>
       )}
 
-      {/* Apple HIG Luminous Royal Indigo & Lavender Hero Header — Seamless Pillowed Card with Rich Multi-Hue Gradient */}
+      {/* Decision-first benchmark header */}
       <motion.header
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="system-page-header premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(99,102,241,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
-        data-header-art="rings"
-        style={{
-          background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 32%, #C7D2FE 64%, #DDD6FE 84%, #F5D0FE 100%)',
-        }}
+        className="grand-tests-hero system-page-header premium-page-hero relative overflow-hidden"
       >
-        {/* Decorative right glow */}
-        <div
-          className="pointer-events-none absolute right-0 top-0 bottom-0 w-1/2"
-          style={{
-            background: 'radial-gradient(ellipse at 80% 50%, rgba(99,102,241,0.30) 0%, rgba(168,85,247,0.16) 50%, transparent 70%)',
-          }}
-        />
-        {/* Top inner shine */}
-        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/35 to-transparent pointer-events-none rounded-t-[2rem] sm:rounded-t-[2.5rem]" />
-
-        <div className="relative z-10 p-5 sm:p-6 lg:p-7 space-y-4">
-          {/* Top Metadata Row */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/75 backdrop-blur-md border border-[rgba(60,60,67,0.08)] text-xs font-semibold text-[#4338CA]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] animate-pulse" />
-              <span className="uppercase tracking-wider text-[10.5px] font-bold">NBE CBT Simulation</span>
-              <span className="text-[#C7C7CC]">·</span>
-              <span className="text-[#3C3C43] font-normal hidden sm:inline">300 Questions Benchmark</span>
+        <div className="relative z-10 grid gap-5 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-center">
+          <div className="space-y-5">
+            <div className="space-y-3">
+              <Pill tone="accent">
+                <ShieldCheck className="size-3.5" />
+                Grand Tests · 300-mark benchmark
+              </Pill>
+              <div>
+                <h1 className="premium-workspace-title text-[var(--color-ink)]">
+                  Mock performance, <span className="premium-title-accent">without guesswork.</span>
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--color-ink-2)]">
+                  Run a timed simulation, record external mocks, and turn every score into a clear route toward the 150-mark benchmark.
+                </p>
+              </div>
             </div>
-
-            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/80 backdrop-blur-md border border-[rgba(60,60,67,0.10)] text-[#1D1D1F] shadow-xs">
-                <Clock className="w-3.5 h-3.5 text-[#4338CA]" />
-                <span>{stats.totalTests} {stats.totalTests === 1 ? 'Mock' : 'Mocks'}</span>
-              </div>
-
-              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/80 backdrop-blur-md border border-indigo-200 text-[#4338CA] shadow-xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#4338CA]" />
-                <span>{stats.totalTests > 0 ? `${stats.clearanceRate}% Clearance` : 'Clearance —'}</span>
-              </div>
-
-              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/80 backdrop-blur-md border border-emerald-200 text-emerald-700 shadow-xs">
-                <Target className="w-3.5 h-3.5 text-emerald-600" />
-                <span>150 / 300 Pass</span>
-              </div>
+            <div className="flex flex-col gap-2.5 sm:flex-row">
+              <Button variant="primary" size="lg" onClick={() => setShowMockModal(true)}>
+                <Clock className="size-4" />
+                Start timed simulation
+              </Button>
+              <Button variant="secondary" size="lg" onClick={() => setShowAddGTModal(true)}>
+                <Plus className="size-4" />
+                Log external result
+              </Button>
             </div>
           </div>
 
-          {/* Main Row: Title & Subtitle + Mode Switcher + Right Gauge Widget */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-            <div className="space-y-2.5 min-w-0 max-w-xl">
-              <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black tracking-[-0.03em] leading-tight text-[#1D1D1F]">
-                Grand Tests <span className="text-[#4338CA]">&amp; Mock Exams</span>
-              </h1>
-              <p className="text-xs sm:text-[13px] text-[#334155] font-medium leading-snug">
-                Log full-length mock results and compare your trajectory with the configured 150-mark benchmark.
-              </p>
-
+          <div className="grand-tests-snapshot rounded-3xl border border-[var(--color-hairline)] bg-[var(--color-surface)] p-4 shadow-e2 sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="t-eyebrow text-[var(--color-ink-2)]">Latest benchmark</div>
+                <div className="mt-2 flex items-end gap-1.5">
+                  <span className="t-num-md text-[var(--color-ink)]">{stats.totalTests ? stats.latestScore : '—'}</span>
+                  <span className="pb-1 text-sm font-semibold text-[var(--color-ink-2)]">/ 300</span>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <IconTile icon={Target} size={40} color="var(--accent-ink)" className="premium-snapshot-icon" />
+                <Pill tone={stats.latestPassed ? 'pass' : stats.totalTests ? 'warn' : 'neutral'}>
+                  {stats.latestPassed ? 'Above pass mark' : stats.totalTests ? `${150 - stats.latestScore} to pass` : 'No baseline'}
+                </Pill>
+              </div>
             </div>
-
-            {/* Right Compact Circular Gauge Widget Card */}
-            <div className="bg-white/70 backdrop-blur-md border border-white/85 rounded-2xl p-3.5 sm:p-4 shadow-sm flex items-center gap-3.5 sm:gap-4 shrink-0">
-              <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 48 48">
-                  <circle cx="24" cy="24" r="20" stroke="#F2F2F7" strokeWidth="4.5" fill="none" />
-                  <circle
-                    cx="24"
-                    cy="24"
-                    r="20"
-                    stroke="#4338CA"
-                    strokeWidth="4.5"
-                    strokeDasharray={125.6}
-                    strokeDashoffset={125.6 * (1 - Math.min(100, Math.max(0, stats.clearanceRate)) / 100)}
-                    strokeLinecap="round"
-                    fill="none"
-                    className="transition-all duration-700 ease-out"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="font-mono text-xs font-black text-[#1D1D1F] leading-none">
-                    {stats.totalTests > 0 ? `${stats.clearanceRate}%` : '—'}
-                  </span>
-                  <span className="text-[6.5px] font-mono font-bold uppercase tracking-wider text-[#4338CA] mt-0.5">
-                    PASS
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5 min-w-0">
-                <div className="text-xs font-bold text-[#1D1D1F] truncate">
-                  {stats.latestScore > 0 ? (
-                    <span>Latest: {stats.latestScore}/300 ({stats.latestScore >= 150 ? `+${stats.latestScore - 150}` : `${stats.latestScore - 150}`})</span>
-                  ) : (
-                    <span>Target: 150/300 Marks</span>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddGTModal(true)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#4338CA] hover:bg-[#3730A3] text-white text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5 stroke-[2.8]" />
-                  <span>Log Grand Test</span>
-                </button>
-              </div>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--color-surface-muted)]">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${stats.totalTests ? Math.min(100, (stats.latestScore / 300) * 100) : 0}%` }}
+                className="h-full rounded-full bg-[var(--accent-ink)]"
+              />
+            </div>
+            <div className="mt-2 flex justify-between text-[11px] font-semibold text-[var(--color-ink-2)]">
+              <span>0</span><span>150 pass</span><span>300</span>
             </div>
           </div>
+        </div>
+
+        <div className="grand-tests-hero-stats relative z-10 grid grid-cols-3 border-t border-[var(--color-hairline)]">
+          {[
+            { label: 'Mocks logged', value: stats.totalTests, icon: Clock, tone: 'blue' },
+            { label: 'Clearance rate', value: stats.totalTests ? `${stats.clearanceRate}%` : '—', icon: ShieldCheck, tone: 'green' },
+            { label: 'Score change', value: stats.totalTests > 1 ? `${stats.scoreDelta >= 0 ? '+' : ''}${stats.scoreDelta}` : '—', icon: TrendingUp, tone: 'purple' },
+          ].map((item, index) => (
+            <motion.div key={item.label} {...CARD_STAGGER(index, reducedMotion)} className="premium-hero-stat min-w-0 px-3 py-3.5 sm:px-5">
+              <span className={`premium-stat-icon is-${item.tone}`}><item.icon className="size-3.5" /></span>
+              <span className="min-w-0">
+                <span className="block text-sm font-bold tabular-nums text-[var(--color-ink)] sm:text-base">{item.value}</span>
+                <span className="mt-0.5 block truncate text-[10px] font-semibold uppercase tracking-wider text-[var(--color-ink-2)]">{item.label}</span>
+              </span>
+            </motion.div>
+          ))}
         </div>
       </motion.header>
 
-      {/* 3 High-Impact Assorted Examination Bento Cards (Distinct from standard 4-tile rows) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        {/* Card 1: NBE Clearance Trajectory (Apple Emerald) */}
-        <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.03] border border-emerald-200/80 shadow-[0_2px_12px_rgba(16,185,129,0.04)] space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-bold font-mono uppercase tracking-wider text-emerald-800">
-              Clearance Trajectory
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-2xs">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-black font-mono text-emerald-800 leading-none">
-                {stats.totalTests > 0 ? `${stats.clearanceRate}%` : '—'}
-              </span>
-              <span className="text-[11.5px] font-medium text-emerald-700">
-                ({stats.clearedCount}/{stats.totalTests} Cleared)
-              </span>
-            </div>
-            <p className="text-[11.5px] text-[#64748B] mt-1 font-medium">
-              {stats.clearedCount > 0
-                ? 'Consistently meeting NBE 150-mark threshold'
-                : stats.totalTests > 0
-                ? 'Targeting 150 pass mark on upcoming mock'
-                : 'Log initial 300Q mock to benchmark trajectory'}
-            </p>
-          </div>
+      <motion.div {...CARD_STAGGER(0, reducedMotion)} className="premium-section-heading">
+        <IconTile icon={BarChart3} size={42} color="var(--accent-ink)" />
+        <div>
+          <div className="t-eyebrow text-accent">Performance desk</div>
+          <h2 className="t-section text-[var(--color-ink)]">Read the score, then choose the next move.</h2>
         </div>
-
-        {/* Card 2: Paper 1 vs Paper 2 Balance (Cobalt & Iris Split) */}
-        <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500/[0.08] via-white to-indigo-500/[0.03] border border-blue-200/80 shadow-[0_2px_12px_rgba(59,130,246,0.04)] space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-bold font-mono uppercase tracking-wider text-[#0056CC]">
-              Paper Balance (Pre/Para vs Clinical)
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-[#007AFF] text-white flex items-center justify-center shadow-2xs">
-              <BookOpen className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-[#1D1D1F] flex items-center gap-1">
-                <span className="size-2 rounded-full bg-[#007AFF]" />
-                Paper 1: <strong className="font-mono">{stats.totalTests > 0 ? stats.averagePaper1 : '—'}/150</strong>
-              </span>
-              <span className="font-semibold text-[#1D1D1F] flex items-center gap-1">
-                <span className="size-2 rounded-full bg-[#5856D6]" />
-                Paper 2: <strong className="font-mono">{stats.totalTests > 0 ? stats.averagePaper2 : '—'}/150</strong>
-              </span>
-            </div>
-              <div className={`w-full h-2 rounded-full bg-[#E2E8F0] overflow-hidden flex ${stats.totalTests === 0 ? 'opacity-40' : ''}`}>
-              <div
-                className="bg-[#007AFF] h-full"
-                style={{ width: `${stats.averagePaper1 ? Math.round((stats.averagePaper1 / ((stats.averagePaper1 + stats.averagePaper2) || 150)) * 100) : 50}%` }}
-                title="Paper 1 Proportion"
-              />
-              <div
-                className="bg-[#5856D6] h-full"
-                style={{ width: `${stats.averagePaper2 ? Math.round((stats.averagePaper2 / ((stats.averagePaper1 + stats.averagePaper2) || 150)) * 100) : 50}%` }}
-                title="Paper 2 Proportion"
-              />
-            </div>
-            <p className="text-[11px] text-[#64748B] flex items-center justify-between">
-              <span>Pre &amp; Para-Clinical</span>
-              <span>Clinical Disciplines</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Card 3: 300-Q CBT Speed & Stamina (Amber & Orange) */}
-        <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-white to-orange-500/[0.03] border border-amber-200/80 shadow-[0_2px_12px_rgba(245,158,11,0.04)] space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-bold font-mono uppercase tracking-wider text-amber-800">
-              Exam Stamina &amp; Pacing
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-2xs">
-              <Clock className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-black font-mono text-amber-800 leading-none">
-                60s
-              </span>
-              <span className="text-[11.5px] font-medium text-amber-700">/ Question target</span>
-            </div>
-            <p className="text-[11.5px] text-[#64748B] mt-1 font-medium">
-              300 minutes across two 150-min CBT sessions (No negative marking)
-            </p>
-          </div>
-        </div>
-      </div>
+      </motion.div>
 
       {/* 3. Main Workspace: 2-Column Architecture (Matching ErrorsView & Figma Screenshots) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <div className="grand-tests-workspace grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Left Column (8 cols): Benchmark Desk, Trajectory, Filters, and Test Records Feed */}
         <div className="lg:col-span-8 space-y-4">
           
           {/* NBE Score Predictor & Circular Benchmark Desk (Matching media_1790582425866.png) */}
-          <div className="rounded-3xl border border-[rgba(60,60,67,0.1)] bg-white p-6 sm:p-7 shadow-[0_2px_16px_rgba(0,0,0,0.04)] space-y-5">
+          <div className="grand-tests-panel grand-tests-benchmark rounded-3xl border p-5 sm:p-7 space-y-5">
             {/* Top row with Dial & Bento Stats */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-6">
               {/* Circular Dial Gauge */}
@@ -515,10 +402,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                   />
                 </svg>
                 <div className="absolute text-center flex flex-col items-center">
-                  <span className="text-3xl font-black font-mono text-[#1D1D1F] leading-none">
+                  <span className="text-3xl font-black tabular-nums text-[#1D1D1F] leading-none tracking-tight">
                     {stats.totalTests > 0 ? stats.latestScore : '—'}
                   </span>
-                  <span className="text-[11px] text-[#8E8E93] font-mono mt-0.5">/ 300</span>
+                  <span className="text-[11px] text-[#8E8E93] font-semibold tabular-nums mt-0.5">/ 300</span>
                 </div>
               </div>
 
@@ -565,34 +452,34 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
                 {/* 3 Apple Bento Stat Cards (Confidence, Likely Range, Delta style from media_1790582425866.png) */}
                 <div className="grid grid-cols-3 gap-2.5 pt-1">
-                  <div className="p-3 rounded-2xl bg-blue-50/40 border border-blue-100 flex flex-col justify-between">
-                    <span className="text-[10px] font-mono uppercase font-bold text-[#007AFF] flex items-center gap-1">
+                  <div className="grand-tests-metric-card is-blue p-3 rounded-2xl border flex flex-col justify-between">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#007AFF] flex items-center gap-1">
                       <BookOpen className="w-3 h-3 text-[#007AFF]" />
                       Avg Paper 1
                     </span>
-                    <span className="text-base font-extrabold font-mono text-[#1D1D1F] mt-1">
+                    <span className="text-base font-extrabold tabular-nums text-[#1D1D1F] mt-1">
                       {stats.totalTests > 0 ? stats.averagePaper1 : '—'} <span className="text-[10px] text-[#8E8E93] font-sans">/150</span>
                     </span>
                     <span className="text-[10px] text-[#8E8E93]">Pre &amp; Para-Clinical</span>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-purple-50/40 border border-purple-100 flex flex-col justify-between">
-                    <span className="text-[10px] font-mono uppercase font-bold text-[#5856D6] flex items-center gap-1">
+                  <div className="grand-tests-metric-card is-purple p-3 rounded-2xl border flex flex-col justify-between">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#5856D6] flex items-center gap-1">
                       <BarChart3 className="w-3 h-3 text-[#5856D6]" />
                       Avg Paper 2
                     </span>
-                    <span className="text-base font-extrabold font-mono text-[#1D1D1F] mt-1">
+                    <span className="text-base font-extrabold tabular-nums text-[#1D1D1F] mt-1">
                       {stats.totalTests > 0 ? stats.averagePaper2 : '—'} <span className="text-[10px] text-[#8E8E93] font-sans">/150</span>
                     </span>
                     <span className="text-[10px] text-[#8E8E93]">Clinical Disciplines</span>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-emerald-50/40 border border-emerald-100 flex flex-col justify-between">
-                    <span className="text-[10px] font-mono uppercase font-bold text-emerald-700 flex items-center gap-1">
+                  <div className="grand-tests-metric-card is-green p-3 rounded-2xl border flex flex-col justify-between">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-700 flex items-center gap-1">
                       <TrendingUp className="w-3 h-3 text-emerald-600" />
                       Delta
                     </span>
-                    <span className="text-base font-extrabold font-mono text-emerald-700 mt-1">
+                    <span className="text-base font-extrabold tabular-nums text-emerald-700 mt-1">
                       {stats.totalTests > 1 ? (stats.scoreDelta >= 0 ? `+${stats.scoreDelta}` : stats.scoreDelta) : '—'}
                     </span>
                     <span className="text-[10px] text-[#8E8E93]">vs initial mock</span>
@@ -636,7 +523,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
 
           {/* Chronological Score Progression (Visible when >= 2 tests logged) */}
           {gts.length >= 2 && (
-            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-[rgba(60,60,67,0.1)] shadow-[0_2px_16px_rgba(0,0,0,0.04)] space-y-3.5">
+            <div className="grand-tests-panel rounded-2xl sm:rounded-3xl p-5 border space-y-3.5">
               <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[rgba(60,60,67,0.07)]">
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-xl bg-[#3730A3]/10 text-[#3730A3] flex items-center justify-center shrink-0">
@@ -705,7 +592,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           )}
 
           {/* Filter & Search Bar matching Error Vault (media_1790582425871.png) */}
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[rgba(60,60,67,0.1)] shadow-sm space-y-3">
+          <div className="grand-tests-panel grand-tests-filters p-3.5 sm:p-4 rounded-2xl border space-y-3">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
               {/* Filter Pills */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
@@ -719,10 +606,10 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                     type="button"
                     onClick={() => setStatusFilter(st.id as any)}
                     aria-pressed={statusFilter === st.id}
-                    className={`px-3 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                    className={`grand-tests-filter-pill px-3 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
                       statusFilter === st.id
-                        ? 'bg-[#3730A3] text-white shadow-sm'
-                        : 'bg-[#F2F2F7] text-[#6E6E73] hover:bg-[#E5E5EA]'
+                        ? 'is-active'
+                        : ''
                     }`}
                   >
                     {st.label}
@@ -796,7 +683,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 return (
                   <div
                     key={gt.id}
-                    className={`bg-white rounded-2xl sm:rounded-3xl border transition-all ${
+                    className={`grand-test-record bg-[var(--color-surface)] rounded-2xl sm:rounded-3xl border transition-all ${
                       isExpanded
                         ? 'border-[#3730A3]/30 shadow-[0_8px_30px_rgba(55,48,163,0.08)]'
                         : 'border-[rgba(60,60,67,0.08)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.04)] hover:border-[rgba(60,60,67,0.14)]'
@@ -886,7 +773,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.25, ease: 'easeInOut' }}
-                          className="overflow-hidden border-t border-[rgba(60,60,67,0.07)] bg-[#FAFBFD] px-4 sm:px-6 py-5 space-y-4"
+                          className="grand-test-expanded overflow-hidden border-t px-4 sm:px-6 py-5 space-y-4"
                         >
                           {/* Paper 1 vs Paper 2 Mini Bento Cards */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1058,7 +945,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
             </div>
           ) : (
             /* Apple HIG Empty State matching Error Vault */
-            <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[rgba(60,60,67,0.1)] shadow-sm text-center space-y-6">
+            <div className="grand-tests-panel rounded-3xl p-8 sm:p-12 border text-center space-y-6">
               <div className="w-14 h-14 rounded-2xl bg-[#3730A3]/10 text-[#3730A3] flex items-center justify-center mx-auto shadow-xs">
                 <CheckCircle2 className="w-8 h-8 text-[#30D158]" />
               </div>
@@ -1071,15 +958,16 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
                 </p>
               </div>
 
-              <div>
-                <button
-                  type="button"
+              <div className="flex justify-center">
+                <Button
+                  variant="primary"
+                  size="lg"
                   onClick={() => setShowAddGTModal(true)}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1D1D1F] hover:bg-black text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+                  className="grand-tests-empty-action min-w-44"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Log Grand Test</span>
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -1088,13 +976,13 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
         {/* Right Column (4 cols): Sidebar matching Error Vault & Predictor */}
         <div className="lg:col-span-4 space-y-4">
           
-          <section className="rounded-2xl border border-[rgba(60,60,67,0.1)] bg-white p-5 shadow-sm space-y-2">
+          <section className="grand-tests-panel rounded-2xl border p-5 space-y-2">
             <h2 className="text-[13px] font-bold text-[#1D1D1F]">NBE exam format</h2>
             <p className="text-[12px] leading-relaxed text-[#6E6E73]">Two papers of 150 questions and 150 minutes each. There is no negative marking.</p>
           </section>
 
           {/* Strategic Next Actions Card (Matching media_1790582458273.png) */}
-          <div className="p-5 rounded-2xl bg-white border border-[rgba(60,60,67,0.1)] shadow-sm space-y-4">
+          <div className="grand-tests-panel p-5 rounded-2xl border space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-[#007AFF]/10 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-[#007AFF]" />
@@ -1110,7 +998,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowMockModal(true)}
-                className="w-full p-3.5 rounded-2xl border border-blue-200/80 bg-blue-50/40 hover:bg-blue-50/70 text-left flex items-center justify-between gap-3 cursor-pointer group transition-all"
+                className="grand-tests-action is-blue w-full p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer group transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -1132,7 +1020,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigateTab ? onNavigateTab('errors') : null}
-                className="w-full p-3.5 rounded-2xl border border-purple-200/80 bg-purple-50/40 hover:bg-purple-50/70 text-left flex items-center justify-between gap-3 cursor-pointer group transition-all"
+                className="grand-tests-action is-purple w-full p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer group transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[#5856D6] text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -1154,7 +1042,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowDiagnosticModal(true)}
-                className="w-full p-3.5 rounded-2xl border border-indigo-200/80 bg-indigo-50/40 hover:bg-indigo-50/70 text-left flex items-center justify-between gap-3 cursor-pointer group transition-all"
+                className="grand-tests-action is-indigo w-full p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer group transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[#3730A3] text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -1178,7 +1066,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
           </div>
 
           {/* NBE Protocol Blueprint Card */}
-          <div className="p-4 rounded-2xl bg-[#F2F2F7]/50 border border-[rgba(60,60,67,0.06)] space-y-2">
+          <div className="grand-tests-reference p-4 rounded-2xl border space-y-2">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8E8E93] block">
               FMGE FORMAT REFERENCE
             </span>
@@ -1203,7 +1091,7 @@ export const GrandTestsView: React.FC<GrandTestsViewProps> = ({
       {showAddGTModal &&
         createPortal(
           <div className="fixed inset-0 z-[100] bg-slate-950/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[rgba(60,60,67,0.12)] max-h-[92vh] overflow-y-auto space-y-6">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[rgba(60,60,67,0.12)] max-h-[92dvh] overflow-y-auto space-y-6">
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b border-[rgba(60,60,67,0.08)] pb-4">
               <div className="space-y-1">

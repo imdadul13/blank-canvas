@@ -4,7 +4,6 @@ import {
   History,
   Plus,
   KeyRound,
-  Check,
   RefreshCw,
   MessageSquare,
   HelpCircle,
@@ -12,6 +11,8 @@ import {
   ShieldCheck,
   Calendar,
 } from 'lucide-react';
+import { Button, Pill } from '../ui/Button';
+import { IconTile } from '../ui/surface';
 
 export type MentorTabMode = 'consultation' | 'quiz' | 'viva';
 
@@ -52,78 +53,65 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
   activeMode = 'consultation',
   onModeChange,
 }) => {
+  const statusLabel = isAiStatusUnavailable
+    ? 'Status unavailable'
+    : isAiConfigured === null
+    ? 'Checking intelligence'
+    : isAiConfigured
+    ? 'Clinical intelligence ready'
+    : 'AI setup required';
+
+  const statusDetail = isAiStatusUnavailable
+    ? 'Retry the readiness check before beginning a live consultation.'
+    : isAiConfigured
+    ? 'Ready for case reasoning, viva, and exam-pattern questions.'
+    : 'Connect Gemini to unlock real-time faculty reasoning.';
+
   return (
     <motion.header
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="system-page-header mentor-hero premium-page-hero relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_8px_40px_rgba(14,165,233,0.16),0_2px_8px_rgba(0,0,0,0.06)]"
+      className="system-page-header mentor-hero premium-page-hero relative overflow-hidden"
       data-header-art="signal"
-      style={{
-        background: 'linear-gradient(135deg, #E0F7FA 0%, #BAE6FD 35%, #7DD3FC 68%, #93C5FD 100%)',
-      }}
     >
-      {/* Decorative right glow */}
-      <div
-        className="pointer-events-none absolute right-0 top-0 bottom-0 w-1/2"
-        style={{
-          background: 'radial-gradient(ellipse at 80% 50%, rgba(56,189,248,0.32) 0%, rgba(14,165,233,0.16) 50%, transparent 70%)',
-        }}
-      />
-      {/* Top inner shine */}
-      <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/35 to-transparent pointer-events-none rounded-t-[2rem] sm:rounded-t-[2.5rem]" />
+      <div className="mentor-hero-orb is-one" aria-hidden="true" />
+      <div className="mentor-hero-orb is-two" aria-hidden="true" />
+      <div className="mentor-hero-grid" aria-hidden="true" />
 
-      <div className="mentor-hero-inner relative z-10 p-5 sm:p-6 lg:p-7 space-y-4">
-        {/* Top Metadata Row */}
-        <div className="mentor-hero-meta flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
-          <div className="inline-flex max-w-full items-center gap-1.5 px-3 py-1 rounded-full bg-white/75 backdrop-blur-md border border-[rgba(60,60,67,0.08)] text-xs font-semibold text-[var(--accent-ink)]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] animate-pulse" />
-            <span className="uppercase tracking-wider text-[10.5px] font-bold">Clinical Reasoning</span>
-            <span className="text-[#C7C7CC]">·</span>
-            <span className="text-[#3C3C43] font-normal hidden sm:inline">Differential Guidance</span>
-          </div>
-
-          <div className="flex w-full min-w-0 items-center justify-between gap-1.5 sm:w-auto sm:justify-end sm:gap-2">
-            {daysRemaining !== undefined && daysRemaining !== null && (
-              <div className="hidden xs:inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-white/80 backdrop-blur-md border border-[rgba(60,60,67,0.10)] text-[#1D1D1F] shadow-xs">
-                <Calendar className="w-3.5 h-3.5 text-[var(--accent-ink)]" />
-                <span>{daysRemaining}d to exam</span>
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={onOpenHistory}
-              aria-label="Consultation history"
-              className="group inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 hover:bg-white backdrop-blur-md border border-[rgba(60,60,67,0.10)] text-[#1D1D1F] text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
-            >
-              <History className="w-3.5 h-3.5 text-[var(--accent-ink)] stroke-[2.2] transition-transform group-hover:rotate-[-20deg]" />
-              <span>{sessionsCount} {sessionsCount === 1 ? 'Case' : 'Cases'}</span>
-            </button>
-
-            <div className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-white/80 backdrop-blur-md border border-[color-mix(in_srgb,var(--accent)_24%,white)] text-[var(--accent-ink)] shadow-xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-ink)]" />
-              <span>NBE Grounded</span>
-            </div>
+      <div className="mentor-hero-inner relative z-10 p-5 sm:p-7 lg:p-8">
+        <div className="mentor-hero-meta flex min-w-0 flex-wrap items-center justify-between gap-3">
+          <Pill tone="accent" className="mentor-hero-eyebrow">
+            <Brain className="size-3.5" />
+            One Shot Clinical Intelligence
+          </Pill>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={onOpenHistory}>
+              <History className="size-3.5" />
+              {sessionsCount} {sessionsCount === 1 ? 'case' : 'cases'}
+            </Button>
+            <Pill tone="pass" className="hidden sm:inline-flex">
+              <ShieldCheck className="size-3.5" />
+              NBE grounded
+            </Pill>
           </div>
         </div>
 
-        {/* Main Row: Title & Subtitle + Mode Switcher + Right Gauge Widget */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-          <div className="space-y-2.5 min-w-0 max-w-xl">
-              <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black tracking-[-0.03em] leading-tight text-[#1D1D1F]">
-              Clinical Faculty <span className="text-[var(--accent-ink)]">&amp; AI Mentor</span>
+        <div className="mentor-hero-layout mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.46fr)] lg:items-end">
+          <div className="min-w-0">
+            <h1 className="mentor-hero-title text-[var(--color-ink)]">
+              Think clinically.
+              <span> Answer decisively.</span>
             </h1>
-            <p className="text-xs sm:text-[13px] text-[#334155] font-medium leading-snug">
-              Differential diagnosis, exam vignettes, and clinical reasoning grounded in NBE patterns.
+            <p className="mentor-hero-copy mt-3 max-w-2xl text-[var(--color-ink-2)]">
+              Your private FMGE faculty room for differential diagnosis, exam-pattern reasoning,
+              targeted quizzes, and high-yield viva practice.
             </p>
 
-            {/* Apple Segmented Mode Switcher */}
             <div
               role="group"
               aria-label="Mentor mode"
-              className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-full border border-white/80 bg-white/65 p-1 shadow-sm backdrop-blur-md sm:inline-flex sm:w-auto sm:overflow-visible"
-              style={{ scrollbarWidth: 'none' }}
+              className="mentor-mode-switch mt-5 flex w-full max-w-xl items-center gap-1 overflow-x-auto rounded-2xl p-1.5 sm:w-fit sm:overflow-visible"
             >
               {([
                 { id: 'consultation' as const, label: 'Consultation', compactLabel: 'Consult', icon: MessageSquare },
@@ -136,13 +124,11 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
                   onClick={() => onModeChange?.(id)}
                   aria-label={label}
                   aria-pressed={activeMode === id}
-                  className={`relative flex min-w-0 flex-1 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-2 py-2 text-[10px] font-bold transition-all cursor-pointer sm:flex-none sm:px-3 sm:py-1 sm:text-xs ${
-                    activeMode === id
-                      ? 'bg-white text-[var(--accent-ink)] shadow-xs'
-                      : 'text-[#3A3A3C]/70 hover:text-[#1D1D1F]'
+                  className={`mentor-mode-button flex min-w-0 flex-1 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-xs font-semibold sm:flex-none ${
+                    activeMode === id ? 'is-active' : ''
                   }`}
                 >
-                  <Icon className={`w-3 h-3 shrink-0 ${activeMode === id ? 'text-[var(--accent-ink)]' : ''}`} />
+                  <Icon className="size-3.5 shrink-0" />
                   <span className="sm:hidden">{compactLabel}</span>
                   <span className="hidden sm:inline">{label}</span>
                 </button>
@@ -150,32 +136,46 @@ export const MentorHeader: React.FC<MentorHeaderProps> = ({
             </div>
           </div>
 
-          {/* AI engine state */}
-          <div className="mentor-ai-status bg-white/70 backdrop-blur-md border border-white/85 rounded-2xl p-3.5 sm:p-4 shadow-sm flex items-center gap-3.5 sm:gap-4 shrink-0">
-            <div className="mentor-ai-status-icon grid size-11 shrink-0 place-items-center rounded-2xl border border-[var(--color-hairline-soft)] bg-white/80">
-              {isAiConfigured === null ? (
-                <span className="text-[10px] font-semibold text-[#8E8E93]">…</span>
-              ) : isAiConfigured ? (
-                <Check className="size-5 text-[#147A38]" aria-hidden="true" />
-              ) : (
-                <KeyRound className="size-5 text-[#96500A]" aria-hidden="true" />
-              )}
+          <div className="mentor-command-card rounded-3xl p-4 sm:p-5">
+            <div className="flex items-start gap-3.5">
+              <div className="relative">
+                <IconTile icon={Brain} size={48} color="var(--accent-ink)" className="mentor-command-icon" />
+                <span className={`mentor-command-dot ${isAiConfigured ? 'is-ready' : 'is-warn'}`} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="t-eyebrow text-[var(--color-ink-3)]">Faculty engine</div>
+                <div className="mt-1 text-sm font-bold text-[var(--color-ink)]" aria-live="polite">
+                  {statusLabel}
+                </div>
+                <p className="mt-1 text-xs leading-5 text-[var(--color-ink-2)]">{statusDetail}</p>
+              </div>
             </div>
 
-            <div className="space-y-1.5 min-w-0">
-              <div className="text-xs font-bold text-[#1D1D1F] truncate" aria-live="polite">
-                {isAiStatusUnavailable ? 'AI status unavailable' : isAiConfigured === null ? 'Checking AI setup' : isAiConfigured ? 'AI is ready' : 'AI setup needed'}
+            <div className="mentor-command-metrics mt-4 grid grid-cols-2">
+              <div>
+                <span className="t-eyebrow text-[var(--color-ink-3)]">Consultations</span>
+                <strong className="mt-1 block text-lg font-bold tabular-nums text-[var(--color-ink)]">{sessionsCount}</strong>
               </div>
-              <button
-                type="button"
-                onClick={isAiStatusUnavailable ? onCheckAiStatus : isAiConfigured ? onNewSession : onOpenKeyConfig}
-                disabled={isAiStatusUnavailable ? !onCheckAiStatus : isAiConfigured === null || (!isAiConfigured && !onOpenKeyConfig)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--accent-ink)] hover:brightness-110 text-white text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
-              >
-                {isAiStatusUnavailable ? <RefreshCw className="w-3.5 h-3.5" /> : isAiConfigured ? <Plus className="w-3.5 h-3.5 stroke-[2.8]" /> : <KeyRound className="w-3.5 h-3.5" />}
-                <span>{isAiStatusUnavailable ? 'Retry' : isAiConfigured ? 'New Chat' : isAiConfigured === null ? 'Checking…' : 'Configure AI'}</span>
-              </button>
+              <div>
+                <span className="t-eyebrow text-[var(--color-ink-3)]">Exam horizon</span>
+                <strong className="mt-1 flex items-center gap-1.5 text-lg font-bold tabular-nums text-[var(--color-ink)]">
+                  <Calendar className="size-4 text-accent" />
+                  {daysRemaining !== undefined && daysRemaining !== null ? `${daysRemaining}d` : 'Set date'}
+                </strong>
+              </div>
             </div>
+
+            <Button
+              variant="primary"
+              size="md"
+              block
+              onClick={isAiStatusUnavailable ? onCheckAiStatus : isAiConfigured ? onNewSession : onOpenKeyConfig}
+              disabled={isAiStatusUnavailable ? !onCheckAiStatus : isAiConfigured === null || (!isAiConfigured && !onOpenKeyConfig)}
+              className="mt-4"
+            >
+              {isAiStatusUnavailable ? <RefreshCw className="size-4" /> : isAiConfigured ? <Plus className="size-4" /> : isAiConfigured === null ? <RefreshCw className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
+              {isAiStatusUnavailable ? 'Check status' : isAiConfigured ? 'New Chat' : isAiConfigured === null ? 'Checking setup' : 'Configure clinical AI'}
+            </Button>
           </div>
         </div>
       </div>

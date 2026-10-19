@@ -7,6 +7,7 @@ import { buildDueReviewQueue, type ReviewQueueItem } from '../utils/qbankReviewQ
 import type { AppState, GrandTest, McqAttempt } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { StudyInsightRail, StudyModuleHeader } from './study/StudyModuleHeader';
+import { WorkspaceIssueState } from './ui/AsyncState';
 import {
   type SprintErrorType,
   SPRINT_DAYS,
@@ -83,6 +84,7 @@ export const QuestionBankView: React.FC<{
   const [sessionId, setSessionId] = useState('');
   const [sessionLabel, setSessionLabel] = useState('Practice set');
   const [reviewClock, setReviewClock] = useState(() => Date.now());
+  const [facetsRequestKey, setFacetsRequestKey] = useState(0);
 
   useEffect(() => {
     if (initialSubjectFocus) {
@@ -102,7 +104,7 @@ export const QuestionBankView: React.FC<{
       .catch((err) => { if (active) setError(err.message); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [exam]);
+  }, [exam, facetsRequestKey]);
 
   useEffect(() => {
     const interval = window.setInterval(() => setReviewClock(Date.now()), 60_000);
@@ -215,8 +217,8 @@ export const QuestionBankView: React.FC<{
         { label: 'Accuracy', value: `${overallQbankAccuracy}%`, color: '#30D158' },
         { label: 'Due today', value: String(dueReviewQueue.length), color: '#FF9F0A' },
       ]}
-      primaryAction={{ label: 'Start 20 questions', onClick: () => { if (!loading) startSession({ exam, subjectId: '', imageMode: 'all', count: 20, label: 'High-yield practice' }); } }}
-      secondaryAction={{ label: 'Open image vault', onClick: () => { if (!loading) startSession({ exam, subjectId: '', imageMode: 'image', count: 15, label: 'Image cases' }); } }}
+      primaryAction={{ label: 'Start 20 questions', onClick: () => { if (!loading && facets) startSession({ exam, subjectId: '', imageMode: 'all', count: 20, label: 'High-yield practice' }); } }}
+      secondaryAction={{ label: 'Open image vault', onClick: () => { if (!loading && facets) startSession({ exam, subjectId: '', imageMode: 'image', count: 15, label: 'Image cases' }); } }}
     />
 
     <StudyInsightRail
@@ -229,7 +231,16 @@ export const QuestionBankView: React.FC<{
       ]}
     />
 
-    {error&&<motion.div initial={{opacity:0,y:-6}} animate={{opacity:1,y:0}} role="alert" className="rounded-2xl border border-fail/20 bg-fail-wash px-4 py-3 text-sm font-medium text-fail-ink">{error}</motion.div>}
+    {error && !facets ? (
+      <WorkspaceIssueState
+        title={error.toLowerCase().includes('sign in') ? 'Sign in to open the Question Bank' : 'Question Bank is temporarily unavailable'}
+        description={error}
+        actionLabel="Try again"
+        onAction={() => setFacetsRequestKey((key) => key + 1)}
+      />
+    ) : error ? (
+      <motion.div initial={{opacity:0,y:-6}} animate={{opacity:1,y:0}} role="alert" aria-live="assertive" className="rounded-2xl border border-fail/20 bg-fail-wash px-4 py-3 text-sm font-medium text-fail-ink">{error}</motion.div>
+    ) : null}
 
     <motion.section {...rise(.08)} className="qbank-builder qbank-studio qbx-panel overflow-hidden rounded-[2rem] sm:rounded-[2.5rem]">
       <div className="qbx-panel-head flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
@@ -256,7 +267,7 @@ export const QuestionBankView: React.FC<{
         <aside className="qbx-summary relative isolate flex min-h-72 flex-col justify-between overflow-hidden p-6 sm:p-7">
           <span aria-hidden="true" className="qbx-summary-dots absolute inset-0 -z-10"/>
           <div><p className="qbx-summary-kicker text-[10px] font-bold uppercase tracking-[.14em]">Your session</p><h3 className="qbx-summary-title mt-2 text-2xl font-bold tracking-tight">{selectedSubject?.name || 'Mixed subjects'}</h3><p className="qbx-summary-body mt-2 text-sm leading-6">{count} {imageMode==='image'?'visual cases':imageMode==='standard'?'text questions':'mixed questions'} · about {Math.round(count*1.2)} minutes</p><div className="qbx-summary-list mt-5 space-y-2 text-[11px]"><p className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ios-green"/>Instant source explanation</p><p className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ios-cyan"/>Confidence-aware review queue</p><p className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-ios-pink"/>Gemini option analysis</p></div></div>
-          <motion.button type="button" disabled={loading} onClick={()=>startSession()} whileHover={loading?undefined:{y:-2}} whileTap={loading?undefined:{scale:.97}} transition={SPRING} className="qbx-cta relative mt-7 flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-full px-4 text-sm font-bold disabled:opacity-50"><span className="qbx-cta-shine"/>{loading?<LoaderCircle className="relative h-4 w-4 animate-spin"/>:<Play className="relative h-4 w-4 fill-current"/>}<span className="relative">Begin session</span><ArrowRight className="relative h-4 w-4"/></motion.button>
+          <motion.button type="button" disabled={loading || !facets} onClick={()=>startSession()} whileHover={loading || !facets?undefined:{y:-2}} whileTap={loading || !facets?undefined:{scale:.97}} transition={SPRING} className="qbx-cta relative mt-7 flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-full px-4 text-sm font-bold disabled:opacity-50"><span className="qbx-cta-shine"/>{loading?<LoaderCircle className="relative h-4 w-4 animate-spin"/>:<Play className="relative h-4 w-4 fill-current"/>}<span className="relative">Begin session</span><ArrowRight className="relative h-4 w-4"/></motion.button>
         </aside>
       </div>
       <div className="qbx-feature-strip grid sm:grid-cols-3"><FeatureNote icon={<Brain/>} title="Reason, don’t memorize" body="Compare distractors and learn the decision rule." from="#5E5CE6" to="#BF5AF2"/><FeatureNote icon={<Activity/>} title="Adaptive memory" body="Uncertain answers return on a spaced schedule." from="#30D158" to="#00A88F"/><FeatureNote icon={<BarChart3/>} title="Visible progress" body="Coverage and accuracy update after every set." from="#FF9F0A" to="#FF453A"/></div>
@@ -267,7 +278,7 @@ export const QuestionBankView: React.FC<{
         <div className="flex items-center gap-3"><GradientIcon from="#30B0C7" to="#0A84FF"><BarChart3/></GradientIcon><div><p className="qbx-kicker">Explore the bank</p><h2 className="qbx-h2">Subject intelligence</h2><p className="qbx-muted mt-1 text-xs">Compare weightage, coverage, and your recent accuracy.</p></div></div>
         <div className="flex flex-wrap gap-2"><div className="qbx-segment flex rounded-full p-1">{(['all','high-weight','unattempted'] as const).map(value=><button key={value} type="button" onClick={()=>setMatrixFilter(value)} className={`rounded-full px-3 py-1.5 text-[10px] font-bold ${matrixFilter===value?'bg-white text-ink shadow-e1 dark:bg-white/12 dark:text-white':'text-ink-3'}`}>{value==='all'?'All':value==='high-weight'?'High yield':'New'}</button>)}</div><SelectField label=""><select value={matrixSortBy} onChange={event=>setMatrixSortBy(event.target.value as typeof matrixSortBy)}><option value="weight">Exam weight</option><option value="questions">Question count</option><option value="accuracy">Accuracy</option><option value="alpha">A–Z</option></select></SelectField></div>
       </div>
-      <div className="border-b border-hairline bg-surface-row/60 px-5 py-3 dark:border-white/8 dark:bg-white/[.02]"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3"/><input value={matrixSearch} onChange={event=>setMatrixSearch(event.target.value)} placeholder="Search all medical disciplines" className="h-10 w-full rounded-xl border border-hairline bg-white pl-9 pr-9 text-xs text-ink outline-none transition focus:border-ios-blue/40 focus:ring-4 focus:ring-ios-blue/10 dark:border-white/10 dark:bg-white/5 dark:text-white"/>{matrixSearch&&<button type="button" onClick={()=>setMatrixSearch('')} className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-surface-muted text-white"><X className="h-3 w-3"/></button>}</div></div>
+      <div className="border-b border-hairline bg-surface-row/60 px-5 py-3 dark:border-white/8 dark:bg-white/[.02]"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3"/><input value={matrixSearch} onChange={event=>setMatrixSearch(event.target.value)} placeholder="Search all medical disciplines" aria-label="Search all medical disciplines" className="h-10 w-full rounded-xl border border-hairline bg-white pl-9 pr-9 text-xs text-ink outline-none transition focus:border-ios-blue/40 focus:ring-4 focus:ring-ios-blue/10 dark:border-white/10 dark:bg-white/5 dark:text-white"/>{matrixSearch&&<button type="button" onClick={()=>setMatrixSearch('')} aria-label="Clear question bank search" className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-surface-muted text-white"><X className="h-3 w-3"/></button>}</div></div>
       {filteredMatrix.length ? <div className="qbank-library-grid grid gap-2 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-3">{filteredMatrix.map((item,index)=>{const Icon=item.tone.icon;return <motion.button key={item.sub.id} type="button" disabled={loading} onClick={()=>startSession({exam,subjectId:item.sub.id,imageMode:'all',count:20,label:`${item.sub.name} Practice`})} initial={reducedMotion?false:{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={reducedMotion?{duration:0}:{...SOFT_SPRING,delay:Math.min(index,12)*.025}} whileHover={reducedMotion?undefined:{y:-2}} whileTap={reducedMotion?undefined:{scale:.985}} className="qbank-library-card group flex items-center gap-3 rounded-2xl border border-hairline bg-surface p-3 text-left shadow-e1 transition hover:shadow-e3 disabled:opacity-50 dark:border-white/8 dark:bg-white/[.025]"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-e2" style={{background:`linear-gradient(135deg,${item.tone.from},${item.tone.to})`}}><Icon className="h-5 w-5"/></span><span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-bold text-ink dark:text-white">{item.sub.name}</span><span className="mt-1 flex flex-wrap gap-x-2 text-[10px] font-medium text-ink-3"><span>{item.weightage} marks</span><span>{item.totalQs} Qs</span><span>{item.accuracy===null?'New':`${item.accuracy}% accuracy`}</span></span></span><ChevronRight className="h-4 w-4 shrink-0 text-ink-4 transition-transform group-hover:translate-x-0.5"/></motion.button>;})}</div> : <div className="qbank-empty-state px-5 py-12 text-center"><Search className="mx-auto h-5 w-5"/><h3 className="mt-3 text-sm font-bold">No matching subjects</h3><p className="mt-1 text-xs">Clear the search or choose a different filter.</p><button type="button" onClick={()=>{setMatrixSearch('');setMatrixFilter('all');}} className="mt-4 rounded-full px-4 py-2 text-xs font-bold">Reset filters</button></div>}
     </motion.section>
 

@@ -21,7 +21,7 @@ import {
   ListFilter,
   HelpCircle,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import {
   PracticeSessionContext,
   PracticeSessionQuestion,
@@ -33,6 +33,7 @@ import { NewMcqAttemptInput } from '../utils/performanceEngine';
 import { fetchPracticeSessionQuestions, reconcileQuestionMedicalKey } from '../utils/practiceSessionEngine';
 import { MedicalImageViewerModal } from './MedicalImageViewerModal';
 import { TargetedRemediationDeck } from './study/TargetedRemediationDeck';
+import { PRESENTATION_MOTION } from '../utils/motionTokens';
 
 /**
  * Safely extracts distractor rationale/explanation if already available on question data.
@@ -199,6 +200,7 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
   context,
   onRecordAttempt,
 }) => {
+  const reducedMotion = useReducedMotion();
   const [questions, setQuestions] = useState<PracticeSessionQuestion[]>([]);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -532,16 +534,13 @@ export const PracticeMcqSessionModal: React.FC<PracticeMcqSessionModalProps> = (
 
   return (
     <div className="practice-session-modal overflow-y-auto text-[#1C1C1E]" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9200, backgroundColor: '#1D1D1F' }}>
-      <div className="flex items-center justify-center p-0 sm:p-4 md:p-6" style={{ minHeight: '100vh' }}>
+      <div className="flex min-h-[100dvh] items-center justify-center p-0 sm:p-4 md:p-6">
       <motion.div
         role="dialog"
         aria-modal="true"
         aria-label={`${context.topicName} practice session`}
-        initial={{ opacity: 0, scale: 0.96, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 16 }}
-        transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-        className="bg-[#F8FAFA] backdrop-blur-2xl sm:rounded-3xl max-w-5xl w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.18)] flex flex-col border-0 sm:border border-slate-200/80"
+        {...PRESENTATION_MOTION(reducedMotion, 'fullscreen')}
+        className="bg-[#F8FAFA] backdrop-blur-2xl sm:rounded-3xl max-w-5xl w-full h-[100dvh] sm:h-auto sm:max-h-[92dvh] overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.18)] flex flex-col border-0 sm:border border-slate-200/80"
       >
         {/* MODAL HEADER */}
         <div className="px-3.5 sm:px-6 py-3 sm:py-4 border-b border-slate-200/80 flex items-center justify-between bg-white/80 backdrop-blur-md shrink-0">

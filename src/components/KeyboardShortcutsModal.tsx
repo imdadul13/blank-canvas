@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { X, Keyboard, Command, BookOpen, Layers, HelpCircle } from 'lucide-react';
+import { BACKDROP_MOTION, PRESENTATION_MOTION } from '../utils/motionTokens';
 
 interface KeyboardShortcutsModalProps {
   isOpen: boolean;
@@ -65,6 +66,7 @@ const getShortcuts = (mod: string): ShortcutItem[] => [
 ];
 
 export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen, onClose }) => {
+  const reducedMotion = useReducedMotion();
   const shortcuts = getShortcuts(modKey);
 
   useEffect(() => {
@@ -95,19 +97,14 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ 
       <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
         {/* Backdrop */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          {...BACKDROP_MOTION(reducedMotion)}
           onClick={onClose}
           className="fixed inset-0 bg-slate-950/50 backdrop-blur-sm cursor-pointer"
         />
 
         {/* Modal Card */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+          {...PRESENTATION_MOTION(reducedMotion, 'center')}
           role="dialog"
           aria-modal="true"
           aria-labelledby="shortcuts-title"
@@ -138,7 +135,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ 
           </div>
 
           {/* Body */}
-          <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+          <div className="p-6 space-y-5 max-h-[70dvh] overflow-y-auto">
             {categories.map((cat) => {
               const items = shortcuts.filter((s) => s.category === cat);
               return (

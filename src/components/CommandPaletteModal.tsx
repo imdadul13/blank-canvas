@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import {
   Search,
   BookOpen,
@@ -28,6 +28,7 @@ import {
   Target,
 } from 'lucide-react';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
+import { BACKDROP_MOTION, PRESENTATION_MOTION } from '../utils/motionTokens';
 
 export interface CommandItem {
   id: string;
@@ -67,6 +68,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   onOpenZenFocus,
   onOpenShortcuts,
 }) => {
+  const reducedMotion = useReducedMotion();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -421,20 +423,15 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       <div className="fixed inset-0 z-[120] flex items-start justify-center pt-16 sm:pt-24 px-4 bg-slate-950/60 backdrop-blur-sm select-none">
         {/* Backdrop click to dismiss */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          {...BACKDROP_MOTION(reducedMotion)}
           onClick={onClose}
           className="absolute inset-0 cursor-pointer"
         />
 
         {/* Command Dialog Container */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: -12 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: -12 }}
-          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden z-10 flex flex-col max-h-[80vh]"
+          {...PRESENTATION_MOTION(reducedMotion, 'popover')}
+          className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden z-10 flex flex-col max-h-[80dvh]"
           onKeyDown={handleKeyDown}
         >
           {/* Search Input Bar */}
@@ -452,6 +449,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
               <button
                 type="button"
                 onClick={() => setQuery('')}
+                aria-label="Clear command search"
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors"
               >
                 <X className="w-4 h-4" />

@@ -501,6 +501,72 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                 </div>
               </div>
 
+              <div className="space-y-3 border-t border-slate-200/80 pt-5">
+                <div>
+                  <h4 className="flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-[#007AFF]">
+                    <Activity className="h-3.5 w-3.5" />
+                    Study Intelligence Reminders
+                  </h4>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    Choose which planning signals appear in Notification Center. Clinical safety and error insights remain available.
+                  </p>
+                </div>
+
+                <div className="grid gap-2.5">
+                  {[
+                    {
+                      key: 'revisionRemindersEnabled' as const,
+                      label: 'Revision due reminders',
+                      description: 'Spaced topics, high-yield practice gaps, and mastery milestones.',
+                      icon: BookOpen,
+                    },
+                    {
+                      key: 'streakRemindersEnabled' as const,
+                      label: 'Streak protection',
+                      description: 'Warnings before an active study streak is at risk and milestone notices.',
+                      icon: ShieldAlert,
+                    },
+                    {
+                      key: 'mockRemindersEnabled' as const,
+                      label: 'Mock exam cadence',
+                      description: 'Baseline prompts, exam countdowns, score trends, and repeated weak areas.',
+                      icon: Target,
+                    },
+                  ].map(({ key, label, description, icon: Icon }) => {
+                    const enabled = settings[key] ?? true;
+                    return (
+                      <div key={key} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/90 p-3.5">
+                        <div className="flex min-w-0 items-start gap-3">
+                          <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-white text-[#007AFF] shadow-2xs">
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <span className="block text-xs font-bold text-slate-900">{label}</span>
+                            <span className="mt-0.5 block text-xs leading-5 text-slate-500">{description}</span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={enabled}
+                          onClick={() => updatePreference({ ...settings, [key]: !enabled })}
+                          className={`relative h-7 w-12 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/40 ${
+                            enabled ? 'bg-[#007AFF]' : 'bg-slate-300'
+                          }`}
+                        >
+                          <span
+                            className={`absolute left-1 top-1 size-5 rounded-full bg-white shadow-sm transition-transform ${
+                              enabled ? 'translate-x-5' : 'translate-x-0'
+                            }`}
+                          />
+                          <span className="sr-only">{enabled ? 'Enabled' : 'Disabled'}</span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Sound & Audio Feedback */}
               <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex items-center justify-between gap-3">
                 <div className="space-y-0.5 pr-2">

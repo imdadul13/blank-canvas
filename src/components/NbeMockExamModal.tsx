@@ -22,6 +22,13 @@ import { GrandTest, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { getVerifiedTopicQuestions } from '../utils/practiceSessionEngine';
 import { getLocalDateKey } from '../utils/date';
+import {
+  clearMockExamRecovery,
+  getMockExamRemainingSeconds,
+  loadMockExamRecovery,
+  saveMockExamRecovery,
+  type MockExamRecoverySnapshot,
+} from '../utils/mockExamRecovery';
 
 interface NbeMockExamModalProps {
   isOpen: boolean;
@@ -67,8 +74,10 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
   const [addedErrorIds, setAddedErrorIds] = useState<Set<string>>(new Set());
   const [loggedToGT, setLoggedToGT] = useState<boolean>(false);
   const [isTcsIonSkin, setIsTcsIonSkin] = useState<boolean>(false);
+  const [recoverableSession, setRecoverableSession] = useState<MockExamRecoverySnapshot<MockQuestion> | null>(null);
 
   const timerRef = useRef<any>(null);
+  const deadlineAtRef = useRef<number | null>(null);
 
   // Dynamic generator for balanced questions from high-yield subjects
   const generateMockQuestions = (count: 50 | 150): MockQuestion[] => {
@@ -133,6 +142,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
       setShowExitConfirm(false);
       setAddedErrorIds(new Set());
       setLoggedToGT(false);
+      setRecoverableSession(loadMockExamRecovery<MockQuestion>());
       const generatedQuestions = generateMockQuestions(examMode);
       setQuestions(generatedQuestions);
       setSecondsLeft(generatedQuestions.length * 60);
@@ -141,34 +151,78 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
 
   // Timer Tick during testing
   useEffect(() => {
-    if (phase === 'testing') {
-      timerRef.current = setInterval(() => {
-        setSecondsLeft((prev) => {
-          if (prev <= 1) {
-            handleAutoSubmit();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+    if (isOpen && phase === 'testing') {
+      const updateTimer = () => {
+        if (!deadlineAtRef.current) return;
+        const remaining = getMockExamRemainingSeconds(deadlineAtRef.current);
+        setSecondsLeft(remaining);
+        if (remaining === 0) handleAutoSubmit();
+      };
+      updateTimer();
+      timerRef.current = setInterval(updateTimer, 1000);
+      document.addEventListener('visibilitychange', updateTimer);
+      return () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+        document.removeEventListener('visibilitychange', updateTimer);
+      };
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [phase]);
+  }, [isOpen, phase]);
 
   const handleStartExam = () => {
-    setSecondsLeft(questions.length * 60);
+    const durationSeconds = questions.length * 60;
+    clearMockExamRecovery();
+    setRecoverableSession(null);
+    deadlineAtRef.current = Date.now() + durationSeconds * 1000;
+    setSecondsLeft(durationSeconds);
     setPhase('testing');
     setCurrentIndex(0);
   };
 
   const handleAutoSubmit = () => {
+    clearMockExamRecovery();
+    deadlineAtRef.current = null;
     setPhase('review');
     setShowSubmitConfirm(false);
   };
+
+  const handleResumeExam = () => {
+    if (!recoverableSession) return;
+    const remaining = getMockExamRemainingSeconds(recoverableSession.deadlineAt);
+    setExamMode(recoverableSession.examMode);
+    setQuestions(recoverableSession.questions);
+    setCurrentIndex(recoverableSession.currentIndex);
+    setIsTcsIonSkin(recoverableSession.isTcsIonSkin);
+    deadlineAtRef.current = recoverableSession.deadlineAt;
+    setSecondsLeft(remaining);
+    setRecoverableSession(null);
+    if (remaining === 0) {
+      clearMockExamRecovery();
+      setPhase('review');
+    } else {
+      setPhase('testing');
+    }
+  };
+
+  const handleDiscardRecovery = () => {
+    clearMockExamRecovery();
+    setRecoverableSession(null);
+  };
+
+  useEffect(() => {
+    if (!isOpen || phase !== 'testing' || !deadlineAtRef.current || questions.length === 0) return;
+    saveMockExamRecovery({
+      deadlineAt: deadlineAtRef.current,
+      examMode,
+      currentIndex,
+      questions,
+      isTcsIonSkin,
+    });
+  }, [isOpen, phase, examMode, currentIndex, questions, isTcsIonSkin]);
 
   const handleSelectOption = (key: string) => {
     setQuestions((prev) =>
@@ -257,6 +311,8 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
   };
 
   const handleConfirmSubmit = () => {
+    clearMockExamRecovery();
+    deadlineAtRef.current = null;
     setShowSubmitConfirm(false);
     setPhase('review');
   };
@@ -366,7 +422,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="mock-practice-title"
-      className={`nbe-mock-exam fixed inset-0 z-[120] flex flex-col select-none ${
+      className={`nbe-mock-exam swiftui-fullscreen-enter fixed inset-0 z-[120] flex flex-col select-none ${
         isTcsIonSkin ? 'bg-[#f4f7f9] text-slate-800' : 'bg-slate-950/95 backdrop-blur-md text-slate-100'
       }`}
     >
@@ -490,6 +546,44 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                 {isTcsIonSkin ? 'Use dark practice layout' : 'Use TCS iON-style layout'}
               </button>
             </div>
+
+            {recoverableSession && (
+              <div className="rounded-2xl border border-sky-400/30 bg-sky-500/10 p-4" role="status">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-xl border border-sky-400/30 bg-sky-400/15 p-2 text-sky-300">
+                    <RotateCcw className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-white">Resume your saved practice session</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-300">
+                      {recoverableSession.questions.filter((question) => question.userSelectedOption !== null).length}
+                      {' '}of {recoverableSession.questions.length} answered ·{' '}
+                      {Math.ceil(getMockExamRemainingSeconds(recoverableSession.deadlineAt) / 60)}
+                      {' '}minutes remaining
+                    </p>
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      Saved on this device {new Date(recoverableSession.savedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={handleDiscardRecovery}
+                    className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-700"
+                  >
+                    Discard saved exam
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResumeExam}
+                    className="rounded-xl bg-[#007AFF] px-3 py-2.5 text-xs font-bold text-white shadow-md shadow-[#007AFF]/25 transition-colors hover:bg-[#0066D6]"
+                  >
+                    Resume exam
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* SwiftUI Segmented Mode Selector */}
             <div className="flex p-1 rounded-full bg-slate-800/90 border border-slate-700/80">
@@ -619,7 +713,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
 
                   {/* Question Stem */}
                   {currentQ.scenario && <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">{currentQ.scenario}</p>}
-                  {(currentQ.cleanImageUrl || currentQ.imageUrl) && <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-2"><img src={currentQ.cleanImageUrl || currentQ.imageUrl} alt={`Visual for question ${currentIndex + 1}`} className="mx-auto max-h-[38vh] w-auto max-w-full rounded-xl object-contain" />{currentQ.whatToLookFor && <figcaption className="px-2 pt-2 text-xs leading-5 text-slate-600">Observe the key finding in the image.</figcaption>}</figure>}
+                  {(currentQ.cleanImageUrl || currentQ.imageUrl) && <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-2"><img src={currentQ.cleanImageUrl || currentQ.imageUrl} alt={`Visual for question ${currentIndex + 1}`} className="mx-auto max-h-[38dvh] w-auto max-w-full rounded-xl object-contain" />{currentQ.whatToLookFor && <figcaption className="px-2 pt-2 text-xs leading-5 text-slate-600">Observe the key finding in the image.</figcaption>}</figure>}
                   <div className="text-sm sm:text-base font-medium text-slate-900 leading-relaxed">
                     {currentQ.question}
                   </div>
@@ -828,7 +922,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
                 </div>
 
                 {currentQ.scenario && <p className="rounded-2xl border border-slate-700/80 bg-slate-800/70 px-4 py-3 text-sm leading-6 text-slate-300">{currentQ.scenario}</p>}
-                {(currentQ.cleanImageUrl || currentQ.imageUrl) && <figure className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-950/70 p-2"><img src={currentQ.cleanImageUrl || currentQ.imageUrl} alt={`Visual for question ${currentIndex + 1}`} className="mx-auto max-h-[34vh] w-auto max-w-full rounded-xl object-contain" />{currentQ.whatToLookFor && <figcaption className="px-3 pt-2 text-xs leading-5 text-slate-400">Review the image and identify its key finding.</figcaption>}</figure>}
+                {(currentQ.cleanImageUrl || currentQ.imageUrl) && <figure className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-950/70 p-2"><img src={currentQ.cleanImageUrl || currentQ.imageUrl} alt={`Visual for question ${currentIndex + 1}`} className="mx-auto max-h-[34dvh] w-auto max-w-full rounded-xl object-contain" />{currentQ.whatToLookFor && <figcaption className="px-3 pt-2 text-xs leading-5 text-slate-400">Review the image and identify its key finding.</figcaption>}</figure>}
 
                 {/* Question Stem */}
                 <div className="text-base font-semibold leading-relaxed text-white sm:text-lg">
@@ -1026,7 +1120,7 @@ export const NbeMockExamModal: React.FC<NbeMockExamModalProps> = ({
               </div>
               <div>
                 <h4 id="mock-exit-title" className="font-bold text-white text-base">Leave this practice session?</h4>
-                <p className="text-xs text-slate-400">Your answers and timer will be cleared if you exit.</p>
+                <p className="text-xs text-slate-400">Your answers and remaining time are saved on this device so you can resume later.</p>
               </div>
             </div>
             <div className="flex items-center gap-3 pt-2">

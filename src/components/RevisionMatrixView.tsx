@@ -789,7 +789,7 @@ export const RevisionMatrixView: React.FC<RevisionMatrixViewProps> = ({
               </div>
 
               {/* Body */}
-              <div className="max-h-[60vh] overflow-y-auto divide-y divide-slate-100">
+              <div className="max-h-[60dvh] overflow-y-auto divide-y divide-slate-100">
                 {(calendarSubject ? [calendarSubject] : subjectsWithMetrics).map((item) => (
                   <div key={item.subject.id} className="px-5 py-3.5 flex items-center justify-between gap-4">
                     <div className="min-w-0 flex-1">

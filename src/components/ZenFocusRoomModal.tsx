@@ -22,6 +22,7 @@ import { AppState, DailyStudyLog } from '../types';
 import { ambientAudioEngine, AMBIENT_MODES, AmbientSoundMode } from '../utils/ambientAudioEngine';
 import { INITIAL_PEARLS } from '../data/initialPearls';
 import { getLocalDateKey } from '../utils/date';
+import { PRESENTATION_MOTION } from '../utils/motionTokens';
 
 interface ZenFocusRoomModalProps {
   isOpen: boolean;
@@ -264,10 +265,7 @@ export const ZenFocusRoomModal: React.FC<ZenFocusRoomModalProps> = ({
 
       {/* Main Glass Sanctuary Card Container */}
       <motion.div
-        initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 14 }}
-        animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
-        exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 14 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+        {...PRESENTATION_MOTION(reducedMotion, 'center')}
         className="zen-focus-panel relative my-auto w-full max-w-xl md:max-w-2xl bg-gradient-to-b from-slate-900/98 via-slate-950/98 to-[#060D12] border border-white/[0.14] rounded-3xl sm:rounded-[2.25rem] p-4 xs:p-5 sm:p-7 md:p-8 shadow-[0_32px_80px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.2)] max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain flex flex-col items-center"
       >
         {/* Specular Top Shimmer Edge */}

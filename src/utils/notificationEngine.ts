@@ -314,6 +314,26 @@ export interface NotificationActions {
   onBreakLogged?: (message: string) => void;
 }
 
+export function notificationAllowedByPreferences(
+  state: AppState,
+  notification: Pick<SmartNotification, 'category' | 'ruleId'>,
+): boolean {
+  const settings = state.settings;
+  if (notification.category === 'revision' && settings.revisionRemindersEnabled === false) {
+    return false;
+  }
+  if (
+    (notification.ruleId === 'streak_defense' || notification.ruleId === 'streak_milestone') &&
+    settings.streakRemindersEnabled === false
+  ) {
+    return false;
+  }
+  if (notification.category === 'exam' && settings.mockRemindersEnabled === false) {
+    return false;
+  }
+  return true;
+}
+
 // ============================================================================
 // 15 DETERMINISTIC INTELLIGENCE RULES
 // ============================================================================
@@ -1003,7 +1023,11 @@ export function buildNotifications(
   // --------------------------------------------------------------------------
 
   // 1. Filter out dismissed or resolved insights
-  const activeCandidates = candidates.filter((n) => shouldShow(n, dismissals));
+  const activeCandidates = candidates.filter(
+    (notification) =>
+      notificationAllowedByPreferences(state, notification) &&
+      shouldShow(notification, dismissals),
+  );
 
   // 2. Sort candidates by deterministic clinical priority
   const severityWeight: Record<InsightSeverity, number> = {
@@ -1094,4 +1118,3 @@ export function hasUnreadNotifications(state: AppState): boolean {
     return rec.status === 'unseen';
   });
 }
-

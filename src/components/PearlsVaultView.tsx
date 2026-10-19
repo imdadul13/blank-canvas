@@ -41,6 +41,8 @@ import {
   DynamicPearlTopicPackage,
 } from '../utils/medicalPearlsEngine';
 import { ExamEveCheatSheetModal } from './ExamEveCheatSheetModal';
+import { Button, Pill as UiPill } from './ui/Button';
+import { IconTile } from './ui/surface';
 
 // Visual theme helper for consistent, subtle content differentiation
 const getPearlVisualTheme = (pearl: MedicalPearl) => {
@@ -391,100 +393,81 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
   };
 
   return (
-    <div data-accent="knowledge" className="space-y-4 sm:space-y-6 pt-3 sm:pt-5 pb-20 max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 font-['Plus_Jakarta_Sans']">
+    <div data-accent="knowledge" className="knowledge-page space-y-5 sm:space-y-6 pt-4 sm:pt-6 pb-24 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 font-sans text-[var(--color-ink)]">
       {/* ═══ 1. KNOWLEDGE IDENTITY HEADER CARD ═══ */}
       <motion.header
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="system-page-header premium-page-hero relative rounded-3xl overflow-hidden"
+        className="knowledge-hero system-page-header premium-page-hero relative overflow-hidden"
         data-header-art="bloom"
-        style={{ background: 'linear-gradient(135deg, #F5EAFF 0%, #E8CCFD 40%, #CE90F5 70%, #BF5AF2 100%)', boxShadow: '0 8px 40px rgba(191,90,242,0.14), 0 2px 8px rgba(0,0,0,0.06)' }}
       >
-        {/* Decorative right glow */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(191,90,242,0.28) 0%, transparent 70%)' }} />
-        {/* Top inner shine */}
-        <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
+        <div className="knowledge-hero-orb is-one" aria-hidden="true" />
+        <div className="knowledge-hero-orb is-two" aria-hidden="true" />
+        <div className="relative z-10 grid gap-6 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.46fr)] lg:items-end lg:p-8">
+          <div>
+            <UiPill tone="accent" className="knowledge-hero-eyebrow">
+              <Lightbulb className="size-3.5" />
+              Clinical memory library
+            </UiPill>
+            <h1 className="knowledge-hero-title mt-5 text-[var(--color-ink)]">
+              Turn facts into
+              <span> clinical recall.</span>
+            </h1>
+            <p className="knowledge-hero-copy mt-3 max-w-2xl text-[var(--color-ink-2)]">
+              Synthesize any condition, collect the pearls worth remembering, and revisit them before they fade.
+            </p>
+            <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
+              <Button variant="primary" size="lg" onClick={handleStartCommuteAudio}>
+                <Headphones className="size-4" />
+                Start commute audio
+              </Button>
+              <Button variant="secondary" size="lg" onClick={() => setIsCheatSheetModalOpen(true)}>
+                <Printer className="size-4" />
+                Build cheat sheet
+              </Button>
+              <Button
+                variant={bookmarkedOnly ? 'primary' : 'secondary'}
+                size="lg"
+                onClick={() => setBookmarkedOnly(!bookmarkedOnly)}
+              >
+                <Star className={`size-4 ${bookmarkedOnly ? 'fill-current' : ''}`} />
+                Starred ({bookmarkedCount})
+              </Button>
+            </div>
+          </div>
 
-  <div className="relative z-10 p-4 sm:p-5 lg:p-6">
-    {/* Eyebrow */}
-    <div className="flex items-center justify-between mb-3">
-      <span className="text-[10.5px] font-mono font-bold tracking-[0.2em] uppercase" style={{ color: '#5B006E' }}>
-        LEARN • CONNECT • APPLY • CLINICAL PEARLS VAULT
-      </span>
-      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase"
-        style={{ background: 'rgba(255,255,255,0.55)', color: '#5B006E', border: '1px solid rgba(91,0,110,0.15)' }}>
-        Clinical Synthesis
-      </span>
-    </div>
-
-    {/* Main row */}
-    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-      {/* Icon */}
-      <div className="shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
-        style={{ background: 'rgba(255,255,255,0.50)', border: '1px solid rgba(91,0,110,0.15)' }}>
-        <Lightbulb className="w-7 h-7" style={{ color: '#5B006E' }} />
-      </div>
-
-      {/* Text */}
-      <div className="space-y-1 min-w-0">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-[#1D1D1F]">
-          KNOWLEDGE <span style={{ color: '#BF5AF2' }}>&amp;</span> PEARLS
-        </h1>
-        <p className="text-xs sm:text-sm leading-relaxed max-w-xl" style={{ color: '#3A3A3C' }}>
-          Clinical mnemonics, Drugs of Choice (DOC), diagnostic triads, and exam traps.
-        </p>
-      </div>
-    </div>
-
-    {/* Action pills */}
-    <div className="flex flex-wrap items-center gap-2 mt-4">
-      <motion.button
-        type="button"
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.96 }}
-        onClick={handleStartCommuteAudio}
-        className="px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
-        style={{ background: 'rgba(255,255,255,0.55)', color: '#3A3A3C', border: '1px solid rgba(91,0,110,0.15)' }}
-      >
-        <Headphones className="h-3.5 w-3.5" style={{ color: '#5B006E' }} />
-        <span>Commute Audio</span>
-      </motion.button>
-
-      <motion.button
-        type="button"
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.96 }}
-        onClick={() => setIsCheatSheetModalOpen(true)}
-        className="px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
-        style={{ background: 'rgba(255,255,255,0.55)', color: '#3A3A3C', border: '1px solid rgba(91,0,110,0.15)' }}
-      >
-        <Printer className="h-3.5 w-3.5" style={{ color: '#5B006E' }} />
-        <span>Cheat Sheet</span>
-      </motion.button>
-
-      <motion.button
-        type="button"
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.96 }}
-        onClick={() => { setBookmarkedOnly(!bookmarkedOnly); }}
-        className="px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
-        style={bookmarkedOnly
-          ? { background: '#BF5AF2', color: '#fff', boxShadow: '0 4px 14px rgba(191,90,242,0.3)' }
-          : { background: 'rgba(255,255,255,0.55)', color: '#3A3A3C', border: '1px solid rgba(91,0,110,0.15)' }
-        }
-      >
-        <Star className={`h-3.5 w-3.5 ${bookmarkedOnly ? 'fill-white text-white' : ''}`} style={!bookmarkedOnly ? { color: '#BF5AF2', fill: 'rgba(191,90,242,0.25)' } : {}} />
-        <span>Starred ({bookmarkedCount})</span>
-      </motion.button>
-    </div>
-  </div>
-</motion.header>
+          <div className="knowledge-hero-snapshot rounded-3xl p-4 sm:p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="t-eyebrow text-[var(--color-ink-3)]">Memory system</div>
+                <div className="mt-1 text-sm font-bold text-[var(--color-ink)]">Your high-yield library</div>
+              </div>
+              <IconTile icon={BookOpen} size={44} color="var(--accent-ink)" className="knowledge-hero-icon" />
+            </div>
+            <div className="knowledge-hero-metrics mt-5 grid grid-cols-3">
+              {[
+                { label: 'Pearls', value: allPearls.length },
+                { label: 'Starred', value: bookmarkedCount },
+                { label: 'Due today', value: duePearls.length },
+              ].map((item) => (
+                <div key={item.label}>
+                  <strong className="block text-xl font-bold tabular-nums text-[var(--color-ink)]">{item.value}</strong>
+                  <span className="mt-1 block text-[10px] font-semibold uppercase tracking-wider text-[var(--color-ink-3)]">{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex items-center gap-2 rounded-2xl bg-[var(--color-surface-sunken)] px-3 py-2.5 text-xs text-[var(--color-ink-2)]">
+              <Brain className="size-4 shrink-0 text-accent" />
+              Mnemonics, DOCs, triads, formulas, and exam traps in one recall system.
+            </div>
+          </div>
+        </div>
+      </motion.header>
 
       {/* ═══ 2. SEGMENTED VIEW SWITCHER ═══ */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="inline-flex p-1 rounded-2xl border shadow-sm" style={{ background: 'rgba(255,255,255,0.85)', borderColor: 'rgba(255,255,255,0.8)' }}>
+        <div className="knowledge-view-switch inline-flex p-1.5 rounded-2xl border">
           {[
             { id: 'all' as KnowledgeViewMode, label: 'All Knowledge', compactLabel: 'All', icon: Layers },
             { id: 'synthesizer' as KnowledgeViewMode, label: 'Clinical Synthesizer', compactLabel: 'Synthesize', icon: Brain },
@@ -498,18 +481,16 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                 type="button"
                 aria-pressed={isActive}
                 onClick={() => setActiveViewMode(tab.id)}
-                className="relative px-2.5 sm:px-4 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 shrink-0 select-none"
-                style={{ color: isActive ? '#BF5AF2' : '#8E8E93' }}
+                className={`knowledge-view-tab relative px-2.5 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 shrink-0 select-none ${isActive ? 'is-active' : ''}`}
               >
                 {isActive && (
                   <motion.div
                     layoutId="knowledge-segmented-indicator"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    className="absolute inset-0 rounded-xl shadow-sm bg-white"
-                    style={{ boxShadow: '0 2px 8px rgba(191,90,242,0.18)' }}
+                    className="knowledge-view-indicator absolute inset-0 rounded-xl"
                   />
                 )}
-                <TabIcon className="h-3.5 w-3.5 relative z-10 stroke-[2.2]" style={{ color: isActive ? '#BF5AF2' : '#8E8E93' }} />
+                <TabIcon className="h-3.5 w-3.5 relative z-10 stroke-[2.2]" />
                 <span className="relative z-10 whitespace-nowrap sm:hidden">{tab.compactLabel}</span>
                 <span className="relative z-10 whitespace-nowrap hidden sm:inline">{tab.label}</span>
               </button>
@@ -528,8 +509,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-l-4"
-          style={{ background: 'rgba(255,149,0,0.06)', borderLeftColor: '#FF9500', border: '1px solid rgba(255,149,0,0.25)', borderLeftWidth: '4px' }}
+          className="knowledge-recall-banner rounded-3xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #FF9500 0%, #FF6B00 100%)' }}>
@@ -550,17 +530,15 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
             </div>
           </div>
 
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.96 }}
+          <Button
+            variant="primary"
+            size="md"
             onClick={() => { setSrsIndex(0); setIsSrsAnswerRevealed(false); setIsSrsReviewOpen(true); }}
-            className="px-4 py-2 rounded-xl text-white font-bold text-[13px] flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
-            style={{ background: '#FF9500' }}
+            className="knowledge-recall-action shrink-0"
           >
             <span>Start Recall Session</span>
             <ArrowRight className="w-3.5 h-3.5" />
-          </motion.button>
+          </Button>
         </motion.div>
       )}
 
@@ -570,8 +548,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-          className="rounded-2xl bg-white p-5 sm:p-6 space-y-4"
-          style={{ border: '1px solid rgba(60,60,67,0.12)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+          className="knowledge-panel knowledge-synthesizer rounded-3xl p-5 sm:p-6 space-y-4"
         >
           <div className="max-w-2xl space-y-1.5">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider" style={{ background: 'rgba(191,90,242,0.1)', color: '#BF5AF2' }}>
@@ -603,7 +580,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
               style={{ color: '#1D1D1F' }}
             />
             {activeTopicQuery && (
-              <button type="button" onClick={() => setActiveTopicQuery('')} className="p-1 rounded-md transition-colors cursor-pointer mr-1 shrink-0" style={{ color: '#8E8E93' }}>
+              <button type="button" onClick={() => setActiveTopicQuery('')} aria-label="Clear concept query" className="p-1 rounded-md transition-colors cursor-pointer mr-1 shrink-0" style={{ color: '#8E8E93' }}>
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
@@ -632,11 +609,9 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                   key={topic}
                   type="button"
                   onClick={() => handleQueryTopic(topic)}
-                  className="px-3 py-1 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all cursor-pointer shrink-0"
-                  style={isSelected
-                    ? { background: '#BF5AF2', color: '#fff', border: '1px solid #BF5AF2' }
-                    : { background: '#fff', color: '#3A3A3C', border: '1px solid rgba(60,60,67,0.12)' }
-                  }
+                  className={`knowledge-quick-topic px-3 py-1 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                    isSelected ? 'is-active' : ''
+                  }`}
                 >
                   {topic}
                 </button>
@@ -697,11 +672,10 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         <motion.article
           layout
           id="generated-knowledge-sheet"
-          className="rounded-2xl bg-white overflow-hidden space-y-0"
-          style={{ border: '1px solid rgba(60,60,67,0.12)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
+          className="knowledge-sheet rounded-3xl overflow-hidden space-y-0"
         >
           {/* Header gradient band */}
-          <header className="p-5 sm:p-6 space-y-4" style={{ background: 'linear-gradient(135deg, #F5EAFF 0%, #EDD6FF 100%)' }}>
+          <header className="knowledge-sheet-header p-5 sm:p-6 space-y-4">
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div className="space-y-2 max-w-2xl">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -773,7 +747,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
           {/* 1-Line Key Anchor Box */}
           {generatedTopic.oneLineTakeaway && (
-            <div className="p-4 sm:p-5 space-y-1.5" style={{ background: 'linear-gradient(to right, #5B0091, #BF5AF2)' }}>
+            <div className="knowledge-key-anchor p-4 sm:p-5 space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.6)' }}>
                   KEY ANCHOR
@@ -792,7 +766,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-5 sm:p-6">
             {/* Point 01: DOC */}
             {generatedTopic.drugOfChoice?.firstLineDrug && (
-              <div className="rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] shadow-sm overflow-hidden flex flex-col">
+              <div className="knowledge-glance-card rounded-2xl border overflow-hidden flex flex-col">
                 <div className="h-1.5 w-full bg-emerald-500" />
                 <div className="p-4 space-y-2 flex-1">
                   <div className="flex items-start justify-between">
@@ -816,7 +790,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
             {/* Point 02: Hallmark / Sign */}
             {generatedTopic.diagnosticTriad?.pathognomonicSign && (
-              <div className="rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] shadow-sm overflow-hidden flex flex-col">
+              <div className="knowledge-glance-card rounded-2xl border overflow-hidden flex flex-col">
                 <div className="h-1.5 w-full" style={{ background: '#BF5AF2' }} />
                 <div className="p-4 space-y-2 flex-1">
                   <div className="flex items-start justify-between">
@@ -838,7 +812,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
             {/* Point 03: Clinical Presentation / Triad */}
             {generatedTopic.diagnosticTriad?.triadName && (
-              <div className="rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] shadow-sm overflow-hidden flex flex-col">
+              <div className="knowledge-glance-card rounded-2xl border overflow-hidden flex flex-col">
                 <div className="h-1.5 w-full bg-sky-400" />
                 <div className="p-4 space-y-2 flex-1">
                   <div className="flex items-start justify-between">
@@ -862,7 +836,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
 
             {/* Point 04: Top Trap Rule */}
             {generatedTopic.examTraps && generatedTopic.examTraps.length > 0 && (
-              <div className="rounded-2xl bg-white border border-[rgba(60,60,67,0.08)] shadow-sm overflow-hidden flex flex-col">
+              <div className="knowledge-glance-card rounded-2xl border overflow-hidden flex flex-col">
                 <div className="h-1.5 w-full bg-amber-400" />
                 <div className="p-4 space-y-2 flex-1">
                   <div className="flex items-start justify-between">
@@ -901,7 +875,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                 {generatedTopic.mnemonic.breakdown.map((item, i) => (
                   <div
                     key={i}
-                    className="rounded-2xl bg-[#F2F2F7] p-4 space-y-2 flex flex-col justify-between"
+                    className="knowledge-mnemonic-card rounded-2xl p-4 space-y-2 flex flex-col justify-between"
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="w-8 h-8 rounded-xl bg-[#BF5AF2] text-white font-black text-[13px] flex items-center justify-center shrink-0">
@@ -1040,8 +1014,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
         <motion.section
           layout
           id="master-vault"
-          className="rounded-2xl bg-white p-5 sm:p-6 space-y-5"
-          style={{ border: '1px solid rgba(60,60,67,0.12)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+          className="knowledge-panel knowledge-vault rounded-3xl p-5 sm:p-6 space-y-5"
         >
           {/* Vault Header & Toolbar */}
           <header className="flex flex-col md:flex-row md:items-end justify-between gap-3 pb-4" style={{ borderBottom: '1px solid rgba(60,60,67,0.08)' }}>
@@ -1138,11 +1111,9 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                       key={cat.id}
                       type="button"
                       onClick={() => setSelectedCategory(cat.id as any)}
-                      className="px-4 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all cursor-pointer"
-                      style={isSelected
-                        ? { background: '#BF5AF2', color: '#fff' }
-                        : { background: '#F2F2F7', color: '#3A3A3C' }
-                      }
+                      className={`knowledge-filter-pill px-4 py-1.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                        isSelected ? 'is-active' : ''
+                      }`}
                     >
                       {cat.label}
                     </button>
@@ -1191,19 +1162,19 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                     : 'No pearls match your search criteria. Try a broader term or reset filters.'}
                 </p>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="primary"
+                size="md"
                 onClick={() => {
                   setSelectedSubject('all');
                   setSelectedCategory('all');
                   setBookmarkedOnly(false);
                   setSearchQuery('');
                 }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold text-white transition-colors cursor-pointer bg-[#1D1D1F]"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>Show All Pearls</span>
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1219,16 +1190,13 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-                    className="p-5 rounded-2xl bg-white flex flex-col justify-between space-y-3 transition-all hover:shadow-md"
-                    style={{ border: '1px solid rgba(60,60,67,0.1)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(191,90,242,0.3)'; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(60,60,67,0.1)'; }}
+                    className="knowledge-pearl-card p-5 rounded-3xl flex flex-col justify-between space-y-3 transition-all"
                   >
                     <div className="space-y-3">
                       {/* Card Header */}
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0" style={{ background: '#F2F2F7', color: '#3A3A3C' }}>
+                          <span className="knowledge-subject-pill px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0">
                             {subject?.name || pearl.subjectId}
                           </span>
                           <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase border shrink-0 ${theme.badgeClass}`}>
@@ -1294,7 +1262,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                       </h4>
 
                       {/* High-Yield Key Box */}
-                      <div className="p-3 rounded-xl space-y-1 border-l-4" style={{ background: '#F5EAFF', borderLeftColor: '#BF5AF2' }}>
+                      <div className="knowledge-pearl-key p-3 rounded-xl space-y-1 border-l-4">
                         <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#BF5AF2' }}>
                           High-Yield Key
                         </div>
@@ -1315,8 +1283,7 @@ export const PearlsVaultView: React.FC<PearlsVaultViewProps> = ({
                         {pearl.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="px-1.5 py-0.5 rounded-md text-[10px] font-medium font-mono"
-                            style={{ background: '#F2F2F7', color: '#8E8E93' }}
+                            className="knowledge-tag px-1.5 py-0.5 rounded-md text-[10px] font-medium"
                           >
                             #{tag}
                           </span>

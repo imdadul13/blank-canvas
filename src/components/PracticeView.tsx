@@ -231,6 +231,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={`Search ${selectedSubject.name} topics…`}
+              aria-label={`Search ${selectedSubject.name} topics`}
               className="w-full pl-9 pr-9 py-2 text-[13px] text-[#1D1D1F] placeholder:text-[#8E8E93] bg-white border border-[rgba(60,60,67,0.12)] rounded-xl outline-none focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 transition-all shadow-xs"
             />
             {searchQuery && (

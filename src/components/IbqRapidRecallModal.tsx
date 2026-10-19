@@ -131,7 +131,7 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 8 }}
           transition={{ duration: 0.2 }}
-          className="relative flex flex-col w-full max-w-4xl max-h-[92vh] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
+          className="relative flex flex-col w-full max-w-4xl max-h-[92dvh] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
         >
           {/* Header Bar */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/70">
@@ -498,11 +498,11 @@ export const IbqRapidRecallModal: React.FC<IbqRapidRecallModalProps> = ({
             className="fixed inset-0 z-[80] bg-black/90 flex flex-col items-center justify-center p-4 cursor-zoom-out"
             onClick={() => setIsImageZoomed(false)}
           >
-            <div className="relative max-w-4xl max-h-[85vh]">
+            <div className="relative max-w-4xl max-h-[85dvh]">
               <img
                 src={currentItem.imageSrc}
                 alt={currentItem.topic}
-                className="max-h-[85vh] max-w-full object-contain rounded-2xl shadow-2xl border border-white/20"
+                className="max-h-[85dvh] max-w-full object-contain rounded-2xl shadow-2xl border border-white/20"
               />
               <div className="absolute bottom-4 left-4 right-4 p-3 bg-black/75 backdrop-blur-md rounded-xl text-white text-xs font-sans text-center">
                 <span className="font-bold text-sky-300 mr-2">{currentItem.topic}:</span>

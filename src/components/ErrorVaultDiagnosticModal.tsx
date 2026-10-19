@@ -102,6 +102,7 @@ export const ErrorVaultDiagnosticModal: React.FC<ErrorVaultDiagnosticModalProps>
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close error vault diagnostic"
             className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-[#8E8E93] hover:text-[#1D1D1F] flex items-center justify-center cursor-pointer transition-colors ml-4 shrink-0"
           >
             <X className="w-4 h-4" />
@@ -109,7 +110,7 @@ export const ErrorVaultDiagnosticModal: React.FC<ErrorVaultDiagnosticModalProps>
         </div>
 
         {/* Body */}
-        <div className="px-6 sm:px-8 py-6 space-y-6 max-h-[72vh] overflow-y-auto">
+        <div className="px-6 sm:px-8 py-6 space-y-6 max-h-[72dvh] overflow-y-auto">
 
           {/* Metric tiles */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">

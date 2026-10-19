@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import {
   Play,
   Pause,
@@ -31,6 +31,7 @@ import {
   HIGH_YIELD_FORMULAS,
 } from './ExamEveCheatSheetModal';
 import { AppState, ErrorNotebookItem } from '../types';
+import { PRESENTATION_MOTION } from '../utils/motionTokens';
 
 interface AudioRecallPlayerModalProps {
   isOpen: boolean;
@@ -43,6 +44,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
   onClose,
   state,
 }) => {
+  const reducedMotion = useReducedMotion();
   // Playlist Category Selection
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'triads' | 'docs' | 'blunders'>('all');
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
@@ -177,10 +179,7 @@ export const AudioRecallPlayerModal: React.FC<AudioRecallPlayerModalProps> = ({
     <AnimatePresence>
       <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-xl select-none">
         <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 30, scale: 0.96 }}
-          transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+          {...PRESENTATION_MOTION(reducedMotion, 'sheet')}
           className="audio-recall-panel relative w-full max-w-2xl bg-gradient-to-b from-slate-900/98 via-slate-900/95 to-slate-950/98 border border-white/10 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.7)] backdrop-blur-2xl text-slate-100 space-y-6 overflow-hidden"
         >
           {/* Ambient Frosted Aura */}

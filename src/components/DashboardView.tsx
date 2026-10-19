@@ -83,12 +83,10 @@ import { CircadianFocusDropdown } from './CircadianFocusDropdown';
 import { MedicalHeroVisual, MedicalSubjectCardVisual, getSubjectTelemetry } from './MedicalHeroVisual';
 import { DoctorMountainArt } from './DoctorMountainArt';
 import { TopicMasteryWorkspace } from './TopicMasteryWorkspace';
-import { NotificationCenterModal } from './NotificationCenterModal';
 import { hasUnreadNotifications } from '../utils/notificationEngine';
 import { DailyPlannerView } from './DailyPlannerView';
 import { useDoctorCreed } from '../hooks/useDoctorCreed';
 import { AnimatedMountainInsignia } from './AnimatedMountainInsignia';
-import { ShareMilestoneModal } from './ShareMilestoneModal';
 import { PassingGapAnalyzer } from './PassingGapAnalyzer';
 import { IbqRapidRecallModal } from './IbqRapidRecallModal';
 import { ExamEveCheatSheetModal, HIGH_YIELD_TRIADS } from './ExamEveCheatSheetModal';
@@ -97,6 +95,7 @@ import { useScrollDirection } from '../hooks/useScrollDirection';
 import { AmbientSoundWidget } from './AmbientSoundWidget';
 import { getDuePearls } from '../utils/spacedRepetitionEngine';
 import { getLearnerPulse, LearnerPulse } from '../utils/learnerIntelligence';
+import { DashboardOverlays } from './dashboard/DashboardOverlays';
 
 interface DashboardViewProps {
   state: AppState;
@@ -3921,22 +3920,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         />
       )}
 
-      {/* Real-time Notification Center Modal */}
-      <NotificationCenterModal
-        isOpen={isNotificationCenterOpen}
-        onClose={() => setIsNotificationCenterOpen(false)}
+      <DashboardOverlays
         state={state}
+        stats={stats}
+        isNotificationCenterOpen={isNotificationCenterOpen}
+        isShareModalOpen={isShareModalOpen}
+        onCloseNotificationCenter={() => setIsNotificationCenterOpen(false)}
+        onCloseShare={() => setIsShareModalOpen(false)}
         onNavigateTab={onNavigateTab}
         onSelectSubject={onSelectSubject}
         onLaunchPracticeSession={onLaunchPracticeSession}
-      />
-
-      {/* Viral Share Milestone Modal */}
-      <ShareMilestoneModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        state={state}
-        stats={stats}
       />
 
       {/* 60s IBQ Rapid Recall Drill Modal */}
@@ -3970,7 +3963,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-[#F2F2F7]/95 backdrop-blur-xl rounded-3xl border border-[rgba(60,60,67,0.10)] shadow-2xl p-4 sm:p-6 scrollbar-thin"
+              className="relative w-full max-w-3xl max-h-[90dvh] overflow-y-auto bg-[#F2F2F7]/95 backdrop-blur-xl rounded-3xl border border-[rgba(60,60,67,0.10)] shadow-2xl p-4 sm:p-6 scrollbar-thin"
             >
               <button
                 type="button"

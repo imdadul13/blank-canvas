@@ -23,6 +23,8 @@ import {
   Target,
   ShieldCheck,
   Flame,
+  Download,
+  Check,
 } from 'lucide-react';
 import { AppState, DailyTask, ErrorNotebookItem } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
@@ -42,6 +44,8 @@ import { GrandTestDiagnosticModal } from './GrandTestDiagnosticModal';
 import { ErrorVaultDiagnosticModal } from './ErrorVaultDiagnosticModal';
 import { ErrorsView } from './ErrorsView';
 import { FmgePredictorView } from './FmgePredictorView';
+import { Button } from './ui/Button';
+import { downloadProgressReport } from '../utils/progressReport';
 
 interface ProgressViewProps {
   state: AppState;
@@ -110,6 +114,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   const [isAccuracyTrendModalOpen, setIsAccuracyTrendModalOpen] = useState(false);
   const [isGrandTestModalOpen, setIsGrandTestModalOpen] = useState(false);
   const [isErrorVaultModalOpen, setIsErrorVaultModalOpen] = useState(false);
+  const [reportExported, setReportExported] = useState(false);
 
   const readiness = useMemo(() => calculateStudyReadiness(state), [state]);
   const overallPerf = useMemo(() => calculateOverallPerformance(state), [state]);
@@ -181,6 +186,12 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
   const accuracyDelta = overallPerf.recentAccuracy - overallPerf.overallAccuracy;
 
+  const handleExportProgressReport = () => {
+    downloadProgressReport(state);
+    setReportExported(true);
+    window.setTimeout(() => setReportExported(false), 2400);
+  };
+
   // Pillar icon map
   const pillarIcons: Record<string, React.ElementType> = {
     accuracy: Target,
@@ -239,6 +250,16 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleExportProgressReport}
+                aria-label="Download mentor-friendly progress report"
+                className="bg-white/70"
+              >
+                {reportExported ? <Check className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
+                {reportExported ? 'Report saved' : 'Export report'}
+              </Button>
               <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono font-bold"
                 style={{ background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(0,90,130,0.15)', color: '#3A3A3C' }}>
                 <Calendar className="w-3.5 h-3.5" style={{ color: '#0A5A7A' }} />
@@ -555,6 +576,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 <Search className="w-4 h-4 text-[#8E8E93] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search subjects..."
+                  aria-label="Search performance subjects"
                   className="w-full pl-9 pr-3 py-1.5 rounded-full text-[12px] bg-[#F2F2F7] border border-transparent focus:border-[#007AFF] focus:bg-white focus:outline-none text-[#1D1D1F] placeholder:text-[#C7C7CC] transition-all" />
               </div>
             </div>

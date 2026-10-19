@@ -139,7 +139,7 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        className="bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl w-full my-auto max-w-3xl overflow-hidden shadow-2xl text-slate-900 flex flex-col max-h-[92vh]"
+        className="bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl w-full my-auto max-w-3xl overflow-hidden shadow-2xl text-slate-900 flex flex-col max-h-[92dvh]"
       >
         {/* ================= MODAL HEADER ================= */}
         <div className="p-5 sm:p-6 border-b border-stone-200/60 flex items-center justify-between bg-white/40 backdrop-blur-md shrink-0">
@@ -163,7 +163,9 @@ export const ConceptRemediationModal: React.FC<ConceptRemediationModalProps> = (
           </div>
 
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close concept remediation"
             className="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="h-4 w-4" />

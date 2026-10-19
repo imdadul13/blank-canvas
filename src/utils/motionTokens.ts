@@ -1,6 +1,11 @@
+import type { Transition } from 'motion/react';
+
 /**
- * Motion Tokens — SwiftUI Spring Physics
- * Spring values mirror SwiftUI's built-in presets as closely as Framer Motion allows.
+ * Motion Tokens — SwiftUI-inspired motion grammar.
+ *
+ * Springs communicate direct manipulation and spatial movement. Opacity,
+ * progress and backdrop changes use finite curves: springing those properties
+ * creates an artificial flash that does not exist in native iOS transitions.
  */
 
 // ── SwiftUI Spring Presets ──────────────────────────────────────────────────
@@ -29,14 +34,31 @@ export const EASE_GENTLE    = [0.25, 1, 0.5, 1] as const;
 /** Extreme ease-out for hero reveals. */
 export const EASE_OUT_EXPO  = [0.19, 1, 0.22, 1] as const;
 
+export const MOTION_DURATION = {
+  instant: 0.12,
+  fast: 0.18,
+  standard: 0.24,
+  deliberate: 0.32,
+} as const;
+
+export const FADE_TRANSITION: Transition = {
+  duration: MOTION_DURATION.fast,
+  ease: EASE_SWIFT,
+};
+
+export const REDUCED_TRANSITION: Transition = {
+  duration: MOTION_DURATION.instant,
+  ease: 'linear',
+};
+
 // ── Composed Transition Factories ───────────────────────────────────────────
 
-/** View-level entrance (tab switch, page load). Horizontal slide + fade. */
+/** View-level transition. Tabs crossfade with only a trace of depth movement. */
 export const PAGE_TRANSITION = (reduced: boolean | null) => ({
-  initial:    reduced ? false : { opacity: 0, x: 16 },
-  animate:    { opacity: 1, x: 0 },
-  exit:       reduced ? false : { opacity: 0, x: -12 },
-  transition: reduced ? { duration: 0 } : SPRING_SNAPPY,
+  initial:    reduced ? { opacity: 0 } : { opacity: 0, y: 5, scale: 0.998 },
+  animate:    { opacity: 1, y: 0, scale: 1 },
+  exit:       reduced ? { opacity: 0 } : { opacity: 0, y: -3, scale: 0.998 },
+  transition: reduced ? REDUCED_TRANSITION : { duration: MOTION_DURATION.standard, ease: EASE_SWIFT },
 });
 
 /** Staggered list/card entrance — 40ms between each item, capped at 320ms total. */
@@ -77,11 +99,68 @@ export const TAB_PILL_TRANSITION = (reduced: boolean | null) =>
 
 /** Bottom sheet / modal present — authoritative, settles with minimal bounce. */
 export const SHEET_TRANSITION = (reduced: boolean | null) => ({
-  initial:    reduced ? false : { opacity: 0, y: 40, scale: 0.96 },
+  initial:    reduced ? { opacity: 0 } : { opacity: 0, y: 44, scale: 0.985 },
   animate:    { opacity: 1, y: 0,  scale: 1 },
-  exit:       reduced ? false : { opacity: 0, y: 32, scale: 0.97 },
-  transition: reduced ? { duration: 0 } : SPRING_GENTLE,
+  exit:       reduced ? { opacity: 0 } : { opacity: 0, y: 36, scale: 0.99 },
+  transition: reduced ? REDUCED_TRANSITION : SPRING_GENTLE,
 });
 
 /** Number count-up spring — fast settle so stat cards feel alive. */
 export const COUNTER_SPRING = { type: 'spring' as const, stiffness: 500, damping: 40, mass: 1 };
+
+export type PresentationMotion = 'center' | 'sheet' | 'drawer' | 'fullscreen' | 'popover';
+
+/** Shared presentation choreography for every portal and deep workspace. */
+export const PRESENTATION_MOTION = (
+  reduced: boolean | null,
+  presentation: PresentationMotion = 'center',
+) => {
+  if (reduced) {
+    return {
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      exit: { opacity: 0 },
+      transition: REDUCED_TRANSITION,
+    };
+  }
+
+  if (presentation === 'sheet') return SHEET_TRANSITION(false);
+  if (presentation === 'drawer') {
+    return {
+      initial: { opacity: 0, x: 44 },
+      animate: { opacity: 1, x: 0 },
+      exit: { opacity: 0, x: 36 },
+      transition: SPRING_GENTLE,
+    };
+  }
+  if (presentation === 'fullscreen') {
+    return {
+      initial: { opacity: 0, scale: 1.004 },
+      animate: { opacity: 1, scale: 1 },
+      exit: { opacity: 0, scale: 1.002 },
+      transition: { duration: MOTION_DURATION.standard, ease: EASE_SWIFT },
+    };
+  }
+  if (presentation === 'popover') {
+    return {
+      initial: { opacity: 0, y: -8, scale: 0.985 },
+      animate: { opacity: 1, y: 0, scale: 1 },
+      exit: { opacity: 0, y: -5, scale: 0.99 },
+      transition: SPRING_SNAPPY,
+    };
+  }
+  return {
+    initial: { opacity: 0, y: 14, scale: 0.97 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: 8, scale: 0.985 },
+    transition: SPRING_GENTLE,
+  };
+};
+
+/** Scrims fade; they never bounce. */
+export const BACKDROP_MOTION = (reduced: boolean | null) => ({
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: reduced ? REDUCED_TRANSITION : FADE_TRANSITION,
+});

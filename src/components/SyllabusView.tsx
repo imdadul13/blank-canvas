@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { lazy, Suspense, useState, useMemo } from 'react';
 import {
   Search,
   ChevronRight,
@@ -37,17 +37,19 @@ import { AppState, SubjectPhase, ConfidenceLevel } from '../types';
 import { FMGE_SUBJECTS } from '../data/fmgeSubjects';
 import { SubjectAppleIcon, getSubjectVisualTheme } from './SubjectAppleIcon';
 import { DoctorMountainArt } from './DoctorMountainArt';
-import { RevisionMatrixView } from './RevisionMatrixView';
 import { AppStats, calculateAppStats } from '../utils/storage';
 import { useCircadianTheme } from '../hooks/useCircadianTheme';
 import { CircadianHeaderAtmosphere, CircadianPill } from './CircadianHeaderAtmosphere';
 import { HeaderTabInsignia } from './HeaderTabInsignia';
 import { CircadianFocusDropdown } from './CircadianFocusDropdown';
 import { HeaderGlassIcon } from './HeaderGlassIcon';
-import { RapidRevisionLibrary } from './RapidRevisionLibrary';
-import { ExamSprintView } from './study/ExamSprintView';
-import { StudyFlashcardHub } from './study/StudyFlashcardHub';
 import type { McqAttempt } from '../types';
+import { WorkspaceLoadingState } from './ui/AsyncState';
+
+const RevisionMatrixView = lazy(() => import('./RevisionMatrixView').then((module) => ({ default: module.RevisionMatrixView })));
+const RapidRevisionLibrary = lazy(() => import('./RapidRevisionLibrary').then((module) => ({ default: module.RapidRevisionLibrary })));
+const ExamSprintView = lazy(() => import('./study/ExamSprintView').then((module) => ({ default: module.ExamSprintView })));
+const StudyFlashcardHub = lazy(() => import('./study/StudyFlashcardHub').then((module) => ({ default: module.StudyFlashcardHub })));
 
 export type StudySubTab = 'curriculum' | 'sprint' | 'flashcards' | 'rapid' | 'revision';
 
@@ -240,14 +242,12 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 type="button"
                 aria-pressed={currentSubTab === tab.id}
                 onClick={() => handleSubTabChange(tab.id)}
-                className={`inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 sm:px-4 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  currentSubTab === tab.id
-                    ? 'bg-white dark:bg-slate-800 text-[#1D1D1F] dark:text-white shadow-sm font-bold'
-                    : 'text-[#6E6E73] dark:text-slate-400 hover:text-[#1D1D1F] dark:hover:text-white'
+                className={`study-subnav-tab inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 sm:px-4 text-xs whitespace-nowrap transition-all cursor-pointer ${
+                  currentSubTab === tab.id ? 'is-active' : ''
                 }`}
               >
                 <span className="study-tab-icon"><TabIcon className="h-3.5 w-3.5"/></span>
-                <span>{tab.label}</span>
+                <span className="study-tab-label">{tab.label}</span>
               </button>
             );})}
           </div>
@@ -385,6 +385,7 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
                 <input
                   type="text"
                   placeholder="Search subjects, topics…"
+                  aria-label="Search subjects and topics"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full rounded-2xl border border-[rgba(60,60,67,0.12)] bg-white py-2 pl-9 pr-8 text-[12.5px] text-[#1D1D1F] placeholder:text-[#8E8E93] focus:border-[#30D158]/50 focus:ring-2 focus:ring-[#30D158]/15 focus:outline-none transition-all shadow-[0_1px_4px_rgba(0,0,0,0.05)]"
@@ -594,8 +595,10 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
             </div>
           )}
         </>
-      ) : currentSubTab === 'sprint' ? (
-        <ExamSprintView
+      ) : (
+        <Suspense fallback={<WorkspaceLoadingState label={`Loading ${currentSubTab} workspace`} compact />}>
+          {currentSubTab === 'sprint' ? (
+            <ExamSprintView
           state={state}
           onLaunchPracticeMcq={(subId, topicId, topicName) => {
             if (onLaunchPracticeSession) {
@@ -614,9 +617,9 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
           onOpenRevisionMatrix={() => handleSubTabChange('revision')}
           onNavigateTab={onNavigateTab}
           onToggleTopicState={onToggleTopicState}
-        />
-      ) : currentSubTab === 'flashcards' ? (
-        <StudyFlashcardHub
+            />
+          ) : currentSubTab === 'flashcards' ? (
+            <StudyFlashcardHub
           initialSubjectId={flashcardFocusSubjectId}
           onLaunchPracticeMcq={(subId, topicId, topicName) => {
             if (onLaunchPracticeSession) {
@@ -626,9 +629,9 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
             }
           }}
           onSelectSubject={onSelectSubject}
-        />
-      ) : currentSubTab === 'revision' ? (
-        <RevisionMatrixView
+            />
+          ) : currentSubTab === 'revision' ? (
+            <RevisionMatrixView
           state={state}
           stats={stats || calculateAppStats(state)}
           onSelectSubject={onSelectSubject}
@@ -636,15 +639,17 @@ export const SyllabusView: React.FC<SyllabusViewProps> = ({
           onUpdateSubjectRevisionDate={onUpdateSubjectRevisionDate || (() => {})}
           onBackToCurriculum={() => handleSubTabChange('curriculum')}
           onNavigateTab={onNavigateTab}
-        />
-      ) : (
-        <RapidRevisionLibrary
+            />
+          ) : (
+            <RapidRevisionLibrary
           progress={rapidRevisionProgress}
           onToggle={onToggleRapidRevisionItem || (() => {})}
           onPractice={onRapidRevisionPractice || ((subjectId) => onSelectSubject(subjectId))}
           attempts={rapidRevisionAttempts}
           focusSubjectId={rapidRevisionFocusSubjectId}
-        />
+            />
+          )}
+        </Suspense>
       )}
     </div>
   );

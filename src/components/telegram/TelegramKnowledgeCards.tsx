@@ -141,7 +141,7 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4.5">
+    <div className="telegram-knowledge-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4.5">
       {items.map((rawItem: any) => {
         const item = rawItem;
         const isSaved = savedItemIds.has(item.id);
@@ -170,7 +170,7 @@ export const TelegramKnowledgeCards: React.FC<TelegramKnowledgeCardsProps> = ({
         return (
           <div
             key={item.id}
-            className="h-full rounded-2xl sm:rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-2xs hover:border-teal-200 hover:shadow-xs transition-all flex flex-col justify-between group"
+            className="telegram-knowledge-card h-full rounded-2xl sm:rounded-3xl border p-4 sm:p-5 transition-all flex flex-col justify-between group"
           >
             <div>
               {/* Card Header: Type Badge, High-Yield Indicator & Time */}

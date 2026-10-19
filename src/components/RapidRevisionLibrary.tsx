@@ -1309,7 +1309,7 @@ export const RapidRevisionLibrary: React.FC<RapidRevisionLibraryProps> = ({
                 <img
                   src={zoomImage}
                   alt="Enlarged study visual"
-                  className="max-h-[90vh] max-w-[95vw] rounded-2xl object-contain shadow-2xl"
+                  className="max-h-[90dvh] max-w-[95vw] rounded-2xl object-contain shadow-2xl"
                 />
               </div>
             )}

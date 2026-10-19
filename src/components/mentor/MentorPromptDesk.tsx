@@ -361,6 +361,7 @@ export const MentorPromptDesk: React.FC<MentorPromptDeskProps> = ({
                 ? 'Ask your faculty mentor…'
                 : 'Ask anything — e.g. nephrotic vs nephritic, ECG in hyperkalaemia, DOC for status epilepticus'
             }
+            aria-label="Ask your faculty mentor"
             className="min-h-[38px] max-h-[140px] min-w-0 flex-1 resize-none border-0 bg-transparent px-2 py-1.5 text-sm leading-relaxed text-[#1D1D1F] placeholder:text-[#8E8E93] focus:outline-none focus:ring-0 sm:py-2"
           />
 

@@ -49,7 +49,7 @@ import {
   Flame,
 } from "lucide-react";
 import confetti from "canvas-confetti";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { enrichClinicalQuestion } from "../utils/clinicalDistractorHelper";
 import {
   TelegramMCQ,
@@ -68,11 +68,13 @@ import {
   mapTelegramAuthError,
 } from "../utils/phoneValidation";
 import { TelegramStatusCards } from "./telegram/TelegramStatusCards";
-import { TelegramOverviewCard } from "./telegram/TelegramOverviewCard";
 import { TelegramSubjectCollections } from "./telegram/TelegramSubjectCollections";
 import { TelegramQuickActions } from "./telegram/TelegramQuickActions";
 import { TelegramEmptyState } from "./telegram/TelegramEmptyState";
 import { TelegramKnowledgeCards, UnifiedKnowledgeItem } from "./telegram/TelegramKnowledgeCards";
+import { Button, Pill } from "./ui/Button";
+import { IconTile } from "./ui/surface";
+import { CARD_STAGGER } from "../utils/motionTokens";
 
 interface TelegramHubViewProps {
   questions?: TelegramMCQ[];
@@ -102,6 +104,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   onAddToErrorNotebook,
   onSaveAsPearl,
 }) => {
+  const reducedMotion = useReducedMotion();
   // 1. Connection & Live Cloud Status State
   const [isConnected, setIsConnected] = useState(false);
   const [userProfile, setUserProfile] = useState<{ id: string; firstName: string; username?: string; phone: string } | null>(null);
@@ -1187,158 +1190,114 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
   return (
     <div
       data-accent="telegram"
-      className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6 sm:space-y-8 animate-fadeIn pb-24 sm:pb-20 lg:pb-16 font-sans antialiased min-w-0 max-w-full overflow-x-clip text-slate-900"
+      className="telegram-hub-page w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-5 sm:space-y-6 pb-24 sm:pb-20 lg:pb-16 font-sans antialiased min-w-0 max-w-full overflow-x-clip text-[var(--color-ink)]"
     >
-      {/* Telegram has its own accent scope, while its deep azure hero keeps
-          the stream workspace visually distinct from study and performance. */}
+      {/* Source-health and primary-action header */}
       <motion.header
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-        className="system-page-header system-page-header-dark relative rounded-3xl overflow-hidden"
-        data-header-art="ribbon"
-        style={{
-          background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 45%, #075985 80%, #0C4A6E 100%)',
-          boxShadow: '0 8px 40px rgba(2,132,199,0.24), 0 2px 8px rgba(0,0,0,0.10)',
-        }}
+        className="telegram-hub-hero system-page-header premium-page-hero relative overflow-hidden"
       >
-        {/* Decorative right glow + top inner shine */}
-        <div
-          className="pointer-events-none absolute right-0 top-0 bottom-0 w-2/3"
-          style={{ background: 'radial-gradient(ellipse at 85% 40%, rgba(56,189,248,0.30) 0%, transparent 65%)' }}
-        />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-white/15 to-transparent" />
-
-        <div className="relative z-10 px-5 sm:px-8 py-5 sm:py-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-          <div className="space-y-2 min-w-0 max-w-xl">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-white/20 border border-white/25 flex items-center justify-center shrink-0">
-                <Send className="h-3.5 w-3.5 text-white" />
+        <div className="relative z-10 grid gap-5 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-center">
+          <div className="space-y-5">
+            <div className="space-y-3">
+              <Pill tone={isConnected ? "pass" : "neutral"}>
+                <span className={`size-1.5 rounded-full ${isConnected ? "bg-[var(--color-pass-ink)]" : "bg-[var(--color-ink-4)]"}`} />
+                {isConnected ? "Telegram sources connected" : "Local source library"}
+              </Pill>
+              <div>
+                <h1 className="premium-workspace-title text-[var(--color-ink)]">
+                  Your clinical <span className="premium-title-accent">source library.</span>
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--color-ink-2)]">
+                  Browse noise-filtered pearls, questions, image spotters, and rapid tips curated from the sources you trust.
+                </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 border border-white/20 text-[10.5px] font-mono font-bold uppercase tracking-wider text-sky-100">
-                <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Source Library
-              </span>
             </div>
-
-            <div className="space-y-0.5">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-                Telegram Knowledge Bank
-              </h1>
-              <p className="text-[12.5px] sm:text-[13px] text-sky-100/80 leading-relaxed max-w-lg font-medium">
-                High-yield FMGE content, clinical pearls, and image spotters intelligently curated from your verified sources.
-              </p>
+            <div className="flex flex-col gap-2.5 sm:flex-row">
+              {!isConnected && (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() => {
+                    setAuthMethod('qr');
+                    setAuthStep('phone');
+                    setAuthError(null);
+                    setIsConnectModalOpen(true);
+                  }}
+                >
+                  <QrCode className="size-4" />
+                  Connect Telegram
+                </Button>
+              )}
+              <Button variant={isConnected ? "primary" : "secondary"} size="lg" onClick={handleManualSyncNow} disabled={isManualSyncing}>
+                <RefreshCw className={`size-4 ${isManualSyncing ? 'animate-spin' : ''}`} />
+                {isManualSyncing ? 'Syncing sources…' : 'Sync sources'}
+              </Button>
+              {isConnected && (
+                <Button variant="secondary" size="lg" onClick={() => setIsManageModalOpen(true)}>
+                  Manage connection
+                </Button>
+              )}
             </div>
           </div>
 
-          {/* Action Pills */}
-          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
-            <button
-              type="button"
-              onClick={handleManualSyncNow}
-              disabled={isManualSyncing}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 text-white border border-white/25 text-[12px] font-bold transition-all active:scale-95 cursor-pointer disabled:opacity-50 backdrop-blur-md shadow-xs"
-            >
-              <RefreshCw className={`size-3.5 text-sky-200 stroke-[2.4] ${isManualSyncing ? 'animate-spin' : ''}`} />
-              <span>{isManualSyncing ? 'Syncing...' : 'Sync Live Feed'}</span>
-            </button>
-
-            {!isConnected ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMethod('qr');
-                  setAuthStep('phone');
-                  setAuthError(null);
-                  setIsConnectModalOpen(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-full bg-white hover:bg-[#F2F2F7] text-[#0369A1] text-[12px] font-bold shadow-sm transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
-              >
-                <QrCode className="size-3.5 stroke-[2.6]" />
-                <span>Connect MTProto</span>
-              </button>
-            ) : (
-              <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/25 text-white text-[12px] font-bold shadow-xs">
-                <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>MTProto Synced</span>
-              </div>
-            )}
+          <div className="telegram-hub-snapshot rounded-3xl border border-[var(--color-hairline)] bg-[var(--color-surface)] p-4 shadow-e2">
+            <div className="flex items-center justify-between">
+              <div className="t-eyebrow text-[var(--color-ink-2)]">Library at a glance</div>
+              <IconTile icon={Send} size={38} color="var(--accent-ink)" className="premium-snapshot-icon" />
+            </div>
+            <div className="mt-4 grid grid-cols-3 divide-x divide-[var(--color-hairline)]">
+              {[
+                { label: 'Curated', value: curatedCounts.totalCurated || curatedItems.length, icon: Layers, tone: 'blue' },
+                { label: 'Sources', value: workerHealth.activeSourcesCount, icon: Cloud, tone: 'green' },
+                { label: 'Saved', value: savedItems.length, icon: Bookmark, tone: 'purple' },
+              ].map((item, index) => (
+                <motion.div key={item.label} {...CARD_STAGGER(index, reducedMotion)} className="premium-snapshot-stat min-w-0 px-2 text-center first:pl-0 last:pr-0">
+                  <span className={`premium-stat-icon is-${item.tone}`}><item.icon className="size-3" /></span>
+                  <div className="text-xl font-bold tabular-nums text-[var(--color-ink)]">{item.value}</div>
+                  <div className="mt-1 truncate text-[10px] font-semibold uppercase tracking-wider text-[var(--color-ink-2)]">{item.label}</div>
+                </motion.div>
+              ))}
+            </div>
+            <div className="mt-4 flex items-center gap-2 rounded-2xl bg-[var(--color-surface-sunken)] px-3 py-2.5 text-xs text-[var(--color-ink-2)]">
+              <ShieldCheck className="size-4 shrink-0 text-[var(--color-pass-ink)]" />
+              Promotional filtering and relevance scoring are active.
+            </div>
           </div>
         </div>
       </motion.header>
 
-      {/* 4 Metric Tiles Row Matching Screenshot 3 / ErrorsView / FmgePredictorView */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[
-          {
-            label: 'Total Curated',
-            value: curatedCounts.totalCurated || curatedItems.length,
-            sub: 'Verified clinical entries',
-            icon: Layers,
-            color: '#0284C7',
-            bg: 'rgba(2,132,199,0.06)',
-            border: 'rgba(2,132,199,0.18)',
-          },
-          {
-            label: 'Exam Pearls',
-            value: curatedCounts.examPearls,
-            sub: 'High-yield takeaways',
-            icon: Star,
-            color: '#FF9500',
-            bg: 'rgba(255,149,0,0.06)',
-            border: 'rgba(255,149,0,0.18)',
-          },
-          {
-            label: 'Clinical MCQs',
-            value: curatedCounts.questions,
-            sub: 'Vignettes with rationale',
-            icon: HelpCircle,
-            color: '#30D158',
-            bg: 'rgba(48,209,88,0.06)',
-            border: 'rgba(48,209,88,0.18)',
-          },
-          {
-            label: 'Saved Vault',
-            value: savedItems.length,
-            sub: 'Student saved notes',
-            icon: Bookmark,
-            color: '#5856D6',
-            bg: 'rgba(88,86,214,0.06)',
-            border: 'rgba(88,86,214,0.18)',
-          },
-        ].map(({ label, value, sub, icon: Icon, color, bg, border }) => (
-          <div key={label} className="p-4 rounded-2xl border space-y-2" style={{ background: bg, borderColor: border }}>
-            <div className="flex items-center justify-between">
-              <span className="text-[10.5px] font-bold uppercase tracking-widest text-[#8E8E93]">{label}</span>
-              <div className="w-7 h-7 rounded-xl flex items-center justify-center" style={{ background: `${color}20` }}>
-                <Icon className="h-3.5 w-3.5" style={{ color }} />
-              </div>
-            </div>
-            <div className="text-[26px] font-black font-mono leading-none" style={{ color }}>{value}</div>
-            <p className="text-[11px] text-[#8E8E93]">{sub}</p>
-          </div>
-        ))}
-      </div>
+      <motion.div {...CARD_STAGGER(0, reducedMotion)} className="premium-section-heading">
+        <IconTile icon={Activity} size={42} color="var(--accent-ink)" />
+        <div>
+          <div className="t-eyebrow text-accent">Source pipeline</div>
+          <h2 className="t-section text-[var(--color-ink)]">Healthy sources in. High-yield knowledge out.</h2>
+        </div>
+      </motion.div>
 
       {/* ========================================================================= */}
       {/* 2. INFRASTRUCTURE STATUS (3 COMPACT CARDS) */}
       {/* ========================================================================= */}
-      <TelegramStatusCards
-        isConnected={isConnected}
-        userProfile={userProfile}
-        workerHealth={workerHealth}
-        dbHealth={dbHealth}
-        isStatusLoading={isStatusLoading}
-        onOpenConnectModal={() => {
-          setAuthMethod("qr");
-          setAuthStep("phone");
-          setAuthError(null);
-          setIsConnectModalOpen(true);
-        }}
-        onOpenManageModal={() => setIsManageModalOpen(true)}
-        onManualSync={handleManualSyncNow}
-        isManualSyncing={isManualSyncing}
-      />
+      <section className="telegram-system-section" aria-label="Telegram source health">
+        <TelegramStatusCards
+          isConnected={isConnected}
+          userProfile={userProfile}
+          workerHealth={workerHealth}
+          dbHealth={dbHealth}
+          isStatusLoading={isStatusLoading}
+          onOpenConnectModal={() => {
+            setAuthMethod("qr");
+            setAuthStep("phone");
+            setAuthError(null);
+            setIsConnectModalOpen(true);
+          }}
+          onOpenManageModal={() => setIsManageModalOpen(true)}
+          onManualSync={handleManualSyncNow}
+          isManualSyncing={isManualSyncing}
+        />
+      </section>
 
       {/* Sync Toast / Progress Notice if active */}
       {syncBannerNotice && (
@@ -1350,6 +1309,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           <button
             type="button"
             onClick={() => setSyncBannerNotice(null)}
+            aria-label="Dismiss sync notice"
             className="text-sky-400 hover:text-sky-700 cursor-pointer"
           >
             <X className="h-3.5 w-3.5" />
@@ -1357,16 +1317,8 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* 3. YOUR CLOUD KNOWLEDGE BANK OVERVIEW BANNER */}
-      {/* ========================================================================= */}
-      <TelegramOverviewCard
-        counts={curatedCounts}
-        channelCount={workerHealth.activeSourcesCount}
-      />
-
       {pipelineDiagnostics && (
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 text-xs">
+        <div className="telegram-guardrail flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-2xl border text-xs">
           <div className="flex items-center gap-2 text-emerald-950 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="font-bold uppercase tracking-wider text-[11px] text-emerald-800">
@@ -1393,7 +1345,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* ========================================================================= */}
       {/* 4. MOBILE SEGMENTED CONTROL ([ Overview ] [ Browse ] [ Saved ]) */}
       {/* ========================================================================= */}
-      <div className="sm:hidden flex rounded-2xl bg-stone-100 p-1 gap-1">
+      <div className="telegram-mobile-segments sm:hidden flex rounded-2xl p-1 gap-1">
         {[
           { id: "overview", label: "Overview" },
           { id: "browse", label: "Browse" },
@@ -1408,10 +1360,10 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               else if (seg.id === "overview") setActiveTab("all");
               else if (seg.id === "browse" && activeTab === "all") setActiveTab("questions");
             }}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`telegram-mobile-segment flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               mobileSegment === seg.id
-                ? "bg-white text-slate-900 shadow-xs"
-                : "text-slate-500 hover:text-slate-900"
+                ? "is-active"
+                : ""
             }`}
           >
             {seg.label}
@@ -1422,12 +1374,12 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
       {/* ========================================================================= */}
       {/* 5. KNOWLEDGE CATEGORY NAVIGATION (DESKTOP) & SEARCH (DESKTOP / MOBILE BROWSE) */}
       {/* ========================================================================= */}
-      <div className={`space-y-4 w-full min-w-0 max-w-full ${mobileSegment === "overview" ? "hidden sm:block" : ""}`}>
+      <div className={`telegram-library-controls space-y-4 w-full min-w-0 max-w-full ${mobileSegment === "overview" ? "hidden sm:block" : ""}`}>
         {/* Category Pill Tabs with Controlled Horizontal Overflow - DESKTOP ONLY */}
         <div className="relative w-full min-w-0 max-w-full hidden sm:block">
           {/* Left Scroll Gradient & Button (Desktop) */}
           {canScrollLeft && (
-            <div className="hidden sm:flex absolute left-0 top-0 bottom-0 z-10 items-center pr-3 bg-gradient-to-r from-[#FBFBFA] via-[#FBFBFA]/90 to-transparent pointer-events-none">
+            <div className="telegram-scroll-fade is-left hidden sm:flex absolute left-0 top-0 bottom-0 z-10 items-center pr-3 pointer-events-none">
               <button
                 type="button"
                 onClick={() => handleScrollCategories("left")}
@@ -1442,19 +1394,19 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
           {/* Scrolling Row */}
           <div
             ref={categoryNavRef}
-            className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 px-0.5 scrollbar-none scroll-smooth w-full min-w-0"
+            className="telegram-category-nav flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 px-0.5 scrollbar-none scroll-smooth w-full min-w-0"
           >
             {[
-              { id: "all", label: "Curated Feed", count: curatedCounts.totalCurated, icon: Layers, activeBg: "#0284C7" },
-              { id: "pearls", label: "Exam Pearls", count: curatedCounts.examPearls, icon: Award, activeBg: "#D97706" },
-              { id: "questions", label: "Questions", count: curatedCounts.questions, icon: FileText, activeBg: "#059669" },
-              { id: "images", label: "Spotters", count: curatedCounts.imageSpotters, icon: ImageIcon, activeBg: "#7C3AED" },
-              { id: "videos", label: "Videos", count: curatedCounts.videos, icon: Video, activeBg: "#E11D48" },
-              { id: "tips", label: "Rapid Tips", count: curatedCounts.clinicalTips, icon: Lightbulb, activeBg: "#EA580C" },
-              { id: "saved", label: "Vault", count: savedItems.length, icon: Star, highlight: true, activeBg: "#4F46E5" },
-              { id: "cross_checks", label: "AI Cross-Check", count: crossChecks.length, icon: ShieldCheck, activeBg: "#007AFF" },
-              { id: "sources", label: "Channels", count: workerHealth.activeSourcesCount, icon: Layers, activeBg: "#5856D6" },
-              { id: "debugger", label: "Source Library (Raw)", count: rawMessages.length, icon: Terminal, activeBg: "#334155" },
+              { id: "all", label: "Curated Feed", count: curatedCounts.totalCurated, icon: Layers },
+              { id: "pearls", label: "Exam Pearls", count: curatedCounts.examPearls, icon: Award },
+              { id: "questions", label: "Questions", count: curatedCounts.questions, icon: FileText },
+              { id: "images", label: "Spotters", count: curatedCounts.imageSpotters, icon: ImageIcon },
+              { id: "videos", label: "Videos", count: curatedCounts.videos, icon: Video },
+              { id: "tips", label: "Rapid Tips", count: curatedCounts.clinicalTips, icon: Lightbulb },
+              { id: "saved", label: "Vault", count: savedItems.length, icon: Star, highlight: true },
+              { id: "cross_checks", label: "AI Cross-Check", count: crossChecks.length, icon: ShieldCheck },
+              { id: "sources", label: "Channels", count: workerHealth.activeSourcesCount, icon: Layers },
+              { id: "debugger", label: "Source Library (Raw)", count: rawMessages.length, icon: Terminal },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -1467,23 +1419,18 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
                     if (tab.id === "sources") fetchSources();
                     e.currentTarget.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
                   }}
-                  style={isActive ? { backgroundColor: tab.activeBg, color: 'white' } : undefined}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 shadow-2xs ${
+                  className={`telegram-category-pill px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                     isActive
-                      ? "text-white shadow-xs"
+                      ? "is-active"
                       : tab.highlight && savedItems.length > 0
-                      ? "bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200/80"
-                      : "bg-white hover:bg-stone-50 text-slate-700 border border-stone-200/90"
+                      ? "is-highlighted"
+                      : ""
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? "text-white" : tab.highlight ? "text-amber-600 fill-amber-600" : "text-slate-400"}`} />
+                  <Icon className={`w-3.5 h-3.5 ${tab.highlight && !isActive ? "fill-current" : ""}`} />
                   <span>{tab.label}</span>
                   {tab.count !== undefined && (
-                    <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                        isActive ? "bg-white/20 text-white" : "bg-stone-100 text-slate-500"
-                      }`}
-                    >
+                    <span className="telegram-category-count text-[10px] px-1.5 py-0.5 rounded-full font-mono">
                       {tab.count}
                     </span>
                   )}
@@ -1494,7 +1441,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
           {/* Right Scroll Gradient & Button (Desktop) */}
           {canScrollRight && (
-            <div className="hidden sm:flex absolute right-0 top-0 bottom-0 z-10 items-center pl-3 bg-gradient-to-l from-[#FBFBFA] via-[#FBFBFA]/90 to-transparent pointer-events-none">
+            <div className="telegram-scroll-fade is-right hidden sm:flex absolute right-0 top-0 bottom-0 z-10 items-center pl-3 pointer-events-none">
               <button
                 type="button"
                 onClick={() => handleScrollCategories("right")}
@@ -1509,7 +1456,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
 
         {/* Search & Subject Filter Bar */}
         {(mobileSegment === "browse" || (activeTab !== "debugger" && activeTab !== "sources" && activeTab !== "saved")) && (
-          <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-3.5 sm:p-4 shadow-xs space-y-3">
+          <div className="telegram-filter-bar rounded-2xl sm:rounded-3xl border p-3.5 sm:p-4 space-y-3">
             <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
               <div className="relative flex-1 w-full">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -1596,9 +1543,9 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
         activeTab === "tips" ||
         activeTab === "notices" ||
         (mobileSegment !== "saved" && activeTab !== "saved" && activeTab !== "sources" && activeTab !== "debugger" && activeTab !== "cross_checks")) && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="telegram-feed space-y-5">
           {/* Section Sub-Header with Category & High-Yield Indicators */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-stone-200/80">
+          <div className="telegram-feed-heading flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[var(--color-hairline)]">
             <div>
               <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2 flex-wrap">
                 <span>
@@ -2759,11 +2706,13 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
             onClick={() => setZoomedImageUrl(null)}
           >
             <div
-              className="relative max-w-4xl max-h-[90vh] bg-slate-900 rounded-3xl p-2 border border-slate-700 shadow-2xl overflow-hidden"
+              className="relative max-w-4xl max-h-[90dvh] bg-slate-900 rounded-3xl p-2 border border-slate-700 shadow-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <button
+                type="button"
                 onClick={() => setZoomedImageUrl(null)}
+                aria-label="Close enlarged medical image"
                 className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/90 cursor-pointer"
               >
                 <X className="h-5 w-5" />
@@ -2771,7 +2720,7 @@ export const TelegramHubView: React.FC<TelegramHubViewProps> = ({
               <img
                 src={zoomedImageUrl}
                 alt="Zoomed Medical Attachment"
-                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl"
+                className="w-full h-auto max-h-[85dvh] object-contain rounded-2xl"
               />
             </div>
           </div>,

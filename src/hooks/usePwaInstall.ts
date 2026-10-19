@@ -25,10 +25,15 @@ export function usePwaInstall() {
     };
 
     checkStandalone();
+    const displayMode = window.matchMedia('(display-mode: standalone)');
+    if (displayMode.addEventListener) displayMode.addEventListener('change', checkStandalone);
+    else displayMode.addListener?.(checkStandalone);
 
-    // Detect iOS devices (iPhone/iPad/iPod)
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
+    // iPadOS can identify itself as macOS when "Request Desktop Website" is
+    // enabled, so touch capability is part of the platform check.
+    const isIosDevice =
+      /iphone|ipad|ipod/i.test(window.navigator.userAgent) ||
+      (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
     setIsIos(isIosDevice);
 
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -44,10 +49,14 @@ export function usePwaInstall() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
+    window.addEventListener('pageshow', checkStandalone);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
+      window.removeEventListener('pageshow', checkStandalone);
+      if (displayMode.removeEventListener) displayMode.removeEventListener('change', checkStandalone);
+      else displayMode.removeListener?.(checkStandalone);
     };
   }, []);
 
