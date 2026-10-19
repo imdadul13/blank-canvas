@@ -39,8 +39,8 @@
       "purpose": "any maskable"
     }
   ],
-  "theme_color": "#F2F2F7",
-  "background_color": "#F2F2F7",
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "any",

@@ -2511,7 +2511,7 @@ html {
 body {
   font-family: inherit;
   color: var(--color-ink);
-  background-color: var(--color-canvas);
+  background-color: #FFFFFF;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -2893,6 +2893,9 @@ button:active:not(:disabled),
   width: 100%;
   min-width: 0;
   min-height: 100svh;
+  background: #FFFFFF;
+}
+.dark .app-shell {
   background: var(--color-canvas);
 }
 .workspace-column {
