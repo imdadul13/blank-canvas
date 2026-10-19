@@ -453,33 +453,30 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
               {/* Eyebrow */}
               <div className="flex items-center gap-2">
                 <div
-                  className="flex items-center justify-center w-8 h-8 rounded-xl"
-                  style={{ background: 'rgba(255,255,255,0.12)' }}
+                  className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#007AFF]/10 dark:bg-white/10 text-[#007AFF] dark:text-white"
                 >
-                  <TrendingUp className="w-4 h-4 text-white" />
+                  <TrendingUp className="w-4 h-4" />
                 </div>
                 <span
-                  className="text-[11px] font-bold tracking-[0.12em] uppercase"
-                  style={{ color: 'rgba(255,255,255,0.6)' }}
+                  className="text-[11px] font-bold tracking-[0.12em] uppercase text-[#007AFF] dark:text-sky-300"
                 >
                   FMGE Blueprint Planner
                 </span>
               </div>
               {/* Bold title */}
-              <h1 className="text-[26px] sm:text-[32px] font-bold text-white leading-tight">
+              <h1 className="text-[26px] sm:text-[32px] font-bold text-[#1D1D1F] dark:text-white leading-tight">
                 Blueprint Planning Estimate
               </h1>
-              <p className="text-[13px] leading-relaxed max-w-lg" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              <p className="text-[13px] leading-relaxed max-w-lg text-[#6E6E73] dark:text-white/70">
                 A study-priority estimate from NBE subject weights, high-yield topics, and your recorded preparation. It is not a calibrated exam-score forecast.
               </p>
             </div>
             {/* Date badge */}
             <div
-              className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-full shrink-0"
-              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
+              className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-full shrink-0 bg-[#F2F2F7] dark:bg-white/10 border border-[rgba(60,60,67,0.1)] dark:border-white/15 text-[#6E6E73] dark:text-white/80"
             >
-              <Calendar className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.7)' }} />
-              <span className="text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.8)' }}>
+              <Calendar className="w-3.5 h-3.5 text-[#8E8E93] dark:text-white/70" />
+              <span className="text-[11px] font-semibold text-[#1D1D1F] dark:text-white">
                 {formattedToday}
               </span>
             </div>
@@ -500,16 +497,11 @@ export const FmgePredictorView: React.FC<FmgePredictorViewProps> = ({
                   type="button"
                   onClick={() => setMode(tab.id)}
                   whileTap={{ scale: 0.96 }}
-                  className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold transition-all cursor-pointer"
-                  style={
+                  className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-bold transition-all cursor-pointer border ${
                     active
-                      ? { background: '#007AFF', color: '#fff', border: '1.5px solid #007AFF' }
-                      : {
-                          background: 'rgba(255,255,255,0.1)',
-                          color: 'rgba(255,255,255,0.75)',
-                          border: '1.5px solid rgba(255,255,255,0.18)',
-                        }
-                  }
+                      ? 'bg-[#007AFF] text-white border-[#007AFF] shadow-sm'
+                      : 'bg-[#F2F2F7] dark:bg-white/10 text-[#6E6E73] dark:text-white/75 border-[rgba(60,60,67,0.12)] dark:border-white/15 hover:text-[#1D1D1F] dark:hover:text-white hover:bg-[#E5E5EA] dark:hover:bg-white/15'
+                  }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   {tab.label}
