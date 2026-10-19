@@ -92,6 +92,7 @@ import { IbqRapidRecallModal } from './IbqRapidRecallModal';
 import { ExamEveCheatSheetModal, HIGH_YIELD_TRIADS } from './ExamEveCheatSheetModal';
 import { NbeMockExamModal } from './NbeMockExamModal';
 import { useScrollDirection } from '../hooks/useScrollDirection';
+import { useIsMobile } from '../hooks/use-mobile';
 import { AmbientSoundWidget } from './AmbientSoundWidget';
 import { getDuePearls } from '../utils/spacedRepetitionEngine';
 import { getLearnerPulse, LearnerPulse } from '../utils/learnerIntelligence';
@@ -1560,9 +1561,68 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     [state, isNotificationCenterOpen]
   );
 
-  // Search state
+  // Search state & Expandable Magnifier interaction (left-aligned)
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSearchHovered, setIsSearchHovered] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
+  const isSearchExpanded = isSearchHovered || isSearchFocused || isSearchOpen || searchQuery.trim().length > 0;
+
+  const handleOpenSearch = () => {
+    setIsSearchFocused(true);
+    setIsSearchOpen(true);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 50);
+  };
+
+  const handleCloseSearch = () => {
+    setSearchQuery('');
+    setIsSearchOpen(false);
+    setIsSearchFocused(false);
+    setIsSearchHovered(false);
+    searchInputRef.current?.blur();
+  };
+
+  useEffect(() => {
+    const handlePointerDownOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchOpen(false);
+        setIsSearchFocused(false);
+        setIsSearchHovered(false);
+      }
+    };
+    document.addEventListener('mousedown', handlePointerDownOutside);
+    document.addEventListener('touchstart', handlePointerDownOutside);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDownOutside);
+      document.removeEventListener('touchstart', handlePointerDownOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isSearchExpanded) {
+        handleCloseSearch();
+      }
+      if (e.key === '/' && !isSearchExpanded) {
+        const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+        if (tag !== 'input' && tag !== 'textarea') {
+          e.preventDefault();
+          handleOpenSearch();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSearchExpanded]);
+
 
   // Filter scroll ref for subject pills
   const filterScrollRef = useRef<HTMLDivElement>(null);
@@ -1801,17 +1861,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Search results
   const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase().trim();
+    if (!q) return [];
+    const terms = q.split(/\s+/).filter(Boolean);
     const results: Array<{ subject: (typeof FMGE_SUBJECTS)[0]; topic: (typeof FMGE_SUBJECTS)[0]['topics'][0] }> = [];
     for (const sub of FMGE_SUBJECTS) {
+      const subNameLower = sub.name.toLowerCase();
+      const subCodeLower = sub.code.toLowerCase();
+      const subTipsLower = (sub.highYieldTips || '').toLowerCase();
+      const subDescLower = (sub.description || '').toLowerCase();
+
       for (const top of sub.topics) {
-        if (top.name.toLowerCase().includes(q) || sub.name.toLowerCase().includes(q)) {
+        const topNameLower = top.name.toLowerCase();
+        const matchesTopic = terms.every((t) => topNameLower.includes(t));
+        const matchesSubject = terms.every((t) => subNameLower.includes(t) || subCodeLower.includes(t));
+        const matchesTips = terms.some((t) => subTipsLower.includes(t) || subDescLower.includes(t));
+
+        if (matchesTopic || matchesSubject || (matchesTips && top.isHighYield)) {
           results.push({ subject: sub, topic: top });
-          if (results.length >= 8) break;
+          if (results.length >= 10) break;
         }
       }
-      if (results.length >= 8) break;
+      if (results.length >= 10) break;
     }
     return results;
   }, [searchQuery]);
@@ -1989,38 +2060,233 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           opacity: isHeaderVisible || isAtTop ? 1 : 0,
         }}
         transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-        className={`sticky z-30 py-2 sm:py-2.5 bg-[#F2F2F7]/95 backdrop-blur-3xl relative ${
+        className={`sticky z-30 py-2 sm:py-2.5 transition-all duration-200 ${
+          isAtTop
+            ? 'bg-transparent'
+            : 'bg-white/85 backdrop-blur-2xl border-b border-[rgba(60,60,67,0.08)] shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+        } relative ${
           isGuest ? 'top-[46px]' : 'top-0'
         }`}
       >
         <div className="px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-4 max-w-7xl mx-auto">
 
-          {/* ── Search bar ── */}
-          <div className="relative flex-1 w-full lg:max-w-2xl">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8E8E93] pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setIsSearchOpen(true); }}
-              onFocus={() => setIsSearchOpen(true)}
-              placeholder="Search subjects, topics, questions…"
-              aria-label="Search topics"
-              className="w-full pl-10 pr-16 h-11 rounded-2xl text-sm focus:outline-none bg-white hover:bg-white focus:bg-white text-[#1D1D1F] placeholder:text-[#8E8E93] border border-[rgba(60,60,67,0.10)] focus:border-[#007AFF]/40 focus:ring-2 focus:ring-[#007AFF]/12 shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200"
-            />
-            {searchQuery ? (
+          {/* ── Search bar on the left: Compact magnifier that smoothly expands on hover or click ── */}
+          <div ref={searchContainerRef} className="relative z-30">
+            <motion.div
+              onMouseEnter={() => setIsSearchHovered(true)}
+              onMouseLeave={() => {
+                setIsSearchHovered(false);
+                if (!isSearchFocused && searchQuery.trim().length === 0) {
+                  setIsSearchOpen(false);
+                }
+              }}
+              initial={false}
+              animate={{
+                width: isSearchExpanded ? (isMobile ? Math.min(typeof window !== 'undefined' ? window.innerWidth - 160 : 260, 340) : 520) : 44,
+              }}
+              transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 28 }}
+              className={`relative flex items-center h-11 rounded-2xl transition-all duration-200 overflow-hidden ${
+                isSearchExpanded
+                  ? 'bg-white border border-[rgba(60,60,67,0.12)] shadow-[0_2px_12px_rgba(0,0,0,0.08)] ring-2 ring-[#007AFF]/15'
+                  : 'bg-white hover:bg-[#F2F2F7] border border-[rgba(60,60,67,0.10)] shadow-[0_1px_4px_rgba(0,0,0,0.06)] cursor-pointer'
+              }`}
+            >
+              {/* Magnifier Icon / Click Target */}
               <button
                 type="button"
-                onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-[#C7C7CC] flex items-center justify-center text-white hover:bg-[#8E8E93] cursor-pointer transition-colors"
-                aria-label="Clear search"
+                onClick={handleOpenSearch}
+                aria-label="Search blueprint topics"
+                title="Search subjects & topics (Click or Hover)"
+                className="flex items-center justify-center h-11 w-11 shrink-0 text-[#3A3A3C] hover:text-[#007AFF] cursor-pointer transition-colors"
               >
-                <X className="h-3 w-3" />
+                <Search className={`h-4 w-4 stroke-[1.8] transition-colors ${isSearchExpanded ? 'text-[#007AFF]' : 'text-[#3A3A3C]'}`} />
               </button>
-            ) : (
-              <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 px-2 py-1 rounded-lg text-[11px] font-medium bg-[rgba(60,60,67,0.06)] border border-[rgba(60,60,67,0.10)] text-[#8E8E93] pointer-events-none">
-                ⌘K
-              </kbd>
-            )}
+
+              {/* Animated Input Field */}
+              {isSearchExpanded && (
+                <motion.div
+                  initial={reducedMotion ? false : { opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex-1 flex items-center pr-3 min-w-0"
+                >
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setIsSearchOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsSearchFocused(true);
+                      setIsSearchOpen(true);
+                    }}
+                    onBlur={() => {
+                      setIsSearchFocused(false);
+                    }}
+                    placeholder="Search subjects, topics, questions…"
+                    aria-label="Search blueprint topics"
+                    className="w-full text-sm bg-transparent text-[#1D1D1F] placeholder:text-[#8E8E93] focus:outline-none"
+                  />
+
+                  {searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={handleCloseSearch}
+                      className="h-6 w-6 rounded-full bg-[#C7C7CC] hover:bg-[#8E8E93] flex items-center justify-center text-white shrink-0 cursor-pointer transition-colors ml-1"
+                      aria-label="Clear search query"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  ) : (
+                    <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[rgba(60,60,67,0.06)] border border-[rgba(60,60,67,0.10)] text-[#8E8E93] select-none pointer-events-none shrink-0 ml-1">
+                      ESC
+                    </kbd>
+                  )}
+                </motion.div>
+              )}
+            </motion.div>
+
+            {/* Dropdown popup anchored directly below the search bar */}
+            <AnimatePresence>
+              {isSearchOpen && isSearchExpanded && (
+                <motion.div
+                  initial={reducedMotion ? false : { opacity: 0, y: 6, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                  transition={reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 450, damping: 30 }}
+                  className="absolute top-full mt-2 left-0 w-[min(calc(100vw-24px),520px)] z-50 bg-white/98 backdrop-blur-3xl rounded-3xl border border-[rgba(60,60,67,0.12)] shadow-[0_12px_40px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)] p-3.5 space-y-2.5"
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-[rgba(60,60,67,0.08)]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-semibold text-[#1D1D1F]">
+                        {searchQuery.trim() ? 'Matching Blueprint Topics' : 'Recommended High-Yield Topics'}
+                      </span>
+                      {searchResults.length > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#007AFF]/10 text-[#007AFF]">
+                          {searchResults.length}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCloseSearch}
+                      className="text-xs text-[#8E8E93] hover:text-[#1D1D1F] cursor-pointer transition-colors"
+                    >
+                      Close (ESC)
+                    </button>
+                  </div>
+
+                  {/* Results List */}
+                  {searchResults.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-1.5 max-h-72 overflow-y-auto pr-1">
+                      {searchResults.map(({ subject, topic }) => (
+                        <div
+                          key={`${subject.id}-${topic.id}`}
+                          className="group flex items-center justify-between p-2.5 rounded-2xl hover:bg-[#F2F2F7] border border-[rgba(60,60,67,0.06)] transition-all cursor-pointer"
+                          onClick={() => {
+                            setIsSearchOpen(false);
+                            setActiveMasteryTopic({ subjectId: subject.id, topicId: topic.id, topicName: topic.name });
+                          }}
+                        >
+                          <div className="min-w-0 pr-2">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span
+                                className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-md text-white"
+                                style={{ backgroundColor: subject.color || '#007AFF' }}
+                              >
+                                {subject.name}
+                              </span>
+                              {topic.isHighYield && (
+                                <span className="text-[10px] font-semibold text-[#FF9500] flex items-center gap-0.5">
+                                  <Sparkles className="h-2.5 w-2.5" /> High-Yield
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-xs font-semibold text-[#1D1D1F] group-hover:text-[#007AFF] transition-colors truncate block">
+                              {topic.name}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsSearchOpen(false);
+                                setActiveMasteryTopic({ subjectId: subject.id, topicId: topic.id, topicName: topic.name });
+                              }}
+                              className="px-2.5 py-1 text-[11px] font-bold bg-[#007AFF] text-white rounded-lg hover:bg-[#0056CC] transition-colors cursor-pointer shadow-sm"
+                            >
+                              Study
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsSearchOpen(false);
+                                onLaunchPracticeSession?.(subject.id, topic.id, topic.name);
+                              }}
+                              className="px-2 py-1 text-[11px] font-semibold text-[#6E6E73] border border-[rgba(60,60,67,0.12)] rounded-lg hover:bg-white transition-colors cursor-pointer"
+                            >
+                              10 MCQs
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : searchQuery.trim() ? (
+                    /* Empty Search State */
+                    <div className="py-5 px-3 text-center">
+                      <div className="h-9 w-9 mx-auto mb-2 rounded-full bg-[#007AFF]/10 flex items-center justify-center text-[#007AFF]">
+                        <Search className="h-4 w-4" />
+                      </div>
+                      <p className="text-xs font-semibold text-[#1D1D1F]">
+                        No blueprint topics found for "{searchQuery}"
+                      </p>
+                      <p className="text-[11px] text-[#8E8E93] mt-1">
+                        Try searching by subject or high-yield term:
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2.5">
+                        {['Anatomy', 'Obstetrics', 'Pharmacology', 'Pathology', 'ECG'].map((item) => (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => {
+                              setSearchQuery(item);
+                              searchInputRef.current?.focus();
+                            }}
+                            className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#007AFF] font-medium transition-colors cursor-pointer"
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Zero Query Suggested Shortcuts */
+                    <div className="space-y-2 py-1">
+                      <p className="text-[11px] font-medium text-[#8E8E93]">Quick High-Yield Jumps</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {['Anatomy Upper Limb', 'Wiggers Cardiac Cycle', 'Pre-eclampsia Pritchard', 'Antimicrobial Resistance', 'Parkland Formula'].map((topicQuick) => (
+                          <button
+                            key={topicQuick}
+                            type="button"
+                            onClick={() => {
+                              setSearchQuery(topicQuick);
+                              searchInputRef.current?.focus();
+                            }}
+                            className="text-[11px] px-2.5 py-1 rounded-xl bg-[#F2F2F7] hover:bg-[#007AFF]/10 hover:text-[#007AFF] text-[#1D1D1F] font-medium transition-colors cursor-pointer"
+                          >
+                            {topicQuick}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* ── Right controls ── */}
@@ -2055,65 +2321,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
       </motion.div>
-
-      {/* Live Search Autocomplete Popup — absolute so it floats over content */}
-      <AnimatePresence>
-        {isSearchOpen && searchResults.length > 0 && (
-          <motion.div
-            initial={reducedMotion ? false : { opacity: 0, y: -6, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.98 }}
-            transition={SECTION_TRANSITION(reducedMotion)}
-            className="absolute left-0 right-0 z-[35] px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto"
-            style={{ top: 'calc(100% + 4px)' }}
-          >
-          <div className="bg-white/98 backdrop-blur-3xl rounded-3xl border border-[rgba(60,60,67,0.10)] shadow-[0_8px_30px_rgba(0,0,0,0.10),0_2px_8px_rgba(0,0,0,0.06)] p-4 space-y-2"
-          >
-            <div className="flex items-center justify-between pb-2 border-b border-[rgba(60,60,67,0.06)]">
-              <span className="text-xs font-semibold text-[#6E6E73]">
-                Matching Blueprint Topics
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsSearchOpen(false)}
-                className="text-xs text-[#8E8E93] hover:text-[#1D1D1F] cursor-pointer"
-              >
-                Close (ESC)
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-              {searchResults.map(({ subject, topic }) => (
-                <div
-                  key={`${subject.id}-${topic.id}`}
-                  className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-[#F2F2F7] border border-[rgba(60,60,67,0.06)] transition-colors"
-                >
-                  <div className="min-w-0 pr-2">
-                    <span className="text-[11px] font-semibold text-[#007AFF] block">{subject.name}</span>
-                    <span className="text-xs font-semibold text-[#1D1D1F] truncate block">{topic.name}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => { setIsSearchOpen(false); setActiveMasteryTopic({ subjectId: subject.id, topicId: topic.id, topicName: topic.name }); }}
-                      className="px-2.5 py-1 text-[11px] font-bold bg-[#007AFF] text-white rounded-lg hover:bg-[#0056CC] transition-colors cursor-pointer"
-                    >
-                      Study
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setIsSearchOpen(false); onLaunchPracticeSession?.(subject.id, topic.id, topic.name); }}
-                      className="px-2 py-1 text-[11px] font-semibold text-[#6E6E73] border border-[rgba(60,60,67,0.12)] rounded-lg hover:bg-[#F2F2F7] transition-colors cursor-pointer"
-                    >
-                      10 MCQs
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ── Hero card: contained rounded card with light blue gradient ── */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-5">
